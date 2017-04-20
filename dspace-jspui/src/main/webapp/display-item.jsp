@@ -125,12 +125,13 @@
 <% if(altMetricEnabled) { %> 
 <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
 <% } %>
+	
 <script type="text/javascript"><!--
 j(document).ready(function() {
 
 	<% if(altMetricEnabled) { %>
 	j(function () {
-	    j('div.altmetric-embed').on('altmetric:hide ', function () {
+	    j('div.altmetric-embed').on('altmetric:hide', function () {
 	    	j('div.altmetric').hide();
 	    });
 	});
