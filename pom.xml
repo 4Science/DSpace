@@ -1955,6 +1955,12 @@
 	         <name>Sonatype Releases Repository</name>
 	         <url>http://oss.sonatype.org/content/repositories/releases/</url>
 	    </repository>
+	    <repository>
+                 <id>jdyna-releases</id>
+                 <name>jdyna Releases Repository</name>
+                 <url>https://github.com/Cineca/mvn-repo/raw/master/releases/</url>
+            </repository>
+
    
    </repositories>
    
@@ -1986,7 +1992,12 @@
 				<checksumPolicy>never</checksumPolicy>
 			</snapshots>
         </pluginRepository>
-        
+	   
+        <pluginRepository>
+            <id>jdyna-releases</id>
+                 <name>jdyna Releases Repository</name>
+                 <url>https://github.com/Cineca/mvn-repo/raw/master/releases/</url>
+        </pluginRepository>
         <pluginRepository>
             <id>sonatype-releases</id>
 	         <name>Sonatype Releases Repository</name>
