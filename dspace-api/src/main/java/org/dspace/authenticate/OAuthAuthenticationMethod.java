@@ -165,7 +165,8 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
                 eperson.setLastName(lname);
                 eperson.setCanLogIn(true);
                 AuthenticationManager.initEPerson(context, request, eperson);
-                eperson.setNetid(orcid);
+                // do not set orcid as netid as this might conflict with LDAP login
+                //eperson.setNetid(orcid);
                 eperson.addMetadata("eperson", "orcid", null, null, orcid);
                 eperson.addMetadata("eperson", "orcid", "accesstoken", null, token);
                 eperson.update();
