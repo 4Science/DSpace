@@ -8,6 +8,7 @@
 package org.dspace.authenticate;
 
 import java.sql.SQLException;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -63,6 +64,8 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
 
 
         String email = null;
+        List<String> emails = new ArrayList<String>();
+        EPerson eperson = null;
 
         String orcid = (String) request.getAttribute("orcid");
         String token = (String) request.getAttribute("access_token");
@@ -72,19 +75,7 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
         {
             return BAD_ARGS;
         }
-        
-        EPerson eperson = EPerson.findByNetid(context, orcid);
-        
-        // No email address, perhaps the eperson has been setup, better check it
-        if (eperson == null)
-        {
-        	eperson = context.getCurrentUser();
-            if (eperson != null)
-            {
-                //if eperson exists then get ORCID Profile and binding data to Eperson Account
-                email = eperson.getEmail();
-            }
-        }
+
         //get the orcid profile
         OrcidProfile profile = null;
         OrcidService orcidObject = OrcidService.getOrcid();
@@ -99,29 +90,55 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
         	}
            	
         }
-        //get the email from orcid
+
         if(profile!=null && email == null)
         {
-        	if(profile.getOrcidBio()!=null) {
-        		if(profile.getOrcidBio().getContactDetails()!=null) {
-        			if(profile.getOrcidBio().getContactDetails().getEmail()!=null && !profile.getOrcidBio().getContactDetails().getEmail().isEmpty()) {
-        				email = profile.getOrcidBio().getContactDetails().getEmail().get(0).getValue();
-        			}
-        		}
-        	}
+            if(profile.getOrcidBio()!=null) {
+                if(profile.getOrcidBio().getContactDetails()!=null) {
+                    if(profile.getOrcidBio().getContactDetails().getEmail()!=null && !profile.getOrcidBio().getContactDetails().getEmail().isEmpty()) {
+                        String mailaddress = null;
+                        EPerson epersoncheck = null;
+                        for (int x=0; profile.getOrcidBio().getContactDetails().getEmail().size() >= x+1; x++) {
+                            // only use verified mailaddresses, otherwise this could become a security hole
+                            if (profile.getOrcidBio().getContactDetails().getEmail().get(x).isVerified()) {
+                                mailaddress = profile.getOrcidBio().getContactDetails().getEmail().get(x).getValue();
+                                mailaddress = mailaddress.toLowerCase();
+                                emails.add(mailaddress);
+                                email = mailaddress;
+                                log.debug("Found verified eMail address "+mailaddress);
+                                try
+                                {
+                                    epersoncheck = EPerson.findByEmail(context, mailaddress);
+                                }
+                                catch (AuthorizeException e)
+                                {
+                                    epersoncheck = null;
+                                    log.info("No user with eMail address "+mailaddress);
+                                }
+                                if (epersoncheck != null) {
+                                    eperson = epersoncheck;
+                                    log.info("Mapping ORCID user "+orcid+" to existing user with eMail address "+mailaddress);
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        log.debug("No readable eMail address in ORCID profile");
+                    }
+                }
+            }
         }
-
 //        //If Eperson does not exist follow steps similar to Shib....
 //        if (eperson == null && email == null)
 //        {
 //            log.error("No email is given, you're denied access by OAuth, please release email address");
 //            return AuthenticationMethod.BAD_ARGS;
 //        }
-
+/*
         if (email != null) {
         	email = email.toLowerCase();
         }
-        
+*/
         String fname = "";
         String lname = "";
         if (profile != null && profile.getOrcidBio() != null)
@@ -135,18 +152,6 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
 			}
         }
 
-        if (eperson == null && email != null) {
-	        try
-	        {
-	            eperson = EPerson.findByEmail(context, email);
-	        }
-	        catch (AuthorizeException e)
-	        {
-	            log.warn("Fail to locate user with email:" + email, e);
-	            eperson = null;
-	        }
-        }
-        
         try
         {
         	// TEMPORARILY turn off authorisation
@@ -165,7 +170,8 @@ public class OAuthAuthenticationMethod implements AuthenticationMethod{
                 eperson.setLastName(lname);
                 eperson.setCanLogIn(true);
                 AuthenticationManager.initEPerson(context, request, eperson);
-                eperson.setNetid(orcid);
+                // do not set orcid as netid as this might conflict with LDAP login
+                //eperson.setNetid(orcid);
                 eperson.addMetadata("eperson", "orcid", null, null, orcid);
                 eperson.addMetadata("eperson", "orcid", "accesstoken", null, token);
                 eperson.update();
