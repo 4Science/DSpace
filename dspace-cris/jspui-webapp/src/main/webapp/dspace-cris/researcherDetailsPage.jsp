@@ -315,7 +315,7 @@
 				</c:if>
 
 				
-				<c:if test="${claim && !admin && researcher.epersonID != userID}" >
+				<c:if test="${claim && !admin && empty researcher.epersonID}" >
 				<div class="btn-group">				
 				<c:choose>				
 					<c:when test="${!empty researcher.email.value && empty researcher.epersonID && !userHasRP}">
