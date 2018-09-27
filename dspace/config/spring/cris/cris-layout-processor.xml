@@ -23,15 +23,11 @@
 		<property name="groups">
 			<map>
 				<entry key="group-left">
-					<list>
+						<list>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="researcherprofiles"/>							
 						</bean>		
-					</list>				
-				</entry>
-				<entry key="group-center">
-					<list>
-						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+					<!--	<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="orgunits"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
@@ -39,15 +35,31 @@
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="journal"/>							
+						</bean> -->
+					</list>				
+				</entry>
+				<entry key="group-center">
+				   <list>
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="place"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="events"/>							
 						</bean>
-					</list>				
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="crisfonds"/>							
+						</bean>
+                                                <bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+                                                        <property name="name" value="concept"/>
+                                                </bean>
+                                                <bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+                                                        <property name="name" value="interpretation"/>
+                                                </bean>
+					</list>									
 				</entry>
 				<entry key="group-right">
-					<list>
-						<bean
+			     <list>
+					<bean
 							class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="publications" />
 							<!-- <property name="secondLevelFacet"> <list> <value>itemtype</value> 
@@ -73,7 +85,7 @@
 							class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="others" />
 						</bean>
-					</list>			
+					</list>				
 				</entry>
 			</map>
 		</property>

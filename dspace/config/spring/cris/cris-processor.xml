@@ -69,7 +69,7 @@
 						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
 							<property name="browseNames">
 								<list>
-									<value>itemdept</value>
+								<!--	<value>itemdept</value>-->
 									<value>author</value>
 									<value>title</value>
 									<value>type</value>
@@ -119,13 +119,52 @@
 						</bean>-->
 					</list>
 				</entry>
+				<entry key="place">
+					<list>
+						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+							<property name="browseNames">
+								<list>
+									<value>placetitle</value>
+									<value>placealttitle</value>
+									<value>placerelated</value>
+								</list>
+							</property>
+						</bean>
+					</list>
+				</entry> 
+                                <entry key="concept">
+                                        <list>
+                                                <bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+                                                        <property name="browseNames">
+                                                                <list>
+                                                                        <value>concepttitle</value>
+                                                                        <value>conceptbroader</value>
+                                                                        <value>conceptnarrower</value>
+                                                                        <value>conceptrelated</value>                                                                                                                                                                </list>
+                                                        </property>
+                                                </bean>
+                                        </list>
+                                </entry>
+                                <entry key="events">
+					<list>
+						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+							<property name="browseNames">
+								<list>
+									<value>eventstitle</value>
+									<value>eventsplace</value>
+								</list>
+							</property>
+						</bean>
+					</list>
+				</entry>
 				<entry key="researcherprofiles">
 					<list>
 						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
 							<property name="browseNames">
 								<list>
 									<value>rpname</value>
-									<value>rpdept</value>
+									<value>rprole</value>
+									<!--<value>rpdept</value> -->
 								</list>
 							</property>
 						</bean>

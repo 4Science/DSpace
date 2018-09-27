@@ -417,7 +417,174 @@
 		<property name="components">
 			<map>
 				<entry key="journalspublications" value-ref="publicationlistforjournals" />				
+				<entry key="eventsdocuments" value-ref="publicationlistforevents" />				
+				<entry key="placesevents" value-ref="eventlistforplaces" />	
+				<entry key="eventsperson" value-ref="personlistforevents" />
+				<entry key="fondschild" value-ref="fondschildforfonds" />
+				<entry key="fondspublications" value-ref="publicationlistforfonds" />
+        		        <entry key="conceptdocuments" value-ref="publicationlistforconcept"/>
+                                <entry key="conceptperson" value-ref="personlistforconcept"/>
+                                <entry key="interpretationdocuments" value-ref="publicationlistforinterpretation"/>
+                                <entry key="interpretationperson" value-ref="personlistforinterpretation"/>
+                                <entry key="interpretationevents" value-ref="eventlistforinterpretation" />
 			</map>
+		</property>
+	</bean>
+	
+	<!-- Publication list for Fonds dynamic entity -->
+	<bean id="publicationlistforfonds"
+		class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+		<property name="relationConfiguration" ref="relationFONDSVSItemConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsItemConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="fondschildforfonds"
+		class="org.dspace.app.webui.cris.components.CRISDOConfigurerComponent">
+		<property name="relationConfiguration" ref="relationFONDSVSFondsConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsFondsConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+	
+
+	
+    <!-- Person list for Eventss dynamic entity -->
+	<bean id="personlistforevents"
+		class="org.dspace.app.webui.cris.components.CRISRPConfigurerComponent">
+		<property name="relationConfiguration" ref="relationEVENTSVSRPConfiguration" />
+		<property name="commonFilter">
+			<util:constant
+				static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" />
+		</property>
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsRPforComponentConfiguration" />
+		<property name="types">
+			<map>
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+
+
+    <!-- Person list for Concept dynamic entity -->
+        <bean id="personlistforconcept"
+                class="org.dspace.app.webui.cris.components.CRISRPConfigurerComponent">
+                <property name="relationConfiguration" ref="relationCONCEPTVSRPConfiguration" />
+                <property name="commonFilter">
+                        <util:constant
+                                static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" />
+                </property>
+                <property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+                <property name="facets" ref="facetsRPforComponentConfiguration" />
+                <property name="types">
+                        <map>
+                                <entry key="all" value-ref="allObjectsComponent" />
+                        </map>
+                </property>
+        </bean>
+
+<!-- Person list for Interpreation dynamic entity -->
+        <bean id="personlistforinterpretation"
+                class="org.dspace.app.webui.cris.components.CRISRPConfigurerComponent">
+                <property name="relationConfiguration" ref="relationINTERPRETATIONVSRPConfiguration" />
+                <property name="commonFilter">
+                        <util:constant
+                                static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" />
+                </property>
+                <property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+                <property name="facets" ref="facetsRPforComponentConfiguration" />
+                <property name="types">
+                        <map>
+                                <entry key="all" value-ref="allObjectsComponent" />
+                        </map>
+                </property>
+        </bean>
+
+	
+	<!-- Event list for Places dynamic entity -->
+	<bean id="eventlistforplaces"
+		class="org.dspace.app.webui.cris.components.CRISDOConfigurerComponent">
+		<property name="relationConfiguration" ref="relationPLACEVSEVENTSConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsPlaceConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- Event list for Interpretation dynamic entity -->
+	<bean id="eventlistforinterpretation"
+		class="org.dspace.app.webui.cris.components.CRISDOConfigurerComponent">
+		<property name="relationConfiguration" ref="relationINTERPRETATIONVSEVENTSConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsPlaceConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+	
+	<!-- Publication list for Events dynamic entity -->
+	<bean id="publicationlistforevents"
+		class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+		<property name="relationConfiguration" ref="relationEVENTSVSItemConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsItemConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="selected" value-ref="selectedPublicationForEventComponent" />				
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+	<bean id="selectedPublicationForEventComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="selected" />
+		<property name="facetQuery">
+			<value>relationpreferences.crisevents.publications.selected:{1}
+			</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
+		</property>
+	</bean>
+
+	<bean id="allObjectsComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery">
+			<value>*:*</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
 		</property>
 	</bean>
 
@@ -468,4 +635,101 @@
 			<value>1</value>
 		</property>
 	</bean>
+	
+	<!-- Publication list for Concept  dynamic entity -->
+	<bean id="publicationlistforconcept"
+		class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+		<property name="relationConfiguration" ref="relationCONCEPTVSItemConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsItemConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="selected" value-ref="selectedPublicationForConceptComponent" />				
+				<entry key="all" value-ref="allPublicationForConceptComponent" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="selectedPublicationForConceptComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="selected" />
+		<property name="facetQuery">
+			<value>relationpreferences.crisconcept.publications.selected:{1}
+			</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
+		</property>
+	</bean>
+
+	<bean id="allPublicationForConceptComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery">
+			<value>*:*</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
+		</property>
+	</bean>	
+
+	<!-- Publication list for Interpretation dynamic entity -->
+	<bean id="publicationlistforinterpretation"
+		class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+		<property name="relationConfiguration" ref="relationINTERPRETATIONVSItemConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsItemConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="selected" value-ref="selectedPublicationForInterpretationComponent" />				
+				<entry key="all" value-ref="allPublicationForInterpretationComponent" />
+			</map>
+		</property>
+	</bean>
+  	<bean id="selectedPublicationForInterpretationComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="selected" />
+		<property name="facetQuery">
+			<value>relationpreferences.crisinterpretation.publications.selected:{1}
+			</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
+		</property>
+	</bean>
+
+	<bean id="allPublicationForInterpretationComponent" class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery">
+			<value>*:*</value>
+		</property>
+		<property name="order">
+			<value>asc</value>
+		</property>
+		<property name="rpp">
+			<value>20</value>
+		</property>
+		<property name="sortby">
+			<value>1</value>
+		</property>
+	</bean>	
+
+	
 </beans>

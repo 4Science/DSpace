@@ -11,6 +11,29 @@
            http://www.springframework.org/schema/util/spring-util-3.0.xsd"
     default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
 	
+	<bean id="relationPLACEVSEVENTSConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisplace.events" />		
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />		
+		<property name="type" value="crisevents" />		
+		<property name="query">
+			<value>crisevents.eventsplace_authority:{0}</value>
+		</property>
+	</bean>
+    <bean id="relationEVENTSVSRPConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+           <property name="relationName" value="crisevents.people" />
+           <property name="relationClass" value="org.dspace.app.cris.model.ResearcherPage" />
+           <property name="query">
+                   <value>crisrp.partecipatedin_authority:{0}</value>
+           </property>
+   </bean>
+
+	<bean id="relationEVENTSVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisevents.publications" />		
+		<property name="relationClass" value="org.dspace.content.Item" />		
+		<property name="query">
+			<value>dc.relation.conference_authority:{0}</value>
+		</property>
+	</bean>
 	
 	<bean id="relationRPVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crisrp.publications" />		
@@ -92,6 +115,65 @@
 		</property>
 	</bean>
 
+	<bean id="relationFONDSVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisfonds.publications" />		
+		<property name="relationClass" value="org.dspace.content.Item" />		
+		<property name="query">
+			<value>dc.relation.fond_authority:{0}</value>
+		</property>
+	</bean>
+	
+	<bean id="relationFONDSVSFondsConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisfonds.children" />		
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />		
+		<property name="type" value="crisfonds" />		
+		<property name="query">
+			<value>crisfonds.fondsparent_authority:{0}</value>
+		</property>
+	</bean>
+
+        <bean id="relationCONCEPTVSRPConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+           <property name="relationName" value="crisconcept.people" />
+           <property name="relationClass" value="org.dspace.app.cris.model.ResearcherPage" />
+           <property name="query">
+                   <value>crisrp.relatedconcept_authority:{0}</value>
+           </property>
+         </bean>
+	
+
+        <bean id="relationCONCEPTVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisconcept.publications" />		
+		<property name="relationClass" value="org.dspace.content.Item" />		
+		<property name="query">
+			<value>dc.relation.concept_authority:{0}</value>
+		</property>
+	</bean>
+
+	<bean id="relationINTERPRETATIONVSRPConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+		<property name="relationName" value="crisinterpretation.people" />
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearcherPage" />
+		<property name="query">
+			<value>crisrp.relatedinterpretation_authority:{0}</value>
+		</property>
+	</bean>
+	
+
+	<bean id="relationINTERPRETATIONVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+		<property name="relationName" value="crisinterpretation.publications" />		
+		<property name="relationClass" value="org.dspace.content.Item" />		
+		<property name="query">
+			<value>dc.relation.interpretation_authority:{0}</value>
+		</property>
+	</bean>
+
+	<bean id="relationINTERPRETATIONVSEVENTSConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crisinterpretation.events" />		
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />		
+		<property name="type" value="crisevents" />		
+		<property name="query">
+			<value>crisevents.eventsrelatedinterpretation_authority:{0}</value>
+		</property>
+	</bean>
 						
 	<bean
 		class="org.dspace.app.cris.configuration.RelationPreferenceServiceConfiguration">
