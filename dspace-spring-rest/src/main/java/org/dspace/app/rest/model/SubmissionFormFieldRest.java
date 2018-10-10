@@ -28,11 +28,13 @@ public class SubmissionFormFieldRest {
     private SubmissionFormInputTypeRest input;
     private ScopeEnum scope;
     private SubmissionVisibilityRest visibility;
+
     private String label;
     private boolean mandatory;
     private boolean repeatable;
     private String mandatoryMessage;
     private String hints;
+    private String style;
 
     private List<SelectableMetadata> selectableMetadata;
     private List<LanguageFormField> languageCodes;
@@ -85,6 +87,14 @@ public class SubmissionFormFieldRest {
         this.hints = hints;
     }
 
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
     public List<LanguageFormField> getLanguageCodes() {
         if (languageCodes == null) {
             languageCodes = new ArrayList<LanguageFormField>();
@@ -121,4 +131,5 @@ public class SubmissionFormFieldRest {
             this.visibility = visibility;
         }
     }
+
 }
