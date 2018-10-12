@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -474,14 +476,23 @@ public class ItemTag extends TagSupport {
 						+ "</th><th id=\"t4\" class=\"standard\">" + LocaleSupport.getLocalizedMessage(pageContext,
 								"org.dspace.app.webui.jsptag.ItemTag.fileformat"));
 				
-				/////////
 				Context context = UIUtil.obtainContext(request);
 				EPerson user = context.getCurrentUser();
 				if (user == null) {
-					//se nessuno ha i permessi
 					Bitstream[] bitstreams = bundles[0].getBitstreams();
 					boolean authorizedToView = AuthorizeManager.authorizeActionBoolean(context,bitstreams[0], Constants.READ);
-					if (!authorizedToView) {
+					List<ResourcePolicy> rps = AuthorizeManager.getPoliciesActionFilter(context,
+							bitstreams[0], Constants.READ);
+					boolean embargoIsActive = false;
+					for (ResourcePolicy rp : rps) {
+						Date date = rp.getStartDate();
+						Date currentDate = new Date(System.currentTimeMillis());
+						Group g = rp.getGroup();
+						if(date != null && date.after(currentDate)){
+							embargoIsActive = true;
+						}
+					}
+					if (!authorizedToView && !embargoIsActive) {
 						out.println("</th><th style=\"text-align: center;\"");
 						out.print(LocaleSupport.getLocalizedMessage(pageContext,
 								"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
@@ -631,7 +642,6 @@ public class ItemTag extends TagSupport {
 									if (metadatumArray != null && metadatumArray.length > 0) {
 										isSale = true;
 									}
-//									EPerson user = context.getCurrentUser();
 									Group[] groupList;
 									groupList = Group.allMemberGroups(context, user);
 									for (Metadatum m : metadatumArray) {
@@ -686,7 +696,6 @@ public class ItemTag extends TagSupport {
 								} else {
 									// not allowed to download
 									if (canBuy) {
-//										EPerson user = context.getCurrentUser();
 										if (viewOptions.size() > 2) {
 											out.print("<li role=\"separator\" class=\"divider\"></li> ");
 										}
@@ -703,20 +712,8 @@ public class ItemTag extends TagSupport {
 												"org.dspace.app.webui.jsptag.ItemTag.sale"));
 										out.print("</a> ");
 
-//										if (user == null) {
-//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
-//													"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
-//											out.print(" <a class=\"btn btn-primary\" ");
-//											out.print("href=\"" + request.getContextPath() + "/login-in-page?url="
-//													+ request.getContextPath() + "/handle/" + handle + "\"");
-//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
-//													"org.dspace.app.webui.jsptag.ItemTag.login"));
-//											out.print("</a>");
-//										}
 									} else if (isSale) {
 										// see label you can't buy this item
-//										EPerson user = context.getCurrentUser();
-
 										Metadatum[] metadatumArray = item.getMetadata("ec", "sale", null, Item.ANY);
 										int j = 0;
 										String str = "";
@@ -754,25 +751,20 @@ public class ItemTag extends TagSupport {
 										str2 = LocaleSupport.getLocalizedMessage(pageContext,
 												"org.dspace.app.webui.jsptag.ItemTag.reservedsale", params2);
 										out.println(str2);
-
-//										if (user == null) {
-//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
-//													"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
-//											out.print(" <a class=\"btn btn-primary\" ");
-//											out.print("href=\"" + request.getContextPath() + "/login-in-page?url="
-//													+ request.getContextPath() + "/handle/" + handle + "\"");
-//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
-//													"org.dspace.app.webui.jsptag.ItemTag.login"));
-//											out.print("</a>");
-//										}
 									} else {
 										// not authorized to access but not for sale
 										Set<Group> authorizedGroups = new HashSet<Group>();
 										List<ResourcePolicy> rps = AuthorizeManager.getPoliciesActionFilter(context,
 												bitstreams[k], Constants.READ);
 										for (ResourcePolicy rp : rps) {
+											Date date = rp.getStartDate();
+											Date currentDate = new Date(System.currentTimeMillis());
 											Group g = rp.getGroup();
-											if (g != null) {
+											boolean embargoIsActive = false;
+											if (date != null && date.after(currentDate)) {
+												embargoIsActive = true;
+											}
+											if (g != null && !embargoIsActive) {
 												authorizedGroups.add(g);
 											}
 										}
@@ -783,14 +775,14 @@ public class ItemTag extends TagSupport {
 											j++;
 											String link = g.getMetadata("ec.product.permalink");
 											Object[] params = new Object[] { g.getName(), link };
-											if (link != null) {
+											if (StringUtils.isNotBlank(link)) {
 												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
 														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group",
 														params));
 											} else {
 												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
 														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group-noinfo",
-														g.getName()));
+														params));
 											}
 											if (j == authorizedGroups.size() - 1) {
 												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
