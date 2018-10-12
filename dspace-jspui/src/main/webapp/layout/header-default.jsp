@@ -79,6 +79,7 @@
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/static/css/responsive.bootstrap.min.css"/>
 		<link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/dspace-theme.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/bootstrap-datetimepicker.min.css" />
+		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/homepage.css" />
 <%
     if (!"NONE".equals(feedRef))
     {
@@ -197,7 +198,7 @@
     <%-- HACK: marginwidth, marginheight: for non-CSS compliant Netscape browser --%>
     <body class="undernavigation" dir="<%= LocaleUIHelper.ifLtr(request, "ltr","rtl") %>">
 <a class="sr-only" href="#content">Skip navigation</a>
-<header class="navbar navbar-inverse navbar-square">    
+<header class="navbar navbar-inverse navbar-square shp-no-mb">    
     <%
     if (!navbar.equals("off"))
     {
@@ -246,48 +247,71 @@ window.cookieconsent.initialise({
 </header>
 
 <main id="content" role="main">
-<div class="container banner">
-	<div class="row">
-		<div class="col-sm-12">
-<% if (supportedLocales != null && supportedLocales.length > 1)
-     {
- %>
-	 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-      
- <%
-    for (int i = supportedLocales.length-1; i >= 0; i--)
-     {
- %>
-        <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
-                  document.repost.submit();" href="?locale=<%=supportedLocales[i].toString()%>">
-          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                  
-       </a></li>
- <%
-     }
- %>
-     </ul>
- <%
-   }
- %>		
-		
-		
-		
-		</div>
-		  <div class="col-sm-8 brand pull-<%= isRtl ?"right" :"left" %>">
-		<h1><fmt:message key="jsp.layout.header-default.brand.heading" /></h1>
-        <fmt:message key="jsp.layout.header-default.brand.description" /> 
-        </div>
-        <div class="col-sm-4 hidden-xs pull-<%= isRtl ?"left" :"right" %>"><img class="img-responsive" src="<%= request.getContextPath() %>/image/logo.gif" alt="DSpace logo" />
-        </div>
+
+<div class="container-fluid banner shp-margin">
+     <div class="row">
+         <div class="col-sm-12">
+				<% if (supportedLocales != null && supportedLocales.length > 1)
+				     {
+				 %>
+					 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
+				      
+				 <%
+				    for (int i = supportedLocales.length-1; i >= 0; i--)
+				     {
+				 %>
+				        <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
+				                  document.repost.submit();" href="?locale=<%=supportedLocales[i].toString()%>">
+				          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                  
+				       </a></li>
+				 <%
+				     }
+				 %>
+				     </ul>
+				 <%
+				   }
+				 %>
+         </div>
+     </div>
+</div>
+
+<% String currentPage = UIUtil.getOriginalURL(request);
+   if (currentPage.endsWith("/home.jsp")) { %>
+<div class="intro intro-background">
+	<div class="intro-body">
+	    <div class="container shp-transparent">
+	        <div class="row">
+	            <div class="col-md-8 col-md-offset-2">
+	                <h1 class="brand-heading"><img alt="Biblioteca Nazionale di Napoli" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/bnn-logo-big.png"></h1>
+	                <a href="#about" class="btn custom-btn-circle btn-circle page-scroll">
+	                    <i class="fa fa-angle-double-down animated"></i>
+	                </a>
+	            </div>
+	        </div>
+	    </div>
 	</div>
-</div>	
-<br/>
+</div>
+<% } else { %>
+<div class="container-fluid intro-background">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="brand-heading">
+               <img alt="Biblioteca Nazionale di Napoli" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/bnn-logo-big.png">
+            </h1>
+        </div>
+    </div>
+</div>
+<% } %>
+<br />
+<% if (currentPage.endsWith("/home.jsp")) { %>
+<a name="about"></a>
+<% } %>
                 <%-- Location bar --%>
 <%
     if (locbar)
     {
 %>
-<div class="container">
+<div class="container-fluid shp-margin">
 	<div class="row">
 		<div class="col-sm-12">
                 <dspace:include page="/layout/location-bar.jsp" />
@@ -301,7 +325,7 @@ window.cookieconsent.initialise({
 
 
         <%-- Page contents --%>
-<div class="container fullheight">
+<div class="container-fluid shp-margin fullheight">
 <% if (request.getAttribute("dspace.layout.sidebar") != null) { %>
 	<div class="row">
 		<div class="col-md-9 <%= isRtl ? "pull-right":"" %>">

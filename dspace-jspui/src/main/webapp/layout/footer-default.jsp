@@ -55,7 +55,7 @@
 </main>
             <%-- Page footer --%>
             <footer class="navbar navbar-inverse navbar-bottom navbar-square">
-             <div class="container">
+             <div class="container-fluid shp-margin">
 	             <div class="row">
 					<div class="col-md-3 col-sm-6">
 	             		<div class="panel panel-default">

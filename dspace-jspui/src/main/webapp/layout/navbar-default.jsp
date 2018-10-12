@@ -96,10 +96,10 @@
            <span class="icon-bar"></span>
          </button>
        </div>
-       <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+       <nav class="navbar collapse navbar-collapse navbar-custom navbar-inverse" role="navigation">
          <ul id="top-menu" class="nav navbar-nav navbar-<%= isRtl ? "right":"left"%>">
            <li class="pull-<%= isRtl ? "right":"left"%>"><a class="navbar-brand" href="<%= request.getContextPath() %>/"><img height="25" src="<%= request.getContextPath() %>/image/dspace-logo-only.png" alt="DSpace logo" /></a></li>
-           <li id="home-top-menu" class="pull-<%= isRtl ? "right":"left"%>   <%= currentPage.endsWith("/home.jsp")? 
+           <li id="home-top-menu" class="<%= isRtl ? "pull-right":""%>   <%= currentPage.endsWith("/home.jsp")? 
         		   "active" : "" %>"><a href="<%= request.getContextPath() %>/"><fmt:message key="jsp.layout.navbar-default.home"/></a></li>
 		  <% if(showCommList){ %>
 		   <li id="communitylist-top-menu" class="<%= currentPage.endsWith("/community-list")? 
@@ -177,10 +177,10 @@
           
 	<%-- Search Box --%>
 	<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" class="navbar-form navbar-<%= isRtl ? "left" : "right" %>" scope="search">		
-	    <div class="form-group">
+	    <div class="form-group shp-float-left">
           <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery" size="25"/>
         </div>
-        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+        <button type="submit" class="btn btn-primary shp-float-right"><span class="glyphicon glyphicon-search"></span></button>
 <%--               <br/><a href="<%= request.getContextPath() %>/advanced-search"><fmt:message key="jsp.layout.navbar-default.advanced"/></a>
 <%
 			if (ConfigurationManager.getBooleanProperty("webui.controlledvocabulary.enable"))

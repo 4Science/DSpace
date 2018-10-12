@@ -242,8 +242,8 @@
 		<input type="submit" class="btn btn-default" name="submit_browse" value="<fmt:message key="jsp.general.update"/>"/>
 	</form>
 	</div>
-
-<div class="row col-md-offset-3 col-md-6">
+<div class="row">
+<div class="col-md-offset-3 col-md-6">
 	<%-- give us the top report on what we are looking at --%>
 	<div class="panel panel-primary">
 	<div class="panel-heading text-center">
@@ -315,6 +315,7 @@
 	}
 %>
 	</div>
+</div>
 </div>
 </div>
 	<%-- dump the results for debug (uncomment to enable) --%>
