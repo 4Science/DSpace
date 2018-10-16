@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * The DSpace Services kernel and service manager.
  */
 /**
  * The DSpace Services kernel and service manager.
