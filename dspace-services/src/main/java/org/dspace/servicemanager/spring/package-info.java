@@ -4,10 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Spring extensions and adaptors for DSpace.
- *
- * @see org.dspace.utils.DSpace for starting the kernel.
  */
 /**
  * Spring extensions and adaptors for DSpace.
