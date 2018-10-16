@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Implement the session type.
  */
 /**
  * Implement the session type.
