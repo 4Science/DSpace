@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Core DSpace service definitions.
  */
 /**
  * Core DSpace service definitions.
