@@ -4,9 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Support for using DSpace Services in a servlet context.  This is how the
- * kernel and services get started by the servlet container.
  */
 
 /**
