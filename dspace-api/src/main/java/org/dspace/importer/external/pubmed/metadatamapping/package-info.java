@@ -4,20 +4,13 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Pubmed implementation of {@link org.dspace.importer.external.metadatamapping.contributor.MetadataContributor},
- * Responsible for generating a set of specific metadata from the retrieved document.
- *
- * @author Roeland Dillen (roeland at atmire dot com)
- *
- * Pubmed implementation of {@link org.dspace.importer.external.metadatamapping.contributor.MetadataContributor},
- * Responsible for generating a set of specific metadata from the retrieved document.
- * @author Roeland Dillen (roeland at atmire dot com)
  */
 
 /**
  * Pubmed implementation of {@link org.dspace.importer.external.metadatamapping.contributor.MetadataContributor},
  * Responsible for generating a set of specific metadata from the retrieved document.
+ *
  * @author Roeland Dillen (roeland at atmire dot com)
  */
+
 package org.dspace.importer.external.pubmed.metadatamapping;
