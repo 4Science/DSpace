@@ -4,10 +4,10 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- * Generally useful classes, not particularly tied to any other package.
- * Generally useful classes, not particularly tied to any other package.
  */
 
-/** Generally useful classes, not particularly tied to any other package. */
+/** 
+ * Generally useful classes, not particularly tied to any other package. 
+ */
 
 package org.dspace.util;
