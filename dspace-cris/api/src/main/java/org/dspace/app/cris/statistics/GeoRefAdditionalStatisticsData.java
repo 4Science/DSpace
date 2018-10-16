@@ -9,6 +9,7 @@ package org.dspace.app.cris.statistics;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -117,30 +118,35 @@ public class GeoRefAdditionalStatisticsData implements
         		}
        		}
         }
-
-        Location location = getLocationService().getLocation(ip);
-        if (location != null
-                && !("--".equals(location.countryCode)
-                        && location.latitude == -180 && location.longitude == -180))
-        {
-
-            doc1.addField("countryCode", location.countryCode);
-            doc1.addField("city", location.city);
-            doc1.addField("latitude", location.latitude);
-            doc1.addField("longitude", location.longitude);
-            doc1.addField("location", location.latitude + ","
-                    + location.longitude);
-            if (location.countryCode != null)
+        
+        InetAddress ipAddress = InetAddress.getByName(ip);
+        if(ipAddress.isSiteLocalAddress()) { // omit unrouteable addresses
+            log.debug("Skipping geolocation lookup for local address "+ip);
+        } else {        
+            Location location = getLocationService().getLocation(ipAddress);
+            if (location != null
+                    && !("--".equals(location.countryCode)
+                            && location.latitude == -180 && location.longitude == -180))
             {
-                String continentCode = getCountries2Continent()
-                        .getProperty(location.countryCode);
-                if (continentCode == null)
+
+                doc1.addField("countryCode", location.countryCode);
+                doc1.addField("city", location.city);
+                doc1.addField("latitude", location.latitude);
+                doc1.addField("longitude", location.longitude);
+                doc1.addField("location", location.latitude + ","
+                        + location.longitude);
+                if (location.countryCode != null)
                 {
-                    continentCode = getCountries2Continent().getProperty("default");
-                }
-                if (continentCode != null)
-                {
-                    doc1.addField("continent", continentCode);
+                    String continentCode = getCountries2Continent()
+                            .getProperty(location.countryCode);
+                    if (continentCode == null)
+                    {
+                        continentCode = getCountries2Continent().getProperty("default");
+                    }
+                    if (continentCode != null)
+                    {
+                        doc1.addField("continent", continentCode);
+                    }
                 }
             }
         }
