@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Sample service implementations.
  */
 /**
  * Sample service implementations.
