@@ -4,15 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * <p>Tools for exporting and importing DSpace objects (Community, Collection,
- * Item, etc.) wrapped in various kinds of packaging.</p>
- *
- * @see org.dspace.content.packager
- *
- * <p>Tools for exporting and importing DSpace objects (Community, Collection,
- * Item, etc.) wrapped in various kinds of packaging.</p>
- * @see org.dspace.content.packager
  */
 
 /**
