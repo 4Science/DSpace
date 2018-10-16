@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Pluggable alternatives for some core functions.
  */
 /**
  * Pluggable alternatives for some core functions.
