@@ -4,23 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * This based heavily on the CommonsConfigurationFactoryBean available in
- * 'spring-modules-jakarta-commons' version 0.8:
- * https://java.net/projects/springmodules/sources/svn/content/tags/release-0_8/projects/commons/src/java/org
- * /springmodules/commons/configuration/CommonsConfigurationFactoryBean.java?rev=2110
- * <P>
- * As this module is no longer maintained by Spring, it is now recommended to
- * maintain it within your own codebase, so that minor updates can be made to
- * support new versions of Apache Commons Configuration (as needed). See this
- * Spring ticket: https://jira.spring.io/browse/SPR-10213
- * <P>
- * For DSpace, we've specifically updated this bean to automatically load all
- * configurations from the DSpaceConfigurationService (which uses Commons
- * Configuration internally). See constructor below.
- * <P>
- * This bean is loaded in 'spring-dspace-core-services.xml' where it is wired
- * up to PropertyPlaceholderConfigurer.
  */
 /**
  * This based heavily on the CommonsConfigurationFactoryBean available in
