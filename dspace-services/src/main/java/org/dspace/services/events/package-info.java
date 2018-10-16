@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Implementation of the event service.
  */
 /**
  * Implementation of the event service.
