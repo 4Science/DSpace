@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Manages a JavaMail session for code which wants to send email.
  */
 
 /**
