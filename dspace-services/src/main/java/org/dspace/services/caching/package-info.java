@@ -4,8 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Implementation of the core Caching service.
  */
 /**
  * Implementation of the core Caching service.
