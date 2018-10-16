@@ -4,15 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * <p>SFX/OpenURL link server support.</p>
- *
- * @see org.dspace.app.webui.jsptag.SFXLinkTag
- * @see org.dspace.app.xmlui.aspect.artifactbrowser.ItemViewer
- *
- * <p>SFX/OpenURL link server support.</p>
- * @see org.dspace.app.webui.jsptag.SFXLinkTag
- * @see org.dspace.app.xmlui.aspect.artifactbrowser.ItemViewer
  */
 
 /**
