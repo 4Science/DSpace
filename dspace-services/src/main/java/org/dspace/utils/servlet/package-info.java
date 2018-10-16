@@ -4,9 +4,6 @@
  * tree and available online at
  *
  * http://www.dspace.org/license/
- *
- * Connect a servlet container with the DSpace Services framework, in a
- * web application context.
  */
 /**
  * Connect a servlet container with the DSpace Services framework, in a
