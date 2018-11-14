@@ -29,6 +29,7 @@
             <Format ref="mods"/>
             <Format ref="qdc"/>
             <Format ref="marc"/>
+            <Format ref="mag"/>
             <Format ref="uketd_dc"/>
             <!--<Format ref="junii2" />-->            
             <Description>
@@ -167,6 +168,12 @@
             <XSLT>metadataFormats/marc.xsl</XSLT>
             <Namespace>http://www.loc.gov/MARC21/slim</Namespace>
             <SchemaLocation>http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd</SchemaLocation>
+        </Format>
+        <Format id="mag">
+            <Prefix>mag</Prefix>
+            <XSLT>metadataFormats/mag.xsl</XSLT>
+            <Namespace>http://www.iccu.sbn.it/metaAG1.pdf</Namespace>
+            <SchemaLocation>https://www.iccu.sbn.it/export/sites/iccu/documenti/metadigit.xsd</SchemaLocation>
         </Format>
         <Format id="uketd_dc">
             <Prefix>uketd_dc</Prefix>
