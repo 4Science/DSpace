@@ -1781,9 +1781,12 @@ public class PushToORCID
         {
             for (String valIdentifier : itemMetadata.getExternalIdentifier())
             {
+                String resolver = ConfigurationManager.getProperty(
+                            "cris",
+                            "external.uri.resolver."+itemMetadata.getExternalIdentifierType(valIdentifier));
                 ExternalId workExternalIdentifier = new ExternalId();
                 workExternalIdentifier.setExternalIdValue(valIdentifier);
-                workExternalIdentifier.setExternalIdUrl(valIdentifier);
+                workExternalIdentifier.setExternalIdUrl(resolver+valIdentifier);
                 workExternalIdentifier.setExternalIdType(
                         itemMetadata.getExternalIdentifierType(valIdentifier));
                 workExternalIdentifier.setExternalIdRelationship(RelationshipType.SELF);
