@@ -236,7 +236,7 @@
 					<xsl:value-of select="./doc:element[@name='bitstream']/doc:element[@name='image']/doc:element[@name='compression']/doc:element/doc:field[@name]"></xsl:value-of>
 				</xsl:element>
 				</xsl:element>
-			<xsl:if test="//doc:field[text()='PREVIEW']">
+			<xsl:if test="//doc:field[text()='BRANDED_PREVIEW']">
 				<xsl:element name="mag:altimg">
 				   <xsl:variable name="testmast" select="concat(./doc:field[@name='name'],'.jpg')"/>
 					<xsl:element name="mag:usage">
@@ -247,43 +247,43 @@
 					<xsl:text>simple</xsl:text>
 				</xsl:attribute>				
 				<xsl:attribute name="magxlink:href">
-				   <xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='url']"/>
+				   <xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='url']"/>
 				</xsl:attribute>
 				<xsl:attribute name="Location">
 					<xsl:text>URL</xsl:text>
 				</xsl:attribute>
 			</xsl:element>
 			<xsl:element name="mag:md5">
-				<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='checksum']"/>
+				<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='checksum']"/>
 			</xsl:element>
 			<xsl:element name="mag:filesize">
-				<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='size']"/>
+				<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='size']"/>
 			</xsl:element>
 			<xsl:element name="mag:image_dimensions">
 				<xsl:element name="niso:imagelength">
-					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:element[@name='bitstream']/doc:element[@name='image']/doc:element[@name='height']/doc:element/doc:field[@name]"/>
+					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:element[@name='bitstream']/doc:element[@name='image']/doc:element[@name='height']/doc:element/doc:field[@name]"/>
 				</xsl:element>
 				<xsl:element name="niso:imagewidth">
-					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:element[@name='bitstream']/doc:element[@name='image']/doc:element[@name='width']/doc:element/doc:field[@name]"/>
+					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:element[@name='bitstream']/doc:element[@name='image']/doc:element[@name='width']/doc:element/doc:field[@name]"/>
 				</xsl:element>
 				</xsl:element>
 				<xsl:element name="mag:format">
 					<xsl:element name="niso:name">
 						<xsl:variable name="name">
 							<xsl:choose>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/tiff')">TIF</xsl:when>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/jpeg')">JPG</xsl:when>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/gif')">GIF</xsl:when>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/png')">PNG</xsl:when>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/vnd.djvu')">DJV</xsl:when>
-								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'application/pdf')">PDF</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/tiff')">TIF</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/jpeg')">JPG</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/gif')">GIF</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/png')">PNG</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'image/vnd.djvu')">DJV</xsl:when>
+								<xsl:when test="contains(//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format'], 'application/pdf')">PDF</xsl:when>
 							</xsl:choose>
 						</xsl:variable>
 						<xsl:value-of select="$name"></xsl:value-of>
 					</xsl:element>
 				
 				<xsl:element name="niso:mime">
-					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format']"/>
+					<xsl:value-of select="//doc:element[@name='bundles']/doc:element[doc:field/text()='BRANDED_PREVIEW']/doc:element[@name='bitstreams']/doc:element[doc:field/@name='name' and doc:field/text()=$testmast]/doc:field[@name='format']"/>
 			
 				</xsl:element>
 				</xsl:element>
