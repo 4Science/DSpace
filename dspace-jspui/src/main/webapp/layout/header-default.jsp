@@ -261,7 +261,7 @@ window.cookieconsent.initialise({
      {
  %>
         <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
-                  document.repost.submit();" href="?locale=<%=supportedLocales[i].toString()%>">
+                  document.repost.submit();" href="javascript:updateURLParam('locale', '<%=supportedLocales[i].toString()%>');">
           <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                  
        </a></li>
  <%
