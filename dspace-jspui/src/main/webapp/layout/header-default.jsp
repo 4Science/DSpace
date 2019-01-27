@@ -282,7 +282,7 @@ window.cookieconsent.initialise({
 	    <div class="container shp-transparent">
 	        <div class="row">
 	            <div class="col-md-8 col-md-offset-2">
-	                <h1 class="brand-heading"><img alt="Biblioteca Nazionale di Napoli" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/bnn-logo-big.png"></h1>
+	                <h1 class="brand-heading"><img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png"></h1>
 	                <a href="#about" class="btn custom-btn-circle btn-circle page-scroll">
 	                    <i class="fa fa-angle-double-down animated"></i>
 	                </a>
@@ -296,7 +296,7 @@ window.cookieconsent.initialise({
     <div class="row">
         <div class="col-md-12">
             <h1 class="brand-heading">
-               <img alt="Biblioteca Nazionale di Napoli" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/bnn-logo-big.png">
+               <img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png">
             </h1>
         </div>
     </div>
