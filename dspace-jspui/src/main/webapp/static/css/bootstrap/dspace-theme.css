@@ -347,3 +347,7 @@ footer .no-bullets-list {
 .carousel-caption a {
 	color: #fff;
 }
+
+.nav > .researcher-menu-item-hidden {
+	display:none;
+}
