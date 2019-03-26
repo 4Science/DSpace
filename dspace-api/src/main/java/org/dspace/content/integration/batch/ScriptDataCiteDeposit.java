@@ -112,6 +112,11 @@ public class ScriptDataCiteDeposit
                 "single",
                 true,
                 "Work on single item, , with last_modified equals to null or item update recently");
+        options.addOption(
+                "n",
+                "new",
+                false,
+                "Work only on new items with last_modified equals to null");
 
         CommandLine line = parser.parse(options, args);
 
@@ -125,12 +130,12 @@ public class ScriptDataCiteDeposit
             System.exit(0);
         }
 
-        if (line.hasOption('s') && line.hasOption('a'))
+        if (line.hasOption('s') && line.hasOption('a') && line.hasOption('n'))
         {
             System.out
-                    .println("\n\nUSAGE:\n ScriptDataCiteDOIRegister -a|-s <item_id>] \n");
+                    .println("\n\nUSAGE:\n ScriptDataCiteDOIRegister -a|-n|-s <item_id>] \n");
             System.out.println("Insert either a or s like parameters");
-            log.error("Either a or s like parameters");
+            log.error("Either a or n or s like parameters");
             System.exit(1);
         }
 
@@ -263,7 +268,104 @@ public class ScriptDataCiteDeposit
                     rows.close();
                 }
             }
-            else
+            else if (line.hasOption('n'))
+            {
+
+                int limit = 100;
+
+                TableRowIterator rows = null;
+
+                if ("oracle".equals(dbName))
+                {
+                    rows = DatabaseManager
+                            .query(context,
+                                    "select * from "
+                                            + TABLE_NAME_DOI2ITEM
+                                            + " d2i left join item i on d2i.item_id = i.item_id where d2i.last_modified is null"
+                                            + " AND ROWNUM <= " + limit);
+                }
+                else
+                {
+                    rows = DatabaseManager
+                            .query(context,
+                                    "select * from "
+                                            + TABLE_NAME_DOI2ITEM
+                                            + " d2i left join item i on d2i.item_id = i.item_id where d2i.last_modified is null"
+                                            + " LIMIT " + limit);
+                }
+                int offset = 0;
+                int count = 0;
+                try
+                {
+                    while (rows.hasNext() || count == limit)
+                    {
+                        if (offset > 0)
+                        {
+                            if ("oracle".equals(dbName))
+                            {
+                                rows = DatabaseManager
+                                        .query(context,
+                                                "select * from "
+                                                        + TABLE_NAME_DOI2ITEM
+                                                        + " d2i left join item i on d2i.item_id = i.item_id where d2i.last_modified is null"
+                                                        + " AND ROWNUM > "
+                                                        + limit
+                                                        + " AND ROWNUM <= "
+                                                        + (offset + limit));
+                            }
+                            else
+                            {
+                                rows = DatabaseManager
+                                        .query(context,
+                                                "select * from "
+                                                        + TABLE_NAME_DOI2ITEM
+                                                        + " d2i left join item i on d2i.item_id = i.item_id where d2i.last_modified is null"
+                                                        + " LIMIT " + limit
+                                                        + " OFFSET " + offset);
+                            }
+                        }
+                        offset = limit + offset;
+                        count = 0;
+                        while (rows.hasNext())
+                        {
+                            count++;
+                            TableRow row = rows.next();
+                            Item item = Item.find(context,
+                                    row.getIntColumn("item_id"));
+                            String criteria = row.getStringColumn("criteria");
+                            String doi = row.getStringColumn("identifier_doi");
+
+                            try
+                            {
+                                result.putAll(depositToDataCite(context, item,
+                                        criteria, doi));
+                            }
+                            catch (IOException e)
+                            {
+                                log.error("FOR item: " + item.getID()
+                                        + " ERRORMESSAGE: " + e.getMessage(), e);
+                            }
+                            catch (AuthorizeException e)
+                            {
+                                log.error("FOR item: " + item.getID()
+                                        + " ERRORMESSAGE: " + e.getMessage(), e);
+                            }
+                            catch (CrosswalkException e)
+                            {
+                                log.error("FOR item: " + item.getID()
+                                        + " ERRORMESSAGE: " + e.getMessage(), e);
+                            }
+
+                        }
+                    }
+                    context.commit();
+                }
+                finally
+                {
+                    rows.close();
+                }
+            }
+            else    
             {
                 if (line.hasOption('s'))
                 {
