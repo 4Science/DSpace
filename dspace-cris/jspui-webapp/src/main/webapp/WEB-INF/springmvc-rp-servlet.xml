@@ -362,7 +362,14 @@
 			<value>explore</value>
 		</property>		
 	</bean>
-	
+
+	<!-- Private Entities configuration -->
+	<bean id="privateEntitiesController"
+		class="org.dspace.app.webui.cris.controller.PrivateEntitiesController">
+		<property name="detailsView">
+			<value>privateEntities</value>
+		</property>
+	</bean>
 	
 	<!-- Start Researcher controller configurations -->
 	<bean id="detailsResearcherController"
@@ -7007,6 +7014,9 @@
 				<prop key="/stats/*.html">doStatisticsController</prop>
 				<!-- explore -->
 				<prop key="/explore/*">exploreController</prop>
+
+				<!-- Private Entities -->
+				<prop	key="/rp/privateEntities">privateEntitiesController</prop>
 				
 				<!-- Search -->
 				<prop key="/rp/search.htm">searchRPFormController</prop>

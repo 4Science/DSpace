@@ -97,6 +97,28 @@
 <c:set var="dspace.layout.head.last" scope="request">
     <script type="text/javascript">
     <!--
+
+       /* Function to fetch private CRIS entities for the current user */
+       var fetchPrivateEntities = function() {
+           j.ajax({
+               url : "<%= request.getContextPath() %>/cris/rp/privateEntities",
+               contentType: "text/html; charset=utf-8",
+               beforeSend: function() {
+                   j('#update-private-entities-indicator').show();
+               },
+               success: function(data) {
+                   j('#update-private-entities-indicator').hide();
+                   j('#private-entities-table').html(data);
+                   j('#peTable').DataTable({
+                       "ordering": true
+                           });
+               },
+               error: function(err) {
+                   j('#update-private-entities-indicator').hide();
+                   j('#private-entities-table').html("<span class=\"badge badge-danger\">There was a problem fetching your private entities. Please contact your administrator.</span>");
+               }
+           });
+       };
        var j = jQuery.noConflict();
        var myrpstatus = new Object();
        j(document).ready(function(){
@@ -181,6 +203,7 @@
                };
 
                myRP('status');
+               fetchPrivateEntities();
        });
     -->
     </script>
@@ -608,6 +631,15 @@
 <%
   }
 %>
+
+<!-- Private CRIS entities of the current user; will be populated through fetchPrivateEntities() -->
+<div id="private-entities">
+	<h3>
+		<fmt:message key="jsp.mydspace.cris.privateentities"/>
+		<div id="update-private-entities-indicator" class="loader"></div>
+	</h3>
+	<div id="private-entities-table"></div>
+</div>
 
 	<%if(exportsAvailable!=null && exportsAvailable.size()>0){ %>
 	<h3><fmt:message key="jsp.mydspace.main.heading7"/></h3>
