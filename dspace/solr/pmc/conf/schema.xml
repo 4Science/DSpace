@@ -15,7 +15,7 @@
        exceed a certain size (in characters).
     -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="integer" class="solr.IntField" omitNorms="true"/>    
+    <fieldType name="integer" class="solr.IntPointField" omitNorms="true"/>    
   </types>
  
  <fields>
@@ -43,9 +43,9 @@
 
  <uniqueKey>PMCID</uniqueKey>
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
- <defaultSearchField>PMCID</defaultSearchField>
+ <df>PMCID</df>
 
- <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
- <solrQueryParser defaultOperator="AND"/>
+ <!-- SolrQueryParser configuration: q.op="AND|OR" -->
+ <solrQueryParser q.op="AND"/>
   
 </schema>

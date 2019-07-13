@@ -57,8 +57,8 @@
         <!-- Added maven compiler version for eclipse setting -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <lucene.version>4.10.2</lucene.version>
-        <solr.version>4.10.2</solr.version>
+        <lucene.version>7.7.1</lucene.version>
+        <solr.version>7.7.1</solr.version>
         <jena.version>2.12.0</jena.version>
         <slf4j.version>1.6.1</slf4j.version>
         <!-- 'root.basedir' is the path to the root [dspace-src] dir. It must be redefined by each child POM,

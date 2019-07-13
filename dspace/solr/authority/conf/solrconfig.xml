@@ -39,7 +39,13 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
     -->
-    <luceneMatchVersion>4.10</luceneMatchVersion>
+    <luceneMatchVersion>7.7.1</luceneMatchVersion>
+  
+    <lib dir='${solr.install.dir}/contrib/analysis-extras/lib/'
+       regex='icu4j-.*\.jar'/>
+    <lib dir='${solr.install.dir}/contrib/analysis-extras/lucene-libs/'
+       regex='lucene-analyzers-icu-.*\.jar'/>
+
 
   <!-- lib directives can be used to instruct Solr to load an Jars identified
        and use them to resolve any "plugins" specified in your solrconfig.xml or
@@ -974,10 +980,10 @@
        The response format differs from solr1.1 formatting and returns a standard error code.
        To enable solr1.1 behavior, remove the /update handler or change its path
     -->
-  <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" />
+  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
 
 
-  <requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" />
+  <requestHandler name="/update/javabin" class="solr.UpdateRequestHandler" />
 
   <!--
    Analysis request handler.  Since Solr 1.3.  Use to return how a document is analyzed.  Useful
@@ -1031,7 +1037,7 @@
 
 
   <!-- CSV update handler, loaded on demand -->
-  <requestHandler name="/update/csv" class="solr.CSVRequestHandler" startup="lazy" />
+  <requestHandler name="/update/csv" class="solr.UpdateRequestHandler" startup="lazy" />
 
 
   <!--
@@ -1053,7 +1059,18 @@
     </lst>
   </requestHandler>
   -->
-  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+  <requestHandler name="/admin/luke"
+                  class="solr.admin.LukeRequestHandler" />
+  <requestHandler name="/admin/system"
+                  class="solr.admin.SystemInfoHandler" />
+  <requestHandler name="/admin/plugins"
+                  class="solr.admin.PluginInfoHandler" />
+  <requestHandler name="/admin/threads"
+                  class="solr.admin.ThreadDumpHandler" />
+  <requestHandler name="/admin/properties"
+                  class="solr.admin.PropertiesRequestHandler" />
+  <requestHandler name="/admin/file"
+                  class="solr.admin.ShowFileRequestHandler" />
 
   <!-- ping/healthcheck -->
   <requestHandler name="/admin/ping" class="PingRequestHandler">
@@ -1108,7 +1125,7 @@
        will maintain uniqueness based on that anyway.
 
        You have to link the chain to an update handler above to use it ie:
-         <requestHandler name="/update "class="solr.XmlUpdateRequestHandler">
+         <requestHandler name="/update "class="solr.UpdateRequestHandler">
            <lst name="defaults">
              <str name="update.processor">dedupe</str>
            </lst>

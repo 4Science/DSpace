@@ -26,7 +26,13 @@
      -->
   <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
 
-  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
+  <luceneMatchVersion>7.7.1</luceneMatchVersion>
+  
+  <lib dir='${solr.install.dir}/contrib/analysis-extras/lib/'
+       regex='icu4j-.*\.jar'/>
+  <lib dir='${solr.install.dir}/contrib/analysis-extras/lucene-libs/'
+       regex='lucene-analyzers-icu-.*\.jar'/>
+
   <!-- Used to specify an alternate directory to hold all index data
        other than the default ./data under the Solr home.
        If replication is in use, this should match the replication configuration. -->
@@ -496,7 +502,18 @@
     </lst>
   </requestHandler>
   -->
-  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+  <requestHandler name="/admin/luke"
+                  class="solr.admin.LukeRequestHandler" />
+  <requestHandler name="/admin/system"
+                  class="solr.admin.SystemInfoHandler" />
+  <requestHandler name="/admin/plugins"
+                  class="solr.admin.PluginInfoHandler" />
+  <requestHandler name="/admin/threads"
+                  class="solr.admin.ThreadDumpHandler" />
+  <requestHandler name="/admin/properties"
+                  class="solr.admin.PropertiesRequestHandler" />
+  <requestHandler name="/admin/file"
+                  class="solr.admin.ShowFileRequestHandler" />
   
   <!-- ping/healthcheck -->
   <requestHandler name="/admin/ping" class="PingRequestHandler">
