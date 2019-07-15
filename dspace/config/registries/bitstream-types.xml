@@ -73,5 +73,31 @@
         <qualifier>compression</qualifier>
         <scope_note></scope_note>
     </dc-type>
+    
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>image</element>
+        <qualifier>samplingfrequencyunit</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>image</element>
+        <qualifier>samplingfrequencyplane</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>image</element>
+        <qualifier>photometricinterpretation</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>image</element>
+        <qualifier>bitpersample</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+   
 
 </dspace-dc-types>
