@@ -726,4 +726,23 @@
          <qualifier>interpretation</qualifier>
         <scope_note></scope_note>
     </dc-type>
+     <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+         <qualifier>codex</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+     <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+         <qualifier>inventorynumber</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+     <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+         <qualifier>shelfmark</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
 </dspace-dc-types>
