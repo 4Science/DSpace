@@ -67,5 +67,11 @@
         <qualifier>preview</qualifier>
         <scope_note>Metadata field used to store the ID of the preview image</scope_note>
     </dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>image</element>
+        <qualifier>compression</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
 </dspace-dc-types>
