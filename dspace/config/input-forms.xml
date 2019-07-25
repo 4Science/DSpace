@@ -1780,6 +1780,10 @@ it, please enter the types and the actual numbers or codes.</hint>
        <displayed-value>Altro</displayed-value>
        <stored-value>other</stored-value>
      </pair>
+       <pair>
+       <displayed-value>codex</displayed-value>
+       <stored-value>codex</stored-value>
+     </pair>
    </value-pairs>
 
    <value-pairs value-pairs-name="common_conference_material_identifiers" dc-term="identifier">
