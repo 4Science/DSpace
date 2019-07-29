@@ -35,6 +35,8 @@
 	
 	boolean showCommList = ConfigurationManager.getBooleanProperty("community-list.show.all",true);
 	boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
+	
+	boolean sitePolicyEnabled = Boolean.parseBoolean(ConfigurationManager.getProperty("dspace.site.policy.enabled"));
 %>
 
             <%-- Right-hand side bar if appropriate --%>
@@ -86,6 +88,9 @@
 			<div class="container-fluid extra-footer row">
       			<div id="footer_feedback" class="col-sm-4 pull-<%= isRtl ? "right":"left" %>">                                    
                      <a href="<%= request.getContextPath() %>/feedback"><fmt:message key="jsp.layout.footer-default.feedback"/></a>
+				     <% if (sitePolicyEnabled) { %>
+						 <a href="#" data-toggle="modal" data-target="#sitePolicyModal"><fmt:message key="jsp.layout.footer-default.sitepolicy"/></a>
+			 	     <% } %>
                 </div>
 	           	<div id="designedby" class="col-sm-8 text-<%= isRtl ? "left": "right" %>">
             	 	<fmt:message key="jsp.layout.footer-default.text"/> - 
@@ -96,5 +101,8 @@
 				</div>
 			</div>
 	    </footer>
+	    <% if (sitePolicyEnabled) { %>
+    		<jsp:include page="site-policy.jsp"></jsp:include>
+	    <% } %>
     </body>
 </html>

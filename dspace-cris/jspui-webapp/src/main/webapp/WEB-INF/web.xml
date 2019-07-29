@@ -356,6 +356,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>site-policy</servlet-name>
+		<servlet-class>org.dspace.app.webui.servlet.SitePolicyServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>logout</servlet-name>
 		<servlet-class>org.dspace.app.webui.servlet.LogoutServlet</servlet-class>
 	</servlet>
@@ -832,6 +837,11 @@
 	<servlet-mapping>
 		<servlet-name>internal-error</servlet-name>
 		<url-pattern>/internal-error</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>site-policy</servlet-name>
+		<url-pattern>/sitePolicy</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

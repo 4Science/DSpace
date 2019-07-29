@@ -743,6 +743,26 @@ public class EPerson extends DSpaceObject
     }
 
     /**
+     * Get value if e-person already accepted the site policy
+     * 
+     * @return site policy accepted
+     */
+    public boolean getSitePolicyAccepted()
+    {
+        return myRow.getBooleanColumn("site_policy_accepted");
+    }
+
+    /**
+     * Set if e-person accepted the site policy
+     * 
+     * @param b
+     */
+    public void setSitePolicyAccepted(boolean b) {
+        myRow.setColumn("site_policy_accepted", b);
+        modified = true;
+    }
+
+    /**
      * Get the e-person's full name, combining first and last name in a
      * displayable string.
      * 

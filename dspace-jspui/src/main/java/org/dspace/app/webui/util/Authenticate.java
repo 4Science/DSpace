@@ -317,6 +317,9 @@ public class Authenticate
 
         // We store the current user in the request as an EPerson object...
         request.setAttribute("dspace.current.user", eperson);
+        
+        // and whether the user accepted the site policy already...
+        request.setAttribute("site.policy.accepted", eperson.getSitePolicyAccepted());
 
         // and in the session as an ID
         session.setAttribute("dspace.current.user.id", Integer.valueOf(eperson.getID()));

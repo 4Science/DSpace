@@ -140,6 +140,7 @@ CREATE TABLE EPerson
   can_log_in          BOOL,
   require_certificate BOOL,
   self_registered     BOOL,
+  site_policy_accepted     BOOL,
   last_active         TIMESTAMP,
   sub_frequency       INTEGER,
   phone	              VARCHAR(32)
