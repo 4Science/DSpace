@@ -25,6 +25,9 @@
     <name-map collection-handle="123456789/95" form-name="archival_materials" />
     <name-map collection-handle="123456789/97" form-name="archival_materials" />
     <name-map collection-handle="123456789/99" form-name="books" />
+    <name-map collection-handle="123456789/146" form-name="books" />
+    <name-map collection-handle="123456789/151" form-name="archival_materials" />
+    <name-map collection-handle="123456789/155" form-name="books" />
    
  <!-- 
  	we provide examples of form tailored for articles, books, 
@@ -285,7 +288,16 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint> Enter the name of an event related to the item</hint>
          <required></required>
        </field>
-       
+<field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>fond</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Fondo</label>
+         <input-type>onebox</input-type>
+         <hint>Enter the name of the fond related to the item.</hint>
+         <required></required>
+       </field>       
        <field>
       	 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -296,7 +308,6 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint> Enter the name of a concept related to the item</hint>
          <required></required>
        </field>
-
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -1347,7 +1358,16 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Selezionare dal menu a discesa la tipologia dell'unità di descrizione della risorsa.</hint>
          <required></required>
        </field>
-
+       <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>author</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Autore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+         <required></required>
+       </field>
        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>title</dc-element>
@@ -1367,7 +1387,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Titolo alternativo, incerto o attribuito</label>
          <input-type>onebox</input-type>
          <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</hint>
-         <required>Inserire il titolo o la denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</required>
+         <required></required>
        </field>
 
          <field>
@@ -1378,7 +1398,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Data puntuale</label>
          <input-type>date</input-type>
          <hint>Data puntuale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
-         <required>Inserire almeno l'anno.</required>
+         <required></required>
        </field>
        
         <field>
@@ -1389,7 +1409,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Estremo cronologico iniziale</label>
          <input-type>date</input-type>
          <hint>Estremo cronologico iniziale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
-         <required>Inserire almeno l'anno.</required>
+         <required></required>
        </field>
        
        <field>
@@ -1400,7 +1420,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Estremo cronologico finale</label>
          <input-type>date</input-type>
          <hint>Estremo cronologico finale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
-         <required>Inserire almeno l'anno.</required>
+         <required></required>
        </field>
        
         <field>
@@ -1411,7 +1431,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Data secolare</label>
          <input-type>onebox</input-type>
          <hint>Data secolare della risorsa. Segnalare, ove possibile, la parte di secolo considerata.</hint>
-         <required>Inserire almeno il secolo.</required>
+         <required></required>
        </field>
        
        <field>
@@ -1581,7 +1601,16 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Inserire, se presente, il titolo del progetto cui è connessa la risorsa.</hint>
          <required></required>
        </field>
-
+       <field>
+       <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>conference</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Evento collegato</label>
+         <input-type>onebox</input-type>
+         <hint> Inserire il titolo dell'evento/convegno cui è connessa la risorsa</hint>
+         <required></required>
+       </field>
         <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -1753,6 +1782,10 @@ it, please enter the types and the actual numbers or codes.</hint>
      <pair>
        <displayed-value>Altro</displayed-value>
        <stored-value>other</stored-value>
+     </pair>
+       <pair>
+       <displayed-value>codex</displayed-value>
+       <stored-value>codex</stored-value>
      </pair>
    </value-pairs>
 
