@@ -28,6 +28,7 @@
 		<property name="components">
 			<map>
 				<entry key="dspaceitems" value-ref="publicationlist" />
+				<entry key="dspaceitemsother" value-ref="publicationlistother" />
 				<entry key="projects" value-ref="projectlist" />
 			</map>
 		</property>
@@ -115,7 +116,27 @@
 		<property name="rpp"><value>20</value></property>
 		<property name="sortby"><value>1</value></property>
 	</bean>
-	
+
+        <!-- Publication list for RP Other entity-->
+        <bean id="publicationlistother"
+                class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+                <property name="relationConfiguration" ref="relationRPOTHERVSItemConfiguration" />
+                <property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>
+                <property name="target" value="org.dspace.app.cris.model.ResearcherPage" />
+                <property name="facets" ref="facetsItemConfiguration" />
+                <property name="types">
+                        <map>
+                                <entry key="selected" value-ref="selectedComponent" />
+                                <entry key="journal" value-ref="journalComponent" />
+                                <entry key="conference" value-ref="conferenceComponent" />
+                                <entry key="book" value-ref="bookComponent" />
+                                <entry key="patent" value-ref="patentComponent" />
+                                <entry key="dataset" value-ref="datasetComponent" />
+                                <entry key="other" value-ref="otherComponent" />
+                        </map>
+                </property>
+        </bean>
+
 	<!-- Project list for RP entity -->
 	<bean id="projectlist"
 		class="org.dspace.app.webui.cris.components.CRISPJConfigurerComponent">
