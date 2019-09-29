@@ -35,13 +35,20 @@
 		</property>
 	</bean>
 	
-	<bean id="relationRPVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
-		<property name="relationName" value="crisrp.publications" />		
-		<property name="relationClass" value="org.dspace.content.Item" />		
-		<property name="query">
-			<value>author_authority:{0}</value>
-		</property>
-	</bean>
+        <bean id="relationRPVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+                <property name="relationName" value="crisrp.publications" />
+                <property name="relationClass" value="org.dspace.content.Item" />
+                <property name="query">
+                        <value>dc.contributor.author_authority:{0}</value>
+                </property>
+        </bean>
+        <bean id="relationRPOTHERVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+                <property name="relationName" value="crisrpother.publications" />
+                <property name="relationClass" value="org.dspace.content.Item" />
+                <property name="query">
+                        <value>dc.contributor.contributor_authority:{0}</value>
+                </property>
+        </bean>
 
 	<bean id="relationOUVSRPConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crisou.persons" />		
