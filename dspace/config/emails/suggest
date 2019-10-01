@@ -11,7 +11,17 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: An item of interest from DSpace
+Ciao {0}:
 
+{1}  ti invia questa e-mail riguardante un item disponibile in {2}.
+
+Titolo {3}
+URL: {5}
+Collezione: {6}
+Messaggio personale: {7}
+
+Gli amministratori del repository
+ -------------------------------------------------------------------------------------
 Hello {0}:
 
 {1} requested we send you this email regarding an item available in {2}.
@@ -23,4 +33,3 @@ Personal Message: {7}
 
 The DSpace digital repository system captures, stores, indexes, preserves, and distributes digital material.
 For more information, visit www.dspace.org
-

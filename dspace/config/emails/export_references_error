@@ -6,7 +6,17 @@
 #
 # See org.dspace.core.Email for information on the format of this file.
 #
-Subject: DSpace - The bibliographic description for the Item export you requested was not completed.
+Subject: DSpace - L''export richiesto non è stato completato - The bibliographic description for the Item export you requested was not completed.
+La descrizione bibliografica per l''export dell'item richiesto non è stata completato, per il seguente motivo:
+ {0}
+
+Per ulteriori informazioni è possibile contattare l''amministratore di sistema:
+ {1}
+
+
+
+Gli amministratori del repository
+---------------------------------------------------------------------------------------------------------------------
 The bibliographic description for the Item export you requested was not completed, due to the following reason:
  {0}
 
@@ -16,4 +26,3 @@ For more information you may contact your system administrator:
 
 
 The DSpace Team
-

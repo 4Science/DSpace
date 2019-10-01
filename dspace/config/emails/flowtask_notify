@@ -7,7 +7,21 @@
 # {4}  Task result
 # {5}  Workflow action taken
 #
-Subject: DSpace: Curation Task Report
+Subject: Repository: Curation Task Report
+
+Titolo         {0}
+Collezione:    {1}
+Inviato da:  {2}
+
+Il curation task {3} è stato eseguito
+con il seguente risultato:
+
+{4}
+
+Azioni intraprese in seguito alla richiesta: {5}
+
+Gli amministratori del repository
+--------------------------------------------------------------
 
 Title:         {0}
 Collection:    {1}
@@ -20,4 +34,4 @@ with the following result:
 
 Action taken on the submission: {5}
 
-DSpace
+The Team DSpace

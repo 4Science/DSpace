@@ -6,7 +6,15 @@
 #
 # See org.dspace.core.Email for information on the format of this file.
 #
-Subject: DSpace - The batch import was not completed.
+Subject: DSpace - Batch import non è stato completato - The batch import was not completed.
+Il batch import avviato dall''interfaccia utente di DSpace non è stata completata, per le seguenti ragioni:
+ {0}
+
+Per ulteriori informazioni è possibile contattare l'amministratore di sistema:
+ {1}
+
+ Gli amministratori del repository
+ ----------------------------------------------------------------------
 The batch import you initiated from the DSpace UI was not completed, due to the following reason:
  {0}
 
@@ -16,4 +24,3 @@ For more information you may contact your system administrator:
 
 
 The DSpace Team
-

@@ -10,7 +10,7 @@
 #
 # See org.dspace.core.Email for information on the format of this file.
 #
-Subject: Feedback Form Information
+Subject:  Modulo di Feedback - Feedback Form Information
 
 Comments:
 
@@ -23,4 +23,3 @@ Logged In As: {2}
 Referring Page: {3}
 User Agent: {4}
 Session: {5}
-

@@ -8,8 +8,15 @@
 #
 # See org.dspace.core.Email for information on the format of this file.
 #
-Subject: DSpace: Registration Notification
+Subject: DSpace: Notifica di abilitazione -Registration Notification
+Un nuovo utente si è accreditato su {0} alla url: {1}:
 
+Name:                   {2}
+Email:                  {3}
+Date:                   {4}
+
+Gli amministratori del repository
+--------------------------------------
 A new user has registered on {0} at {1}:
 
 Name:                   {2}

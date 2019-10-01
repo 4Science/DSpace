@@ -5,11 +5,17 @@
 #
 # See org.dspace.core.Email for information on the format of this file.
 #
-Subject: DSpace - The bibliographic description for the Item export requested is ready for download
+Subject: DSpace - La descrizione bibliografica  per l''item richiesto è disponibile per il download - The bibliographic description for the Item export requested is ready for download
+La descrizione bibliografica per l''export dell'item richiesto è ora pronto per il download.
+
+Il file è allegato a questa e-mail. 
+
+
+Gli amministratori del repository
+-----------------------------------------------------------------------------------
 The bibliographic description for the Item export you requested from the repository is now ready for download.
 
 You may find this as attachment of this email. 
 
 
 The DSpace Team
-
