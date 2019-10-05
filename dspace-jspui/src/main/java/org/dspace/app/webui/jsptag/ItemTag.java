@@ -332,8 +332,6 @@ public class ItemTag extends TagSupport {
 				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.dcfield")
 				+ "</th><th id=\"s2\" class=\"standard\">"
 				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.value")
-				+ "</th><th id=\"s3\" class=\"standard\">"
-				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.lang")
 				+ "</th></tr>");
 
 		for (int i = 0; i < values.length; i++) {
@@ -348,16 +346,8 @@ public class ItemTag extends TagSupport {
 
 				out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
 				out.print(Utils.addEntities(values[i].value));
-				out.print("</td><td headers=\"s3\" class=\"metadataFieldValue\">");
-
-				if (values[i].language == null) {
-					out.print("-");
-				} else {
-					out.print(values[i].language);
+				out.print("</td></tr>");			
 				}
-
-				out.println("</td></tr>");
-			}
 		}
 
 		listCollections();
