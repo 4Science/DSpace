@@ -74,7 +74,7 @@ public class BatchUpload {
 			}
 		}
 		
-		this.successful = this.totalItems == this.itemsImported;
+		this.successful = this.totalItems != 0 && this.totalItems == this.itemsImported;
 		
 		//Parse possible error message
 		
