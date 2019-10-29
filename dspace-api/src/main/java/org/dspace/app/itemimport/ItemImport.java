@@ -2422,10 +2422,13 @@ public class ItemImport
             	fileNames.put(upload.getDir().getName(), upload);
             }
         }
+        
 
         if (fileNames.size() > 0)
         {
-            return new ArrayList<BatchUpload>(fileNames.values());
+            List<BatchUpload> toReverse = new ArrayList<BatchUpload>(fileNames.values());
+            Collections.reverse(toReverse);
+            return toReverse;
         }
 
         return null;
