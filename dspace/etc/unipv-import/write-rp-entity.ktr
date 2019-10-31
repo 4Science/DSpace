@@ -507,11 +507,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values 2</from>
-      <to>Sort rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Sort rows</from>
       <to>Microsoft Excel Output 2</to>
       <enabled>Y</enabled>
@@ -519,6 +514,11 @@
     <hop>
       <from>Database lookup</from>
       <to>Filter rows 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 2</from>
+      <to>Sort rows</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1074,12 +1074,22 @@
         <format/>
       </field>
       <field>
+        <name>birthyear</name>
+        <type>String</type>
+        <format/>
+      </field>
+      <field>
         <name>deathplace</name>
         <type>String</type>
         <format/>
       </field>
       <field>
         <name>deathdate</name>
+        <type>String</type>
+        <format/>
+      </field>
+      <field>
+        <name>deathyear</name>
         <type>String</type>
         <format/>
       </field>
@@ -1191,7 +1201,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f; definire la visibility ad ogni field&#xa;&#x2f;&#x2f; definire il pointer alle place e ai concept &#x28;SOURCEID &#xe9; il value, SOURCEREF &#xe9; unipv&#x29;&#xa;var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var SOURCEID &#x3d; IDK&#x3b;&#xa;&#xa;var fullName &#x3d; AUTN &#x21;&#x3d; null &#x26;&#x26; AUTN.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTN &#x3a; &#x22;&#x22;&#x3b;&#xa;var activityperiod &#x3d; AUTA &#x21;&#x3d; null &#x26;&#x26; AUTA.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTA &#x3a; &#x22;&#x22;&#x3b;&#xa;var variants &#x3d; AUTP &#x21;&#x3d; null &#x26;&#x26; AUTP.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTP &#x3a; &#x22;&#x22;&#x3b;&#xa;var gender &#x3d; AUTZ &#x21;&#x3d; null &#x26;&#x26; AUTZ.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTZ &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var birthplace &#x3d; AUTL &#x21;&#x3d; null &#x26;&#x26; AUTL.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTL &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var birthdate &#x3d; AUTD &#x21;&#x3d; null &#x26;&#x26; AUTD.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTD &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var deathplace &#x3d; AUTX &#x21;&#x3d; null &#x26;&#x26; AUTX.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTX &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var deathdate &#x3d; AUTT &#x21;&#x3d; null &#x26;&#x26; AUTT.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTT &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var biography &#x3d; AUTG &#x21;&#x3d; null &#x26;&#x26; AUTG.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTG &#x3a; &#x22;&#x22;&#x3b;&#xa;var role &#x3d; AUTQ &#x21;&#x3d; null &#x26;&#x26; AUTQ.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTQ &#x3a; &#x22;&#x22;&#x3b;&#xa;var nationality &#x3d; AUTY &#x21;&#x3d; null &#x26;&#x26; AUTY.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTY &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var relatedconcept &#x3d; AUTU &#x21;&#x3d; null &#x26;&#x26; AUTU.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTU &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;</jsScript_script>
+        <jsScript_script>var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var SOURCEID &#x3d; IDK&#x3b;&#xa;&#xa;var fullName &#x3d; AUTN &#x21;&#x3d; null &#x26;&#x26; AUTN.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTN &#x3a; &#x22;&#x22;&#x3b;&#xa;var activityperiod &#x3d; AUTA &#x21;&#x3d; null &#x26;&#x26; AUTA.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTA &#x3a; &#x22;&#x22;&#x3b;&#xa;var variants &#x3d; AUTP &#x21;&#x3d; null &#x26;&#x26; AUTP.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTP &#x3a; &#x22;&#x22;&#x3b;&#xa;var gender &#x3d; AUTZ &#x21;&#x3d; null &#x26;&#x26; AUTZ.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTZ &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var birthplace &#x3d; AUTL &#x21;&#x3d; null &#x26;&#x26; AUTL.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTL &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var birthdate &#x3d; AUTD &#x21;&#x3d; null &#x26;&#x26; AUTD.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTD &#x3a; &#x22;&#x22;&#x3b;&#xa;var birthyear &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;birthdate &#x21;&#x3d; null &#x26;&#x26; birthdate.length &#x3e; 0&#x29; &#x7b;&#xa;	if &#x28;birthdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29; &#x21;&#x3d; null &#x26;&#x26; birthdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29;.length &#x3e; 0&#x29; &#x7b;&#xa;		birthyear &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; birthdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29;&#x5b;0&#x5d;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;var deathplace &#x3d; AUTX &#x21;&#x3d; null &#x26;&#x26; AUTX.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTX &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var deathdate &#x3d; AUTT &#x21;&#x3d; null &#x26;&#x26; AUTT.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTT &#x3a; &#x22;&#x22;&#x3b;&#xa;var deathyear &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;deathdate &#x21;&#x3d; null &#x26;&#x26; deathdate.length &#x3e; 0&#x29; &#x7b;&#xa;	if &#x28;deathdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29; &#x21;&#x3d; null &#x26;&#x26; deathdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29;.length &#x3e; 0&#x29; &#x7b;&#xa;		deathyear &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; deathdate.match&#x28;&#x2f;&#x5c;d&#x7b;4&#x7d;&#x24;&#x2f;g&#x29;&#x5b;0&#x5d;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;var biography &#x3d; AUTG &#x21;&#x3d; null &#x26;&#x26; AUTG.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTG &#x3a; &#x22;&#x22;&#x3b;&#xa;var role &#x3d; AUTQ &#x21;&#x3d; null &#x26;&#x26; AUTQ.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTQ &#x3a; &#x22;&#x22;&#x3b;&#xa;var nationality &#x3d; AUTY &#x21;&#x3d; null &#x26;&#x26; AUTY.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; AUTY &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var relatedconcept &#x3d; AUTU &#x21;&#x3d; null &#x26;&#x26; AUTU.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; AUTU &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>SOURCEID</name>
         <rename>SOURCEID</rename>
         <type>String</type>
@@ -1234,6 +1244,12 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
+      </field>      <field>        <name>birthyear</name>
+        <rename>birthyear</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
       </field>      <field>        <name>deathplace</name>
         <rename>deathplace</rename>
         <type>String</type>
@@ -1242,6 +1258,12 @@
         <replace>N</replace>
       </field>      <field>        <name>deathdate</name>
         <rename>deathdate</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>deathyear</name>
+        <rename>deathyear</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -1296,24 +1318,45 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>ACTION</name>
+        <rename/>
       </field>      <field>        <name>UUID</name>
+        <rename/>
       </field>      <field>        <name>crisid_value</name>
         <rename>CRISID</rename>
       </field>      <field>        <name>SOURCEREF</name>
+        <rename/>
       </field>      <field>        <name>SOURCEID</name>
+        <rename/>
       </field>      <field>        <name>fullName</name>
+        <rename/>
       </field>      <field>        <name>activityperiod</name>
+        <rename/>
       </field>      <field>        <name>variants</name>
+        <rename/>
       </field>      <field>        <name>gender</name>
+        <rename/>
       </field>      <field>        <name>birthplace</name>
+        <rename/>
       </field>      <field>        <name>birthdate</name>
+        <rename/>
+      </field>      <field>        <name>birthyear</name>
+        <rename/>
       </field>      <field>        <name>deathplace</name>
+        <rename/>
       </field>      <field>        <name>deathdate</name>
+        <rename/>
+      </field>      <field>        <name>deathyear</name>
+        <rename/>
       </field>      <field>        <name>biography</name>
+        <rename/>
       </field>      <field>        <name>role</name>
+        <rename/>
       </field>      <field>        <name>nationality</name>
+        <rename/>
       </field>      <field>        <name>relatedconcept</name>
+        <rename/>
       </field>      <field>        <name>NONE</name>
+        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -1341,39 +1384,22 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>IDK</name>
-        <rename/>
       </field>      <field>        <name>AUTA</name>
-        <rename/>
       </field>      <field>        <name>AUTD</name>
-        <rename/>
       </field>      <field>        <name>AUTG</name>
-        <rename/>
       </field>      <field>        <name>AUTL</name>
-        <rename/>
       </field>      <field>        <name>AUTN</name>
-        <rename/>
       </field>      <field>        <name>AUTP</name>
-        <rename/>
       </field>      <field>        <name>AUTQ</name>
-        <rename/>
       </field>      <field>        <name>AUTT</name>
-        <rename/>
       </field>      <field>        <name>AUTX</name>
-        <rename/>
       </field>      <field>        <name>AUTY</name>
-        <rename/>
       </field>      <field>        <name>AUTZ</name>
-        <rename/>
       </field>      <field>        <name>AUTU</name>
-        <rename/>
       </field>      <field>        <name>ACTION</name>
-        <rename/>
       </field>      <field>        <name>UUID</name>
-        <rename/>
       </field>      <field>        <name>SOURCEREF</name>
-        <rename/>
       </field>      <field>        <name>NONE</name>
-        <rename/>
       </field>      <field>        <name>crisid_retrieved</name>
         <rename>crisid_value</rename>
       </field>        <select_unspecified>N</select_unspecified>
@@ -1543,7 +1569,23 @@
         <presorted>N</presorted>
       </field>
       <field>
+        <name>birthyear</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+      <field>
         <name>deathplace</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>deathyear</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
