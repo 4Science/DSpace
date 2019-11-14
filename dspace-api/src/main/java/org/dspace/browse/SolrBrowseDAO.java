@@ -219,6 +219,7 @@ public class SolrBrowseDAO implements BrowseDAO
         if (itemsWithdrawn)
         {
             query.addFilterQueries("withdrawn:true");
+            query.addFilterQueries("search.resourcetype:2");
         }
         else if (!itemsDiscoverable)
         {
