@@ -601,7 +601,7 @@ jQuery(document).ready(function() {
         else if (withdrawn || privateitems)
         {
     %>
-    <dspace:browselist browseInfo="<%= bi %>" emphcolumn="<%= bix.getSortOption().getMetadata() %>" linkToEdit="true" disableCrossLinks="true" />
+    <dspace:browselist browseInfo="<%= bi %>" emphcolumn="<%= bix.getSortOption().getMetadata() %>" inputName="<%= inputBiblio %>" linkToEdit="true" disableCrossLinks="true" />
 	<%
     	}
     	else
