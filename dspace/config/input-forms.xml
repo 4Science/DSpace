@@ -28,7 +28,15 @@
     <name-map collection-handle="123456789/146" form-name="books" />
     <name-map collection-handle="123456789/151" form-name="archival_materials" />
     <name-map collection-handle="123456789/155" form-name="books" />
+    <name-map collection-handle="123456789/394" form-name="books" />
+    <name-map collection-handle="123456789/396" form-name="books" />
+    <name-map collection-handle="123456789/508" form-name="books" />
+    <name-map collection-handle="123456789/401" form-name="books" />
+    <name-map collection-handle="123456789/403" form-name="books" />
     <name-map collection-handle="123456789/405" form-name="books" />
+    <name-map collection-handle="123456789/433" form-name="books" />
+    <name-map collection-handle="123456789/441" form-name="books" />
+    
    
  <!-- 
  	we provide examples of form tailored for articles, books, 
@@ -830,9 +838,9 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Inserire la data di pubblicazione della risorsa.</hint>
          <required>Inserire almeno l'anno.</required>
        </field>
-
-      <field>
-		 <dc-schema>dc</dc-schema>
+       
+       <field>
+       <dc-schema>dc</dc-schema>
          <dc-element>publisher</dc-element>
          <dc-qualifier></dc-qualifier>
          <repeatable>true</repeatable>
@@ -841,6 +849,20 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Inserire il nome formale dell'editore/stampatore della risorsa.</hint>
          <required></required>
        </field>
+       
+              
+        <field>
+        <dc-schema>dc</dc-schema>
+         <dc-element>source</dc-element>
+         <dc-qualifier>content</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Descrizione fisica</label>
+         <input-type>textarea</input-type>
+         <hint>Descrivere le caratteristiche fisiche della risorsa.</hint>
+         <required></required>
+       </field>   
+
+      
        
       <field>
 		 <dc-schema>dc</dc-schema>
@@ -859,7 +881,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-qualifier></dc-qualifier>
          <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
          <repeatable>true</repeatable>
-         <label>Identifiers</label>
+         <label>Identificativo</label>
          <input-type value-pairs-name="common_book_identifiers">qualdrop_value</input-type>
          <hint>Inserire numeri identificativi, codici, inventario, segnatura della risorsa.</hint>
          <required></required>
@@ -966,6 +988,19 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Inserire ogni altro eventuale commento/nota alla risorsa.</hint>
          <required></required>
        </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <required></required>
+       </field>
+       
+       
      </page>
    </form>
 
@@ -1579,6 +1614,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint></hint>
          <required></required>
         </field>
+        
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <required></required>
+       </field>
         
         <field>
          <dc-schema>dc</dc-schema>
@@ -2199,6 +2245,33 @@ it, please enter the types and the actual numbers or codes.</hint>
      <pair>
        <displayed-value>Altra</displayed-value>
        <stored-value>other</stored-value>
+     </pair>
+   </value-pairs>
+   
+    <value-pairs value-pairs-name="license_types" dc-term="type">
+     <pair>
+       <displayed-value>CC BY</displayed-value>
+       <stored-value>ccby</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-SA</displayed-value>
+       <stored-value>ccbysa</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-ND</displayed-value>
+       <stored-value>ccbynd</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC</displayed-value>
+       <stored-value>ccbync</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-SA</displayed-value>
+       <stored-value>ccbyncsa</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-ND</displayed-value>
+       <stored-value>ccbyncnd</stored-value>
      </pair>
    </value-pairs>
 
