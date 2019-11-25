@@ -950,3 +950,25 @@
   margin-left: 0;
   margin-right: 0;
 }
+
+.jstree-anchor {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.jstree-clicked.jstree-hovered {
+    overflow: visible;
+    width: auto;
+}
+.jstree-hovered {
+    overflow: visible;
+    min-width: 100%;
+    width: auto;
+}
+.jstree-clicked {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
