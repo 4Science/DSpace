@@ -30,6 +30,8 @@ import org.dspace.app.cris.model.ResearchObject;
 import org.dspace.app.cris.model.ResearcherPage;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.OrderBy;
 
 /**
@@ -63,6 +65,7 @@ public class DynamicNestedObject
 {
 
     @OneToMany(mappedBy = "parent")
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Cascade(value = { CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     @OrderBy(clause = "positionDef asc")
     private List<DynamicNestedProperty> anagrafica;
