@@ -40,7 +40,7 @@ public class FondsHierarchySolrIndexer implements CrisServiceIndexPlugin
             SolrInputDocument sorlDoc,
             Map<String, List<DiscoverySearchFilter>> searchFilters)
     {
-        sorlDoc.addField(crisObject.getTypeText()+":"+ResearcherPageUtils.FONDS+ResearcherPageUtils.HIERARCHY,  ResearcherPageUtils.getDisplayEntry(crisObject));
+        sorlDoc.addField(crisObject.getTypeText()+"."+ResearcherPageUtils.FONDS+ResearcherPageUtils.HIERARCHY,  ResearcherPageUtils.getDisplayEntry(crisObject));
     }
 
     
