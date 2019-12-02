@@ -724,6 +724,25 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
         }
         return type;
     }
+    
+    public String getType(HttpServletRequest request, Integer id, boolean isSelectedTab)
+    {
+        String type = request.getParameter("open");
+        if (type == null || !isSelectedTab)
+        {
+            type = types.keySet().iterator().next();
+            for (String t : types.keySet())
+            {
+
+                if (count(request, t, id) > 0)
+                {
+                    type = t;
+                    break;
+                }
+            }
+        }
+        return type;
+    }
 
     private int getEtAl(HttpServletRequest request, String type)
     {
