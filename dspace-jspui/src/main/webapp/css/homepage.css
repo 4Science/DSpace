@@ -116,7 +116,7 @@ img::-moz-selection {
 }
 
 .btn-primary {
-	background-image: linear-gradient(to bottom,#428bca 0,#424a5d 100%);
+	background-color: #004fa1;
 }
 
 .btn-primary:hover {
@@ -130,7 +130,7 @@ img::-moz-selection {
 .panel .panel-heading {
 	color: white;
 	border-radius: 0;
-	background-image: linear-gradient(to bottom,#428bca 0,#424a5d 100%);
+	background-color: #004fa1;
 }
 
 .panel-title {
