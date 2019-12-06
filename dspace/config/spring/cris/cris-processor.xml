@@ -75,6 +75,8 @@
 									<value>type</value>
 									<value>dateissued</value>
 									<value>subject</value>
+									<value>license</value>
+									<value>fond</value>
 								</list>
 							</property>
 						</bean>
