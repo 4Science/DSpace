@@ -300,3 +300,7 @@ footer .container {
 .submit-identifier > .form-control{
 	width:50%;
 }
+
+.carousel-caption {
+  	background:rgba(255,255,255,0.4);
+}
