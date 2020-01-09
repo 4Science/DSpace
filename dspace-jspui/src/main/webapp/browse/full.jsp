@@ -361,6 +361,10 @@ jQuery(document).ready(function() {
 	// If we are not browsing by a date, render the string selection header //
 	else
 	{
+		if (StringUtils.isNotBlank(value)) {
+			jumpKey = "browse.nav.jump.title";
+			startWithKey = "browse.nav.enter.title";
+		}
 %>	
 	
 	<label for="starts_with" class="sr-only">
