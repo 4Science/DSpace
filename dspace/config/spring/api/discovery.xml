@@ -2416,7 +2416,7 @@
 		<property name="indexFieldName" value="license" />
 		<property name="metadataFields">
 			<list>
-				<value>dc.rights</value>
+				<value>dc.rights.license</value>
 			</list>
 		</property>
 	</bean>
