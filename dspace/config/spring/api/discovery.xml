@@ -684,14 +684,12 @@
 		<!-- <property name="ordering" value="Tag.NameComparatorAsc"/>-->	
     </bean>
 				
-	<bean id="itemConfiguration"
-		class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-		scope="prototype">
+	<bean id="itemConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
 		<property name="globalConfigurationEnabled" value="true" />
 		<property name="id" value="itemConfiguration" />
 		
 		<!--Which sidebar facets are to be displayed -->
-		<property name="sidebarFacets" ref="facetsItemConfiguration"/>
+		<property name="sidebarFacets" ref="facetsItemConfiguration" />
 		<!--The search filters which can be used on the discovery search page -->
 		<property name="searchFilters">
 			<list>
@@ -701,6 +699,8 @@
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
 				<ref bean="searchFilterFulltext" />
+				<ref bean="searchFilterLicense" />
+				<ref bean="searchFilterFond" />
 			</list>
 		</property>
 		<!--The sort filters for the discovery search -->
@@ -726,8 +726,7 @@
 		</property>
 		<!--The configuration for the recent submissions -->
 		<property name="recentSubmissionConfiguration">
-			<bean
-				class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+			<bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
 				<property name="metadataSortField" value="dc.date.accessioned" />
 				<property name="type" value="date" />
 				<property name="max" value="5" />
@@ -736,28 +735,23 @@
 		<!--Default result per page -->
 		<property name="defaultRpp" value="10" />
 		<property name="hitHighlightingConfiguration">
-			<bean
-				class="org.dspace.discovery.configuration.DiscoveryHitHighlightingConfiguration">
+			<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightingConfiguration">
 				<property name="metadataFields">
 					<list>
-						<bean
-							class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+						<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
 							<property name="field" value="dc.title" />
 							<property name="snippets" value="5" />
 						</bean>
-						<bean
-							class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+						<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
 							<property name="field" value="dc.contributor.author" />
 							<property name="snippets" value="5" />
 						</bean>
-						<bean
-							class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+						<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
 							<property name="field" value="dc.description.abstract" />
 							<property name="maxSize" value="250" />
 							<property name="snippets" value="2" />
 						</bean>
-						<bean
-							class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+						<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
 							<property name="field" value="fulltext" />
 							<property name="maxSize" value="250" />
 							<property name="snippets" value="2" />
@@ -767,8 +761,7 @@
 			</bean>
 		</property>
 		<property name="moreLikeThisConfiguration">
-			<bean
-				class="org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration">
+			<bean class="org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration">
 				<!--When altering this list also alter the "xmlui.Discovery.RelatedItems.help" 
 					key as it describes the metadata fields below -->
 				<property name="similarityMetadataFields">
@@ -2418,6 +2411,26 @@
 		<property name="sortOrder" value="COUNT" />
 	</bean>
 	
+	<bean id="searchFilterLicense"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="license" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.rights</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="searchFilterFond"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="fond" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.relation.fond</value>
+			</list>
+		</property>
+	</bean>
+	
 	<!--Sort properties -->
 	<bean id="sortTitle"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
@@ -2490,7 +2503,9 @@
 				<ref bean="searchFilterSubject" />
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
-				<ref bean="searchFilterFulltext" />			
+				<ref bean="searchFilterFulltext" />	
+				<ref bean="searchFilterLicense" />
+				<ref bean="searchFilterFond" />		
 		</list>
 		</constructor-arg>
 	</bean>
