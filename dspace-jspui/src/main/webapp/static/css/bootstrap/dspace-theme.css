@@ -9,9 +9,9 @@
 .brand h4 {color: #999999}
 #communitylist-top-menu a, #userloggedin-top-menu a {padding-top:0.3em;padding-bottom:0.3em;}
 #user-top-menu, #userloggedin-top-menu {margin-right: 15px;}
-footer {padding-top: 1em;}
+footer {padding-top: 1em; background-color: #343434}
 footer.navbar-inverse {color: white;}
-footer .extra-footer{background-color: black; color:white;}
+footer .extra-footer{background-color: #004fa1; color:white;}
 #designedby img {margin-right: 5px;}
 #formsearch-top-menu {width: 310px;}
 div.panel.panel-primary ul.list-group li.list-group-item.active {border-left: 3px solid #428bca; background: white;}
@@ -299,4 +299,23 @@ footer .container {
 
 .submit-identifier > .form-control{
 	width:50%;
+}
+
+.breadcrumb{
+	background-color: #004fa1;
+}
+
+#footer_feedback > a{
+	color: #fff
+}
+#footer_feedback > a:hover{
+	text-decoration: underline;
+}
+
+#designedby > a{
+	color: #fff
+}
+
+#designedby> a:hover{
+	text-decoration: underline;
 }
