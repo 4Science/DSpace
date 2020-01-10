@@ -81,6 +81,7 @@
 	             	</div>
 	             	--%>
 	             		<%= footerNews %>
+               	</div>
             </div>
 			<div class="container-fluid extra-footer row">
       			<div id="footer_feedback" class="col-sm-4 pull-<%= isRtl ? "right":"left" %>">                                    
