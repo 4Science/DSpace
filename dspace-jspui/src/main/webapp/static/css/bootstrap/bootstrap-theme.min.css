@@ -999,7 +999,7 @@ select[multiple].input-group-sm>.form-control,select[multiple].input-group-sm>.i
 .navbar-text{margin-top:14.5px;margin-bottom:14.5px}
 @media (min-width:768px){.navbar-text{float:left;margin-right:15px;margin-left:15px}
 .navbar-left{float:left!important}
-.navbar-right{float:right!important;margin-right:-15px}
+.navbar-right{float:right!important}
 .navbar-right~.navbar-right{margin-right:0}
 }
 .navbar-default{background-color:#00458c;border-color:#00356b}
