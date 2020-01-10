@@ -194,6 +194,23 @@
 						</bean>
 					</list>
 				</entry>
+				<entry key="crisfonds">
+					<list>
+						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+							<property name="browseNames">
+								<list>
+									<value>crisfondname</value>
+									<value>crisfondtype</value>
+									<value>crisfondperson</value>
+									<value>crisfondfamily</value>
+									<value>crisfondorganization</value>
+									<value>crisfondcustodian</value>
+									<value>crisfondproject</value>
+								</list>
+							</property>
+						</bean>
+					</list>
+				</entry>
 			</map>
 		</property>
 	</bean>
