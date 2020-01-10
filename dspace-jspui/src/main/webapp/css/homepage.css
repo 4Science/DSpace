@@ -644,3 +644,13 @@ img::-moz-selection {
     -webkit-animation-timing-function: linear;
     -moz-animation-timing-function: linear;
 }
+
+.horiz-list ul li {
+	display: inline-block;
+    padding: 15px;
+}
+
+.footer-logo li a .img-responsive {
+    max-height: 120px;
+    display: block;
+}
