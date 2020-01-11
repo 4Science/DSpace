@@ -171,29 +171,6 @@
  --%>
        <div class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
 		<ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-                    <li id="search-top-menu" class="dropdown">
-           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-search"></span><b class="caret"></b></a>
-          <div class="dropdown-menu">
-          
-	<%-- Search Box --%>
-	<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" class="navbar-form navbar-<%= isRtl ? "left" : "right" %>" scope="search">		
-	    <div class="form-group shp-float-left">
-          <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery" size="25"/>
-        </div>
-        <button type="submit" class="btn btn-primary shp-float-right"><span class="glyphicon glyphicon-search"></span></button>
-<%--               <br/><a href="<%= request.getContextPath() %>/advanced-search"><fmt:message key="jsp.layout.navbar-default.advanced"/></a>
-<%
-			if (ConfigurationManager.getBooleanProperty("webui.controlledvocabulary.enable"))
-			{
-%>        
-              <br/><a href="<%= request.getContextPath() %>/subject-search"><fmt:message key="jsp.layout.navbar-default.subjectsearch"/></a>
-<%
-            }
-%> --%>
-	</form>
-	
-          </div>
-          </li>
          <%
     if (user != null)
     {

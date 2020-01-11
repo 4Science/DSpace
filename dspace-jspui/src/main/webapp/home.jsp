@@ -70,6 +70,28 @@
 %>
 
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
+<%-- slider/top news --%>
+<div class="row"> 
+	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
+		<%-- Fondi di nuova accessione --%>
+	</div>
+	<div class="col-md-4">
+    <hr />
+		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
+		    <div class="form-group col-md-10">
+    	      <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery"/>
+    	    </div>
+     	   <div class="col-md-1">
+     	  	 	<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+     	   </div>
+		</form>
+	</div>
+	<div class="col-md-4">
+ 		<hr />
+ 		<%= sideNews %>
+ 	</div>
+</div>
+<hr />
 <div class="row">
 	<%= topNews %>
 </div>
@@ -97,11 +119,6 @@
 	</div>
 	<div class="col-md-4 <%= isRtl ? "pull-right":""%>">
 		<%@ include file="components/most-downloaded.jsp" %>
-	</div>
-	<div class="col-md-4 <%= isRtl ? "pull-left":""%>">
-	<%= sideNews %>
-	<%-- <%@ include file="discovery/static-tagcloud-facet.jsp" %> --%>
-	<%-- <%@ include file="components/most-cited.jsp" %> --%>
 	</div>
 </div>
 <%
