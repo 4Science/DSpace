@@ -70,19 +70,21 @@
 %>
 
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
-<%-- slider/top news --%>
+<div class="row">
+	<%= topNews %>
+</div>
+<hr />
 <div class="row"> 
 	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
 		<%-- Fondi di nuova accessione --%>
 	</div>
 	<div class="col-md-4">
-    <hr />
 		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
-		    <div class="form-group col-md-10">
+		    <div class="form-group col-md-11">
     	      <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery"/>
     	    </div>
      	   <div class="col-md-1">
-     	  	 	<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+               <button type="submit" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-search"></span></button>
      	   </div>
 		</form>
 	</div>
@@ -90,10 +92,6 @@
  		<hr />
  		<%= sideNews %>
  	</div>
-</div>
-<hr />
-<div class="row">
-	<%= topNews %>
 </div>
 <hr />
 <div class="row">
@@ -109,16 +107,16 @@
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
 		  </div>
-	<div class="col-md-4 sm-12 pull-<%= isRtl? "left":"right" %>">
-    <%@ include file="components/recent-submissions.jsp" %>
-	</div>
 </div>
 <div class="row">
-	<div class="col-md-4 <%= isRtl ? "pull-right":""%>">
+	<div class="col-md-4 pull-<%= isRtl? "right":"left" %>">
 		<%@ include file="components/most-viewed.jsp" %>	
 	</div>
-	<div class="col-md-4 <%= isRtl ? "pull-right":""%>">
+	<div class="col-md-4">
 		<%@ include file="components/most-downloaded.jsp" %>
+	</div>
+	<div class="col-md-4 pull-<%= isRtl? "left":"right" %>">
+	    <%@ include file="components/recent-submissions.jsp" %>
 	</div>
 </div>
 <%
