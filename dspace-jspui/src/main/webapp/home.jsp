@@ -71,9 +71,11 @@
 
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
 <div class="row">
+	<%= topNews %>
+</div>
+<hr />
+<div class="row">
 	<div class="col-md-8 sm-12 pull-<%= isRtl? "right":"left" %>">
-        <%= topNews %>
-
 	<%
     	int discovery_panel_cols = 8;
     	int discovery_facet_cols = 4;

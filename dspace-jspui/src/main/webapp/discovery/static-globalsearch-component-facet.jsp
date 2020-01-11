@@ -97,7 +97,6 @@
 %>
 		
 		
-<hr/>
 <div class="row">
 <form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-10 col-md-offset-1" action="<%= request.getContextPath() %>/simple-search" method="get">
 <div class="input-group">

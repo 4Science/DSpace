@@ -318,4 +318,7 @@ footer .container {
 
 #designedby> a:hover{
 	text-decoration: underline;
+
+.carousel-caption {
+  	background:rgba(255,255,255,0.4);
 }

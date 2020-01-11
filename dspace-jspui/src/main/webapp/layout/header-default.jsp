@@ -276,22 +276,7 @@ window.cookieconsent.initialise({
 </div>
 
 <% String currentPage = UIUtil.getOriginalURL(request);
-   if (currentPage.endsWith("/home.jsp")) { %>
-<div class="intro intro-background">
-	<div class="intro-body">
-	    <div class="container shp-transparent">
-	        <div class="row">
-	            <div class="col-md-8 col-md-offset-2">
-	                <h1 class="brand-heading"><img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png"></h1>
-	                <a href="#about" class="btn custom-btn-circle btn-circle page-scroll">
-	                    <i class="fa fa-angle-double-down animated"></i>
-	                </a>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-</div>
-<% } else { %>
+   if (!currentPage.endsWith("/home.jsp")) { %>
 <div class="container-fluid intro-background">
     <div class="row">
         <div class="col-md-12">
