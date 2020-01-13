@@ -57,6 +57,7 @@
             <footer class="navbar navbar-bottom navbar-square">
              <div class="container-fluid shp-margin">
 	             <div class="row">
+					<%--
 					<div class="col-md-3 col-sm-6">
 	             		<div class="panel panel-default">
 	             			<div class="panel-heading">
@@ -78,10 +79,9 @@
 	             			</div>
 	             		</div>
 	             	</div>
-	             	<div class="col-md-9 col-sm-6">
+	             	--%>
 	             		<%= footerNews %>
-	             	</div>
-	            </div> 
+               	</div>
             </div>
 			<div class="container-fluid extra-footer row">
       			<div id="footer_feedback" class="col-sm-4 pull-<%= isRtl ? "right":"left" %>">                                    
