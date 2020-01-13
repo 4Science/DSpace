@@ -1456,3 +1456,5 @@ a.list-group-item-warning.active{background-color:#ff7518}
 a.list-group-item-warning.active:focus,a.list-group-item-warning.active:hover{background-color:#fe6600}
 a.list-group-item-danger.active{background-color:#ff0039}
 a.list-group-item-danger.active:focus,a.list-group-item-danger.active:hover{background-color:#e60033}
+.panel .panel-heading {color: white;border-radius: 0;background-color: #004fa1;}
+h1,h2,h3,h4,h5,h6 {margin: 0 0 35px;text-transform: uppercase;font-family: "Open Sans",sans-serif;font-weight: 700;letter-spacing: 1px;}
