@@ -299,45 +299,6 @@ img::-moz-selection {
 }*/
 
 /* ============================================================================
-   == Custom
-   ============================================================================ */
-
-.shp-float-right{
-	float: right;
-}
-
-.shp-float-left{
-	float: left;
-}
-
-.shp-no-mb{
-    margin-bottom: 0;
-}
-
-.shp-transparent{
-    background-color: transparent;
-}
-
-.shp-margin {
-    padding-left: 18px;
-    padding-right: 18px;
-}
-
-@media(min-width:768px) and (max-width: 1043px) {
-	.shp-margin {
-	    padding-left: 32px;
-	    padding-right: 32px;
-	}
-}
-
-@media(max-width:768px) {
-	.shp-margin {
-	    padding-left: 0px;
-	    padding-right: 0px;
-	}
-}
-
-/* ============================================================================
    == Navbar
    ============================================================================ */
  
