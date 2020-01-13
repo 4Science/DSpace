@@ -1434,7 +1434,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        <field>
 	<dc-schema>dc</dc-schema>
          <dc-element>contributor</dc-element>
-         <dc-qualifier>Family</dc-qualifier>
+         <dc-qualifier>family</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Soggetto produttore-famiglia</label>
          <input-type>onebox</input-type>
