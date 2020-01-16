@@ -51,6 +51,7 @@
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
     String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
+    String centralNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-central.html"));
     String sideNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
 
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
@@ -77,6 +78,7 @@
 <div class="row"> 
 	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
 		<%-- Fondi di nuova accessione --%>
+		<%= centralNews %>
 	</div>
 	<div class="col-md-4">
 		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
@@ -108,6 +110,7 @@
 	<% } %>        
 		  </div>
 </div>
+<hr />
 <div class="row">
 	<div class="col-md-4 pull-<%= isRtl? "right":"left" %>">
 		<%@ include file="components/most-viewed.jsp" %>	

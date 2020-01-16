@@ -193,7 +193,7 @@
 </div>
 
 
-<hr/>
+
 
 <div id="group-left-info-popover-head" class="hide">
 	<fmt:message key="jsp.home.group-left.head"/>
