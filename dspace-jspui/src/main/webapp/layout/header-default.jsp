@@ -277,6 +277,9 @@ window.cookieconsent.initialise({
 </div>
 
 <% String currentPage = UIUtil.getOriginalURL(request);
+   if (currentPage.contains("?")) {
+      currentPage = currentPage.substring(0, currentPage.lastIndexOf("?"));
+   }
    if (!currentPage.endsWith("/home.jsp")) { %>
 <div class="container-fluid intro-background">
     <div class="row">
