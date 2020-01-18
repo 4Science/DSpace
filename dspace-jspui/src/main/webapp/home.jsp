@@ -50,7 +50,6 @@
 
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
-    String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
     String centralNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-central.html"));
     String sideNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
 
@@ -71,10 +70,6 @@
 %>
 
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
-<div class="row">
-	<%= topNews %>
-</div>
-<hr />
 <div class="row"> 
 	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
 		<%-- Fondi di nuova accessione --%>

@@ -28,11 +28,13 @@
 <%@ page import="javax.servlet.jsp.jstl.core.*" %>
 <%@ page import="javax.servlet.jsp.jstl.fmt.*" %>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.dspace.core.NewsManager" %>
 
 <%
     String title = (String) request.getAttribute("dspace.layout.title");
     String navbar = (String) request.getAttribute("dspace.layout.navbar");
     boolean locbar = ((Boolean) request.getAttribute("dspace.layout.locbar")).booleanValue();
+    String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
 
     String siteName = ConfigurationManager.getProperty("dspace.name");
     String feedRef = (String)request.getAttribute("dspace.layout.feedref");
@@ -293,7 +295,10 @@ window.cookieconsent.initialise({
 <% } %>
 <br />
 <% if (currentPage.endsWith("/home.jsp")) { %>
-<a name="about"></a>
+<div class="row">
+	<%= topNews %>
+</div>
+<hr />
 <% } %>
                 <%-- Location bar --%>
 <%
