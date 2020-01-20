@@ -1425,7 +1425,6 @@
 				<ref bean="searchFilterCrisFondsStartDateTo" />
 				<ref bean="searchFilterCrisFondsEndDateFrom" />
 				<ref bean="searchFilterCrisFondsEndDateTo" />
-				<ref bean="searchFilterCrisFondsLanguage" />
 			</list>
 		</property>
 		<!--The sort filters for the discovery search -->
@@ -2752,16 +2751,6 @@
 		<property name="metadataFields">
 			<list>
 				<value>crisfonds.fondstype</value>
-			</list>
-		</property>
-	</bean>
-	
-	<bean id="searchFilterCrisFondsLanguage"
-		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
-		<property name="indexFieldName" value="crisfondlanguage" />
-		<property name="metadataFields">
-			<list>
-				<value>crisfonds.fondslanguage</value>
 			</list>
 		</property>
 	</bean>
