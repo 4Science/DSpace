@@ -77,10 +77,10 @@
 	</div>
 	<div class="col-md-4">
 		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
-		    <div class="form-group col-md-11">
+		    <div class="form-group col-md-10 col-lg-11">
     	      <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery"/>
     	    </div>
-     	   <div class="col-md-1">
+     	   <div class="col-md-2 col-lg-1">
                <button type="submit" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-search"></span></button>
      	   </div>
 		</form>
