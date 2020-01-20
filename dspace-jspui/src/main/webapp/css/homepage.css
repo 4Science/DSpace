@@ -315,7 +315,6 @@ img::-moz-selection {
     border-bottom: 1px solid rgba(255,255,255,0.1);
     text-transform: uppercase;
     font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
-    background-color: #000;
 }
 
 .navbar-custom .navbar-brand {
