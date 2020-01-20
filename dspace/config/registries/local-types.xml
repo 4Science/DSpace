@@ -37,4 +37,11 @@
     <scope_note>Enable the user to add notes about his claiming request</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>local</schema>
+    <element>migration</element>
+    <qualifier>date</qualifier>
+    <scope_note>Metadata field used to store the migration date</scope_note>
+  </dc-type>
+
 </dspace-dc-types>
