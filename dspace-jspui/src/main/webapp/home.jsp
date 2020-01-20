@@ -75,14 +75,14 @@
 		<%-- Fondi di nuova accessione --%>
 		<%= centralNews %>
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-4 col-sm-12">
 		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
-		    <div class="form-group col-md-10 col-lg-11">
+		    <div class="input-group col-lg-12">
     	      <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery"/>
-    	    </div>
-     	   <div class="col-md-2 col-lg-1">
-               <button type="submit" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-search"></span></button>
-     	   </div>
+	    	    <span class="input-group-btn">
+	        		<button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+	    		</span>
+    		</div>
 		</form>
 	</div>
 	<div class="col-md-4">
@@ -107,13 +107,13 @@
 </div>
 <hr />
 <div class="row">
-	<div class="col-md-4 pull-<%= isRtl? "right":"left" %>">
+	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	
 	</div>
 	<div class="col-md-4">
 		<%@ include file="components/most-downloaded.jsp" %>
 	</div>
-	<div class="col-md-4 pull-<%= isRtl? "left":"right" %>">
+	<div class="col-md-4">
 	    <%@ include file="components/recent-submissions.jsp" %>
 	</div>
 </div>
