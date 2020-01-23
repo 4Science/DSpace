@@ -7,7 +7,7 @@
  */
 /* Researcher field */
 span.fieldError, .errorMessage {
-    color: red;
+    color: #fff;
     font-size: .95em;
     font-weight: bold;
     display: block;
