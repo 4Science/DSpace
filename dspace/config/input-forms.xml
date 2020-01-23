@@ -948,6 +948,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <required></required>
        </field>
        
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>person</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Persona</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -1969,6 +1980,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Progetto</label>
          <input-type>onebox</input-type>
          <hint>Inserire il titolo del progetto cui è eventualmente connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>person</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Persona</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
          <required></required>
        </field>
        
