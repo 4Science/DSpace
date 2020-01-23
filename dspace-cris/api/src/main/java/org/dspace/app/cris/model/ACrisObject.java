@@ -198,7 +198,11 @@ public abstract class ACrisObject<P extends Property<TP>, TP extends PropertiesD
 							}
 							else if (val instanceof ACrisObject) {
 								authority = ResearcherPageUtils.getPersistentIdentifier((ACrisObject) val);
-								mapResultsVal.put(val.hashCode(), ((ACrisObject) val).getName());
+								String value = ((ACrisObject) val).getName();
+								if(StringUtils.isBlank(value)) {
+									value = "";
+								}
+								mapResultsVal.put(val.hashCode(), value);
 								mapResultsAuth.put(val.hashCode(), authority);
 								buildMetadata = true;
 							} else {
@@ -236,7 +240,11 @@ public abstract class ACrisObject<P extends Property<TP>, TP extends PropertiesD
 	                        }
 	                    } else if (val instanceof ACrisObject) {
 	                        authority = ResearcherPageUtils.getPersistentIdentifier((ACrisObject) val);
-	                        mapResultsVal.put(val.hashCode(), ((ACrisObject) val).getName());
+	                        String value = ((ACrisObject) val).getName();
+	                        if(StringUtils.isBlank(value)) {
+	                        	value = "";
+	                        }
+	                        mapResultsVal.put(val.hashCode(), value);
 	                        mapResultsAuth.put(val.hashCode(), authority);
 	                        buildMetadata = true;
 	                    } else {
@@ -273,7 +281,11 @@ public abstract class ACrisObject<P extends Property<TP>, TP extends PropertiesD
 						}
 					} else if (val instanceof ACrisObject) {
 						authority = ResearcherPageUtils.getPersistentIdentifier((ACrisObject) val);
-                        mapResultsVal.put(val.hashCode(), ((ACrisObject) val).getName());
+						String value = ((ACrisObject) val).getName();
+						if (StringUtils.isBlank(value)) {
+							value = "";
+						}
+						mapResultsVal.put(val.hashCode(), value);
                         mapResultsAuth.put(val.hashCode(), authority);
 					} else {
 						PropertyEditor propertyEditor = prop.getTypo().getRendering().getPropertyEditor(null);
