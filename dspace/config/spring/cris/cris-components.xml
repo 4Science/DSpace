@@ -43,6 +43,7 @@
 		<property name="facets" ref="facetsItemConfiguration" />
 		<property name="types">
 			<map>
+				<entry key="all" value-ref="allComponent" />
 				<entry key="selected" value-ref="selectedComponent" />
 				<entry key="journal" value-ref="journalComponent" />
 				<entry key="conference" value-ref="conferenceComponent" />
@@ -52,6 +53,15 @@
 				<entry key="other" value-ref="otherComponent" />
 			</map>
 		</property>
+	</bean>
+
+	<bean id="allComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery"><value>*:*</value></property>
+		<property name="order"><value>asc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
 	</bean>
 
 	<bean id="selectedComponent"
@@ -126,6 +136,7 @@
                 <property name="facets" ref="facetsItemConfiguration" />
                 <property name="types">
                         <map>
+                                <entry key="all" value-ref="allComponent" />
                                 <entry key="selected" value-ref="selectedComponent" />
                                 <entry key="journal" value-ref="journalComponent" />
                                 <entry key="conference" value-ref="conferenceComponent" />
