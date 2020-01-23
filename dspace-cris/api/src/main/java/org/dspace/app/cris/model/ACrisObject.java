@@ -297,7 +297,7 @@ public abstract class ACrisObject<P extends Property<TP>, TP extends PropertiesD
 			    result[idx].authority = null;   
 			}
 			result[idx].confidence = StringUtils.isNotEmpty(authority) ? Choices.CF_ACCEPTED : Choices.CF_UNSET;
-			if(mapResultsVal.containsKey(key)) {
+			if(mapResultsVal.containsKey(key) && mapResultsVal.get(key) != null) {
 			    result[idx].value = mapResultsVal.get(key).toString();
 			}
 			else {
