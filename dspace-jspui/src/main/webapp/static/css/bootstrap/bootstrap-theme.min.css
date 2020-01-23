@@ -808,7 +808,7 @@ tbody.collapse.in{display:table-row-group}
 .btn-group>.btn-group:last-child:not(:first-child)>.btn:first-child,.btn-group>.btn:last-child:not(:first-child),.btn-group>.dropdown-toggle:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0}
 .btn-group>.btn-group:first-child:not(:last-child)>.btn:last-child,.btn-group>.btn-group:first-child:not(:last-child)>.dropdown-toggle,.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle){border-bottom-right-radius:0;border-top-right-radius:0}
 .dropdown-header,.dropdown-menu>li>a{white-space:nowrap;padding:3px 20px;line-height:1.42857143}
-.dropdown-menu-right,.dropdown-menu.pull-right{right:0;left:auto}
+.dropdown-menu-right,.dropdown-menu.pull-right{left:auto}
 .dropdown-menu .divider{height:1px;margin:9.5px 0;background-color:#003c7a}
 .dropdown-menu>li>a{display:block;clear:both;font-weight:400;color:#fff}
 .dropdown-menu>li>a:focus,.dropdown-menu>li>a:hover{color:#fff;text-decoration:none;background-color:#003c7a}
