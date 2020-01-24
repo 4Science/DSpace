@@ -898,11 +898,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Merge Join 2 2 2 4 2</from>
-      <to>Select values</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Merge Join 2 2 2 4</from>
       <to>Merge Join 2 2 2 4 2</to>
       <enabled>Y</enabled>
@@ -910,6 +905,46 @@
     <hop>
       <from>Sort rows 2 2 2 3 2 2 2</from>
       <to>Merge Join 2 2 2 4 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows 2 2 2 2 2 2 2</from>
+      <to>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows 2 2 2 2 2 2 2</from>
+      <to>JSON Input 2 2 2 3 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Group by 2 2 2</from>
+      <to>Sort rows 2 2 2 3 2 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>JSON Input 2 2 2 3 2 2 2</from>
+      <to>Group by 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort rows 2 2 2 3 2 2 2 2</from>
+      <to>Merge Join 2 2 2 4 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Text file input 3 2 6 2 2</from>
+      <to>Filter rows 2 2 2 2 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Join 2 2 2 4 2</from>
+      <to>Merge Join 2 2 2 4 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Join 2 2 2 4 2 2</from>
+      <to>Select values</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1331,6 +1366,56 @@
     </step>
 
   <step>
+    <name>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>1088</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>1088</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
     <name>Dummy &#x28;do nothing&#x29; 2 2 2 3 3</name>
     <type>Dummy</type>
     <description/>
@@ -1425,7 +1510,7 @@
     </remotesteps>
     <GUI>
       <xloc>224</xloc>
-      <yloc>1168</yloc>
+      <yloc>1248</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -1474,8 +1559,8 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>224</xloc>
-      <yloc>448</yloc>
+      <xloc>144</xloc>
+      <yloc>528</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -1704,6 +1789,76 @@
     <GUI>
       <xloc>704</xloc>
       <yloc>1008</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Filter rows 2 2 2 2 2 2</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<send_true_to>JSON Input 2 2 2 3 2 2</send_true_to>
+<send_false_to>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>row</leftvalue>
+ <function>CONTAINS</function>
+ <rightvalue/>
+ <value><name>constant</name><type>String</type><text>&#x22;rel_custodian_fond&#x22;</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
+    </compare>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>1168</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Filter rows 2 2 2 2 2 2 2</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<send_true_to>JSON Input 2 2 2 3 2 2 2</send_true_to>
+<send_false_to>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2 2</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>row</leftvalue>
+ <function>CONTAINS</function>
+ <rightvalue/>
+ <value><name>constant</name><type>String</type><text>&#x22;fond_lang&#x22;</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
+    </compare>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>1168</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -1956,7 +2111,7 @@
   <condition>
    <negated>N</negated>
    <operator>OR</operator>
-   <leftvalue>fondsbibliographybibliopgraphytitle</leftvalue>
+   <leftvalue>fondsbibliographybibliographytitle</leftvalue>
    <function>IS NOT NULL</function>
    <rightvalue/>
    </condition>
@@ -2069,7 +2224,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>224</xloc>
+      <xloc>64</xloc>
       <yloc>528</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2168,6 +2323,98 @@
     </remotesteps>
     <GUI>
       <xloc>544</xloc>
+      <yloc>848</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Group by 2 2</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>legacy_fond_id</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>legacy_custodian_id_concatenated</aggregate>
+          <subject>legacy_custodian_id</subject>
+          <type>CONCAT_STRING</type>
+          <valuefield>&#x7c;&#x7c;&#x7c;</valuefield>
+        </field>
+      </fields>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>848</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Group by 2 2 2</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>legacy_fond_id</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>code_concatenated</aggregate>
+          <subject>code</subject>
+          <type>CONCAT_STRING</type>
+          <valuefield>&#x7c;&#x7c;&#x7c;</valuefield>
+        </field>
+      </fields>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>224</xloc>
       <yloc>848</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2678,19 +2925,6 @@
         <trim_type>none</trim_type>
         <repeat>N</repeat>
       </field>
-      <field>
-        <name>code</name>
-        <path>&#x24;..code</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
     </fields>
     <limit>0</limit>
     <IsInFields>Y</IsInFields>
@@ -2748,7 +2982,7 @@
     </file>
     <fields>
       <field>
-        <name>fond_id</name>
+        <name>fond_unit_id</name>
         <path>&#x24;..fond_id</path>
         <type>String</type>
         <format/>
@@ -3233,6 +3467,170 @@
     </step>
 
   <step>
+    <name>JSON Input 2 2 2 3 2 2</name>
+    <type>JsonInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>legacy_custodian_id</name>
+        <path>&#x24;..legacy_custodian_id</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>legacy_fond_id</name>
+        <path>&#x24;..legacy_fond_id</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>row</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>1008</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>JSON Input 2 2 2 3 2 2 2</name>
+    <type>JsonInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>legacy_fond_id</name>
+        <path>&#x24;..legacy_id</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>code</name>
+        <path>&#x24;..code</path>
+        <type>None</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>row</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>1008</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
     <name>JSON Input 2 2 2 3 3</name>
     <type>JsonInput</type>
     <description/>
@@ -3586,7 +3984,7 @@
       <key>legacy_id</key>
     </keys_1>
     <keys_2>
-      <key>fond_id</key>
+      <key>fond_unit_id</key>
     </keys_2>
     <cluster_schema/>
     <remotesteps>
@@ -3773,6 +4171,74 @@
     </step>
 
   <step>
+    <name>Merge Join 2 2 2 4 2</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>Merge Join 2 2 2 4</step1>
+<step2>Sort rows 2 2 2 3 2 2 2</step2>
+    <keys_1>
+      <key>legacy_id</key>
+    </keys_1>
+    <keys_2>
+      <key>legacy_fond_id</key>
+    </keys_2>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>528</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Merge Join 2 2 2 4 2 2</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>Merge Join 2 2 2 4 2</step1>
+<step2>Sort rows 2 2 2 3 2 2 2 2</step2>
+    <keys_1>
+      <key>legacy_id</key>
+    </keys_1>
+    <keys_2>
+      <key>legacy_fond_id</key>
+    </keys_2>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>528</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
     <name>Merge Join 2 2 3</name>
     <type>MergeJoin</type>
     <description/>
@@ -3947,7 +4413,7 @@
         <format/>
       </field>
       <field>
-        <name>fondsarrangement_notes</name>
+        <name>fondsarrangement_note</name>
         <type>String</type>
         <format/>
       </field>
@@ -4088,7 +4554,7 @@
     </remotesteps>
     <GUI>
       <xloc>64</xloc>
-      <yloc>528</yloc>
+      <yloc>208</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -4195,7 +4661,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>224</xloc>
+      <xloc>64</xloc>
       <yloc>688</yloc>
       <draw>Y</draw>
     </GUI>
@@ -4303,7 +4769,7 @@
         <format/>
       </field>
       <field>
-        <name>fondsbibliographybibliopgraphytitle</name>
+        <name>fondsbibliographybibliographytitle</name>
         <type>String</type>
         <format/>
       </field>
@@ -4379,7 +4845,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var ACTION &#x3d; &#x22;UPDATE&#x22;&#x3b;&#xa;var CRISID &#x3d; &#x22;&#x22;&#x3b;&#xa;var UUID &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF &#x3d; &#x22;unipv&#x22;&#x3b;&#xa;var SOURCEID &#x3d; legacy_id&#x3b;&#xa;&#xa;var fondsname &#x3d; name &#x21;&#x3d; null &#x26;&#x26; name.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; name &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondstype &#x3d; fond_type &#x21;&#x3d; null &#x26;&#x26; fond_type.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; fond_type &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondslenght &#x3d; length &#x21;&#x3d; null &#x26;&#x26; length.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; length &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsextent &#x3d; extent &#x21;&#x3d; null &#x26;&#x26; extent.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; extent &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsabstract &#x3d; abstract &#x21;&#x3d; null &#x26;&#x26; abstract.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; abstract &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsdescription &#x3d; description &#x21;&#x3d; null &#x26;&#x26; description.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; description &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsparent &#x3d; legacy_parent_id &#x21;&#x3d; null &#x26;&#x26; legacy_parent_id.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_parent_id &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsleaf &#x3d; fond_id &#x21;&#x3d; null &#x26;&#x26; fond_id.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;TRUE&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondshistory &#x3d; history &#x21;&#x3d; null &#x26;&#x26; history.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; history &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsarrangement_notes &#x3d; arrangement_note &#x21;&#x3d; null &#x26;&#x26; arrangement_note.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; arrangement_note &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsrelatedmaterials &#x3d; related_materials &#x21;&#x3d; null &#x26;&#x26; related_materials.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; related_materials &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsaccesscondition &#x3d; access_condition &#x21;&#x3d; null &#x26;&#x26; access_condition.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; access_condition &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsusecondition &#x3d; use_condition &#x21;&#x3d; null &#x26;&#x26; use_condition.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; use_condition &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondspreservation &#x3d; preservation &#x21;&#x3d; null &#x26;&#x26; preservation.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; preservation &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondspreservationnote &#x3d; preservation_note &#x21;&#x3d; null &#x26;&#x26; preservation_note.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; preservation_note &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsstartdatespec &#x3d; start_date_spec &#x21;&#x3d; null &#x26;&#x26; start_date_spec.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_spec &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdatefrom &#x3d; start_date_from &#x21;&#x3d; null &#x26;&#x26; start_date_from.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_from.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdateto &#x3d; start_date_to &#x21;&#x3d; null &#x26;&#x26; start_date_to.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_to.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddatespec &#x3d; end_date_spec &#x21;&#x3d; null &#x26;&#x26; end_date_spec.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_spec &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddatefrom &#x3d; end_date_from &#x21;&#x3d; null &#x26;&#x26; end_date_from.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_from.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddateto &#x3d; end_date_to &#x21;&#x3d; null &#x26;&#x26; end_date_to.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_to.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondslanguage &#x3d; code &#x21;&#x3d; null &#x26;&#x26; code.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; code &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdatevalid &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;start_date_valid &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsstartdatevalid &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;start_date_valid.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsstartdatevalid &#x2b;&#x3d; start_date_valid&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsstartdateformat &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;start_date_format &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsstartdateformat &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;start_date_format.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsstartdateformat &#x2b;&#x3d; start_date_format&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsenddatevalid &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;end_date_valid &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsenddatevalid &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;end_date_valid.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsenddatevalid &#x2b;&#x3d; end_date_valid&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsenddateformat &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;end_date_format &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsenddateformat &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;end_date_format.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsenddateformat &#x2b;&#x3d; end_date_format&#x3b; &#x7d;&#xa;&#x7d;&#xa;&#xa;var fondscreatorperson &#x3d; &#x22;&#x22;&#x3b;&#xa;var fondscreatorfamily &#x3d; &#x22;&#x22;&#x3b;&#xa;var fondscreatorcorporatebody &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;creator_type_concatenated &#x21;&#x3d; null &#x26;&#x26; creator_type_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var creator_type_splitted &#x3d; creator_type_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	var legacy_creator_id_splitted &#x3d; legacy_creator_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; creator_type_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondscreatorperson &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;P&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;		fondscreatorfamily &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;F&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;		fondscreatorcorporatebody &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;C&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondscreatorperson &#x3d; fondscreatorperson.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;fondscreatorfamily &#x3d; fondscreatorfamily.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;fondscreatorcorporatebody &#x3d; fondscreatorcorporatebody.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var fondsrelatedproject &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;legacy_project_id_concatenated &#x21;&#x3d; null &#x26;&#x26; legacy_project_id_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var legacy_project_id_splitted &#x3d; legacy_project_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; legacy_project_id_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondsrelatedproject &#x2b;&#x3d; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_project_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondsrelatedproject &#x3d; fondsrelatedproject.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var fondscustodian &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;legacy_custodian_id_concatenated &#x21;&#x3d; null &#x26;&#x26; legacy_custodian_id_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var legacy_custodian_id_splitted &#x3d; legacy_custodian_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; legacy_custodian_id_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondscustodian &#x2b;&#x3d; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_custodian_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondscustodian &#x3d; fondscustodian.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var NONE &#x3d; &#x22;&#x23;&#x22;&#x3b;</jsScript_script>
+        <jsScript_script>var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var ACTION &#x3d; &#x22;SHOW&#x22;&#x3b;&#xa;var CRISID &#x3d; &#x22;&#x22;&#x3b;&#xa;var UUID &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF &#x3d; &#x22;unipv&#x22;&#x3b;&#xa;var SOURCEID &#x3d; legacy_id&#x3b;&#xa;&#xa;var fondsname &#x3d; name &#x21;&#x3d; null &#x26;&#x26; name.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; name &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondstype &#x3d; fond_type &#x21;&#x3d; null &#x26;&#x26; fond_type.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; fond_type &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondslenght &#x3d; length &#x21;&#x3d; null &#x26;&#x26; length.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; length &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsextent &#x3d; extent &#x21;&#x3d; null &#x26;&#x26; extent.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; extent &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsabstract &#x3d; abstract &#x21;&#x3d; null &#x26;&#x26; abstract.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; abstract &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsdescription &#x3d; description &#x21;&#x3d; null &#x26;&#x26; description.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; description &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsparent &#x3d; legacy_parent_id &#x21;&#x3d; null &#x26;&#x26; legacy_parent_id.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_parent_id &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsleaf &#x3d; fond_unit_id &#x21;&#x3d; null &#x26;&#x26; fond_unit_id.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;TRUE&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondshistory &#x3d; history &#x21;&#x3d; null &#x26;&#x26; history.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; history &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsarrangement_note &#x3d; arrangement_note &#x21;&#x3d; null &#x26;&#x26; arrangement_note.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; arrangement_note &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsrelatedmaterials &#x3d; related_materials &#x21;&#x3d; null &#x26;&#x26; related_materials.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; related_materials &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsaccesscondition &#x3d; access_condition &#x21;&#x3d; null &#x26;&#x26; access_condition.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; access_condition &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsusecondition &#x3d; use_condition &#x21;&#x3d; null &#x26;&#x26; use_condition.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; use_condition &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondspreservation &#x3d; preservation &#x21;&#x3d; null &#x26;&#x26; preservation.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; preservation &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondspreservationnote &#x3d; preservation_note &#x21;&#x3d; null &#x26;&#x26; preservation_note.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; preservation_note &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsstartdatespec &#x3d; start_date_spec &#x21;&#x3d; null &#x26;&#x26; start_date_spec.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_spec &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdatefrom &#x3d; start_date_from &#x21;&#x3d; null &#x26;&#x26; start_date_from.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_from.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdateto &#x3d; start_date_to &#x21;&#x3d; null &#x26;&#x26; start_date_to.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; start_date_to.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddatespec &#x3d; end_date_spec &#x21;&#x3d; null &#x26;&#x26; end_date_spec.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_spec &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddatefrom &#x3d; end_date_from &#x21;&#x3d; null &#x26;&#x26; end_date_from.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_from.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsenddateto &#x3d; end_date_to &#x21;&#x3d; null &#x26;&#x26; end_date_to.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; end_date_to.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsstartdatevalid &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;start_date_valid &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsstartdatevalid &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;start_date_valid.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_valid.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsstartdatevalid &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsstartdatevalid &#x2b;&#x3d; start_date_valid&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsstartdateformat &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;start_date_format &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsstartdateformat &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;start_date_format.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;start_date_format.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsstartdateformat &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsstartdateformat &#x2b;&#x3d; start_date_format&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsenddatevalid &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;end_date_valid &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsenddatevalid &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;end_date_valid.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_valid.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsenddatevalid &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsenddatevalid &#x2b;&#x3d; end_date_valid&#x3b; &#x7d;&#xa;&#x7d;&#xa;var fondsenddateformat &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;end_date_format &#x21;&#x3d; null&#x29; &#x7b;&#xa;	fondsenddateformat &#x3d; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22;&#x3b;&#xa;	if &#x28;end_date_format.equals&#x28;&#x22;C&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;0&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;Y&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;1&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;YM&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;2&#x22;&#x3b; &#x7d;&#xa;	else if &#x28;end_date_format.equals&#x28;&#x22;YMD&#x22;&#x29;&#x29; &#x7b; fondsenddateformat &#x2b;&#x3d; &#x22;3&#x22;&#x3b; &#x7d;&#xa;	else &#x7b; fondsenddateformat &#x2b;&#x3d; end_date_format&#x3b; &#x7d;&#xa;&#x7d;&#xa;&#xa;var fondslanguage &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;code_concatenated &#x21;&#x3d; null &#x26;&#x26; code_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var code_splitted &#x3d; code_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; code_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondslanguage &#x2b;&#x3d; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; code_splitted&#x5b;i&#x5d;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondslanguage &#x3d; fondslanguage.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var fondscreatorperson &#x3d; &#x22;&#x22;&#x3b;&#xa;var fondscreatorfamily &#x3d; &#x22;&#x22;&#x3b;&#xa;var fondscreatorcorporatebody &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;creator_type_concatenated &#x21;&#x3d; null &#x26;&#x26; creator_type_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var creator_type_splitted &#x3d; creator_type_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	var legacy_creator_id_splitted &#x3d; legacy_creator_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; creator_type_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondscreatorperson &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;P&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;		fondscreatorfamily &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;F&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;		fondscreatorcorporatebody &#x2b;&#x3d; creator_type_splitted&#x5b;i&#x5d;.equals&#x28;&#x22;C&#x22;&#x29; &#x3f; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_creator_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondscreatorperson &#x3d; fondscreatorperson.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;fondscreatorfamily &#x3d; fondscreatorfamily.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;fondscreatorcorporatebody &#x3d; fondscreatorcorporatebody.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var fondsrelatedproject &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;legacy_project_id_concatenated &#x21;&#x3d; null &#x26;&#x26; legacy_project_id_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var legacy_project_id_splitted &#x3d; legacy_project_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; legacy_project_id_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondsrelatedproject &#x2b;&#x3d; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_project_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondsrelatedproject &#x3d; fondsrelatedproject.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var fondscustodian &#x3d; &#x22;&#x22;&#x3b;&#xa;if &#x28;legacy_custodian_id_concatenated &#x21;&#x3d; null &#x26;&#x26; legacy_custodian_id_concatenated.length &#x3e; 0&#x29; &#x7b;&#xa;	var legacy_custodian_id_splitted &#x3d; legacy_custodian_id_concatenated.split&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;&#x29;&#x3b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; legacy_custodian_id_splitted.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		fondscustodian &#x2b;&#x3d; &#x22;&#x7c;&#x7c;&#x7c;&#x22; &#x2b; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22; SOURCEID&#x3d;&#x22; &#x2b; legacy_custodian_id_splitted&#x5b;i&#x5d; &#x2b; &#x22; SOURCEREF&#x3d;&#x22; &#x2b; SOURCEREF &#x2b; &#x22;&#x5d;XXXXXX&#x22;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;fondscustodian &#x3d; fondscustodian.replace&#x28;&#x22;&#x7c;&#x7c;&#x7c;&#x22;, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;var NONE &#x3d; &#x22;&#x23;&#x22;&#x3b;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>ACTION</name>
         <rename>ACTION</rename>
         <type>String</type>
@@ -4464,8 +4930,8 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>      <field>        <name>fondsarrangement_notes</name>
-        <rename>fondsarrangement_notes</rename>
+      </field>      <field>        <name>fondsarrangement_note</name>
+        <rename>fondsarrangement_note</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -4631,7 +5097,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var CRISID_PARENT &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF_PARENT &#x3d; &#x22;unipv&#x22;&#x3b;&#xa;var SOURCEID_PARENT &#x3d; legacy_id&#x3b;&#xa;var UUID &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEID &#x3d; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsfondeditoreditor &#x3d; editor_name &#x21;&#x3d; null &#x26;&#x26; editor_name.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_name &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditorqualifier &#x3d; editor_qualifier &#x21;&#x3d; null &#x26;&#x26; editor_qualifier.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_qualifier &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditoreditingtype &#x3d; editor_editing_type &#x21;&#x3d; null &#x26;&#x26; editor_editing_type.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_editing_type &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditoreditedat &#x3d; editor_edited_at &#x21;&#x3d; null &#x26;&#x26; editor_edited_at.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_edited_at.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsbibliographybibliographyabbreviation &#x3d; short_title &#x21;&#x3d; null &#x26;&#x26; short_title.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; short_title &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyauthors &#x3d; author &#x21;&#x3d; null &#x26;&#x26; author.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; author &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliopgraphytitle &#x3d; title &#x21;&#x3d; null &#x26;&#x26; title.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; title &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyeditor &#x3d; editor &#x21;&#x3d; null &#x26;&#x26; editor.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographypublisher &#x3d; publisher &#x21;&#x3d; null &#x26;&#x26; publisher.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; publisher &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyplace &#x3d; place &#x21;&#x3d; null &#x26;&#x26; place.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; place &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyyear &#x3d; year &#x21;&#x3d; null &#x26;&#x26; year.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; year &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var NONE &#x3d; &#x22;&#x23;&#x22;&#x3b;</jsScript_script>
+        <jsScript_script>var visibility &#x3d; &#x22;visibility&#x3d;PUBLIC&#x22;&#x3b;&#xa;&#xa;var CRISID_PARENT &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF_PARENT &#x3d; &#x22;unipv&#x22;&#x3b;&#xa;var SOURCEID_PARENT &#x3d; legacy_id&#x3b;&#xa;var UUID &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEREF &#x3d; &#x22;&#x22;&#x3b;&#xa;var SOURCEID &#x3d; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsfondeditoreditor &#x3d; editor_name &#x21;&#x3d; null &#x26;&#x26; editor_name.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_name &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditorqualifier &#x3d; editor_qualifier &#x21;&#x3d; null &#x26;&#x26; editor_qualifier.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_qualifier &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditoreditingtype &#x3d; editor_editing_type &#x21;&#x3d; null &#x26;&#x26; editor_editing_type.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_editing_type &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsfondeditoreditedat &#x3d; editor_edited_at &#x21;&#x3d; null &#x26;&#x26; editor_edited_at.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor_edited_at.split&#x28;&#x22;-&#x22;&#x29;.reverse&#x28;&#x29;.join&#x28;&#x22;-&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var fondsbibliographybibliographyabbreviation &#x3d; short_title &#x21;&#x3d; null &#x26;&#x26; short_title.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; short_title &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyauthors &#x3d; author &#x21;&#x3d; null &#x26;&#x26; author.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; author &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographytitle &#x3d; title &#x21;&#x3d; null &#x26;&#x26; title.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; title &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyeditor &#x3d; editor &#x21;&#x3d; null &#x26;&#x26; editor.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; editor &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographypublisher &#x3d; publisher &#x21;&#x3d; null &#x26;&#x26; publisher.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; publisher &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyplace &#x3d; place &#x21;&#x3d; null &#x26;&#x26; place.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; place &#x3a; &#x22;&#x22;&#x3b;&#xa;var fondsbibliographybibliographyyear &#x3d; year &#x21;&#x3d; null &#x26;&#x26; year.length &#x3e; 0 &#x3f; &#x22;&#x5b;&#x22; &#x2b; visibility &#x2b; &#x22;&#x5d;&#x22; &#x2b; year &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var NONE &#x3d; &#x22;&#x23;&#x22;&#x3b;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>CRISID_PARENT</name>
         <rename>CRISID_PARENT</rename>
         <type>String</type>
@@ -4704,8 +5170,8 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>      <field>        <name>fondsbibliographybibliopgraphytitle</name>
-        <rename>fondsbibliographybibliopgraphytitle</rename>
+      </field>      <field>        <name>fondsbibliographybibliographytitle</name>
+        <rename>fondsbibliographybibliographytitle</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -4766,67 +5232,37 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>legacy_id</name>
-        <rename/>
       </field>      <field>        <name>name</name>
-        <rename/>
       </field>      <field>        <name>fond_type</name>
-        <rename/>
       </field>      <field>        <name>length</name>
-        <rename/>
       </field>      <field>        <name>extent</name>
-        <rename/>
       </field>      <field>        <name>abstract</name>
-        <rename/>
       </field>      <field>        <name>description</name>
-        <rename/>
       </field>      <field>        <name>legacy_parent_id</name>
-        <rename/>
       </field>      <field>        <name>history</name>
-        <rename/>
       </field>      <field>        <name>arrangement_note</name>
-        <rename/>
       </field>      <field>        <name>related_materials</name>
-        <rename/>
       </field>      <field>        <name>access_condition</name>
-        <rename/>
       </field>      <field>        <name>use_condition</name>
-        <rename/>
       </field>      <field>        <name>preservation</name>
-        <rename/>
       </field>      <field>        <name>preservation_note</name>
-        <rename/>
       </field>      <field>        <name>start_date_spec</name>
-        <rename/>
       </field>      <field>        <name>start_date_from</name>
-        <rename/>
       </field>      <field>        <name>start_date_to</name>
-        <rename/>
       </field>      <field>        <name>start_date_valid</name>
-        <rename/>
       </field>      <field>        <name>start_date_format</name>
-        <rename/>
       </field>      <field>        <name>end_date_spec</name>
-        <rename/>
       </field>      <field>        <name>end_date_from</name>
-        <rename/>
       </field>      <field>        <name>end_date_to</name>
-        <rename/>
       </field>      <field>        <name>end_date_valid</name>
-        <rename/>
       </field>      <field>        <name>end_date_format</name>
-        <rename/>
-      </field>      <field>        <name>code</name>
-        <rename/>
+      </field>      <field>        <name>code_concatenated</name>
       </field>      <field>        <name>fond_id</name>
-        <rename/>
       </field>      <field>        <name>legacy_creator_id_concatenated</name>
-        <rename/>
       </field>      <field>        <name>creator_type_concatenated</name>
-        <rename/>
       </field>      <field>        <name>legacy_project_id_concatenated</name>
-        <rename/>
       </field>      <field>        <name>legacy_custodian_id_concatenated</name>
-        <rename/>
+      </field>      <field>        <name>fond_unit_id</name>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -5087,7 +5523,7 @@
       <unique_rows>N</unique_rows>
     <fields>
       <field>
-        <name>fond_id</name>
+        <name>fond_unit_id</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
@@ -5314,6 +5750,90 @@
     </remotesteps>
     <GUI>
       <xloc>544</xloc>
+      <yloc>688</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Sort rows 2 2 2 3 2 2 2</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>legacy_fond_id</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>688</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Sort rows 2 2 2 3 2 2 2 2</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>legacy_fond_id</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>224</xloc>
       <yloc>688</yloc>
       <draw>Y</draw>
     </GUI>
@@ -6556,6 +7076,234 @@
     </step>
 
   <step>
+    <name>Text file input 3 2 6 2</name>
+    <type>TextFileInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator>&#x23;&#x23;&#x23;</separator>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
+    <header>N</header>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>0</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
+    <format>mixed</format>
+    <encoding>UTF-8</encoding>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <file>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName1&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName2&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName3&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
+    </file>
+    <filters>
+    </filters>
+    <fields>
+      <field>
+        <name>row</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>-1</position>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_GB</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>1168</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Text file input 3 2 6 2 2</name>
+    <type>TextFileInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator>&#x23;&#x23;&#x23;</separator>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
+    <header>N</header>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>0</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
+    <format>mixed</format>
+    <encoding>UTF-8</encoding>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <file>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName1&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName2&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName3&#x7d;</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
+    </file>
+    <filters>
+    </filters>
+    <fields>
+      <field>
+        <name>row</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>-1</position>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_GB</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>64</xloc>
+      <yloc>1168</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
     <name>Text file input 3 2 7</name>
     <type>TextFileInput</type>
     <description/>
@@ -6924,384 +7672,6 @@
     <GUI>
       <xloc>224</xloc>
       <yloc>368</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>464</xloc>
-      <yloc>1088</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Filter rows 2 2 2 2 2 2</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-<send_true_to>JSON Input 2 2 2 3 2 2</send_true_to>
-<send_false_to>Dummy &#x28;do nothing&#x29; 2 2 2 3 2 2</send_false_to>
-    <compare>
-<condition>
- <negated>N</negated>
- <leftvalue>row</leftvalue>
- <function>CONTAINS</function>
- <rightvalue/>
- <value><name>constant</name><type>String</type><text>&#x22;rel_custodian_fond&#x22;</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
-    </compare>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>384</xloc>
-      <yloc>1168</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Group by 2 2</name>
-    <type>GroupBy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-      <all_rows>N</all_rows>
-      <ignore_aggregate>N</ignore_aggregate>
-      <field_ignore/>
-      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
-      <prefix>grp</prefix>
-      <add_linenr>N</add_linenr>
-      <linenr_fieldname/>
-      <give_back_row>N</give_back_row>
-      <group>
-        <field>
-          <name>legacy_fond_id</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>legacy_custodian_id_concatenated</aggregate>
-          <subject>legacy_custodian_id</subject>
-          <type>CONCAT_STRING</type>
-          <valuefield>&#x7c;&#x7c;&#x7c;</valuefield>
-        </field>
-      </fields>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>384</xloc>
-      <yloc>848</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>JSON Input 2 2 2 3 2 2</name>
-    <type>JsonInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <include>N</include>
-    <include_field/>
-    <rownum>N</rownum>
-    <addresultfile>N</addresultfile>
-    <readurl>N</readurl>
-    <removeSourceField>N</removeSourceField>
-    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
-    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <ignoreMissingPath>Y</ignoreMissingPath>
-    <rownum_field/>
-    <file>
-      <name/>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
-    <fields>
-      <field>
-        <name>legacy_custodian_id</name>
-        <path>&#x24;..legacy_custodian_id</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>legacy_fond_id</name>
-        <path>&#x24;..legacy_fond_id</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-    </fields>
-    <limit>0</limit>
-    <IsInFields>Y</IsInFields>
-    <IsAFile>N</IsAFile>
-    <valueField>row</valueField>
-    <shortFileFieldName/>
-    <pathFieldName/>
-    <hiddenFieldName/>
-    <lastModificationTimeFieldName/>
-    <uriNameFieldName/>
-    <rootUriNameFieldName/>
-    <extensionFieldName/>
-    <sizeFieldName/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>384</xloc>
-      <yloc>1008</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Merge Join 2 2 2 4 2</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-<join_type>LEFT OUTER</join_type>
-<step1>Merge Join 2 2 2 4</step1>
-<step2>Sort rows 2 2 2 3 2 2 2</step2>
-    <keys_1>
-      <key>legacy_id</key>
-    </keys_1>
-    <keys_2>
-      <key>legacy_fond_id</key>
-    </keys_2>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>384</xloc>
-      <yloc>528</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Sort rows 2 2 2 3 2 2 2</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
-      <prefix>out</prefix>
-      <sort_size>1000000</sort_size>
-      <free_memory/>
-      <compress>N</compress>
-      <compress_variable/>
-      <unique_rows>N</unique_rows>
-    <fields>
-      <field>
-        <name>legacy_fond_id</name>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>384</xloc>
-      <yloc>688</yloc>
-      <draw>Y</draw>
-    </GUI>
-    </step>
-
-  <step>
-    <name>Text file input 3 2 6 2</name>
-    <type>TextFileInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <accept_filenames>N</accept_filenames>
-    <passing_through_fields>N</passing_through_fields>
-    <accept_field/>
-    <accept_stepname/>
-    <separator>&#x23;&#x23;&#x23;</separator>
-    <enclosure/>
-    <enclosure_breaks>N</enclosure_breaks>
-    <escapechar/>
-    <header>N</header>
-    <nr_headerlines>1</nr_headerlines>
-    <footer>N</footer>
-    <nr_footerlines>1</nr_footerlines>
-    <line_wrapped>N</line_wrapped>
-    <nr_wraps>1</nr_wraps>
-    <layout_paged>N</layout_paged>
-    <nr_lines_per_page>80</nr_lines_per_page>
-    <nr_lines_doc_header>0</nr_lines_doc_header>
-    <noempty>Y</noempty>
-    <include>N</include>
-    <include_field/>
-    <rownum>N</rownum>
-    <rownumByFile>N</rownumByFile>
-    <rownum_field/>
-    <format>mixed</format>
-    <encoding>UTF-8</encoding>
-    <add_to_result_filenames>Y</add_to_result_filenames>
-    <file>
-      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName1&#x7d;</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName2&#x7d;</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;data&#x2f;&#x24;&#x7b;fileName3&#x7d;</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-      <type>CSV</type>
-      <compression>None</compression>
-    </file>
-    <filters>
-    </filters>
-    <fields>
-      <field>
-        <name>row</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <ifnull/>
-        <position>-1</position>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-    </fields>
-    <limit>0</limit>
-    <error_ignored>N</error_ignored>
-    <skip_bad_files>N</skip_bad_files>
-    <file_error_field/>
-    <file_error_message_field/>
-    <error_line_skipped>N</error_line_skipped>
-    <error_count_field/>
-    <error_fields_field/>
-    <error_text_field/>
-    <bad_line_files_destination_directory/>
-    <bad_line_files_extension>warning</bad_line_files_extension>
-    <error_line_files_destination_directory/>
-    <error_line_files_extension>error</error_line_files_extension>
-    <line_number_files_destination_directory/>
-    <line_number_files_extension>line</line_number_files_extension>
-    <date_format_lenient>Y</date_format_lenient>
-    <date_format_locale>en_GB</date_format_locale>
-    <shortFileFieldName/>
-    <pathFieldName/>
-    <hiddenFieldName/>
-    <lastModificationTimeFieldName/>
-    <uriNameFieldName/>
-    <rootUriNameFieldName/>
-    <extensionFieldName/>
-    <sizeFieldName/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>544</xloc>
-      <yloc>1168</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
