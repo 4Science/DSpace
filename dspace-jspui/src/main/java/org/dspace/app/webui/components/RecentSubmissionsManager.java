@@ -46,6 +46,80 @@ public class RecentSubmissionsManager
 		this.context = context;
 	}
 
+	public RecentSubmissions getRecentSubmissions(DSpaceObject dso, String source, String count)
+			throws RecentSubmissionsException
+		{
+			try
+			{
+				// prep our engine and scope			
+				BrowserScope bs = new BrowserScope(context);
+				bs.setUserLocale(context.getCurrentLocale().getLanguage());
+				BrowseIndex bi = null; 
+				if("bi_item".equals(this.indexName)) {        
+				    bi = BrowseIndex.getItemBrowseIndex();
+				}
+				else {
+				    bi = BrowseIndex.getBrowseIndex(indexName);
+				}
+				
+	            boolean isMultilanguage = new DSpace()
+	                    .getConfigurationService()
+	                    .getPropertyAsType(
+	                            "discovery.browse.authority.multilanguage."
+	                                    + bi.getName(),
+	                            new DSpace()
+	                                    .getConfigurationService()
+	                                    .getPropertyAsType(
+	                                            "discovery.browse.authority.multilanguage",
+	                                            new Boolean(false)),
+	                            false);
+	            
+	            // gather & add items to the feed.
+	            BrowseEngine be = new BrowseEngine(context, isMultilanguage? 
+	                    bs.getUserLocale():null);
+				
+				// fill in the scope with the relevant gubbins
+				bs.setBrowseIndex(bi);
+				bs.setOrder(SortOption.DESCENDING);
+				bs.setResultsPerPage(Integer.parseInt(count));
+	            if (dso != null)
+	            {
+	                bs.setBrowseContainer(dso);
+	            }
+	            for (SortOption so : SortOption.getSortOptions())
+	            {
+	                if (so.getName().equals(source))
+	                {
+	                    bs.setSortBy(so.getNumber());
+	                }
+	            }
+				
+				BrowseInfo results = be.browse(bs);
+				
+				IGlobalSearchResult[] items = null;
+				if("bi_item".equals(this.indexName)) {
+					items = results.getItemResults(context);
+				}
+				else {
+					items = results.getBrowseItemResults();
+				}
+				
+				RecentSubmissions rs = new RecentSubmissions(items);
+				
+				return rs;
+			}
+	        catch (SortException se)
+	        {
+	            log.error("caught exception: ", se);
+	            throw new RecentSubmissionsException(se);
+	        }
+			catch (BrowseException e)
+			{
+				log.error("caught exception: ", e);
+				throw new RecentSubmissionsException(e);
+			}
+		}
+	
 	/**
 	 * Obtain the recent submissions from the given container object.  This
 	 * method uses the configuration to determine which field and how many
@@ -61,73 +135,11 @@ public class RecentSubmissionsManager
 	public RecentSubmissions getRecentSubmissions(DSpaceObject dso)
 		throws RecentSubmissionsException
 	{
-		try
-		{
-			// get our configuration
-			String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
-			String count = ConfigurationManager.getProperty("recent.submissions.count");
-			
-			// prep our engine and scope			
-			BrowserScope bs = new BrowserScope(context);
-			bs.setUserLocale(context.getCurrentLocale().getLanguage());
-			BrowseIndex bi = null; 
-			if("bi_item".equals(this.indexName)) {        
-			    bi = BrowseIndex.getItemBrowseIndex();
-			}
-			else {
-			    bi = BrowseIndex.getBrowseIndex(indexName);
-			}
-			
-            boolean isMultilanguage = new DSpace()
-                    .getConfigurationService()
-                    .getPropertyAsType(
-                            "discovery.browse.authority.multilanguage."
-                                    + bi.getName(),
-                            new DSpace()
-                                    .getConfigurationService()
-                                    .getPropertyAsType(
-                                            "discovery.browse.authority.multilanguage",
-                                            new Boolean(false)),
-                            false);
-            
-            // gather & add items to the feed.
-            BrowseEngine be = new BrowseEngine(context, isMultilanguage? 
-                    bs.getUserLocale():null);
-			
-			// fill in the scope with the relevant gubbins
-			bs.setBrowseIndex(bi);
-			bs.setOrder(SortOption.DESCENDING);
-			bs.setResultsPerPage(Integer.parseInt(count));
-            if (dso != null)
-            {
-                bs.setBrowseContainer(dso);
-            }
-            for (SortOption so : SortOption.getSortOptions())
-            {
-                if (so.getName().equals(source))
-                {
-                    bs.setSortBy(so.getNumber());
-                }
-            }
-			
-			BrowseInfo results = be.browseMini(bs);
-			
-			IGlobalSearchResult[] items = results.getItemResults(context);
-			
-			RecentSubmissions rs = new RecentSubmissions(items);
-			
-			return rs;
-		}
-        catch (SortException se)
-        {
-            log.error("caught exception: ", se);
-            throw new RecentSubmissionsException(se);
-        }
-		catch (BrowseException e)
-		{
-			log.error("caught exception: ", e);
-			throw new RecentSubmissionsException(e);
-		}
+		// get our configuration
+		String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
+		String count = ConfigurationManager.getProperty("recent.submissions.count");
+		
+		return getRecentSubmissions(dso, source, count);
 	}
 
     public String getIndexName()

@@ -62,6 +62,7 @@
     
     ItemCounter ic = new ItemCounter(UIUtil.obtainContext(request));
 
+    String recentSubmissionLink = (String) request.getAttribute("recent.link");
     RecentSubmissions submissions = (RecentSubmissions) request.getAttribute("recent.submissions");
     MostViewedBean mostViewedItem = (MostViewedBean) request.getAttribute("mostViewedItem");
     MostViewedBean mostCitedItem = (MostViewedBean) request.getAttribute("mostCitedItem");
@@ -76,7 +77,7 @@
 <hr />
 <div class="row"> 
 	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
-		<%-- Fondi di nuova accessione --%>
+    		<%@ include file="components/recent-submissions.jsp" %>
 	</div>
 	<div class="col-md-4">
 		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
@@ -114,9 +115,6 @@
 	</div>
 	<div class="col-md-4">
 		<%@ include file="components/most-downloaded.jsp" %>
-	</div>
-	<div class="col-md-4 pull-<%= isRtl? "left":"right" %>">
-	    <%@ include file="components/recent-submissions.jsp" %>
 	</div>
 </div>
 <%

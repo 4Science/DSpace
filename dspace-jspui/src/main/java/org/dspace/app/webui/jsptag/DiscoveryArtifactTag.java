@@ -10,6 +10,7 @@ package org.dspace.app.webui.jsptag;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
@@ -28,6 +29,7 @@ import org.dspace.app.webui.util.IDisplayMetadataValueStrategy;
 import org.dspace.app.webui.util.LinkDisplayStrategy;
 import org.dspace.app.webui.util.ResolverDisplayStrategy;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.browse.BrowseItem;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
@@ -60,7 +62,7 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 	public int doStartTag() throws JspException {
 		try {
 			JspWriter out = pageContext.getOut();
-			out.println("<div class=\"list-group-item\">");			
+			out.println("<div class=\"list-group-item " + StringUtils.substringAfter(view.getThumbnail(), ".") + "list\" >");			
 		} catch (IOException ie) {
 			throw new JspException(ie);
 		}
@@ -99,31 +101,32 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 		out.println("<div class=\"list-group-item-heading\">");
 		if (view != null) {
 			if (view.getThumbnail() != null) {
+				String tag = StringUtils.substringAfter(view.getThumbnail(), ".");
+				out.println("<div class=\"media " + tag + " \">");
 
-				out.println("<div class=\"media\">");
+				if (artifact.getType() == 2 && !(artifact instanceof BrowseItem)) {
+						Bundle[] bundles = ((Item) artifact).getBundles("BRANDED_PREVIEW");
 
-				if (artifact.getType() == 2) {
-					Bundle[] bundles = ((Item) artifact).getBundles("BRANDED_PREVIEW");
+						if (bundles.length > 0) {
+							Bitstream[] bitstreams = bundles[0].getBitstreams();
 
-					if (bundles.length > 0) {
-						Bitstream[] bitstreams = bundles[0].getBitstreams();
-
-						out.println("<img class=\"media-object pull-left\" src=\"" + request.getContextPath() + "/retrieve/" + bitstreams[0].getID()
-								+ "/" + UIUtil.encodeBitstreamName(bitstreams[0].getName(), Constants.DEFAULT_ENCODING)
-								+ "\"/>");
-					}
+							out.println("<img class=\"media-object pull-left\" src=\"" + request.getContextPath() + "/retrieve/" + bitstreams[0].getID()
+									+ "/" + UIUtil.encodeBitstreamName(bitstreams[0].getName(), Constants.DEFAULT_ENCODING)
+									+ "\"/>");
+						}
+				//	}
 				} else {
 					// TODO MANANAGE COLLECTION AND COMMUNITY
-				    if (artifact.getType() >= 9) {
+				    if (artifact.getType() >= 9 || artifact instanceof BrowseItem) {
 			            IDisplayMetadataValueStrategy strategy = (IDisplayMetadataValueStrategy) PluginManager
 			                        .getNamedPlugin(IDisplayMetadataValueStrategy.class, "crispicture");
 
 	                    if (strategy != null) {
-	                        out.println(strategy.getMetadataDisplay(request, -1, true, "thumbnail", -1, "thumbnail", new Metadatum[]{}, artifact, true, true)); 	                        
+	                        out.println(strategy.getMetadataDisplay(request, -1, true, "thumbnail", -1, "thumbnail", new Metadatum[]{}, (BrowseItem) artifact, true, true)); 	                        
 	                    }
 	                }				    
 				}
-
+				out.println("</div>");
 			}
 			
 			for (DiscoveryViewFieldConfiguration dvfc : view.getMetadataHeadingFields()) {
@@ -139,10 +142,6 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 							dvfc);
 				}
 				out.println("</div>");
-			}
-			
-			if (view.getThumbnail() != null) {
-				out.println("</div>");				
 			}
 
 
@@ -249,8 +248,16 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 			}
 		}
 		if ((!founded && dvfc.isMandatory()) || (founded && dvfc.getDecorator() != null)) {
-            Metadatum[] arrayDcMetadataValue = artifact
-                    .getMetadataValueInDCFormat(field);      
+			BrowseItem bItem = null;
+			Metadatum[] arrayDcMetadataValue = null;
+			if(artifact instanceof BrowseItem) {
+				bItem = (BrowseItem) artifact;
+				arrayDcMetadataValue = bItem
+						.getMetadataWithoutPlaceholder(schema, element, qualifier, Item.ANY);      
+			}else {
+				arrayDcMetadataValue = artifact
+	                    .getMetadataValueInDCFormat(field);
+			}
             if (arrayDcMetadataValue == null || arrayDcMetadataValue.length == 0) {
             	return;
             }
@@ -269,14 +276,28 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 						strategy = new DefaultDisplayStrategy();
 					}
 				}
-
-				metadata = strategy.getMetadataDisplay(request, -1, viewFull,
-                        browseIndex, 0, field,
-                        arrayDcMetadataValue, artifact,
-                        false, false);
+				if(artifact instanceof BrowseItem) {
+					metadata = strategy.getMetadataDisplay(request, -1, viewFull,
+	                        browseIndex, 0, field,
+	                        arrayDcMetadataValue, bItem,
+	                        false, false);      
+				}else {
+					metadata = strategy.getMetadataDisplay(request, -1, viewFull,
+	                        browseIndex, 0, field,
+	                        arrayDcMetadataValue, artifact,
+	                        false, false);
+				}
 			} else {
 				if (!founded) {
-                    metadataValue = artifact.getMetadataValue(field);
+					if(artifact instanceof BrowseItem) {
+						ArrayList<Metadatum> metadatumArray = new ArrayList<Metadatum>(Arrays.asList(arrayDcMetadataValue));
+						for (Metadatum metadatumTemp : metadatumArray) {
+							metadataValue.add(metadatumTemp.value);
+						}
+					}else
+					{
+						metadataValue = artifact.getMetadataValue(field);
+					}
 					for (String vl : metadataValue) {
 						metadata += vl;
 						if (arrayDcMetadataValue.length > 1) {

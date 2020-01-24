@@ -7,19 +7,15 @@
  */
 package org.dspace.app.webui.components;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchUtils;
-import org.dspace.discovery.configuration.DiscoveryViewAndHighlightConfiguration;
-import org.dspace.discovery.configuration.DiscoveryViewConfiguration;
 import org.dspace.plugin.SiteHomeProcessor;
+import org.dspace.utils.DSpace;
 import org.dspace.plugin.PluginException;
 
 /**
@@ -31,6 +27,9 @@ import org.dspace.plugin.PluginException;
  */
 public class RecentCrisObjectProcessor implements SiteHomeProcessor
 {
+	private RecentCrisObjectProcessorConfiguration recentCrisObjectProcessorConfiguration = new DSpace().getServiceManager()
+			.getServiceByName("recentCrisObjectProcessorConfiguration", RecentCrisObjectProcessorConfiguration.class);
+	
     /**
      * blank constructor - does nothing.
      *
@@ -40,9 +39,6 @@ public class RecentCrisObjectProcessor implements SiteHomeProcessor
         
     }
     
-    /* (non-Javadoc)
-     * @see org.dspace.plugin.CommunityHomeProcessor#process(org.dspace.core.Context, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.dspace.content.Community)
-     */
     @Override
     public void process(Context context, HttpServletRequest request, HttpServletResponse response) 
         throws PluginException, AuthorizeException
@@ -50,20 +46,20 @@ public class RecentCrisObjectProcessor implements SiteHomeProcessor
         try
         {
             RecentSubmissionsManager rsm = new RecentSubmissionsManager(context);
-            String indexName = request.getParameter("recent.crisobject.processor.type");
+            String indexName = recentCrisObjectProcessorConfiguration.getBrowseIndex();
             if(StringUtils.isNotBlank(indexName)) {            
                 rsm.setIndexName(indexName);
             }
-            RecentSubmissions recent = rsm.getRecentSubmissions(null);
             
-            String discoveryConfiguration = request.getParameter("recent.crisobject.processor.configuration");
-            if(StringUtils.isBlank(discoveryConfiguration)) {            
-                discoveryConfiguration = "crisRPConfiguration";
-            }
+            RecentSubmissions recent = rsm.getRecentSubmissions(null,
+            		recentCrisObjectProcessorConfiguration.getSortOption(),
+            		recentCrisObjectProcessorConfiguration.getCount());
+
+            String discoveryConfiguration = recentCrisObjectProcessorConfiguration.getDiscoveryConfiguration();
             recent.setConfiguration(SearchUtils.getRecentSubmissionConfiguration(discoveryConfiguration).getMetadataFields());
             
             request.setAttribute("recent.submissions", recent);
-
+            request.setAttribute("recent.link", discoveryConfiguration);
         }
         catch (RecentSubmissionsException e)
         {

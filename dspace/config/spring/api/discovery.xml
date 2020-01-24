@@ -1431,9 +1431,9 @@
 		<!--The sort filters for the discovery search -->
 		<property name="searchSortConfiguration">
 			<bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
-				<!--<property name="defaultSort" ref="sortDateIssued"/> -->
+				<property name="defaultSort" ref="sortFondsName"/>
 				<!--DefaultSortOrder can either be desc or asc (desc is default) -->
-				<property name="defaultSortOrder" value="desc" />
+				<property name="defaultSortOrder" value="asc" />
 				<property name="sortFields">
 					<list>
 						<ref bean="sortFondsName" />
@@ -1452,9 +1452,9 @@
 		<property name="recentSubmissionConfiguration">
 			<bean
 				class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
-				<property name="metadataSortField" value="dc.date.accessioned" />
+				<property name="metadataSortField" value="crisfonds.fondscreationtime" />
 				<property name="type" value="date" />
-				<property name="max" value="5" />
+				<property name="max" value="11" />
 				<property name="metadataFields">
 				<bean
 				class="org.dspace.discovery.configuration.DiscoveryViewConfiguration">
@@ -1463,13 +1463,20 @@
 						<bean
 							class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
 							<property name="mandatory" value="true"/>
-							<property name="field" value="fondsname" />
+							<property name="field" value="crisfonds.fondsname" />
 							<property name="decorator" value="cristitle" />
-							<property name="preHtml" value="&lt;h4 class='text-primary'&gt;" />
-							<property name="postHtml" value="&lt;/h4&gt;" />							
+							<property name="preHtml" value="&lt;br /&gt;&lt;b&gt;" />
+							<property name="postHtml" value="&lt;/b&gt; &lt;br /&gt;" />						
+						</bean>
+						<bean
+							class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
+							<property name="mandatory" value="true"/>
+							<property name="field" value="crisfonds.fondsdescription" />
+							<property name="preHtml" value="&lt;br /&gt;" />					
 						</bean>
 					</list>
-				</property>
+				</property>				
+				<property name="thumbnail" value="crisfonds.fondspicture"/>
 				</bean>
 				</property>
 			</bean>

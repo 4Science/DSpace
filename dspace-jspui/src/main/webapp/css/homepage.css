@@ -606,3 +606,22 @@ img::-moz-selection {
     -moz-animation-timing-function: linear;
 }
 
+.fondspicture {
+	min-height: 155px;
+}
+
+.fondspicture img {
+	max-width: 140px;
+	max-height: 120px;
+	border: 0px;
+	padding: 0px;
+	margin-top: 5px;
+}
+
+.nohover {
+    display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
+	overflow: hidden;
+}
+

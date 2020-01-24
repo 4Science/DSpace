@@ -215,6 +215,13 @@
 		</property>
 	</bean>
 	
+	<bean name="recentCrisObjectProcessorConfiguration" class="org.dspace.app.webui.components.RecentCrisObjectProcessorConfiguration">
+		<property name="browseIndex" value="fondsrecent"/>
+		<property name="discoveryConfiguration" value="crisfonds"/>
+		<property name="sortOption" value="crisfondscreationtime"/>
+		<property name="count" value="11"/>
+	</bean>
+	
 	<bean class="org.dspace.app.webui.cris.metrics.MetricsProcessorConfigurator"
 		name="org.dspace.app.webui.cris.metrics.MetricsProcessorConfigurator">
 		<property name="mapFormatter">
