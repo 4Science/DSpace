@@ -841,7 +841,7 @@
         <currency/>
         <decimal/>
         <group/>
-        <nullif>2020-01-28</nullif>
+        <nullif>2020-01-29</nullif>
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -3858,18 +3858,6 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>dc.title.alternative</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
         <name>dc.type</name>
         <type>String</type>
         <format/>
@@ -4229,18 +4217,6 @@
       </field>
       <field>
         <name>dc.title</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>dc.title.alternative</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -4622,18 +4598,6 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>dc.title.alternative</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
         <name>dc.type</name>
         <type>String</type>
         <format/>
@@ -4993,18 +4957,6 @@
       </field>
       <field>
         <name>dc.title</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>dc.title.alternative</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -5386,18 +5338,6 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>dc.title.alternative</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
         <name>dc.type</name>
         <type>String</type>
         <format/>
@@ -5757,18 +5697,6 @@
       </field>
       <field>
         <name>dc.title</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>dc.title.alternative</name>
         <type>String</type>
         <format/>
         <currency/>
