@@ -537,16 +537,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>JSON Input 2 2 2 4</from>
-      <to>Sort rows 2 2 2 4</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Merge Join 2 2 3</from>
-      <to>Merge Join 2 2 2 2 2 2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Sort rows 2 2 2 2 2</from>
       <to>Merge Join 2 2 3</to>
       <enabled>Y</enabled>
@@ -589,16 +579,6 @@
     <hop>
       <from>Add constants 2</from>
       <to>Filter rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Merge Join 2 2 2 2 2 2</from>
-      <to>Unique rows 2 2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Unique rows 2 2</from>
-      <to>Sort rows 2 2 2 4 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -682,18 +662,8 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Modified Java Script Value 3</from>
-      <to>Select values 3</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Select values 3</from>
       <to>Add constants 3</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Merge Join 2 2 2</from>
-      <to>Unique rows 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -729,6 +699,51 @@
     <hop>
       <from>Add constants 3</from>
       <to>Text file output 2 2 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Modified Java Script Value 3</from>
+      <to>Filter rows 5 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Join 2 2 2</from>
+      <to>Unique rows 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows 5 2 2</from>
+      <to>Select values 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 3</from>
+      <to>Text file output 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>JSON Input 2 2 2 4</from>
+      <to>Sort rows 2 2 2 4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort rows 2 2 2 2 2 2</from>
+      <to>Merge Join 2 2 2 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Join 2 2 3</from>
+      <to>Sort rows 2 2 2 2 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows 5 2 2</from>
+      <to>Dummy &#x28;do nothing&#x29; 2 2 2 4 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Join 2 2 2 2 2 2</from>
+      <to>Sort rows 2 2 2 4 2</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -856,7 +871,7 @@
     </remotesteps>
     <GUI>
       <xloc>224</xloc>
-      <yloc>848</yloc>
+      <yloc>1168</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -904,7 +919,7 @@
     </remotesteps>
     <GUI>
       <xloc>64</xloc>
-      <yloc>528</yloc>
+      <yloc>688</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -1282,10 +1297,57 @@
     </step>
 
   <step>
+    <name>Filter rows 5 2 2</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<send_true_to>Dummy &#x28;do nothing&#x29; 2 2 2 4 2</send_true_to>
+<send_false_to>Select values 3</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <conditions>
+  <condition>
+   <negated>N</negated>
+   <leftvalue>fond_id</leftvalue>
+   <function>IS NOT NULL</function>
+   <rightvalue/>
+   <value><name>constant</name><type>String</type><text>false</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>   </condition>
+  <condition>
+   <negated>N</negated>
+   <operator>AND</operator>
+   <leftvalue>dc.relation.fond</leftvalue>
+   <function>IS NULL</function>
+   <rightvalue/>
+   </condition>
+  </conditions>
+ </condition>
+    </compare>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>64</xloc>
+      <yloc>1008</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
     <name>Group by</name>
     <type>GroupBy</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -1307,7 +1369,7 @@
       </group>
       <fields>
         <field>
-          <aggregate>source_title</aggregate>
+          <aggregate>source_title_child</aggregate>
           <subject>source_title</subject>
           <type>CONCAT_STRING</type>
           <valuefield>&#x7c;&#x7c;</valuefield>
@@ -1349,7 +1411,7 @@
           <valuefield>&#x7c;&#x7c;</valuefield>
         </field>
         <field>
-          <aggregate>source_url</aggregate>
+          <aggregate>source_url_child</aggregate>
           <subject>source_url</subject>
           <type>CONCAT_STRING</type>
           <valuefield>&#x7c;&#x7c;</valuefield>
@@ -1363,8 +1425,8 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>224</xloc>
-      <yloc>528</yloc>
+      <xloc>384</xloc>
+      <yloc>448</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -2069,6 +2131,19 @@
     </file>
     <fields>
       <field>
+        <name>legacy_id</name>
+        <path>&#x24;..legacy_id</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
         <name>source_id</name>
         <path>&#x24;..source_id</path>
         <type>String</type>
@@ -2083,7 +2158,7 @@
       </field>
       <field>
         <name>source_url</name>
-        <path>&#x24;..source_url</path>
+        <path>&#x24;..url</path>
         <type>String</type>
         <format/>
         <currency/>
@@ -2227,7 +2302,7 @@
     <name>Merge Join 2 2 2 2 2 2</name>
     <type>MergeJoin</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -2235,7 +2310,7 @@
       <schema_name/>
     </partitioning>
 <join_type>INNER</join_type>
-<step1>Merge Join 2 2 3</step1>
+<step1>Sort rows 2 2 2 2 2 2</step1>
 <step2>Sort rows 2 2 2 3 2 3</step2>
     <keys_1>
       <key>legacy_id</key>
@@ -2275,7 +2350,7 @@
       <key>legacy_id</key>
     </keys_1>
     <keys_2>
-      <key>source_id</key>
+      <key>legacy_id</key>
     </keys_2>
     <cluster_schema/>
     <remotesteps>
@@ -2361,7 +2436,7 @@
     <name>Modified Java Script Value 3</name>
     <type>ScriptValueMod</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -2372,7 +2447,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>var dcrelationfondvalue &#x3d; dcrelationfond &#x21;&#x3d; null &#x26;&#x26; dcrelationfond.length &#x3e; 0 &#x3f; fond_name &#x2b; &#x22;&#x3a;&#x3a;&#x22; &#x2b; dcrelationfond &#x2b; &#x22;&#x3a;&#x3a;600&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var reference_number_cleaned &#x3d; &#x28;reference_number &#x21;&#x3d; null&#x29; &#x3f; reference_number.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var title_cleaned &#x3d; &#x28;title &#x21;&#x3d; null&#x29; &#x3f; title.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var given_title_cleaned &#x3d; &#x28;given_title &#x21;&#x3d; null&#x29; &#x3f; given_title.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var unit_type_cleaned &#x3d; &#x28;unit_type &#x21;&#x3d; null&#x29; &#x3f; unit_type.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var medium_cleaned &#x3d; &#x28;medium &#x21;&#x3d; null&#x29; &#x3f; medium.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var content_cleaned &#x3d; &#x28;content &#x21;&#x3d; null&#x29; &#x3f; content.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var arrangement_note_cleaned &#x3d; &#x28;arrangement_note &#x21;&#x3d; null&#x29; &#x3f; arrangement_note.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var physical_type_cleaned &#x3d; &#x28;physical_type &#x21;&#x3d; null&#x29; &#x3f; physical_type.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var physical_description_cleaned &#x3d; &#x28;physical_description &#x21;&#x3d; null&#x29; &#x3f; physical_description.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var preservation_cleaned &#x3d; &#x28;preservation &#x21;&#x3d; null&#x29; &#x3f; preservation.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var preservation_note_cleaned &#x3d; &#x28;preservation_note &#x21;&#x3d; null&#x29; &#x3f; preservation_note.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var access_condition_cleaned &#x3d; &#x28;access_condition &#x21;&#x3d; null&#x29; &#x3f; access_condition.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var use_condition_cleaned &#x3d; &#x28;use_condition &#x21;&#x3d; null&#x29; &#x3f; use_condition.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_title_cleaned &#x3d; &#x28;source_title &#x21;&#x3d; null&#x29; &#x3f; source_title.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_short_title_child_cleaned &#x3d; &#x28;source_short_title_child &#x21;&#x3d; null&#x29; &#x3f; source_short_title_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_author_child_cleaned &#x3d; &#x28;source_author_child &#x21;&#x3d; null&#x29; &#x3f; source_author_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_editor_child_cleaned &#x3d; &#x28;source_editor_child &#x21;&#x3d; null&#x29; &#x3f; source_editor_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_publisher_child_cleaned &#x3d; &#x28;source_publisher_child &#x21;&#x3d; null&#x29; &#x3f; source_publisher_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_place_child_cleaned &#x3d; &#x28;source_place_child &#x21;&#x3d; null&#x29; &#x3f; source_place_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_year_child_cleaned &#x3d; &#x28;source_year_child &#x21;&#x3d; null&#x29; &#x3f; source_year_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_url_cleaned &#x3d; &#x28;source_url &#x21;&#x3d; null&#x29; &#x3f; source_url.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;&#x2f;&#x2a;var reference_number_cleaned &#x3d; reference_number&#x3b;&#xa;var title_cleaned &#x3d; title&#x3b;&#xa;var given_title_cleaned &#x3d; given_title&#x3b;&#xa;var unit_type_cleaned &#x3d; unit_type&#x3b;&#xa;var medium_cleaned &#x3d; medium&#x3b;&#xa;var content_cleaned &#x3d; content&#x3b;&#xa;var arrangement_note_cleaned &#x3d; arrangement_note&#x3b;&#xa;var physical_type_cleaned &#x3d; physical_type&#x3b;&#xa;var physical_description_cleaned &#x3d; physical_description&#x3b;&#xa;var preservation_cleaned &#x3d; preservation&#x3b;&#xa;var preservation_note_cleaned &#x3d; preservation_note&#x3b;&#xa;var access_condition_cleaned &#x3d; access_condition&#x3b;&#xa;var use_condition_cleaned &#x3d; use_condition&#x3b;&#xa;var source_title_cleaned &#x3d; source_title&#x3b;&#xa;var source_short_title_child_cleaned &#x3d; source_short_title_child&#x3b;&#xa;var source_author_child_cleaned &#x3d; source_author_child&#x3b;&#xa;var source_editor_child_cleaned &#x3d; source_editor_child&#x3b;&#xa;var source_publisher_child_cleaned &#x3d; source_publisher_child&#x3b;&#xa;var source_place_child_cleaned &#x3d; source_place_child&#x3b;&#xa;var source_year_child_cleaned &#x3d; source_year_child&#x3b;&#xa;var source_url_cleaned &#x3d; source_url&#x3b;&#x2a;&#x2f;</jsScript_script>
+        <jsScript_script>var dcrelationfondvalue &#x3d; dcrelationfond &#x21;&#x3d; null &#x26;&#x26; dcrelationfond.length &#x3e; 0 &#x3f; fond_name &#x2b; &#x22;&#x3a;&#x3a;&#x22; &#x2b; dcrelationfond &#x2b; &#x22;&#x3a;&#x3a;600&#x22; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;var reference_number_cleaned &#x3d; &#x28;reference_number &#x21;&#x3d; null&#x29; &#x3f; reference_number.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var title_cleaned &#x3d; &#x28;title &#x21;&#x3d; null&#x29; &#x3f; title.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var given_title_cleaned &#x3d; &#x28;given_title &#x21;&#x3d; null&#x29; &#x3f; given_title.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var unit_type_cleaned &#x3d; &#x28;unit_type &#x21;&#x3d; null&#x29; &#x3f; unit_type.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var medium_cleaned &#x3d; &#x28;medium &#x21;&#x3d; null&#x29; &#x3f; medium.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var content_cleaned &#x3d; &#x28;content &#x21;&#x3d; null&#x29; &#x3f; content.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var arrangement_note_cleaned &#x3d; &#x28;arrangement_note &#x21;&#x3d; null&#x29; &#x3f; arrangement_note.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var physical_type_cleaned &#x3d; &#x28;physical_type &#x21;&#x3d; null&#x29; &#x3f; physical_type.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var physical_description_cleaned &#x3d; &#x28;physical_description &#x21;&#x3d; null&#x29; &#x3f; physical_description.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var preservation_cleaned &#x3d; &#x28;preservation &#x21;&#x3d; null&#x29; &#x3f; preservation.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var preservation_note_cleaned &#x3d; &#x28;preservation_note &#x21;&#x3d; null&#x29; &#x3f; preservation_note.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var access_condition_cleaned &#x3d; &#x28;access_condition &#x21;&#x3d; null&#x29; &#x3f; access_condition.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var use_condition_cleaned &#x3d; &#x28;use_condition &#x21;&#x3d; null&#x29; &#x3f; use_condition.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_title_cleaned &#x3d; &#x28;source_title_child &#x21;&#x3d; null&#x29; &#x3f; source_title_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_short_title_child_cleaned &#x3d; &#x28;source_short_title_child &#x21;&#x3d; null&#x29; &#x3f; source_short_title_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_author_child_cleaned &#x3d; &#x28;source_author_child &#x21;&#x3d; null&#x29; &#x3f; source_author_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_editor_child_cleaned &#x3d; &#x28;source_editor_child &#x21;&#x3d; null&#x29; &#x3f; source_editor_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_publisher_child_cleaned &#x3d; &#x28;source_publisher_child &#x21;&#x3d; null&#x29; &#x3f; source_publisher_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_place_child_cleaned &#x3d; &#x28;source_place_child &#x21;&#x3d; null&#x29; &#x3f; source_place_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_year_child_cleaned &#x3d; &#x28;source_year_child &#x21;&#x3d; null&#x29; &#x3f; source_year_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;var source_url_cleaned &#x3d; &#x28;source_url_child &#x21;&#x3d; null&#x29; &#x3f; source_url_child.replace&#x28;&#x2f;&#x5c;t&#x2b;&#x2f;g, &#x22; &#x22;&#x29;.replace&#x28;&#x2f;&#x5c;n &#x5c;n&#x2f;g, &#x22;&#x22;&#x29;.replace&#x28;&#x2f; &#x2a;&#x5c;n&#x2b; &#x2a;&#x5c;n&#x2b;&#x2f;g, &#x22;&#x5c;n&#x22;&#x29; &#x3a; &#x22;&#x22;&#x3b;&#xa;&#xa;&#x2f;&#x2a;var reference_number_cleaned &#x3d; reference_number&#x3b;&#xa;var title_cleaned &#x3d; title&#x3b;&#xa;var given_title_cleaned &#x3d; given_title&#x3b;&#xa;var unit_type_cleaned &#x3d; unit_type&#x3b;&#xa;var medium_cleaned &#x3d; medium&#x3b;&#xa;var content_cleaned &#x3d; content&#x3b;&#xa;var arrangement_note_cleaned &#x3d; arrangement_note&#x3b;&#xa;var physical_type_cleaned &#x3d; physical_type&#x3b;&#xa;var physical_description_cleaned &#x3d; physical_description&#x3b;&#xa;var preservation_cleaned &#x3d; preservation&#x3b;&#xa;var preservation_note_cleaned &#x3d; preservation_note&#x3b;&#xa;var access_condition_cleaned &#x3d; access_condition&#x3b;&#xa;var use_condition_cleaned &#x3d; use_condition&#x3b;&#xa;var source_title_cleaned &#x3d; source_title&#x3b;&#xa;var source_short_title_child_cleaned &#x3d; source_short_title_child&#x3b;&#xa;var source_author_child_cleaned &#x3d; source_author_child&#x3b;&#xa;var source_editor_child_cleaned &#x3d; source_editor_child&#x3b;&#xa;var source_publisher_child_cleaned &#x3d; source_publisher_child&#x3b;&#xa;var source_place_child_cleaned &#x3d; source_place_child&#x3b;&#xa;var source_year_child_cleaned &#x3d; source_year_child&#x3b;&#xa;var source_url_cleaned &#x3d; source_url&#x3b;&#x2a;&#x2f;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>dcrelationfondvalue</name>
         <rename>dc.relation.fond</rename>
         <type>String</type>
@@ -2514,7 +2589,7 @@
     </remotesteps>
     <GUI>
       <xloc>64</xloc>
-      <yloc>688</yloc>
+      <yloc>848</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -2588,7 +2663,7 @@
     </remotesteps>
     <GUI>
       <xloc>64</xloc>
-      <yloc>848</yloc>
+      <yloc>1168</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -2865,7 +2940,7 @@
       <unique_rows>N</unique_rows>
     <fields>
       <field>
-        <name>source_id</name>
+        <name>legacy_id</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
@@ -2891,7 +2966,7 @@
     <name>Sort rows 2 2 2 4 2</name>
     <type>SortRows</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -2923,7 +2998,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>224</xloc>
+      <xloc>384</xloc>
       <yloc>608</yloc>
       <draw>Y</draw>
     </GUI>
@@ -4119,7 +4194,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>848</yloc>
+      <yloc>1168</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -4489,7 +4564,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>928</yloc>
+      <yloc>1248</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -4859,7 +4934,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>1008</yloc>
+      <yloc>1328</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -5229,7 +5304,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>1088</yloc>
+      <yloc>1408</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -5599,7 +5674,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>1168</yloc>
+      <yloc>1488</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -5969,7 +6044,7 @@
     </remotesteps>
     <GUI>
       <xloc>384</xloc>
-      <yloc>1248</yloc>
+      <yloc>1568</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
@@ -6000,14 +6075,14 @@
     </remotesteps>
     <GUI>
       <xloc>64</xloc>
-      <yloc>368</yloc>
+      <yloc>528</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
 
   <step>
-    <name>Unique rows 2 2</name>
-    <type>Unique</type>
+    <name>Text file output 3</name>
+    <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -6016,13 +6091,316 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-      <count_rows>N</count_rows>
-      <count_field/>
-      <reject_duplicate_row>N</reject_duplicate_row>
-      <error_description/>
-    <fields>      <field>        <name>legacy_id</name>
-        <case_insensitive>N</case_insensitive>
-        </field>      </fields>    <cluster_schema/>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>Y</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>UNIX</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>&#x24;&#x7b;Internal.Transformation.Filename.Directory&#x7d;&#x2f;output&#x2f;full-unit-output-1</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+      <field>
+        <name>dc.relation.fond</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.identifier.shelfmark</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.title</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.type</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.format.medium</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.source.content</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.description.note</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.type.physical</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.description</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.description.preservation</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.description.preservationnote</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.accessRights</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.rights</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.date.start</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.date.end</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographytitle</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographyabbreviation</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographyauthors</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographyeditor</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographypublisher</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographyplace</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.bibliographyyear</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>dc.relation.url</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+    <cluster_schema/>
     <remotesteps>
       <input>
       </input>
@@ -6030,8 +6408,75 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>384</xloc>
+      <xloc>344</xloc>
+      <yloc>1076</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Sort rows 2 2 2 2 2 2</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>legacy_id</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>624</xloc>
       <yloc>608</yloc>
+      <draw>Y</draw>
+    </GUI>
+    </step>
+
+  <step>
+    <name>Dummy &#x28;do nothing&#x29; 2 2 2 4 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>1008</yloc>
       <draw>Y</draw>
     </GUI>
     </step>
