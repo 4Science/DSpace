@@ -280,6 +280,11 @@ div.box div.collapsable  table tr td.highlightRowEvenCol {
         box-sizing: border-box;
 }
 
+#bookexport-biblio-panel {
+        padding-left: 8px;
+		padding-bottom: 4px;
+}
+
 /* /Researcher field */
 #researcher .box_info_and_picture {
   border-bottom: #cccccc 3px solid; 
