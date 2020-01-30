@@ -50,6 +50,11 @@
 				<entry key="book" value-ref="bookComponent" />
 				<entry key="patent" value-ref="patentComponent" />
 				<entry key="dataset" value-ref="datasetComponent" />
+				<entry key="file" value-ref="fileComponent" />
+				<entry key="item" value-ref="itemComponent" />
+				<entry key="registry" value-ref="registryComponent" />
+				<entry key="manuscript" value-ref="manuscriptComponent" />
+				<entry key="recording" value-ref="recordingComponent" />
 				<entry key="other" value-ref="otherComponent" />
 			</map>
 		</property>
@@ -118,6 +123,51 @@
 		<property name="sortby"><value>1</value></property>
 	</bean>
 	
+	<bean id="fileComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="file" />
+		<property name="facetQuery"><value>dc.type:file -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="itemComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="item" />
+		<property name="facetQuery"><value>dc.type:item -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="registryComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="registry" />
+		<property name="facetQuery"><value>dc.type:registry -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="manuscriptComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="manuscript" />
+		<property name="facetQuery"><value>dc.type:manuscript -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="recordingComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="recording" />
+		<property name="facetQuery"><value>dc.type:recording -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
 	<bean id="otherComponent"
 		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
 		<property name="componentIdentifier" value="other" />
@@ -143,6 +193,11 @@
                                 <entry key="book" value-ref="bookComponent" />
                                 <entry key="patent" value-ref="patentComponent" />
                                 <entry key="dataset" value-ref="datasetComponent" />
+                                <entry key="file" value-ref="fileComponent" />
+                                <entry key="item" value-ref="itemComponent" />
+                                <entry key="registry" value-ref="registryComponent" />
+                                <entry key="manuscript" value-ref="manuscriptComponent" />
+                                <entry key="recording" value-ref="recordingComponent" />
                                 <entry key="other" value-ref="otherComponent" />
                         </map>
                 </property>
