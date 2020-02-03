@@ -37,7 +37,6 @@ if (submissions != null && submissions.count() > 0)
 			$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").addClass("hidden");
 			$(".<%= thumbTag %> > img").addClass("center-block");
 			$("#recentSubmissionTitle > div > i").addClass("hidden");
-			//$(".<%= thumbTag %>").addClass("hidden");
 			$(".<%= thumbTag %>list").addClass("col-sm-2");
 			$(".<%= thumbTag %>list").css("height", "250px");
 			$(".<%= thumbTag %>list").css("min-height", "250px");

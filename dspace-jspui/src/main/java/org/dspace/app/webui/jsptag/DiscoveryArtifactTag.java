@@ -114,7 +114,6 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 									+ "/" + UIUtil.encodeBitstreamName(bitstreams[0].getName(), Constants.DEFAULT_ENCODING)
 									+ "\"/>");
 						}
-				//	}
 				} else {
 					// TODO MANANAGE COLLECTION AND COMMUNITY
 				    if (artifact.getType() >= 9 || artifact instanceof BrowseItem) {

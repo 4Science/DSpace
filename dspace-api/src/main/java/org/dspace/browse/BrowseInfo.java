@@ -540,7 +540,6 @@ public class BrowseInfo
     
     public BrowsableDSpaceObject[] getBrowsableDSpaceObjectResults(Context context)
         {
-        		//BrowseItem[] bis = getBrowseItemResults();
         		List<BrowsableDSpaceObject> objectList = new ArrayList<BrowsableDSpaceObject>();
         		
         		for (Object obj: results)
