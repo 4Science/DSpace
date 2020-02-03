@@ -55,6 +55,15 @@
                                                 <bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
                                                         <property name="name" value="interpretation"/>
                                                 </bean>
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="crisopera"/>
+						</bean>
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="fundings"/>
+						</bean>
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="orgunits"/>
+						</bean>
 					</list>									
 				</entry>
 				<entry key="group-right">
