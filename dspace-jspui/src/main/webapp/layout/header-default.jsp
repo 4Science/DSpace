@@ -259,11 +259,15 @@ window.cookieconsent.initialise({
 					 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
 				      
 				 <%
+				    String parameters = StringUtils.isBlank(request.getQueryString()) ? "" : request.getQueryString() + "&";
+				    if (parameters.contains("locale=")) {
+				        parameters = StringUtils.substringBefore(parameters, "locale=");
+				    }
 				    for (int i = supportedLocales.length-1; i >= 0; i--)
 				     {
 				 %>
 				        <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
-				                  document.repost.submit();" href="?locale=<%=supportedLocales[i].toString()%>">
+				                  document.repost.submit();" href="?<%=parameters%>locale=<%=supportedLocales[i].toString()%>">
 				          <img src="<%= request.getContextPath() %>/image/flag-<%=supportedLocales[i].toString() %>.png" style="max-width:30px"/>  
 				          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                                  
 				       </a></li>
