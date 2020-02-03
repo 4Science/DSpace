@@ -537,6 +537,26 @@ public class BrowseInfo
     		throw new BrowseException(e);
     	}
     }
+    
+    public BrowsableDSpaceObject[] getBrowsableDSpaceObjectResults(Context context)
+        {
+        		//BrowseItem[] bis = getBrowseItemResults();
+        		List<BrowsableDSpaceObject> objectList = new ArrayList<BrowsableDSpaceObject>();
+        		
+        		for (Object obj: results)
+        		{
+        			if (obj instanceof BrowsableDSpaceObject)
+        			{
+        					
+        					objectList.add((BrowsableDSpaceObject)obj);
+        			}
+        		}
+        		BrowsableDSpaceObject[] items = new BrowsableDSpaceObject[objectList.size()];
+        		items = objectList.toArray(items);
+        		items[0].getType();
+        		return items;
+        		
+        }
 
     /**
      * Return the results of the Browse as a BrowseItem array

@@ -166,6 +166,20 @@
 			</map>
 		</property>
 	</bean>
+
+	<bean class="org.dspace.app.cris.integration.CrisFondsEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearchObject</value>
+		</property>
+		<property name="alias" value="creation" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="time">
+					<value>time</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
 		
 	<!-- CRIS nested enhanced metadata, used to add dynamically to the CRIS entity information from the nested
      CRIS entities as it was metadata of the current CRIS entity from clazz -->
