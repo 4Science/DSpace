@@ -34,6 +34,7 @@ if (submissions != null && submissions.count() > 0)
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"/></script>
 	<script>
 		$(document).ready(function(){
+			$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").addClass("hidden");
 			$(".<%= thumbTag %> > img").addClass("center-block");
 			$("#recentSubmissionTitle > div > i").addClass("hidden");
 			//$(".<%= thumbTag %>").addClass("hidden");
@@ -45,6 +46,7 @@ if (submissions != null && submissions.count() > 0)
 			var isHidden = false;
 			
 			$("#hideThumb").click(function(){
+				$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").removeClass("hidden");
 				$(".<%= thumbTag %>").addClass("hidden");
 				$("#hideThumb").removeClass("btn-default");
 				$("#hideThumb").addClass("btn-primary");
@@ -59,6 +61,7 @@ if (submissions != null && submissions.count() > 0)
 	  		});
 			
 			$("#showThumb").click(function(){
+				$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").addClass("hidden");
 				$(".<%= thumbTag %>").removeClass("hidden");
 				$("#showThumb").removeClass("btn-default");
 				$("#showThumb").addClass("btn-primary");

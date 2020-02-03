@@ -1468,14 +1468,18 @@
 							<property name="preHtml" value="&lt;br /&gt;&lt;b&gt;" />
 							<property name="postHtml" value="&lt;/b&gt; &lt;br /&gt;" />						
 						</bean>
+					</list>
+				</property>
+				<property name="metadataDescriptionFields">
+					<list>
 						<bean
 							class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
 							<property name="mandatory" value="true"/>
 							<property name="field" value="crisfonds.fondsdescription" />
-							<property name="preHtml" value="&lt;br /&gt;" />					
+							<property name="preHtml" value="&lt;br /&gt;" />
 						</bean>
 					</list>
-				</property>				
+				</property>
 				<property name="thumbnail" value="crisfonds.fondspicture"/>
 				</bean>
 				</property>
