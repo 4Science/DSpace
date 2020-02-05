@@ -94,11 +94,6 @@
 	<!--  Additional indexing plugin to index multilanguage for authority field -->
 	<bean id="ownerAuthorityIndexer" class="org.dspace.app.cris.discovery.OwnerRPAuthorityIndexer"/>
 	
-	<!-- Additional indexing plugin to add hierarchy field to item SOLR 
-		document -->
-	<bean id="fondHierarchyIndexer" class="org.dspace.app.cris.discovery.FondsHierarchySolrIndexer">
-	</bean>
-						
 	<!--Bean that is used for mapping communities/collections to certain discovery 
 		configurations. -->
 	<bean
