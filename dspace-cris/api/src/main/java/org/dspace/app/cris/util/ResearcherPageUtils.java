@@ -9,6 +9,7 @@ package org.dspace.app.cris.util;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,20 +19,21 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.cris.integration.NameResearcherPage;
 import org.dspace.app.cris.integration.RPAuthority;
 import org.dspace.app.cris.model.ACrisObject;
 import org.dspace.app.cris.model.CrisConstants;
+import org.dspace.app.cris.model.ResearchObject;
 import org.dspace.app.cris.model.ResearcherPage;
 import org.dspace.app.cris.model.RestrictedField;
 import org.dspace.app.cris.model.VisibilityConstants;
 import org.dspace.app.cris.model.jdyna.ACrisNestedObject;
-import org.dspace.app.cris.model.jdyna.RPProperty;
 import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.content.DCPersonName;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Metadatum;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.Choices;
 import org.dspace.discovery.DiscoverQuery;
@@ -690,5 +692,63 @@ return decorator.generateDisplayValue(alternativeName, rp);
         for(P remove : toRemove) {
             ro.removeProprieta(remove);
         }
+    }
+    
+    public static final String FONDS= "fonds";
+    public static final String HIERARCHY= "hierarchy";
+    public static final String PARENT= "parent";
+    
+    public  static String getDisplayEntry(ACrisObject crisObject)
+
+    {
+        
+        String fondshierarchy = crisObject.getName();
+        
+        if (crisObject instanceof ResearchObject)
+        {
+            if (FONDS.equals(
+                    ((ResearchObject) crisObject).getTypo().getShortName()))
+            {
+                List<String> fondsresults = new ArrayList<>();
+
+                // Get first parent
+                Metadatum[] fondsparent = crisObject.getMetadata(
+                        crisObject.getTypeText(), FONDS+PARENT, null, null);
+
+                // Get all parent hierarchy
+                fondsresults = getParents(applicationService, fondsparent);
+
+                // Reverse the list for match "root-to-leaf" mode
+                Collections.reverse(fondsresults);
+
+                // Iterate all parent and add each on string
+                for (String fondsresult : fondsresults)
+                {
+                    fondshierarchy = fondsresult + " > " + fondshierarchy;
+                }
+            }
+        }
+        return fondshierarchy;
+    }
+    private static List<String> getParents(ApplicationService appService,
+            Metadatum[] fondsparent)
+    {
+        ResearchObject ro = null;
+        List<String> fondsresults = new ArrayList<>();
+
+        // Iterate on Metatada "fondsparent". For each parent will iterate again
+        // on it
+        for (Metadatum parent : fondsparent)
+        {
+            ro = appService.getEntityByCrisId(parent.authority,
+                    ResearchObject.class);
+            if (ro.getMetadata(FONDS+PARENT) != null)
+            {
+                fondsresults.addAll(getParents(appService, ro.getMetadata(
+                        ro.getTypeText(), FONDS+PARENT, null, null)));
+            }
+            fondsresults.add(ro.getName());
+        }
+    return fondsresults;
     }
 }
