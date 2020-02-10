@@ -881,6 +881,7 @@ public class ItemTag extends TagSupport {
 			}
 		}
 
+		// check on bitstream for backward compatibility (related to IIIF-38)
 		hideNotPrimary = bit.getMetadataValue(IViewer.METADATA_STRING_HIDENOTPRIMARY);
 		for (String h : hideNotPrimary) {
 			if (BooleanUtils.toBoolean(h)) {
