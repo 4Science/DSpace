@@ -1230,6 +1230,8 @@
 				<ref bean="searchFilterRPRole" />
 				<ref bean="searchFilterBirthDate" />
 				<ref bean="searchFilterDeathDate" />				
+				<ref bean="searchFilterBirthYear" />
+				<ref bean="searchFilterDeathYear" />
 			</list>
 		</property>
 		<!--The sort filters for the discovery search -->
@@ -2698,6 +2700,30 @@
 		<property name="type" value="date" />
 		<property name="sortOrder" value="VALUE" />
 	</bean>
+	<bean id="searchFilterBirthYear"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="birthyear" />
+		<property name="metadataFields">
+			<list>
+				<value>crisrp.birthdate.normalized</value>
+				<value>crisrp.birthyear.normalized</value>
+			</list>
+		</property>
+		<property name="type" value="date" />
+		<property name="sortOrder" value="VALUE" />
+	</bean>
+	<bean id="searchFilterDeathYear"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="deathyear" />
+		<property name="metadataFields">
+			<list>
+				<value>crisrp.deathdate.normalized</value>
+				<value>crisrp.deathyear.normalized</value>
+			</list>
+		</property>
+		<property name="type" value="date" />
+		<property name="sortOrder" value="VALUE" />
+	</bean>
 
 	<bean id="searchFilterStartDate"
 		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -2991,6 +3017,8 @@
 		<constructor-arg>
 		<list>
 				<ref bean="searchFilterRPRole" />
+				<ref bean="searchFilterBirthYear" />
+				<ref bean="searchFilterDeathYear" />
 		</list>
 		</constructor-arg>
 	</bean>
