@@ -180,6 +180,59 @@
 			</map>
 		</property>
 	</bean>
+
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="birthdate" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="deathdate" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="birthyear" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="deathyear" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
 		
 	<!-- CRIS nested enhanced metadata, used to add dynamically to the CRIS entity information from the nested
      CRIS entities as it was metadata of the current CRIS entity from clazz -->
