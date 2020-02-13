@@ -62,7 +62,12 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 	public int doStartTag() throws JspException {
 		try {
 			JspWriter out = pageContext.getOut();
-			out.println("<div class=\"list-group-item " + StringUtils.substringAfter(view.getThumbnail(), ".") + "list\" >");			
+			if (view != null && view.getThumbnail() != null) {
+				out.println("<div class=\"list-group-item " + StringUtils.substringAfter(view.getThumbnail(), ".") + "list\" >");
+			}
+			else {
+				out.println("<div class=\"list-group-item\">");
+			}
 		} catch (IOException ie) {
 			throw new JspException(ie);
 		}
