@@ -536,6 +536,7 @@ img::-moz-selection {
     background-repeat: no-repeat;
     background-position: center bottom;    
     background-size: cover;
+    height: 150px;
 }
 
 .custom-btn-circle {

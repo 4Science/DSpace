@@ -301,13 +301,6 @@ window.cookieconsent.initialise({
    }
    if (!currentPage.endsWith("/home.jsp")) { %>
 <div class="container-fluid intro-background">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="brand-heading">
-               <img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png">
-            </h1>
-        </div>
-    </div>
 </div>
 <% } %>
 <br />
