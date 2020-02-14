@@ -62,7 +62,6 @@
     
     ItemCounter ic = new ItemCounter(UIUtil.obtainContext(request));
 
-    String recentSubmissionLink = (String) request.getAttribute("recent.link");
     RecentSubmissions submissions = (RecentSubmissions) request.getAttribute("recent.submissions");
     MostViewedBean mostViewedItem = (MostViewedBean) request.getAttribute("mostViewedItem");
     MostViewedBean mostCitedItem = (MostViewedBean) request.getAttribute("mostCitedItem");
