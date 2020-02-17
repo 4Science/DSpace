@@ -127,7 +127,7 @@ if (submissions != null && submissions.count() > 0)
 		<%
 		     }
 		%>
-		<% if (StringUtils.isNotBlank(thumbTag)) { %>
+		<% if (StringUtils.isNotBlank(recentSubmissionLink) && StringUtils.isNotBlank(thumbTag)) { %>
 			<div class="list-group-item <%= thumbTag %>list">
 				<div class="list-group-item-heading text-center">
 					<div class="media <%= thumbTag %> ">
