@@ -298,7 +298,7 @@ if(StringUtils.contains(searchScope, hdlPrefix) ){
      							<input name="location" type="hidden" value="<%=searchScope %>" />
                                 <label for="query"><fmt:message key="jsp.search.results.searchfor"/></label>
                                 <input type="text" size="50" id="query" name="query" value="<%= (query==null ? "" : Utils.addEntities(query)) %>"/>
-                                <input type="submit" id="main-query-submit" class="btn btn-primary" value="<fmt:message key="jsp.general.go"/>" />
+                                <button type="submit" id="main-query-submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
                                 <a class="btn btn-default" href="<%= request.getContextPath()+"/global-search" %>"><fmt:message key="jsp.search.general.new-search" /></a>
                                
 <% if (StringUtils.isNotBlank(spellCheckQuery)) {%>
