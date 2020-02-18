@@ -192,7 +192,7 @@
 				</entry>
 				<entry key="crisfonds">
 					<list>
-						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+						<!-- <bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
 							<property name="browseNames">
 								<list>
 									<value>crisfondname</value>
@@ -204,7 +204,7 @@
 									<value>crisfondproject</value>
 								</list>
 							</property>
-						</bean>
+						</bean> -->
 					</list>
 				</entry>
 			</map>
