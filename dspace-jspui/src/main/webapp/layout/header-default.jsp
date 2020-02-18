@@ -218,6 +218,23 @@
     <body class="undernavigation" dir="<%= LocaleUIHelper.ifLtr(request, "ltr","rtl") %>">
 <a class="sr-only" href="#content">Skip navigation</a>
 <header class="navbar navbar-inverse navbar-square shp-no-mb">    
+
+<div class="container-fluid banner shp-margin" style="background-color:#333333db;">
+     <div class="row">
+		<% if (supportedLocales != null && supportedLocales.length > 1) { %>
+			 <ul class="nav navbar-language navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
+		 <% for (int i = supportedLocales.length-1; i >= 0; i--) { %>
+		        <li><a style="margin-top: -5px; padding-top: 14px; padding-bottom: 6px;" onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
+		                  document.repost.submit();" href="<%=queryString%>&locale=<%=supportedLocales[i].toString()%>">
+		          <img src="<%= request.getContextPath() %>/image/flag-<%=supportedLocales[i].toString() %>.png" style="max-width:20px"/>
+		          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>
+		       </a></li>
+		 <% } %>
+		     </ul>
+		 <% } %>
+     </div>
+</div>
+
     <%
     if (!navbar.equals("off"))
     {
@@ -267,34 +284,6 @@ window.cookieconsent.initialise({
 
 <main id="content" role="main">
 
-<div class="container-fluid banner shp-margin">
-     <div class="row">
-         <div class="col-sm-12">
-				<% if (supportedLocales != null && supportedLocales.length > 1)
-				     {
-				 %>
-					 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-				      
-				 <%
-				    for (int i = supportedLocales.length-1; i >= 0; i--)
-				     {
-				 %>
-				        <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
-				                  document.repost.submit();" href="<%=queryString%>&locale=<%=supportedLocales[i].toString()%>">
-				          <img src="<%= request.getContextPath() %>/image/flag-<%=supportedLocales[i].toString() %>.png" style="max-width:30px"/>  
-				          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                                  
-				       </a></li>
-				 <%
-				     }
-				 %>
-				     </ul>
-				 <%
-				   }
-				 %>
-         </div>
-     </div>
-</div>
-
 <% String currentPage = UIUtil.getOriginalURL(request);
    if (currentPage.contains("?")) {
       currentPage = currentPage.substring(0, currentPage.lastIndexOf("?"));
@@ -303,12 +292,10 @@ window.cookieconsent.initialise({
 <div class="container-fluid intro-background">
 </div>
 <% } %>
-<br />
 <% if (currentPage.endsWith("/home.jsp")) { %>
 <div class="row">
 	<%= topNews %>
 </div>
-<hr />
 <% } %>
                 <%-- Location bar --%>
 <%
