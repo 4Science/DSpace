@@ -16,6 +16,7 @@
   -    discovery.searchScope - the search scope 
   --%>
 
+<%@page import="org.dspace.core.ConfigurationManager"%>
 <%@page import="org.dspace.discovery.configuration.DiscoverySearchFilterFacet"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Set"%>
@@ -98,7 +99,7 @@
 		
 		
 <div class="row">
-<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-10 col-md-offset-1" action="<%= request.getContextPath() %>/simple-search" method="get">
+<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-6 col-md-offset-3" action="<%= request.getContextPath() %>/simple-search" method="get">
 <div class="input-group">
     <input type="text" class="form-control" name="query" placeholder="Search term...">
     <span class="input-group-btn">
@@ -141,7 +142,15 @@
 </div>
 </form>
 </div>
-<hr/>
+<br>
+<br>
+<div class="row">
+	<div class="col-md-12" style="min-height: 100px;">
+	    <%@ include file="/components/recent-submissions.jsp" %>
+	</div>
+</div>
+
+
 
 
 <%
@@ -172,7 +181,10 @@
 			}
 		}
 %>
+<br>
 <div class="row">
+	<ol class="breadcrumb btn-primary"><li><%= ConfigurationManager.getProperty("dspace.name") %></li></ol>
+
 	<a href="#group-left-info-popover-content"><div class="col-md-4 text-center">
 		<h4 class="text-success"><fmt:message key="jsp.home.explore.group-left-info" /></h4>
 		<p><span class="fa fa-users fa-5x" id="group-left-info" data-placement="right"></span> <span class="badge"><%= totGroupLeft %></span></p>
@@ -191,7 +203,7 @@
 		<small class="label label-success"><fmt:message key="jsp.home.explore.title.group-right-info" /></small>
 	</div></a>
 </div>
-
+<br>
 
 
 
@@ -380,4 +392,4 @@
 		}
 		%>
 		</ul>
-</div>		
+</div>

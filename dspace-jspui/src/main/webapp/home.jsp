@@ -69,29 +69,10 @@
     boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
 %>
 
-<dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
-<div class="row"> 
-	<div class="col-md-8 col-sm-12" style="min-height: 100px;">
-    		<%@ include file="components/recent-submissions.jsp" %>
-	</div>
-	<div class="col-md-4 col-sm-12">
-		<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" scope="search">		
-		    <div class="input-group col-lg-12">
-    	      <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery"/>
-	    	    <span class="input-group-btn">
-	        		<button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-	    		</span>
-    		</div>
-		</form>
-	</div>
-	<div class="col-md-4">
- 		<hr />
- 		<%= sideNews %>
- 	</div>
-</div>
-<hr />
-<div class="row">
-	<div class="col-md-8 sm-12 pull-<%= isRtl? "right":"left" %>">
+<dspace:layout locbar="off" titlekey="jsp.home.title" feedData="<%= feedData %>">
+<br>
+<br>
+<div class="col-md-12>
 	<%
     	int discovery_panel_cols = 8;
     	int discovery_facet_cols = 4;
@@ -102,9 +83,7 @@
 		%>
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
-		  </div>
 </div>
-<hr />
 <div class="row">
 	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	
