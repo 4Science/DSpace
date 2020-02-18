@@ -98,9 +98,7 @@
        </div>
        <nav class="navbar collapse navbar-collapse navbar-custom navbar-inverse" role="navigation">
          <ul id="top-menu" class="nav navbar-nav navbar-<%= isRtl ? "right":"left"%>">
-           <li class="pull-<%= isRtl ? "right":"left"%>"><a class="navbar-brand" href="<%= request.getContextPath() %>/"><img height="25" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a></li>
-           <li id="home-top-menu" class="<%= isRtl ? "pull-right":""%>   <%= currentPage.endsWith("/home.jsp")? 
-        		   "active" : "" %>"><a href="<%= request.getContextPath() %>/"><fmt:message key="jsp.layout.navbar-default.home"/></a></li>
+           <li class="pull-<%= isRtl ? "right":"left"%> <%= currentPage.endsWith("/home.jsp")? "active" : "" %>"><a class="navbar-brand" href="<%= request.getContextPath() %>/"><img height="35" width="80" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a></li>
 		  <% if(showCommList){ %>
 		   <li id="communitylist-top-menu" class="<%= currentPage.endsWith("/community-list")? 
         		   "active" : "" %>"><a href="<%= request.getContextPath() %>/community-list"><fmt:message key="jsp.layout.navbar-default.communities-collections"/></a></li>
