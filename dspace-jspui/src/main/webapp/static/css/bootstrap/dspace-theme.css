@@ -7,7 +7,8 @@
  */
 .brand h4 {color: #999999}
 #communitylist-top-menu a, #userloggedin-top-menu a {padding-top:0.3em;padding-bottom:0.3em;}
-#user-top-menu, #userloggedin-top-menu {margin-right: 15px;}
+#user-top-menu a {padding-top:4px;padding-bottom:4px;}
+#user-top-menu, #userloggedin-top-menu {margin-right: 15px; margin-top:15px;}
 footer {padding-top: 1em; background-color: #343434}
 footer.navbar-inverse {color: white;}
 footer .extra-footer{background-color: #004fa1; color:white;}
@@ -172,9 +173,8 @@ div.carousel-inner div.item div.list-group-item div.list-group-item-heading h4.t
 	text-transform: uppercase;
 }
 
-.media {
-	padding: 1em;
-	border-radius: 0.4em; 
+.thumbnail-heading .media {
+	background-color: #000;
 }
 
 .media.download, .media.download_aggregate, .media.download_count,
@@ -303,11 +303,19 @@ footer .container {
 	background-color: #004fa1;
 }
 
-#footer_feedback > a{
+footer, footer a {
 	color: #fff
 }
-#footer_feedback > a:hover{
+
+footer .panel-body {
+}
+
+footer a:hover {
 	text-decoration: underline;
+}
+
+footer .horiz-list ul li {
+	padding: 0px;
 }
 
 #designedby > a{
@@ -320,6 +328,9 @@ footer .container {
 
 .carousel-caption {
 	background:rgba(0, 79, 161, 0.54);
+	margin-bottom: 40px;
+	right: 20%;
+	left: 20%;
 }
 
 .carousel-caption a {

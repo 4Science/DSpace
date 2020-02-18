@@ -29,54 +29,41 @@ if (submissions != null && submissions.count() > 0)
 	<script>
 		$(document).ready(function(){
 			$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").addClass("hidden");
+			$(".<%= thumbTag %>list").addClass("thumbnail");
+			$(".<%= thumbTag %>list span").addClass("hidden");
+			$(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
 			$(".<%= thumbTag %> > img").addClass("center-block");
 			$("#recentSubmissionTitle > div > i").addClass("hidden");
 			$(".<%= thumbTag %>list").addClass("col-sm-2");
-			$(".<%= thumbTag %>list").css("height", "250px");
-			$(".<%= thumbTag %>list").css("min-height", "250px");
-			$(".<%= thumbTag %>list > div").addClass("hidable");
-			$(".<%= thumbTag %>list > div").addClass("nohover");
-			var isHidden = false;
+			$(".<%= thumbTag %>list > .list-group-item-heading").css("height", "300px");
 			
 			$("#hideThumb").click(function(){
 				$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").removeClass("hidden");
 				$(".<%= thumbTag %>").addClass("hidden");
+				$(".<%= thumbTag %>list").removeClass("thumbnail");
+				$(".<%= thumbTag %>list span").removeClass("hidden");
+				$(".<%= thumbTag %>list > .list-group-item-heading").removeClass("thumbnail-heading");
 				$("#hideThumb").removeClass("btn-default");
 				$("#hideThumb").addClass("btn-primary");
 				$("#showThumb").addClass("btn-default");
 				$("#showThumb").removeClass("btn-primary");
 				$(".<%= thumbTag %>list").removeClass("col-sm-2");
-				$(".<%= thumbTag %>list").css("height", "");
-				$(".<%= thumbTag %>list").css("min-height", "");
-				$(".<%= thumbTag %>list > div").removeClass("hidable");
-				$(".<%= thumbTag %>list > div").removeClass("nohover");
-				isHidden = true;
+				$(".<%= thumbTag %>list > .list-group-item-heading").css("height", "");
 	  		});
 			
 			$("#showThumb").click(function(){
 				$(".<%= StringUtils.substringAfter(submissions.getConfiguration().getThumbnail(), ".") %>list > .list-group-item-description").addClass("hidden");
+				$(".<%= thumbTag %>list").addClass("thumbnail");
+				$(".<%= thumbTag %>list span").addClass("hidden");
+				$(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
 				$(".<%= thumbTag %>").removeClass("hidden");
 				$("#showThumb").removeClass("btn-default");
 				$("#showThumb").addClass("btn-primary");
 				$("#hideThumb").removeClass("btn-primary");
 				$("#hideThumb").addClass("btn-default");
 				$(".<%= thumbTag %>list").addClass("col-sm-2");
-				$(".<%= thumbTag %>list").css("height", "250px");
-				$(".<%= thumbTag %>list").css("min-height", "250px");
-				$(".<%= thumbTag %>list > div").addClass("nohover");
-				$(".<%= thumbTag %>list > div").addClass("hidable");
-				isHidden = false;
+				$(".<%= thumbTag %>list > .list-group-item-heading").css("height", "300px");
 	  		});
-			
-			$(".hidable").hover(function(){
-					$(this).removeClass("nohover");
-					$(this).parent().css("height", "");
-				}, function(){
-					if(!isHidden){
-						$(this).addClass("nohover");
-						$(this).parent().css("height", "250px");
-					}
-			});
 		});
 	</script>
 			<a class="btn btn-primary" role="button" id="showThumb"><i class="fa fa-th-large" title="Show as grid"></i></a>
@@ -128,11 +115,12 @@ if (submissions != null && submissions.count() > 0)
 		     }
 		%>
 		<% if (StringUtils.isNotBlank(recentSubmissionLink) && StringUtils.isNotBlank(thumbTag)) { %>
-			<div class="list-group-item <%= thumbTag %>list">
-				<div class="list-group-item-heading text-center">
+			<div class="list-group-item <%= thumbTag %>list thumbnail col-sm-2">
+				<div class="list-group-item-heading thumbnail-heading text-center">
 					<div class="media <%= thumbTag %> ">
-						<span class="fa fa-archive" style="font-size: 8em;"></span>
+						<i class="fa fa-archive" style="font-size: 8em; margin-top: 50px; color: #fff;"></i>
 					</div>
+					<br>
 					<c:set var="recentSubmissionLink"><%=recentSubmissionLink%></c:set>
 					<b><a href="<%= request.getContextPath() %>/simple-search?location=<%= recentSubmissionLink  %>&query="><fmt:message key="jsp.recent-submission.simple-search.${recentSubmissionLink}.all"/></a></b>
 				</div>
