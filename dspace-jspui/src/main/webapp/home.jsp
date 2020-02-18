@@ -72,7 +72,7 @@
 <dspace:layout locbar="off" titlekey="jsp.home.title" feedData="<%= feedData %>">
 <br>
 <br>
-<div class="col-md-12>
+<div class="col-md-12">
 	<%
     	int discovery_panel_cols = 8;
     	int discovery_facet_cols = 4;
