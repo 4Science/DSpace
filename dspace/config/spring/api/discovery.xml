@@ -701,7 +701,6 @@
 				<ref bean="searchFilterSubject" />
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
-				<ref bean="searchFilterFulltext" />
 				<ref bean="searchFilterLicense" />
 				<ref bean="searchFilterFond" />
 			</list>
@@ -2986,7 +2985,6 @@
 				<ref bean="searchFilterSubject" />
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
-				<ref bean="searchFilterFulltext" />	
 				<ref bean="searchFilterLicense" />
 				<ref bean="searchFilterFond" />		
 		</list>
