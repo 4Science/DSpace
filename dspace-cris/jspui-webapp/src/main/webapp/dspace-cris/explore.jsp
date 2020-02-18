@@ -51,6 +51,8 @@
 	int discovery_panel_cols = 12;
 	int discovery_facet_cols = 4;
 	List<DiscoverySearchFilter> filters = (List<DiscoverySearchFilter>) request.getAttribute("filters");
+	String sHideFacets = ConfigurationManager.getProperty("cris", "explore.hide-facets." + (String)request.getAttribute("location"));
+	boolean hideFacets = sHideFacets != null && Boolean.parseBoolean(sHideFacets);
 %>
 <c:set var="dspace.layout.head.last" scope="request">
 <script type="text/javascript"><!--
@@ -240,7 +242,9 @@ function submitForm() {
 	</div>
 
 	<div class="row">
-	<c:set var="discovery.searchScope" value="${location}" scope="request"/>
-	<%@ include file="/discovery/static-sidebar-facet.jsp" %>
+	<% if (!hideFacets) { %>
+		<c:set var="discovery.searchScope" value="${location}" scope="request"/>
+		<%@ include file="/discovery/static-sidebar-facet.jsp" %>
+	<% } %>
 	</div>
 </dspace:layout>
