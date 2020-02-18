@@ -111,7 +111,7 @@ function submitForm() {
 			</ul>
 		</div>
 	</c:if>
-	<div class="${not empty browseNames && browseNames.size() > 0 ? 'col-sm-8 col-md-9' : 'center-block'}">
+	<div class="${not empty browseNames && browseNames.size() > 0 ? 'col-sm-8 col-md-9' : 'col-md-10 col-md-offset-1'}">
 		<h2><fmt:message key="jsp.explore.${location}.search" /></h2>
 		<form id="searchform" class="form-group" action="<%= request.getContextPath() %>/simple-search">
 			<input type="hidden" id="location" name="location" value="${location}" />
