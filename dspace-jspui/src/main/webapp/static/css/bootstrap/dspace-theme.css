@@ -173,7 +173,14 @@ div.carousel-inner div.item div.list-group-item div.list-group-item-heading h4.t
 	text-transform: uppercase;
 }
 
+.media {
+	padding: 1em;
+	border-radius: 0.4em;
+}
+
 .thumbnail-heading .media {
+	padding: 0;
+	border-radius: 0;
 	background-color: #000;
 }
 
