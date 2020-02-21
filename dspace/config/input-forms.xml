@@ -839,7 +839,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Data di pubblicazione</label>
          <input-type>date</input-type>
          <hint>Inserire la data di pubblicazione della risorsa.</hint>
-         <required>Inserire almeno l'anno.</required>
+         <required></required>
        </field>
        
        <field>
