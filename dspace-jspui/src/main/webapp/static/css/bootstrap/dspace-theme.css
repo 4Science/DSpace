@@ -6,9 +6,8 @@
  * http://www.dspace.org/license/
  */
 .brand h4 {color: #999999}
-#communitylist-top-menu a, #userloggedin-top-menu a {padding-top:0.3em;padding-bottom:0.3em;}
-#user-top-menu a {padding-top:4px;padding-bottom:4px;}
-#user-top-menu, #userloggedin-top-menu {margin-right: 15px; margin-top:15px;}
+#communitylist-top-menu a {padding-top:0.3em;padding-bottom:0.3em;}
+#user-top-menu, #userloggedin-top-menu {margin-right: 15px;}
 footer {padding-top: 1em; background-color: #343434}
 footer.navbar-inverse {color: white;}
 footer .extra-footer{background-color: #004fa1; color:white;}
