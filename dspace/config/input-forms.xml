@@ -992,6 +992,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <required></required>
        </field>
        
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>otherlinks</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altri link bibliografici</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire le URL di collegamento ad altri link bibliografici.</hint>
+         <required></required>
+        </field>
+       
         <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>description</dc-element>
@@ -2035,6 +2046,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <label>Link all'OPAC</label>
          <input-type>onebox</input-type>
          <hint>Inserire l'URL per l'attivazione del collegamento con l'Opac dell'Università di Pavia.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>otherlinks</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altri link bibliografici</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire le URL di collegamento ad altri link bibliografici.</hint>
          <required></required>
        </field>
        

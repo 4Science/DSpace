@@ -776,6 +776,13 @@
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
+    <qualifier>otherlinks</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
     <qualifier>url</qualifier>
     <scope_note></scope_note>
   </dc-type>
