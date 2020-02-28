@@ -320,8 +320,13 @@ footer a:hover {
 	text-decoration: underline;
 }
 
-footer .horiz-list ul li {
+footer .horiz-list li {
 	padding: 0px;
+	display: inline-block;
+}
+
+footer .no-bullets-list {
+	list-style-type: none;
 }
 
 #designedby > a{
