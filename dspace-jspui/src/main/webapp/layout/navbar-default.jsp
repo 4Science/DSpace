@@ -135,7 +135,7 @@
  }
 %>
           <li id="help-top-menu" class="<%= ( currentPage.endsWith( "/help" ) ? "active" : "" ) %>"><dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"help.index\") %>"><fmt:message key="jsp.layout.navbar-default.help"/></dspace:popup></li>
-          <li id="project-top-menu" class="<%= ( currentPage.endsWith( "/project" ) ? "active" : "" ) %>"><dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"project.index\") %>"><fmt:message key="jsp.layout.navbar-default.project"/></dspace:popup></li>
+          <li id="project-top-menu"><a href="https://www.4science.it/unipv/"><fmt:message key="jsp.layout.navbar-default.project"/></a></li>
        </ul>
 
  <%-- if (supportedLocales != null && supportedLocales.length > 1)
