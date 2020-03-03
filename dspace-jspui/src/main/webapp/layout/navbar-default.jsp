@@ -110,7 +110,12 @@
            <c:set var="fmtkey">
            jsp.layout.navbar-default.cris.<%= mlink.trim() %>
            </c:set>
-           <li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% String blink = ConfigurationManager.getProperty("cris", "navbar." + mlink + ".browse"); %>
+           <% if (StringUtils.isBlank(blink)) { %>
+           	<li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } else { %>
+           	<li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/browse?type=<%= blink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } %>
            <% } %>
            <li class="dropdown hidden-md hidden-lg">
              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="jsp.layout.navbar-default.explore"/> <b class="caret"></b></a>
@@ -122,7 +127,12 @@
            <c:set var="fmtkey">
            jsp.layout.navbar-default.cris.<%= mlink.trim() %>
            </c:set>
-           <li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% String blink = ConfigurationManager.getProperty("cris", "navbar." + mlink + ".browse"); %>
+           <% if (StringUtils.isBlank(blink)) { %>
+           	<li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } else { %>
+            <li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/browse?type=<%= blink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } %>
            <% } %>
            </ul>
            </li>
