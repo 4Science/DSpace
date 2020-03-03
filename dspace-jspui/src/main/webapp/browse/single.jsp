@@ -175,7 +175,7 @@
 		}
 %>
         </select>
-        <input type="submit" class="btn btn-default" value="<fmt:message key="browse.nav.go"/>" />
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
 		<br/>
         <label for="starts_with"><fmt:message key="browse.nav.type-year"/></label>
         <input type="text" name="starts_with" size="4" maxlength="4"/>
@@ -192,7 +192,7 @@
 		<label class="sr-only" for="starts_with"><fmt:message key="<%= browseNavKey %>"/></label>
 		<input type="text" name="vfocus" class="form-control" size="60" 
 			placeholder="<fmt:message key="<%= browseStartKey %>" />" />
-		<input type="submit" class="btn btn-default" value="<fmt:message key="browse.nav.go"/>" />
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
 		<br/>
 		<span><fmt:message key="<%= browseJumpKey %>"/></span><br/>
 <%
