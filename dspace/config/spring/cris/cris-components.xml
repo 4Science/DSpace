@@ -30,6 +30,7 @@
 				<entry key="dspaceitems" value-ref="publicationlist" />
 				<entry key="dspaceitemsother" value-ref="publicationlistother" />
 				<entry key="projects" value-ref="projectlist" />
+				<entry key="fondsparent" value-ref="fondsparentforrp" />
 			</map>
 		</property>
 	</bean>
@@ -214,6 +215,19 @@
 				<entry key="selectedproject" value-ref="selectedProjectComponent" />
 				<entry key="investigatored" value-ref="investigatoredComponent" />
 				<entry key="coinvestigatored" value-ref="coinvestigatoredComponent" />				
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="fondsparentforrp"
+		class="org.dspace.app.webui.cris.components.CRISDOConfigurerComponent">
+		<property name="relationConfiguration" ref="relationRPVSFONDSConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>
+		<property name="target" value="org.dspace.app.cris.model.ResearcherPage" />
+		<property name="facets" ref="facetsFondsConfiguration"/>
+		<property name="types">
+			<map>
+				<entry key="allfonds" value-ref="allObjectsComponent" />
 			</map>
 		</property>
 	</bean>

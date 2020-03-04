@@ -106,6 +106,15 @@
 		</property>
 	</bean>
 
+	<bean id="relationRPVSFONDSConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+		<property name="relationName" value="crisrp.fonds" />
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="type" value="crisfonds" />
+		<property name="query">
+			<value>crisfonds.fondscreatorperson_authority:{0} AND -crisfonds.fondsparent:[* TO *]</value>
+		</property>
+	</bean>
+
 	<bean id="relationPJVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crispj.publications" />		
 		<property name="relationClass" value="org.dspace.content.Item" />		
