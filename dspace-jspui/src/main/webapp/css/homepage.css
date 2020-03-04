@@ -391,7 +391,7 @@ img::-moz-selection {
 .dropdown-menu > li {
     padding-bottom: 3px;
     padding-left: 10px;
-    padding-right: 24px;
+    padding-right: 10px;
     padding-top: 3px;
 }
 

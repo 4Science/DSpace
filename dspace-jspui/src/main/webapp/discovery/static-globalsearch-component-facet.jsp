@@ -99,17 +99,17 @@
 		
 		
 <div class="row">
-<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-6 col-md-offset-3" action="<%= request.getContextPath() %>/simple-search" method="get">
+<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-8 col-md-offset-2" action="<%= request.getContextPath() %>/simple-search" method="get">
 <div class="input-group">
     <input type="text" class="form-control" name="query" placeholder="Search term...">
-    <span class="input-group-btn">
+    <span class="input-group-btn" style="padding-right: 40px;">
         <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
     </span>    
     <div class="input-group-btn search-panel">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        	<span id="search_concept">All</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
+        	<span id="search_concept"><fmt:message key="jsp.home.explore.global-menu.default" /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
         </button>
-        <ul class="dropdown-menu menu-global-processor" role="menu">
+        <ul class="dropdown-menu menu-global-processor pull-left" role="menu">
         
         <%
 		if(facetsGlobalConf!=null) {
