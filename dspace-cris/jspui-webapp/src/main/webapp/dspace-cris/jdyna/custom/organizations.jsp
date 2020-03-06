@@ -38,6 +38,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="jdynatags" prefix="dyna"%>
 
 <c:set var="root"><%=request.getContextPath()%></c:set>
@@ -117,7 +118,7 @@
     	<div class="panel-heading">
     		<h4 class="panel-title">
         		<a data-toggle="collapse" data-parent="#${holder.shortName}" href="#collapseOne${holder.shortName}">
-          			${holder.title}
+          			<spring:message code="${entity.class.simpleName}.box.${holder.shortName}.label" text="${holder.title}"></spring:message>
         		</a>
         		<% if(subLinks!=null && subLinks.size()>0 && globalShowFacets) {%>
         			<jsp:include page="common/commonComponentGeneralFiltersAndFacets.jsp"></jsp:include>
