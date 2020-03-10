@@ -801,7 +801,8 @@ else
 	                + URLEncoder.encode(query,"UTF-8")                                
 	                + "&amp;location="+URLEncoder.encode(fvalue.getAuthorityKey(),"UTF-8") %>"
 	                title="<fmt:message key="jsp.search.facet.narrow"><fmt:param><%=fvalue.getDisplayedValue() %></fmt:param></fmt:message>">
-	                <%= StringUtils.abbreviate(fvalue.getDisplayedValue(),36) %></a></li><%
+	                <fmt:message key="<%=\"jsp.entities.\"+fvalue.getAuthorityKey()%>"/></a></li>
+	                <%
 		    }
 		    %></ul></div>
 		    </div><%
