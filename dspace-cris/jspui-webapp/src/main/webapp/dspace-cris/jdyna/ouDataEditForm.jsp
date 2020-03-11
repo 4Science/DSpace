@@ -47,6 +47,7 @@
 		currLocale = sessionLocale.toString();
 	}
 %>
+<c:set var="currLocale"><%=currLocale%></c:set>
 <c:set var="root"><%=request.getContextPath()%></c:set>
 <c:set var="admin"><%=isAdmin%></c:set>
 <c:set var="HIGH_ACCESS"><%=AccessLevelConstants.HIGH_ACCESS%></c:set>
@@ -761,7 +762,7 @@
 				<img style="width: 16px;vertical-align: middle;" border="0" 
 					src="<%=request.getContextPath()%>/cris/researchertabimage/${area.id}" alt="icon" />
 				</c:if>	
-				${area.title}</a>
+				<spring:message code="${organizationunit.class.simpleName}.tab.${area.shortName}.label" text="${area.title}"></spring:message></a>
 			</li>
 					</c:forEach>
 		</ul>
@@ -810,7 +811,7 @@
 					
 						<div id="hidden_first${holder.shortName}">&nbsp;</div>
 						<div id="${holder.shortName}" class="box ${holder.collapsed?"":"expanded"}">
-						  <h3><a href="#">${holder.title}</a></h3>
+						  <h3><a href="#"><spring:message code="${organizationunit.class.simpleName}.box.${holder.shortName}.label" text="${holder.title}"></spring:message></a></h3>
 						  <div>
 						<c:forEach
 							items="${propertiesDefinitionsInHolder[holder.shortName]}"
