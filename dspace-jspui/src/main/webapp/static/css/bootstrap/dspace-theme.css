@@ -351,3 +351,36 @@ footer .no-bullets-list {
 .nav > .researcher-menu-item-hidden {
 	display:none;
 }
+
+@media (min-width:1200px){
+	.custom-col-lg-2{
+		width:24%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
+}
+
+@media (min-width:1400px){
+	.custom-col-lg-2{
+		width:22%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
+}
+
+@media (min-width:1600px){
+	.custom-col-lg-2{
+		width:18%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
+}

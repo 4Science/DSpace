@@ -317,7 +317,7 @@ public class ItemTag extends TagSupport {
 
 			listBitstreams();
 
-			out.println("<div class=\"col-lg-10\"><table class=\"table itemDisplayTable\">");
+			out.println("<div class=\"col-lg-9 col-md-9\"><table class=\"table itemDisplayTable\">");
 
 			for (DisplayMetadata display : DisplayItemMetadataUtils.getDisplayMetadata(context, request, item, style)) {
 				out.print("<td class=\"metadataFieldLabel\">");
@@ -384,7 +384,7 @@ public class ItemTag extends TagSupport {
 			listBitstreams();
 
 			// Three column table - DC field, value, language
-			out.println("<div class=\"col-lg-9\"><table class=\"table itemDisplayTable\">");
+			out.println("<div class=\"col-lg-9 col-md-9\"><table class=\"table itemDisplayTable\">");
 			out.println("<tr><th id=\"s1\" class=\"standard\">"
 					+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.dcfield")
 					+ "</th><th id=\"s2\" class=\"standard\">"
@@ -647,7 +647,7 @@ public class ItemTag extends TagSupport {
 									out.print("</td><td class=\"standard\" align=\"center\">");
 								}
 								else {
-									out.print("<div class=\"col-lg-2\" align=\"center\">");
+									out.print("<div class=\"custom-col-lg-2 col-md-3\" align=\"center\">");
 								}
 
 								// is there a thumbnail bundle?
