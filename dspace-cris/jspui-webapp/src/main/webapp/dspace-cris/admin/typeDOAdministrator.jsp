@@ -55,13 +55,15 @@
 				<display:column titleKey="jsp.layout.table.cris.admin-list.shortname" sortable="true" >
 					<a href="<%=request.getContextPath()%>/cris/administrator/${objectList.shortName}/index.htm?id=${objectList.id}">${objectList.shortName}</a>
 			   </display:column>
-				<display:column titleKey="jsp.layout.table.cris.admin-list.label" property="label" sortable="true"/>
+				<display:column titleKey="jsp.layout.table.cris.admin-list.label" sortable="true">
+					<fmt:message key="jsp.entities.${objectList.shortName}"/>
+				</display:column>
 				<display:column titleKey="jsp.layout.table.cris.admin-list.typodef" sortable="true">
 					${objectList.id + CRIS_DYNAMIC_TYPE_ID_START}
 				</display:column>
 				<display:column titleKey="jsp.layout.table.cris.admin-list.actions">
-					<a href="<%=request.getContextPath()%>/cris/administrator/do/edit.htm?id=${objectList.id}">Edit</a>
-					<a href="<%=request.getContextPath()%>/cris/administrator/do/delete.htm?id=${objectList.id}">Delete</a>					
+					<a href="<%=request.getContextPath()%>/cris/administrator/do/edit.htm?id=${objectList.id}"><fmt:message key="jsp.layout.table.cris.admin-list.actions.edit"/></a>
+					<a href="<%=request.getContextPath()%>/cris/administrator/do/delete.htm?id=${objectList.id}"><fmt:message key="jsp.layout.table.cris.admin-list.actions.delete"/></a>
 				</display:column>	
 			</display:table>
 	</div>
