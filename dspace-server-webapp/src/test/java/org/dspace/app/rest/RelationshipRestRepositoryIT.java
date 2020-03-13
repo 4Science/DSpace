@@ -514,6 +514,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
                                                            .param("relationshipType",
                                                                   isAuthorOfPublicationRelationshipType.getID()
                                                                                                        .toString())
+                                                           .param("projection", "full")
                                                            .contentType(MediaType.parseMediaType
                                                                (org.springframework.data.rest.webmvc.RestMediaTypes
                                                                     .TEXT_URI_LIST_VALUE))
@@ -523,6 +524,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
                                                                    "https://localhost:8080/server/api/core/items/" + author1
                                                                    .getID()))
                                               .andExpect(status().isCreated())
+                                              .andExpect(jsonPath("$", RelationshipMatcher.matchFullEmbeds()))
                                               .andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -1430,7 +1432,8 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         // This test checks that there's no relationship on the second author
         getClient(adminToken).perform(get("/api/core/items/" +
                                               author2.getID() + "/relationships"))
-                             .andExpect(status().isNoContent());
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("page.totalElements", is(0)));
 
         // Creates another Relationship for the Publication
         mvcResult = getClient(adminToken).perform(post("/api/core/relationships")
@@ -1484,7 +1487,8 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         // This test checks that there's no relationship on the first author
         getClient(adminToken).perform(get("/api/core/items/" +
                                               author1.getID() + "/relationships"))
-                             .andExpect(status().isNoContent());
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("page.totalElements", is(0)));
 
         // This test checks that there are one relationship on the second author
         getClient(adminToken).perform(get("/api/core/items/" +
@@ -1500,17 +1504,20 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         // This test checks that there's no relationship on the publication
         getClient(adminToken).perform(get("/api/core/items/" +
                                               publication1.getID() + "/relationships"))
-                             .andExpect(status().isNoContent());
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("page.totalElements", is(0)));
 
         // This test checks that there's no relationship on the first author
         getClient(adminToken).perform(get("/api/core/items/" +
                                               author1.getID() + "/relationships"))
-                             .andExpect(status().isNoContent());
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("page.totalElements", is(0)));
 
         // This test checks that there are no relationship on the second author
         getClient(adminToken).perform(get("/api/core/items/" +
                                               author2.getID() + "/relationships"))
-                             .andExpect(status().isNoContent());
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("page.totalElements", is(0)));
     }
 
     /**
