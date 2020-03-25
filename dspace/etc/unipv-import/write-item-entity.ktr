@@ -2388,7 +2388,7 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>var placeholder &#x3d; &#x22;&#x23;PLACEHOLDER_PARENT_METADATA_VALUE&#x23;&#x22;&#x3b;&#xa;&#xa;CT &#x3d; CT.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;UB &#x3d; UB.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;COL &#x3d; COL.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;AU &#x3d; AU.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;MT &#x3d; MT.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;DA &#x3d; DA.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;DO &#x3d; DO.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; manage CTA field&#xa;var CTA &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCTA &#x3d; CT.match&#x28;&#x2f;&#x3c;CTA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;CTA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCTA &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCTA.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		CTA &#x2b;&#x3d; &#x28;CTA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCTA&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage CTC field&#xa;var CTC &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCTC &#x3d; CT.match&#x28;&#x2f;&#x3c;CTC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;CTC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCTC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCTC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		CTC &#x2b;&#x3d; &#x28;CTC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCTC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage MTC field&#xa;var MTC &#x3d; &#x22;&#x22;&#x3b;&#xa;var subMTC &#x3d; MT.match&#x28;&#x2f;&#x3c;MTC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MTC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subMTC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMTC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MTC &#x2b;&#x3d; &#x28;MTC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMTC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#xa;&#x2f;&#x2f; manage INVD, INVC and INVN fields&#xa;var INVD &#x3d; &#x22;&#x22;&#x3b;&#xa;var INVC &#x3d; &#x22;&#x22;&#x3b;&#xa;var INVN &#x3d; &#x22;&#x22;&#x3b;&#xa;var subINVD &#x3d; UB.match&#x28;&#x2f;&#x3c;INVD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subINVC &#x3d; UB.match&#x28;&#x2f;&#x3c;INVC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subINVN &#x3d; UB.match&#x28;&#x2f;&#x3c;INVN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subINVD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVD &#x2b;&#x3d; &#x28;INVD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subINVC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVC &#x2b;&#x3d; &#x28;INVC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subINVN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVN &#x2b;&#x3d; &#x28;INVN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage COLD, COLC and COLN fields&#xa;var COLD &#x3d; &#x22;&#x22;&#x3b;&#xa;var COLC &#x3d; &#x22;&#x22;&#x3b;&#xa;var COLN &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCOLD &#x3d; UB.match&#x28;&#x2f;&#x3c;COLD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subCOLC &#x3d; UB.match&#x28;&#x2f;&#x3c;COLC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subCOLN &#x3d; UB.match&#x28;&#x2f;&#x3c;COLN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCOLD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLD &#x2b;&#x3d; &#x28;COLD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subCOLC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLC &#x2b;&#x3d; &#x28;COLC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subCOLN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLN &#x2b;&#x3d; &#x28;COLN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage AUTR and AUTN fields&#xa;var AUTR &#x3d; &#x22;&#x22;&#x3b;&#xa;var AUTN &#x3d; &#x22;&#x22;&#x3b;&#xa;var AUTJ &#x3d; &#x22;&#x22;&#x3b;&#xa;var subAUT &#x3d; AU.match&#x28;&#x2f;&#x3c;AUT&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUT&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subAUT &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subAUT.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		if &#x28;subAUT&#x5b;i&#x5d;.indexOf&#x28;&#x22;AUTN&#x22;&#x29; &#x3e;&#x3d; 0&#x29; &#x7b;&#xa;			var subAUTR &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTR&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTR&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subAUTN &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subAUTJ &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTJ&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTJ&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			AUTR &#x2b;&#x3d; &#x28;AUTR.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTR &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTR&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			AUTN &#x2b;&#x3d; &#x28;AUTN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTN &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTN&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			AUTJ &#x2b;&#x3d; &#x28;AUTJ.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTJ &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTJ&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		&#x7d;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage MISU, MISA, MISL, MISN, MISP, MISD, MISS, MISG, MISC, MISW, MISB and MISI fields&#xa;var MISU &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISA &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISL &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISN &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISP &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISD &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISS &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISG &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISC &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISW &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISB &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISI &#x3d; &#x22;&#x22;&#x3b;&#xa;var subMISU &#x3d; MT.match&#x28;&#x2f;&#x3c;MISU&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISU&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISA &#x3d; MT.match&#x28;&#x2f;&#x3c;MISA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISL &#x3d; MT.match&#x28;&#x2f;&#x3c;MISL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISN &#x3d; MT.match&#x28;&#x2f;&#x3c;MISN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISP &#x3d; MT.match&#x28;&#x2f;&#x3c;MISP&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISP&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISD &#x3d; MT.match&#x28;&#x2f;&#x3c;MISD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISS &#x3d; MT.match&#x28;&#x2f;&#x3c;MISS&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISS&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISG &#x3d; MT.match&#x28;&#x2f;&#x3c;MISG&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISG&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISC &#x3d; MT.match&#x28;&#x2f;&#x3c;MISC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISW &#x3d; MT.match&#x28;&#x2f;&#x3c;MISW&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISW&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISB &#x3d; MT.match&#x28;&#x2f;&#x3c;MISB&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISB&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISI &#x3d; MT.match&#x28;&#x2f;&#x3c;MISI&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISI&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subMISU &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISU.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISU &#x2b;&#x3d; &#x28;MISU.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISU&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISA &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISA.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISA &#x2b;&#x3d; &#x28;MISA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISA&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISL &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISL.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISL &#x2b;&#x3d; &#x28;MISL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISL&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISN &#x2b;&#x3d; &#x28;MISN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISP &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISP.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISP &#x2b;&#x3d; &#x28;MISP.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISP&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISD &#x2b;&#x3d; &#x28;MISD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISS &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISS.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISS &#x2b;&#x3d; &#x28;MISS.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISS&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISG &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISG.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISG &#x2b;&#x3d; &#x28;MISG.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISG&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISC &#x2b;&#x3d; &#x28;MISC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISW &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISW.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISW &#x2b;&#x3d; &#x28;MISW.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISW&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISB &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISB.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISB &#x2b;&#x3d; &#x28;MISB.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISB&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISI &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISI.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISI &#x2b;&#x3d; &#x28;MISI.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISI&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage ISRC, ISRL, ISRS, ISRT, ISRP and ISRI fields&#xa;var ISRC &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRL &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRS &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRT &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRP &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRI &#x3d; &#x22;&#x22;&#x3b;&#xa;var subISR &#x3d; DA.match&#x28;&#x2f;&#x3c;ISR&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISR&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subISR &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subISR.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		var subISRC &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRL &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRS &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRS&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRS&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRT &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRT&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRT&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRP &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRP&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRP&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRI &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRI&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRI&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		ISRC &#x2b;&#x3d; &#x28;ISRC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRC &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRC&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRL &#x2b;&#x3d; &#x28;ISRL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRL &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRL&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRS &#x2b;&#x3d; &#x28;ISRS.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRS &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRS&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRT &#x2b;&#x3d; &#x28;ISRT.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRT &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRT&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRP &#x2b;&#x3d; &#x28;ISRP.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRP &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRP&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRI &#x2b;&#x3d; &#x28;ISRI.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subISRI&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage BIBX, BIBA, BIBG, BIBL and BIBO fields&#xa;var BIBX &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBA &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBG &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBL &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBD &#x3d; &#x22;&#x22;&#x3b;&#xa;var subBIB &#x3d; DO.match&#x28;&#x2f;&#x3c;BIB&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIB&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subBIB &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIB.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		if &#x28;subBIB&#x5b;i&#x5d;.indexOf&#x28;&#x22;BIBG&#x22;&#x29; &#x3e;&#x3d; 0&#x29; &#x7b;&#xa;			var subBIBX &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBX&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBX&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBA &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBG &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBG&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBG&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBL &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBD &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			BIBX &#x2b;&#x3d; &#x28;BIBX.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBX &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBX&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBA &#x2b;&#x3d; &#x28;BIBA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBA &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBA&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBL &#x2b;&#x3d; &#x28;BIBL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBL &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBL&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBD &#x2b;&#x3d; &#x28;BIBD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBD &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBD&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBG &#x2b;&#x3d; &#x28;BIBG.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBG&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;		&#x7d;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;if &#x28;subBIBX &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIBX.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		BIBX &#x2b;&#x3d; &#x28;BIBX.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBX&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subBIBA &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIBA.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		BIBA &#x2b;&#x3d; &#x28;BIBA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBA&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subBIBG &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIBG.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		BIBG &#x2b;&#x3d; &#x28;BIBG.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBG&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subBIBL &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIBL.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		BIBL &#x2b;&#x3d; &#x28;BIBL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBL&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subBIBD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIBD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		BIBD &#x2b;&#x3d; &#x28;BIBD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;</jsScript_script>
+        <jsScript_script>var placeholder &#x3d; &#x22;&#x23;PLACEHOLDER_PARENT_METADATA_VALUE&#x23;&#x22;&#x3b;&#xa;&#xa;CT &#x3d; CT.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;UB &#x3d; UB.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;COL &#x3d; COL.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;AU &#x3d; AU.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;MT &#x3d; MT.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;DA &#x3d; DA.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;DO &#x3d; DO.replace&#x28;&#x2f;&#x5c;n&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; manage CTA field&#xa;var CTA &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCTA &#x3d; CT.match&#x28;&#x2f;&#x3c;CTA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;CTA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCTA &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCTA.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		CTA &#x2b;&#x3d; &#x28;CTA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCTA&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage CTC field&#xa;var CTC &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCTC &#x3d; CT.match&#x28;&#x2f;&#x3c;CTC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;CTC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCTC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCTC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		CTC &#x2b;&#x3d; &#x28;CTC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCTC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage MTC field&#xa;var MTC &#x3d; &#x22;&#x22;&#x3b;&#xa;var subMTC &#x3d; MT.match&#x28;&#x2f;&#x3c;MTC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MTC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subMTC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMTC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MTC &#x2b;&#x3d; &#x28;MTC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMTC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#xa;&#x2f;&#x2f; manage INVD, INVC and INVN fields&#xa;var INVD &#x3d; &#x22;&#x22;&#x3b;&#xa;var INVC &#x3d; &#x22;&#x22;&#x3b;&#xa;var INVN &#x3d; &#x22;&#x22;&#x3b;&#xa;var subINVD &#x3d; UB.match&#x28;&#x2f;&#x3c;INVD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subINVC &#x3d; UB.match&#x28;&#x2f;&#x3c;INVC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subINVN &#x3d; UB.match&#x28;&#x2f;&#x3c;INVN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;INVN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subINVD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVD &#x2b;&#x3d; &#x28;INVD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subINVC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVC &#x2b;&#x3d; &#x28;INVC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subINVN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subINVN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		INVN &#x2b;&#x3d; &#x28;INVN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subINVN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage COLD, COLC and COLN fields&#xa;var COLD &#x3d; &#x22;&#x22;&#x3b;&#xa;var COLC &#x3d; &#x22;&#x22;&#x3b;&#xa;var COLN &#x3d; &#x22;&#x22;&#x3b;&#xa;var subCOLD &#x3d; UB.match&#x28;&#x2f;&#x3c;COLD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subCOLC &#x3d; UB.match&#x28;&#x2f;&#x3c;COLC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subCOLN &#x3d; UB.match&#x28;&#x2f;&#x3c;COLN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;COLN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subCOLD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLD &#x2b;&#x3d; &#x28;COLD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subCOLC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLC &#x2b;&#x3d; &#x28;COLC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subCOLN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subCOLN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		COLN &#x2b;&#x3d; &#x28;COLN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subCOLN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage AUTR and AUTN fields&#xa;var AUTR &#x3d; &#x22;&#x22;&#x3b;&#xa;var AUTN &#x3d; &#x22;&#x22;&#x3b;&#xa;var AUTJ &#x3d; &#x22;&#x22;&#x3b;&#xa;var subAUT &#x3d; AU.match&#x28;&#x2f;&#x3c;AUT&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUT&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subAUT &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subAUT.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		if &#x28;subAUT&#x5b;i&#x5d;.indexOf&#x28;&#x22;AUTN&#x22;&#x29; &#x3e;&#x3d; 0&#x29; &#x7b;&#xa;			var subAUTR &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTR&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTR&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subAUTN &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subAUTJ &#x3d; subAUT&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;AUTJ&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;AUTJ&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			AUTR &#x2b;&#x3d; &#x28;AUTR.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTR &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTR&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			AUTN &#x2b;&#x3d; &#x28;AUTN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTN &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTN&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			AUTJ &#x2b;&#x3d; &#x28;AUTJ.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subAUTJ &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subAUTJ&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		&#x7d;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage MISU, MISA, MISL, MISN, MISP, MISD, MISS, MISG, MISC, MISW, MISB and MISI fields&#xa;var MISU &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISA &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISL &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISN &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISP &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISD &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISS &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISG &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISC &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISW &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISB &#x3d; &#x22;&#x22;&#x3b;&#xa;var MISI &#x3d; &#x22;&#x22;&#x3b;&#xa;var subMISU &#x3d; MT.match&#x28;&#x2f;&#x3c;MISU&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISU&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISA &#x3d; MT.match&#x28;&#x2f;&#x3c;MISA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISL &#x3d; MT.match&#x28;&#x2f;&#x3c;MISL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISN &#x3d; MT.match&#x28;&#x2f;&#x3c;MISN&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISN&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISP &#x3d; MT.match&#x28;&#x2f;&#x3c;MISP&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISP&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISD &#x3d; MT.match&#x28;&#x2f;&#x3c;MISD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISS &#x3d; MT.match&#x28;&#x2f;&#x3c;MISS&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISS&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISG &#x3d; MT.match&#x28;&#x2f;&#x3c;MISG&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISG&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISC &#x3d; MT.match&#x28;&#x2f;&#x3c;MISC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISW &#x3d; MT.match&#x28;&#x2f;&#x3c;MISW&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISW&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISB &#x3d; MT.match&#x28;&#x2f;&#x3c;MISB&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISB&#x3e;&#x2f;g&#x29;&#x3b;&#xa;var subMISI &#x3d; MT.match&#x28;&#x2f;&#x3c;MISI&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;MISI&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subMISU &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISU.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISU &#x2b;&#x3d; &#x28;MISU.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISU&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISA &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISA.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISA &#x2b;&#x3d; &#x28;MISA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISA&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISL &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISL.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISL &#x2b;&#x3d; &#x28;MISL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISL&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISN &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISN.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISN &#x2b;&#x3d; &#x28;MISN.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISN&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISP &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISP.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISP &#x2b;&#x3d; &#x28;MISP.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISP&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISD &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISD.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISD &#x2b;&#x3d; &#x28;MISD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISD&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISS &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISS.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISS &#x2b;&#x3d; &#x28;MISS.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISS&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISG &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISG.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISG &#x2b;&#x3d; &#x28;MISG.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISG&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISC &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISC.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISC &#x2b;&#x3d; &#x28;MISC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISC&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISW &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISW.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISW &#x2b;&#x3d; &#x28;MISW.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISW&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISB &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISB.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISB &#x2b;&#x3d; &#x28;MISB.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISB&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;if &#x28;subMISI &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subMISI.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		MISI &#x2b;&#x3d; &#x28;MISI.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subMISI&#x5b;i&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage ISRC, ISRL, ISRS, ISRT, ISRP and ISRI fields&#xa;var ISRC &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRL &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRS &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRT &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRP &#x3d; &#x22;&#x22;&#x3b;&#xa;var ISRI &#x3d; &#x22;&#x22;&#x3b;&#xa;var subISR &#x3d; DA.match&#x28;&#x2f;&#x3c;ISR&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISR&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subISR &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subISR.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		var subISRC &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRC&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRC&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRL &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRS &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRS&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRS&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRT &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRT&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRT&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRP &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRP&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRP&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		var subISRI &#x3d; subISR&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;ISRI&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;ISRI&#x3e;&#x2f;g&#x29;&#x3b;&#xa;		ISRC &#x2b;&#x3d; &#x28;ISRC.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRC &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRC&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRL &#x2b;&#x3d; &#x28;ISRL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRL &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRL&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRS &#x2b;&#x3d; &#x28;ISRS.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRS &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRS&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRT &#x2b;&#x3d; &#x28;ISRT.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRT &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRT&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRP &#x2b;&#x3d; &#x28;ISRP.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subISRP &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subISRP&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;		ISRI &#x2b;&#x3d; &#x28;ISRI.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subISRI&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;	&#x7d;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; manage BIBX, BIBA, BIBG, BIBL and BIBO fields&#xa;var BIBX &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBA &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBG &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBL &#x3d; &#x22;&#x22;&#x3b;&#xa;var BIBD &#x3d; &#x22;&#x22;&#x3b;&#xa;var subBIB &#x3d; DO.match&#x28;&#x2f;&#x3c;BIB&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIB&#x3e;&#x2f;g&#x29;&#x3b;&#xa;if &#x28;subBIB &#x21;&#x3d; null&#x29; &#x7b;&#xa;	for &#x28;var i &#x3d; 0&#x3b; i &#x3c; subBIB.length&#x3b; i&#x2b;&#x2b;&#x29; &#x7b;&#xa;		if &#x28;subBIB&#x5b;i&#x5d;.indexOf&#x28;&#x22;BIBG&#x22;&#x29; &#x3e;&#x3d; 0&#x29; &#x7b;&#xa;			var subBIBX &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBX&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBX&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBA &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBA&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBA&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBG &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBG&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBG&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBL &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBL&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBL&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			var subBIBD &#x3d; subBIB&#x5b;i&#x5d;.match&#x28;&#x2f;&#x3c;BIBD&#x3e;.&#x2a;&#x3f;&#x3c;&#x5c;&#x2f;BIBD&#x3e;&#x2f;g&#x29;&#x3b;&#xa;			BIBX &#x2b;&#x3d; &#x28;BIBX.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBX &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBX&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBA &#x2b;&#x3d; &#x28;BIBA.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBA &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBA&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBL &#x2b;&#x3d; &#x28;BIBL.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBL &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBL&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBD &#x2b;&#x3d; &#x28;BIBD.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; &#x28;subBIBD &#x3d;&#x3d; null &#x3f; placeholder &#x3a; subBIBD&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x29;&#x3b;&#xa;			BIBG &#x2b;&#x3d; &#x28;BIBG.length &#x3d;&#x3d; 0 &#x3f; &#x22;&#x22; &#x3a; &#x22;&#x7c;&#x7c;&#x22;&#x29; &#x2b; subBIBG&#x5b;0&#x5d;.replace&#x28;&#x2f;&#x3c;.&#x2a;&#x3f;&#x3e;&#x2f;g, &#x22;&#x22;&#x29;&#x3b;&#xa;		&#x7d;&#xa;	&#x7d;&#xa;&#x7d;</jsScript_script>
       </jsScript>    </jsScripts>    <fields>      <field>        <name>AUTN</name>
         <rename>AUTN</rename>
         <type>String</type>
@@ -2625,11 +2625,8 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>AUTJ</name>
-        <rename/>
       </field>      <field>        <name>AUTN</name>
         <rename>dc.contributor.author</rename>
       </field>      <field>        <name>AUTR</name>
@@ -2765,121 +2762,63 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>      <field>        <name>CRISID</name>
-        <rename/>
       </field>      <field>        <name>autjid</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
       <remove>        <name>CRISID</name>
       </remove>    </fields>    <cluster_schema/>
@@ -2908,119 +2847,63 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
         <rename>dccontributorauthor</rename>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>      <field>        <name>crisid_value</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3048,117 +2931,62 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dccontributorauthor_value</name>
         <rename>dc.contributor.author</rename>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3186,117 +3014,61 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3324,119 +3096,62 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>AUTJ</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3464,119 +3179,62 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>      <field>        <name>CRISID</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3604,119 +3262,62 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>      <field>        <name>CRISID</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
@@ -3744,119 +3345,62 @@
       <schema_name/>
     </partitioning>
     <fields>      <field>        <name>id</name>
-        <rename/>
       </field>      <field>        <name>collection</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.author</name>
-        <rename/>
       </field>      <field>        <name>dc.contributor.authorrole</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcc</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcn</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcr</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialpvcs</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.spatialabbreviation</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporal</name>
-        <rename/>
       </field>      <field>        <name>dc.coverage.temporalfraction</name>
-        <rename/>
       </field>      <field>        <name>dc.date.inventory</name>
-        <rename/>
       </field>      <field>        <name>dc.date.note</name>
-        <rename/>
       </field>      <field>        <name>dc.date.start</name>
-        <rename/>
       </field>      <field>        <name>dc.description</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collection</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionholder</name>
-        <rename/>
       </field>      <field>        <name>dc.description.collectionnotes</name>
-        <rename/>
       </field>      <field>        <name>dc.description.function</name>
-        <rename/>
       </field>      <field>        <name>dc.description.number</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationspecifications</name>
-        <rename/>
       </field>      <field>        <name>dc.description.preservationstate</name>
-        <rename/>
       </field>      <field>        <name>dc.description.use</name>
-        <rename/>
       </field>      <field>        <name>dc.description.parts</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misa</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misd</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misl</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misn</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misp</name>
-        <rename/>
       </field>      <field>        <name>dc.format.misu</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.inventorynumber</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.nctn</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.form</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.region</name>
-        <rename/>
       </field>      <field>        <name>dc.identifier.shelfmark</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyauthors</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyplace</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytitle</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographytype</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.bibliographyyear</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionclass</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionfont</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionlanguage</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptionposition</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontechnique</name>
-        <rename/>
       </field>      <field>        <name>dc.relation.inscriptiontranscription</name>
-        <rename/>
       </field>      <field>        <name>dc.subject</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.keywords</name>
-        <rename/>
       </field>      <field>        <name>dc.subject.other</name>
-        <rename/>
       </field>      <field>        <name>dc.title</name>
-        <rename/>
       </field>      <field>        <name>dc.title.alternative</name>
-        <rename/>
       </field>      <field>        <name>dc.type</name>
-        <rename/>
       </field>      <field>        <name>dc.type.definition</name>
-        <rename/>
       </field>      <field>        <name>dc.type.form</name>
-        <rename/>
       </field>      <field>        <name>dc.type.materialandtechnique</name>
-        <rename/>
       </field>      <field>        <name>CRISID</name>
-        <rename/>
       </field>        <select_unspecified>N</select_unspecified>
     </fields>    <cluster_schema/>
     <remotesteps>
