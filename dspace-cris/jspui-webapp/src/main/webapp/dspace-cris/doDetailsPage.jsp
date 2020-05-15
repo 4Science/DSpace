@@ -196,7 +196,7 @@
 	<div class="col-lg-12">
 		<div class="form-inline">
 	         <div class="form-group">
-				 <h1><c:out value="${title}" /></h1>
+				 <h1><c:out value="${name}" /></h1>
 			      <%
 			      if (isAdmin) {
 				  %>		
