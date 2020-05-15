@@ -66,7 +66,7 @@
 			<map>
 				<entry key="publications">
 					<list>
-						<!-- <bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
 							<property name="browseNames">
 								<list>
 									<value>author</value>
@@ -74,19 +74,17 @@
 									<value>type</value>
 									<value>dateissued</value>
 									<value>subject</value>
-									<value>license</value>
-									<value>fond</value>
 								</list>
 							</property>
-						</bean> -->
-						<!-- <bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
+						</bean>
+						<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="recentsubmission" />
 							<property name="sortField" value="dateaccessioned_dt" />
 							<property name="order" value="desc" />
  							<property name="num" value="4" />
-						</bean> -->
-						<!-- <bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
+						</bean>
+						<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="view" />
 							<property name="sortField" value="crismetrics_view" />
@@ -95,7 +93,7 @@
 								<value>crismetrics_view</value>
 							</property>
 							<property name="num" value="4" />
-						</bean> -->
+						</bean>
 <!-- 							<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="cited" />
