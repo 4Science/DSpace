@@ -352,7 +352,7 @@
 
    <value-pairs value-pairs-name="book_types" dc-term="type">
      <pair>
-       <displayed-value>Book</displayed-value>
+       <displayed-value>Volume a stampa</displayed-value>
        <stored-value>Volume a stampa</stored-value>
      </pair>
    </value-pairs>
