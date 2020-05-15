@@ -156,13 +156,13 @@
 				<entry key="patents" value-ref="patentsConfiguration" />
 				<entry key="conferencematerials" value-ref="conferencePaperConfiguration" />
 				<entry key="datasets" value-ref="datasetConfiguration" />
-				<entry key="events" value-ref="crisEventsConfiguration" />
-				<entry key="place" value-ref="crisPlaceConfiguration" />
-				<entry key="crisfonds" value-ref="crisFondsConfiguration" />
-                                <entry key="concept" value-ref="crisConceptConfiguration" />
-                                <entry key="interpretation" value-ref="crisInterpretationConfiguration" />
                 <entry key="crisjournals" value-ref="crisJournalsConfiguration" />
+				<entry key="crisevents" value-ref="crisEventsConfiguration" />
+				<entry key="crisfonds" value-ref="crisFondsConfiguration" />
+				<entry key="crisplace" value-ref="crisPlaceConfiguration" />
                 <entry key="crisfamily" value-ref="crisFamilyConfiguration" />
+				<entry key="crisconcept" value-ref="crisConceptConfiguration" />
+				<entry key="crisinterpretation" value-ref="crisInterpretationConfiguration" />
                 <entry key="crisopera" value-ref="crisOperaConfiguration" />
 				<!--Use site to override the default configuration for the home page 
 					& default discovery page -->
@@ -1337,7 +1337,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1004</value>
+				<value>resourcetype_authority:crisplace</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1447,7 +1447,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1003</value>
+				<value>resourcetype_authority:crisfonds</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1558,7 +1558,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1001</value>
+				<value>resourcetype_authority:crisjournals</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1658,7 +1658,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1005</value>
+				<value>resourcetype_authority:crisfamily</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1758,7 +1758,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1009</value>
+				<value>resourcetype_authority:crisopera</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1861,7 +1861,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1002</value>
+				<value>resourcetype_authority:crisevents</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -1961,7 +1961,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1006</value>
+				<value>resourcetype_authority:crisconcept</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -2162,7 +2162,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>search.resourcetype:1007</value>
+				<value>resourcetype_authority:crisinterpretation</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
