@@ -2587,6 +2587,7 @@
 				<value>dc.type</value>
 			</list>
 		</property>
+		<property name="facetLimit" value="5" />
 	</bean>	
 	
 	<bean id="searchFilterAuthor"
@@ -2599,7 +2600,7 @@
 				<value>dc.creator</value>
 			</list>
 		</property>
-		<property name="facetLimit" value="10" />
+		<property name="facetLimit" value="5" />
 		<property name="sortOrder" value="COUNT" />
 	</bean>
 
@@ -2655,6 +2656,7 @@
 			</list>
 		</property>
 		<property name="type" value="date" />
+		<property name="facetLimit" value="5" />
 		<property name="sortOrder" value="VALUE" />
 	</bean>
 
@@ -3177,12 +3179,8 @@
 		<constructor-arg>
 		<list>
 				<ref bean="searchFilterAuthor" />
-				<ref bean="searchFilterSubject" />
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
-				<ref bean="searchFilterFulltext" />			
-				<ref bean="searchFilterLicense" />
-				<ref bean="searchFilterFond" />		
 		</list>
 		</constructor-arg>
 	</bean>
