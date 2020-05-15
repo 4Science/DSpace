@@ -41,29 +41,26 @@
 				<entry key="group-center">
 				   <list>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-							<property name="name" value="place"/>							
+							<property name="name" value="crisplace"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-							<property name="name" value="journals"/>							
+							<property name="name" value="crisjournals"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-                                                        <property name="name" value="concept"/>
+							<property name="name" value="crisevents"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-                                                        <property name="name" value="interpretation"/>
+							<property name="name" value="crisconcept"/>
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-							<property name="name" value="equipment"/>							
+							<property name="name" value="crisinterpretation"/>
+						</bean>
+						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
+							<property name="name" value="crisequipment"/>							
 						</bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="crisfonds"/>							
 						</bean>
-                                                <bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-                                                        <property name="name" value="concept"/>
-                                                </bean>
-                                                <bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
-                                                        <property name="name" value="interpretation"/>
-                                                </bean>
 						<bean class="org.dspace.app.webui.discovery.GlobalFacetProcessorConfigurator.InnerGlobalFacetProcessorConfigurator">
 							<property name="name" value="crisopera"/>
 						</bean>
