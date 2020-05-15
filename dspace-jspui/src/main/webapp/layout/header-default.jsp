@@ -28,11 +28,13 @@
 <%@ page import="javax.servlet.jsp.jstl.core.*" %>
 <%@ page import="javax.servlet.jsp.jstl.fmt.*" %>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.dspace.core.NewsManager" %>
 
 <%
     String title = (String) request.getAttribute("dspace.layout.title");
     String navbar = (String) request.getAttribute("dspace.layout.navbar");
     boolean locbar = ((Boolean) request.getAttribute("dspace.layout.locbar")).booleanValue();
+    String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
 
     String siteName = ConfigurationManager.getProperty("dspace.name");
     String feedRef = (String)request.getAttribute("dspace.layout.feedref");
@@ -216,6 +218,23 @@
     <body class="undernavigation" dir="<%= LocaleUIHelper.ifLtr(request, "ltr","rtl") %>">
 <a class="sr-only" href="#content">Skip navigation</a>
 <header class="navbar navbar-inverse navbar-square shp-no-mb">    
+
+<div class="container-fluid banner shp-margin" style="background-color:#333333db;">
+     <div class="row">
+		<% if (supportedLocales != null && supportedLocales.length > 1) { %>
+			 <ul class="nav navbar-language navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
+		 <% for (int i = supportedLocales.length-1; i >= 0; i--) { %>
+		        <li><a style="margin-top: -5px; padding-top: 14px; padding-bottom: 6px;" onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
+		                  document.repost.submit();" href="<%=queryString%>&locale=<%=supportedLocales[i].toString()%>">
+		          <img src="<%= request.getContextPath() %>/image/flag-<%=supportedLocales[i].toString() %>.png" style="max-width:20px"/>
+		          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>
+		       </a></li>
+		 <% } %>
+		     </ul>
+		 <% } %>
+     </div>
+</div>
+
     <%
     if (!navbar.equals("off"))
     {
@@ -265,63 +284,18 @@ window.cookieconsent.initialise({
 
 <main id="content" role="main">
 
-<div class="container-fluid banner shp-margin">
-     <div class="row">
-         <div class="col-sm-12">
-				<% if (supportedLocales != null && supportedLocales.length > 1)
-				     {
-				 %>
-					 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-				      
-				 <%
-				    for (int i = supportedLocales.length-1; i >= 0; i--)
-				     {
-				 %>
-				        <li><a onclick="javascript:document.repost.locale.value='<%=supportedLocales[i].toString()%>';
-				                  document.repost.submit();" href="?locale=<%=supportedLocales[i].toString()%>">
-				          <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.layout.navbar-default.language."+supportedLocales[i].toString()) %>                  
-				       </a></li>
-				 <%
-				     }
-				 %>
-				     </ul>
-				 <%
-				   }
-				 %>
-         </div>
-     </div>
-</div>
-
 <% String currentPage = UIUtil.getOriginalURL(request);
-   if (currentPage.endsWith("/home.jsp")) { %>
-<div class="intro intro-background">
-	<div class="intro-body">
-	    <div class="container shp-transparent">
-	        <div class="row">
-	            <div class="col-md-8 col-md-offset-2">
-	                <h1 class="brand-heading"><img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png"></h1>
-	                <a href="#about" class="btn custom-btn-circle btn-circle page-scroll">
-	                    <i class="fa fa-angle-double-down animated"></i>
-	                </a>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-</div>
-<% } else { %>
+   if (currentPage.contains("?")) {
+      currentPage = currentPage.substring(0, currentPage.lastIndexOf("?"));
+   }
+   if (!currentPage.endsWith("/home.jsp")) { %>
 <div class="container-fluid intro-background">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="brand-heading">
-               <img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/glam-logo-big.png">
-            </h1>
-        </div>
-    </div>
 </div>
 <% } %>
-<br />
 <% if (currentPage.endsWith("/home.jsp")) { %>
-<a name="about"></a>
+<div class="row">
+	<%= topNews %>
+</div>
 <% } %>
                 <%-- Location bar --%>
 <%

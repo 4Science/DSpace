@@ -50,7 +50,7 @@
 <% if (info!=null && info.getItems()!=null && info.getItems().length > 0) { %>
 <div class="btn-group" style="margin-top: -5px;">
 	<%  if(subLinks.size()>1) {%>
-	<button type="button" class="btn btn-link dropdown-toggle"
+	<button type="button" class="btn btn-info dropdown-toggle"
 		style="text-decoration: none;" data-toggle="dropdown">
 		<fmt:message
 			key="jsp.layout.dspace.detail.fieldset-legend.component.boxtitle.${info[holder.shortName].type}">
@@ -73,7 +73,7 @@
 	<% } %>
 
 </div>
-<button class="btn btn-default pull-right" style="margin-top: -7px;" type="button"
+<button class="btn btn-info pull-right" style="margin-top: -7px;" type="button"
 	data-toggle="collapse" data-target="#collapseFacet_${holder.shortName}"
 	aria-expanded="false" aria-controls="collapseFacet"
 	title="<fmt:message key="jsp.components.button.seealso.button" />">

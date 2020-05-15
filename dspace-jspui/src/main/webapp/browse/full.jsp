@@ -351,7 +351,7 @@ jQuery(document).ready(function() {
 		}
 %>
         </select>
-        <input type="submit" class="btn btn-default" value="<fmt:message key="browse.nav.go"/>" />
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
         <br/>
         <label for="starts_with"><fmt:message key="browse.nav.type-year"/></label>
         <input type="text" name="starts_with" size="4" maxlength="4"/>
@@ -361,6 +361,10 @@ jQuery(document).ready(function() {
 	// If we are not browsing by a date, render the string selection header //
 	else
 	{
+		if (StringUtils.isNotBlank(value)) {
+			jumpKey = "browse.nav.jump.title";
+			startWithKey = "browse.nav.enter.title";
+		}
 %>	
 	
 	<label for="starts_with" class="sr-only">
@@ -368,7 +372,7 @@ jQuery(document).ready(function() {
 	</label>
 	<input class="form-control" type="text" name="vfocus" size="60" 
 		placeholder="<fmt:message key="<%= startWithKey %>"/>" />
-	<input type="submit" class="btn btn-default" value="<fmt:message key="browse.nav.go"/>" />
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
 	<br/>	    					
 		<span><fmt:message key="<%= jumpKey %>"/></span>
 	<br/>

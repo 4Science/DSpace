@@ -50,7 +50,7 @@
 
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
-    String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
+    String centralNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-central.html"));
     String sideNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
 
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
@@ -69,11 +69,10 @@
     boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
 %>
 
-<dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
-<div class="row">
-	<div class="col-md-8 sm-12 pull-<%= isRtl? "right":"left" %>">
-        <%= topNews %>
-
+<dspace:layout locbar="off" titlekey="jsp.home.title" feedData="<%= feedData %>">
+<br>
+<br>
+<div class="col-md-12">
 	<%
     	int discovery_panel_cols = 8;
     	int discovery_facet_cols = 4;
@@ -84,22 +83,13 @@
 		%>
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
-		  </div>
-	<div class="col-md-4 sm-12 pull-<%= isRtl? "left":"right" %>">
-    <%@ include file="components/recent-submissions.jsp" %>
-	</div>
 </div>
 <div class="row">
-	<div class="col-md-4 <%= isRtl ? "pull-right":""%>">
+	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	
 	</div>
-	<div class="col-md-4 <%= isRtl ? "pull-right":""%>">
+	<div class="col-md-4">
 		<%@ include file="components/most-downloaded.jsp" %>
-	</div>
-	<div class="col-md-4 <%= isRtl ? "pull-left":""%>">
-	<%= sideNews %>
-	<%-- <%@ include file="discovery/static-tagcloud-facet.jsp" %> --%>
-	<%-- <%@ include file="components/most-cited.jsp" %> --%>
 	</div>
 </div>
 <%

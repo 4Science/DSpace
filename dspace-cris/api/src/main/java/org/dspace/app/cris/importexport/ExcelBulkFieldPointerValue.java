@@ -20,7 +20,7 @@ public class ExcelBulkFieldPointerValue extends ExcelBulkFieldValue
 
     public static String REGEX_POINTER_CRISID = "\\[.*CRISID=([\\w\\p{P}]+).*\\](.*)";
 
-    public static String REGEX_POINTER_SOURCEID = "\\[.*SOURCEID=([\\w\\p{P}]+).*\\](.*)";
+    public static String REGEX_POINTER_SOURCEID = "\\[.*SOURCEID=([\\w\\p{L}\\p{P}]+).*\\](.*)";
 
     public static String REGEX_POINTER_SOURCEREF = "\\[.*SOURCEREF=([\\w\\p{P}]+).*\\](.*)";
     

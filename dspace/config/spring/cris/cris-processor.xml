@@ -66,29 +66,27 @@
 			<map>
 				<entry key="publications">
 					<list>
-						<bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+						<!-- <bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
 							<property name="browseNames">
 								<list>
-								<!--	<value>itemdept</value>-->
 									<value>author</value>
 									<value>title</value>
 									<value>type</value>
 									<value>dateissued</value>
 									<value>subject</value>
+									<value>license</value>
+									<value>fond</value>
 								</list>
 							</property>
-						</bean>
-						<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
+						</bean> -->
+						<!-- <bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="recentsubmission" />
 							<property name="sortField" value="dateaccessioned_dt" />
 							<property name="order" value="desc" />
-<!-- 							<property name="extraInfo">
-								<value>crismetrics_wos</value>
-							</property> -->
  							<property name="num" value="4" />
-						</bean>
-						<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
+						</bean> -->
+						<!-- <bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="view" />
 							<property name="sortField" value="crismetrics_view" />
@@ -97,7 +95,7 @@
 								<value>crismetrics_view</value>
 							</property>
 							<property name="num" value="4" />
-						</bean>
+						</bean> -->
 <!-- 							<bean class="org.dspace.app.webui.cris.components.TopObjectsProcessor">
 							<property name="viewConfiguration" ref="dspaceitemsLayoutView" />
 							<property name="type" value="cited" />
@@ -203,8 +201,32 @@
 						</bean>
 					</list>
 				</entry>
+				<entry key="crisfonds">
+					<list>
+						<!-- <bean class="org.dspace.app.webui.cris.components.BrowseProcessor">
+							<property name="browseNames">
+								<list>
+									<value>crisfondname</value>
+									<value>crisfondtype</value>
+									<value>crisfondperson</value>
+									<value>crisfondfamily</value>
+									<value>crisfondorganization</value>
+									<value>crisfondcustodian</value>
+									<value>crisfondproject</value>
+								</list>
+							</property>
+						</bean> -->
+					</list>
+				</entry>
 			</map>
 		</property>
+	</bean>
+	
+	<bean name="recentCrisObjectProcessorConfiguration" class="org.dspace.app.webui.components.RecentCrisObjectProcessorConfiguration">
+		<property name="browseIndex" value="fondsrecent"/>
+		<property name="discoveryConfiguration" value="crisfonds"/>
+		<property name="sortOption" value="crisfondscreationtime"/>
+		<property name="count" value="11"/>
 	</bean>
 	
 	<bean class="org.dspace.app.webui.cris.metrics.MetricsProcessorConfigurator"

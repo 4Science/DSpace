@@ -51,6 +51,8 @@
 	int discovery_panel_cols = 12;
 	int discovery_facet_cols = 4;
 	List<DiscoverySearchFilter> filters = (List<DiscoverySearchFilter>) request.getAttribute("filters");
+	String sHideFacets = ConfigurationManager.getProperty("cris", "explore.hide-facets." + (String)request.getAttribute("location"));
+	boolean hideFacets = sHideFacets != null && Boolean.parseBoolean(sHideFacets);
 %>
 <c:set var="dspace.layout.head.last" scope="request">
 <script type="text/javascript"><!--
@@ -99,15 +101,17 @@ function submitForm() {
 </c:set>
 <dspace:layout locbar="link" parenttitlekey="${fmtkey}" parentlink="/cris/explore/${location}" titlekey="${fmtkey}">
 <div class="row">
-	<div class="col-sm-4 col-md-3">
-		<h2><fmt:message key="jsp.general.browse" /></h2>
-		<ul class="nav nav-pills nav-stacked cris-tabs-menu">
-		<c:forEach var="browse"  items="${browseNames}">
-			<li><a href="<%= request.getContextPath() %>/browse?type=${browse}"><fmt:message key="browse.menu.${browse}" /></a></li>
-		</c:forEach>
-		</ul>
-	</div>
-	<div class="col-sm-8 col-md-9">
+	<c:if test="${not empty browseNames && browseNames.size() > 0}">
+		<div class="col-sm-4 col-md-3">
+			<h2><fmt:message key="jsp.general.browse" /></h2>
+			<ul class="nav nav-pills nav-stacked cris-tabs-menu">
+			<c:forEach var="browse"  items="${browseNames}">
+				<li><a href="<%= request.getContextPath() %>/browse?type=${browse}"><fmt:message key="browse.menu.${browse}" /></a></li>
+			</c:forEach>
+			</ul>
+		</div>
+	</c:if>
+	<div class="${not empty browseNames && browseNames.size() > 0 ? 'col-sm-8 col-md-9' : 'col-md-10 col-md-offset-1'}">
 		<h2><fmt:message key="jsp.explore.${location}.search" /></h2>
 		<form id="searchform" class="form-group" action="<%= request.getContextPath() %>/simple-search">
 			<input type="hidden" id="location" name="location" value="${location}" />
@@ -245,7 +249,9 @@ function submitForm() {
 	</div>
 
 	<div class="row">
-	<c:set var="discovery.searchScope" value="${location}" scope="request"/>
-	<%@ include file="/discovery/static-sidebar-facet.jsp" %>
+	<% if (!hideFacets) { %>
+		<c:set var="discovery.searchScope" value="${location}" scope="request"/>
+		<%@ include file="/discovery/static-sidebar-facet.jsp" %>
+	<% } %>
 	</div>
 </dspace:layout>

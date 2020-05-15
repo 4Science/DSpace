@@ -35,13 +35,20 @@
 		</property>
 	</bean>
 	
-	<bean id="relationRPVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
-		<property name="relationName" value="crisrp.publications" />		
-		<property name="relationClass" value="org.dspace.content.Item" />		
-		<property name="query">
-			<value>author_authority:{0}</value>
-		</property>
-	</bean>
+        <bean id="relationRPVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+                <property name="relationName" value="crisrp.publications" />
+                <property name="relationClass" value="org.dspace.content.Item" />
+                <property name="query">
+                        <value>dc.contributor.author_authority:{0}</value>
+                </property>
+        </bean>
+        <bean id="relationRPOTHERVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+                <property name="relationName" value="crisrpother.publications" />
+                <property name="relationClass" value="org.dspace.content.Item" />
+                <property name="query">
+                        <value>dc.contributor.contributor_authority:{0}</value>
+                </property>
+        </bean>
 
 	<bean id="relationOUVSRPConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crisou.persons" />		
@@ -99,6 +106,15 @@
 		</property>
 	</bean>
 
+	<bean id="relationRPVSFONDSConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+		<property name="relationName" value="crisrp.fonds" />
+		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="type" value="crisfonds" />
+		<property name="query">
+			<value>crisfonds.fondscreatorperson_authority:{0} AND -crisfonds.fondsparent:[* TO *]</value>
+		</property>
+	</bean>
+
 	<bean id="relationPJVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crispj.publications" />		
 		<property name="relationClass" value="org.dspace.content.Item" />		
@@ -122,7 +138,6 @@
 			<value>dc.relation.fond_authority:{0}</value>
 		</property>
 	</bean>
-						
 	<bean id="relationFONDSVSFondsConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crisfonds.children" />		
 		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />		

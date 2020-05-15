@@ -5,6 +5,14 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: DSpace Subscription
+Un nuovo items è stato pubblicato nella collezione:
+
+{0}
+
+Gli amministratori del repository
+
+------------------------------------------------------------------------
+
 New items are available in the collections you have subscribed to:
 
 {0}

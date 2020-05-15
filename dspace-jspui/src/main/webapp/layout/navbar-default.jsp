@@ -98,9 +98,7 @@
        </div>
        <nav class="navbar collapse navbar-collapse navbar-custom navbar-inverse" role="navigation">
          <ul id="top-menu" class="nav navbar-nav navbar-<%= isRtl ? "right":"left"%>">
-           <li class="pull-<%= isRtl ? "right":"left"%>"><a class="navbar-brand" href="<%= request.getContextPath() %>/"><img height="25" src="<%= request.getContextPath() %>/image/dspace-logo-only.png" alt="DSpace logo" /></a></li>
-           <li id="home-top-menu" class="<%= isRtl ? "pull-right":""%>   <%= currentPage.endsWith("/home.jsp")? 
-        		   "active" : "" %>"><a href="<%= request.getContextPath() %>/"><fmt:message key="jsp.layout.navbar-default.home"/></a></li>
+           <li class="navbar-home pull-<%= isRtl ? "right":"left"%> <%= currentPage.endsWith("/home.jsp")? "active" : "" %>"><a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img height="45" width="100" style="margin-bottom: -20px;" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a></li>
 		  <% if(showCommList){ %>
 		   <li id="communitylist-top-menu" class="<%= currentPage.endsWith("/community-list")? 
         		   "active" : "" %>"><a href="<%= request.getContextPath() %>/community-list"><fmt:message key="jsp.layout.navbar-default.communities-collections"/></a></li>
@@ -112,7 +110,12 @@
            <c:set var="fmtkey">
            jsp.layout.navbar-default.cris.<%= mlink.trim() %>
            </c:set>
-           <li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% String blink = ConfigurationManager.getProperty("cris", "navbar." + mlink + ".browse"); %>
+           <% if (StringUtils.isBlank(blink)) { %>
+           	<li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } else { %>
+           	<li id="<%= mlink.trim() %>-top-menu" class="hidden-xs hidden-sm <c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/browse?type=<%= blink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } %>
            <% } %>
            <li class="dropdown hidden-md hidden-lg">
              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="jsp.layout.navbar-default.explore"/> <b class="caret"></b></a>
@@ -124,7 +127,12 @@
            <c:set var="fmtkey">
            jsp.layout.navbar-default.cris.<%= mlink.trim() %>
            </c:set>
-           <li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% String blink = ConfigurationManager.getProperty("cris", "navbar." + mlink + ".browse"); %>
+           <% if (StringUtils.isBlank(blink)) { %>
+           	<li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/cris/explore/<%= mlink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } else { %>
+            <li class="<c:if test="${exploremlink == location}">active</c:if>"><a href="<%= request.getContextPath() %>/browse?type=<%= blink.trim() %>"><fmt:message key="${fmtkey}"/></a></li>
+           <% } %>
            <% } %>
            </ul>
            </li>
@@ -137,6 +145,7 @@
  }
 %>
           <li id="help-top-menu" class="<%= ( currentPage.endsWith( "/help" ) ? "active" : "" ) %>"><dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"help.index\") %>"><fmt:message key="jsp.layout.navbar-default.help"/></dspace:popup></li>
+          <li id="project-top-menu"><a href="http://digitlib.unipv.it/progetto.html"><fmt:message key="jsp.layout.navbar-default.project"/></a></li>
        </ul>
 
  <%-- if (supportedLocales != null && supportedLocales.length > 1)
@@ -171,29 +180,6 @@
  --%>
        <div class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
 		<ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-                    <li id="search-top-menu" class="dropdown">
-           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-search"></span><b class="caret"></b></a>
-          <div class="dropdown-menu">
-          
-	<%-- Search Box --%>
-	<form id="formsearch-top-menu" method="get" action="<%= request.getContextPath() %>/global-search" class="navbar-form navbar-<%= isRtl ? "left" : "right" %>" scope="search">		
-	    <div class="form-group shp-float-left">
-          <input type="text" class="form-control" placeholder="<fmt:message key="jsp.layout.navbar-default.search"/>" name="query" id="tequery" size="25"/>
-        </div>
-        <button type="submit" class="btn btn-primary shp-float-right"><span class="glyphicon glyphicon-search"></span></button>
-<%--               <br/><a href="<%= request.getContextPath() %>/advanced-search"><fmt:message key="jsp.layout.navbar-default.advanced"/></a>
-<%
-			if (ConfigurationManager.getBooleanProperty("webui.controlledvocabulary.enable"))
-			{
-%>        
-              <br/><a href="<%= request.getContextPath() %>/subject-search"><fmt:message key="jsp.layout.navbar-default.subjectsearch"/></a>
-<%
-            }
-%> --%>
-	</form>
-	
-          </div>
-          </li>
          <%
     if (user != null)
     {

@@ -12,6 +12,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 	
 <%@ page import="org.dspace.content.Collection" %>
+<%@ page import="org.dspace.app.util.CollectionUtils" %>
+<%@ page import="org.dspace.app.util.CollectionsTree" %>
 <%@ page import="org.dspace.content.Metadatum" %>
 <%@ page import="org.dspace.content.Item" %>
 <%@ page import="org.dspace.app.webui.servlet.admin.EditItemServlet" %>
@@ -22,7 +24,39 @@
 	Collection [] notLinkedCollections = (Collection[] )request.getAttribute("notLinkedCollections");
 	Collection [] linkedCollections = (Collection[] )request.getAttribute("linkedCollections");
 	
+	CollectionsTree notLinkedTree= CollectionUtils.getCollectionsTree(notLinkedCollections, false);
+	CollectionsTree linkedTree= CollectionUtils.getCollectionsTree(linkedCollections, false);
+	
 	Item item = (Item)request.getAttribute("item");
+%>
+<%!
+void generateCollectionTree(javax.servlet.jsp.JspWriter out, CollectionsTree tree ) 
+		throws java.io.IOException {
+	if(tree==null){
+		return;
+	}
+	if (tree.getCurrent() != null)
+	{
+		out.print("<optgroup label=\""+tree.getCurrent().getName()+"\">");
+	}
+	if (tree.getCollections() != null){
+		for (Collection col : tree.getCollections())
+		{
+			out.print("<option value=\""+col.getID()+"\">"+col.getName()+"</option>");	
+		}
+	}
+	if (tree.getSubTree() != null)
+	{
+		for (CollectionsTree subTree: tree.getSubTree())
+		{
+			generateCollectionTree(out, subTree);
+		}
+	}
+	if (tree.getCurrent() != null)
+	{
+		out.print("</optgroup>");
+	}
+}
 %>
 
 <dspace:layout style="submission" titlekey="jsp.tools.move-item.title">
@@ -37,15 +71,9 @@
 		  	<span class="input-group-addon">
 				<label for="collection_from_id"><fmt:message key="jsp.tools.move-item.collection.from.msg"/></label>
 			</span>
+			
 				<select class="form-control" name="collection_from_id">
-<%
-        for (int i = 0; i < linkedCollections.length; i++)
-        {
-%>
-            <option value="<%= linkedCollections[i].getID() %>"><%= linkedCollections[i].getMetadata("name") %></option>
-<%
-        }
-%>
+				<% generateCollectionTree(out, linkedTree); %>
 				</select>
 				</div>
 		</div>
@@ -55,15 +83,7 @@
 				<label for="collection_to_id"><fmt:message key="jsp.tools.move-item.collection.to.msg"/></label>
 			</span>
 			<select class="form-control" name="collection_to_id">
-<%
-		//Later on find a away to display in a tree format with the linked one disabled?
-        for (int i = 0; i < notLinkedCollections.length; i++)
-        {
-%>
-            <option value="<%= notLinkedCollections[i].getID() %>"><%= notLinkedCollections[i].getMetadata("name") %></option>
-<%
-        }
-%>
+			<% generateCollectionTree(out, notLinkedTree); %>
 				</select>
 			</div>
 		</div>

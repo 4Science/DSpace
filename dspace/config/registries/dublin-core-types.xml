@@ -111,6 +111,20 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>authorrole</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>contributor</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>contributor</element>
     <qualifier>editor</qualifier>
@@ -125,9 +139,23 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>orcid</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>contributor</element>
     <qualifier>other</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>shelfmark</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -139,10 +167,52 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialabbreviation</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcc</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcn</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcr</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcs</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>coverage</element>
     <qualifier>temporal</qualifier>
     <scope_note>Temporal characteristics of content.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>temporalfraction</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -189,6 +259,20 @@
     <scope_note>Date of creation or manufacture of intellectual content if different from date.issued.</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>date</element>
+    <qualifier>end</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+	<schema>dc</schema>
+    <element>date</element>
+    <qualifier>inventory</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <!-- Used by system: do not remove -->
   <dc-type>
 	<schema>dc</schema>
@@ -198,10 +282,38 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>date</element>
+    <qualifier>note</qualifier>
+    <scope_note>Comments concerning the dating</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>date</element>
+    <qualifier>start</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>date</element>
     <qualifier>submitted</qualifier>
     <scope_note>Recommend for theses/dissertations.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>date</element>
+    <qualifier>updated</qualifier>
+    <scope_note>The last time the item was updated via the SWORD interface</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>date</element>
+    <qualifier></qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -222,12 +334,33 @@
     of non-DSpace format of this item</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>codex</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>form</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <!-- Used by system: do not remove -->
   <dc-type>
 	<schema>dc</schema>
     <element>identifier</element>
     <qualifier>govdoc</qualifier>
     <scope_note>A government document number</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>inventorynumber</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <!-- Used by system: do not remove -->
@@ -247,10 +380,24 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>nctn</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>identifier</element>
     <qualifier>sici</qualifier>
     <scope_note>Serial Item and Contribution Identifier</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>slug</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <!-- Used by system: do not remove -->
@@ -293,12 +440,96 @@
     <scope_note>Abstract or summary.</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>collection</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>collectionholder</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>collectionnotes</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>function</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>note</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>number</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>parts</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <!-- Used by system: do not remove -->
   <dc-type>
 	<schema>dc</schema>
     <element>description</element>
     <qualifier>provenance</qualifier>
     <scope_note>The history of custody of the item since its creation, including any changes successive custodians made to it.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>quantity</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>preservation</qualifier>
+    <scope_note>Preservation state of the physical resource from which the physical item is derived</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>preservationnote</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>preservationspecifications</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>preservationstate</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <!-- Used by system: do not remove -->
@@ -330,6 +561,20 @@
     <qualifier>uri</qualifier>
     <scope_note>Uniform Resource Identifier pointing to description of
     this item.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>use</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>version</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <!-- Used by system: do not remove -->
@@ -364,6 +609,90 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misa</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misb</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misc</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misd</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misg</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misi</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misl</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misn</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misp</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>miss</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misu</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>format</element>
+    <qualifier>misw</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>language</element>
     <!-- unqualified -->
@@ -392,6 +721,13 @@
     <element>relation</element>
     <!-- unqualified -->
     <scope_note>Catch-all for references to other related items.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>person</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -433,8 +769,85 @@
   <dc-type>
 	<schema>dc</schema>
     <element>relation</element>
+    <qualifier>journal</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>opac</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>otherlinks</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>url</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+	<schema>dc</schema>
+    <element>relation</element>
     <qualifier>hasversion</qualifier>
     <scope_note>References later version.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptionclass</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptionfont</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptionlanguage</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptionposition</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptiontechnique</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>inscriptiontranscription</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>interpretation</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -481,6 +894,76 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographyabbreviation</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographyauthors</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographyeditor</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographyplace</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographypublisher</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographytitle</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographytype</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>bibliographyyear</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>concept</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>conference</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>rights</element>
     <!-- unqualified -->
@@ -495,10 +978,24 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>rights</element>
+    <qualifier>holder</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>source</element>
     <!-- unqualified -->
     <scope_note>Do not use; only for harvested metadata.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>source</element>
+    <qualifier>content</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -529,6 +1026,13 @@
     <element>subject</element>
     <qualifier>ddc</qualifier>
     <scope_note>Dewey Decimal Classification Number</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>keywords</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -584,6 +1088,48 @@
     <scope_note>Nature or genre of content.</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>type</element>
+    <qualifier>definition</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>type</element>
+    <qualifier>form</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>type</element>
+    <qualifier>materialandtechnique</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>type</element>
+    <qualifier>physical</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>utils</element>
+    <qualifier>nodoi</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>utils</element>
+    <qualifier>processdoi</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 
     <dc-type>
         <schema>dc</schema>
@@ -616,6 +1162,13 @@
     <dc-type>
         <schema>dc</schema>
         <element>relation</element>
+        <qualifier>fond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
         <qualifier>publication</qualifier>
         <scope_note>Used by the DSpace-CRIS default inputform</scope_note>
     </dc-type>
@@ -632,6 +1185,14 @@
         <element>identifier</element>
         <qualifier>pmid</qualifier>
         <scope_note>Used by the DSpace-CRIS default inputform</scope_note>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>region</qualifier>
+        <scope_note></scope_note>
     </dc-type>    
 
 	<dc-type>

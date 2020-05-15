@@ -15,15 +15,17 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic");
 @import url("https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic"); 
 @import url("https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,400italic,700italic,400,300,700|Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"); 
+@import url("https://fonts.googleapis.com/css?family=Roboto+Slab:400,300,700|Roboto:400,300,700");
 
 body {    
     /*font-family: Lora,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-family: "Merriweather", Georgia, "Times New Roman", Times, serif;*/    
     color: #000;
-    font-family: "Open Sans",sans-serif;
+    font-family: "Roboto";
     height: 100%;
     background-color: #fff;
     width: 100%;
+    font-weight: 300;
 }
 
 html {
@@ -39,8 +41,8 @@ h5,
 h6 {
     margin: 0 0 35px;
     text-transform: uppercase;
-    font-family: "Open Sans",sans-serif;
-    font-weight: 700;
+    font-family: "Roboto Slab";
+    font-weight: 400;
     letter-spacing: 1px;
 }
 
@@ -116,7 +118,7 @@ img::-moz-selection {
 }
 
 .btn-primary {
-	background-image: linear-gradient(to bottom,#428bca 0,#424a5d 100%);
+	background-color: #004fa1;
 }
 
 .btn-primary:hover {
@@ -130,7 +132,7 @@ img::-moz-selection {
 .panel .panel-heading {
 	color: white;
 	border-radius: 0;
-	background-image: linear-gradient(to bottom,#428bca 0,#424a5d 100%);
+	background-color: #004fa1;
 }
 
 .panel-title {
@@ -353,8 +355,8 @@ img::-moz-selection {
     margin-bottom: 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     text-transform: uppercase;
-    font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
-    background-color: #000;
+    font-family: "Roboto Slab";
+    font-weight: 400;
 }
 
 .navbar-custom .navbar-brand {
@@ -377,9 +379,8 @@ img::-moz-selection {
 
 .navbar-brand img {
    display: inline;
-   box-shadow: 1px 1px 1px rgba(0,0,0,.5);;
    border-radius: 5px;
-   margin-top: -7px; 
+   margin-top: -10px;
 }
 
 .navbar-custom .navbar-brand .navbar-toggle:focus,
@@ -429,7 +430,7 @@ img::-moz-selection {
 .dropdown-menu > li {
     padding-bottom: 3px;
     padding-left: 10px;
-    padding-right: 24px;
+    padding-right: 10px;
     padding-top: 3px;
 }
 
@@ -518,7 +519,13 @@ img::-moz-selection {
 }
 
 .navbar-nav {
-	margin: 0;
+	margin-top: -5px;
+	margin-bottom: -27px;
+}
+
+.navbar-language {
+	font-size: 14px;
+	margin-bottom: 0px;
 }
 
 .navbar-form {
@@ -572,10 +579,11 @@ img::-moz-selection {
 }
 
 .intro-background {
-    background-image: url(../image/homepage/glam-bkg.jpg);
+    background-image: url(/image/homepage/glam-bkg.jpg);
     background-repeat: no-repeat;
     background-position: center bottom;    
     background-size: cover;
+    height: 150px;
 }
 
 .custom-btn-circle {
@@ -643,4 +651,49 @@ img::-moz-selection {
     -moz-animation-iteration-count: infinite;
     -webkit-animation-timing-function: linear;
     -moz-animation-timing-function: linear;
+}
+
+.fondspicture {
+	min-height: 200px;
+}
+
+.fondspicture img {
+	height: 200px;
+	max-width: 200px;
+	max-height: 200px;
+	border: 0px;
+	padding: 0px;
+}
+
+.thumbnail {
+	border: none;
+}
+
+.thumbnail-heading {
+	border: 1px solid #ddd;
+	padding-bottom: 15px;
+	font-size: 13px;
+}
+
+.thumbnail a {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+.nohover {
+    display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
+	overflow: hidden;
+}
+
+.carousel-indicators .active {
+	background-color: rgba(0, 79, 161, 0.54);
+}
+
+.carousel-indicators li {
+	background-color: #fff;
+	border: none;
 }

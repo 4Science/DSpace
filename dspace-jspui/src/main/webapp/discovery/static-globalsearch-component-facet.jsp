@@ -16,6 +16,7 @@
   -    discovery.searchScope - the search scope 
   --%>
 
+<%@page import="org.dspace.core.ConfigurationManager"%>
 <%@page import="org.dspace.discovery.configuration.DiscoverySearchFilterFacet"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Set"%>
@@ -97,19 +98,18 @@
 %>
 		
 		
-<hr/>
 <div class="row">
-<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-10 col-md-offset-1" action="<%= request.getContextPath() %>/simple-search" method="get">
+<form id="searchglobalprocessor" name="searchglobalprocessor" class="col-md-8 col-md-offset-2" action="<%= request.getContextPath() %>/simple-search" method="get">
 <div class="input-group">
     <input type="text" class="form-control" name="query" placeholder="Search term...">
-    <span class="input-group-btn">
+    <span class="input-group-btn" style="padding-right: 40px;">
         <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
     </span>    
     <div class="input-group-btn search-panel">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        	<span id="search_concept">All</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
+        	<span id="search_concept"><fmt:message key="jsp.home.explore.global-menu.default" /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
         </button>
-        <ul class="dropdown-menu menu-global-processor" role="menu">
+        <ul class="dropdown-menu menu-global-processor pull-left" role="menu">
         
         <%
 		if(facetsGlobalConf!=null) {
@@ -123,10 +123,9 @@
 				  	for (FacetResult fvalue : facet)
 			    	{ 
 		        %>
-
 					<li class="menu-global-processor">
 						<a href="#"
-						title="<%=fvalue.getAuthorityKey()%>"><span class="badge pull-right"><%=fvalue.getCount()%></span> <%=StringUtils.abbreviate(fvalue.getDisplayedValue(), 36)%> &nbsp;&nbsp;&nbsp; <span class="badge invisible"><%=fvalue.getCount()%></span> </a></li>
+						title="<%=fvalue.getAuthorityKey()%>"><span class="badge pull-right"><%=fvalue.getCount()%></span><fmt:message key="<%=\"jsp.entities.\"+fvalue.getAuthorityKey()%>"/>&nbsp;&nbsp;&nbsp; <span class="badge invisible"><%=fvalue.getCount()%></span> </a></li>
 					<%
 			    	}
 		    	}	    		    
@@ -142,7 +141,15 @@
 </div>
 </form>
 </div>
-<hr/>
+<br>
+<br>
+<div class="row">
+	<div class="col-md-12" style="min-height: 100px;">
+	    <%@ include file="/components/recent-submissions.jsp" %>
+	</div>
+</div>
+
+
 
 
 <%
@@ -173,7 +180,10 @@
 			}
 		}
 %>
+<br>
 <div class="row">
+	<ol class="breadcrumb btn-primary"><li><%= ConfigurationManager.getProperty("dspace.name") %></li></ol>
+
 	<a href="#group-left-info-popover-content"><div class="col-md-4 text-center">
 		<h4 class="text-success"><fmt:message key="jsp.home.explore.group-left-info" /></h4>
 		<p><span class="fa fa-users fa-5x" id="group-left-info" data-placement="right"></span> <span class="badge"><%= totGroupLeft %></span></p>
@@ -192,9 +202,9 @@
 		<small class="label label-success"><fmt:message key="jsp.home.explore.title.group-right-info" /></small>
 	</div></a>
 </div>
+<br>
 
 
-<hr/>
 
 <div id="group-left-info-popover-head" class="hide">
 	<fmt:message key="jsp.home.group-left.head"/>
@@ -381,4 +391,4 @@
 		}
 		%>
 		</ul>
-</div>		
+</div>

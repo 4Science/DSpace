@@ -337,7 +337,7 @@ if(StringUtils.contains(searchScope, hdlPrefix) ){
                                 <input name="crisID" type="hidden" value="<%= crisID %>" />
                                 <input name="relationName" type="hidden" value="<%= relationName %>" />
                                 <input type="text" size="50" id="query" name="query" value="<%= (query==null ? "" : Utils.addEntities(query)) %>"/>
-                                <input type="submit" id="main-query-submit" class="btn btn-primary" value="<fmt:message key="jsp.general.go"/>" />
+                                <button type="submit" id="main-query-submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
                                 <a class="btn btn-default" href="<%= request.getContextPath()+"/global-search" %>"><fmt:message key="jsp.search.general.new-search" /></a>
                                
 <% if (StringUtils.isNotBlank(spellCheckQuery)) {%>
@@ -862,7 +862,8 @@ if((showGlobalFacet) || (brefine)) {
 	                + "&amp;crisID=" + crisID
 	                + "&amp;relationName=" + relationName %>"
 	                title="<fmt:message key="jsp.search.facet.narrow"><fmt:param><%=fvalue.getDisplayedValue() %></fmt:param></fmt:message>">
-	                <%= StringUtils.abbreviate(fvalue.getDisplayedValue(),36) %></a></li><%
+	                <fmt:message key="<%=\"jsp.entities.\"+fvalue.getAuthorityKey()%>"/></a></li>
+	                <%
 		    }
 		    %></ul></div>
 		    </div><%

@@ -49,7 +49,7 @@
 <% if (info!=null && info.getItems()!=null && info.getItems().length > 0) { %>
 <div class="btn-group" style="margin-top: -5px;">
 	<%  if(subLinks.size()>1) {%>
-	<button type="button" class="btn btn-link dropdown-toggle"
+	<button type="button" class="btn btn-info dropdown-toggle"
 		style="text-decoration: none;" data-toggle="dropdown">
 		<fmt:message
 			key="jsp.layout.dspace.detail.fieldset-legend.component.boxtitle.${info[holder.shortName].type}">

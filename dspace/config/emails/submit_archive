@@ -4,8 +4,22 @@
 # {1}  Name of collection
 # {2}  handle 
 #
-Subject: DSpace: Submission Approved and Archived 
+Subject: DSpace: Submission approvata ed archiviata - Submission Approved and Archived 
 
+E'' stata caricato il titolo : {0}
+
+Nella collezione: {1}
+
+La submission è stata accettata e archiviata nel repository,
+ed è stato assegnato il seguente identifier:
+{2}
+
+Si prega di utilizzare questo identifier quando si cita l''item caricato.
+
+Grazie mille!
+
+Gli amministratori del repository
+----------------------------------------------------------------------------
 You submitted: {0}
 
 To collection: {1}

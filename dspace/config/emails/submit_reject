@@ -6,7 +6,21 @@
 # {3}  Reason for the rejection
 # {4}  Link to 'My DSpace' page
 #
-Subject: DSpace: Submission Rejected
+Subject: DSpace: Submission rifiutata -Submission Rejected
+
+La submission: {0}
+
+nella collezione: {1}
+La tua proposta è stata respinta da {2}
+con la seguente spiegazione:
+
+{3}
+
+I dati non sono stati cancellati.  È possibile accedervi dalla propria pagina
+ "My DSpace": {4}
+
+ Gli amministratori del repository
+------------------------------------------------------------------------------------------
 
 You submitted: {0}
 

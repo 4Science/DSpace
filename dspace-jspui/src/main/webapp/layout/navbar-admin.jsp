@@ -63,12 +63,10 @@
            <span class="icon-bar"></span>
            <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="<%= request.getContextPath() %>/"><img height="25" src="<%= request.getContextPath() %>/image/dspace-logo-only.png" alt="DSpace logo" /></a>
+         <a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img height="45" width="100" style="margin-bottom: -20px;" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a>
        </div>
        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
          <ul class="nav navbar-nav">
-           <li class="hidden-xs hidden-sm"><a href="<%= request.getContextPath() %>/"><span class="glyphicon glyphicon-home"></span> <fmt:message key="jsp.layout.navbar-default.home"/></a></li>
-           
           <li class="dropdown">
              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="jsp.layout.navbar-admin.contents"/> <b class="caret"></b></a>
              <ul class="dropdown-menu">

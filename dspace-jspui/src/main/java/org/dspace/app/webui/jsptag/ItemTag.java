@@ -10,13 +10,9 @@ package org.dspace.app.webui.jsptag;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +22,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.jstl.fmt.LocaleSupport;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -198,6 +194,9 @@ public class ItemTag extends TagSupport {
 	/** Whether to show preview thumbs on the item page */
 	private boolean showThumbs;
 
+	/** Whether to show normal item view or primary bitstream on the left side of the item page */
+	private boolean showNormalView;
+
 	/** log4j logger */
 	private static Logger log = Logger.getLogger(ItemTag.class);
 
@@ -210,10 +209,14 @@ public class ItemTag extends TagSupport {
 
 	public int doStartTag() throws JspException {
 		try {
+			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+			Context context = UIUtil.obtainContext(request);
+			showNormalView = !hideNotPrimaryBitstreams(context, item);
+
 			if (style != null && style.equals("full")) {
-				renderFull();
+				renderFull(request, context);
 			} else {
-				render();
+				render(request, context);
 			}
 		} catch (SQLException sqle) {
 			throw new JspException(sqle);
@@ -290,26 +293,44 @@ public class ItemTag extends TagSupport {
 	/**
 	 * Render an item in the given style
 	 */
-	private void render() throws IOException, SQLException, JspException {
+	private void render(HttpServletRequest request, Context context) throws IOException, SQLException, JspException {
 		JspWriter out = pageContext.getOut();
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Context context = UIUtil.obtainContext(request);
 
-		out.println("<table class=\"table itemDisplayTable\">");
+		if (showNormalView) {
+			out.println("<table class=\"table itemDisplayTable\">");
 
-		for (DisplayMetadata display : DisplayItemMetadataUtils.getDisplayMetadata(context, request, item, style)) {
-			out.print("<td class=\"metadataFieldLabel\">");
-			out.print(display.label);
-			out.print(":&nbsp;</td><td class=\"metadataFieldValue\">");
-			out.print(display.value);
-			out.println("</td></tr>");
+			for (DisplayMetadata display : DisplayItemMetadataUtils.getDisplayMetadata(context, request, item, style)) {
+				out.print("<td class=\"metadataFieldLabel\">");
+				out.print(display.label);
+				out.print(":&nbsp;</td><td class=\"metadataFieldValue\">");
+				out.print(display.value);
+				out.println("</td></tr>");
+			}
+
+			listCollections();
+
+			out.println("</table><br/>");
+
+			listBitstreams();
 		}
+		else {
 
-		listCollections();
+			listBitstreams();
 
-		out.println("</table><br/>");
+			out.println("<div class=\"col-lg-9 col-md-9\"><table class=\"table itemDisplayTable\">");
 
-		listBitstreams();
+			for (DisplayMetadata display : DisplayItemMetadataUtils.getDisplayMetadata(context, request, item, style)) {
+				out.print("<td class=\"metadataFieldLabel\">");
+				out.print(display.label);
+				out.print(":&nbsp;</td><td class=\"metadataFieldValue\">");
+				out.print(display.value);
+				out.println("</td></tr>");
+			}
+
+			listCollections();
+
+			out.println("</table></div><br/>");
+		}
 
 		if (ConfigurationManager.getBooleanProperty("webui.licence_bundle.show"))
 
@@ -322,53 +343,74 @@ public class ItemTag extends TagSupport {
 	/**
 	 * Render full item record
 	 */
-	private void renderFull() throws IOException, SQLException {
+	private void renderFull(HttpServletRequest request, Context context) throws IOException, SQLException {
 		JspWriter out = pageContext.getOut();
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Context context = UIUtil.obtainContext(request);
 
 		// Get all the metadata
 		Metadatum[] values = item.getMetadataWithoutPlaceholder(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
-		// Three column table - DC field, value, language
-		out.println("<table class=\"table itemDisplayTable\">");
-		out.println("<tr><th id=\"s1\" class=\"standard\">"
-				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.dcfield")
-				+ "</th><th id=\"s2\" class=\"standard\">"
-				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.value")
-				+ "</th><th id=\"s3\" class=\"standard\">"
-				+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.lang")
-				+ "</th></tr>");
+		if (showNormalView) {
+			// Three column table - DC field, value, language
+			out.println("<table class=\"table itemDisplayTable\">");
+			out.println("<tr><th id=\"s1\" class=\"standard\">"
+					+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.dcfield")
+					+ "</th><th id=\"s2\" class=\"standard\">"
+					+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.value")
+					+ "</th></tr>");
 
-		for (int i = 0; i < values.length; i++) {
-			if (!MetadataExposure.isHidden(context, values[i].schema, values[i].element, values[i].qualifier)) {
-				out.print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
-				out.print(values[i].schema);
-				out.print("." + values[i].element);
+			for (int i = 0; i < values.length; i++) {
+				if (!MetadataExposure.isHidden(context, values[i].schema, values[i].element, values[i].qualifier)) {
+					out.print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
+					out.print(values[i].schema);
+					out.print("." + values[i].element);
 
-				if (values[i].qualifier != null) {
-					out.print("." + values[i].qualifier);
-				}
+					if (values[i].qualifier != null) {
+						out.print("." + values[i].qualifier);
+					}
 
-				out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
-				out.print(Utils.addEntities(values[i].value));
-				out.print("</td><td headers=\"s3\" class=\"metadataFieldValue\">");
-
-				if (values[i].language == null) {
-					out.print("-");
-				} else {
-					out.print(values[i].language);
-				}
-
-				out.println("</td></tr>");
+					out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
+					out.print(Utils.addEntities(values[i].value));
+					out.print("</td></tr>");
+					}
 			}
+
+			listCollections();
+
+			out.println("</table>");
+
+			listBitstreams();
 		}
+		else {
+			listBitstreams();
 
-		listCollections();
+			// Three column table - DC field, value, language
+			out.println("<div class=\"col-lg-9 col-md-9\"><table class=\"table itemDisplayTable\">");
+			out.println("<tr><th id=\"s1\" class=\"standard\">"
+					+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.dcfield")
+					+ "</th><th id=\"s2\" class=\"standard\">"
+					+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.value")
+					+ "</th></tr>");
 
-		out.println("</table>");
+			for (int i = 0; i < values.length; i++) {
+				if (!MetadataExposure.isHidden(context, values[i].schema, values[i].element, values[i].qualifier)) {
+					out.print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
+					out.print(values[i].schema);
+					out.print("." + values[i].element);
 
-		listBitstreams();
+					if (values[i].qualifier != null) {
+						out.print("." + values[i].qualifier);
+					}
+
+					out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
+					out.print(Utils.addEntities(values[i].value));
+					out.print("</td></tr>");
+					}
+			}
+
+			listCollections();
+
+			out.println("</table></div>");
+		}
 
 		if (ConfigurationManager.getBooleanProperty("webui.licence_bundle.show")) {
 			showLicence();
@@ -414,16 +456,13 @@ public class ItemTag extends TagSupport {
 	private void listBitstreams() throws IOException {
 		JspWriter out = pageContext.getOut();
 		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Locale locale = UIUtil.getSessionLocale(request);
-		
+
 		try {
-			Bundle[] obundles = item.getBundles("ORIGINAL");
-			Bundle[] dbundles = item.getBundles("DISPLAY");
-			Bundle[] bunds = (Bundle[]) ArrayUtils.addAll(obundles,dbundles);
-			
+			Bundle[] bundles = item.getBundles("ORIGINAL");
+
 			boolean filesExist = false;
 
-			for (Bundle bnd : bunds) {
+			for (Bundle bnd : bundles) {
 				filesExist = bnd.getBitstreams().length > 0;
 				if (filesExist) {
 					break;
@@ -432,15 +471,18 @@ public class ItemTag extends TagSupport {
 
 			// if user already has uploaded at least one file
 			if (filesExist) {
-				out.print("<div class=\"panel panel-default\">");
-				out.println("<div class=\"panel-heading\"><h6 class=\"panel-title\">"
-						+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.files")
-						+ "</h6></div>");
+				if (showNormalView) {
+					out.print("<div class=\"panel panel-default\">");
+					out.println("<div class=\"panel-heading\"><h6 class=\"panel-title\">"
+							+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.files")
+							+ "</h6></div>");
+				}
 
 				boolean html = false;
 				String handle = item.getHandle();
 				Bitstream primaryBitstream = null;
 
+				Bundle[] bunds = item.getBundles("ORIGINAL");
 				Bundle[] thumbs = item.getBundles("THUMBNAIL");
 
 				// if item contains multiple bitstreams, display bitstream
@@ -464,40 +506,46 @@ public class ItemTag extends TagSupport {
 						}
 					}
 				}
-                                out.print("<div class=\"table-responsive\">");
-				out.println("<table class=\"table panel-body\"><tr><th id=\"t1\" class=\"standard\">"
-						+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.file")
-						+ "</th>");
 
-				if (multiFile) {
+				if (showNormalView) {
+					out.println("<table class=\"table panel-body\"><tr><th id=\"t1\" class=\"standard\">"
+							+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.file")
+							+ "</th>");
 
-					out.println("<th id=\"t2\" class=\"standard\">" + LocaleSupport.getLocalizedMessage(pageContext,
-							"org.dspace.app.webui.jsptag.ItemTag.description") + "</th>");
+					if (multiFile) {
+
+						out.println("<th id=\"t2\" class=\"standard\">" + LocaleSupport.getLocalizedMessage(pageContext,
+								"org.dspace.app.webui.jsptag.ItemTag.description") + "</th>");
+					}
+
+					out.println("<th id=\"t3\" class=\"standard\">"
+							+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.filesize")
+							+ "</th><th id=\"t4\" class=\"standard\">" + LocaleSupport.getLocalizedMessage(pageContext,
+									"org.dspace.app.webui.jsptag.ItemTag.fileformat"));
 				}
 
-				out.println("<th id=\"t3\" class=\"standard\">"
-						+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.filesize")
-						+ "</th><th id=\"t4\" class=\"standard\">" + LocaleSupport.getLocalizedMessage(pageContext,
-								"org.dspace.app.webui.jsptag.ItemTag.fileformat"));
-				
 				/////////
 				Context context = UIUtil.obtainContext(request);
 				EPerson user = context.getCurrentUser();
 				if (user == null) {
-					// if no user logged in and no anonymous read
-					Bitstream[] bitstreams = bunds[0].getBitstreams();
+					//se nessuno ha i permessi
+					Bitstream[] bitstreams = bundles[0].getBitstreams();
 					boolean authorizedToView = AuthorizeManager.authorizeActionBoolean(context,bitstreams[0], Constants.READ);
 					if (!authorizedToView) {
-						out.println("</th><th style=\"text-align: center;\">");
+						if (showNormalView) {
+							out.println("</th><th style=\"text-align: center;\"");
+						}
 						out.print(LocaleSupport.getLocalizedMessage(pageContext,
 								"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
 						out.print(" <a class=\" btn btn-primary\" ");
 						out.print("href=\"" +request.getContextPath()+"/login-in-page?url="+request.getContextPath()+"/handle/" + handle+"\"");
 						out.print(LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.login"));
 						out.print("</a>");
-						out.println("</th></tr>");
+						if (showNormalView) {
+							out.println("</th></tr>");
+						}
 					}
-				}else {
+				}else if (showNormalView) {
 					out.print("</th><th>&nbsp;</th></tr>");
 				}
 				// if primary bitstream is html, display a link for only that one to
@@ -510,35 +558,37 @@ public class ItemTag extends TagSupport {
 						handle = "db-id/" + item.getID();
 					}
 
-					out.print("<tr><td headers=\"t1\" class=\"standard\">");
-					out.print("<a target=\"_blank\" href=\"");
-					out.print(request.getContextPath());
-					out.print("/html/");
-					out.print(handle + "/");
-					out.print(UIUtil.encodeBitstreamName(primaryBitstream.getName(), Constants.DEFAULT_ENCODING));
-					out.print("\">");
-					out.print(primaryBitstream.getName());
-					out.print("</a>");
+					if (showNormalView) {
+						out.print("<tr><td headers=\"t1\" class=\"standard\">");
+						out.print("<a target=\"_blank\" href=\"");
+						out.print(request.getContextPath());
+						out.print("/html/");
+						out.print(handle + "/");
+						out.print(UIUtil.encodeBitstreamName(primaryBitstream.getName(), Constants.DEFAULT_ENCODING));
+						out.print("\">");
+						out.print(primaryBitstream.getName());
+						out.print("</a>");
 
-					if (multiFile) {
-						out.print("</td><td headers=\"t2\" class=\"standard\">");
+						if (multiFile) {
+							out.print("</td><td headers=\"t2\" class=\"standard\">");
 
-						String desc = primaryBitstream.getDescription();
-						out.print((desc != null) ? desc : "");
+							String desc = primaryBitstream.getDescription();
+							out.print((desc != null) ? desc : "");
+						}
+
+						out.print("</td><td headers=\"t3\" class=\"standard\">");
+						out.print(UIUtil.formatFileSize(primaryBitstream.getSize()));
+						out.print("</td><td headers=\"t4\" class=\"standard\">");
+						out.print(primaryBitstream.getFormatDescription());
+						out.print("</td><td class=\"standard\"><a class=\"btn btn-primary\" target=\"_blank\" href=\"");
+						out.print(request.getContextPath());
+						out.print("/html/");
+						out.print(handle + "/");
+						out.print(UIUtil.encodeBitstreamName(primaryBitstream.getName(), Constants.DEFAULT_ENCODING));
+						out.print("\">"
+								+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.view")
+								+ "</a></td></tr>");
 					}
-
-					out.print("</td><td headers=\"t3\" class=\"standard\">");
-					out.print(UIUtil.formatFileSize(primaryBitstream.getSize()));
-					out.print("</td><td headers=\"t4\" class=\"standard\">");
-					out.print(primaryBitstream.getFormatDescription());
-					out.print("</td><td class=\"standard\"><a class=\"btn btn-primary\" target=\"_blank\" href=\"");
-					out.print(request.getContextPath());
-					out.print("/html/");
-					out.print(handle + "/");
-					out.print(UIUtil.encodeBitstreamName(primaryBitstream.getName(), Constants.DEFAULT_ENCODING));
-					out.print("\">"
-							+ LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.view")
-							+ "</a></td></tr>");
 				} else {
 //					Context context = UIUtil.obtainContext(request);
 					boolean showRequestCopy = false;
@@ -548,8 +598,8 @@ public class ItemTag extends TagSupport {
 						showRequestCopy = true;
 					}
 
-					for (int i = 0; i < bunds.length; i++) {
-						int primaryBitID = bunds[i].getPrimaryBitstreamID();
+					for (int i = 0; i < bundles.length; i++) {
+						int primaryBitID = bundles[i].getPrimaryBitstreamID();
 						Bitstream primaryBit = null;
 						if (primaryBitID != -1) {
 							primaryBit = Bitstream.find(context, primaryBitID);
@@ -557,10 +607,10 @@ public class ItemTag extends TagSupport {
 
 						Bitstream[] bitstreams;
 						if (primaryBit != null
-								&& hideNotPrimaryBitstreams(context, request, pageContext, handle, bunds[i], primaryBit)) {
+								&& hideNotPrimaryBitstreams(bundles[i], primaryBit)) {
 							bitstreams = new Bitstream[] { primaryBit };
 						} else {
-							bitstreams = bunds[i].getBitstreams();
+							bitstreams = bundles[i].getBitstreams();
 						}
 
 						for (int k = 0; k < bitstreams.length; k++) {
@@ -576,24 +626,29 @@ public class ItemTag extends TagSupport {
 								bsLink = bsLink + viewOptions.get(0).link;
 								bsLink = bsLink + "\">";
 
-								out.print("<tr><td headers=\"t1\" class=\"standard\">");
-								out.print("<a ");
-								out.print(bsLink);
-								out.print(bitstreams[k].getName());
-								out.print("</a>");
+								if (showNormalView) {
+									out.print("<tr><td headers=\"t1\" class=\"standard\">");
+									out.print("<a ");
+									out.print(bsLink);
+									out.print(bitstreams[k].getName());
+									out.print("</a>");
 
-								if (multiFile) {
-									out.print("</td><td headers=\"t2\" class=\"standard\">");
+									if (multiFile) {
+										out.print("</td><td headers=\"t2\" class=\"standard\">");
 
-									String desc = bitstreams[k].getDescription();
-									out.print((desc != null) ? desc : "");
+										String desc = bitstreams[k].getDescription();
+										out.print((desc != null) ? desc : "");
+									}
+
+									out.print("</td><td headers=\"t3\" class=\"standard\">");
+									out.print(UIUtil.formatFileSize(bitstreams[k].getSize()));
+									out.print("</td><td headers=\"t4\" class=\"standard\">");
+									out.print(bitstreams[k].getFormatDescription());
+									out.print("</td><td class=\"standard\" align=\"center\">");
 								}
-
-								out.print("</td><td headers=\"t3\" class=\"standard\">");
-								out.print(UIUtil.formatFileSize(bitstreams[k].getSize()));
-								out.print("</td><td headers=\"t4\" class=\"standard\">");
-								out.print(bitstreams[k].getFormatDescription());
-								out.print("</td><td class=\"standard\" align=\"center\">");
+								else {
+									out.print("<div class=\"custom-col-lg-2 col-md-3\" align=\"center\">");
+								}
 
 								// is there a thumbnail bundle?
 								if ((thumbs.length > 0) && showThumbs) {
@@ -709,8 +764,20 @@ public class ItemTag extends TagSupport {
 												"org.dspace.app.webui.jsptag.ItemTag.sale"));
 										out.print("</a> ");
 
+//										if (user == null) {
+//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
+//													"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
+//											out.print(" <a class=\"btn btn-primary\" ");
+//											out.print("href=\"" + request.getContextPath() + "/login-in-page?url="
+//													+ request.getContextPath() + "/handle/" + handle + "\"");
+//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
+//													"org.dspace.app.webui.jsptag.ItemTag.login"));
+//											out.print("</a>");
+//										}
 									} else if (isSale) {
-										// see label this item can be bought by these groups
+										// see label you can't buy this item
+//										EPerson user = context.getCurrentUser();
+
 										Metadatum[] metadatumArray = item.getMetadata("ec", "sale", null, Item.ANY);
 										int j = 0;
 										String str = "";
@@ -749,72 +816,56 @@ public class ItemTag extends TagSupport {
 												"org.dspace.app.webui.jsptag.ItemTag.reservedsale", params2);
 										out.println(str2);
 
+//										if (user == null) {
+//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
+//													"org.dspace.app.webui.jsptag.ItemTag.login-existent-user"));
+//											out.print(" <a class=\"btn btn-primary\" ");
+//											out.print("href=\"" + request.getContextPath() + "/login-in-page?url="
+//													+ request.getContextPath() + "/handle/" + handle + "\"");
+//											out.print(LocaleSupport.getLocalizedMessage(pageContext,
+//													"org.dspace.app.webui.jsptag.ItemTag.login"));
+//											out.print("</a>");
+//										}
 									} else {
 										// not authorized to access but not for sale
 										Set<Group> authorizedGroups = new HashSet<Group>();
 										List<ResourcePolicy> rps = AuthorizeManager.getPoliciesActionFilter(context,
 												bitstreams[k], Constants.READ);
-										
-										boolean isEmbargo = false;
-										Date embargoDate = null;
-										
 										for (ResourcePolicy rp : rps) {
 											Group g = rp.getGroup();
 											if (g != null) {
-												if (Group.ANONYMOUS_ID == g.getID()) {
-													// there is a policy for the anonymous group, if it is not yet valid
-													// it is an embargo otherwise it was an expired lease just ignore it
-													if (rp.getStartDate() != null && rp.getStartDate().after(new Date())) {
-														isEmbargo = true;
-														embargoDate = rp.getStartDate();
-													}
-												} else {
-													if (rp.isDateValid()) {
-														authorizedGroups.add(g);
-													}
-												}
+												authorizedGroups.add(g);
 											}
 										}
 
-										if (!isEmbargo) {
-											if (ConfigurationManager.getBooleanProperty("webui.itemtag.show-reserved-group", false)) {
-												StringBuffer sb = new StringBuffer();
-												int j = 0;
-												for (Group g : authorizedGroups) {
-													j++;
-													
-													String link = g.getMetadata("ec.product.permalink");
-													if (link != null) {
-														Object[] params = new Object[] { g.getName(), link };
-														sb.append(LocaleSupport.getLocalizedMessage(pageContext,
-																"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group",
-																params));
-													} else {
-														sb.append(LocaleSupport.getLocalizedMessage(pageContext,
-																"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group-noinfo",
-																new Object[] { g.getName() }));
-													}
-
-													if (j == authorizedGroups.size() - 1) {
-														sb.append(LocaleSupport.getLocalizedMessage(pageContext,
-																"org.dspace.app.webui.jsptag.ItemTag.reserved.group.last-separator"));
-													} else if (j < authorizedGroups.size() - 1) {
-														sb.append(LocaleSupport.getLocalizedMessage(pageContext,
-																"org.dspace.app.webui.jsptag.ItemTag.reserved.group.separator"));
-													}
-												}
-		
-												if (sb.length() > 0) {
-													out.println(LocaleSupport.getLocalizedMessage(pageContext,
-															"org.dspace.app.webui.jsptag.ItemTag.restricted-to",
-															new Object[] { sb.toString() }));
-												}
+										StringBuffer sb = new StringBuffer();
+										int j = 0;
+										for (Group g : authorizedGroups) {
+											j++;
+											String link = g.getMetadata("ec.product.permalink");
+											Object[] params = new Object[] { g.getName(), link };
+											if (link != null) {
+												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
+														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group",
+														params));
+											} else {
+												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
+														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group-noinfo",
+														g.getName()));
+											}
+											if (j == authorizedGroups.size() - 1) {
+												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
+														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group.last-separator"));
+											} else if (j < authorizedGroups.size() - 1) {
+												sb.append(LocaleSupport.getLocalizedMessage(pageContext,
+														"org.dspace.app.webui.jsptag.ItemTag.reservedsale.group.separator"));
 											}
 										}
-										else {
-											out.append(LocaleSupport.getLocalizedMessage(pageContext,
-													"org.dspace.app.webui.jsptag.ItemTag.embargo", new Object[] { 
-															DateFormat.getDateInstance(DateFormat.LONG, locale).format(embargoDate)}));
+
+										if (sb.length() > 0) {
+											out.println(LocaleSupport.getLocalizedMessage(pageContext,
+													"org.dspace.app.webui.jsptag.ItemTag.restricted-to",
+													new Object[] { sb.toString() }));
 										}
 
 										if (showRequestCopy) {
@@ -830,13 +881,16 @@ public class ItemTag extends TagSupport {
 								}
 							}
 						}
-						out.print("</td></tr>");
+						if (showNormalView) {
+							out.print("</td></tr>");
+						}
 					}
 
 				}
 
-				out.println("</table>");
-				out.println("</div>");
+				if (showNormalView) {
+					out.println("</table>");
+				}
 				out.println("</div>");
 
 			}
@@ -892,8 +946,29 @@ public class ItemTag extends TagSupport {
 		String link;
 	}
 
-	public static boolean hideNotPrimaryBitstreams(Context context, HttpServletRequest request, PageContext pageContext,
-			String handle, Bundle bundle, Bitstream bit) throws UnsupportedEncodingException {
+	public static boolean hideNotPrimaryBitstreams(Context context, Item item)
+			throws SQLException, UnsupportedEncodingException {
+
+		for (Bundle bundle : item.getBundles("ORIGINAL")) {
+			if (bundle.getBitstreams().length > 0) {
+				int primaryBitID = bundle.getPrimaryBitstreamID();
+				Bitstream primaryBit = null;
+				if (primaryBitID != -1) {
+					primaryBit = Bitstream.find(context, primaryBitID);
+				}
+
+				if (primaryBit != null
+						&& hideNotPrimaryBitstreams(bundle, primaryBit)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean hideNotPrimaryBitstreams(Bundle bundle, Bitstream bit)
+			throws UnsupportedEncodingException {
 
 		List<String> hideNotPrimary = bundle.getMetadataValue(IViewer.METADATA_STRING_HIDENOTPRIMARY);
 		for (String h : hideNotPrimary) {

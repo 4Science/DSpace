@@ -6,8 +6,23 @@
 # {3}  Description of task
 # {4}  link to 'my DSpace' page 
 #
-Subject: DSpace: You have a new task
+Subject: DSpace: Hai una nuova attività - You have a new task
 
+È stato sottomesso un nuovo item:
+
+Titolo        {0}
+Collezione:   {1}
+Inviato da: {2}
+
+{3}
+
+Per svolgere questa attività, si prega di visitare il tuo "My DSpace".
+pagina:  {4}
+
+Grazie mille!
+
+Gli amministratori del repository
+--------------------------------------------------------------
 A new item has been submitted:
 
 Title:        {0}

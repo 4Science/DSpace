@@ -14,21 +14,13 @@
 
 	<context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
-
-	<!-- Components -->
-	<bean id="rpStatComponentsService" class="org.dspace.app.cris.integration.CrisComponentsService">
-		<property name="components">
-			<map>
-				<entry key="dspaceitems" value-ref="publicationlist" />			
-			</map>
-		</property>
-	</bean>
-	
 	<bean id="rpComponentsService" class="org.dspace.app.cris.integration.CrisComponentsService">
 		<property name="components">
 			<map>
 				<entry key="dspaceitems" value-ref="publicationlist" />
+				<entry key="dspaceitemsother" value-ref="publicationlistother" />
 				<entry key="projects" value-ref="projectlist" />
+				<entry key="fondsparent" value-ref="fondsparentforrp" />
 			</map>
 		</property>
 	</bean>
@@ -42,15 +34,30 @@
 		<property name="facets" ref="facetsItemConfiguration" />
 		<property name="types">
 			<map>
+				<entry key="all" value-ref="allComponent" />
 				<entry key="selected" value-ref="selectedComponent" />
 				<entry key="journal" value-ref="journalComponent" />
 				<entry key="conference" value-ref="conferenceComponent" />
 				<entry key="book" value-ref="bookComponent" />
 				<entry key="patent" value-ref="patentComponent" />
 				<entry key="dataset" value-ref="datasetComponent" />
+				<entry key="file" value-ref="fileComponent" />
+				<entry key="item" value-ref="itemComponent" />
+				<entry key="registry" value-ref="registryComponent" />
+				<entry key="manuscript" value-ref="manuscriptComponent" />
+				<entry key="recording" value-ref="recordingComponent" />
 				<entry key="other" value-ref="otherComponent" />
 			</map>
 		</property>
+	</bean>
+
+	<bean id="allComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery"><value>*:*</value></property>
+		<property name="order"><value>asc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
 	</bean>
 
 	<bean id="selectedComponent"
@@ -108,15 +115,86 @@
 		<property name="sortby"><value>1</value></property>
 	</bean>
 	
-	<bean id="otherComponent"
+	<bean id="fileComponent"
 		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
-		<property name="componentIdentifier" value="other" />
-		<property name="facetQuery"><value>-dc.type:Article -dc.type:Book -(dc.type:Conference_Paper OR dc.type:Presentation) -dc.type:Patent -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="componentIdentifier" value="file" />
+		<property name="facetQuery"><value>dc.type:"Fascicolo o altra unità complessa" -relationpreferences.crisrp.publications.selected:{1}</value></property>
 		<property name="order"><value>desc</value></property>
 		<property name="rpp"><value>20</value></property>
 		<property name="sortby"><value>1</value></property>
 	</bean>
 	
+	<bean id="itemComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="item" />
+		<property name="facetQuery"><value>dc.type:"Unità documentaria" -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="registryComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="registry" />
+		<property name="facetQuery"><value>dc.type:"Registro o altra unità rilegata" -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="manuscriptComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="manuscript" />
+		<property name="facetQuery"><value>dc.type:manuscript -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="recordingComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="recording" />
+		<property name="facetQuery"><value>dc.type:recording -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+	
+	<bean id="otherComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="other" />
+		<property name="facetQuery"><value>-dc.type:Article -dc.type:Book -(dc.type:Conference_Paper OR dc.type:Presentation) -dc.type:Patent -dc.type:recording -dc.type:manuscript -dc.type:"Registro o altra unità rilegata" -dc.type:"Unità documentaria" -dc.type:"Fascicolo o altra unità complessa" -dc.type:Dataset -relationpreferences.crisrp.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<property name="sortby"><value>1</value></property>
+	</bean>
+
+        <!-- Publication list for RP Other entity-->
+        <bean id="publicationlistother"
+                class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+                <property name="relationConfiguration" ref="relationRPOTHERVSItemConfiguration" />
+                <property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>
+                <property name="target" value="org.dspace.app.cris.model.ResearcherPage" />
+                <property name="facets" ref="facetsItemConfiguration" />
+                <property name="types">
+                        <map>
+                                <entry key="all" value-ref="allComponent" />
+                                <entry key="selected" value-ref="selectedComponent" />
+                                <entry key="journal" value-ref="journalComponent" />
+                                <entry key="conference" value-ref="conferenceComponent" />
+                                <entry key="book" value-ref="bookComponent" />
+                                <entry key="patent" value-ref="patentComponent" />
+                                <entry key="dataset" value-ref="datasetComponent" />
+                                <entry key="file" value-ref="fileComponent" />
+                                <entry key="item" value-ref="itemComponent" />
+                                <entry key="registry" value-ref="registryComponent" />
+                                <entry key="manuscript" value-ref="manuscriptComponent" />
+                                <entry key="recording" value-ref="recordingComponent" />
+                                <entry key="other" value-ref="otherComponent" />
+                        </map>
+                </property>
+        </bean>
+
 	<!-- Project list for RP entity -->
 	<bean id="projectlist"
 		class="org.dspace.app.webui.cris.components.CRISPJConfigurerComponent">
@@ -128,6 +206,19 @@
 				<entry key="selectedproject" value-ref="selectedProjectComponent" />
 				<entry key="investigatored" value-ref="investigatoredComponent" />
 				<entry key="coinvestigatored" value-ref="coinvestigatoredComponent" />				
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="fondsparentforrp"
+		class="org.dspace.app.webui.cris.components.CRISDOConfigurerComponent">
+		<property name="relationConfiguration" ref="relationRPVSFONDSConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>
+		<property name="target" value="org.dspace.app.cris.model.ResearcherPage" />
+		<property name="facets" ref="facetsFondsConfiguration"/>
+		<property name="types">
+			<map>
+				<entry key="allfonds" value-ref="allObjectsComponent" />
 			</map>
 		</property>
 	</bean>
@@ -424,11 +515,11 @@
 				<entry key="eventsperson" value-ref="personlistforevents" />
 				<entry key="fondschild" value-ref="fondschildforfonds" />
 				<entry key="fondspublications" value-ref="publicationlistforfonds" />
-        		<entry key="conceptdocuments" value-ref="publicationlistforconcept"/>
-                <entry key="conceptperson" value-ref="personlistforconcept"/>
-                <entry key="interpretationdocuments" value-ref="publicationlistforinterpretation"/>
-                <entry key="interpretationperson" value-ref="personlistforinterpretation"/>
-                <entry key="interpretationevents" value-ref="eventlistforinterpretation" />
+        		        <entry key="conceptdocuments" value-ref="publicationlistforconcept"/>
+                                <entry key="conceptperson" value-ref="personlistforconcept"/>
+                                <entry key="interpretationdocuments" value-ref="publicationlistforinterpretation"/>
+                                <entry key="interpretationperson" value-ref="personlistforinterpretation"/>
+                                <entry key="interpretationevents" value-ref="eventlistforinterpretation" />
 			</map>
 		</property>
 	</bean>
@@ -478,7 +569,6 @@
 			</map>
 		</property>
 	</bean>
-
 
     <!-- Person list for Concept dynamic entity -->
         <bean id="personlistforconcept"

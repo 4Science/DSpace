@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE input-forms>
+<?xml version="1.0"?>
+<!DOCTYPE input-forms SYSTEM "input-forms.dtd">
+
 
 <input-forms>
 
@@ -13,8 +14,32 @@
  <!-- the mapping for handle "default".                                    -->
 
  <form-map>
-   <name-map collection-handle="default" form-name="traditional" />
-<!--   <name-map collection-handle="xxx" form-name="archival_materials" /> -->
+    <name-map collection-handle="default" form-name="traditional" />
+    <name-map collection-handle="123456789/54" form-name="books" />
+    <name-map collection-handle="123456789/57" form-name="books" />
+    <name-map collection-handle="123456789/59" form-name="archival_materials" />
+    <name-map collection-handle="123456789/63" form-name="archival_materials" />
+    <name-map collection-handle="123456789/68" form-name="books" />
+    <name-map collection-handle="123456789/83" form-name="archival_materials" />
+    <name-map collection-handle="123456789/84" form-name="books" />
+    <name-map collection-handle="123456789/95" form-name="archival_materials" />
+    <name-map collection-handle="123456789/97" form-name="archival_materials" />
+    <name-map collection-handle="123456789/99" form-name="books" />
+    <name-map collection-handle="123456789/146" form-name="books" />
+    <name-map collection-handle="123456789/151" form-name="archival_materials" />
+    <name-map collection-handle="123456789/155" form-name="books" />
+    <name-map collection-handle="123456789/394" form-name="books" />
+    <name-map collection-handle="123456789/396" form-name="books" />
+    <name-map collection-handle="123456789/398" form-name="archival_materials" />
+    <name-map collection-handle="123456789/401" form-name="books" />
+    <name-map collection-handle="123456789/403" form-name="books" />
+    <name-map collection-handle="123456789/404" form-name="archival_materials" />
+    <name-map collection-handle="123456789/405" form-name="books" />
+    <name-map collection-handle="123456789/433" form-name="books" />
+    <name-map collection-handle="123456789/441" form-name="books" />
+    <name-map collection-handle="123456789/508" form-name="books" />
+    <name-map collection-handle="123456789/56213" form-name="musical_librettos" />
+    
    
  <!-- 
  	we provide examples of form tailored for articles, books, 
@@ -275,7 +300,16 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint> Enter the name of an event related to the item</hint>
          <required></required>
        </field>
-       
+<field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>fond</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Fondo</label>
+         <input-type>onebox</input-type>
+         <hint>Enter the name of the fond related to the item.</hint>
+         <required></required>
+       </field>       
        <field>
       	 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -286,8 +320,6 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint> Enter the name of a concept related to the item</hint>
          <required></required>
        </field>
-
-
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
@@ -299,8 +331,6 @@ it, please enter the types and the actual numbers or codes.</hint>
          <required></required>
        </field>
 
-
-      
        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>description</dc-element>
@@ -382,7 +412,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Please give the date of previous publication or public distribution.
                         You can leave out the day and/or month if they aren't
                         applicable.</hint>
-         <required>You must enter at least the year.</required>
+         <required></required>
        </field>
 
        <field>
@@ -591,7 +621,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Please give the date of previous publication or public distribution.
                         You can leave out the day and/or month if they aren't
                         applicable.</hint>
-         <required>You must enter at least the year.</required>
+         <required></required>
        </field>
 
        <field>
@@ -757,14 +787,25 @@ it, please enter the types and the actual numbers or codes.</hint>
 
    <form name="books">
      <page number="1">
-       <field>
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>contributor</dc-element>
          <dc-qualifier>author</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Authors</label>
+         <label>Autore</label>
          <input-type>onebox</input-type>
-         <hint>Enter the names of the authors of this item in the form Surname, Firstname [i.e. Smith, Josh or Smith, J].</hint>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+         <required></required>
+       </field>
+       
+           <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>contributor</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altro autore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
          <required></required>
        </field>
 
@@ -773,10 +814,10 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>title</dc-element>
          <dc-qualifier></dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Title</label>
+         <label>Titolo</label>
          <input-type>onebox</input-type>
-         <hint>Enter the main title of the item.</hint>
-         <required>You must enter a main title for this item.</required>
+         <hint>Inserire il titolo principale della risorsa.</hint>
+         <required></required>
        </field>
 
        <field>
@@ -784,9 +825,9 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>title</dc-element>
          <dc-qualifier>alternative</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Other Titles</label>
+         <label>Altro titolo</label>
          <input-type>onebox</input-type>
-         <hint>If the item has any alternative titles, please enter them here.</hint>
+         <hint>Inserire eventuali titoli alternativi, paralleli, attribuiti, ecc. della risorsa</hint>
          <required></required>
        </field>
 
@@ -795,79 +836,79 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>date</dc-element>
          <dc-qualifier>issued</dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Date of Issue</label>
+         <label>Data di pubblicazione</label>
          <input-type>date</input-type>
-         <hint>Please give the date of previous publication or public distribution.
-                        You can leave out the day and/or month if they aren't
-                        applicable.</hint>
-         <required>You must enter at least the year.</required>
+         <hint>Inserire la data di pubblicazione della risorsa.</hint>
+         <required></required>
        </field>
-
+       
        <field>
-		 <dc-schema>dc</dc-schema>
+       <dc-schema>dc</dc-schema>
          <dc-element>publisher</dc-element>
          <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Publisher</label>
+         <repeatable>true</repeatable>
+         <label>Editore</label>
          <input-type>onebox</input-type>
-         <hint>Enter the name of the publisher of the previously issued instance of this item.</hint>
+         <hint>Inserire il nome formale dell'editore/stampatore della risorsa.</hint>
          <required></required>
        </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>identifier</dc-element>
-         <dc-qualifier>citation</dc-qualifier>
+       
+              
+        <field>
+        <dc-schema>dc</dc-schema>
+         <dc-element>source</dc-element>
+         <dc-qualifier>content</dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Citation</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the standard citation for the previously issued instance of this item.</hint>
+         <label>Descrizione fisica</label>
+         <input-type>textarea</input-type>
+         <hint>Descrivere le caratteristiche fisiche della risorsa.</hint>
          <required></required>
-       </field>
+       </field>   
 
-       <field>
+      
+       
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>ispartofseries</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Series/Report No.</label>
+         <label>Serie/N.</label>
          <input-type>series</input-type>
-         <hint>Enter the series and number assigned to this item by your community.</hint>
+         <hint>Inserire nome e numero di serie della risorsa.</hint>
          <required></required>
        </field>
-
-       <field>
+       
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>identifier</dc-element>
          <dc-qualifier></dc-qualifier>
          <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
          <repeatable>true</repeatable>
-         <label>Identifiers</label>
+         <label>Identificativo</label>
          <input-type value-pairs-name="common_book_identifiers">qualdrop_value</input-type>
-         <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
+         <hint>Inserire numeri identificativi, codici, inventario, segnatura della risorsa.</hint>
          <required></required>
        </field>
 
-       <field>
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>type</dc-element>
          <dc-qualifier></dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Type</label>
+         <label>Tipologia del materiale</label>
          <input-type value-pairs-name="book_types">dropdown</input-type>
-         <hint>Nothing to do here. Note for administrators, this metadata could be completely hide using template item</hint>
+         <hint></hint>
          <required></required>
        </field>
 
-       <field>
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>language</dc-element>
          <dc-qualifier>iso</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Language</label>
+         <repeatable>true</repeatable>
+         <label>Lingua</label>
          <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
-         <hint>Select the language of the main content of the item.  If the language does not appear in the list, please select 'Other'.  If the content does not really have a language (for example, if it is a dataset or an image) please select 'N/A'.</hint>
+         <hint>Lingua della risorsa. Se la lingua non appare nell'elenco, selezionare 'Altra'. Se il contenuto non ha realmente una lingua (ad es., se si tratta di un set di dati o di un'immagine), selezionare 'Nessuna'.</hint>
          <required></required>
        </field>
      </page>
@@ -878,10 +919,10 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>subject</dc-element>
          <dc-qualifier></dc-qualifier>
          <!-- An input-type of twobox MUST be marked as repeatable -->
-         <repeatable>true</repeatable>
-         <label>Subject Keywords</label>
+          <repeatable>true</repeatable>
+         <label>Soggetto, parole chiave</label>
          <input-type>onebox</input-type>
-         <hint>Enter appropriate subject keywords or phrases. </hint>
+         <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
          <vocabulary>srsc</vocabulary>
        </field>
@@ -893,28 +934,39 @@ it, please enter the types and the actual numbers or codes.</hint>
          <repeatable>false</repeatable>
          <label>Abstract</label>
          <input-type>textarea</input-type>
-         <hint>Enter the abstract of the item. </hint>
-         <required></required>
-       </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>description</dc-element>
-         <dc-qualifier>sponsorship</dc-qualifier>
-         <repeatable>true</repeatable>
-         <label>Sponsors</label>
-         <input-type>onebox</input-type>
-         <hint> Enter the name of any sponsors. </hint>
+         <hint>Inserire l'abstract del contenuto della risorsa.</hint>
          <required></required>
        </field>
        
-       <field>
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <repeatable>true</repeatable>
-         <label>Project</label>
+         <label>Progetto</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of project, if any, that has produced this publication. </hint>
+         <hint>Inserire il titolo del progetto cui è eventualmente connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>journal</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Giornale</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome del giornale cui è eventualmente connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>person</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Persona</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
          <required></required>
        </field>
        
@@ -923,33 +975,68 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>relation</dc-element>
          <dc-qualifier>conference</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Conference</label>
+         <label>Evento collegato</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of the conference where the item has been presented, if any.</hint>
+         <hint>Inserire il titolo dell'evento/convegno nel cui ambito sia stata eventalmente presentata la risorsa.</hint>
          <required></required>
        </field>
        
        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
-         <dc-qualifier>dataset</dc-qualifier>
+         <dc-qualifier>fond</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Dataset</label>
+         <label>Fondo</label>
          <input-type>onebox</input-type>
-         <hint>Link the item to one or more existent dataset in the repository used or described by the publication or, put here the dataset citation</hint>
+         <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+         <required></required>
+       </field>
+       
+      <field> 
+       <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>opac</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Link all'OPAC</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'URL per l'attivazione del collegamento con l'Opac dell'Università di Pavia.</hint>
          <required></required>
        </field>
        
        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>otherlinks</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altri link bibliografici</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire le URL di collegamento ad altri link bibliografici.</hint>
+         <required></required>
+        </field>
+       
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>description</dc-element>
          <dc-qualifier></dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Description</label>
+         <label>Note</label>
          <input-type>textarea</input-type>
-         <hint> Enter any other description or comments in this box. </hint>
+         <hint>Inserire ogni altro eventuale commento/nota alla risorsa.</hint>
          <required></required>
        </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <required></required>
+       </field>
+       
+       
      </page>
    </form>
 
@@ -998,7 +1085,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Please give the date of previous publication or public distribution.
                         You can leave out the day and/or month if they aren't
                         applicable.</hint>
-         <required>You must enter at least the year.</required>
+         <required></required>
        </field>
 
        <field>
@@ -1163,7 +1250,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <hint>Please give the date of previous publication or public distribution.
                         You can leave out the day and/or month if they aren't
                         applicable.</hint>
-         <required>You must enter at least the year.</required>
+         <required></required>
        </field>
 
        <field>
@@ -1344,14 +1431,450 @@ it, please enter the types and the actual numbers or codes.</hint>
   
   <form name="archival_materials">
      <page number="1">
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipologia dell'unità di descrizione</label>
+         <input-type value-pairs-name="unit_of_description_types">dropdown</input-type>
+         <hint>Selezionare dal menu a discesa la tipologia dell'unità di descrizione della risorsa.</hint>
+         <required></required>
+       </field>
+       
        <field>
+	<dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>author</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Autore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+	<dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>corporatebody</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Soggetto produttore-organizzazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i dell'organizzazione che ha redatto il documento.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+	<dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>family</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Soggetto produttore-famiglia</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i della famiglia che ha redatto il documento.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+	<dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Titolo</label>
+         <input-type>onebox</input-type>
+         <hint>Titolo o denominazione formale della risorsa.</hint>
+         <required>Inserire il titolo o la denominazione formale della risorsa.</required>
+        </field>
+
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <dc-qualifier>alternative</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Titolo alternativo, incerto o attribuito</label>
+         <input-type>onebox</input-type>
+         <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</hint>
+         <required></required>
+       </field>
+
+         <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>issued</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Data puntuale</label>
+         <input-type>date</input-type>
+         <hint>Data puntuale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
+         <required></required>
+       </field>
+       
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>start</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Estremo cronologico iniziale</label>
+         <input-type>date</input-type>
+         <hint>Estremo cronologico iniziale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>end</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Estremo cronologico finale</label>
+         <input-type>date</input-type>
+         <hint>Estremo cronologico finale della risorsa. Tralasciare giorno e mese quando non definiti.</hint>
+         <required></required>
+       </field>
+       
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>coverage</dc-element>
+         <dc-qualifier>temporal</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Data secolare</label>
+         <input-type>onebox</input-type>
+         <hint>Data secolare della risorsa. Segnalare, ove possibile, la parte di secolo considerata.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>note</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Note alla data</label>
+         <input-type>onebox</input-type>
+         <hint></hint>
+         <required></required>
+       </field>
+       
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>source</dc-element>
+         <dc-qualifier>content</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Contenuto</label>
+         <input-type>textarea</input-type>
+         <hint>Descrivere il contenuto della risorsa</hint>
+         <required></required>
+       </field> 
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Identificativi della risorsa</label>
+         <input-type value-pairs-name="archival_materials_identifiers">qualdrop_value</input-type>
+         <hint>Inserire numeri identificativi, codici e/o segnature della risorsa.</hint>
+         <required></required>
+        </field>
+        
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>archivist</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Nota dell'archivista</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista.</hint>
+         <required></required>
+       </field>
+       
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>physical</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipologia fisica</label>
+         <input-type value-pairs-name="archival_materials_types">dropdown</input-type>
+         <hint>Indicare la tipologia fisica della risorsa.</hint>
+         <required></required>
+       </field>
+       
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>format</dc-element>
+         <dc-qualifier>medium</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipo di supporto</label>
+         <input-type>onebox</input-type>
+         <hint>Indicare il supporto fisico della risorsa.</hint>
+         <required></required>
+       </field>
+
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Descrizione estrinseca</label>
+         <input-type>textarea</input-type>
+         <hint>Descrivere le caratteristiche fisiche della risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>preservation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Stato di conservazione</label>
+         <input-type>onebox</input-type>
+         <hint>Indicare lo stato di conservazione della risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>preservationnote</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Note sullo stato di conservazione</label>
+         <input-type>onebox</input-type>
+         <hint>Indicare eventuali annotazioni relative allo stato di conservazione della risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>note</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Note sullo stato di conservazione</label>
+         <input-type>textarea</input-type>
+         <hint></hint>
+         <required></required>
+       </field>
+       
+       <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>language</dc-element>
+         <dc-qualifier>iso</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Lingua</label>
+         <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+         <hint>Lingua della risorsa. Se la lingua non appare nell'elenco, selezionare 'Altra'. Se il contenuto non ha realmente una lingua (ad es., se si tratta di un set di dati o di un'immagine), selezionare 'Nessuna'.</hint>
+         <required></required>
+       </field>
+     </page>
+     
+     <page number="2">
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>accessRights</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Condizione di accesso</label>
+         <input-type>onebox</input-type>
+         <hint></hint>
+         <required></required>
+        </field>
+        
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Condizione di riproduzione</label>
+         <input-type>onebox</input-type>
+         <hint></hint>
+         <required></required>
+        </field>
+        
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <required></required>
+       </field>
+        
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>note</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Note alla condizione di riproduzione</label>
+         <input-type>textarea</input-type>
+         <hint></hint>
+         <required></required>
+        </field>
+     
+       <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>subject</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <!-- An input-type of twobox MUST be marked as repeatable -->
+         <repeatable>true</repeatable>
+         <label>Parole chiave</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire parole chiave e/o descrittori di soggetto della risorsa.</hint>
+         <required></required>
+         <vocabulary>srsc</vocabulary>
+       </field>
+
+      <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <repeatable>true</repeatable>
+         <label>Progetto</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire, se presente, il titolo del progetto cui è connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+       <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>conference</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Evento collegato</label>
+         <input-type>onebox</input-type>
+         <hint> Inserire il titolo dell'evento/convegno cui è connessa la risorsa</hint>
+         <required></required>
+       </field>
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>fond</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Fondo</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyabbreviation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Abbreviazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il titolo della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyauthors</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Autore/i</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyeditor</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Curatore/i</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il curatore/i curatori della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+        <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographypublisher</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Editore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire  l'editore/gli editori delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyplace</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Luogo di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il luogo di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+       
+       
+              
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographytitle</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Titolo riferimento bibliografico</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il titolo della risorsa bibliografica</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>url</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>URL</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'URL</hint>
+         <required></required>
+       </field>
+       
+       
+             
+     </page>
+   </form>
+   
+   <form name="musical_librettos">
+     <page number="1">
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>contributor</dc-element>
          <dc-qualifier>author</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Authors</label>
+         <label>Autore</label>
          <input-type>onebox</input-type>
-         <hint>Enter the names of the authors of this item in the form Surname, Firstname [i.e. Smith, Josh or Smith, J].</hint>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+         <required></required>
+       </field>
+       
+           <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>contributor</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altro autore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
          <required></required>
        </field>
 
@@ -1360,10 +1883,10 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>title</dc-element>
          <dc-qualifier></dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Title</label>
+         <label>Titolo</label>
          <input-type>onebox</input-type>
-         <hint>Enter the main title of the item.</hint>
-         <required>You must enter a main title for this item.</required>
+         <hint>Inserire il titolo principale della risorsa.</hint>
+         <required></required>
        </field>
 
        <field>
@@ -1371,9 +1894,9 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>title</dc-element>
          <dc-qualifier>alternative</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Other Titles</label>
+         <label>Altro titolo</label>
          <input-type>onebox</input-type>
-         <hint>If the item has any alternative titles, please enter them here.</hint>
+         <hint>Inserire eventuali titoli alternativi, paralleli, attribuiti, ecc. della risorsa</hint>
          <required></required>
        </field>
 
@@ -1382,124 +1905,67 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>date</dc-element>
          <dc-qualifier>issued</dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Date of Issue</label>
+         <label>Data di pubblicazione</label>
          <input-type>date</input-type>
-         <hint>Please give the date of previous publication or public distribution.
-                        You can leave out the day and/or month if they aren't
-                        applicable.</hint>
-         <required>You must enter at least the year.</required>
-       </field>
-
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>date</dc-element>
-         <dc-qualifier>note</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Date Notes</label>
-         <input-type>onebox</input-type>
-         <hint>Comments concerning the dating.</hint>
+         <hint>Inserire la data di pubblicazione della risorsa.</hint>
          <required></required>
        </field>
-
+       
        <field>
-		 <dc-schema>dc</dc-schema>
+       <dc-schema>dc</dc-schema>
          <dc-element>publisher</dc-element>
          <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Publisher</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the name of the publisher of the previously issued instance of this item.</hint>
-         <required></required>
-       </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>identifier</dc-element>
-         <dc-qualifier>citation</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Citation</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the standard citation for the previously issued instance of this item.</hint>
-         <required></required>
-       </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>relation</dc-element>
-         <dc-qualifier>ispartofseries</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Series/Report No.</label>
-         <input-type>series</input-type>
-         <hint>Enter the series and number assigned to this item by your community.</hint>
+         <label>Editore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome formale dell'editore/stampatore della risorsa.</hint>
          <required></required>
        </field>
-
-       <field>
+       
+              
+        <field>
+        <dc-schema>dc</dc-schema>
+         <dc-element>source</dc-element>
+         <dc-qualifier>content</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Descrizione fisica</label>
+         <input-type>textarea</input-type>
+         <hint>Descrivere le caratteristiche fisiche della risorsa.</hint>
+         <required></required>
+       </field>      
+      
+       
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>identifier</dc-element>
          <dc-qualifier></dc-qualifier>
          <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
          <repeatable>true</repeatable>
-         <label>Identifiers</label>
-         <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
-         <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
-         <required></required>
-       </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>type</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>true</repeatable>
-         <label>Type</label>
-         <input-type value-pairs-name="common_types">dropdown</input-type>
-         <hint> Select the type(s) of content of the item. To select more than one value in the list, you may have to hold down the "CTRL" or "Shift" key.</hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>type</dc-element>
-         <dc-qualifier>physical</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Physical type</label>
-         <input-type>onebox</input-type>
-         <hint>Physical type of the archival unit</hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>format</dc-element>
-         <dc-qualifier>medium</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Medium</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the phisycal support of the original source</hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>source</dc-element>
-         <dc-qualifier>content</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Content</label>
-         <input-type>onebox</input-type>
-         <hint>Describe the physical resource from which the described item is derived</hint>
+         <label>Identificativo</label>
+         <input-type value-pairs-name="common_book_identifiers">qualdrop_value</input-type>
+         <hint>Inserire numeri identificativi, codici, inventario, segnatura della risorsa.</hint>
          <required></required>
        </field>
 
         <field>
 		 <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipologia del materiale</label>
+         <input-type value-pairs-name="book_types">dropdown</input-type>
+         <hint></hint>
+         <required></required>
+       </field>
+
+      <field>
+		 <dc-schema>dc</dc-schema>
          <dc-element>language</dc-element>
          <dc-qualifier>iso</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Language</label>
+         <repeatable>true</repeatable>
+         <label>Lingua</label>
          <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
-         <hint>Select the language of the main content of the item.  If the language does not appear in the list, please select 'Other'.  If the content does not really have a language (for example, if it is a dataset or an image) please select 'N/A'.</hint>
+         <hint>Lingua della risorsa. Se la lingua non appare nell'elenco, selezionare 'Altra'. Se il contenuto non ha realmente una lingua (ad es., se si tratta di un set di dati o di un'immagine), selezionare 'Nessuna'.</hint>
          <required></required>
        </field>
      </page>
@@ -1510,10 +1976,10 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>subject</dc-element>
          <dc-qualifier></dc-qualifier>
          <!-- An input-type of twobox MUST be marked as repeatable -->
-         <repeatable>true</repeatable>
-         <label>Subject Keywords</label>
+          <repeatable>true</repeatable>
+         <label>Soggetto, parole chiave</label>
          <input-type>onebox</input-type>
-         <hint>Enter appropriate subject keywords or phrases. </hint>
+         <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
          <vocabulary>srsc</vocabulary>
        </field>
@@ -1525,50 +1991,39 @@ it, please enter the types and the actual numbers or codes.</hint>
          <repeatable>false</repeatable>
          <label>Abstract</label>
          <input-type>textarea</input-type>
-         <hint>Enter the abstract of the item. </hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>description</dc-element>
-         <dc-qualifier>preservation</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Preservation</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the preservation state of the physical resource from which the physical item is derived</hint>
-         <required></required>
-       </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>description</dc-element>
-         <dc-qualifier>sponsorship</dc-qualifier>
-         <repeatable>true</repeatable>
-         <label>Sponsors</label>
-         <input-type>onebox</input-type>
-         <hint> Enter the name of any sponsors. </hint>
+         <hint>Inserire l'abstract del contenuto della risorsa.</hint>
          <required></required>
        </field>
        
-       <field>
+      <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <repeatable>true</repeatable>
-         <label>Project</label>
+         <label>Progetto</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of project, if any, that has produced this publication. </hint>
+         <hint>Inserire il titolo del progetto cui è eventualmente connessa la risorsa.</hint>
          <required></required>
        </field>
-
-       <field>
-		 <dc-schema>dc</dc-schema>
+       
+      <field>
+         <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
-         <dc-qualifier>ispartof</dc-qualifier>
+         <dc-qualifier>journal</dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Journal</label>
+         <label>Giornale</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of the journal where the item has been published, if any.</hint>
+         <hint>Inserire il nome del giornale cui è eventualmente connessa la risorsa.</hint>
+         <required></required>
+       </field>
+       
+      <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>person</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Persona</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
          <required></required>
        </field>
        
@@ -1577,68 +2032,83 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-element>relation</dc-element>
          <dc-qualifier>conference</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Related event</label>
+         <label>Evento collegato</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of an event related to the item</hint>
+         <hint>Inserire il nome dell'evento che ha costituito la prima rappresentazione dell’opera di cui si propone il libretto.</hint>
          <required></required>
        </field>
-
+       
+       <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>opera</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Opera originale</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il nome dell'opera originale da cui è tratto il libretto</hint>
+         <required></required>
+       </field>
+       
        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>fond</dc-qualifier>
          <repeatable>true</repeatable>
-         <label>Related fond</label>
+         <label>Fondo</label>
          <input-type>onebox</input-type>
-         <hint> Enter the name of the fond related to the item</hint>
+         <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
          <required></required>
        </field>
-              
-       <field>
-		 <dc-schema>dc</dc-schema>
-         <dc-element>description</dc-element>
-         <dc-qualifier></dc-qualifier>
+       
+      <field> 
+       <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>opac</dc-qualifier>
          <repeatable>false</repeatable>
-         <label>Description</label>
-         <input-type>textarea</input-type>
-         <hint> Enter any other description or comments in this box. </hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>accessRights</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Access rights</label>
+         <label>Link all'OPAC</label>
          <input-type>onebox</input-type>
-         <hint></hint>
-         <required></required>
-       </field>
-
-       <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>rights</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Use condition</label>
-         <input-type>onebox</input-type>
-         <hint></hint>
+         <hint>Inserire l'URL per l'attivazione del collegamento con l'Opac dell'Università di Pavia.</hint>
          <required></required>
        </field>
        
        <field>
-                 <dc-schema>dc</dc-schema>
-         <dc-element>rights</dc-element>
-         <dc-qualifier>holder</dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Library</label>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>otherlinks</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Altri link bibliografici</label>
          <input-type>onebox</input-type>
-         <hint></hint>
+         <hint>Inserire le URL di collegamento ad altri link bibliografici.</hint>
          <required></required>
        </field>
+       
+        <field>
+		 <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Note</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire ogni altro eventuale commento/nota alla risorsa.</hint>
+         <required></required>
+       </field>
+       
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <required></required>
+       </field>
+       
+       
      </page>
    </form>
+   
+   
 
  </form-definitions>
 
@@ -1657,25 +2127,21 @@ it, please enter the types and the actual numbers or codes.</hint>
  <!-- stores the associated stored-values in the database.                  -->
 
  <form-value-pairs>
-<value-pairs value-pairs-name="sale_info" dc-term="sale">
- 	<pair>
- 		<displayed-value>Not for sale</displayed-value>
-       <stored-value></stored-value>
+    <value-pairs value-pairs-name="unit_of_description_types" dc-term="type">
+     <pair>
+       <displayed-value>Registro o altra unità rilegata</displayed-value>
+       <stored-value>registry</stored-value>
      </pair>
      <pair>
-       <displayed-value>Anyone can buy</displayed-value>
-       <stored-value>Anonymous</stored-value>
+       <displayed-value>Fascicolo o altra unità complessa</displayed-value>
+       <stored-value>file</stored-value>
      </pair>
      <pair>
-       <displayed-value>First Membership</displayed-value>
-       <stored-value>First Membership</stored-value>
+       <displayed-value>Unità documentaria</displayed-value>
+       <stored-value>item</stored-value>
      </pair>
-     <pair>
-       <displayed-value>Second Membership</displayed-value>
-       <stored-value>Second Membership</stored-value>
-     </pair>
-     
-   	</value-pairs>
+   </value-pairs>
+   
    <value-pairs value-pairs-name="common_identifiers" dc-term="identifier">
      <pair>
        <displayed-value>DOI</displayed-value>
@@ -1772,32 +2238,40 @@ it, please enter the types and the actual numbers or codes.</hint>
        <stored-value>isbn</stored-value>
      </pair>
      <pair>
+       <displayed-value>ISSN</displayed-value>
+       <stored-value>issn</stored-value>
+     </pair>
+      <pair>
+       <displayed-value>BID</displayed-value>
+       <stored-value>bid</stored-value>
+     </pair>
+     <pair>
        <displayed-value>DOI</displayed-value>
        <stored-value>doi</stored-value>
      </pair>
      <pair>
-       <displayed-value>Scopus ID</displayed-value>
-       <stored-value>scopus</stored-value>
-     </pair>
-     <pair>
-       <displayed-value>WOS ID</displayed-value>
-       <stored-value>isi</stored-value>
-     </pair>
-     <pair>
-       <displayed-value>Pubmed ID</displayed-value>
-       <stored-value>pmid</stored-value>
-     </pair>
-     <pair>
-       <displayed-value>arXiv ID</displayed-value>
-       <stored-value>arxiv</stored-value>
-     </pair>
-     <pair>
-       <displayed-value>Gov't Doc #</displayed-value>
-       <stored-value>govdoc</stored-value>
-     </pair>
-     <pair>
        <displayed-value>URI</displayed-value>
        <stored-value>uri</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>NBN:IT ID</displayed-value>
+       <stored-value>NBN:IT</stored-value>
+     </pair>
+       <pair>
+       <displayed-value>Serie e Numero di inventario</displayed-value>
+       <stored-value>inventorynumber</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Segnatura</displayed-value>
+       <stored-value>shelfmark</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Altro</displayed-value>
+       <stored-value>other</stored-value>
+     </pair>
+       <pair>
+       <displayed-value>codex</displayed-value>
+       <stored-value>codex</stored-value>
      </pair>
    </value-pairs>
 
@@ -1862,6 +2336,33 @@ it, please enter the types and the actual numbers or codes.</hint>
        <stored-value>uri</stored-value>
      </pair>
    </value-pairs>
+   
+  <value-pairs value-pairs-name="archival_materials_identifiers" dc-term="identifier">
+     <pair>
+       <displayed-value>DOI</displayed-value>
+       <stored-value>doi</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>URI</displayed-value>
+       <stored-value>uri</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>NBN:IT ID</displayed-value>
+       <stored-value>NBN:IT</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Numero d'inventario</displayed-value>
+       <stored-value>inventorynumber</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Segnatura</displayed-value>
+       <stored-value>shelfmark</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Altro</displayed-value>
+       <stored-value>other</stored-value>
+     </pair>
+   </value-pairs> 
 
    <value-pairs value-pairs-name="common_types" dc-term="type">
      <pair>
@@ -1972,7 +2473,7 @@ it, please enter the types and the actual numbers or codes.</hint>
    <value-pairs value-pairs-name="book_types" dc-term="type">
      <pair>
        <displayed-value>Book</displayed-value>
-       <stored-value>Book</stored-value>
+       <stored-value>Volume a stampa</stored-value>
      </pair>
    </value-pairs>
 
@@ -2001,62 +2502,204 @@ it, please enter the types and the actual numbers or codes.</hint>
        <stored-value>Dataset</stored-value>
      </pair>
    </value-pairs>
+   
+    <value-pairs value-pairs-name="archival_materials_types" dc-term="type">
+     <pair>
+       <displayed-value>Album</displayed-value>
+       <stored-value>album</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Busta</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Cartella</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Faldone</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Fascicolo</displayed-value>
+       <stored-value>file</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Filza</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+	<displayed-value>Foglio</displayed-value>
+	<stored-value>sheet of paper</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Manifesto</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Mappa</displayed-value>
+       <stored-value>map</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Mazzo</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Opuscolo</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Pacco</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Plico</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Quaderno</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registro</displayed-value>
+       <stored-value>registry></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Rivista</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Rotolo</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+       <pair>
+       <displayed-value>Rotolo</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+      <pair>
+       <displayed-value>Scatola</displayed-value>
+       <stored-value>box</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Scheda</displayed-value>
+       <stored-value>card</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Taccuino</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Volume</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione sonora</displayed-value>
+       <stored-value>Recording, acoustical</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione musicale</displayed-value>
+       <stored-value>Recording, musical</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione vocale</displayed-value>
+       <stored-value>Recording, oral</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione video</displayed-value>
+       <stored-value>Video</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Altro</displayed-value>
+       <stored-value>Other</stored-value>
+     </pair>
+   </value-pairs>
 
    <!-- default language order: (from dspace 1.2.1)
         "en_US", "en", "es", "de", "fr", "it", "ja", "zh", "other", ""
      -->
    <value-pairs value-pairs-name="common_iso_languages" dc-term="language_iso">
-     <pair>
-       <displayed-value>N/A</displayed-value>
+      <pair>
+       <displayed-value>Nessuna</displayed-value>
        <stored-value></stored-value>
      </pair>
      <pair>
-       <displayed-value>English (United States)</displayed-value>
+       <displayed-value>Inglese (Stati Uniti)</displayed-value>
        <stored-value>en_US</stored-value>
       </pair>
      <pair>
-       <displayed-value>English</displayed-value>
+       <displayed-value>Inglese</displayed-value>
        <stored-value>en</stored-value>
      </pair>
      <pair>
-       <displayed-value>Spanish</displayed-value>
+       <displayed-value>Spagnolo</displayed-value>
        <stored-value>es</stored-value>
      </pair>
+       <pair>
+       <displayed-value>Portoghese</displayed-value>
+       <stored-value>pt</stored-value>
+     </pair>
      <pair>
-       <displayed-value>German</displayed-value>
+       <displayed-value>Tedesco</displayed-value>
        <stored-value>de</stored-value>
      </pair>
      <pair>
-       <displayed-value>French</displayed-value>
+       <displayed-value>Francese</displayed-value>
        <stored-value>fr</stored-value>
      </pair>
      <pair>
-       <displayed-value>Italian</displayed-value>
+       <displayed-value>Italiano</displayed-value>
        <stored-value>it</stored-value>
      </pair>
      <pair>
-       <displayed-value>Japanese</displayed-value>
+       <displayed-value>Giapponese</displayed-value>
        <stored-value>ja</stored-value>
      </pair>
      <pair>
-       <displayed-value>Chinese</displayed-value>
+       <displayed-value>Cinese</displayed-value>
        <stored-value>zh</stored-value>
      </pair>
      <pair>
-       <displayed-value>Turkish</displayed-value>
+       <displayed-value>Turco</displayed-value>
        <stored-value>tr</stored-value>
      </pair>
     <pair>
-       <displayed-value>Latin</displayed-value>
+       <displayed-value>Latino</displayed-value>
        <stored-value>la</stored-value>
      </pair>
     <pair>
-       <displayed-value>Ancient Greek</displayed-value>
+       <displayed-value>Greco Antico</displayed-value>
        <stored-value>grc</stored-value>
      </pair>
      <pair>
-       <displayed-value>(Other)</displayed-value>
+       <displayed-value>Altra</displayed-value>
        <stored-value>other</stored-value>
+     </pair>
+   </value-pairs>
+   
+    <value-pairs value-pairs-name="license_types" dc-term="type">
+     <pair>
+       <displayed-value>CC BY</displayed-value>
+       <stored-value>ccby</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-SA</displayed-value>
+       <stored-value>ccbysa</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-ND</displayed-value>
+       <stored-value>ccbynd</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC</displayed-value>
+       <stored-value>ccbync</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-SA</displayed-value>
+       <stored-value>ccbyncsa</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-ND</displayed-value>
+       <stored-value>ccbyncnd</stored-value>
      </pair>
    </value-pairs>
 

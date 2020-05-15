@@ -71,9 +71,6 @@
 				<entry key="fundingProgram">
 					<value>fundingProgram</value>
 				</entry>
-				<entry key="openAire">
-					<value>openaireid</value>
-				</entry>
 			</map>
 		</property>
 	</bean>	
@@ -132,7 +129,7 @@
 			</map>
 		</property>
 	</bean>
-	
+
 	<bean class="org.dspace.app.cris.integration.CrisEnhancer">
 		<property name="clazz">
 			<value>org.dspace.app.cris.model.ResearcherPage</value>
@@ -142,6 +139,73 @@
 			<map>
 				<entry key="networkevents">
 					<value>eventsplace</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean class="org.dspace.app.cris.integration.CrisFondsEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearchObject</value>
+		</property>
+		<property name="alias" value="creation" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="time">
+					<value>time</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="birthdate" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="deathdate" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="birthyear" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean class="org.dspace.app.cris.integration.CrisDateEnhancer">
+		<property name="clazz">
+			<value>org.dspace.app.cris.model.ResearcherPage</value>
+		</property>
+		<property name="alias" value="deathyear" />
+		<property name="qualifiers2path">
+			<map>
+				<entry key="normalized">
+					<value>normalized</value>
 				</entry>
 			</map>
 		</property>

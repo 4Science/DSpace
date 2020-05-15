@@ -5,17 +5,15 @@
  *
  * http://www.dspace.org/license/
  */
-.banner img {background-color: #FFFFFF;padding:15px;margin-top:20px;}
 .brand h4 {color: #999999}
-#communitylist-top-menu a, #userloggedin-top-menu a {padding-top:0.3em;padding-bottom:0.3em;}
 #user-top-menu, #userloggedin-top-menu {margin-right: 15px;}
-footer {padding-top: 1em;}
+.navbar-home {height:80px; margin-top:-7px;}
+footer {padding-top: 1em; background-color: #343434}
 footer.navbar-inverse {color: white;}
-footer .extra-footer{background-color: black; color:white;}
+footer .extra-footer{background-color: #004fa1; color:white;}
 #designedby img {margin-right: 5px;}
-#formsearch-top-menu {width: 310px;}
 div.panel.panel-primary ul.list-group li.list-group-item.active {border-left: 3px solid #428bca; background: white;}
-div.panel.panel-primary ul.list-group li.list-group-item.active .badge {background-color: #428bca;}
+div.panel.panel-primary ul.list-group li.list-group-item.active .badge {background-color: #2780e3;}
 ol.breadcrumb li {color: white; font-style: italic;}
 ol.breadcrumb li a {color: white; font-weight: bold; font-style: normal;}
 body.undernavigation {overflow-x: hidden;
@@ -176,7 +174,13 @@ div.carousel-inner div.item div.list-group-item div.list-group-item-heading h4.t
 
 .media {
 	padding: 1em;
-	border-radius: 0.4em; 
+	border-radius: 0.4em;
+}
+
+.thumbnail-heading .media {
+	padding: 0;
+	border-radius: 0;
+	background-color: #000;
 }
 
 .media.download, .media.download_aggregate, .media.download_count,
@@ -301,7 +305,6 @@ footer .container {
 	width:50%;
 }
 
-
 .nav > .researcher-menu-item-hidden {
 	display:none;
 }
@@ -341,4 +344,80 @@ div.row > label.col-md-2 {clear: left;}
 #mapExplore{
 	width: 100%; 
 	height: 350px;
+}
+
+.breadcrumb{
+	background-color: #004fa1;
+}
+
+footer, footer a {
+	color: #fff
+}
+
+footer .panel-body {
+}
+
+footer a:hover {
+	text-decoration: underline;
+}
+
+footer .horiz-list li {
+	padding: 0px;
+	display: inline-block;
+}
+
+footer .no-bullets-list {
+	list-style-type: none;
+}
+
+#designedby > a{
+	color: #fff
+}
+
+#designedby> a:hover{
+	text-decoration: underline;
+}
+
+.carousel-caption {
+	background:rgba(0, 79, 161, 0.54);
+	margin-bottom: 40px;
+	right: 20%;
+	left: 20%;
+}
+
+.carousel-caption a {
+	color: #fff;
+}
+
+@media (min-width:1200px){
+	.custom-col-lg-2{
+		width:24%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
+}
+
+@media (min-width:1400px){
+	.custom-col-lg-2{
+		width:22%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
+}
+
+@media (min-width:1600px){
+	.custom-col-lg-2{
+		width:18%;
+		float:left;
+		position: relative;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+  }
 }
