@@ -350,6 +350,11 @@ div.row > label.col-md-2 {clear: left;}
 	background-color: #004fa1;
 }
 
+.horiz-list li {
+	padding: 0px;
+	display: inline-block;
+}
+
 footer, footer a {
 	color: #fff
 }
