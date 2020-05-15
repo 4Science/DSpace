@@ -98,7 +98,7 @@
        </div>
        <nav class="navbar collapse navbar-collapse navbar-custom navbar-inverse" role="navigation">
          <ul id="top-menu" class="nav navbar-nav navbar-<%= isRtl ? "right":"left"%>">
-           <li class="navbar-home pull-<%= isRtl ? "right":"left"%> <%= currentPage.endsWith("/home.jsp")? "active" : "" %>"><a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img height="45" width="100" style="margin-bottom: -20px;" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a></li>
+           <li class="navbar-home pull-<%= isRtl ? "right":"left"%> <%= currentPage.endsWith("/home.jsp")? "active" : "" %>"><a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img class="navbar-logo" src="<%= request.getContextPath() %>/image/navbar-logo.png" alt="Digital Library logo" /></a></li>
 		  <% if(showCommList){ %>
 		   <li id="communitylist-top-menu" class="<%= currentPage.endsWith("/community-list")? 
         		   "active" : "" %>"><a href="<%= request.getContextPath() %>/community-list"><fmt:message key="jsp.layout.navbar-default.communities-collections"/></a></li>

@@ -523,6 +523,12 @@ img::-moz-selection {
 	margin-bottom: -27px;
 }
 
+.navbar-logo {
+	/*height: 45px;*/
+	/*width: 100px;*/
+	margin-bottom: -30px;
+}
+
 .navbar-language {
 	font-size: 14px;
 	margin-bottom: 0px;
