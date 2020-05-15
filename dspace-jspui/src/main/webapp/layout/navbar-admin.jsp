@@ -63,7 +63,7 @@
            <span class="icon-bar"></span>
            <span class="icon-bar"></span>
          </button>
-         <a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img height="45" width="100" style="margin-bottom: -20px;" src="<%= request.getContextPath() %>/image/digital-library-pavia-logo.png" alt="Digital Library Pavia logo" /></a>
+         <a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img class="navbar-logo" src="<%= request.getContextPath() %>/image/navbar-logo.png" alt="Digital Library logo" /></a>
        </div>
        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
          <ul class="nav navbar-nav">
