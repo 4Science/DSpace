@@ -48,7 +48,7 @@
 <%@page import="org.dspace.discovery.configuration.DiscoverySearchFilter" %>
 
 <%
-	int discovery_panel_cols = 12;
+	String discovery_panel_cols = "10 col-sm-12 col-md-offset-1";
 	int discovery_facet_cols = 4;
 	List<DiscoverySearchFilter> filters = (List<DiscoverySearchFilter>) request.getAttribute("filters");
 	String sHideFacets = ConfigurationManager.getProperty("cris", "explore.hide-facets." + (String)request.getAttribute("location"));
@@ -101,17 +101,7 @@ function submitForm() {
 </c:set>
 <dspace:layout locbar="link" parenttitlekey="${fmtkey}" parentlink="/cris/explore/${location}" titlekey="${fmtkey}">
 <div class="row">
-	<c:if test="${not empty browseNames && browseNames.size() > 0}">
-		<div class="col-sm-4 col-md-3">
-			<h2><fmt:message key="jsp.general.browse" /></h2>
-			<ul class="nav nav-pills nav-stacked cris-tabs-menu">
-			<c:forEach var="browse"  items="${browseNames}">
-				<li><a href="<%= request.getContextPath() %>/browse?type=${browse}"><fmt:message key="browse.menu.${browse}" /></a></li>
-			</c:forEach>
-			</ul>
-		</div>
-	</c:if>
-	<div class="${not empty browseNames && browseNames.size() > 0 ? 'col-sm-8 col-md-9' : 'col-md-10 col-md-offset-1'}">
+	<div class="col-sm-12 col-md-10 col-md-offset-1">
 		<h2><fmt:message key="jsp.explore.${location}.search" /></h2>
 		<form id="searchform" class="form-group" action="<%= request.getContextPath() %>/simple-search">
 			<input type="hidden" id="location" name="location" value="${location}" />
@@ -212,28 +202,51 @@ function submitForm() {
 	</div>
 </div>
 <div class="clearfix"></div>
+<div class="row">
+	<c:if test="${not empty browseNames && browseNames.size() > 0}">
+		<div class="col-sm-12 col-md-10 col-md-offset-1">
+			<h2><fmt:message key="jsp.general.browse" /></h2>
+			<ul class="nav nav-pills nav-stacked cris-tabs-menu horiz-list">
+			<c:forEach var="browse"  items="${browseNames}">
+				<li><a href="<%= request.getContextPath() %>/browse?type=${browse}"><fmt:message key="browse.menu.${browse}" /></a></li>
+			</c:forEach>
+			</ul>
+		</div>
+	</c:if>
+</div>
+<br />
+<br />
+<div class="clearfix"></div>
+
 	<div class="row">
-		<div class="col-sm-6">
+	<% if (!hideFacets) { %>
+		<c:set var="discovery.searchScope" value="${location}" scope="request"/>
+		<%@ include file="/discovery/static-sidebar-facet.jsp" %>
+	<% } %>
+	</div>
+
+<div class="row">
+		<div class="col-sm-6 col-md-5 col-md-offset-1">
 		<%
 			RecentSubmissions submissions = (RecentSubmissions) request.getAttribute("top_recentsubmission");
 		%>
 		<%@ include file="/dspace-cris/explore/topObjectsRecent.jsp" %>
 		</div>
-		<div class="col-sm-6">
+		<div class="col-sm-6 col-md-5">
 		<%
 			RecentSubmissions viewed = (RecentSubmissions) request.getAttribute("top_view");
 		%>
 		<%@ include file="/dspace-cris/explore/topObjectsViewed.jsp" %>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-sm-6">
+</div>
+<div class="row">
+		<div class="col-sm-6 col-md-5 col-md-offset-1">
 		<%
 			RecentSubmissions cited = (RecentSubmissions) request.getAttribute("top_cited");
 		%>
 		<%@ include file="/dspace-cris/explore/topObjectsCited.jsp" %>
 		</div>	
-		<div class="col-sm-6">
+		<div class="col-sm-6 col-md-5">
 		<%
 			RecentSubmissions download = (RecentSubmissions) request.getAttribute("top_download");
 		%>
@@ -246,12 +259,5 @@ function submitForm() {
 		<%@ include file="/dspace-cris/explore/topObjectsMap.jsp" %>
 		</div>
 		
-	</div>
-
-	<div class="row">
-	<% if (!hideFacets) { %>
-		<c:set var="discovery.searchScope" value="${location}" scope="request"/>
-		<%@ include file="/discovery/static-sidebar-facet.jsp" %>
-	<% } %>
-	</div>
+</div>
 </dspace:layout>
