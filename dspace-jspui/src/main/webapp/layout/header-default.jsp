@@ -35,6 +35,7 @@
     String navbar = (String) request.getAttribute("dspace.layout.navbar");
     boolean locbar = ((Boolean) request.getAttribute("dspace.layout.locbar")).booleanValue();
     String topNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
+    boolean showTopNews = ConfigurationManager.getBooleanProperty("cris", "homepage.show-topnews");
 
     String siteName = ConfigurationManager.getProperty("dspace.name");
     String feedRef = (String)request.getAttribute("dspace.layout.feedref");
@@ -285,17 +286,44 @@ window.cookieconsent.initialise({
 <main id="content" role="main">
 
 <% String currentPage = UIUtil.getOriginalURL(request);
-   if (currentPage.contains("?")) {
-      currentPage = currentPage.substring(0, currentPage.lastIndexOf("?"));
-   }
-   if (!currentPage.endsWith("/home.jsp")) { %>
-<div class="container-fluid intro-background">
-</div>
-<% } %>
+if (currentPage.contains("?")) {
+    currentPage = currentPage.substring(0, currentPage.lastIndexOf("?"));
+} %>
+
 <% if (currentPage.endsWith("/home.jsp")) { %>
-<div class="row">
-	<%= topNews %>
+  <% if (showTopNews) { %>
+  <div class="row">
+      <%= topNews %>
+  </div>
+  <% } else { %>
+  <div class="intro intro-background">
+	<div class="intro-body">
+	    <div class="container shp-transparent">
+	        <div class="row">
+	            <div class="col-md-8 col-md-offset-2">
+	                <h1 class="brand-heading"><img alt="Digital Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/homepage/top-logo.png"></h1>
+	                <a href="#about" class="btn custom-btn-circle btn-circle page-scroll">
+	                    <i class="fa fa-angle-double-down animated"></i>
+	                </a>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+  </div>
+  <br />
+  <a name="about"></a>
+  <% } %>
+<% } else { %>
+<div class="container-fluid intro-background">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="brand-heading">
+               <img alt="Library logo" class="img-responsive" src="<%= request.getContextPath() %>/image/top-logo.png">
+            </h1>
+        </div>
+    </div>
 </div>
+<br />
 <% } %>
                 <%-- Location bar --%>
 <%
