@@ -33,8 +33,8 @@
 	</script>
     
 </c:set>
-<dspace:layout locbar="link" style="submission" navbar="admin" titlekey="jsp.dspace-admin.crisconfiguration">
-	<h1><fmt:message key="jsp.dspace-admin.crisconfiguration"><fmt:param>${fn:toUpperCase(path)}</fmt:param></fmt:message>
+<dspace:layout locbar="link" style="submission" navbar="admin" titlekey="jsp.dspace-admin.crisconfiguration.${path}">
+	<h1><fmt:message key="jsp.dspace-admin.crisconfiguration.${path}"/>
 		<a target="_blank" class="pull-right" href='<%=request.getContextPath()%><%=LocaleSupport.getLocalizedMessage(pageContext,
                               "help.site-admin.do")%>'><fmt:message
 		key="jsp.help" /></a></h1>
@@ -58,7 +58,7 @@
 		</li>
 		<li>
 			<a id="addentity" href="#"><fmt:message
-			key="jsp.dspace-admin.crisconfiguration.add"><fmt:param>${fn:toUpperCase(path)}</fmt:param></fmt:message></a>	
+			key="jsp.dspace-admin.crisconfiguration.add.${path}"/></a>
 		
 		<div style="display: none; float: right;"><c:set
 			var="contextPath"><%=request.getContextPath()%></c:set> <form:form 
@@ -70,7 +70,7 @@
 		</li>
 		<li>
 			<a href="<%=request.getContextPath()%>/cris/administrator/${path}/list.htm"><fmt:message
-			key="jsp.dspace-admin.crisconfiguration.see"><fmt:param>${fn:toUpperCase(path)}</fmt:param></fmt:message></a>
+			key="jsp.dspace-admin.crisconfiguration.see.${path}"/></a>
 		</li>
 	</ul>
 </dspace:layout>
