@@ -189,7 +189,7 @@
 	<c:set var="title"><fmt:message key='jsp.layout.do.detail.name'><fmt:param>${entity.typo.label}</fmt:param><fmt:param>${name}</fmt:param></fmt:message></c:set>
 </c:if>
 
-<dspace:layout title="${title}">
+<dspace:layout title="${name}">
 
 <div id="content">
 <div class="row">
