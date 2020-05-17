@@ -15,6 +15,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.cris.discovery.ConfiguratorProfile;
 import org.dspace.app.cris.discovery.ConfiguratorResource;
@@ -25,6 +26,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.handle.HandleManager;
 import org.dspace.utils.DSpace;
 
@@ -83,10 +85,14 @@ public class Resource extends JSONRequest
             {
                 boolean addNode = false;
                 JSDetailsDTO node = new JSDetailsDTO();
-                // TODO manage labelkey
-                // node.setLabel(I18nUtil.getMessage(pp.getLabel(),
-                // context.getCurrentLocale(), false));
-                node.setLabel(pp.getLabel());
+                String label = "";
+                if (StringUtils.isNotBlank(pp.getLabelKey())) {
+                    label = I18nUtil.getMessage(pp.getLabelKey(), context.getCurrentLocale(), false);
+                }
+                if (StringUtils.isBlank(label) || label.equals(pp.getLabelKey())) {
+                    label = pp.getLabel();
+                }
+                node.setLabel(label);
                 if (pp.isUrl())
                 {
                     List<String> urls = new ArrayList<String>();
