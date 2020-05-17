@@ -39,36 +39,43 @@
 					<list>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Name" />
+							<property name="labelKey" value="tree.fonds.name"/>
 							<property name="metadata" value="fondsname" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Person" />
+							<property name="labelKey" value="tree.fonds.creatorperson"/>
 							<property name="metadata" value="fondscreatorperson" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Family" />
+							<property name="labelKey" value="tree.fonds.creatorfamily"/>
 							<property name="metadata" value="fondscreatorfamily" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Corporate Body" />
+							<property name="labelKey" value="tree.fonds.creatorcorporatebody"/>
 							<property name="metadata" value="fondscreatorcorporatebody" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Type" />
+							<property name="labelKey" value="tree.fonds.type"/>
 							<property name="metadata" value="fondstype" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Description" />
+							<property name="labelKey" value="tree.fonds.description"/>
 							<property name="metadata" value="fondsdescription" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Url" />
+							<property name="labelKey" value="tree.fonds.url"/>
 							<property name="metadata" value="url::handle" />
 							<property name="url" value="true" />
 						</bean>
@@ -77,17 +84,20 @@
 				<entry key="item-1">
 					<list>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Name" />
+							<property name="label" value="Author" />
+							<property name="labelKey" value="tree.item.author"/>
 							<property name="metadata" value="dc.contributor.author" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Description" />
+							<property name="label" value="Title" />
+							<property name="labelKey" value="tree.item.title"/>
 							<property name="metadata" value="dc.title" />
 							<property name="url" value="false" />
 						</bean>
 						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
 							<property name="label" value="Url" />
+							<property name="labelKey" value="tree.item.url"/>
 							<property name="metadata" value="url::handle" />
 							<property name="url" value="true" />
 						</bean>
