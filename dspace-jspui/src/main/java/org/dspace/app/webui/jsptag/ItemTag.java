@@ -949,7 +949,7 @@ public class ItemTag extends TagSupport {
 	public static boolean hideNotPrimaryBitstreams(Context context, Item item)
 			throws SQLException, UnsupportedEncodingException {
 
-		for (Bundle bundle : item.getBundles("ORIGINAL")) {
+		for (Bundle bundle : item.getBundles()) {
 			if (bundle.getBitstreams().length > 0) {
 				int primaryBitID = bundle.getPrimaryBitstreamID();
 				Bitstream primaryBit = null;
