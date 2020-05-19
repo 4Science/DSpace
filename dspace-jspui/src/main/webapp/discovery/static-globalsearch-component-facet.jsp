@@ -95,6 +95,7 @@
 	Map<String, String> mapFacetFirstLevel = (Map<String, String>) request.getAttribute("facetGlobalFirstLevel");
 	Map<String, String> mapFacetSecondLevel = (Map<String, String>) request.getAttribute("facetGlobalSecondLevel");
 	
+	boolean showGlobalComponents = ConfigurationManager.getBooleanProperty("cris", "homepage.show-globalcomponents");
 %>
 		
 		
@@ -152,7 +153,7 @@
 
 
 
-<%
+<% if (showGlobalComponents) {
 	long totGroupLeft = 0;
 		long totGroupCenter = 0;
 		long totGroupRight = 0;
@@ -392,3 +393,4 @@
 		%>
 		</ul>
 </div>
+<% } %>
