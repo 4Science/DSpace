@@ -308,7 +308,7 @@
 		<property name="defaultFilterQueries">
 			<list>
 				<!--Find all software entity types -->
-				<value>search.resourcetype:2 OR search.resourcetype:[9 TO 11] OR search.resourcetype:[1001 TO 9999]</value>
+				<value>search.resourcetype:2 OR search.resourcetype:9</value>
 			</list>
 		</property>
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
