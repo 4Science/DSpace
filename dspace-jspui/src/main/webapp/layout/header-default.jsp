@@ -344,7 +344,7 @@ if (currentPage.contains("?")) {
 
 
         <%-- Page contents --%>
-<div class="container-fluid shp-margin fullheight">
+<div class="container-fluid shp-margin">
 <% if (request.getAttribute("dspace.layout.sidebar") != null) { %>
 	<div class="row">
 		<div class="col-md-9 <%= isRtl ? "pull-right":"" %>">
