@@ -9,13 +9,18 @@ package org.dspace.curate;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang3.StringUtils;
 
 import org.dspace.content.Site;
 import org.dspace.core.Context;
@@ -40,8 +45,10 @@ public class CurationCli
                 "curation task name");
         options.addOption("T", "taskfile", true,
                 "file containing curation task names");
-        options.addOption("i", "id", true,
-                "Id (handle) of object to perform task on, or 'all' to perform on whole repository");
+        Option idOption = new Option("i", "id", true,
+                "list of handles separated by space of objects to perform task on, or 'all' to perform on whole repository");
+        idOption.setArgs(Option.UNLIMITED_VALUES);
+        options.addOption(idOption);
         options.addOption("q", "queue", true,
                  "name of task queue to process");
         options.addOption("e", "eperson", true,
@@ -60,7 +67,7 @@ public class CurationCli
 
         String taskName = null;
         String taskFileName = null;
-        String idName = null;
+        String[] idNames = null;
         String taskQueueName = null;
         String ePersonName = null;
         String reporterName = null;
@@ -93,7 +100,7 @@ public class CurationCli
 
         if (line.hasOption('i'))
         { // id
-            idName = line.getOptionValue('i');
+            idNames = line.getOptionValues('i');
         }
 
         if (line.hasOption('q'))
@@ -127,9 +134,9 @@ public class CurationCli
         }
 
         // now validate the args
-        if (idName == null && taskQueueName == null)
+        if ((idNames == null || idNames.length == 0) && taskQueueName == null)
         {
-            System.out.println("Id must be specified: a handle, 'all', or a task queue (-h for help)");
+            System.out.println("Id must be specified: multiple handles separated by space, 'all', or a task queue (-h for help)");
             System.exit(1);
         }
 
@@ -226,21 +233,24 @@ public class CurationCli
         {
             System.out.println("Starting curation");
         }
-        if (idName != null)
+        if (idNames != null && idNames.length > 0)
         {
-            if (verbose)
-            {
-               System.out.println("Curating id: " + idName);
-            }
-            if ("all".equals(idName))
-            {
-            	// run on whole Site
-            	curator.curate(c, Site.getSiteHandle());
-            }
-            else
-            {
-                curator.curate(c, idName);
-            }
+        	for (String idName : idNames) 
+        	{
+	            if (verbose)
+	            {
+	               System.out.println("Curating id: " + idName);
+	            }
+	            if ("all".equals(idName))
+	            {
+	            	// run on whole Site
+	            	curator.curate(c, Site.getSiteHandle());
+	            }
+	            else
+	            {
+	                curator.curate(c, idName);
+	            }
+        	}
         }
         else
         {

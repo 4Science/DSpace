@@ -445,25 +445,35 @@ public class OrcidService extends RestSource
     public List<AuthorityValue> queryOrcidBioByFamilyNameAndGivenName(
             String text, int start, int max) throws IOException
     {
-        DCPersonName tmpPersonName = new DCPersonName(text);
-
         StringBuilder query = new StringBuilder();
-        if (StringUtils.isNotBlank(tmpPersonName.getLastName()))
-        {
-            query.append("family-name:(").append(tmpPersonName.getLastName().trim())
-            		.append( (StringUtils.isNotBlank(tmpPersonName.getFirstNames()) 
-            				? "" : "*") )
-            					.append(")");
-        }
 
-        if (StringUtils.isNotBlank(tmpPersonName.getFirstNames()))
-        {
-            query.append( (query.length() > 0 
-            		? " AND given-names:(" : "given-names:(") )
-            			.append(tmpPersonName.getFirstNames().trim()).append("*)");
+        if(StringUtils.isNotBlank(text)) {
+            DCPersonName tmpPersonName = new DCPersonName(text);
+            query.append("(");
+            if (StringUtils.isNotBlank(tmpPersonName.getLastName()))
+            {
+                query.append("family-name:(").append(tmpPersonName.getLastName().trim())
+                		.append( (StringUtils.isNotBlank(tmpPersonName.getFirstNames()) 
+                				? "" : "*") )
+                					.append(")");
+            }
+    
+            if (StringUtils.isNotBlank(tmpPersonName.getFirstNames()))
+            {
+                if (StringUtils.isNotBlank(tmpPersonName.getLastName())) {
+                    query.append(" AND ");        
+                }
+                query.append("given-names:(")
+                			.append(tmpPersonName.getFirstNames().trim()).append("*)");
+            }
+            query.append(")");
+            query.append(" OR ");
+            query.append("other-names:(").append(text).append(")");
         }
-
-        query.append(" OR other-names:(").append(text).append(")");
+        else {
+            //default action, should be never used 
+            query.append("other-names:*");
+        }
 
         List<Result> results = search(query.toString(), start, max);
 
