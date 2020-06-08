@@ -48,7 +48,141 @@
        </row>
    </form>      
    
-   <form name="traditionalpageone">
+	<form name="traditionalpageone">
+            <row>
+                <relation-field>
+                    <relationship-type>isAuthorOfPublication</relationship-type>
+                    <search-configuration>person</search-configuration>
+                    <repeatable>true</repeatable>
+                    <name-variants>true</name-variants>
+                    <label>Author</label>
+                    <hint>Add an author</hint>
+                    <linked-metadata-field>
+                        <dc-schema>dc</dc-schema>
+                        <dc-element>contributor</dc-element>
+                        <dc-qualifier>author</dc-qualifier>
+                        <input-type>name</input-type>
+                    </linked-metadata-field>
+                    <required></required>
+                </relation-field>
+            </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Title</label>
+         <input-type>onebox</input-type>
+         <hint>Enter the main title of the item.</hint>
+         <required>You must enter a main title for this item.</required>
+         <!--    <language value-pairs-name="common_iso_languages">true</language> -->
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <dc-qualifier>alternative</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Other Titles</label>
+         <input-type>onebox</input-type>
+         <hint>If the item has any alternative titles, please enter them here.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>issued</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Date of Issue</label>
+         <style>col-sm-4</style>
+         <input-type>date</input-type>
+         <hint>Please give the date of previous publication or public distribution.
+                        You can leave out the day and/or month if they aren't
+                        applicable.</hint>
+         <required>You must enter at least the year.</required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>publisher</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Publisher</label>
+         <style>col-sm-8</style>
+         <input-type>onebox</input-type>
+         <hint>Enter the name of the publisher of the previously issued instance of this item.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>citation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Citation</label>
+         <input-type>onebox</input-type>
+         <hint>Enter the standard citation for the previously issued instance of this item.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>ispartofseries</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Series/Report No.</label>
+         <input-type>series</input-type>
+         <hint>Enter the series and number assigned to this item by your community.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
+         <repeatable>true</repeatable>
+         <label>Identifiers</label>
+         <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+         <hint>If the item has any identification numbers or codes associated with
+it, please enter the types and the actual numbers or codes.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Type</label>
+         <input-type value-pairs-name="common_types">dropdown</input-type>
+         <hint>Select the type(s) of content of the item. To select more than one value in the list, you may have to hold down the "CTRL" or "Shift" key.</hint>
+         <required></required>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>language</dc-element>
+         <dc-qualifier>iso</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Language</label>
+         <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+         <hint>Select the language of the main content of the item.  If the language does not appear in the list, please select 'Other'.  If the content does not really have a language (for example, if it is a dataset or an image) please select 'N/A'.</hint>
+         <required></required>
+       </field>
+     </row>
+	</form>
+   
+   <form name="traditionalpageone-cris">
 	 <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -730,6 +864,214 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
     
+   <!-- Form patent [START] -->
+   <form name="patent">
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <label>Title</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required>You must specify a title for the patent</required>
+         <hint>The title of the patent</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>dateAccepted</dc-element>
+         <label>Approval Date</label>
+         <input-type>date</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The Approval date.
+You can leave out the day and/or month if they aren't applicable.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>issued</dc-qualifier>
+         <label>Registration Date</label>
+         <input-type>date</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The registration date of the patent.
+You can leave out the day and/or month if they aren't applicable.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>contributor</dc-element>
+         <dc-qualifier>author</dc-qualifier>
+         <label>Inventor(s)</label>
+         <input-type>name</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>The inventor: The actual devisor of an invention that is the subject of a patent.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>rightsHolder</dc-element>
+         <label>Holder</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>The holders of this patent</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>publisher</dc-element>
+         <label>Issuer</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>The issuer of the patent: the patent office</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>patentno</dc-qualifier>
+         <label>Patent Number</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The patent number.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>patentnumber</dc-qualifier>
+         <label>Patent Number</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The patent number.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <label>Type</label>
+         <input-type value-pairs-name="patent_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>You must select a patent type</required>
+         <hint>Select the type of content of the patent.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>applicationnumber</dc-qualifier>
+         <label>Application Number</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The Application number.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>filled</dc-qualifier>
+         <label>Date filled</label>
+         <input-type>date</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>The date Filled.</hint>
+       </field>
+     </row>
+   </form>
+   <form name="patent_indexing">
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>language</dc-element>
+         <dc-qualifier>iso</dc-qualifier>
+         <label>Language</label>
+         <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Select the country and its language.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>subject</dc-element>
+         <label>Subject Keyword(s)</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>Enter appropriate subject keywords or phrases.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>abstract</dc-qualifier>
+         <label>Abstract</label>
+         <input-type>textarea</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Enter the description of the patent.</hint>
+       </field>
+     </row>
+   </form>
+   <form name="patent_references">
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <label>Originates From</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>Enter the name of project, if any, that has produced this patent.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>patent</dc-qualifier>
+         <label>Predecessor</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>Patents that precede (i.e., have priority over) this patent</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>references</dc-qualifier>
+         <label>References</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>Result outputs that are referenced by this patent</hint>
+       </field>
+     </row>
+   </form>
+   <!-- Form patent [END] -->
+
  </form-definitions>
 
 
@@ -938,6 +1280,25 @@ it, please enter the types and the actual numbers or codes.</hint>
        <stored-value>other</stored-value>
      </pair>
    </value-pairs>
+   <!-- patent value pairs -->
+   <value-pairs value-pairs-name="patent_types" dc-term="patent_types">
+      <pair>
+        <displayed-value>Use by owner</displayed-value>
+        <stored-value>Use by owner</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Licensing</displayed-value>
+        <stored-value>Licensing</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sale</displayed-value>
+        <stored-value>Sale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Other</displayed-value>
+        <stored-value>Other</stored-value>
+      </pair>
+    </value-pairs>
 
     <value-pairs value-pairs-name="publication_types" dc-term="publication_types">
       <pair>

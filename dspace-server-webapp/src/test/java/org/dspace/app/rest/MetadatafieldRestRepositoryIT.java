@@ -74,7 +74,7 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/metadatafields")
-                                .param("size", String.valueOf(100)))
+                                .param("size", String.valueOf(200)))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.metadatafields", Matchers.hasItems(
@@ -86,7 +86,7 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
                    .andExpect(jsonPath("$._links.next.href", Matchers.containsString("/api/core/metadatafields")))
                    .andExpect(jsonPath("$._links.last.href", Matchers.containsString("/api/core/metadatafields")))
 
-                   .andExpect(jsonPath("$.page.size", is(100)));
+                   .andExpect(jsonPath("$.page.size", is(200)));
     }
 
     @Test
@@ -130,14 +130,14 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
 
         getClient().perform(get("/api/core/metadatafields/search/bySchema")
                                 .param("schema", "dc")
-                                .param("size", String.valueOf(100)))
+                                .param("size", String.valueOf(200)))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.metadatafields", Matchers.hasItems(
                        MetadataFieldMatcher.matchMetadataFieldByKeys("dc", "title", null),
                        MetadataFieldMatcher.matchMetadataFieldByKeys("dc", "date", "issued"))
                    ))
-                   .andExpect(jsonPath("$.page.size", is(100)));
+                   .andExpect(jsonPath("$.page.size", is(200)));
 
         getClient().perform(get("/api/core/metadatafields/search/bySchema")
                                 .param("schema", schema.getName()))
@@ -178,7 +178,7 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
 
         String authToken = getAuthToken(admin.getEmail(), password);
         AtomicReference<Integer> idRef = new AtomicReference<>();
-
+        try {
         assertThat(metadataFieldService.findByElement(context, metadataSchema, ELEMENT, QUALIFIER), nullValue());
 
         getClient(authToken)
@@ -194,6 +194,9 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$", MetadataFieldMatcher.matchMetadataFieldByKeys(
                                 metadataSchema.getName(), "testElementForCreate", "testQualifierForCreate")));
+        } finally {
+            MetadataFieldBuilder.deleteMetadataField(idRef.get());
+        }
     }
 
     @Test
