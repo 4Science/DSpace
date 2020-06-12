@@ -93,6 +93,7 @@ public class ScopusService
         String proxyHost = ConfigurationManager.getProperty("http.proxy.host");
         String proxyPort = ConfigurationManager.getProperty("http.proxy.port");
         String apiKey = ConfigurationManager.getProperty("submission.lookup.scopus.apikey");
+        String token = ConfigurationManager.getProperty("submission.lookup.scopus.insttoken");
         
         List<Record> results = new ArrayList<>();
         if (!ConfigurationManager.getBooleanProperty(SubmissionLookupService.CFG_MODULE, "remoteservice.demo"))
@@ -114,9 +115,14 @@ public class ScopusService
                 boolean lastPageReached= false;
                 while(!lastPageReached){
                         // open session
-		                method = new GetMethod(ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey="+ apiKey +"&view=COMPLETE&start="+start+"&query="+URLEncoder.encode(query));
+                		String call = ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey="+ apiKey;
+                		if(StringUtils.isNotBlank(token)) {
+                			call+="&insttoken="+token;
+                		}
+                		call+= "&view=COMPLETE&start="+start+"&query="+URLEncoder.encode(query);
 		
 		                // Execute the method.
+                		method = new GetMethod(call);
 		                int statusCode = client.executeMethod(method);
 		                
 		                if (statusCode != HttpStatus.SC_OK)
