@@ -50,8 +50,10 @@
 
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
-    String centralNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-central.html"));
-    String sideNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
+
+    // to use central or side news uncomment following lines, customize homepage and configure news service
+    // String centralNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-central.html"));
+    // String sideNews = NewsManager.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
 
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
     String feedData = "NONE";
