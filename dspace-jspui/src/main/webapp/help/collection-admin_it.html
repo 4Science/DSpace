@@ -1,0 +1,58 @@
+<!--
+           The contents of this file are subject to the license and copyright
+    detailed in the LICENSE and NOTICE files at the root of the source
+    tree and available online at
+       http://www.dspace.org/license/
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Guida on line per l'amministratore della Collection</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="../styles.css" type="text/css"/>
+  </head>
+      <body class="help">
+    <h2>Guida per l'amministratore della collection</h2>
+        <table>
+      <tr>
+        <td align="left"><h3>Indice</h3></td>
+        <td align="right"><a href="#" onclick="window.close()">Chiudi questa finestra</a></td>
+      </tr>
+    </table>
+        <ul>
+      <li><a href="#general">Informazioni generali</a></li>
+      <li><a href="#submitters">Aggiungere e rimuovere un operatore autorizzato</a></li>
+      <li><a href="#groupeditor">Gestire un gruppo</a></li>
+      <li><a href="#editmetadata">Modificare i metadati degli Item</a></li>
+      <li><a href="#withdraw">Rimuovere un Item</a></li>
+      <li><a href="#itemmap">Includeregli item  di altre collezioni (mappatura degli item)</a></li>
+    </ul>
+          <h3><a name="general"></a>Informazioni Generali</h3>
+         <p>Se sei un amministratore di collezione, dovrai effettuare il login prima che i controlli di amministrazione appaiano nell'interfaccia utente di DSpace.  Il modo pi&ugrave; semplice per farlo &egrave; andare alla pagina 'My DSpace'.  Poi, andare alla pagina iniziale della collection di interesse.  In alto a destra della pagina vedrete alcuni controlli extra.  Inoltre, sulle pagine degli oggetti di una collezione che si amministra, si vedr&agrave; un pulsante extra 'Modifica' accanto agli handle dell'oggetto.</p>
+          <p>Si noti anche che in alcune delle schermate di amministrazione possono apparire dei link ad altri strumenti di amministrazione.  In alcuni casi potreste non essere autorizzati ad utilizzare tali strumenti di amministrazione, quindi facendo clic su di essi verr&agrave; visualizzato il messaggio di errore "autorizzazione richiesta".</p>
+           <h3><a name="submitters"></a>Aggiungere o rimuovere i Submitter autorizzati</h3>
+           <p><strong>Si noti che non &egrave; possibile aggiungere operatori che non siano gi&agrave; registrati.  Avrete bisogno che gli amministratori centrali di DSpace aggiungano gli operatori per tutti i potenziali partecipanti.</strong></p>
+           <p>Per aggiungere o rimuovere dal gruppo di mittenti autorizzati a presentare la collezione, assicurati di aver effettuato il login, vai alla home page della collezione in questione e clicca sul pulsante 'Modifica i submitters'.  Questo vi porter&agrave; alla pagina dell'editor del gruppo.</p>
+           <h3><a name="groupeditor"></a>Il Group Editor</h3>
+           <p>L'editor di gruppo permette di aggiungere o rimuovere operatori o anche interi gruppi di operatori da un particolare gruppo, per esempio il gruppo di operatori autorizzati a catalogare a una particolare collezione.</p>
+           <p> Nella parte superiore dello schermo c'&egrave; il nome del gruppo.  Si raccomanda <strong>fortemente</strong> di non cambiare questo nome; questi nomi di gruppo seguono una convenzione e alcune cose potrebbero non funzionare come previsto se lo si cambia.</p>
+           <p>Di seguito &egrave; riportato un elenco di operatori (nome completo e indirizzo e-mail) nel gruppo cos&igrave; come un elenco dei gruppi attualmente nel gruppo.  Per rimuovere un operatore dal gruppo, selezionare il suo nome dalla lista "Operatori" Per rimuovere un intero gruppo dal gruppo, selezionare il nome del gruppo dalla lista "Membri del gruppo" e cliccare sul pulsante "Rimuovi selezionati" sotto la lista.</p>
+            <p>Per selezionare le persone elettroniche da aggiungere alla lista, cliccate sul pulsante 'Seleziona operatori...', e apparir&agrave; una nuova finestra pop-up.  Questo consente di sfogliare l'elenco degli operatori nel sistema e di aggiungerle al gruppo.  Potete ordinare la lista per ID (un identificatore interno), indirizzo e-mail e cognome, cliccando sull'intestazione della colonna corrispondente.  L'intestazione della colonna di ordinamento corrente sar&agrave; visualizzata in grassetto e avr&agrave; una freccia che indica come viene ordinata. &Egrave; possibile sfogliare l'elenco completo cliccando sui link sopra e sotto l'elenco nella finestra pop-up.</p>
+            <p>Per aggiungere un operatore al gruppo nella finestra principale dell'editor di gruppo, fare clic sul pulsante 'Aggiungi' a sinistra della sua riga.  Si noti che la finestra pop-up non scompare a questo punto, per rendere pi&ugrave; facile l'aggiunta di pi&ugrave; operatori contemporaneamente; tuttavia questo pu&ograve; far sembrare che non sia successo nulla quando si clicca su 'Aggiungi'.  Tuttavia, se si guarda il gruppo nella pagina principale dell'editor di gruppo, si dovrebbe vedere che gli operatori sono state aggiunte alla lista.</p>
+            <p>Aggiungere e rimuovere gruppi di operatori funziona allo stesso modo di aggiungere e rimuovere singoli operatori.  Quando un gruppo viene aggiunto ad un altro gruppo, il gruppo contenente considerer&agrave; come membri tutti i membri del gruppo contenuto.</p>
+            <p>Per selezionare i gruppi da aggiungere alla lista "Membri del gruppo", cliccate sul pulsante "Seleziona gruppi..." e apparir&agrave; una nuova finestra pop-up. Questa finestra funziona come descritto sopra per la finestra pop-up di operatore. Cliccate sul pulsante "Aggiungi" a sinistra del nome del gruppo per aggiungere il gruppo alla lista "Membri del gruppo" nella pagina principale dell'editor di gruppo.</p>
+            <p>Quando hai finito di aggiungere o rimuovere operatori e/o gruppi al o dal gruppo, clicca su 'Aggiorna gruppo' nella pagina principale dell'editor del gruppo.  (Il pop-up per la selezione degli operatori/gruppo si chiuder&agrave; automaticamente, se non l'avete chiuso voi stessi prima).</p>
+            <h3><a name="editmetadata"></a>gestire i metadata dell'item</h3>
+                <p>Per modificare i metadati di un item (cio&egrave; un item che &egrave; gi&agrave; nell'archivio principale, e non uno che &egrave; nel flusso di lavoro ), assicurarsi di aver effettuato l'accesso, andare alla pagina di visualizzazione di quell'item e cliccare sul pulsante 'Modifica' in alto a destra.</p>
+                   <p>Per modificare uno o pi&ugrave; valori Dublin Core esistenti, effettuare le modifiche necessarie e cliccare sul pulsante <strong>Aggiorna</strong> al termine.</p>
+                   <p>Se volete aggiungere nuovi campi di metadati Dublin Core uno alla volta.  Selezionate il relativo element e il qualificatore dal menu a tendina alla fine dell'elenco dei campi DC, inserite il valore del testo nella casella e cliccate sul pulsante <strong>Add</strong> sul lato destro.</p>
+                   <p>Questa interfaccia utente non convalida nulla di ci&ograve; che si inserisce, quindi fate attenzione; assicuratevi di controllare l'uso dei metadati Dublin Core da parte di DSpace per assicurarvi che i campi inseriti siano compresi correttamente dal sistema.  Correzioni minori (come la correzione degli errori di ortografia e degli errori di battitura) non dovrebbero comunque costituire un problema.</p>
+                    <h3><a name="ritirare"</a>Ritiro di un item</h3></a>Ritiro di un item</h3>
+                    <p>Per ritirare un item, prima accedi a DSpace, vai alla pagina di visualizzazione dell'item, poi clicca sul pulsante 'Modifica' in alto a destra.  Poi, nella pagina di modifica dell'item, clicca sul pulsante 'Ritira/cancella logicamente  Vedrete quindi il record dell'item.  Se sei sicuro di voler ritirare l'item, clicca su 'Ritira/cancella logicamente' in fondo a questa pagina.</p>
+                     <p>Si noti che il ritiro non rimuove completamente l'oggetto dall'archivio, ma lo rimuove semplicemente da tutti i luoghi pubblici (ricerca e consultazione degli indici e cos&igrave; via).  DSpace ha una funzione per cancellare completamente un elemento ('expunge'), usata in modo simile allo strumento di prelievo, ma si raccomanda vivamente di non usarlo.</p>
+                      <p>Se si desidera 'ripristinare' un elemento che &egrave; stato precedentemente ritirato, contattare un amministratore del sito DSpace.</p>
+                       <h3><a name="itemmap"></a>Includi gli item di altre collezioni (Mappatura degli item)</h3>
+                       <p>Gli item possono apparire in pi&ugrave; di una collezione.  Lo strumento che 'mappa' gli oggetti in collezioni diverse da quella che lo possiede &egrave; il "Item Mapper". Per accedere a questo strumento, effettuare il login come amministratore o amministratore della collezione e visualizzare la home page della collezione.  Nel riquadro "strumenti di amministrazione" c'&egrave; un pulsante "Mappatore di item". Con l'item mapper sar&agrave; possibile cercare gli item utilizzando i nomi degli autori, e scegliere di aggiungerli alla collezione.  Lo strumento permette anche di sfogliare gli elementi mappati nella collezione e di rimuoverli.</p>
+                        <p>Notare che l'oggetto mappato ad una collezione non riceve nuovi diritti di accesso - conserva le autorizzazioni che ha ereditato dalla collezione che "possiede" la collezione.  E gli amministratori della collezione che non hanno accesso in lettura a un oggetto non saranno in grado di mapparlo in altre collezioni.</p>
+                      </body>
+</html>
