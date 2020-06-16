@@ -1,0 +1,308 @@
+<!--
+
+    The contents of this file are subject to the license and copyright
+    detailed in the LICENSE and NOTICE files at the root of the source
+    tree and available online at
+
+    http://www.dspace.org/license/
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+    <title>DSpace Glam: Guida on line per l'amministratore</title>
+    <link rel="stylesheet" href="../styles.css" type="text/css"/>
+  </head>
+
+  <body class="help">
+    <h2>Guida per l'amministratore</h2>
+
+    <table>
+      <tr>
+        <td align="left"><h3>Indice</h3></td>
+        <td align="right"><a href="#" onclick="window.close()">Chiudi questa finestra</a></td>
+      </tr>
+    </table>
+
+    <ul>
+      <li><a href="#general">Informazioni Generali</a></li>
+      <li><a href="#topcommunity">Creazione di una Top-level Community</a></li>
+      <li><a href="#subcommunity">Creazione di una Sub-community</a></li>
+      <li><a href="#editcommunity">Modifica una Community</a></li>
+      <li><a href="#createcollection">Creazione di una Collection</a></li>
+      <li><a href="#editcollection">Modifica una Collection</a></li>
+      <li><a href="#epeople">Operatori</a></li>
+      <li><a href="#groups">Gruppi</a></li>
+      <li><a href="#items">Items</a></li>
+      <li><a href="#supervision">Supervision Orders</a></li>
+      <li><a href="#dublincore">Registro Dublin Core  </a></li>
+      <li><a href="#bitstream">Bitstream Format Registry</a></li>
+      <li><a href="#workflow">Workflow</a></li>
+      <li><a href="#authorize">Autorizzazioni</a></li>
+      <li><a href="#editnews">Modifica le news</a></li>
+      <li><a href="#editlicense">Modifica la licenza di deposito</a></li>
+    </ul>
+        <h3><a name="general"></a>Informazioni Generali</h3>
+         <p>A partire da DSpace 1.2, molti strumenti di amministrazione sono ora accessibili tramite la normale interfaccia utente DSpace. Tuttavia, essi appaiono solo se si &egrave; loggati come amministratore.  Il modo pi&ugrave; semplice per farlo &egrave; andare alla pagina 'My DSpace'.</p>
+          <p>Alcuni task devono essere eseguiti all'inizio utilizzando l'interfaccia utente di amministrazione, parte della Web UI. Per accedere all'interfaccia utente di amministrazione, inserire l'URL di base del proprio DSpace seguito da <code>/dspace-admin</code>, for example:</p>
+            <pre>https://dspace.myu.edu/dspace-admin</pre>
+             <p>Per poter accedere alla pagina &egrave; necessario autenticarsi come amministratore. Quindi, cliccate sul men&ugrave; nella barra di navigazione a sinistra.</p>
+               <h3><a name="topcommunity"></a>Creazione di una Top-level Community</h3>
+               <p>Per aggiungere una top-level community , vai alla pagina della community/collezione
+   come amministratore.  A destra ci sar&agrave; un'opzione a <em> Crea una Top-Level Community...</em>. Cliccando su questo si crea il
+    nuova top-level community e ti porta alla pagina .</p>
+         <h3><a name="subcommunity"></a>Creazione di una Sub-community</h3>
+        <p>Per creare una sub-community, posizionati sulla home page della community della community che dovra' essere padre della nuova sub-community.  Quindi, clicca 'Crea una  sub-community' nel men&ugrave; Admin in alto a destra della pagina.  Questa funzionalit&agrave; creer&agrave; la nuova community e vi porter&agrave; alla pagina "Modifica commmunity" della community appena creata.</p>
+        <h3><a name="editcommunity"></a>Modifica una Community</h3>
+       <ul>
+      <li>Compilare il modulo secondo necessit&agrave;. Sono richiesti 'Nome', 'Breve descrizione' e 'Testo introduttivo'; il resto dei campi &egrave; opzionale.</li>
+      <li>La 'breve descrizione' appare sulla pagina della lista della comunit&agrave; sotto il nome della comunit&agrave;, e dovrebbe essere una o due frasi di testo semplice che descrivono la comunit&agrave;.</li>
+      <li>I campi "testo introduttivo", "barra laterale" e "testo del copyright" sono visualizzati sulla home page della community.  Il 'testo introduttivo' e il 'testo della barra laterale' sono entrambi campi HTML, il che significa che si dovrebbe inserire il testo in <;P&gt; &lt;/P&gt;</li>
+      <li>Per aggiungere un logo da visualizzare sulla home page della community, clicca sul pulsante <strong>Carica Logo</strong>.  Nella schermata successiva, digitare un percorso per il file del logo o sfogliare il file del logo, quindi fare clic sul pulsante <strong>Upload</strong>. Nota, se stai creando una comunit&agrave;, &egrave; meglio compilare il resto del modulo, cliccare su 'Aggiorna' e poi tornare indietro per fare questo.  Si noti che in generale, le dimensioni relativamente piccole del logo sono le migliori per il design della home page della collezione.</li>
+      <li>Quando si inseriscono tutte le informazioni per la Community Page, cliccare sul pulsante <strong>Creare</strong>.</li>
+    </ul>
+    <h3><a name="createcollection"></a>Crea una Collection</h3>
+         <p>Crea una collezione &egrave; fatto con una procedura guidata che dovrebbe essere familiare alla maggior parte delle persone che hanno usato le moderne interfacce utente dei sistemi operativi. &Egrave; piuttosto simile all'interfaccia di presentazione in DSpace.</p>
+           <p><strong>Nota: Non &egrave; possibile aggiungere un nuovo operatore nella procedura guidata.</strong>  Tutti gli operatori devono essere gi&agrave; presenti nel sistema.  Tuttavia, sar&agrave; possibile aggiungere pi&ugrave; operatori e/o gruppi di operatori a ciascun gruppo associato alla collection in un secondo momento, se necessario..</p>
+           <p> Per creare una collection assicurati di essere loggato, posizionati sulla home page della community su cui vuoi creare la collection, e clicca 'Crea la Collection' nem menu a destra.  Questa funzionalt&agrave; attiver&agrave; la procedura guidata.</p>
+            <h4><a name="wizard_questions"></a>Descrivi la Collection (spuntare le caselle)</h4>
+              <p>La prima pagina dela procedura guidata vi far&agrave; alcune domande sulla nuova collezione.  Controllate quelle che si applicano e cliccate sul pulsante 'Avanti&nbsp;'.  Si noti che dopo aver completato la procedura guidata, sar&agrave; possibile modificare la collezione in un secondo momento, quindi le decisioni che si prendono qui non sono permanenti.</p>
+              <p>Tuttavia, si noti anche che questo procedura guidata &egrave; un po' meno raffinata dell'interfaccia UI, Controlla quelle che si applicano e clicca sul pulsante 'Avanti'. Nota che dopo aver completato la procedura guidata, sarai in grado di modificare la collezione in seguito, quindi le decisioni che prendi qui non sono permanenti. Tuttavia non essendoci pulsanti 'indietro', &egrave; necessario concludere la creazione e poi rientrare per modificare ove necessario..</p>
+              <p>Una volta completata la procedura guidata, si passa alla schermata di modifica della Collection.  Questo vi permetter&agrave; di rivedere ci&ograve; che avete inserito e di effettuare le modifiche necessarie.</p>
+              <p>Nota 1:  Se si seleziona <strong>I nuovi items devono essere pubblici </strong> Questa opzione permettere di rendere pubblicamente leggibile ogni item inserito sotto questa collezione sia che entrino nella collezione via inserimento manuale dell&apos;operatore sia che attraverso un import batch. La visibilit&agrave; pubblica varr&agrave; sia per i metadati descritti sia per tutti i digital object associati. &Egrave; possibile modificare in seguito questi permessi sui singoli item rendendo ad esempio pubblici sono i metadati e non gli oggetti digitali associati. Si sottolinea che gli item o gli oggetti digitali inclusi in altre collezioni non potranno avere le autorizzazioni modificate.</p>
+                <p>Nota 2: Se si seleziona <strong>I nuovi items devono essere pubblici</strong> Si ricorda che questa &egrave; solo un&apos;impostazione predefinita ma che pu&ograve; essere cambiato in seguito.</p>
+                <p>Note 3: Se <em>non</em> si seleziona <strong>I nuovi items devono essere pubblici</strong> , non viene controllato se gli item inseriti sono pubblicamente leggibili. Vi verr&agrave; chiesto in seguito nella procedura guidata chi potr&agrave; leggere  i nuovi item. Si ricorda che questa &egrave; solo un&apos;impostazione predefinita che potr&agrave; essere modificata in un momento successivo.</p>
+                <h4><a name="wizard_description"></a>Descrivi la Collection (Informazioni)</h4>
+               <p>La pagina successiva consente di inserire alcune informazioni di base sulla collezione.  I campi <strong>Nome</strong>, <strong>Descrizione breve</strong> e <strong>Testo introduttivo</strong> sono obbligatori.  (Attwnziona che la procedura guidata non fa controlli sui campi obbligatori)</p>
+               <p><strong>Testo sui diritti d'uso </strong> &egrave; un semplice testo che, se compilato, apparir&agrave; nella homepage della collection.</p>
+               <p><strong>Licenza</strong> &egrave; la <em>licenza di deposito</em> (va a dire la licenza che l'operatore deve sottoscrivere al menoto del deposito di un item.  Questa licenza, se compilata, sovrascrive la licenza di deposito (registrata in <em>[dspace]</em>/config/default.license e che deve essere modificata da un amministratore). Se si lascia vuoto questo campo, viene utilizzata la licenza di deposito predefinita.</p>
+               <p><strong>Provenienza</strong>&egrave; un campo a testo libero in cui &egrave; possibile inserire qualsiasi informazione sulla provenienza. &Egrave; un campo non visibile agli utenti finali.</p>
+               <h4><a name="wizard_permissions"></a>Autorizzazioni</h4>
+               <p>A seconda delle caselle spuntate nella prima schermata della procedura guidata, si passer&agrave; attraverso una serie di schermate che chiedono quali operatori e/o gruppi possono accedere a quali funzionalit&agrave;, ad esempio chi pu&ograve; catalogare un item,  chi dove eseguire la fase del flusso di lavoro di invio <em>accetta/rifiuta</em>.  Queste schermate  funzionano esattamente come il <a href="collection-admin.html#groupeditor">Modifica Gruppo</a>.  Fare clic su 'Avanti&nbsp;' quando si sono selezionate tutti gli operatori e/o i gruppi di operatori per apparire nel relativo gruppo autorizzativo.</p>
+              <p>Nota: con questa procedura guidata non &egrave; possibile aggiungere nuovi operatori.  Tutti gli operatori devono essere prima caricati nel sistema.  Se necessario, &egrave; possibile aggiungere pi&ugrave; operatori e/o gruppi a ciascun gruppo in un secondo momento..</p>
+                         <h4><a name="wizard_default"></a>I nuovi inserimenti avranno alcuni metadati gi&agrave; compilati con valori predefiniti.</h4>
+               <p>In questa schermata &egrave; possibile specificare alcuni valori di Dublin Core che  saranno pre-compilati.  Alcuni dei valori che potete impostare qui non appaiono nell'interfaccia utente, quindi gli utenti finali potrebbero non avere la possibilit&agrave; di modificarli.  Questa pu&ograve; essere una cosa buona o cattiva!   Si noti anche che questi valori DC saranno aggiunti agli item importati tramite i processi di batch import.</p>
+                          <h3><a name="editcollection"></a>Modifica una Collection</h3>
+               <p>La funzione di modifica Collection permette di modificare i metadati della collezione (come il nome e il testo introduttivo), di configurare l'autorizzazione e il flusso di lavoro o di cancellare completamente la collezione.</p>
+          <p><strong>ATTENZIONE:</strong> Il pulsante "Cancella"  rimuover&agrave; la Collection (compresi tutti i suoi item) dalla digital library.</p>
+         <p>Il <strong>Nome</strong>, <strong>Descrizione breve</strong> e <strong>Testo introduttivo</strong> sono metadati obbligatori, gli altri sono opzionali. Si noti che questo non viene imposto, ma &egrave; fortemente raccomandato.</p>
+          <p><strong>Condizioni d'uso</strong> &egrave; un semplice testo che apparir&agrave; nella home della pagina della collection, se compilato.</p>
+          <p><strong>Licenza di deposito</strong> &egrave; <em> la licenza di deposito</em> (la licenza che gli operatori devono rilasciare al momento dell'invio di un item) per questa collezione.  Questo sovrascrive la licenza di deposito del repository (che &egrave; memorizzata in <em>[dspace]</em>/config/default.license e deve essere modificata da un amministratore di sistema).  Se si lascia vuoto questo campo, viene utilizzata la licenza di deposito del repository.
+    Ci sono alcune variabili di sostituzione che possono essere usate per creare licenze personalizzate:</p>
+    <ul>
+	    <li><strong>%1$s</strong> sar&agrave; tradotto come "nome del proponente"</li> 
+		<li><strong>%2$s</strong> sar&agrave; tradotto come "cognome del proponente"</li>
+		<li><strong>%3$s</strong> sar&agrave; tradotto come "email del proponente" </li>
+		<li><strong>%4$s</strong> sar&agrave; tradotto come data della submission</li>
+		<li><strong>%5$s</strong> sar&agrave; tradotto come info della collection</li> 
+		<li><strong>%6$s</strong> sar&agrave; tradotto come info dell'item</li>
+		<li><strong>%7$s</strong> sar&agrave; tradotto come info dell'operatore</li> 
+    </ul>
+	<p>Se dovete incorporare nel testo della licenza il simbolo %, dovete ricordarvi di inserire il simbolo % con un secondo %, cio&egrave; dovete scrivere %%. 
+	Si raccomanda di utilizzare una presentazione fittizia per controllare il cambio di licenza:  <strong> controllare la licenza risultante nella fase Accetta/rifiuta la licenza.</strong> 
+    </p>
+        <p><strong>Provenienza</strong> &egrave; un campo di testo libero in cui potete inserire qualsiasi informazione sulla vostra provenienza.  Non &egrave; visibile agli utenti finali.</p>
+        <p>Per aggiungere o modificare il logo da visualizzare sulla home page della collezione, fare clic sul pulsante Carica logo. Nella schermata successiva, digitare un percorso per il file del logo, quindi fare clic sul pulsante Carica.</p>
+         <p>Per aggiungere o cambiare le <a href="#authorize">autorizzazioni</a>, <a href="collection-admin.html#submitters">operatori</a> o gli amministratori della collezione cliccano sui menu appropriati per creare/modificare i gruppi e le attivit&agrave; relative.</p>
+         <p>Per modificare i gruppi relativi al workflow, selezionare il passo del flusso di lavoro di cui si desidera creare o modificare il gruppo e seguire il processo <a href="collection-admin.html#groupeditor">Modifica gruppo</a>.</p>
+         <p>Clicca su 'Template dell'item' <a href="#wizard_default">pagina predefinita dei metadati degli item</a> dove &egrave; possibile impostare valori predefiniti per i campi di metadati per tutti gli items caricati sulla collezione.</p>
+          <h3><a name="epeople"></a>Operatore</h3>
+          <p>Utilizzare questo servizio per registrare indirizzi e-mail e altre informazioni sugli operatori che si desidera autorizzare a svolgere un ruolo nel sistema, sia in qualit&agrave; di submitter, amministratori, operatori che partecipano al flusso di lavoro di inserimento, abbonati o utenti con il permesso di leggere contenuti riservati..</p>
+          <p>Gli utenti possono accedere a questa lista anche tramite autoregistrazione (se la configurazione del repository lo consente).  Questo non d&agrave; loro per&ograve; alcuna autorizzazione.  Tutte gli operatori che si desidera aggiungere a un gruppo per la submission o l'autorizzazione del flusso di lavoro devono prima essere registrati qui.</p>
+           <h4>Registra un operatore</h4>
+           <p>Per registrare qualcuno, cliccare sul pulsante <strong>Aggiungi operatore</strong> e aggiungere le sue informazioni.</p>
+           <ul>
+      <li><p>Se l'operatore effettuer&agrave; il login con una password, <em>non</em> <strong>selezionare <strong>Pu&ograve; effettuare il login</strong> Questo flag informa il sistema che l'utente ha un account registrato e attivo. Questa opzione non va utilizzata per un operatore che si registra utilizzando l'interfaccia utente per impostare una password prima.</p></li>
+      <li><p> MIT's X509 certificate authenticator.  Ignora questo passaggio se non si usa<code>MITAuthenticator</code> authenticator.</p>
+            <p>Se si seleziona "Richiedi un certificato", si pu&ograve; anche selezionare "Puoi effettuare il login".  Ci&ograve; significa che l'utente pu&ograve; effettuare il login direttamente con il proprio certificato senza doversi registrare.  Se si desidera che gli utenti passino attraverso il processo di registrazione (in modo che inseriscano il loro nome, ecc.), allora non selezionare 'Pu&ograve; fare log in'.</p></li>
+    </ul>
+         <p>Cliccare su <strong>Salvare le modifiche</strong> quando fatto.</p>
+         <h4>Cancella un operatore o Modifica le informazioni di un operatore</h4>
+        <p>Clicca su <strong>Seleziona un operatore...</strong> per ottenere una lista operatori nel sistema.  I link in alto e in basso del pop-up consentono di navigare all'interno dell'elenco.  Potete anche ordinare la lista per indirizzo e-mail, cognome o ID cliccando sull'intestazione della colonna corrispondente.  A sinistra di ogni operatore nella lista c'&egrave; un pulsante "seleziona".  Cliccando su questo accanto alla persona interessata, il pop-up si chiuder&agrave; e la persona apparir&agrave; nella casella della pagina principale "amministra gli operatori".  Ora potete cliccare sui pulsanti 'modifica' o 'cancella' che vi permettono di modificare le informazioni su un utente o di cancellarle dal sistema.</p>
+        <h3><a name="groups"></a>Gruppi</h3>Gruppi</h3
+        <p>Utilizzare questa sezione per creare, modificare e cancellare gruppi di operatori e/o gruppi che possono essere autorizzati per specifiche funzioni nel sistema.</p>
+      <p>Il gruppo 'Anonymous' &egrave; un gruppo 'speciale' che rappresenta ogni utente che utilizza il sistema.  Questo gruppo esiste in modo che le politiche di autorizzazione possano essere specificate per l'accesso anonymous (vale a dire "tutto il pubblico che pu&ograve; leggere questi metadati").</p>
+      <p>I membri del gruppo 'Amministratore' possono eseguire qualsiasi azione nel sistema, quindi fate attenzione a chi mettete in questo gruppo!</p>
+        <p>Altri gruppi possono essere utilizzati per diversi scopi.  I gruppi possono rappresentare operatori ed utenti che hanno il permesso di presentare una particolare collezione; operatori che sono responsabili dell'esecuzione di una particolare fase del flusso di lavoro; o gruppi di operatori che hanno il permesso di accedere ad alcuni contenuti riservati.  Le informazioni su ci&ograve; che ogni gruppo &egrave; autorizzato a fare sono controllate utilizzando la sezione <a href="#authorize">authorizzazione</a>.</p>
+         <p>Gruppi possono contenere altri gruppi per fornire una maggiore flessibilit&agrave; nell'assegnazione delle azioni e per semplificare la manutenzione. Ci&ograve; &egrave; utile per riflettere le strutture gerarchiche dei gruppi, in cui un gruppo di persone con particolari responsabilit&agrave; fa parte di un gruppo pi&ugrave; ampio con responsabilit&agrave; e/o ambito di responsabilit&agrave; differenti.</p>
+         <p>I gruppi possono avere dei nomi.  I nomi creati automaticamente dal sistema seguono una convenzione a seconda della funzione del gruppo. La forma generale di questo &egrave;:</p>
+         <pre>OBJECTTYPE_OBJECTID_ACTION</pre>
+         <p>Ad esempio, il gruppo di operatori che e' autorizzato a catalogare in una certa collection XYZ si chiamer&agrave;:</p>
+         <pre>COLLECTION_XYZ_ADD</pre>
+         <p>Si noti che XYZ in questo caso &egrave; l'ID <em>interno</em> (la chiave primaria del database) della collezione, piuttosto che l'Handle. &Egrave; possibile trovare l'ID interno di una collezione o comunit&agrave; cliccando su "Comunit&agrave;/collezioni".  Il secondo numero tra parentesi accanto al nome di una comunit&agrave; o di una collezione &egrave; l'ID interno di quell'oggetto.</p>
+         <p>Si raccomanda di seguire questa convenzione per i gruppi creati manualmente, in modo che sia facile trovare il gruppo di cui si ha bisogno di intervenire.  L'interfaccia utente dell'amministratore creer&agrave; automaticamente i gruppi per le fasi del flusso di lavoro, ma &egrave; necessario creare manualmente i gruppi per gli invianti.</p>
+          <h4>Creare e modificare i gruppi</h4>
+          <p>Per creare manualmente un gruppo, cliccca <strong>Crea un nuovo gruppo</strong>.  Cambiare il nome predefinito del gruppo in alto con il nome desiderato e cliccare su <strong>Aggiorna nome</strong>.</p>
+          <p><a href="collection-admin.html#groupeditor">Istruzioni per l'utilizzo dell'editor di gruppo</a></p>
+          <h3><a name="items"></a>Items</h3>
+         <p>Utilizza questo strumento per modificare, cancellare logicamente o cancellare definitivamente un item. &Egrave; possibile inserire l'handle di un item o l'ID interno (chiave primaria del database) nella relativa casella.  In alternativa, pu&ograve; essere pi&ugrave; facile andare alla pagina di visualizzazione dell'item  e poi cliccare il pulsante <strong>Modifica</strong> nella schermata se si &egrave; connessi come amministratore.</p>
+          <p><a href="collection-admin.html#editmetadata">Istruzioni per la modifica degli item</a></p></p>
+          <p><a href="collection-admin.html#withdraw">Istruzioni per la cancellazione logica degli item</a></p></p>
+          <p>Si noti che che la funzione 'cancella' canceller&agrave; definitivamente l'item  e i suoi metadati senza lasciare traccia.</p>
+           <h3><a name="supervisione"></a> Ordini di supervisione</h3>
+           <p>Seleziona <em>Supervisors</em> nellarea di amminitratore e ti verranno repsentate tre opzioni:</p>
+       	<ul>
+		<li>Aggiungi un Supervision Order</li>
+		<li>Esplora  Current Supervision Orders</li>
+		<li>Pulisci Supervision Order Database</li>
+	</ul>
+     <p>Le sezioni seguenti spiegano in dettaglio come affrontare i compiti comuni dell'ordine di supervisione.</p>
+     	<p><em>Nota: L'opzione di Clean Supervision Order Database dovrebbe essere utilizzata una sola volta 
+ solo per eseguire le operazioni di manutenzione di base sul database.</em></p></p
+     	<h4>Visualizzazione degli ordini di supervisione in corso</h4>
+	<p>Seleziona <em>Current Supervision Orders</em><p>Le sezioni sottostanti descrivono in dettaglio come trattare con le comunicazioni e vi viene presentata una lista 
+	di tutti gli ordini di vigilanza attualmente in vigore.  Da questa pagina &egrave; possibile modificare il 
+	politiche per l'ordine di supervisione o rimuovere l'ordine di supervisione. (vedere le sezioni
+	sotto).</p>
+    	<p>I dettagli che avete in questa pagina vi permettono di vedere il nome del gruppo che fa 
+ da supervisore, l'autore  edil titolo dell'item, oggetto di controllo.</p>
+    	<p>&Egrave; inoltre possibile aggiungere un ordine di supervisione da questa pagina come da sezione <strong>Aggiungi Supervision Orders</strong> di seguito.</p>
+    	<h4>Aggiungere ordini di supervisione</h4>
+    	<p>Seleziona <em>Aggiungi un ordine di supervisione</em> da uno dei due ordini di supervisione principali 
+	o la pagina degli Ordini di Vigilanza in corso.</p>
+    	<p>Per impostare un ordine di supervisione &egrave; necessario definire il gruppo per effettuare la supervisione 
+	e l'oggetto nell'area di lavoro da supervisionare.  Inoltre, questa pagina vi offre 
+	l'opzione di impostare un insieme predefinito di politiche che il gruppo di supervisione deve avere oltre 
+	la voce.</p>
+		<p>Selezionare il gruppo desiderato dall'elenco  dei gruppi di questa pagina; 
+	questa casella contiene tutti i gruppi attualmente esistenti nel sistema.  Successivamente selezionare la voce WorkSpace da 
+	Supervisionato.  Ci&ograve; significa cliccare sulla casella di selezione  a destra della voce dell'elenco che vedete in questa pagina,
+	che mostra tutti gli item attualmente presenti negli spazi di lavoro degli utenti.</p>
+    	<p><em>Nota: l'ID che si trova nella colonna di sinistra dell'elenco degli articoli &egrave; l'ID 
+	database id per l'elemento dell'area di lavoro, ed &egrave; l&agrave; per il riferimento del sistema 
+	amministratori.</em></p></p>
+    	<p>Una volta scelto il gruppo e l'item dell'area di lavoro da collegare, &egrave; possibile 
+	selezionare una policy predefinita dalla casella <em>Impostazione politica iniziale</em>.
+	Le opzioni predefinite di policy che questo fornisce sono:</p>
+		<ul>
+		<li><strong>nessuno</strong> - L'ordine di supervisione viene creato ma il gruppo di supervisione 
+		non &egrave; stata data alcuna politica in merito alla voce da sorvegliare.  Questo di solito 
+		indica che l'amministratore ha deciso di impostare manualmente le policy per 
+		questo ordine di supervisione.</li>
+		<li><strong>Osservatore</strong> - Il gruppo di supervisione ha accesso READ all'articolo 
+		(ma non ai pacchetti o ai bitstream gi&agrave; esistenti).  Qualsiasi nuovo 
+		i bundle o bitstream ereditano la politica del gruppo di supervisione per consentire 
+		READ le operazioni.</li>
+		<li><strong>Editor</strong> - Il gruppo di supervisione &egrave; dato ADD, WRITE, 
+		e READ l'accesso all'item (ma non i bundle o i bitstream che 
+		esistono gi&agrave;).  Eventuali nuovi bundle o bitstream ereditano la supervisione 
+		la politica del gruppo per consentire l'operazione di ADD, WRITE e READ.</li>
+	</ul>
+		<p>Una volta soddisfatti della vostra selezione cliccate su <em>Invia ordine di supervisione</em> 
+	e le vostre impostazioni saranno applicate, e sarete restituiti al 
+	ordine di supervisione pagina principale.</p>
+    	<h4>Rimuovere gli ordini di supervisione</h4>
+    	<p>Vai a  <em>View Current Supervision Orders</em> e selezionare <em>Rimuovi</em>
+	dall'ordine di supervisione che si desidera rimuovere.  Vi sar&agrave; chiesto di confermare 
+	la rimozione dell'ordine, alla conferma del quale sar&agrave; rimosso dal sistema.</p>
+    	<h4>Policy dell'ordine di vigilanza personalizzata</h4
+    	<p>Vai alla pagina <em>Visualizza gli ordini di supervisione correnti</em> e seleziona <em>Policies</em> per 
+	l'ordine di supervisione per il quale si desidera personalizzare le polizze.  Sarete 
+	Portati alla pagina <em>Policy per l'item</em>.  Da qui &egrave; possibile personalizzare le policy 
+	per il particolare item.</p>
+    	<p>Selezionare <em>Rimuovi</em>.
+	Per impostare le policy per il gruppo dei supervisori si dovrebbero selezionare, ad esempio, le policy per il gruppo dei supervisori, 
+	<em>Aggiungi una nuova policy</em> per l'item o una qualsiasi delle sue parti componenti, quindi selezionare la voce 
+	gruppo di supervisori che si desidera configurare dalla lista di gruppi.  
+	&Egrave; quindi possibile selezionare l'azione che si desidera eseguire e premere <em>Salva policy</em>.</p>
+        <h3><a name="dublincore"></a>Metadata Registry</h3>
+        <p>Per default DSpace utilizza una versione qualificata dello schema Dublin Core basata sul <a href="http://dublincore.org/documents/library-application-profile/">Dublin Core Libraries Working Group Working Group Application Profile (LAP)</a>. &Egrave; anche possibile configurare altri schemi di metadati piatti nel registro. Il registro dei metadati fornisce un elenco degli elementi e dei qualificatori, con commenti.</p>
+        <p>Con questo strumento &egrave; possibile modificare il registro di sistema in base alle proprie esigenze, ma si noti che:</p>
+        <ul>
+	      <li>Puoi modificare un solo element/qualifier alla volta.  Effettuare le modifiche su una riga e fare clic sul relativo pulsante 'aggiorna'.  Saranno salvate solo le modifiche apportate a quella riga.</li>
+	      <li>Se si elimina un element e un qualifier, tutte le istanze di quell'element e del qualifier nei metadati degli element saranno eliminate.</li>
+	      <li>Se si aggiorna un element o un qualifier, per esempio cambiando 'contributor' in 'creator' e cliccando su 'Aggiorna', tutte le istanze di 'contributor' nei metadati degli element saranno cambiate in 'creator'.</li>
+	      <li>Alcuni elementi di Dublin Core/qualificato sono utilizzati dal sistema per varie funzioni, come <codice>date.available</codice> per l' OAI  harvesting, e <codice>title</codice> per la visualizzazione degli item e l'indice di ricerca. &Egrave; possibile modificare le note di ambito per questi, ma non si dovrebbe cambiare o rimuovere l'element o il qualifier.  Per vedere quali element/qualificatori sono usati dal sistema, controllate il file <code><em>[dspace-source]</em>/config/registries/dublin-core.xml</code>.</li>
+    	</ul>
+        <p>Si noti anche che il <code>dublin-core-types.xml</code> viene utilizzato solo durante il processo di compilazione per popolare il registro dei metadati nel database, che &egrave; la versione 'live'.  Le modifiche apportate con questa interfaccia utente si rifletteranno solo nel registro del database, e non nel file XML (e viceversa).</p>
+        <h3><a name="bitstream"></a>Bitstream Format Registry</h3>
+        <p>Questo elenco di bitstreams fornisce informazioni sui bitstreams noti e sul loro livello di supporto.  Con questo strumento &egrave; possibile modificare o aggiungere nuovi formati di bitstream.  Si prega di prendere nota di quanto segue:</p>
+        <ul>
+      <li>&Egrave; possibile modificare un solo formato bitstream alla volta.  Effettuare le modifiche su una riga e fare clic sul relativo pulsante "aggiorna".  Saranno salvate solo le modifiche apportate a quella riga.</li>
+      <li>'Estensioni' sono estensioni di file che vengono utilizzate per identificare automaticamente il formato dei file caricati. &Egrave; possibile inserire diverse estensioni separate da virgole per ogni formato.</li>
+      <li>Il 'Nome' di ogni formato deve essere unico, anche se non &egrave; necessario che lo sia il tipo MIME.  Per esempio, potreste avere voci di registro di formato separate per le diverse versioni di Microsoft Word, anche se il tipo MIME sar&agrave; lo stesso per ciascuna di esse.</li>
+      <li>I formati "interni" sono nascosti all'utente e vengono utilizzati per scopi amministrativi.  Ad esempio, le licenze che i sottomettitori concedono sono memorizzati come bitstream in formato 'Licenza', e questi non vengono mostrati agli utenti finali.</li>
+      <li>Se si elimina un formato bitstream, qualsiasi bitstream nel sistema di quel formato verr&agrave; riportato al formato 'Sconosciuto'.</li>
+      <li>Non cancellare i formati 'Unknown' o 'Licenza'!</li>
+    </ul>
+       <p>Si noti anche che il <codice>config/registries/bitstream-formats.xml</code> &egrave; usato solo durante il processo di compilazione per popolare il registro dei formati nel database, che &egrave; la versione 'live'.  Le modifiche apportate con questa interfaccia utente si rifletteranno solo nel registro del database, e non nel file XML (e viceversa).</p>
+      <h3><a name="workflow"></a>Workflow</h3>
+      <p>Utilizza questo strumento per eliminare i flussi di lavoro che sono stati abbandonati e non saranno mai completati.</p>
+      <h3><a name="authorize"></a>Autorizzazione</h3></a>Autorizzazione</h3
+      <p>Questa sezione &egrave; utilizzata per impostare specifiche politiche di autorizzazione
+     per le comunit&agrave;, le collezioni e gli oggetti. In ordine per gli utenti
+      per eseguire un'azione su un oggetto, devono avere il permesso;
+       DSpace applica una politica di 'default deny'. I permessi non 'commuta';
+        per esempio, se una persona elettronica ha il permesso READ su un oggetto,
+         potrebbero non avere necessariamente il permesso di READ sui pacchetti
+          e bitstream in quella voce.</p>
+             <h4><a name="collectionpolicies"></a>Gestione delle policy della Collection</h4>
+             <p>Utilizzate questo strumento per autorizzare i gruppi di collection a svolgere il loro ruolo.</p>
+             <ul>
+      <li>clicca<strong>Gestione delle policy della Collection</strong>.</li>
+      <li>Selezionate il nome della collection per la quale desiderate impostare le autorizzazioni e cliccate su <strong>Modificare le policy</strong>.</li>
+      <li>clicca <strong>Aggiungi New</strong>.</li>
+      <li>Seleziona il gruppo per il quale si desidera impostare le autorizzazioni, quindi selezionare un'azione per quel gruppo dal menu a tendina.</li>
+      <li>Clicca su <strong>Salva la policy</strong>.</li
+      <li>Ripetere fino a quando tutte le policy sono in vigore.</li>
+    </ul>
+          <p>Nota:</p>
+    <ul>
+      <li><p>Gli item appena accettati in una collezione ereditano la
+       <strong>DEFAULT_ITEM_READ</strong> e
+       <strong>DEFAULT_BITSTREAM_READ</strong>
+       policy di autorizzazione associate alla collection, che
+            diventano   <strong>READ</strong> policy per l'item e i suoi
+       bitstreams.  Tuttavia, se si cambia un
+       le politicies di default della collezione dopo che gli items sono stati accettati,
+       politicies per le politicies esistenti
+       gli item  non verranno modificati automaticamente.  Avreste
+       per modificare i permessi su quelle voci utilizzando l'opzione
+       <strong>Strumento avanzato di amministrazione delle policy</strong>
+       per renderli accessibili.</p></li>
+       <li><p>Tutte le collezioni devono avere una <strong>ADD</strong>
+       policy per il gruppo di submitter, altrimenti nessuno potr&agrave;
+       di catalogare gli item nella collezione.</p></li>
+    </ul>
+          <h4><a name="communitypolicies"></a>Gestione della Policies della Community</h4>
+          <p> Questo strumento permette di modificare le policy di una community pi&ugrave; o meno nello stesso modo in cui vengono modificate le policy di una collection, descritto sopra.</p>
+          <p>Per quanto riguarda l'amministrazione, dato che l'amministrazione &egrave; centralizzata, questo strumento non &egrave; molto utilizzato - di solito basta aggiungere il permesso <strong>READ</strong> per il gruppo <strong>Anonymous</strong> subito dopo aver creato una community, e lasciarlo cos&igrave;.  Questo permesso viene applicato al logo della community, se esiste, che permette alle persone di vedere il logo quando vanno alla home page della community.</p>
+          <p>Le politcy di una community sono impostate di default     <strong>Anonymous READ</strong>.</p>
+       <h4><a name="itempolicies"></a>Gestione delle Policies dell'item</h4>
+        <p>Questo strumento consente di modificare le policy per i singoli item.  Quando
+    desiderano che le policy di un item siano diverse da quelle degli altri in
+    una collezione, &egrave; possibile utilizzare l'editor delle policy degli item per personalizzare le policy.
+    &Egrave; una buona pratica di gestione a lungo termine di una collezione, tuttavia, per
+    tutti gli oggetti di una collezione per condividere le stesse autorizzazioni.</p>
+        <h4><a name="advancedpolicies"></a>Strumenti per la gestione avanzata delle policies</h4>
+         <p>Utilizzate questo strumento per impostare e chiarire le policy per gli item o i bitstream di un'intera collezione. Fate attenzione ad usare il pulsante <strong>Clear Policies</strong>.
+         <p>Seleziona la collezione dalla lista in alto e il gruppo per il quale vuoi dare o rimuovere il permesso dalla lista in basso.  Quindi selezionare il tipo di oggetto (item o bitstream) per il quale si vogliono modificare i permessi.  Poi selezionate l'azione dal men&ugrave; a tendina.</p>
+        <p>Per esempio, diciamo che si vuole dare a tutti gli 'utenti_privilegiati' di un gruppo <strong>read</strong> l'accesso a tutti i bitstream in una collezione limitata.  Selezionate 'utenti privilegiati' dall'elenco in alto, 'bitstream' dal menu a tendina 'tipo di contenuto', 'utenti_privilegiati' dall'elenco 'gruppo', 'read' dal menu a tendina 'azione' e cliccate su 'Aggiungi politica'.</p>
+        <h3><a name="editnews"></a>Modifica le News</h3>
+        <p>Con questo strumento &egrave; possibile modificare il testo ("news") in due punti della home page di DSpace:
+    il riquadro superiore della cornice centrale e la barra laterale destra. </p>
+    <p>Dopo aver cliccato su "Modifica notizie" nel menu di amministrazione, cliccare sul pulsante <strong>Modifica</strong> successivo
+    alla new che si desidera modificare. Verr&agrave; visualizzata una casella di testo con la notizia corrente, che pu&ograve; essere cancellata
+    o modificata digitando direttamente nella casella. &Egrave; possibile utilizzare i tag HTML per formattare il testo, ma si noti che l'html non
+    essere convalidato qui.</p>
+    <p>&nbsp;</p>
+         <h3><a name="editlicense"></a>Modifica la licenza di deposito</h3>
+    <p>E' possibile usare questo strumento epr modificare la licenza di deposito</p>
+    <p>Questa licenza di deposito viene usata quando non esiste una licenza di deposito specifica di collection.</p>
+    <p>Si noti che la modifica della licenza di deposito di default non ha alcun effetto sugli items gi&agrave; pubblicati.</p>
+	<p>Sono disponibili alcune variabili di sostituzione per rendere possibile la configurazione di una licenza  contestuale:</p>
+    <ul>
+	     <li><strong>%1$s</strong> sar&agrave; tradotto come nome del proponente"</li> 
+		<li><strong>%2$s</strong> sar&agrave; tradotto come cognome del proponente"</li>
+		<li><strong>%3$s</strong> sar&agrave; tradotto come email del proponente" </li>
+		<li><strong>%4$s</strong> sar&agrave; tradotto come data della submission"</li>
+		<li><strong>%5$s</strong> sar&agrave; tradotto come info della collection"</li> 
+		<li><strong>%6$s</strong> sar&agrave; tradotto come info dell'item </li>
+		<li><strong>%7$s</strong> sar&agrave; tradotto come info dell'operatore</li> 
+            </ul>
+	<p>Se dovete incorporare nel testo della licenza il simbolo %, inserirne sempre un secondo %, cio&egrave; dovete scrivere %%. 
+	Si raccomanda di utilizzare una presentazione fittizia per controllare il cambio di licenza:  <strong>controllare la licenza risultante nella fase Accetta/rifiuta la licenza.</strong> 
+    </p>
+	  </body>
+</html>
