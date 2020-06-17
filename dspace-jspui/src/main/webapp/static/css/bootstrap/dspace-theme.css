@@ -5,6 +5,81 @@
  *
  * http://www.dspace.org/license/
  */
+@import url("https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,400italic,700italic,400,300,700|Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"); 
+@import url("https://fonts.googleapis.com/css?family=Roboto+Slab:400,300,700|Roboto:400,300,700");
+
+.navbar-nav > li > a {
+	padding-top:10px;
+	padding-bottom:10px;
+	line-height:21px
+}
+
+@media (min-width:768px) {
+	.navbar-nav {
+		float:left;
+		margin:0;
+	}
+	.navbar-nav > li {
+		float:left;
+	}
+	.navbar-nav > li > a {
+		padding-top:14.5px;
+		padding-bottom:14.5px
+	}
+}
+
+.navbar-inverse {
+	background-color:#00458c;
+	border-color:#002c59;
+}
+
+.navbar-inverse .navbar-nav > li > a, .navbar-inverse .navbar-text {
+	color:#fff;
+}
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > li > a:focus, .navbar-inverse .navbar-nav > li > a:hover {
+	color:#fff;
+	background-color:#002c59;
+}
+
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+	border-color:#26458b
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:focus, .navbar-inverse .navbar-nav > .open > a:hover {
+	color:#fff;
+	background-color:#002c59;
+}
+
+.panel-primary {
+	border-color:#2780e3;
+}
+
+.panel-success {
+	border-color:#4e9f15;
+}
+
+.panel-info {
+	border-color:#5c5c5c;
+}
+
+.panel-warning {
+	border-color:#fbeed5;
+}
+
+.panel-danger {
+	border-color:#f0005e;
+}
+
+@media screen and (min-width:768px) {
+	.carousel-control .glyphicon-chevron-left, .carousel-control .glyphicon-chevron-right, .carousel-control .icon-next, .carousel-control .icon-prev {
+		width:30px;
+		height:30px;
+		margin-top:-10px;
+		font-size:30px
+	}
+}
+
 .brand h4 {color: #999999}
 #user-top-menu, #userloggedin-top-menu {margin-right: 15px;}
 .navbar-home {height:80px; margin-top:-7px;}
@@ -134,7 +209,6 @@ div.carousel-inner div.item div.list-group-item {
 div.carousel-inner div.item div.list-group-item div.list-group-item-heading h4.text-primary {
 	color: inherit;
 }
-
 
 .metric-ranking > span {
     display: block;
@@ -425,4 +499,285 @@ footer .no-bullets-list {
 		padding-right: 15px;
 		padding-left: 15px;
   }
+}
+
+.navbar, .btn-primary, .panel-default>.panel-heading, .panel-info>.panel-heading, .panel-success>.panel-heading,
+.panel-primary>.panel-heading {
+	background-image: none;
+}
+
+.navbar-custom {
+    margin-bottom: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-transform: uppercase;
+    font-family: "Roboto Slab";
+    font-weight: 400;
+}
+
+body {    
+    /*font-family: Lora,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Merriweather", Georgia, "Times New Roman", Times, serif;*/    
+    color: #000;
+    font-family: "Roboto";
+    height: 100%;
+    background-color: #fff;
+    width: 100%;
+    font-weight: 300;
+}
+
+a {
+	color:#0055ad;
+}
+
+a:hover, a:focus {
+    text-decoration: none;
+    color: #2692b9;
+}
+
+.btn {
+    background-image: none !important;
+    border-radius: 0;
+    /*font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;*/
+    font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
+}
+
+.btn-circle {
+    width: 70px;
+    height: 70px;
+    margin-top: 15px;
+    padding: 7px 16px;
+    border: 2px solid #004077;
+    border-radius: 100%!important;
+    font-size: 40px;
+    color: #004077;
+    background: 0 0;
+    -webkit-transition: background .3s ease-in-out;
+    -moz-transition: background .3s ease-in-out;
+    transition: background .3s ease-in-out;
+}
+
+.btn-circle:hover,
+.btn-circle:focus {
+    outline: 0;
+    color: #004077;
+    background: rgba(0,64,119,.2);
+}
+
+.btn-circle i.animated {
+    -webkit-transition-property: -webkit-transform;
+    -webkit-transition-duration: 1s;
+    -moz-transition-property: -moz-transform;
+    -moz-transition-duration: 1s;
+}
+
+.btn-circle:hover i.animated {
+    -webkit-animation-name: pulse;
+    -moz-animation-name: pulse;
+    -webkit-animation-duration: 1.5s;
+    -moz-animation-duration: 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-timing-function: linear;
+}
+
+.btn-default {
+    border: 1px solid #004077;
+    color: #004077;
+    background-color: transparent;
+    background-image: none;
+}
+
+.btn-default:hover,
+.btn-default:focus {
+    border: 1px solid #004077;
+    outline: 0;
+    color: #fff;
+    background-color: #004077;
+    text-shadow: none;
+}
+
+.btn-primary {
+	color:#fff;
+	background-color:#00458c;
+	border-color:#00356b;
+}
+
+.btn-primary:hover {
+	background-color: #424a5d !important;
+}
+
+.btn-info {
+	color:#fff;
+	background-color:#00b9f6;
+	border-color:#00b9f6
+}
+
+.btn-info.focus, .btn-info:focus {
+	color:#fff;
+	background-color:#0093c3;
+	border-color:#005977
+}
+
+.btn-info:hover {
+	color:#fff;
+	background-color:#0093c3;
+	border-color:#008bb9
+}
+
+.btn-success {
+    color: #fff;
+    background-color: #3fb618;
+    border-color: #3fb618;
+}
+
+.btn-success:hover {
+    color: #fff;
+    background-color: #2f8912;
+    border-color: #2c8011;
+}
+
+.btn-warning {
+	color:#fff;
+	background-color:#ff7518;
+	border-color:#ff7518;
+}
+
+.btn-warning.focus, .btn-warning:focus {
+	color:#fff;
+	background-color:#e45c00;
+	border-color:#983d00;
+}
+
+.btn-warning:hover {
+	color:#fff;
+	background-color:#e45c00;
+	border-color:#da5800;
+}
+
+.btn-danger {
+	color:#fff;background-color:#ff0039;border-color:#ff0039
+}
+
+.btn-danger.focus, .btn-danger:focus {
+	color:#fff;
+	background-color:#cc002e;
+	border-color:#80001c
+}
+
+.btn-danger:hover {
+	color:#fff;
+	background-color:#cc002e;
+	border-color:#c2002b
+}
+
+.alert-warning {
+    color: #fff;
+    background-color: #ff7518;
+    border-color: #ff4309;
+    background-image: none;
+}
+
+.alert-danger {
+    color: #fff;
+    background-color: #ff0039;
+    border-color: #f0005e;
+    background-image: none;
+}
+
+.navbar-collapse {
+	width:auto;
+	border-top:0;
+	box-shadow:none
+}
+
+.dropdown-menu .divider {
+    background-color: #00458c;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+    text-shadow: none;
+}
+
+.dropdown-menu {
+    background-color: #0055ad;
+    border-radius: 0;
+}
+
+.dropdown-menu > li > a {
+    display: block;
+    clear: both;
+    font-weight: 400;
+    color: #fff;
+}
+
+.dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {
+    color: #fff;
+    text-decoration: none;
+    background-color: #003c7a;
+    background-image: none;
+}
+
+.panel .panel-heading {
+    color: white;
+    border-radius: 0;
+    background-color: #004fa1;
+    background-image: none;
+}
+
+.panel .panel-heading a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-logo li a .img-responsive {
+    max-height: 100px;
+    display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0 0 35px;
+    text-transform: uppercase;
+    font-family: "Roboto Slab";
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.alert, .progress {
+    margin-bottom: 21px;
+    border-radius: 0;
+}
+
+.pagination {
+    padding-left: 0;
+	margin: 21px 0;
+	border-radius: 0;
+}
+
+.pagination-lg > li:first-child > a, .pagination-lg > li:first-child > span, .pagination-sm > li:first-child > a, .pagination-sm > li:first-child > span, .pagination > li:first-child > a, .pagination > li:first-child > span {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.pagination-lg > li:last-child > a, .pagination-lg > li:last-child > span, .pagination-sm > li:last-child > a, .pagination-sm > li:last-child > span, .pagination > li:last-child > a, .pagination > li:last-child > span {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+@media (min-width:768px) {
+	.form-inline .form-control {
+		width:auto;
+	}
+}
+
+.label-default {
+    background-color: #00458c;
+}
+
+.label-default[href]:focus, .label-default[href]:hover {
+    background-color: #002c59;
 }
