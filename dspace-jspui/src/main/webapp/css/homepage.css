@@ -507,7 +507,7 @@ img::-moz-selection {
 }
 
 .intro-background {
-    background-image: url(/jspui/image/homepage/glam-bkg.jpg);
+    background-image: url(/image/homepage/glam-bkg.jpg);
     background-repeat: no-repeat;
     background-position: center bottom;    
     background-size: cover;
