@@ -187,8 +187,16 @@ public interface ChoiceAuthorityService {
     public void clearCache();
 
     /**
+     * Get the relationship type starting from the metadata field.
+     *
+     * @param field single string identifying metadata field
+     * @return the relationshipType as a String
+     */
+    String getRelationshipType(String fieldKey);
+
+    /**
      * Should we store the authority key (if any) for such field key and collection?
-     * 
+     *
      * @param fieldKey   single string identifying metadata field
      * @param collection Collection owner of Item or where the item is submitted to
      * @return true if the configuration allows to store the authority value
@@ -208,7 +216,9 @@ public interface ChoiceAuthorityService {
     public Choices getTopChoices(String authorityName, int start, int limit, String locale);
 
     /**
-     *
+     * Return the direct parent of an entry identified by its id in an hierarchical
+     * authority.
+     * 
      * @param authorityName authority name
      * @param vocabularyId  child id
      * @param locale        explicit localization key if available, or null
