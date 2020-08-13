@@ -7,9 +7,11 @@
  */
 package org.dspace.layout;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,6 +22,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -46,8 +50,6 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
     private String type;
     @Column(name = "collapsed", nullable = false)
     private Boolean collapsed;
-    @Column(name = "priority", nullable = false)
-    private Integer priority;
     @Column(name = "shortname")
     private String shortname;
     @Column(name = "header")
@@ -60,25 +62,20 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
     private String style;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "cris_layout_box2securityfield",
+        name = "cris_layout_box2securitymetadata",
         joinColumns = {@JoinColumn(name = "box_id")},
-        inverseJoinColumns = {@JoinColumn(name = "authorized_field_id")}
+        inverseJoinColumns = {@JoinColumn(name = "metadata_field_id")}
     )
     private Set<MetadataField> metadataSecurityFields;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cris_layout_box2field",
-        joinColumns = {@JoinColumn(name = "cris_layout_box_id")},
-        inverseJoinColumns = {@JoinColumn(name = "cris_layout_field_id")}
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "box", cascade = CascadeType.ALL)
+    @OrderBy(value = "row, priority")
+    private List<CrisLayoutField> layoutFields;
+    @OneToMany(
+            mappedBy = "box",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    private Set<CrisLayoutField> layoutFields;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "cris_layout_tab2box",
-            joinColumns = {@JoinColumn(name = "cris_layout_box_id")},
-            inverseJoinColumns = {@JoinColumn(name = "cris_layout_tab_id")}
-        )
-    private Set<CrisLayoutTab> tabs;
+    private List<CrisLayoutTab2Box> tab2box = new ArrayList<>();
     @Column(name = "clear")
     private Boolean clear;
 
@@ -113,14 +110,6 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
 
     public void setCollapsed(Boolean collapsed) {
         this.collapsed = collapsed;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Integer priority) {
-        this.priority = priority;
     }
 
     public String getShortname() {
@@ -207,20 +196,19 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
         this.metadataSecurityFields = metadataFields;
     }
 
-    public Set<CrisLayoutField> getLayoutFields() {
+    public List<CrisLayoutField> getLayoutFields() {
         return layoutFields;
     }
 
-    public void setLayoutFields(Set<CrisLayoutField> layoutFields) {
+    public void addLayoutField(CrisLayoutField layoutField) {
+        if (this.layoutFields == null) {
+            this.layoutFields = new ArrayList<>();
+        }
+        this.layoutFields.add(layoutField);
+    }
+
+    public void setLayoutFields(List<CrisLayoutField> layoutFields) {
         this.layoutFields = layoutFields;
-    }
-
-    public Set<CrisLayoutTab> getTabs() {
-        return tabs;
-    }
-
-    public void setTabs(Set<CrisLayoutTab> tabs) {
-        this.tabs = tabs;
     }
 
     public Boolean getClear() {
@@ -231,17 +219,12 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
         this.clear = clear;
     }
 
-    public void addTab(CrisLayoutTab tab) {
-        if (this.tabs == null) {
-            this.tabs = new HashSet<>();
-        }
-        this.tabs.add(tab);
+    public List<CrisLayoutTab2Box> getTab2box() {
+        return tab2box;
     }
 
-    public void removeTab(CrisLayoutTab tab) {
-        if (this.tabs != null && !this.tabs.isEmpty()) {
-            this.tabs.remove(tab);
-        }
+    public void setTab2box(List<CrisLayoutTab2Box> tab2box) {
+        this.tab2box = tab2box;
     }
 
     @Override

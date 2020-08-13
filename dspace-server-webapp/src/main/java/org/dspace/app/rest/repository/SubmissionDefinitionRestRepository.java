@@ -68,10 +68,13 @@ public class SubmissionDefinitionRestRepository extends DSpaceRestRepository<Sub
         if (col == null) {
             return null;
         }
-        SubmissionDefinitionRest def = converter
-            .toRest(submissionConfigReader.getSubmissionConfigByCollection(col.getHandle()),
-                    utils.obtainProjection());
-        return def;
+
+        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByCollection(col);
+        if (submissionConfig == null) {
+            return null;
+        }
+
+        return converter.toRest(submissionConfig, utils.obtainProjection());
     }
 
     @Override

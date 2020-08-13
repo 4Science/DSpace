@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -21,9 +20,11 @@ import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBoxConfiguration;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.dao.CrisLayoutBoxDAO;
 import org.dspace.layout.service.CrisLayoutBoxService;
@@ -44,7 +45,10 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     private ItemService itemService;
 
     @Autowired
-    protected AuthorizeService authorizeService;
+    private AuthorizeService authorizeService;
+
+    @Autowired
+    private EntityTypeService entityTypeService;
 
     @Override
     public CrisLayoutBox create(Context context) throws SQLException, AuthorizeException {
@@ -97,8 +101,8 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     }
 
     @Override
-    public CrisLayoutBox create(Context context, EntityType eType, boolean collapsed, int priority, boolean minor)
-            throws SQLException, AuthorizeException {
+    public CrisLayoutBox create(Context context, EntityType eType, String boxType, boolean collapsed, int priority,
+            boolean minor) throws SQLException, AuthorizeException {
         if (!authorizeService.isAdmin(context)) {
             throw new AuthorizeException(
                 "You must be an admin to create a Box");
@@ -106,8 +110,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         CrisLayoutBox box = new CrisLayoutBox();
         box.setEntitytype(eType);
         box.setCollapsed(collapsed);
-        box.setPriority(priority);
+//        box.setPriority(priority);
         box.setMinor(minor);
+        box.setType(boxType);
         return dao.create(context, box);
     }
 
@@ -188,8 +193,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
      * @see org.dspace.layout.service.CrisLayoutBoxService#findByShortname(org.dspace.core.Context, java.lang.String)
      */
     @Override
-    public CrisLayoutBox findByShortname(Context context, String shortname) throws SQLException {
-        return dao.findByShortname(context, shortname);
+    public CrisLayoutBox findByShortname(Context context, String entityType, String shortname) throws SQLException {
+        Integer entityId = entityTypeService.findByEntityType(context, entityType).getID();
+        return dao.findByShortname(context, entityId, shortname);
     }
 
     /* (non-Javadoc)
@@ -198,7 +204,7 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     @Override
     public boolean hasContent(CrisLayoutBox box, List<MetadataValue> values) {
         boolean found = false;
-        Set<CrisLayoutField> boxFields = box.getLayoutFields();
+        List<CrisLayoutField> boxFields = box.getLayoutFields();
         // Check if the box type is relation
         boolean isRelationBox = box.getType() != null ?
                 box.getType().equalsIgnoreCase("relation") : false;
@@ -219,5 +225,10 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             }
         }
         return found;
+    }
+
+    @Override
+    public CrisLayoutBoxConfiguration getConfiguration(Context context, CrisLayoutBox box) {
+        return new CrisLayoutBoxConfiguration(box);
     }
 }

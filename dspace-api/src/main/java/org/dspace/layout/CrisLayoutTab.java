@@ -8,6 +8,8 @@
 package org.dspace.layout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Cacheable;
@@ -22,7 +24,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OrderBy;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -55,19 +57,17 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
     private Integer security;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "cris_layout_tab2securityfield",
+        name = "cris_layout_tab2securitymetadata",
         joinColumns = {@JoinColumn(name = "tab_id")},
-        inverseJoinColumns = {@JoinColumn(name = "authorized_field_id")}
+        inverseJoinColumns = {@JoinColumn(name = "metadata_field_id")}
     )
     private Set<MetadataField> metadataSecurityFields;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
-    @JoinTable(
-        name = "cris_layout_tab2box",
-        joinColumns = {@JoinColumn(name = "cris_layout_tab_id")},
-        inverseJoinColumns = {@JoinColumn(name = "cris_layout_box_id")}
+    @OneToMany(
+        mappedBy = "tab",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
     )
-    @OrderBy(value = "priority")
-    private List<CrisLayoutBox> boxes;
+    private List<CrisLayoutTab2Box> tab2box = new ArrayList<>();
 
     public Integer getID() {
         return id;
@@ -153,34 +153,90 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         this.metadataSecurityFields = metadataFields;
     }
 
-    public List<CrisLayoutBox> getBoxes() {
-        return boxes;
-    }
-
-    public void setBoxes(List<CrisLayoutBox> boxes) {
-        this.boxes = boxes;
-    }
-
-    public void removeBox(CrisLayoutBox box) {
-        if (this.boxes != null && !this.boxes.isEmpty()) {
-            this.boxes.remove(box);
+    public void addMetadataSecurityFields(Set<MetadataField> metadataFields) {
+        if (this.metadataSecurityFields == null) {
+            this.metadataSecurityFields = new HashSet<>();
         }
+        this.metadataSecurityFields.addAll(metadataFields);
     }
 
-    public void removeBox(Integer boxIdx) {
-        if (this.boxes != null && !this.boxes.isEmpty()) {
-            CrisLayoutBox box = this.boxes.get(boxIdx);
-            if (box != null) {
-                removeBox(box);
+    public void addBox(CrisLayoutBox box) {
+        this.addBox(box, null);
+    }
+
+    public void addBox(CrisLayoutBox box, Integer position) {
+        if (this.tab2box.isEmpty()) {
+            position = 0;
+        } else if (position == null) {
+            position = 0;
+            for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
+                    it.hasNext(); ) {
+                CrisLayoutTab2Box t2b = it.next();
+                if (t2b.getPosition() >= position) {
+                    position = t2b.getPosition() + 1;
+                }
+            }
+        } else {
+            int currentPosition = -1;
+            for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
+                    it.hasNext(); ) {
+                CrisLayoutTab2Box b2f = it.next();
+                currentPosition = b2f.getPosition();
+                if (currentPosition >= position ) {
+                    b2f.setPosition(++currentPosition);
+                }
+            }
+            if (position > ++currentPosition) {
+                position = currentPosition;
+            }
+        }
+        CrisLayoutTab2Box tab2box = new CrisLayoutTab2Box(this, box, position);
+        this.tab2box.add(tab2box);
+    }
+
+    public void removeBox(int boxId) {
+        boolean found = false;
+        for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
+                it.hasNext();) {
+            CrisLayoutTab2Box t2b = it.next();
+            if (found) {
+                t2b.setPosition(t2b.getPosition() - 1);
+            }
+            if (t2b.getTab().equals(this) &&
+                    t2b.getId().getCrisLayoutBoxId().equals(boxId)) {
+                it.remove();
+                t2b.getBox().getTab2box().remove(t2b);
+                t2b.setBox(null);
+                t2b.setTab(null);
+                found = true;
             }
         }
     }
 
-    public void addBox(CrisLayoutBox box) {
-        if (this.boxes == null) {
-            this.boxes = new ArrayList<>();
+    public void removeBox(CrisLayoutBox box) {
+        boolean found = false;
+        for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
+                it.hasNext();) {
+            CrisLayoutTab2Box t2b = it.next();
+            if (found) {
+                t2b.setPosition(t2b.getPosition() - 1);
+            }
+            if (t2b.getTab().equals(this) && t2b.getBox().equals(box)) {
+                it.remove();
+                t2b.getBox().getTab2box().remove(t2b);
+                t2b.setBox(null);
+                t2b.setTab(null);
+                found = true;
+            }
         }
-        this.boxes.add(box);
+    }
+
+    public List<CrisLayoutTab2Box> getTab2Box() {
+        return tab2box;
+    }
+
+    public void setTab2Box(List<CrisLayoutTab2Box> tab2Box) {
+        this.tab2box = tab2Box;
     }
 
     @Override
