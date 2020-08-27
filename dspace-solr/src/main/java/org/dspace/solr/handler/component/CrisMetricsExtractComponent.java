@@ -150,7 +150,7 @@ public class CrisMetricsExtractComponent extends SearchComponent
                     {
                         fields.add(fieldname);
                     }
-                    Map<String, Map<Integer, Double>> tmp = CrisMetricsUpdateListener
+                    Map<String, Map<String, Double>> tmp = CrisMetricsUpdateListener
                             .getMetrics(coreName);
                     if (tmp != null && !tmp.isEmpty())
                     {

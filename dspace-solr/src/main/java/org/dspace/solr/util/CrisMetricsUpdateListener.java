@@ -19,8 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.solr.common.util.NamedList;
@@ -31,6 +33,8 @@ import org.apache.solr.search.SolrIndexSearcher;
 
 public class CrisMetricsUpdateListener implements SolrEventListener
 {
+    private static Logger log = Logger.getLogger(CrisMetricsUpdateListener.class);
+
     private static Map<String, Date> cacheAcquisition = new HashMap<String, Date>();
     
     private static Map<String, Long> cacheVersion = new HashMap<String, Long>();
@@ -39,15 +43,14 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 
     private static final Map<String, PopulateRanksThread> underRebuild = new HashMap<String, PopulateRanksThread>();
     
-    private static final Map<String, Map<String, Map<Integer, Double>>> metrics = new HashMap<String, Map<String, Map<Integer, Double>>>();
+    private static final Map<String, Map<String, Map<String, Double>>> metrics = new HashMap<>();
 
-    private static final Map<String, Map<String, Map<Integer, ExtraInfo>>> extraInfo = new HashMap<String, Map<String, Map<Integer, ExtraInfo>>>();
+    private static final Map<String, Map<String, Map<String, ExtraInfo>>> extraInfo = new HashMap<>();
     
-    private SolrCore core;
+    private static Map<String, Map<Integer, String>> docIdToUniqueId = new HashMap<>();
 
-    public CrisMetricsUpdateListener(SolrCore core)
+    public CrisMetricsUpdateListener()
     {
-        this.core = core;
     }
 
     ////////////// SolrEventListener methods /////////////////
@@ -81,17 +84,24 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 
     public static Double getMetric(String coreName, String metric, int docId)
     {
-    	final Thread underRebuildThread = underRebuild.get(coreName);
-		if (underRebuildThread != null) {
-    		return null;
-    	}
-    	Map<String, Map<Integer, Double>> m = metrics.get(coreName);
-        if (m != null && m.containsKey(metric))
+    	synchronized (CrisMetricsUpdateListener.class)
         {
-            Map<Integer, Double> values = m.get(metric);
-            if (values.containsKey(docId))
-            {
-                return values.get(docId);
+    	    final Thread underRebuildThread = underRebuild.get(coreName);
+            if (underRebuildThread != null) {
+                return null;
+            }            
+        }
+    	Map<String, Map<String, Double>> m = metrics.get(coreName);
+    	Map<Integer, String> docs = docIdToUniqueId.get(coreName);
+        if (m != null && docs!=null && m.containsKey(metric))
+        {
+            Map<String, Double> values = m.get(metric);
+            if (docs.containsKey(docId)) {
+                String uniqueId = docs.get(docId);
+                if (values.containsKey(uniqueId))
+                {
+                    return values.get(uniqueId);
+                }
             }
         }
         return null;
@@ -99,17 +109,24 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 
     public static ExtraInfo getRemark(String coreName, String metric, int docId)
     {
-    	final Thread underRebuildThread = underRebuild.get(coreName);
-		if (underRebuildThread != null) {
-    		return null;
-    	}
-    	Map<String, Map<Integer, ExtraInfo>> ei = extraInfo.get(coreName);
-        if (ei != null && ei.containsKey(metric))
+        synchronized (CrisMetricsUpdateListener.class)
         {
-            Map<Integer, ExtraInfo> values = ei.get(metric);
-            if (values.containsKey(docId))
-            {
-                return values.get(docId);
+            final Thread underRebuildThread = underRebuild.get(coreName);
+            if (underRebuildThread != null) {
+                return null;
+            }            
+        }
+    	Map<String, Map<String, ExtraInfo>> ei = extraInfo.get(coreName);
+    	Map<Integer, String> docs = docIdToUniqueId.get(coreName);
+        if (ei != null && docs!=null && ei.containsKey(metric))
+        {
+            Map<String, ExtraInfo> values = ei.get(metric);
+            if (docs.containsKey(docId)) {
+                String uniqueId = docs.get(docId);
+                if (values.containsKey(uniqueId))
+                {
+                    return values.get(uniqueId);
+                }
             }
         }
         return null;
@@ -135,7 +152,17 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		return dbprops;
     }
 
-	public static void renewCache(SolrIndexSearcher newSearcher) throws IOException
+    public static void updateCache(SolrIndexSearcher newSearcher) throws IOException
+    {
+        renewOrUpdateCache(newSearcher, false);
+    }
+
+    public static void renewCache(SolrIndexSearcher newSearcher) throws IOException
+    {
+        renewOrUpdateCache(newSearcher, true);
+    }
+
+    private static void renewOrUpdateCache(SolrIndexSearcher newSearcher, boolean force) throws IOException
     {
 		String coreName = newSearcher.getCore().getName();
 		PopulateRanksThread underRebuildThread = null;
@@ -145,38 +172,44 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 				log.debug("rank chache already under rebuild... restart");
 				underRebuildThread.stopGraceful();
 			}
+		    underRebuildThread = new PopulateRanksThread(newSearcher, force);
+		    underRebuildThread.start();
+		    underRebuild.put(coreName, underRebuildThread);
 		}
-		underRebuildThread = new PopulateRanksThread(newSearcher);
-		underRebuildThread.start();
-    	underRebuild.put(coreName, underRebuildThread);
     }
 
-    public static Map<String, Map<Integer, Double>> getMetrics(String coreName)
+    public static Map<String, Map<String, Double>> getMetrics(String coreName)
     {
         return metrics.get(coreName);
     }
 
-    public static Map<String, Map<Integer, ExtraInfo>> getExtrainfo(String coreName)
+    public static Map<String, Map<String, ExtraInfo>> getExtrainfo(String coreName)
     {
         return extraInfo.get(coreName);
     }
     
+    public static boolean isCacheUpdated(SolrIndexSearcher searcher) {
+        String coreName = searcher.getCore().getName();
+        Long cv = cacheVersion.get(coreName);
+        return cv.longValue() == searcher.getOpenTime();
+    }
+
 	public static boolean isCacheInvalid(SolrIndexSearcher searcher) {
 		String coreName = searcher.getCore().getName();
 		Date ca = cacheAcquisition.get(coreName);
-		Long cv = cacheVersion.get(coreName);
 		Date now = new Date();
-		return ca == null || (now.getTime() - ca.getTime() > cacheValidity)
-				|| cv.longValue() != searcher.getOpenTime();
+		return ca == null || (now.getTime() - ca.getTime() > cacheValidity);
 	}
 
 	public static class PopulateRanksThread extends Thread {
 		private boolean stop = false;
 		
 		private SolrIndexSearcher newSearcher;
+		private boolean force;
 		
-		public PopulateRanksThread(SolrIndexSearcher newSearcher) {
+		public PopulateRanksThread(SolrIndexSearcher newSearcher, boolean force) {
 			this.newSearcher = newSearcher;
+			this.force = force;
 		}
 		
 		public void stopGraceful() {
@@ -188,23 +221,66 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 			String coreName = newSearcher.getCore().getName();
 			try {
 				log.debug("Building the rank chache...");
-	    		cacheVersion.put(coreName, newSearcher.getOpenTime());
-	            cacheAcquisition.put(coreName, new Date());
-				populateRanks(coreName, newSearcher);
+                cacheVersion.put(coreName, newSearcher.getOpenTime());
+                cacheAcquisition.put(coreName, new Date());
+	            if (force) {
+	                populateRanks(coreName, newSearcher);
+	            }
+	            else {
+	                docIdToUniqueId = new HashMap<>();
+	                updateIdsMap(coreName, newSearcher);
+	            }
 			} catch (IOException e) {
-				log.error(e.getMessage(), e);
+				// This is thrown every time cache is invalidated during rebuild 
+				log.debug(e.getMessage(), e);
 			} finally {
-				underRebuild.put(coreName, null);
+			    synchronized (CrisMetricsUpdateListener.class) {
+			        underRebuild.put(coreName, null);
+			    }
 			}
 		}
+
+        private void updateIdsMap(String coreName, SolrIndexSearcher searcher)
+                throws IOException
+        {
+            Map<Integer, String> docIdToUniqueIdCopy = new HashMap<>();
+            Date start = new Date();
+            try
+            {
+                ScoreDoc[] hits = searcher.search(
+                        new MatchAllDocsQuery(),
+                        Integer.MAX_VALUE
+                        ).scoreDocs;
+
+                Set<String> fields = new HashSet<String>();
+                fields.add("search.uniqueid");
+                for (ScoreDoc doc : hits) {
+                    if (stop) {
+                        return;
+                    }
+                    docIdToUniqueIdCopy.put(doc.doc, searcher.doc(doc.doc, fields).getValues("search.uniqueid")[0]);
+                }
+
+                docIdToUniqueId.put(coreName, docIdToUniqueIdCopy);
+
+                Date end = new Date();
+                log.debug("UPDATE CACHE TIME: "+(end.getTime()-start.getTime()));
+            }
+            catch (Exception e)
+            {
+                log.debug(e.getMessage(), e);
+                throw new IOException(e);
+            }
+        }
 
 		private void populateRanks(String coreName, SolrIndexSearcher searcher)
 		        throws IOException
 		{	
 			Integer numDocs = (Integer) searcher.getStatistics().get("numDocs");
 			Date start = new Date();
-		    Map<String, Map<Integer, Double>> metricsCopy = new HashMap<String, Map<Integer, Double>>(numDocs);
-		    Map<String, Map<Integer, ExtraInfo>> metricsRemarksCopy = new HashMap<String, Map<Integer, ExtraInfo>>(numDocs);
+		    Map<String, Map<String, Double>> metricsCopy = new HashMap<>(numDocs);
+		    Map<String, Map<String, ExtraInfo>> metricsRemarksCopy = new HashMap<>(numDocs);
+		    Map<Integer, String> docIdToUniqueIdCopy = new HashMap<>();
 		    Connection conn = null;
 		    PreparedStatement ps = null;
 		    ResultSet rs = null;
@@ -245,19 +321,20 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		        	if (stop) {
 		        		return;
 		        	}
-		            Integer resourceId = (Integer)rs.getObject(1);
-		            int resourceTypeId = rs.getInt(2);
-		            double count = rs.getDouble(5);
+		            UUID resourceId = (UUID)rs.getObject(1);
+		            int resourceTypeId = rs.getInt(2);		            
 		            String type = rs.getString(3);
 		            String remark = rs.getString(4);
+		            double count = rs.getDouble(5);
 		            Date acqTime = rs.getDate(6);
 		            Date startTime = rs.getDate(7);
 		            Date endTime = rs.getDate(8);
-		            Integer docId = searchIDCache.get(resourceTypeId+"-"+resourceId);
+		            String searchUniqueId = resourceTypeId+"-"+resourceId;
+                    Integer docId = searchIDCache.get(searchUniqueId);
 		            if (docId != null) {
 		                String key = new StringBuffer("crismetrics_").append(type.toLowerCase()).toString();
-		                Map<Integer, Double> tmpSubMap;
-		                Map<Integer, ExtraInfo> tmpSubRemarkMap;
+		                Map<String, Double> tmpSubMap;
+		                Map<String, ExtraInfo> tmpSubRemarkMap;
 		                boolean add = false;
 		                if(metricsCopy.containsKey(key)) {
 		                    tmpSubMap = metricsCopy.get(key);
@@ -265,12 +342,13 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		                }
 		                else {
 		                	add = true;
-		                	tmpSubMap = new HashMap<Integer, Double>();
-			                tmpSubRemarkMap = new HashMap<Integer, ExtraInfo>();
+		                	tmpSubMap = new HashMap<>();
+			                tmpSubRemarkMap = new HashMap<>();
 		                }
 		            
-		                tmpSubMap.put(docId, count);
-		                tmpSubRemarkMap.put(docId, new ExtraInfo(remark, acqTime, startTime, endTime));
+		                tmpSubMap.put(searchUniqueId, count);
+		                tmpSubRemarkMap.put(searchUniqueId, new ExtraInfo(remark, acqTime, startTime, endTime));
+		                docIdToUniqueIdCopy.put(docId, searchUniqueId);
 		
 		                if(add) {
 		                    metricsCopy.put(key, tmpSubMap);
@@ -289,6 +367,20 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		    }
 		    finally
 		    {
+		        if(rs != null) {
+		            try {
+		                rs.close();
+		            }catch (SQLException e) {
+		                e.printStackTrace();
+		            }
+		        }
+		        if (ps != null) {
+		            try {
+		                ps.close();
+		            } catch (SQLException e) {
+		                e.printStackTrace();
+		            }
+		        }
 		        if (conn != null)
 		        {
 		            try
@@ -303,8 +395,8 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		        }
 		    }
 		    
-		    Map<String, Map<Integer, Double>> m = metrics.get(coreName); 
-		    Map<String, Map<Integer, ExtraInfo>> ei = extraInfo.get(coreName);
+		    Map<String, Map<String, Double>> m = metrics.get(coreName);
+		    Map<String, Map<String, ExtraInfo>> ei = extraInfo.get(coreName);
 		    
 		    if (ei != null) {
 		    	ei.clear();
@@ -319,7 +411,9 @@ public class CrisMetricsUpdateListener implements SolrEventListener
 		    
 		    m = metricsCopy;
 		    metrics.put(coreName, m);
-		}
 
+		    docIdToUniqueId.put(coreName, docIdToUniqueIdCopy);
 	}
+
+    }
 }
