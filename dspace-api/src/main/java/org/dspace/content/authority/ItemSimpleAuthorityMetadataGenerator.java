@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraMetadataGenerator {
 
-    private String relatedInputformMetadata = "dc_contributor_department";
+    private String relatedInputformMetadata;
 
     private String schema;
 
@@ -89,7 +89,7 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
         } else {
             if (StringUtils.isNotBlank(metadataValue.getAuthority())) {
                 extras.put("data-" + getRelatedInputformMetadata(),
-                                          metadataValue.getValue() + "::" + metadataValue.getAuthority());
+                        metadataValue.getValue() + "::" + metadataValue.getAuthority());
             } else {
                 extras.put("data-" + getRelatedInputformMetadata(), metadataValue.getValue());
             }

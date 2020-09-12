@@ -44,4 +44,53 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>access-token</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>refresh-token</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>scope</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>sync-mode</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>sync-publications</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>sync-projects</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>sync-profile</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
