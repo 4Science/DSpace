@@ -90,7 +90,7 @@
 	           	<div id="designedby" class="col-sm-8 text-<%= isRtl ? "left": "right" %>">
             	 	<fmt:message key="jsp.layout.footer-default.text"/> - 
             	 	<fmt:message key="jsp.layout.footer-default.version-by"/> 
-            	 	<a href="http://www.4science.it/en/dspace-and-dspace-cris-services/">
+            	 	<a href="https://www.4science.it/">
             	 		<img src="<%= request.getContextPath() %>/image/logo-4science-small.png"
                                     alt="Logo 4SCIENCE" height="32px"/></a>
 				</div>
