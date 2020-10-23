@@ -282,7 +282,7 @@
          <repeatable>false</repeatable>
          <label>Licenza</label>
          <input-type value-pairs-name="license_types">dropdown</input-type>
-         <hint>Inserire la licenza attribuita alla risorsa.</hint>
+         <hint>Inserire le condizioni d'uso attribuite alla risorsa digitale.</hint>
          <required></required>
        </field>
        
@@ -419,30 +419,38 @@
      </pair>
    </value-pairs>
    
-    <value-pairs value-pairs-name="license_types" dc-term="type">
+   <value-pairs value-pairs-name="license_types" dc-term="type">
+     <pair>
+       <displayed-value>Tutti i diritti riservati</displayed-value>
+       <stored-value>Tutti i diritti riservati</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC0</displayed-value>
+       <stored-value>CC0</stored-value>
+     </pair>
      <pair>
        <displayed-value>CC BY</displayed-value>
-       <stored-value>ccby</stored-value>
+       <stored-value>CC BY</stored-value>
      </pair>
      <pair>
        <displayed-value>CC BY-SA</displayed-value>
-       <stored-value>ccbysa</stored-value>
+       <stored-value>CC BY-SA</stored-value>
      </pair>
      <pair>
        <displayed-value>CC BY-ND</displayed-value>
-       <stored-value>ccbynd</stored-value>
+       <stored-value>CC BY-ND</stored-value>
      </pair>
      <pair>
        <displayed-value>CC BY-NC</displayed-value>
-       <stored-value>ccbync</stored-value>
+       <stored-value>CC BY-NC</stored-value>
      </pair>
      <pair>
        <displayed-value>CC BY-NC-SA</displayed-value>
-       <stored-value>ccbyncsa</stored-value>
+       <stored-value>CC BY-NC-SA</stored-value>
      </pair>
      <pair>
        <displayed-value>CC BY-NC-ND</displayed-value>
-       <stored-value>ccbyncnd</stored-value>
+       <stored-value>CC BY-NC-ND</stored-value>
      </pair>
    </value-pairs>
 
