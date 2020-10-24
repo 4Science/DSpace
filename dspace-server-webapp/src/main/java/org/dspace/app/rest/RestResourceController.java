@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -70,6 +71,8 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.TemplateVariable.VariableType;
+import org.springframework.hateoas.UriTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -572,6 +575,37 @@ public class RestResourceController implements InitializingBean {
     }
 
     /**
+     * Called in POST, multipart, upload to a specific rest resource the file passed as "file" request parameter
+     *
+     * Note that the regular expression in the request mapping accept a String as identifier;
+     *
+     * @param request
+     *            the http request
+     * @param apiCategory
+     *            the api category
+     * @param model
+     *            the rest model that identify the REST resource collection
+     * @param id
+     *            the id of the specific rest resource
+     * @param uploadfile
+     *            the file to upload
+     * @return the created resource
+     * @throws HttpRequestMethodNotSupportedException
+     */
+    @RequestMapping(method = RequestMethod.POST,
+            value = REGEX_REQUESTMAPPING_IDENTIFIER_AS_STRING_VERSION_STRONG,
+            headers = "content-type=multipart/form-data")
+    public <ID extends Serializable> ResponseEntity<RepresentationModel<?>> upload(HttpServletRequest request,
+                                                                                   @PathVariable String apiCategory,
+                                                                                   @PathVariable String model,
+                                                                                   @PathVariable String id,
+                                                                                   @RequestParam("file") MultipartFile
+                                                                                uploadfile)
+        throws HttpRequestMethodNotSupportedException {
+        return uploadInternal(request, apiCategory, model, id, uploadfile);
+    }
+
+    /**
      * Internal upload method.
      *
      * @param request
@@ -684,6 +718,28 @@ public class RestResourceController implements InitializingBean {
     }
 
     /**
+     * PATCH method, using operation on the resources following (JSON) Patch notation (https://tools.ietf
+     * .org/html/rfc6902)
+     *
+     * Note that the regular expression in the request mapping accept a UUID as identifier;
+     *
+     * @param request
+     * @param apiCategory
+     * @param model
+     * @param id
+     * @param jsonNode
+     * @return
+     * @throws HttpRequestMethodNotSupportedException
+     */
+    @RequestMapping(method = RequestMethod.PATCH, value = REGEX_REQUESTMAPPING_IDENTIFIER_AS_STRING_VERSION_STRONG)
+    public ResponseEntity<RepresentationModel<?>> patch(HttpServletRequest request, @PathVariable String apiCategory,
+                                                        @PathVariable String model,
+                                                        @PathVariable String id,
+                                                        @RequestBody(required = true) JsonNode jsonNode) {
+        return patchInternal(request, apiCategory, model, id, jsonNode);
+    }
+
+    /**
      * Internal patch method
      *
      * @param request
@@ -710,9 +766,13 @@ public class RestResourceController implements InitializingBean {
             log.error(e.getMessage(), e);
             throw e;
         }
-        DSpaceResource result = converter.toResource(modelObject);
-        //TODO manage HTTPHeader
-        return ControllerUtils.toResponseEntity(HttpStatus.OK, new HttpHeaders(), result);
+        if (modelObject != null) {
+            DSpaceResource result = converter.toResource(modelObject);
+            //TODO manage HTTPHeader
+            return ControllerUtils.toResponseEntity(HttpStatus.OK, new HttpHeaders(), result);
+        } else {
+            return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT);
+        }
 
     }
 
@@ -977,8 +1037,6 @@ public class RestResourceController implements InitializingBean {
             PagedResourcesAssembler assembler,
             @RequestParam MultiValueMap<String, Object> parameters)
         throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        Link link = linkTo(this.getClass(), apiCategory, model).slash("search").slash(searchMethodName).withSelfRel();
         DSpaceRestRepository repository = utils.getResourceRepository(apiCategory, model);
         boolean returnPage = false;
         Object searchResult = null;
@@ -992,9 +1050,14 @@ public class RestResourceController implements InitializingBean {
                 throw new RepositorySearchNotFoundException(model);
             }
         }
+        MultiValueMap<String, Object> searchParameters = repositoryUtils.getSearchParameters(parameters, searchMethod);
+
+        Link link = addParameters(
+                linkTo(this.getClass(), apiCategory, model).slash("search").slash(searchMethodName).withSelfRel(),
+                parameters, pageable, sort);
 
         searchResult = repositoryUtils
-            .executeQueryMethod(repository, parameters, searchMethod, pageable, sort, assembler);
+            .invokeQueryMethod(repository, searchMethod, searchParameters, pageable, sort);
 
         returnPage = searchMethod.getReturnType().isAssignableFrom(Page.class);
         RepresentationModel result = null;
@@ -1016,6 +1079,18 @@ public class RestResourceController implements InitializingBean {
         return result;
     }
 
+    private Link addParameters(Link link, MultiValueMap<String, Object> parameters, Pageable pageable, Sort sort) {
+        UriTemplate template = link.getTemplate();
+        if (parameters != null) {
+            for (String param : parameters.keySet().stream().sorted().collect(Collectors.toList())) {
+                template = template.with(param, VariableType.COMPOSITE_PARAM);
+            }
+        }
+        Link result = new Link(template, link.getRel()).expand(parameters);
+        return result;
+    }
+
+
     @RequestMapping(method = RequestMethod.DELETE, value = REGEX_REQUESTMAPPING_IDENTIFIER_AS_DIGIT)
     public ResponseEntity<RepresentationModel<?>> delete(HttpServletRequest request, @PathVariable String apiCategory,
                                                          @PathVariable String model, @PathVariable Integer id)
@@ -1028,6 +1103,13 @@ public class RestResourceController implements InitializingBean {
                                                          @PathVariable String model, @PathVariable UUID uuid)
         throws HttpRequestMethodNotSupportedException {
         return deleteInternal(apiCategory, model, uuid);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = REGEX_REQUESTMAPPING_IDENTIFIER_AS_STRING_VERSION_STRONG)
+    public ResponseEntity<RepresentationModel<?>> delete(HttpServletRequest request, @PathVariable String apiCategory,
+                                                         @PathVariable String model, @PathVariable String id)
+        throws HttpRequestMethodNotSupportedException {
+        return deleteInternal(apiCategory, model, id);
     }
 
     /**
