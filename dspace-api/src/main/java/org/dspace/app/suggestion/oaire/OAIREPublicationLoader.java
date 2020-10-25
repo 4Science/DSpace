@@ -222,34 +222,15 @@ public class OAIREPublicationLoader extends SolrSuggestionProvider {
      */
     private List<ImportRecord> removeDuplicates(List<ImportRecord> importRecords) {
         List<ImportRecord> filteredRecords = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
         for (ImportRecord currentRecord : importRecords) {
-            if (!isDuplicate(currentRecord, filteredRecords)) {
+            String currentItemId = getIdFromImportRecord(currentRecord);
+            if (currentItemId != null && !ids.contains(currentItemId)) {
                 filteredRecords.add(currentRecord);
+                ids.add(currentItemId);
             }
         }
         return filteredRecords;
-    }
-
-
-    /**
-     * Check if the ImportRecord is already present in the list.
-     * The comparison is made on the value of metadatum with key 'dc.identifier.other'
-     * 
-     * @param dto An importRecord instance
-     * @param importRecords a list of importRecord
-     * @return true if dto is already present in importRecords, false otherwise
-     */
-    private boolean isDuplicate(ImportRecord dto, List<ImportRecord> importRecords) {
-        String currentItemId = getIdFromImportRecord(dto);
-        if (currentItemId == null) {
-            return true;
-        }
-        for (ImportRecord importRecord : importRecords) {
-            if (currentItemId.equals(getIdFromImportRecord(importRecord))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
