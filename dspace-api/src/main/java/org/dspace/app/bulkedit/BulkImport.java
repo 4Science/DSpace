@@ -185,6 +185,10 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         context.setMode(Context.Mode.BATCH_EDIT);
         assignCurrentUserInContext();
 
+        //FIXME: see https://4science.atlassian.net/browse/CSTPER-236 for final solution
+
+        context.turnOffAuthorisationSystem();
+
         InputStream inputStream = handler.getFileStream(context, filename)
             .orElseThrow(() -> new IllegalArgumentException("Error reading file, the file couldn't be "
                 + "found for filename: " + filename));
@@ -201,6 +205,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         try {
             performImport(inputStream);
             context.complete();
+            context.restoreAuthSystemState();
         } catch (Exception e) {
             handler.handleException(e);
             context.abort();
@@ -325,10 +330,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             String submissionName = this.submissionConfigReader.getSubmissionConfigByCollection(getCollection())
                 .getSubmissionName();
             String formName = submissionName + "-" + groupName.replaceAll("\\.", "-");
-            return Arrays.stream(this.reader.getInputsByFormName(formName).getFields())
-                .flatMap(dcInputs -> Arrays.stream(dcInputs))
-                .map(dcInput -> dcInput.getFieldName())
-                .collect(Collectors.toList());
+            return this.reader.getAllFieldNamesByFormName(formName);
         } catch (DCInputsReaderException e) {
             throw new BulkImportException("An error occurs reading the input configuration "
                 + "by group name " + groupName, e);

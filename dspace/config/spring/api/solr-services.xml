@@ -38,4 +38,6 @@
 
     <!-- suggestion service for solr providers -->	
 	<bean id="org.dspace.app.suggestion.SolrSuggestionStorageService" class="org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl" />
+	<!-- audit -->
+	<bean id="org.dspace.app.audit.AuditService" class="org.dspace.app.audit.AuditService"/>
 </beans>

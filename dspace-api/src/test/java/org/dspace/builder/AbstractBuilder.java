@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.audit.AuditService;
 import org.dspace.app.nbevent.service.NBEventService;
 import org.dspace.app.orcid.factory.OrcidHistoryServiceFactory;
 import org.dspace.app.orcid.factory.OrcidQueueServiceFactory;
@@ -107,6 +108,7 @@ public abstract class AbstractBuilder<T, S> {
     static OrcidHistoryService orcidHistoryService;
     static NBEventService nbEventService;
     static SolrSuggestionStorageService solrSuggestionService;
+    static AuditService auditService;
 
     protected Context context;
 
@@ -168,6 +170,7 @@ public abstract class AbstractBuilder<T, S> {
         orcidHistoryService = OrcidHistoryServiceFactory.getInstance().getOrcidHistoryService();
         nbEventService = new DSpace().getSingletonService(NBEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
+        auditService = new DSpace().getSingletonService(AuditService.class);
     }
 
 

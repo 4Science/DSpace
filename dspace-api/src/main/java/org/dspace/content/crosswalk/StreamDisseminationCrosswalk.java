@@ -10,6 +10,8 @@ package org.dspace.content.crosswalk;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.Optional;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
@@ -31,6 +33,7 @@ import org.dspace.core.Context;
  * @version $Revision$
  */
 public interface StreamDisseminationCrosswalk {
+
     /**
      * Predicate: Can this disseminator crosswalk the given object.
      *
@@ -56,5 +59,47 @@ public interface StreamDisseminationCrosswalk {
     public void disseminate(Context context, DSpaceObject dso, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException;
 
+    /**
+     * Execute crosswalk on the given objects, sending output to the stream.
+     *
+     * @param context the DSpace context
+     * @param dsoIterator  an iterator over the DSpace object to export
+     * @param out     output stream to write to
+     * @throws CrosswalkInternalException  (<code>CrosswalkException</code>) failure of the crosswalk itself.
+     * @throws CrosswalkObjectNotSupported (<code>CrosswalkException</code>) Cannot crosswalk this kind of DSpace
+     *                                     object.
+     * @throws IOException                 I/O failure in services this calls
+     * @throws SQLException                Database failure in services this calls
+     * @throws AuthorizeException          current user not authorized for this operation.
+     */
+    public default void disseminate(Context context, Iterator<? extends DSpaceObject> dsoIterator, OutputStream out)
+        throws CrosswalkException, IOException, SQLException, AuthorizeException {
+        throw new UnsupportedOperationException("Crosswalk on multiple DSpace object not supported");
+    }
+
+    /**
+     * Returns the MIME type of the output written in the given stream.
+     *
+     * @return the output MIME type.
+     */
     public String getMIMEType();
+
+    /**
+     * Returns the type of entities that the specific StreamDisseminationCrosswalk
+     * implementation is capable of processing, if any.
+     *
+     * @return the entity type, if configured, or an empty Optional
+     */
+    public default Optional<String> getEntityType() {
+        return Optional.empty();
+    }
+
+    /**
+     * Returns the supported crosswalk mode.
+     *
+     * @return the crosswalk mode
+     */
+    public default CrosswalkMode getCrosswalkMode() {
+        return CrosswalkMode.SINGLE;
+    }
 }
