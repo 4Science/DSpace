@@ -11,13 +11,13 @@ import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.content.Metadatum;
 import org.dspace.utils.DSpace;
 
-public class FondAuthority extends DOAuthority
+public class HierarchyTreeAuthority extends DOAuthority
 {
 	ApplicationService applicationService = new DSpace().getServiceManager().getServiceByName(
             "applicationService", ApplicationService.class);
 
     /** The logger */
-    private static Logger log = Logger.getLogger(FondAuthority.class);
+    private static Logger log = Logger.getLogger(HierarchyTreeAuthority.class);
 
     @Override
     public int getCRISTargetTypeID()
@@ -46,26 +46,17 @@ public class FondAuthority extends DOAuthority
     @Override
     protected String getDisplayEntry(ResearchObject cris, String locale)
     {
-        if (cris instanceof ResearchObject)
-        {
-            if (cris instanceof ResearchObject
-                    && cris.getTypeText().equals("crisfonds"))
-            {
-                List<String> results = new ArrayList<>();
-
-                generateTree(cris, results);
-
-                return StringUtils.join(results, " > ");
-            }
-        }
-
-        return cris.getName();
+        List<String> results = new ArrayList<>();
+        generateTree(cris, results);
+        return StringUtils.join(results, " > ");
     }
 
     private void generateTree(ACrisObject cris, List<String> results)
     {
+        String typeText = cris.getTypeText();
+        String parentMetadata = StringUtils.replace(typeText, "cris", "") + "parent";
         Metadatum[] fondsparents = cris.getMetadata(
-                cris.getTypeText(), "fondsparent", null, null);
+                typeText, parentMetadata, null, null);
 
         if (fondsparents != null && fondsparents.length > 0) {
             for (Metadatum fondsparent : fondsparents) {
