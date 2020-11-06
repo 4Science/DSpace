@@ -73,6 +73,7 @@ public class ScopusService {
 
 		String endpoint = ConfigurationManager.getProperty("cris", "ametrics.elsevier.scopus.endpoint");
 		String apiKey = ConfigurationManager.getProperty("cris", "ametrics.elsevier.scopus.apikey");
+		String token = ConfigurationManager.getProperty("cris", "ametrics.elsevier.scopus.insttoken");
 
 		HttpGet method = null;
 		ScopusResponse scopusResponse = null;
@@ -115,6 +116,9 @@ public class ScopusService {
 
 				method.addHeader("Accept", "application/xml");
 				method.addHeader("X-ELS-APIKey", apiKey);
+				if(StringUtils.isNotBlank(token)) {
+					method.addHeader("X-ELS-Insttoken",token);
+				}
 
 				// Execute the method.
 				HttpResponse response = client.execute(method);
