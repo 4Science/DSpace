@@ -11,10 +11,10 @@ import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
 import static org.dspace.builder.ItemBuilder.createItem;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -392,6 +392,211 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             "2020-01-01", "2020-12-31", "OPEN", "Third Coordinator OrgUnit", "Partner OrgUnit", "Member OrgUnit",
             "Investigator", "First coinvestigator||Second coinvestigator", "", "project||test", "", "false",
             "www.oamandate.com"));
+    }
+
+    @Test
+    public void testDisseminateOrgUnits() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("OrgUnit")
+            .withAcronym("TOU")
+            .withTitle("Test OrgUnit")
+            .withOrgUnitLegalName("Test OrgUnit LegalName")
+            .withType("Strategic Research Insitute")
+            .withParentOrganization("Parent OrgUnit")
+            .withOrgUnitIdentifier("ID-01")
+            .withOrgUnitIdentifier("ID-02")
+            .withUrlIdentifier("www.orgUnit.com")
+            .withUrlIdentifier("www.orgUnit.it")
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("OrgUnit")
+            .withAcronym("ATOU")
+            .withTitle("Another Test OrgUnit")
+            .withType("Private non-profit")
+            .withParentOrganization("Parent OrgUnit")
+            .withOrgUnitIdentifier("ID-03")
+            .build();
+
+        Item thirdItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("OrgUnit")
+            .withAcronym("TTOU")
+            .withTitle("Third Test OrgUnit")
+            .withType("Private non-profit")
+            .withOrgUnitIdentifier("ID-03")
+            .withUrlIdentifier("www.orgUnit.test")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("orgUnit-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, Arrays.asList(firstItem, secondItem, thirdItem).iterator(), baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(4));
+
+        assertThat(getRowValues(sheet.getRow(0)), contains("Name", "Legal name", "Acronym", "Type", "Parent OrgUnit",
+            "Identifier(s)", "URL(s)"));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Test OrgUnit", "Test OrgUnit LegalName", "TOU",
+            "https://w3id.org/cerif/vocab/OrganisationTypes#StrategicResearchInsitute", "Parent OrgUnit",
+            "ID-01||ID-02", "www.orgUnit.com||www.orgUnit.it"));
+
+        assertThat(getRowValues(sheet.getRow(2)), contains("Another Test OrgUnit", "", "ATOU",
+            "https://w3id.org/cerif/vocab/OrganisationTypes#Privatenonprofit", "Parent OrgUnit", "ID-03", ""));
+
+        assertThat(getRowValues(sheet.getRow(3)), contains("Third Test OrgUnit", "", "TTOU",
+            "https://w3id.org/cerif/vocab/OrganisationTypes#Privatenonprofit", "", "ID-03", "www.orgUnit.test"));
+    }
+
+    @Test
+    public void testDisseminateEquipments() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Equipment")
+            .withAcronym("FT-EQ")
+            .withTitle("First Test Equipment")
+            .withInternalId("ID-01")
+            .withDescription("This is an equipment to test the export functionality")
+            .withEquipmentOwnerOrgUnit("Test OrgUnit")
+            .withEquipmentOwnerPerson("Walter White")
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Equipment")
+            .withAcronym("ST-EQ")
+            .withTitle("Second Test Equipment")
+            .withInternalId("ID-02")
+            .withDescription("This is another equipment to test the export functionality")
+            .withEquipmentOwnerPerson("John Smith")
+            .build();
+
+        Item thirdItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Equipment")
+            .withAcronym("TT-EQ")
+            .withTitle("Third Test Equipment")
+            .withInternalId("ID-03")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("equipment-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, Arrays.asList(firstItem, secondItem, thirdItem).iterator(), baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(4));
+
+        assertThat(getRowValues(sheet.getRow(0)), contains("Name", "Acronym", "Institution assigned identifier",
+            "Description", "Owner organization", "Owner person"));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("First Test Equipment", "FT-EQ", "ID-01",
+            "This is an equipment to test the export functionality", "Test OrgUnit", "Walter White"));
+
+        assertThat(getRowValues(sheet.getRow(2)), contains("Second Test Equipment", "ST-EQ", "ID-02",
+            "This is another equipment to test the export functionality", "", "John Smith"));
+
+        assertThat(getRowValues(sheet.getRow(3)), contains("Third Test Equipment", "TT-EQ", "ID-03", "", "", ""));
+    }
+
+    @Test
+    public void testDisseminateFundings() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Funding")
+            .withAcronym("T-FU")
+            .withTitle("Test Funding")
+            .withType("Gift")
+            .withInternalId("ID-01")
+            .withFundingIdentifier("0001")
+            .withDescription("Funding to test export")
+            .withAmount("30.000,00")
+            .withAmountCurrency("EUR")
+            .withFunder("OrgUnit Funder")
+            .withFundingStartDate("2015-01-01")
+            .withFundingEndDate("2020-01-01")
+            .withOAMandate("true")
+            .withOAMandateURL("www.mandate.url")
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Funding")
+            .withAcronym("AT-FU")
+            .withTitle("Another Test Funding")
+            .withType("Grant")
+            .withInternalId("ID-02")
+            .withFundingIdentifier("0002")
+            .withAmount("10.000,00")
+            .withFunder("Test Funder")
+            .withFundingStartDate("2020-01-01")
+            .withOAMandate("true")
+            .withOAMandateURL("www.mandate.url")
+            .build();
+
+        Item thirdItem = ItemBuilder.createItem(context, collection)
+            .withRelationshipType("Funding")
+            .withAcronym("TT-FU")
+            .withTitle("Third Test Funding")
+            .withType("Grant")
+            .withInternalId("ID-03")
+            .withFundingIdentifier("0003")
+            .withAmount("20.000,00")
+            .withAmountCurrency("EUR")
+            .withFundingEndDate("2010-01-01")
+            .withOAMandate("false")
+            .withOAMandateURL("www.mandate.com")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("funding-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, Arrays.asList(firstItem, secondItem, thirdItem).iterator(), baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(4));
+
+        assertThat(getRowValues(sheet.getRow(0)), contains("Name", "Acronym", "Type", "Funding Code", "Grant Number",
+            "Amount", "Amount currency", "Description", "Funder", "Start date", "End date", "OA Mandate",
+            "OA Policy URL"));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Test Funding", "T-FU",
+            "https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Funding_Types#Gift", "ID-01", "0001", "30.000,00",
+            "EUR", "Funding to test export", "OrgUnit Funder", "2015-01-01", "2020-01-01", "true", "www.mandate.url"));
+
+        assertThat(getRowValues(sheet.getRow(2)), contains("Another Test Funding", "AT-FU",
+            "https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Funding_Types#Grant", "ID-02", "0002", "10.000,00",
+            "", "", "Test Funder", "2020-01-01", "", "true", "www.mandate.url"));
+
+        assertThat(getRowValues(sheet.getRow(3)), contains("Third Test Funding", "TT-FU",
+            "https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Funding_Types#Grant", "ID-03", "0003", "20.000,00",
+            "EUR", "", "", "", "2010-01-01", "false", "www.mandate.com"));
     }
 
     private Item createFullPersonItem() {
