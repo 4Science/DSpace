@@ -1,0 +1,22 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>IIIF Viewer Configuration</title>
+        <contributor.author>Andrea Bollini</contributor.author>
+        <contributor.author>Luigi Andrea Pascarelli</contributor.author>
+        <contributor.author>Francesco Pio Scognamiglio</contributor.author>
+    </dspace-header>
+
+    <dc-schema>
+        <name>viewer</name>
+        <namespace>http://dspace.org/viewer</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>viewer</schema>
+        <element>uv</element>
+        <qualifier>download</qualifier>
+        <scope_note>Metadata field used to configure download options on viewer</scope_note>
+    </dc-type>
+
+</dspace-dc-types>
