@@ -55,7 +55,7 @@
 
 	boolean statsCleanerEnabled = ConfigurationManager.getBooleanProperty("usage-statistics","webui.statistics.showCleaner");
     
-	boolean showDedup = ConfigurationManager.getBooleanProperty("dedup", "deduplication.admin.feature");
+	boolean showDedup = ConfigurationManager.getBooleanProperty("deduplication", "deduplication.admin.feature");
 %>
 
        <div class="navbar-header">
