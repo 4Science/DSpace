@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -109,7 +110,7 @@ public class FileTaskQueue implements TaskQueue
     public synchronized Set<TaskQueueEntry> dequeue(String queueName, long ticket)
            throws IOException
     {
-        Set<TaskQueueEntry> entrySet = new HashSet<TaskQueueEntry>();
+        Set<TaskQueueEntry> entrySet = new LinkedHashSet<TaskQueueEntry>();
         if (readTicket == -1L)
         {
             // hold the ticket & copy all Ids available, locking queues
