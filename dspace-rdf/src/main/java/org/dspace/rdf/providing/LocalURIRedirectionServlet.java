@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.handle.HandleManager;
-import org.dspace.rdf.negotiation.Negotiator;
+import org.dspace.app.cris.rdf.negotiation.Negotiator;
 import org.dspace.utils.DSpace;
 
 /**

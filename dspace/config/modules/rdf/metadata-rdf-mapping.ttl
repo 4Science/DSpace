@@ -10,7 +10,359 @@
 
 @prefix :           <#> .
 
+:crisRPName
+  dm:metadataName "crisrp.fullName" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:fullName ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:crisRPEmail
+  dm:metadataName "crisrp.email" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:email ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .  
 
+:crisRPpersonalSite
+  dm:metadataName "crisrp.personalSite" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:website ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  . 
+
+:crisRPorcid
+  dm:metadataName "crisrp.orcid" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:CRISorcid ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+ 
+:crisRPaffiliation
+  dm:metadataName "crisrp.affiliation" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:CRISaffiliation ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  . 
+
+:crisRPdept
+  dm:metadataName "crisrp.dept.*" ;
+  dm:condition "^http://" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:belongsTodepartment;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+  .   
+
+  :crisPJtitle
+  dm:metadataName "crisproject.title" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:project1.title ;
+     dm:object dm:DSpaceValue ;
+  ] ;
+ .     
+ 
+  :crisPJabstract
+  dm:metadataName "crisproject.abstract" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:project.abstract ;
+     dm:object dm:DSpaceValue ;
+  ] ;
+ .    
+  
+  :crisPJCode
+  dm:metadataName "crisproject.code" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:project.code ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ .
+
+  :crisPJKeywords
+  dm:metadataName "crisproject.keywords.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:project.keywords ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisPJOrganization
+  dm:metadataName "crisproject.organization" ;
+  dm:condition "^http://" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:belongToOrganization;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .   
+ 
+  :crisOUname
+  dm:metadataName "crisou.name" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:name ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUdesc
+  dm:metadataName "crisou.description" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:description ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUcity
+  dm:metadataName "crisou.city" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:city ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUcountry
+  dm:metadataName "crisou.iso-1336-country.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:country ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUname
+  dm:metadataName "crisou.name" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:name ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUest
+  dm:metadataName "crisou.established" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:est ;
+	dm:object dm:DSpaceValue ;
+  ] ;
+ . 
+ 
+  :crisOUdirector
+  dm:metadataName "crisou.director.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:director;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .   
+ 
+  :crisOUdirector1
+  dm:metadataName "crisou.director" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:director1;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .   
+   :crisOUdirectorName
+  dm:metadataName "crisou.director.fullName" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:directorsName;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .   
+ 
+  :crisOUparentOrg
+  dm:metadataName "crisou.parentorgunit.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:isPartOf;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .  
+ 
+  :crisOUparentOrg1
+  dm:metadataName "crisou.parentorgunit.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:isPartOf;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .  
+ 
+  :crisOUparentOrg2
+  dm:metadataName "crisou.parentorgunit.director" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:isPartOf;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+ .  
+
+:crisEventsName
+  dm:metadataName "crisevents.eventsname.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:events.name ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+  
+:crisEventsLocation
+  dm:metadataName "crisevents.eventslocation.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:events.location ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+  
+:crisEventsStartdate
+  dm:metadataName "crisevents.startdate.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:events.startdate ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+  
+:crisEventsEndDate
+  dm:metadataName "crisevents.enddate.*" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:events.enddate ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+  
+:crisJournalsName
+  dm:metadataName "crisjournals.journalsname" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:journals.name ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .   
+  
+:crisJournalsDescription
+  dm:metadataName "crisjournals.journalsdescription" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:journals.desc ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:crisJournalsISSN
+  dm:metadataName "crisjournals.journalsissn" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:journals.issn ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:crisJournalsKey
+  dm:metadataName "crisjournals.journalskeywords" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:journals.keywords ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:crisEXMPName
+  dm:metadataName "crisexmp.journalsname" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:exmp.name ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:crisEXMPName2
+  dm:metadataName "crisexmp.eventsname" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:exmp.eventsname ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+
+:crisEXMPDesc
+  dm:metadataName "crisexmp.journalsdescription" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:exmp.journalsdesc ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+
+:crisEXMPeventsloc
+  dm:metadataName "crisexmp.eventslocation" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:exmp.eventslocation ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+  
+:contributorCris
+  dm:metadataName "dc.contributor" ;
+  dm:condition "^http:+" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dc:contributor;
+     dm:object [
+      a dm:ResourceGenerator ;
+      dm:pattern "$DSpaceValue" ;
+    ];
+	];
+  .
+  
 :title
   dm:metadataName "dc.title" ;
   dm:creates [
@@ -31,6 +383,7 @@
 
 :author
    dm:metadataName "dc.contributor.author" ;
+	  dm:condition "^(?!http:).+" ;
    dm:creates [
       dm:subject dm:DSpaceObjectIRI ;
       dm:predicate dc:creator ;

@@ -21,8 +21,12 @@ import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.handle.HandleManager;
-import org.dspace.rdf.RDFUtil;
+import org.dspace.app.cris.rdf.RDFUtil;
+import org.dspace.app.cris.rdf.RDFizer;
 import org.dspace.utils.DSpace;
+//using CrisService to identify ACrisObjects
+import org.dspace.app.cris.service.ApplicationService;
+
 
 /**
  *
@@ -84,8 +88,25 @@ public class DataProviderServlet extends HttpServlet {
         DSpaceObject dso = null;
         try
         {
+        	
             context = new Context(Context.READ_ONLY);
-            dso = HandleManager.resolveToObject(context, handle);
+          //Resolve Dspace
+            //CrisService could also be used. -> not working
+        	//CrisService cs = new CrisService();
+        	//cs.setApplicationService(new ApplicationService().init());
+        	//dso = cs.getObject(path[1]);
+        	
+    		ApplicationService application_service = new DSpace().getServiceManager().getServiceByName(
+                    "applicationService", ApplicationService.class);
+            application_service.init();
+            dso = application_service.getEntityByCrisId(path[1]);
+            if(dso == null) {
+        	log.debug("No Data found in provided CRIS, looking for handles next");
+        		
+        		dso = HandleManager.resolveToObject(context, handle);
+                	
+            }
+            
         }
         catch (SQLException ex)
         {

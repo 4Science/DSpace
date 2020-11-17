@@ -1406,7 +1406,7 @@ public class PushToORCID
             // delete all values not in the current system both in the history
             // then into Orcid Registry
             List<OrcidHistory> histories = applicationService
-                    .findOrcidHistoryByOrcidAndEntityUUIDAndTypeId(orcid, value, CrisConstants.PROJECT_TYPE_ID);
+            		.findOrcidHistoryByOrcidAndEntityAndTypeId(orcid, value, CrisConstants.PROJECT_TYPE_ID);
             for (OrcidHistory history : histories)
             {
                 if (history.getTimestampLastAttempt() != null)
@@ -1713,7 +1713,7 @@ public class PushToORCID
             // delete all values not in the current system both in the history
             // then into Orcid Registry
             List<OrcidHistory> histories = applicationService
-                    .findOrcidHistoryByOrcidAndEntityUUIDAndTypeId(orcid, value, Constants.ITEM);
+                    .findOrcidHistoryByOrcidAndEntityAndTypeId(orcid, value, Constants.ITEM);
             for (OrcidHistory history : histories)
             {
                 if (history.getTimestampLastAttempt() != null)

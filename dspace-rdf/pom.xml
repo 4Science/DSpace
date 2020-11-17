@@ -71,5 +71,9 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>org.dspace</groupId>
+        	<artifactId>dspace-cris-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

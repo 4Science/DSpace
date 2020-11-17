@@ -314,6 +314,7 @@
 						<ref local="ORCIDListener" />
 						<ref local="rpAutoSubscriberListener" />
 						<ref local="crisDedupIndexerListener" />
+						<ref local="RDFListener" />
 					</list>
 				</property>
 				<property name="listenerOnPostDelete">
@@ -1634,7 +1635,8 @@
 					<list>
 						<ref local="RPListener" />
 						<ref local="rpResourcePolicyListener" />
-						<ref local="ORCIDListener" />																							
+						<ref local="ORCIDListener" />
+
 					</list>
 				</entry>
 				<entry key="post-insert">
@@ -1650,6 +1652,7 @@
 				<entry key="post-delete">
 					<list>
 						<ref local="rpResourcePolicyListener" />
+						<ref local="RDFListener" />
 					</list>
 				</entry>				
 			</map>
@@ -1683,6 +1686,8 @@
 	<bean id="UUIDListener" class="org.dspace.app.cris.model.listener.UUIDListener"/>
 	
 	<bean id="CRISIDListener" class="org.dspace.app.cris.model.listener.CrisIDListener"/>
+	
+	<bean id="RDFListener" class="org.dspace.app.cris.model.listener.RDFListener"/>
 	
 	<bean id="ORCIDListener" class="org.dspace.app.cris.model.listener.OrcidQueueListener">
 		<property name="orcidPreferencesUtils" ref="orcidPreferencesUtils" />	

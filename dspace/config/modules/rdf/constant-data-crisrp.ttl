@@ -1,0 +1,3 @@
+@prefix test:   <http://purl.org/ontology/bibo/> .
+
+<>  a   test:ResearcherPage .
