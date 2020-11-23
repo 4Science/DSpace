@@ -17,8 +17,6 @@ import org.dspace.disseminate.CitationDocument;
 import org.dspace.disseminate.CoverPageService;
 import org.dspace.utils.DSpace;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -152,7 +150,7 @@ public class CitationPage extends AbstractCurationTask {
                         //If bitstream is a PDF document then it is citable.
                         CitationDocument citationDocument = new CitationDocument(configuration);
                         //Create the cited document
-                        File citedDocument = citationDocument.makeCitedDocument(bitstream,configuration);
+                        InputStream citedDocument = citationDocument.makeCitedDocument(bitstream,configuration);
                         //Add the cited document to the approiate bundle
                         this.addCitedPageToItem(citedDocument, bundle, pBundle,
                                 dBundle, displayMap, item, bitstream);
@@ -202,7 +200,7 @@ public class CitationPage extends AbstractCurationTask {
      * @throws AuthorizeException
      * @throws IOException
      */
-    private void addCitedPageToItem(File citedTemp, Bundle bundle, Bundle pBundle,
+    private void addCitedPageToItem(InputStream citedTemp, Bundle bundle, Bundle pBundle,
                                     Bundle dBundle, Map<String,Bitstream> displayMap, Item item,
                                     Bitstream bitstream) throws SQLException, AuthorizeException, IOException {
         Context context = Curator.curationContext();
@@ -220,12 +218,11 @@ public class CitationPage extends AbstractCurationTask {
         //Create an input stream form the temporary file
         //that is the cited document and create a
         //bitstream from it.
-        InputStream inp = new FileInputStream(citedTemp);
         if (displayMap.containsKey(bitstream.getName())) {
             dBundle.removeBitstream(displayMap.get(bitstream.getName()));
         }
-        Bitstream citedBitstream = dBundle.createBitstream(inp);
-        inp.close(); //Close up the temporary InputStream
+        Bitstream citedBitstream = dBundle.createBitstream(citedTemp);
+        citedTemp.close(); //Close up the temporary InputStream
 
         //Setup a good name for our bitstream and make
         //it the same format as the source document.

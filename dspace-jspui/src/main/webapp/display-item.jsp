@@ -463,7 +463,7 @@ if (dedupEnabled && admin_button) { %>
 	</div>
 	<div id="dedupResult" class="media-body text-center">
 		<h4 class="media-heading"><fmt:message key="jsp.display-item.dedup.heading"/></h4>
-	    <span class="metric-counter"><a id="dedupCounter" data-toggle="tooltip" target="_blank" title="<fmt:message key="jsp.display-item.dedup.tooltip"/>" href=""><fmt:message key="jsp.display-item.dedup.check"/></a></span>
+	    <span class="metric-counter"><a id="dedupCounter" data-toggle="tooltip" target="_blank" title="<fmt:message key="jsp.display-item.dedup.tooltip"/>" href="#"><fmt:message key="jsp.display-item.dedup.check"/></a></span>
 	</div>
 </div>	
 </div>

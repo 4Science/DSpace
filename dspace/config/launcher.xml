@@ -490,5 +490,12 @@
             <argument>-s</argument>
             <argument>PJStatsViewIndicatorsPlugin</argument>
         </step>
-    </command>           
+    </command>
+    <command>
+        <name>bitstore-migrate</name>
+        <description>Assetstore migration tool</description>
+        <step>
+            <class>org.dspace.storage.bitstore.BitStoreMigrate</class>
+        </step>
+    </command>
 </commands>

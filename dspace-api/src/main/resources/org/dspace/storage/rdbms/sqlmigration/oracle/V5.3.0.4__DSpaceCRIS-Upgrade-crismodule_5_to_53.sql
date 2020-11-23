@@ -7,10 +7,10 @@
 --
 
 BEGIN
-	EXECUTE IMMEDIATE
-    	'alter table cris_orcid_history add column owner varchar2(255)';
-	EXCEPTION
-	WHEN OTHERS
-    THEN
+	--EXECUTE IMMEDIATE
+    --	'alter table cris_orcid_history add column owner varchar2(255)';
+	--EXCEPTION
+	--WHEN OTHERS
+    --THEN
        NULL;
 END;

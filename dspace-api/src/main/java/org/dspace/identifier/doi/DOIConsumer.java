@@ -8,6 +8,7 @@
 package org.dspace.identifier.doi;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
@@ -58,39 +59,46 @@ public class DOIConsumer implements Consumer
         }
         
         DSpaceObject dso = event.getSubject(ctx);
-        //FIXME
-        if (!(dso instanceof Item))
-        {
-            log.warn("DOIConsumer got an event whose subject was not an item, "
-                    + "skipping: " + event.toString());
-        }
-        Item item = (Item) dso;
+        if(dso!=null) {
+            if (!(dso instanceof Item))
+            {
+                log.warn("DOIConsumer got an event whose subject was not an item, "
+                        + "skipping: " + event.toString());
+            }
+            Item item = (Item) dso;
+
+            DOIIdentifierProvider provider = new DSpace().getSingletonService(
+                    DOIIdentifierProvider.class);
         
-        DOIIdentifierProvider provider = new DSpace().getSingletonService(
-                DOIIdentifierProvider.class);
-        
-        String doi = null;
-        try {
-            doi = provider.lookup(ctx, dso);
-        }
-        catch (IdentifierNotFoundException ex)
-        {
-            log.warn("DOIConsumer cannot handles items without DOIs, skipping: "
-                    + event.toString());
-        }
-        try
-        {
-            provider.updateMetadata(ctx, dso, doi);
-        }
-        catch (IllegalArgumentException ex)
-        {
-            // should not happen, as we got the DOI from the DOIProvider
-            log.warn("DOIConsumer caught an IdentifierException.", ex);
-        }
-        catch (IdentifierException ex)
-        {
-            log.warn("DOIConsumer cannot update metadata for Item with ID "
-                    + item.getID() + " and DOI " + doi + ".", ex);
+            String doi = null;
+            List<IdentifierRegisterValidation> validations = new DSpace().getServiceManager()
+                    .getServicesByType(IdentifierRegisterValidation.class);
+            for (IdentifierRegisterValidation validation: validations) {
+                if (validation.canRegister(ctx,dso)) {
+                    try {
+                        doi = provider.lookup(ctx, dso);
+                    }
+                    catch (IdentifierNotFoundException ex)
+                    {
+                        log.warn("DOIConsumer cannot handles items without DOIs, skipping: "
+                                + event.toString());
+                    }
+                    try
+                    {
+                        provider.updateMetadata(ctx, dso, doi);
+                    }
+                    catch (IllegalArgumentException ex)
+                    {
+                        // should not happen, as we got the DOI from the DOIProvider
+                        log.warn("DOIConsumer caught an IdentifierException.", ex);
+                    }
+                    catch (IdentifierException ex)
+                    {
+                        log.warn("DOIConsumer cannot update metadata for Item with ID "
+                                + item.getID() + " and DOI " + doi + ".", ex);
+                    }
+                }
+            }
         }
      }
 

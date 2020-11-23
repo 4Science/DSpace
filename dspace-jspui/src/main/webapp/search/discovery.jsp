@@ -126,9 +126,9 @@
 	    int idx = 1;
 	    for (String[] filter : appliedFilters)
 	    {
-	        httpFilters += "&amp;filter_field_"+idx+"="+URLEncoder.encode(filter[0],"UTF-8");
-	        httpFilters += "&amp;filter_type_"+idx+"="+URLEncoder.encode(filter[1],"UTF-8");
-	        httpFilters += "&amp;filter_value_"+idx+"="+URLEncoder.encode(filter[2],"UTF-8");
+	        httpFilters += "&amp;filter_field_"+idx+"="+((filter[0]!=null)?URLEncoder.encode(filter[0],"UTF-8"):"");
+	        httpFilters += "&amp;filter_type_"+idx+"="+((filter[1]!=null)?URLEncoder.encode(filter[1],"UTF-8"):"");
+	        httpFilters += "&amp;filter_value_"+idx+"="+((filter[2]!=null)?URLEncoder.encode(filter[2],"UTF-8"):"");
 	        idx++;
 	    }
 	}
@@ -222,7 +222,7 @@
 				submitButt.attr("disabled", !checkboxes.is(":checked"));	
 			}		
 		});
-		jQ( "#spellCheckQuery").click(function(){
+		jQ( "#spellCheckQuery").on("click", function(){
 			jQ("#query").val(jQ(this).attr('data-spell'));
 			jQ("#main-query-submit").click();
 		});
@@ -891,7 +891,7 @@ if((showGlobalFacet) || (brefine)) {
 	    int limit = facetConf.getFacetLimit()+1;
 	    
 	    String fkey = "jsp.search.facet.refine."+f;
-	    %><div id="facet_<%= f %>" class="panel panel-success">
+	    %><a name="facet_<%= f %>"></a><div id="facet_<%= f %>" class="panel panel-success">
 	    <div class="panel-heading"><h6><fmt:message key="<%= fkey %>" /></h6></div>
 	    <ul class="list-group"><%
 	    int idx = 1;
@@ -927,7 +927,7 @@ if((showGlobalFacet) || (brefine)) {
 	            break;
 	        }
 	    }
-	    if (currFp > 0 || idx == limit)
+	    if (currFp > 0 || ((idx == limit)&&(facet.size()>=limit)))
 	    {
 	        %><li class="list-group-item"><span style="visibility: hidden;">.</span>
 	        <% if (currFp > 0) { %>
@@ -942,9 +942,9 @@ if((showGlobalFacet) || (brefine)) {
                 + "&amp;crisID=" + crisID
                 + "&amp;relationName=" + relationName
                 + "&amp;etal=" + etAl  
-                + "&amp;"+f+"_page="+(currFp-1) %>"><fmt:message key="jsp.search.facet.refine.previous" /></a>
+                + "&amp;"+f+"_page="+(currFp-1)+"#facet_"+f %>"><fmt:message key="jsp.search.facet.refine.previous" /></a>
             <% } %>
-            <% if (idx == limit) { %>
+            <% if ((idx == limit)&&(facet.size()>=limit)) { %>
             <a href="<%= searchName
                 + "?query="
                 + URLEncoder.encode(query,"UTF-8")
@@ -956,7 +956,7 @@ if((showGlobalFacet) || (brefine)) {
                 + "&amp;crisID=" + crisID
                 + "&amp;relationName=" + relationName
                 + "&amp;etal=" + etAl  
-                + "&amp;"+f+"_page="+(currFp+1) %>"><span class="pull-right"><fmt:message key="jsp.search.facet.refine.next" /></span></a>
+                + "&amp;"+f+"_page="+(currFp+1)+"#facet_"+f %>"><span class="pull-right"><fmt:message key="jsp.search.facet.refine.next" /></span></a>
             <%
             }
             %></li><%

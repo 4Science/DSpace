@@ -53,9 +53,6 @@ import org.xml.sax.SAXException;
 public class ScopusService
 {
 
-    private static final String ENDPOINT_SEARCH_SCOPUS = "http://api.elsevier.com/content/search/scopus";
-    //private static final String ENDPOINT_SEARCH_SCOPUS = "http://localhost:9999/content/search/scopus";
-
     private static final Logger log = Logger.getLogger(ScopusService.class);
 
     private int timeout = 1000;
@@ -92,6 +89,7 @@ public class ScopusService
 
         String proxyHost = ConfigurationManager.getProperty("http.proxy.host");
         String proxyPort = ConfigurationManager.getProperty("http.proxy.port");
+        String endpoint = ConfigurationManager.getProperty("submission.lookup.scopus.endpoint");
         String apiKey = ConfigurationManager.getProperty("submission.lookup.scopus.apikey");
         
         List<Record> results = new ArrayList<>();
@@ -114,7 +112,7 @@ public class ScopusService
                 boolean lastPageReached= false;
                 while(!lastPageReached){
                         // open session
-		                method = new GetMethod(ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey="+ apiKey +"&view=COMPLETE&start="+start+"&query="+URLEncoder.encode(query));
+		                method = new GetMethod(endpoint + "?httpAccept=application/xml&apiKey="+ apiKey +"&view=COMPLETE&start="+start+"&query="+URLEncoder.encode(query));
 		
 		                // Execute the method.
 		                int statusCode = client.executeMethod(method);
@@ -214,6 +212,34 @@ public class ScopusService
                 Document inDoc = builder.parse(stream);
 
                 Element xmlRoot = inDoc.getDocumentElement();
+
+                List<Element> pages = XMLUtils.getElementList(xmlRoot,
+                		"link");
+                for(Element page: pages){
+                	String refPage = page.getAttribute("ref");
+                	if(StringUtils.equalsIgnoreCase(refPage, "next")){
+                		break;
+                	}
+                }
+                List<Element> pubArticles = XMLUtils.getElementList(xmlRoot,
+                		"entry");
+
+                for (Element xmlArticle : pubArticles)
+                {
+                	Record scopusItem = null;
+                	try
+                	{
+                		scopusItem = ScopusUtils
+                				.convertScopusDomToRecord(xmlArticle);
+                		results.add(scopusItem);
+                	}
+                	catch (Exception e)
+                	{
+                		throw new RuntimeException(
+                				"EID is not valid or not exist: "
+                						+ e.getMessage(), e);
+                	}
+                }
             }
             catch (Exception e)
             {

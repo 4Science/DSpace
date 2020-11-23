@@ -28,6 +28,7 @@ import org.apache.cocoon.environment.http.HttpEnvironment;
 import org.apache.cocoon.environment.http.HttpResponse;
 import org.apache.cocoon.reading.AbstractReader;
 import org.apache.cocoon.util.ByteRange;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.xmlui.utils.AuthenticationUtil;
 import org.dspace.app.xmlui.utils.ContextUtil;
@@ -352,29 +353,32 @@ public class BitstreamReader extends AbstractReader implements Recyclable
                 // on-the-fly citation generator
                 log.info(item.getHandle() + " - " + bitstream.getName() + " is citable.");
 
-                FileInputStream fileInputStream = null;
+                InputStream inputStream = null;
                 CitationDocument citationDocument = new CitationDocument();
 
                 try {
                     //Create the cited document
-                    tempFile = citationDocument.makeCitedDocument(bitstream);
+                    inputStream = citationDocument.makeCitedDocument(bitstream);
+
+                    // copy inputstream to temp file to retrieve length
+                    tempFile = File.createTempFile(String.valueOf(bitstream.getID()), "temp");
+                    FileUtils.copyInputStreamToFile(inputStream, tempFile);
                     if(tempFile == null) {
                         log.error("CitedDocument was null");
                     } else {
                         log.info("CitedDocument was ok," + tempFile.getAbsolutePath());
                     }
 
-
-                    fileInputStream = new FileInputStream(tempFile);
-                    if(fileInputStream == null) {
-                        log.error("Error opening fileInputStream: ");
-                    }
-
-                    this.bitstreamInputStream = fileInputStream;
+                    this.bitstreamInputStream = inputStream;
                     this.bitstreamSize = tempFile.length();
 
+                    tempFile.delete();
                 } catch (Exception e) {
                     log.error("Caught an error with intercepting the citation document:" + e.getMessage());
+                } finally {
+                    if(tempFile != null && tempFile.exists()) {
+                        tempFile.delete();
+                    }
                 }
 
                 //End of CitationDocument

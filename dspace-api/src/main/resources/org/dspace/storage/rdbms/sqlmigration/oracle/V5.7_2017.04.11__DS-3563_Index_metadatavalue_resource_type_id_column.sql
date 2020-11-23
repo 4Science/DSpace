@@ -13,11 +13,20 @@
 declare
     index_not_exists EXCEPTION;
   PRAGMA EXCEPTION_INIT(index_not_exists, -1418);
+BEGIN
 begin
 
   execute immediate 'DROP INDEX metadatavalue_type_id_idx';
   exception
   when index_not_exists then null;
 end;
-/
-CREATE INDEX metadatavalue_type_id_idx ON metadatavalue (resource_type_id);
+
+BEGIN
+	EXECUTE IMMEDIATE
+		'CREATE INDEX metadatavalue_type_id_idx ON metadatavalue (resource_type_id);';
+	EXCEPTION
+	WHEN OTHERS
+    THEN
+       NULL;
+END;
+END;

@@ -238,6 +238,24 @@
        </step>
        -->
 
+	   <!-- The following two steps should be considdered atomic. You should either include both or none.
+       	The first one mints persistent identifiers like doi and/or handle. Which persistent identifiers are minted
+       	depends on the configuration of DSpace. The second step displays the minted persistent identifiers to the
+       	submitter so he/she can include them directory into any uploaded file.
+       	Currently it is not possible to write a submission step that does not send any JSP at start of the step, but
+       	only at its end. Therefore we had to write two steps: a non-interactive one that does mint the identifiers
+       	only and a second separate step that does show the previously minted identifiers to the user. -->
+<!--   <step>
+	  		<processing-class>org.dspace.submit.step.MintIdentifiersStep</processing-class>
+	  		<workflow-editable>false</workflow-editable>
+	   </step>
+	   <step>
+	   		<heading>submit.progressbar.showidentifiers</heading>
+	    	<processing-class>org.dspace.submit.step.ShowIdentifiersStep</processing-class>
+	    	<jspui-binding>org.dspace.app.webui.submit.step.JSPShowIdentifiersStep</jspui-binding>
+	    	<workflow-editable>false</workflow-editable>
+	   </step> -->
+
  	  <!--Step 5 will be to Verify/Review everything -->
  	  <step>
         <heading>submit.progressbar.verify</heading>

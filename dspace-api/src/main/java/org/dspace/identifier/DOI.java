@@ -23,7 +23,7 @@ public class DOI
 {
     public static final String SCHEME = "doi:";
 
-    public static final String RESOLVER = "http://dx.doi.org";
+    public static final String RESOLVER = "https://doi.org";
     
     
     /**

@@ -235,7 +235,7 @@ public class ReferencesServlet extends DSpaceServlet
      * @throws MessagingException
      */
     public static void emailSuccessMessage(Context context, EPerson eperson,
-            String fileName, File referencesFile) throws MessagingException
+            String fileName, File referencesFile, String ext) throws MessagingException
     {
         try
         {
@@ -245,7 +245,8 @@ public class ReferencesServlet extends DSpaceServlet
                             "export_references_success"
                                     + (fileName != null ? "_fulltext" : "")));
             email.addRecipient(eperson.getEmail());
-            email.addAttachment(referencesFile, "references");
+          
+            email.addAttachment(referencesFile, "references" + ((ext!=null)?"."+ext:""));
             email.addArgument(ConfigurationManager.getProperty("dspace.url")
                     + "/exportdownload/" + fileName + "/" + fileName + ".zip");
             email.addArgument(ConfigurationManager
@@ -666,7 +667,8 @@ public class ReferencesServlet extends DSpaceServlet
 
                 // use the download dir to send the references file directly in
                 // the email outside the zip
-                File referencesFile = new File(downloadDir, "references");
+                String ext = ConfigurationManager.getProperty("crosswalk.refer."+format+".file.ext");
+                File referencesFile = new File(downloadDir, "references." + ext);
                 OutputStream outputStream = new FileOutputStream(
                         referencesFile, false);
                 buildReferenceStream(context, items, format, outputStream,
@@ -679,7 +681,7 @@ public class ReferencesServlet extends DSpaceServlet
                 }
 
                 emailSuccessMessage(context, eperson, fulltext ? filename
-                        : null, referencesFile);
+                        : null, referencesFile, ext);
             }
             catch (Exception e)
             {

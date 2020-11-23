@@ -6,7 +6,37 @@
 -- http://www.dspace.org/license/
 --
 
-ALTER TABLE cris_do_no ADD COLUMN preferred NUMBER(1,0);
-ALTER TABLE cris_ou_no ADD COLUMN preferred NUMBER(1,0);
-ALTER TABLE cris_pj_no ADD COLUMN preferred NUMBER(1,0);
-ALTER TABLE cris_rp_no ADD COLUMN preferred NUMBER(1,0);
+BEGIN
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE cris_do_no ADD (preferred NUMBER(1,0))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE cris_ou_no ADD (preferred NUMBER(1,0))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE cris_pj_no ADD (preferred NUMBER(1,0))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE cris_rp_no ADD (preferred NUMBER(1,0))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;	
+END;

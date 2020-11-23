@@ -7,29 +7,31 @@
 --
 
 BEGIN
-	EXECUTE IMMEDIATE
-    	'alter table jdyna_widget_text ALTER COLUMN displayformat varchar2(4000 char)';
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
-END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'alter table jdyna_widget_text MODIFY displayformat varchar2(4000 char)';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
 
-BEGIN
-	EXECUTE IMMEDIATE
-    	'alter table jdyna_widget_text ALTER COLUMN regex varchar2(4000 char)';
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
-END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'alter table jdyna_widget_text MODIFY regex varchar2(4000 char)';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
 
-BEGIN
-	EXECUTE IMMEDIATE
-    	'ALTER TABLE cris_metrics ADD COLUMN last NUMBER(1)';
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE cris_metrics ADD (last NUMBER(1))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
 END;
 

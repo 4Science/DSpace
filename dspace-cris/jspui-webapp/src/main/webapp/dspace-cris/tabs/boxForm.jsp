@@ -375,7 +375,7 @@
 		</c:forEach>
 		
 		<c:if test="${fn:length(containablesList) > count}"> 
-		<a class="show" id="show" href="#" title="Show other"><fmt:message key="jsp.dspace-admin.edit-box.showotherpdef" /><i class="fa fa-toggle-down"></i></a>
+		<a class="show" id="show" href="javascript:void(0)" title="Show other"><fmt:message key="jsp.dspace-admin.edit-box.showotherpdef" /><i class="fa fa-toggle-down"></i></a>
 		
 		<div id="othermetadata" style="display: none">
 		<c:forEach
@@ -511,6 +511,7 @@
 		
 		<c:if test="${!empty box.id}">
 	  <div class="btn-group dropup pull-right">
+	  <span onmouseover="hover(this);" onmouseout="out(this);">
       <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
         <fmt:message key="jsp.layout.hku.researcher.button.default.option.dropdown" />
         <span class="caret"></span>
@@ -589,6 +590,7 @@
 			</a></li>
         
       	</ul>
+    </span>
     </div>
 		</c:if>
 

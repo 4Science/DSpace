@@ -38,7 +38,9 @@
 	 	<property name="baseURL" ref="dspaceOrcidBaseURL"/>
 	 </bean>           
 
-	 <bean name="orcidPreferencesUtils" class="org.dspace.app.cris.model.orcid.OrcidPreferencesUtils"/>
+	 <bean name="orcidPreferencesUtils" class="org.dspace.app.cris.model.orcid.OrcidPreferencesUtils">
+		<property name="investigatorsMapping" ref="orcidInvestigatorsMapping" />
+	 </bean>
 
 	<!-- Converts an input value to an output one -->
 	<bean name="mapConverterOrcidWorkType" class="org.dspace.util.SimpleMapConverter"
@@ -63,5 +65,16 @@
 		<property name="converterNameFile" value="mapConverter-orcid-employmentrole.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value="@@ident@@"/>
-	</bean>		
+	</bean>
+
+	<bean name="orcidInvestigatorsMapping" class="java.util.HashMap">
+		<constructor-arg>
+			<map key-type="java.lang.String" value-type="java.lang.String">
+				<entry key="lead" value="principalinvestigator" />
+				<entry key="co-lead" value="coinvestigators" />
+				<entry key="supported-by" value="coinvestigators" />
+				<entry key="other-contribution" value="coinvestigators" />
+			</map>
+		</constructor-arg>
+	</bean>
 </beans>

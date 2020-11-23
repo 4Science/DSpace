@@ -28,6 +28,6 @@
     <h1><fmt:message key="jsp.request.item.item-send.info1"/></h1>
 
     <p><fmt:message key="jsp.request.item.item-send.info2"/> 
-	<a class="style1" href="" onClick="window.close();"><fmt:message key="jsp.request.item.item-send.close"/></a></p>
+	<a class="style1" href="#" onClick="window.close();"><fmt:message key="jsp.request.item.item-send.close"/></a></p>
 
 </dspace:layout>

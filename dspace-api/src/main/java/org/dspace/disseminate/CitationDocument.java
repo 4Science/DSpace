@@ -139,7 +139,7 @@ public class CitationDocument {
     }
 
 
-    public File makeCitedDocument(Bitstream bitstream)
+    public InputStream makeCitedDocument(Bitstream bitstream)
             throws IOException, SQLException, AuthorizeException, COSVisitorException {
     	return makeCitedDocument(null, bitstream,"disseminate-citation");
     }
@@ -164,12 +164,12 @@ public class CitationDocument {
      * @throws SQLException
      * @throws org.dspace.authorize.AuthorizeException
      */
-    public File makeCitedDocument(Bitstream bitstream,String configuration)
+    public InputStream makeCitedDocument(Bitstream bitstream,String configuration)
             throws IOException, SQLException, AuthorizeException, COSVisitorException {
     	return makeCitedDocument(null, bitstream,configuration);
     }
     
-    public File makeCitedDocument(Context context,Bitstream bitstream,String configuration)
+    public InputStream makeCitedDocument(Context context,Bitstream bitstream,String configuration)
             throws IOException, SQLException, AuthorizeException, COSVisitorException {
         // check authorization
     	if(context!= null) {
@@ -179,6 +179,7 @@ public class CitationDocument {
         PDDocument sourceDocument = new PDDocument();
         String filePath =tempDir.getAbsolutePath() + "/bitstream.cover.pdf";
         String password=null;
+        InputStream input = null;
         try {
             Item item = (Item) bitstream.getParentObject();
             sourceDocument = sourceDocument.load(bitstream.retrieve());
@@ -215,17 +216,15 @@ public class CitationDocument {
             addCoverPageToDocument(document, sourceDocument, coverPage,configuration);
 
             document.save(filePath);
-            
-        
+            return input = new FileInputStream(filePath);
         }catch(Exception e){
         	log.error(e.getMessage(), e);
-    		filePath = BitstreamStorageManager.absolutePath(context, bitstream.getID());
+    		return input = BitstreamStorageManager.retrieve(context, bitstream.getID());
         }
         finally {
             sourceDocument.close();
             document.close();
         }
-        return new File(filePath);
     }
 
     private void generateCoverPage(Context context,PDDocument document, PDPage coverPage, Item item,String configuration) throws IOException, COSVisitorException {

@@ -602,9 +602,9 @@
 			value="<fmt:message key="jsp.layout.hku.researcher.button.save" />" />
 			
 						<div class="btn-group dropup pull-right">
-						  <button class="btn btn-default"><fmt:message key="jsp.layout.hku.researcher.button.default.option.dropdown" /></button>
+						  <span onmouseover="hover(this);" onmouseout="out(this);">
   						  <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-    							<span class="caret"></span>
+    							<fmt:message key="jsp.layout.hku.researcher.button.default.option.dropdown" /><span class="caret"></span>
   						  </button>
   						  <ul class="dropdown-menu">
     						<!-- dropdown menu links -->
@@ -642,7 +642,8 @@
 							<input class="btn btn-default col-md-12" type="submit" name="classificationtree"
 								value="<fmt:message key="jsp.dspace-admin.hku.jdyna-configuration.addclassificationtreenesteddynamicfield" />" />
 							</li>
-  						</ul>	
+  						</ul>
+  						</span>
 						</div>		
 						
 	</form:form>

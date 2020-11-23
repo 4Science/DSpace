@@ -517,6 +517,10 @@ public class EPerson extends DSpaceObject
         // injection because the string is derived from constant values above.
         TableRowIterator rows;
         if(!t.equals("")) {
+            if (DatabaseManager.isOracle())
+            {
+                s = "dbms_lob.substr(" + s + ", 4000, 1)";
+            }
             rows = DatabaseManager.query(context,
                     "SELECT * FROM eperson e " +
                     "LEFT JOIN metadatavalue m on (m.resource_id = e.eperson_id and m.resource_type_id = ? and m.metadata_field_id = ?) " +
@@ -641,6 +645,11 @@ public class EPerson extends DSpaceObject
         // Remove any subscriptions
         DatabaseManager.updateQuery(ourContext,
                 "DELETE FROM subscription WHERE eperson_id= ? ",
+                getID());
+        
+        // Remove policies
+        DatabaseManager.updateQuery(ourContext,
+                "DELETE FROM RESOURCEPOLICY WHERE eperson_id= ? ",
                 getID());
 
         // Remove ourself

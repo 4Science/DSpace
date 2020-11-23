@@ -116,8 +116,7 @@ public class DuplicateCheckerServlet extends DSpaceServlet
      */
     public DuplicateCheckerServlet()
     {
-        String property = ConfigurationManager.getProperty("misc",
-                "tool.duplicatechecker.blocked");
+	String property = ConfigurationManager.getProperty("deduplication", "tool.duplicatechecker.blocked");
         if (property != null)
         {
             String[] typesConf = property.split(",");

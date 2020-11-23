@@ -59,6 +59,7 @@ import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.utils.DSpace;
 import org.dspace.xoai.services.api.config.ConfigurationService;
 import org.dspace.xoai.services.api.database.CollectionsService;
 import org.dspace.xoai.services.api.solr.SolrServerResolver;
@@ -72,6 +73,7 @@ import com.lyncode.xoai.dataprovider.exceptions.ConfigurationException;
 import com.lyncode.xoai.dataprovider.exceptions.MetadataBindException;
 import com.lyncode.xoai.dataprovider.exceptions.WritingXmlException;
 import com.lyncode.xoai.dataprovider.xml.XmlOutputContext;
+import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
 
 /**
  * @author Lyncode Development Team <dspace@lyncode.com>
@@ -468,12 +470,22 @@ public class XOAI {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         XmlOutputContext xmlContext = XmlOutputContext.emptyContext(out, Second);
+        Metadata metadata = null;
         if(StringUtils.isNotBlank(type) && specialIdentifier) {
-            retrieveMetadata(context, item, true).write(xmlContext);
+            metadata = retrieveMetadata(context, item, true);
         }
         else {
-            retrieveMetadata(context, item, false).write(xmlContext);
+            metadata = retrieveMetadata(context, item, false);
         }
+
+        //Do any additional content on "item.compile" field, depends on the plugins
+        List<XOAIItemCompilePlugin> xOAIItemCompilePlugins = new DSpace().getServiceManager().getServicesByType(XOAIItemCompilePlugin.class);
+        for (XOAIItemCompilePlugin xOAIItemCompilePlugin : xOAIItemCompilePlugins)
+        {
+            metadata = xOAIItemCompilePlugin.additionalMetadata(context, metadata, item);
+        }
+
+        metadata.write(xmlContext);
         xmlContext.getWriter().flush();
         xmlContext.getWriter().close();
         doc.addField("item.compile", out.toString());

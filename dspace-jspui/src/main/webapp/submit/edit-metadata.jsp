@@ -612,8 +612,8 @@
         else
            dateIssued = new org.dspace.content.DCDate("");
    
-        sb.append("<div class=\"row col-md-12\"><div class=\"input-group col-md-10\"><div class=\"row\">")
-			.append("<span class=\"input-group col-md-5\"><span class=\"input-group-addon\">")
+        sb.append("<div class=\"row col-md-12\"><div class=\"col-md-10\"><div class=\"row\">")
+			.append("<div class=\"col-md-5\"><span class=\"input-group\"><span class=\"input-group-addon\">")
         	.append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.month"))
            .append("</span><select class=\"form-control\" name=\"")
            .append(fieldName)
@@ -648,8 +648,8 @@
              .append("</option>");
         }
    
-        sb.append("</select></span>")
-	            .append("<span class=\"input-group col-md-3\"><span class=\"input-group-addon\">")
+         sb.append("</select></span></div>")
+               .append("<div class=\"col-md-2\"><span class=\"input-group\"><span class=\"input-group-addon\">")
                .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.day"))
                .append("</span><input class=\"form-control\" type=\"text\" name=\"")
            .append(fieldName)
@@ -663,7 +663,7 @@
         sb.append("\" size=\"2\" maxlength=\"2\" value=\"")
            .append((dateIssued.getDay() > 0 ?
                     String.valueOf(dateIssued.getDay()) : "" ))
-               .append("\"/></span><span class=\"input-group col-md-4\"><span class=\"input-group-addon\">")
+               .append("\"/></span></div><div class=\"col-md-4\"><span class=\"input-group\"><span class=\"input-group-addon\">")
                .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.year"))
                .append("</span><input class=\"form-control\" type=\"text\" name=\"")
            .append(fieldName)
@@ -677,7 +677,7 @@
         sb.append("\" size=\"4\" maxlength=\"4\" value=\"")
            .append((dateIssued.getYear() > 0 ?
                 String.valueOf(dateIssued.getYear()) : "" ))
-           .append("\"/></span></div></div>\n");
+           .append("\"/></span></div></div></div>\n");
    
         if (!hasParent && repeatable && !readonly && count < defaults.length)
         {
@@ -1352,11 +1352,11 @@
         	      .append("<span class=\"input-group row col-md-10\">");
           	}
          	else {
-         		sb.append("<div class=\"row col-md-12\"><span class=\"input-group col-md-10\">");
+         		sb.append("<div class=\"row col-md-12\">");
           	}
           	
           	// do the dropdown box
-          	sb.append("<span class=\"input-group-addon\"><select name=\"")
+          	sb.append("<div class=\"col-md-10\"><span class=\"input-group\"><span class=\"input-group-addon\"><select name=\"")
               .append(fieldName)
               .append("_qualifier");
           	if (repeatable && j!= fieldCount-1)
@@ -1390,7 +1390,7 @@
             }
             sb.append("\" size=\"34\" value=\"")
               .append(currentVal.replaceAll("\"", "&quot;"))
-              .append("\"/></span>\n");
+              .append("\"/></span></span></div>\n");
             
             if (authorityType != null)
             {

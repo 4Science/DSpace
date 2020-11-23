@@ -46,18 +46,28 @@
 -->
     <!--
         DOIRegisterValidation checks the properties of the DSO in order to avoid/permit DOI registration.
-        CollectionValidation permits doi register ONLY to collection in CollectionList if listExcluded is FALSE;
-        if listExcluded is TRUE all the handle in collectionList will be excluded;
+        CollectionValidationExclusive permits doi register to all collection NOT in CollectionList;
+        To permit doi register ONLY to some collections, create a specific bean for each one (see CollectionValidationInclusive).
+        checkFile property contains boolean value; if true checks if item has files.
+        checkMetadata property contains metadata to check; metadata value is true if it contains one of this: true, t, on, yes or y; otherwise false.
      -->
-    <!--  <bean class="org.dspace.identifier.doi.CollectionValidation">
-        <property name="listExcluded" value="true"/>
+
+    <!--bean class="org.dspace.identifier.doi.CollectionValidationExclusive">
         <property name="collectionList">
             <list>
                 <value>123456789/9999</value>
             </list>
         </property>
-    </bean>
--->
+        <property name="checkFile" value="true"/>
+        <property name="checkMetadata" value="local.metadata.only"/>
+    </bean-->
+
+   <!--bean class="org.dspace.identifier.doi.CollectionValidationInclusive">
+        <property name="collectionHandle" value="123456789/9999"/>
+        <property name="checkFile" value="true"/>
+        <property name="checkMetadata" value="local.metadata.only"/>
+    </bean-->
+    
     <!-- The DOIConnector will handle the API calls to your DOI registration
          agency for the DOIIdentifierProvider. If your registration agency
          tells you to use the DataCite API directly, you can use the

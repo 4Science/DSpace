@@ -41,14 +41,14 @@
 		<org.jdyna.version>5.18</org.jdyna.version>
 		<it.cilea.ccommons.version>2.5</it.cilea.ccommons.version>
 		
-		<ckan.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</ckan.addon.modules>
-		<iiif.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</iiif.addon.modules>
+		<ckan.addon.modules>[CRIS-5.2-SNAPSHOT,CRIS-6.0-SNAPSHOT)</ckan.addon.modules>
+		<iiif.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</iiif.addon.modules>
 		<woocommerce.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</woocommerce.addon.modules>
 		<commons.addon.modules>[CRIS-5.3-SNAPSHOT,CRIS-6.0-SNAPSHOT)</commons.addon.modules>
-		<annoiiif.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</annoiiif.addon.modules>
-		<ocr.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</ocr.addon.modules>
-		<docviewer.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</docviewer.addon.modules>
-		<av.addon.modules>[CRIS-5.0-SNAPSHOT,CRIS-6.0-SNAPSHOT)</av.addon.modules>
+		<annoiiif.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</annoiiif.addon.modules>
+		<ocr.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</ocr.addon.modules>
+		<docviewer.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</docviewer.addon.modules>
+		<av.addon.modules>[CRIS-5.1-SNAPSHOT,CRIS-6.0-SNAPSHOT)</av.addon.modules>
 		
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
@@ -1474,8 +1474,8 @@
          </dependency>
          <dependency>
             <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.4.0</version>
+            <artifactId>ojdbc7</artifactId>
+            <version>12.1.0.2.0</version>
          </dependency>
          <dependency>
             <groupId>com.sun.media</groupId>

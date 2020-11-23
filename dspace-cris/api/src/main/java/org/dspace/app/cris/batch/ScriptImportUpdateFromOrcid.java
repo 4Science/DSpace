@@ -25,7 +25,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.dspace.app.cris.model.CrisConstants;
+import org.dspace.app.cris.model.Project;
 import org.dspace.app.cris.model.ResearcherPage;
+import org.dspace.app.cris.model.jdyna.RPNestedObject;
 import org.dspace.app.cris.model.jdyna.RPPropertiesDefinition;
 import org.dspace.app.cris.model.orcid.OrcidPreferencesUtils;
 import org.dspace.app.cris.service.ApplicationService;
@@ -57,7 +59,11 @@ public class ScriptImportUpdateFromOrcid {
 	private static List<String> propsToReplace;
 	
 	private static boolean singleMode = false;
-	
+
+	private static boolean importAffiliations;
+	private static boolean importEducations;
+	private static boolean importFundings;
+
 	/**
 	 * Batch script to push data to Orcid. Try with -h to see more helps.
 	 */
@@ -87,14 +93,18 @@ public class ScriptImportUpdateFromOrcid {
 			options.addOption("d", "older_days", true, "It works on researchers not updated in the latest X days");
 			options.addOption("p", "overwrite", true, "list of rp properties to override with values from ORCID (default ignore properties already filled in DSpace-CRIS)");
 			options.addOption("x", "skip", true, "list of rp properties to exclude from the import (default import everything)");
-			
+
+			options.addOption("a", "affiliation", false, "It imports RP affiliations");
+			options.addOption("e", "education", false, "It imports RP educations");
+			options.addOption("f", "funding", false, "It imports fundings");
+
 			CommandLine line = parser.parse(options, args);
 
 			if (line.hasOption('h')) {
 				HelpFormatter myhelp = new HelpFormatter();
 				myhelp.printHelp("ScriptImportUpdateFromOrcid \n", options);
 				System.out.println(
-						"\n\nUSAGE:\n ScriptImportUpdateFromOrcid [-z] [-d <days>] -s <researcher_identifier> [-o <ORCID>] [-p <prop1> -p <prop2> ... -p <propN>] [-x <prop1> -x <prop2> ... -x <propN>] - with no options it works on all the RP with an ORCID \n");
+						"\n\nUSAGE:\n ScriptImportUpdateFromOrcid [-z] [-d <days>] -s <researcher_identifier> [-o <ORCID>] [-p <prop1> -p <prop2> ... -p <propN>] [-x <prop1> -x <prop2> ... -x <propN>] [-a] [-e] [-f] - with no options it works on all the RP with an ORCID \n");
 
 				System.exit(0);
 			}
@@ -149,6 +159,10 @@ public class ScriptImportUpdateFromOrcid {
 				}
 			}
             
+			importAffiliations = line.hasOption("a");
+			importEducations = line.hasOption("e");
+			importFundings = line.hasOption("f");
+
 			if (singleMode) {
 				ResearcherPage rp = null;
 				if (StringUtils.isNotBlank(crisID)) {
@@ -182,6 +196,9 @@ public class ScriptImportUpdateFromOrcid {
 	            		rp.setSourceID(orcidParam);
 	            		applicationService.saveOrUpdate(ResearcherPage.class, rp);
 	            		System.out.println("RP " + rp.getCrisID() + " successful created from the ORCID: " + orcidParam);
+
+	            		populateRPNested(applicationService, rp, orcidParam, null);
+	            		populatePJ(applicationService, rp, orcidParam, null);
 	            	}
 	            	else {
 	            		System.out.println("Creation of an RP from the ORCID: " + orcidParam + " Failed!");
@@ -195,6 +212,9 @@ public class ScriptImportUpdateFromOrcid {
 	            	if (orcidPopulated) {
 	            		applicationService.saveOrUpdate(ResearcherPage.class, rp);
 	            		System.out.println("RP " + rp.getCrisID() + " successful updated using the ORCID: " + orcidParam);
+
+	            		populateRPNested(applicationService, rp, orcidParam, token);
+	            		populatePJ(applicationService, rp, orcidParam, token);
 	            	}
 	            	else {
 	            		System.out.println("Update of the RP " + rp.getCrisID() + " from the ORCID: " + orcidParam + " Failed!");
@@ -213,6 +233,7 @@ public class ScriptImportUpdateFromOrcid {
 					sQuery.addFilterQuery("time_lastmodified_dt:[* TO NOW-"+olderThan+"DAYS/DAY]");
 				}
 				sQuery.setFields("cris-id");
+				sQuery.setRows(Integer.MAX_VALUE);
 				QueryResponse qResp = searchService.search(sQuery);
 				if (qResp.getResults() != null && qResp.getResults().getNumFound() > 0) {
 					boolean errors = false;
@@ -230,6 +251,9 @@ public class ScriptImportUpdateFromOrcid {
 							System.out
 									.println("RP " + rp.getCrisID() + " successful updated using the ORCID: " + orcidRP);
 		            		success++;
+
+		            		populateRPNested(applicationService, rp, orcidRP, token);
+		            		populatePJ(applicationService, rp, orcidRP, token);
 		            	}
 		            	else {
 		            		System.err.println("Update of the RP " + rp.getCrisID() + " from the ORCID: " + orcidRP + " Failed!");
@@ -256,5 +280,37 @@ public class ScriptImportUpdateFromOrcid {
 		log.info("#### END: -----" + new Date() + " ----- ####");
 		System.exit(0);
 	}
+
+    private static void populateRPNested(ApplicationService applicationService, ResearcherPage rp, String orcid, String token)
+    {
+        if (importAffiliations)
+        {
+            for (RPNestedObject nested : OrcidPreferencesUtils.populateRPNestedAffiliations(rp, orcid, token))
+            {
+                applicationService.saveOrUpdate(RPNestedObject.class, nested);
+                System.out.println("Nested Affiliation " + nested.getSourceReference().getSourceID() + " successful created into RP " + rp.getCrisID() + " from the ORCID: " + orcid);
+            }
+        }
+        if (importEducations)
+        {
+            for (RPNestedObject nested : OrcidPreferencesUtils.populateRPNestedEducations(rp, orcid, token))
+            {
+                applicationService.saveOrUpdate(RPNestedObject.class, nested);
+                System.out.println("Nested Education " + nested.getSourceReference().getSourceID() + " successful created into RP " + rp.getCrisID() + " from the ORCID: " + orcid);
+            }
+        }
+    }
+
+    private static void populatePJ(ApplicationService applicationService, ResearcherPage rp, String orcid, String token)
+    {
+        if (importFundings)
+        {
+            for (Project pj : OrcidPreferencesUtils.populatePJ(rp, orcid, token))
+            {
+                applicationService.saveOrUpdate(Project.class, pj);
+                System.out.println("PJ " + pj.getCrisID() + " successful created or updated using the ORCID: " + orcid);
+            }
+        }
+    }
 
 }

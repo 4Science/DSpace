@@ -34,8 +34,8 @@ public class DTOImpRecord
 {
     
     private static final Logger log = Logger.getLogger(DTOImpRecord.class);
-    
-    private static int incoming = ConfigurationManager.getIntProperty("assetstore.incoming");
+
+    private static int incoming = BitstreamStorageManager.getIncoming();
     private static String sAssetstoreDir = ConfigurationManager.getProperty("assetstore.dir");
 
     // These settings control the way an identifier is hashed into

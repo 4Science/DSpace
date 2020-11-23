@@ -320,6 +320,22 @@ public class OrcidService extends RestSource
         return message;
     }
 
+    public WorkBulk getWorkBulk(String id, String token, List<String> putCodes)
+    {
+        String endpoint = id + WORKS_ENDPOINT;
+        WorkBulk message = null;
+        try
+        {
+            String sPutCodes = StringUtils.join(putCodes, ",");
+            message = get(endpoint, token, sPutCodes).readEntity(WorkBulk.class);
+        }
+        catch (Exception e)
+        {
+            log.error(e);
+        }
+        return message;
+    }
+
     public WorkSummary getWorkSummary(String id, String token, String putCode)
     {
 
@@ -345,6 +361,21 @@ public class OrcidService extends RestSource
         try
         {
             message = get(endpoint, token, putCode).readEntity(Work.class);
+        }
+        catch (Exception e)
+        {
+            log.error(e);
+        }
+        return message;
+    }
+
+    public Funding getFunding(String id, final String token, final String putCode)
+    {
+        String endpoint = id + FUNDING_ENDPOINT;
+        Funding message = null;
+        try
+        {
+            message = get(endpoint, token, putCode).readEntity(Funding.class);
         }
         catch (Exception e)
         {

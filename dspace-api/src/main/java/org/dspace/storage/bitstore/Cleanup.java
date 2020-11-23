@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import org.apache.log4j.Logger;
+import org.dspace.utils.DSpace;
 
 /**
  * Cleans up asset store.

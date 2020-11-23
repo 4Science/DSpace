@@ -7,15 +7,36 @@
 --
 
 BEGIN
-	EXECUTE IMMEDIATE
-    	'ALTER TABLE imp_record_to_item ADD COLUMN imp_sourceref VARCHAR2(256);
-		 ALTER TABLE imp_record ADD COLUMN imp_sourceref VARCHAR2(256);		 
-		 ALTER TABLE imp_record ALTER COLUMN imp_record_id TYPE VARCHAR2(256);
-		 ALTER TABLE imp_record_to_item ALTER COLUMN imp_record_id TYPE VARCHAR2(256);
-		';
-		 
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE imp_record_to_item ADD (imp_sourceref VARCHAR2(256))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE imp_record ADD (imp_sourceref VARCHAR2(256))';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE imp_record MODIFY imp_record_id VARCHAR2(256)'; 
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
+	BEGIN
+		EXECUTE IMMEDIATE
+			'ALTER TABLE imp_record_to_item MODIFY imp_record_id VARCHAR2(256)'; 
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		   NULL;
+	END;
 END;

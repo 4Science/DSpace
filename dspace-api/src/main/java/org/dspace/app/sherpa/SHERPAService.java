@@ -7,18 +7,23 @@
  */
 package org.dspace.app.sherpa;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
+import org.dspace.app.sherpa.v2.SHERPAResponse;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.services.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SHERPAService
 {
@@ -26,18 +31,22 @@ public class SHERPAService
 
     private int maxNumberOfTries;
     private long sleepBetweenTimeouts;
-    private int timeout;
+    private int timeout = 5000;
 
     /** log4j category */
     private static final Logger log = Logger.getLogger(SHERPAService.class);
 
+    @Autowired
+    ConfigurationService configurationService;
+
     public SHERPAService() {
-        HttpClientBuilder custom = HttpClients.custom();
+        HttpClientBuilder builder = HttpClientBuilder.create();
         // httpclient 4.3+ doesn't appear to have any sensible defaults any more. Setting conservative defaults as not to hammer the SHERPA service too much.
-        client=custom.disableAutomaticRetries().setMaxConnTotal(5).setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build()).build();
-
+        client = builder
+                .disableAutomaticRetries()
+                .setMaxConnTotal(5)
+                .build();
     }
-
 
     public SHERPAResponse searchByJournalISSN(String query)
     {
@@ -51,17 +60,35 @@ public class SHERPAService
         while(numberOfTries<maxNumberOfTries && sherpaResponse==null) {
             numberOfTries++;
 
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format("Trying to contact SHERPA/RoMEO - attempt %d of %d; timeout is %d; sleep between timeouts is %d",
+                        numberOfTries,
+                        maxNumberOfTries,
+                        timeout,
+                        sleepBetweenTimeouts));
+            }
+
             try {
-                Thread.sleep(sleepBetweenTimeouts * (numberOfTries-1));
+                Thread.sleep(sleepBetweenTimeouts);
 
                 URIBuilder uriBuilder = new URIBuilder(endpoint);
-                uriBuilder.addParameter("issn", query);
-                uriBuilder.addParameter("versions", "all");
-                if (StringUtils.isNotBlank(apiKey))
-                    uriBuilder.addParameter("ak", apiKey);
+
+                uriBuilder.addParameter("item-type", "publication");
+                uriBuilder.addParameter("filter", "[[\"issn\",\"equals\",\""+query+"\"]]");
+                uriBuilder.addParameter("format", "Json");
+                if (StringUtils.isNotBlank(apiKey)) {
+                    uriBuilder.addParameter("api-key", apiKey);
+                }
+
+                log.debug("Searching SHERPA endpoint with " + uriBuilder.toString());
 
                 method = new HttpGet(uriBuilder.build());
-
+                method.setConfig(RequestConfig.custom()
+                        .setConnectionRequestTimeout(timeout)
+                        .setConnectTimeout(timeout)
+                        .setSocketTimeout(timeout)
+                        .build());
                 // Execute the method.
 
                 HttpResponse response = client.execute(method);
@@ -74,12 +101,29 @@ public class SHERPAService
 
                 HttpEntity responseBody = response.getEntity();
 
-                if (null != responseBody)
-                    sherpaResponse = new SHERPAResponse(responseBody.getContent());
-                else
+                if (null != responseBody) {
+                    InputStream content = null;
+                    try {
+                        content = responseBody.getContent();
+                        sherpaResponse = new SHERPAResponse(responseBody.getContent(), SHERPAResponse.SHERPAFormat.JSON);
+                    } catch (IOException e) {
+                        log.error("Encountered exception parsing response from  SHERPA/RoMEO: "
+                            + e.getMessage(), e);
+                    } finally {
+                        if (content != null) {
+                            content.close();
+                        }
+                    }
+                }
+                else {
                     sherpaResponse = new SHERPAResponse("SHERPA/RoMEO returned no response");
+                }
             } catch (Exception e) {
-                log.error(e.getMessage(),e);
+                log.error("Encountered exception while contacting SHERPA/RoMEO: " + e.getMessage(), e);
+            } finally {
+                if (method != null) {
+                    method.releaseConnection();
+                }
             }
         }
 

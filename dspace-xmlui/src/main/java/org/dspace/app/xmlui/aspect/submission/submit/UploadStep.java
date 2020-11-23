@@ -18,9 +18,9 @@ import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.commons.collections.CollectionUtils;
-import org.dspace.app.sherpa.SHERPAJournal;
-import org.dspace.app.sherpa.SHERPAPublisher;
-import org.dspace.app.sherpa.SHERPAResponse;
+import org.dspace.app.sherpa.v2.SHERPAJournal;
+import org.dspace.app.sherpa.v2.SHERPAPublisher;
+import org.dspace.app.sherpa.v2.SHERPAResponse;
 import org.dspace.app.sherpa.submit.SHERPASubmitService;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.aspect.submission.AbstractSubmissionStep;
@@ -393,27 +393,32 @@ public class UploadStep extends AbstractSubmissionStep
                     SHERPAResponse shresp = sherpaSubmitService.searchRelatedJournalsByISSN(issnsIterator.next());
 
                     java.util.List<SHERPAJournal> journals = shresp.getJournals();
-                    java.util.List<SHERPAPublisher> publishers = shresp.getPublishers();
 
                     if (CollectionUtils.isNotEmpty(journals)) {
                         for (SHERPAJournal journ : journals) {
+
+                            java.util.List<SHERPAPublisher> publishers = journ.getPublishers();
 
                             List sherpaList = div.addList("sherpaList" + (i + 1), "simple", "sherpaList");
                             sherpaList.addItem().addFigure(contextPath + "/static/images/" + (i == 0 ? "romeosmall" : "clear") + ".gif", "http://www.sherpa.ac.uk/romeo/", "sherpaLogo");
 
                             sherpaList.addItem().addHighlight("sherpaBold").addContent(T_sherpa_journal);
-                            sherpaList.addItem(journ.getTitle() + " (" + journ.getIssn() + ")");
+                            String issn = null;
+                            if (CollectionUtils.isNotEmpty(journ.getIssns()) && CollectionUtils.isNotEmpty(journ.getTitles())) {
+                                issn = journ.getIssns().get(0);
+                                sherpaList.addItem(journ.getTitles().get(0) + " (" + issn + ")");
+                            }
 
                             if(CollectionUtils.isNotEmpty(publishers)) {
                                 SHERPAPublisher pub = publishers.get(0);
                                 sherpaList.addItem().addHighlight("sherpaBold").addContent(T_sherpa_publisher);
-                                sherpaList.addItemXref(pub.getHomeurl(), pub.getName());
+                                sherpaList.addItemXref(pub.getUri(), pub.getName());
 
-                                sherpaList.addItem().addHighlight("sherpaBold").addContent(T_sherpa_colour);
-                                sherpaList.addItem().addHighlight("sherpaStyle " + pub.getRomeocolour()).addContent(message("xmlui.aspect.sherpa.submission." + pub.getRomeocolour()));
+                                //sherpaList.addItem().addHighlight("sherpaBold").addContent(T_sherpa_colour);
+                                //sherpaList.addItem().addHighlight("sherpaStyle " + pub.getRomeocolour()).addContent(message("xmlui.aspect.sherpa.submission." + pub.getRomeocolour()));
                             }
 
-                            sherpaList.addItem().addXref("http://www.sherpa.ac.uk/romeo/search.php?issn=" + journ.getIssn(), T_sherpa_more, "sherpaMoreInfo");
+                            sherpaList.addItem().addXref("http://www.sherpa.ac.uk/romeo/search.php?issn=" + issn, T_sherpa_more, "sherpaMoreInfo");
 
                             i = i + 1;
                         }

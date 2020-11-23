@@ -213,7 +213,12 @@ public class HandleServlet extends DSpaceServlet
 
                     // Check for if-modified-since header
 
-                    long modSince = request.getDateHeader("If-Modified-Since");
+                    long modSince = -1;
+                    try {
+                    	modSince = request.getDateHeader("If-Modified-Since");
+                    }catch (Exception e){
+                    	log.warn(e.getMessage());
+                    }
 
                     if (modSince != -1 && item.getLastModified().getTime() < modSince)
                     {

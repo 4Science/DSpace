@@ -112,6 +112,8 @@ public class OAIHarvester {
     // DOMbuilder class for the DOM -> JDOM conversions
     private static DOMBuilder db = new DOMBuilder();
 
+    private final int cacheLimit = 50;
+    
     // The point at which this thread should terminate itself
 
     /* Initialize the harvester with a collection object */
@@ -338,6 +340,7 @@ public class OAIHarvester {
 				// Process the obtained records
 				if (records != null && records.size()>0)
 				{
+				    int index = 0;
 					log.info("Found " + records.size() + " records to process");
 					for (Element record : records) {
 						// check for STOP interrupt from the scheduler
@@ -351,7 +354,11 @@ public class OAIHarvester {
                             throw new HarvestingException("runHarvest method timed out for collection " + targetCollection.getID());
                         }
 
+						index++;
 						processRecord(record,OREPrefix);
+			            if(index%cacheLimit==0) {
+			                ourContext.clearCache();
+			            }
 						ourContext.commit();
 					}
 				}

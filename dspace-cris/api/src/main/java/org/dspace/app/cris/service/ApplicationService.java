@@ -598,6 +598,33 @@ public class ApplicationService extends ExtendedTabService
         return applicationDao.getList(model, ids);
     }
 
+    public <T extends ACrisObject> List<T> getCrisObjectPaginate(Class<T> crisEntityClazz, Integer crisEntityTypeId) {
+        List<T> crisObjs = new ArrayList<>();
+
+        final int MAX_RESULT = 50;
+        if (crisEntityTypeId > 1000)
+        {
+            DynamicObjectType dynamicType = get(DynamicObjectType.class, crisEntityTypeId);
+            long tot = countResearchObjectByType(dynamicType);
+            long numpages = (tot / MAX_RESULT) + 1;
+            for (int page = 1; page <= numpages; page++)
+            {
+                crisObjs.addAll((List<T>)getResearchObjectPaginateListByType(dynamicType, "id", false, page, MAX_RESULT));
+            }
+        }
+        else
+        {
+            long tot = count(crisEntityClazz);
+            long numpages = (tot / MAX_RESULT) + 1;
+            for (int page = 1; page <= numpages; page++)
+            {
+                crisObjs.addAll(getPaginateList(crisEntityClazz, "id", false, page, MAX_RESULT));
+            }
+        }
+
+        return crisObjs;
+    }
+
     public ResearcherPage getResearcherPageByEPersonId(Integer id)
     {
 		if (cacheRpByEPerson != null) {
@@ -1012,7 +1039,10 @@ public class ApplicationService extends ExtendedTabService
 			// remove from the cache all the depending objects
 			if (dependencies != null) {
 				for (String uuidDep : dependencies) {
-					clearCacheByUUID(uuidDep);
+					// prevent a stack overflow if the item depends on itself
+					if (!uuidDep.equals(myUuid)) {
+						clearCacheByUUID(uuidDep);
+					}
 				}
 			}
 			cacheDependencies.remove(myUuid);

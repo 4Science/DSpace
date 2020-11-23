@@ -32,6 +32,7 @@
 		</ul>
 	<div class="titlestats tab-content with-padding">		
 		<div class="btn-group pull-right">
+		<span onmouseover="hover(this);" onmouseout="out(this);">
 				<a href="#" class="btn btn-default" data-toggle="dropdown"><fmt:message key="view.stats.subscribe.statistics.label" /> <span  class="fa fa-caret-down"></span ></a>
 				<ul role="menu" class="dropdown-menu">
 	<li>
@@ -73,13 +74,16 @@
 </c:choose>
 	</li>
 </ul>
+</span>
 </div>
 <div class="btn-group pull-right">
+<span onmouseover="hover(this);" onmouseout="out(this);">
 	<a href="#" class="btn btn-default" data-toggle="dropdown"><fmt:message key="view.stats.subscribe.rss.label" /> <span  class="fa fa-caret-down"></span ></a>
 	<ul role="menu" class="dropdown-menu">
 		<li><a href="${rssLink}daily?uid=${data.object.handle}&amp;type=${fn:escapeXml(data.object.type)}" title="Subscribe to RSS statistics update"><fmt:message key="view.stats.subscribe.rss.daily" /></a></li>
 		<li><a href="${rssLink}weekly?uid=${data.object.handle}&amp;type=${fn:escapeXml(data.object.type)}" title="Subscribe to RSS statistics update"><fmt:message key="view.stats.subscribe.rss.weekly" /></a></li>
 		<li><a href="${rssLink}monthly?uid=${data.object.handle}&amp;type=${fn:escapeXml(data.object.type)}" title="Subscribe to RSS statistics update"><fmt:message key="view.stats.subscribe.rss.monthly" /></a></li>
 	</ul>
+</span>
 </div>
 <div class="clearfix">&nbsp;</div>

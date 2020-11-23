@@ -89,6 +89,15 @@
     boolean showCommList = ConfigurationManager.getBooleanProperty("community-list.show.all",true);
 %>
 
+<script type='text/javascript'>
+    function hover(element) {
+        element.className = "dropdown open";
+    }
+    function out(element) {
+        element.className = "dropdown";
+    }
+</script>
+
        <div class="navbar-header">
          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
            <span class="icon-bar"></span>
@@ -152,7 +161,7 @@
  
     <div class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
 	 <ul class="nav navbar-nav navbar-<%= isRtl ? "left" : "right" %>">
-      <li id="language-top-menu" class="dropdown">
+      <li id="language-top-menu" class="dropdown" onmouseover="hover(this);" onmouseout="out(this);">
        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="jsp.layout.navbar-default.language"/><b class="caret"></b></a>
         <ul class="dropdown-menu">
  <%
@@ -183,14 +192,14 @@
     if (user != null)
     {
 		%>
-		<li id="userloggedin-top-menu" class="dropdown">
+		<li id="userloggedin-top-menu" class="dropdown" onmouseover="hover(this);" onmouseout="out(this);">
 		<a href="#" class="dropdown-toggle <%= isRtl ? "" : "text-right" %>" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <fmt:message key="jsp.layout.navbar-default.loggedin">
 		      <fmt:param><%= StringUtils.abbreviate(navbarEmail, 20) %></fmt:param>
 		  </fmt:message> <b class="caret"></b></a>
 		<%
     } else {
 		%>
-			<li id="user-top-menu" class="dropdown">
+			<li id="user-top-menu" class="dropdown" onmouseover="hover(this);" onmouseout="out(this);">
              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <fmt:message key="jsp.layout.navbar-default.sign"/> <b class="caret"></b></a>
 	<% } %>             
              <ul class="dropdown-menu">

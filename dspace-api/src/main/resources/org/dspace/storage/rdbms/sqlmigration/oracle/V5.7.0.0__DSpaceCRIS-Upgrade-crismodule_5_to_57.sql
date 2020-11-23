@@ -6,11 +6,4 @@
 -- http://www.dspace.org/license/
 --
 
-BEGIN
-	EXECUTE IMMEDIATE
-'ALTER TABLE imp_bitstream ADD COLUMN md5value VARCHAR2(32);'
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
-END;
+ALTER TABLE imp_bitstream ADD (md5value VARCHAR2(32));

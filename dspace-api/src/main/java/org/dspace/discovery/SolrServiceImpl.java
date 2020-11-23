@@ -131,9 +131,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     private static final Logger log = Logger.getLogger(SolrServiceImpl.class);
 
     protected static final String LAST_INDEXED_FIELD = "SolrIndexer.lastIndexed";
-    protected static final String HANDLE_FIELD = "handle";
-    protected static final String RESOURCE_TYPE_FIELD = "search.resourcetype";
-    protected static final String RESOURCE_ID_FIELD = "search.resourceid";
+    public static final String HANDLE_FIELD = "handle";
+    public static final String RESOURCE_TYPE_FIELD = "search.resourcetype";
+    public static final String RESOURCE_ID_FIELD = "search.resourceid";
 
     public static final String FILTER_SEPARATOR = "\n|||\n";
     public static final String ESCAPED_FILTER_SEPARATOR = "\n\\|\\|\\|\n";

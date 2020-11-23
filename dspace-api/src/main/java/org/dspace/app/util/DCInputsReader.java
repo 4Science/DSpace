@@ -440,8 +440,12 @@ public class DCInputsReader
                         }
                         else if (tagName.equals("vocabulary"))
                         {
-                                String closedVocabularyString = getAttribute(nd, "closed");
+                            String closedVocabularyString = getAttribute(nd, "closed");
                             field.put("closedVocabulary", closedVocabularyString);
+                        }else if (tagName.equals("visibility"))
+                        {
+                        	String readOnlyString = getAttribute(nd, "otherwise");
+                        	field.put("readonly", readOnlyString);
                         }
                 }
         }

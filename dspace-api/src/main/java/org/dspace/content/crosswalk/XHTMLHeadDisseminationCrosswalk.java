@@ -174,7 +174,7 @@ public class XHTMLHeadDisseminationCrosswalk extends SelfNamedPlugin implements
         Item item = (Item) dso;
         String handle = item.getHandle();
         List<Element> metas = new ArrayList<Element>();
-        Metadatum[] values = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        Metadatum[] values = item.getMetadataWithoutPlaceholder(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
         // Add in schema URLs e.g. <link rel="schema.DC" href="...." />
         Iterator<String> schemaIterator = schemaURLs.keySet().iterator();

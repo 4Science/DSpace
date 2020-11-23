@@ -70,7 +70,7 @@
     Collection collection = subInfo.getSubmissionItem().getCollection();
 %>
 
-<div class="container">
+<div class="row">
 <!--Progress Bar-->
 <div class="row btn-group">
 <%    

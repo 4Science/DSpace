@@ -2,17 +2,22 @@ package org.dspace.app.cris.integration.orcid;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.ws.rs.NotFoundException;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
+import org.apache.log4j.Logger;
 import org.dspace.app.itemimport.BTEBatchImportService;
 import org.dspace.authority.orcid.OrcidService;
 import org.dspace.core.Context;
@@ -23,22 +28,20 @@ import org.orcid.jaxb.model.common_v3.CreditName;
 import org.orcid.jaxb.model.common_v3.ExternalId;
 import org.orcid.jaxb.model.common_v3.ExternalIds;
 import org.orcid.jaxb.model.common_v3.FuzzyDate;
-import org.orcid.jaxb.model.utils.LanguageCode;
 import org.orcid.jaxb.model.common_v3.OrcidId;
 import org.orcid.jaxb.model.common_v3.SourceType;
 import org.orcid.jaxb.model.common_v3.Url;
 import org.orcid.jaxb.model.record_v3.Citation;
-import org.orcid.jaxb.model.utils.CitationType;
 import org.orcid.jaxb.model.record_v3.Contributor;
 import org.orcid.jaxb.model.record_v3.NameType;
 import org.orcid.jaxb.model.record_v3.NameType.GivenNames;
 import org.orcid.jaxb.model.record_v3.PersonalDetails;
 import org.orcid.jaxb.model.record_v3.Work;
+import org.orcid.jaxb.model.record_v3.WorkBulk;
 import org.orcid.jaxb.model.record_v3.WorkContributors;
 import org.orcid.jaxb.model.record_v3.WorkGroup;
 import org.orcid.jaxb.model.record_v3.WorkSummary;
 import org.orcid.jaxb.model.record_v3.WorkTitle;
-import org.orcid.jaxb.model.utils.WorkType;
 import org.orcid.jaxb.model.record_v3.Works;
 
 import com.google.api.client.util.Charsets;
@@ -54,9 +57,15 @@ import gr.ekt.bte.dataloader.FileDataLoader;
 
 public class OrcidOnlineDataLoader extends NetworkSubmissionLookupDataLoader
 {
+    private static final int MAX_BULK_WORK = 100;
+
+    private static final Logger log = Logger.getLogger(OrcidOnlineDataLoader.class);
 
     public final static String PLACEHOLER_NO_DATA = "#NODATA#";
 
+    private int cooldown = 0;
+    private int numberOfThread = 1;
+    
     @Override
     public List<String> getSupportedIdentifiers()
     {
@@ -82,68 +91,69 @@ public class OrcidOnlineDataLoader extends NetworkSubmissionLookupDataLoader
             Map<String, Set<String>> keys) throws HttpException, IOException
     {
         Set<String> orcids = keys != null ? keys.get(ORCID) : null;
+        List<DTOBulkPutCode> bulkCallList = new ArrayList<DTOBulkPutCode>();
+        List<Thread> threads = new ArrayList<Thread>();
+        final ConcurrentLinkedQueue<Record> q = new ConcurrentLinkedQueue<Record>();
         List<Record> results = new ArrayList<Record>();
 
-        OrcidService orcidService = OrcidService.getOrcid();
+        final OrcidService orcidService = OrcidService.getOrcid();
         String sourceName = orcidService.getSourceClientName();
 
         if (orcids != null)
         {
-            for (String orcid : orcids)
+            for (final String orcid : orcids)
             {
-
                 try
                 {
-                    PersonalDetails profile = orcidService
+                    final PersonalDetails profile = orcidService
                             .getPersonalDetails(orcid, null);
                     if (profile != null)
                     {
+                        List<String> putCodes = new ArrayList<>();
                         Works orcidWorks = orcidService.getWorks(orcid, null);
                         workgroup: for (WorkGroup orcidGroup : orcidWorks.getGroup())
                         {
-                            int higher = orcidService.higherDisplayIndex(orcidGroup);
-                            // take the Work with highest display index value (the preferred item)
-                            worksummary : for (WorkSummary orcidSummary : orcidGroup
-                                    .getWorkSummary())
-                            {
-                                if (StringUtils.isNotBlank(orcidSummary.getDisplayIndex()))
+                            
+                            List<WorkSummary> workSummaries = orcidGroup.getWorkSummary();
+                            if(workSummaries!=null) { 
+                                int higher = orcidService.higherDisplayIndex(orcidGroup);
+                                // take the Work with highest display index value (the preferred item)
+                                worksummary : for (final WorkSummary orcidSummary : workSummaries)
                                 {
-                                    int current = Integer.parseInt(orcidSummary.getDisplayIndex());
-                                    if (current < higher)
+                                    if (StringUtils.isNotBlank(orcidSummary.getDisplayIndex()))
                                     {
-                                        continue worksummary;
+                                        int current = Integer.parseInt(orcidSummary.getDisplayIndex());
+                                        if (current < higher)
+                                        {
+                                            continue worksummary;
+                                        }
                                     }
-                                }
-                                SourceType source = orcidSummary.getSource();
-                                String sourceNameWork = "";
-                                if (source != null)
-                                {
-                                    sourceNameWork = source.getSourceName()
-                                            .getContent();
-                                }
-                                if (StringUtils.isBlank(sourceNameWork)
-                                        || !StringUtils.equals(sourceNameWork,
-                                                sourceName))
-                                {
-                                    try
+                                    putCodes.add(orcidSummary.getPutCode().toString());
+                                    SourceType source = orcidSummary.getSource();
+                                    String sourceNameWork = "";
+                                    if (source != null)
                                     {
-                                        results.add(convertOrcidWorkToRecord(
-                                                profile, orcid,
-                                                orcidService.getWork(orcid,
-                                                        null,
-                                                        orcidSummary
-                                                                .getPutCode()
-                                                                .toString())));
-                                        // in the case of more equal display index value take the first
-                                        // (for example import from API setup display index to 0, see https://members.orcid.org/api/tutorial/reading-xml#display-index)
-                                        break;
+                                        sourceNameWork = source.getSourceName()
+                                                .getContent();
                                     }
-                                    catch (Exception e)
+                                    if (StringUtils.isBlank(sourceNameWork)
+                                            || !StringUtils.equals(sourceNameWork,
+                                                    sourceName))
                                     {
-                                        throw new IOException(e);
+                                        
+                                        if (putCodes.size() == MAX_BULK_WORK) {
+                                            DTOBulkPutCode bulkObject = new DTOBulkPutCode(orcid, putCodes, profile);
+                                            bulkCallList.add(bulkObject);
+                                            putCodes.clear();
+                                        }
                                     }
                                 }
                             }
+                        }
+                        if (putCodes.size() > 0) {
+                            DTOBulkPutCode bulkObject = new DTOBulkPutCode(orcid, putCodes, profile);
+                            bulkCallList.add(bulkObject);
+                            putCodes.clear();
                         }
                     }
                 }
@@ -153,6 +163,95 @@ public class OrcidOnlineDataLoader extends NetworkSubmissionLookupDataLoader
                 }
             }
         }
+
+        
+        if(bulkCallList!=null && !bulkCallList.isEmpty()) {
+            Double res = Math.ceil((double)bulkCallList.size() / getNumberOfThread());
+            Integer maxBulkCallForThread = res.intValue();
+            
+            List<List<DTOBulkPutCode>> bulkCallListPartitioned = ListUtils.partition(bulkCallList, maxBulkCallForThread);
+            
+            for (final List<DTOBulkPutCode> bulkCallListThread : bulkCallListPartitioned)
+            {
+                threads.add(new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            for (DTOBulkPutCode bulkObject : bulkCallListThread)
+                            {
+                                final WorkBulk workBulk = orcidService.getWorkBulk(
+                                        bulkObject.getOrcid(), null,
+                                        bulkObject.getPutCode());
+                                List<Serializable> ss = workBulk.getWorkOrError();
+                                for (Serializable s : ss)
+                                {
+                                    if (s instanceof Work)
+                                    {
+                                        q.add(convertOrcidWorkToRecord(
+                                                bulkObject.getProfile(),
+                                                bulkObject.getOrcid(), (Work) s));
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+                });
+            }
+            
+            
+            List<Thread> threadsStarted = new ArrayList<Thread>();
+            
+            while (!threads.isEmpty() || !threadsStarted.isEmpty())
+            {
+                if (!threads.isEmpty()
+                        && threadsStarted.size() < getNumberOfThread())
+                {
+                    Thread t = threads.remove(0);
+                    t.start();
+                    threadsStarted.add(t);
+                    // sleep only if there is a cooldown and if there are works left in queue
+                    if (!threads.isEmpty() && getCooldown() != 0)
+                    {
+                        try
+                        {
+                            Thread.sleep(getCooldown());
+                        }
+                        catch (InterruptedException e)
+                        {
+                            log.error(e);
+                        }
+                    }
+                }
+                else
+                {
+                    while (!threadsStarted.isEmpty())
+                    {
+                        Thread t = threadsStarted.remove(0);
+                        try
+                        {
+                            t.join();
+                        }
+                        catch (InterruptedException e)
+                        {
+                            log.error(e);
+                        }
+                    }
+                }            
+            }        
+        }
+        
+        while (!q.isEmpty())
+        {
+        	results.add(q.remove());
+        }
+        
         return results;
     }
 
@@ -327,4 +426,67 @@ public class OrcidOnlineDataLoader extends NetworkSubmissionLookupDataLoader
         }
     }
 
+    public int getCooldown()
+    {
+        return cooldown;
+    }
+
+    public void setCooldown(int cooldown)
+    {
+        this.cooldown = cooldown;
+    }
+
+    public int getNumberOfThread()
+    {
+        if(numberOfThread<=0) {
+            numberOfThread=1;
+        }
+        return numberOfThread;
+    }
+
+    public void setNumberOfThread(int numberOfThread)
+    {
+        this.numberOfThread = numberOfThread;
+    }
+    
+    public class DTOBulkPutCode {
+        
+        private String orcid;
+        private List<String> putCode;
+        private PersonalDetails profile;
+        
+        public DTOBulkPutCode(String orcid, List<String> putCodes,
+                PersonalDetails profile)
+        {
+            this.orcid = orcid;
+            this.putCode = new ArrayList<>(putCodes);
+            this.profile = profile;
+        }
+        
+        public String getOrcid()
+        {
+            return orcid;
+        }
+        public void setOrcid(String orcid)
+        {
+            this.orcid = orcid;
+        }
+        public List<String> getPutCode()
+        {
+            return putCode;
+        }
+        public void setPutCode(List<String> putCode)
+        {
+            this.putCode = putCode;
+        }
+        public PersonalDetails getProfile()
+        {
+            return profile;
+        }
+        public void setProfile(PersonalDetails profile)
+        {
+            this.profile = profile;
+        }
+        
+    }
 }

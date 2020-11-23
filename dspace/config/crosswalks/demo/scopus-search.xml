@@ -1,0 +1,522 @@
+<!-- 
+
+This is an example set of results for a scopus query, if you need to run tests for scopus services without 
+contacting the external service you can edit it to suit your needs (to add more results you need to add more
+"<entry>" elements), the full test file has not been uploaded to to not weight down the repository.
+To enable the local file functionality you need to set "submission-lookup.remoteservice.demo' inside dspace.cfg to true
+
+ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<search-results xmlns="http://www.w3.org/2005/Atom" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:prism="http://prismstandard.org/namespaces/basic/2.0/" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<opensearch:totalResults>2623922</opensearch:totalResults>
+	<opensearch:startIndex>0</opensearch:startIndex>
+	<opensearch:itemsPerPage>5</opensearch:itemsPerPage>
+	<opensearch:Query role="request" searchTerms="heart" startPage="0"/>
+	<link ref="self" href="http://api.elsevier.com:80/content/search/scopus?start=0&amp;count=5&amp;query=heart&amp;view=COMPLETE&amp;ver=new" type="application/xml"/>
+	<link ref="first" href="http://api.elsevier.com:80/content/search/scopus?start=0&amp;count=5&amp;query=heart&amp;view=COMPLETE&amp;ver=new" type="application/xml"/>
+	<link ref="next" href="http://api.elsevier.com:80/content/search/scopus?start=5&amp;count=5&amp;query=heart&amp;view=COMPLETE&amp;ver=new" type="application/xml"/>
+	<link ref="last" href="http://api.elsevier.com:80/content/search/scopus?start=4995&amp;count=5&amp;query=heart&amp;view=COMPLETE&amp;ver=new" type="application/xml"/>
+	<entry>
+		<link ref="self" href="http://api.elsevier.com/content/abstract/scopus_id/84887571959"/>
+		<link ref="scopus" href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84887571959"/>
+		<link ref="scopus-citedby" href="http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;scp=84887571959"/>
+		<link ref="full-text" href="http://api.elsevier.com/content/article/eid/1-s2.0-S0268005X13003226"/>
+		<prism:url>http://api.elsevier.com/content/abstract/scopus_id/84887571959</prism:url>
+		<dc:identifier>SCOPUS_ID:84887571959</dc:identifier>
+		<dc:title>Physicochemical properties and regulatory effects on db/db diabetic mice of ?-glucans extracted from oat, wheat and barley</dc:title>
+		<dc:creator>Zhao, Q.</dc:creator>
+		<prism:publicationName>Food Hydrocolloids</prism:publicationName>
+		<prism:issn>0268005X</prism:issn>
+		<prism:volume>37</prism:volume>
+		<prism:pageRange>60-68</prism:pageRange>
+		<prism:coverDate>2014-06-01</prism:coverDate>
+		<prism:coverDisplayDate>June 2014</prism:coverDisplayDate>
+		<prism:doi>10.1016/j.foodhyd.2013.10.007</prism:doi>
+		<dc:description>Physicochemical properties of different ?-glucan purified from oat, barley and wheat, were investigated by measuring the composition, molecular weight, intrinsic viscosity ([. ?]), and rheological properties. The main objective was to investigate the relationship between effects of regulation of cholesterol metabolism and antioxidant property on db/db diabetic mice of ?-glucans and their molecular weights and viscosities. Metformin was used as the positive control. The levels of blood glucose, serum lipid, liver lipid, superoxide dismutase (SOD) and malondialdehyde (MDA) in liver were determined. Results showed that average values of molecular weight (MW) of ?-glucan from oat, wheat and barley were 172kDa, 635kDa and 743kDa; the viscosities of ?-glucans were positively correlated with their corresponded molecular weights, and wheat and barley ?-glucan showed significant shear thinning ability compared to oat ?-glucan; Barley ?-glucans had higher G' compared to wheat and oat, and the latter had higher G?. Blood glucose differences were not significant due to high variability, however serum TC, TG, liver TC, TG and LDL-C were lower in ?-glucan fed groups compared to control. Moreover, the HDL-C was higher in ?-glucan fed groups compared to control group. The addition of ?-glucan fed to the db/db diabetic mice significantly (P&lt;0.05) increased their liver SOD activities and reduced their MDA levels (P&gt;0.05). A correlation between the measured biological parameters and the molecular weight or viscosity of ?-glucan was observed. Lack of ?-glucanase degeneration was the main cause of the low MW ?-glucan and its diminished physiological effect. © 2013.</dc:description>
+		<citedby-count>0</citedby-count>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60031041</affiliation-url>
+			<afid>60031041</afid>
+			<affilname>Northwest A&amp;F University</affilname>
+			<affiliation-city>Yangling</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Northwest A and F University</name-variant>
+			<name-variant>Northwest Agriculture and Forestry University</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60000174</affiliation-url>
+			<afid>60000174</afid>
+			<affilname>Shaanxi Normal University</affilname>
+			<affiliation-city>Xi'an</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Shaanxi Normal University</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60019967</affiliation-url>
+			<afid>60019967</afid>
+			<affilname>Agriculture et Agroalimentaire Canada</affilname>
+			<affiliation-city>Ottawa</affiliation-city>
+			<affiliation-country>Canada</affiliation-country>
+			<name-variant>Agriculture and Agri-Food Canada</name-variant>
+			<name-variant>Agriculture Canada</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60018308</affiliation-url>
+			<afid>60018308</afid>
+			<affilname>Xi'an Jiaotong University</affilname>
+			<affiliation-city>Xi An</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Xi'an Jiaotong University</name-variant>
+			<name-variant>Xi'an Jiaotong Univ</name-variant>
+			<name-variant>Xi'an Jiaotong Univ.</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60033100</affiliation-url>
+			<afid>60033100</afid>
+			<affilname>Nanjing University</affilname>
+			<affiliation-city>Nanjing</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Nanjing University</name-variant>
+		</affiliation>
+		<prism:aggregationType>Journal</prism:aggregationType>
+		<subtype>ar</subtype>
+		<subtypeDescription>Article</subtypeDescription>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55580513800</author-url>
+			<authid>55580513800</authid>
+			<authname>Zhao, Q.</authname>
+			<surname>Zhao</surname>
+			<initials>Q.</initials>
+			<afid>60031041</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/7404710803</author-url>
+			<authid>7404710803</authid>
+			<authname>Hu, X.</authname>
+			<given-name>Xinzhong</given-name>
+			<surname>Hu</surname>
+			<initials>X.</initials>
+			<afid>60031041</afid>
+			<afid>60000174</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55460010100</author-url>
+			<authid>55460010100</authid>
+			<authname>Guo, Q.</authname>
+			<given-name>Qingbin</given-name>
+			<surname>Guo</surname>
+			<initials>Q.</initials>
+			<afid>60019967</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55616367800</author-url>
+			<authid>55616367800</authid>
+			<authname>Cui, S.W.</authname>
+			<given-name>Steve W.</given-name>
+			<surname>Cui</surname>
+			<initials>S.W.</initials>
+			<afid>60019967</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55928683200</author-url>
+			<authid>55928683200</authid>
+			<authname>Xian, Y.</authname>
+			<given-name>Yinsheng</given-name>
+			<surname>Xian</surname>
+			<initials>Y.</initials>
+			<afid>60018308</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55580065400</author-url>
+			<authid>55580065400</authid>
+			<authname>You, S.</authname>
+			<given-name>Shuiping</given-name>
+			<surname>You</surname>
+			<initials>S.</initials>
+			<afid>60031041</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55581744200</author-url>
+			<authid>55581744200</authid>
+			<authname>Chen, X.</authname>
+			<given-name>Xingyun</given-name>
+			<surname>Chen</surname>
+			<initials>X.</initials>
+			<afid>60031041</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55500469200</author-url>
+			<authid>55500469200</authid>
+			<authname>Xu, C.</authname>
+			<given-name>Chao</given-name>
+			<surname>Xu</surname>
+			<initials>C.</initials>
+			<afid>60031041</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55928517800</author-url>
+			<authid>55928517800</authid>
+			<authname>Gao, X.</authname>
+			<given-name>Xiang</given-name>
+			<surname>Gao</surname>
+			<initials>X.</initials>
+			<afid>60033100</afid>
+		</author>
+		<authkeywords>Barley ?-glucan | Db/db diabetic mice | Oat ?-glucan | Rheological characteristics | Wheat ?-glucan</authkeywords>
+	</entry>
+	<entry>
+		<link ref="self" href="http://api.elsevier.com/content/abstract/scopus_id/84888033533"/>
+		<link ref="scopus" href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84888033533"/>
+		<link ref="scopus-citedby" href="http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;scp=84888033533"/>
+		<link ref="full-text" href="http://api.elsevier.com/content/article/eid/1-s2.0-S0268005X13003470"/>
+		<prism:url>http://api.elsevier.com/content/abstract/scopus_id/84888033533</prism:url>
+		<dc:identifier>SCOPUS_ID:84888033533</dc:identifier>
+		<dc:title>Characteristics and oxidative stability of soy protein-stabilized oil-in-water emulsions: Influence of ionic strength and heat pretreatment</dc:title>
+		<dc:creator>Shao, Y.</dc:creator>
+		<prism:publicationName>Food Hydrocolloids</prism:publicationName>
+		<prism:issn>0268005X</prism:issn>
+		<prism:volume>37</prism:volume>
+		<prism:pageRange>149-158</prism:pageRange>
+		<prism:coverDate>2014-06-01</prism:coverDate>
+		<prism:coverDisplayDate>June 2014</prism:coverDisplayDate>
+		<prism:doi>10.1016/j.foodhyd.2013.10.030</prism:doi>
+		<dc:description>Some physicochemical characteristics, microstructure and stability of native and preheated (95°C, 15min) soy protein isolate (SPI)-stabilized emulsions, formed at varying protein concentrations (c; 0.5-4.0%, w/v) in the absence or presence of 300mM NaCl, were characterized. The emulsifying ability, flocculated state of droplets, microstructure, interfacial protein concentration (?) of the fresh emulsions, as well as stability of these emulsions against coalescence, flocculation, creaming and even lipid oxidation upon storage up to 2 weeks were evaluated. In general, increasing c was favorable for the emulsification efficiency, but the flocculated state of oil droplets or size of the flocs in the fresh emulsions was more affected by the presence of salt, and/or the heat pretreatment. Increasing ionic strength or application of a heat pretreatment resulted in remarkable increases in extents of droplet flocculation in the fresh emulsions, as well as amount and concentrat,ion of adsorbed proteins at the interface. All the emulsions exhibited an extraordinary stability against coalescence and/or flocculation. Increasing c led to a progressive increase in stability against creaming, especially for the preheated SPI emulsions with 300mM NaCl. All the emulsions at c=1% or above exhibited a similarly high oxidative stability upon storage up to 9 days. Even at c=0.5%, the oxidative stability of the formed emulsions could be greatly improved by increasing ionic strength, and/or application of a heat pretreatment. The findings have important implications for the development of an important kind of protein-stabilized emulsions with industrial relevance. © 2013 Elsevier Ltd.</dc:description>
+		<citedby-count>0</citedby-count>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60024542</affiliation-url>
+			<afid>60024542</afid>
+			<affilname>South China University of Technology</affilname>
+			<affiliation-city>Guangzhou</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>South China University of Technology</name-variant>
+			<name-variant>South China Univ. of Technol.</name-variant>
+		</affiliation>
+		<prism:aggregationType>Journal</prism:aggregationType>
+		<subtype>ar</subtype>
+		<subtypeDescription>Article</subtypeDescription>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55673455300</author-url>
+			<authid>55673455300</authid>
+			<authname>Shao, Y.</authname>
+			<given-name>Yun</given-name>
+			<surname>Shao</surname>
+			<initials>Y.</initials>
+			<afid>60024542</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55362742100</author-url>
+			<authid>55362742100</authid>
+			<authname>Tang, C.-H.</authname>
+			<given-name>Chuanhe</given-name>
+			<surname>Tang</surname>
+			<initials>C.</initials>
+			<afid>60024542</afid>
+			<afid>60024542</afid>
+		</author>
+		<authkeywords>Emulsifying property | Emulsion stability | Oxidative stability | Protein-stabilized emulsions | Soy protein isolate</authkeywords>
+	</entry>
+	<entry>
+		<link ref="self" href="http://api.elsevier.com/content/abstract/scopus_id/84886383406"/>
+		<link ref="scopus" href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84886383406"/>
+		<link ref="scopus-citedby" href="http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;scp=84886383406"/>
+		<link ref="full-text" href="http://api.elsevier.com/content/article/eid/1-s2.0-S0268005X13003068"/>
+		<prism:url>http://api.elsevier.com/content/abstract/scopus_id/84886383406</prism:url>
+		<dc:identifier>SCOPUS_ID:84886383406</dc:identifier>
+		<dc:title>Introduction of broad spectrum antibacterial properties to bacterial cellulose nanofibers via immobilising ?-polylysine nanocoatings</dc:title>
+		<dc:creator>Gao, C.</dc:creator>
+		<prism:publicationName>Food Hydrocolloids</prism:publicationName>
+		<prism:issn>0268005X</prism:issn>
+		<prism:volume>36</prism:volume>
+		<prism:pageRange>204-211</prism:pageRange>
+		<prism:coverDate>2014-05-01</prism:coverDate>
+		<prism:coverDisplayDate>May 2014</prism:coverDisplayDate>
+		<prism:doi>10.1016/j.foodhyd.2013.09.015</prism:doi>
+		<dc:description>Active packaging plays a role of a barrier to the outside environment to protect food products. The bacterial cellulose (BC) has the potential as active packaging for food due to its high purity of cellulose content and refined nanofibrous network structure mainly. In order to enhance the antibacterial activity of BC, the ?-polylysine (EPL), a natural coming peptide applied as safe food preservative, was introduced to the surfaces of BC nanofibers via crosslinking method by using procyanidins as crosslinker. Scanning electron microscopy (SEM), transmission electron microscopy (TEM) and Fourier Transformed infrared spectroscopy (FTIR), were employed to characterize the structure of BC/EPL composite nanofibers. SEM and TEM observations revealed that EPL coatings on the surfaces of BC nanofibers were composed of EPL nanoparticles and the thickness of EPL coatings was proportional to the concentration of EPL solution. FTIR results indicated that - NH3+ groups were preserved after crosslinking process and the introduction of EPL had no influence on the original chemical structure of BC. In addition, BC/EPL composite nanofibers exhibited antibacterial activity against both Escherichia coli (Gram-negative bacteria) and Staphylococcus aureus (Gram-positive bacteria). The antibacterial activity was enhanced with the increase of concentration of EPL solution. © 2013 Elsevier Ltd.</dc:description>
+		<citedby-count>0</citedby-count>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60019533</affiliation-url>
+			<afid>60019533</afid>
+			<affilname>Tianjin University</affilname>
+			<affiliation-city>Tianjin</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Tianjin University</name-variant>
+			<name-variant>Tianjin Univ.</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/101046204</affiliation-url>
+			<afid>101046204</afid>
+			<affilname>Tianjin Huanhu Hospital</affilname>
+			<affiliation-city>Tianjin</affiliation-city>
+			<affiliation-country>China</affiliation-country>
+			<name-variant>Tianjin Huanhu Hospital</name-variant>
+		</affiliation>
+		<prism:aggregationType>Journal</prism:aggregationType>
+		<subtype>ar</subtype>
+		<subtypeDescription>Article</subtypeDescription>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/35113024300</author-url>
+			<authid>35113024300</authid>
+			<authname>Gao, C.</authname>
+			<given-name>Chuan</given-name>
+			<surname>Gao</surname>
+			<initials>C.</initials>
+			<afid>60019533</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55901946000</author-url>
+			<authid>55901946000</authid>
+			<authname>Yan, T.</authname>
+			<given-name>Tao</given-name>
+			<surname>Yan</surname>
+			<initials>T.</initials>
+			<afid>101046204</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55901077600</author-url>
+			<authid>55901077600</authid>
+			<authname>Du, J.</authname>
+			<given-name>Jie</given-name>
+			<surname>Du</surname>
+			<initials>J.</initials>
+			<afid>60019533</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55901662100</author-url>
+			<authid>55901662100</authid>
+			<authname>He, F.</authname>
+			<given-name>Fang</given-name>
+			<surname>He</surname>
+			<initials>F.</initials>
+			<afid>60019533</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55454057600</author-url>
+			<authid>55454057600</authid>
+			<authname>Luo, H.</authname>
+			<given-name>Honglin</given-name>
+			<surname>Luo</surname>
+			<initials>H.</initials>
+			<afid>60019533</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/7402417239</author-url>
+			<authid>7402417239</authid>
+			<authname>Wan, Y.</authname>
+			<given-name>Yizao</given-name>
+			<surname>Wan</surname>
+			<initials>Y.</initials>
+			<afid>60019533</afid>
+		</author>
+		<authkeywords>?-Polylysine | Active packaging | Bacterial cellulose | Procyanidins</authkeywords>
+	</entry>
+	<entry>
+		<link ref="self" href="http://api.elsevier.com/content/abstract/scopus_id/84887964048"/>
+		<link ref="scopus" href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84887964048"/>
+		<link ref="scopus-citedby" href="http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;scp=84887964048"/>
+		<link ref="full-text" href="http://api.elsevier.com/content/article/eid/1-s2.0-S095656631300732X"/>
+		<prism:url>http://api.elsevier.com/content/abstract/scopus_id/84887964048</prism:url>
+		<dc:identifier>SCOPUS_ID:84887964048</dc:identifier>
+		<dc:title>Designing label-free electrochemical immunosensors for cytochrome c using nanocomposites functionalized screen printed electrodes</dc:title>
+		<dc:creator>Pandiaraj, M.</dc:creator>
+		<prism:publicationName>Biosensors and Bioelectronics</prism:publicationName>
+		<prism:issn>09565663</prism:issn>
+		<prism:eIssn>18734235</prism:eIssn>
+		<prism:volume>54</prism:volume>
+		<prism:pageRange>115-121</prism:pageRange>
+		<prism:coverDate>2014-04-15</prism:coverDate>
+		<prism:coverDisplayDate>15 April 2014</prism:coverDisplayDate>
+		<prism:doi>10.1016/j.bios.2013.10.030</prism:doi>
+		<dc:description>We have designed here a label-free direct electrochemical immunosensor for the detection of cytochrome c (cyt c), a heme containing metalloprotein using its specific monoclonal antibody. Two nanocomposite-based electrochemical immunosensor platforms were evaluated for the detection of cyt c; (i) self-assembled monolayer (SAM) on gold nanoparticles (GNP) in polypyrrole (PPy) grafted screen printed electrodes (SPE) and (ii) carbon nanotubes (CNT) integrated PPy/SPE. The nanotopologies of the modified electrodes were confirmed by scanning electron microscopy. Electrochemical impedance spectroscopy and cyclic voltammetry were employed to monitor the stepwise fabrication of the nanocomposite immunosensor platforms. In the present method, the label-free quantification of cyt c is based on the direct electron transfer between Fe (III)/Fe (II)-heme redox active site of cyt c selectively bound to anti-cyt c nanocomposite modified SPE. GNP/PPy and CNT/PPy nanocomposites promoted the electron transportation through the conductive pore channels. The overall analytical performance of GNP/PPy based immunosensor (detection limit 2. nM; linear range: 2. nM to 150. ?M) was better than the anti-cyt c/CNT/PPy (detection limit 10. nM; linear range: 10. nM to 50. ?M). Further, the measurement of cyt c release in cell lysates of cardiomyocytes using the GNP/PPy based immunosensor gave an excellent correlation with standard ELISA. © 2013 Elsevier B.V.</dc:description>
+		<citedby-count>0</citedby-count>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60007431</affiliation-url>
+			<afid>60007431</afid>
+			<affilname>Virudhunagar Hindu Nadar's Senthikumara Nadar College</affilname>
+			<affiliation-city>Virudhunagar</affiliation-city>
+			<affiliation-country>India</affiliation-country>
+			<name-variant>VHNSN College</name-variant>
+			<name-variant>V.H.N.S.N. College</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60014608</affiliation-url>
+			<afid>60014608</afid>
+			<affilname>Defence Institute of Physiology and Allied Sciences India</affilname>
+			<affiliation-city>New Delhi</affiliation-city>
+			<affiliation-country>India</affiliation-country>
+			<name-variant>Defence Institute of Physiology and Allied Sciences</name-variant>
+			<name-variant>Def. Inst. of Physiol. and All. Sci.</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60027480</affiliation-url>
+			<afid>60027480</afid>
+			<affilname>Defence Research &amp; Development Establishment India</affilname>
+			<affiliation-city>Gwalior</affiliation-city>
+			<affiliation-country>India</affiliation-country>
+			<name-variant>Defence Research and Development Establishment</name-variant>
+		</affiliation>
+		<prism:aggregationType>Journal</prism:aggregationType>
+		<subtype>ar</subtype>
+		<subtypeDescription>Article</subtypeDescription>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55481972100</author-url>
+			<authid>55481972100</authid>
+			<authname>Pandiaraj, M.</authname>
+			<given-name>Manickam</given-name>
+			<surname>Pandiaraj</surname>
+			<initials>M.</initials>
+			<afid>60007431</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/10039651700</author-url>
+			<authid>10039651700</authid>
+			<authname>Sethy, N.K.</authname>
+			<given-name>Niroj Kumar</given-name>
+			<surname>Sethy</surname>
+			<initials>N.K.</initials>
+			<afid>60014608</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/36493911300</author-url>
+			<authid>36493911300</authid>
+			<authname>Bhargava, K.</authname>
+			<given-name>Kalpana</given-name>
+			<surname>Bhargava</surname>
+			<initials>K.</initials>
+			<afid>60014608</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55932269700</author-url>
+			<authid>55932269700</authid>
+			<authname>Kameswararao, V.</authname>
+			<given-name>Vepa</given-name>
+			<surname>Kameswararao</surname>
+			<initials>V.</initials>
+			<afid>60027480</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/7005623590</author-url>
+			<authid>7005623590</authid>
+			<authname>Karunakaran, C.</authname>
+			<given-name>Chandran</given-name>
+			<surname>Karunakaran</surname>
+			<initials>C.</initials>
+			<afid>60007431</afid>
+		</author>
+		<authkeywords>Cytochrome c | Electrochemical immunosensors | ELISA | Label-free detection | Screen printed electrodes</authkeywords>
+	</entry>
+	<entry>
+		<link ref="self" href="http://api.elsevier.com/content/abstract/scopus_id/84884919538"/>
+		<link ref="scopus" href="http://www.scopus.com/inward/record.url?partnerID=HzOxMe3b&amp;scp=84884919538"/>
+		<link ref="scopus-citedby" href="http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&amp;scp=84884919538"/>
+		<link ref="full-text" href="http://api.elsevier.com/content/article/eid/1-s2.0-S0740002013001652"/>
+		<prism:url>http://api.elsevier.com/content/abstract/scopus_id/84884919538</prism:url>
+		<dc:identifier>SCOPUS_ID:84884919538</dc:identifier>
+		<dc:title>Brain is the predilection site of Toxoplasma gondii in experimentally inoculated pigs as revealed by magnetic capture and real-time PCR</dc:title>
+		<dc:creator>Juránková, J.</dc:creator>
+		<prism:publicationName>Food Microbiology</prism:publicationName>
+		<prism:issn>07400020</prism:issn>
+		<prism:eIssn>10959998</prism:eIssn>
+		<prism:volume>38</prism:volume>
+		<prism:pageRange>167-170</prism:pageRange>
+		<prism:coverDate>2014-04-01</prism:coverDate>
+		<prism:coverDisplayDate>April 2014</prism:coverDisplayDate>
+		<prism:doi>10.1016/j.fm.2013.08.011</prism:doi>
+		<dc:description>Pigs represent an important source of food in many countries, and undercooked pork containing tissue cysts is one of the most common sources of Toxoplasma gondii infection for humans. A magnetic capture method for the isolation of T.gondii DNA and quantitative real-time PCR targeting the 529bp TOXO repeat element were used to estimate the parasite burden in different tissues of pigs experimentally infected with T.gondii oocysts, and to determine the predilection sites of T.gondii in this host species. The highest concentration of T.gondii DNA was found in brain tissues, equivalent to [median] 553.7 (range 3857.7-121.9) parasites per gram, followed by lungs, heart and dorsal muscles with median values corresponding to 0.3 (range 61.3-0.02); 2.6 (range 7.34-0.37) and 0.6 (range 2.81-0.31) parasites per gram of tissue, respectively. Skeletal muscles from fore and hindlimb, liver and kidney presented very low infection burdens equivalent to [median] ?0.2 parasites per gram of tissues, and no parasite DNA could be detected in the spleen. This study contributes to understanding the value of different pig tissues as a source of T.gondii infection for humans and shows that the brain, while not being of major importance as human food source, may represent a first-line selection tissue when performing non-serological surveys (e.g. bioassays, histopathological, immunohistochemical or molecular studies) to detect T.gondii infections in pigs. © 2013 Elsevier Ltd.</dc:description>
+		<citedby-count>0</citedby-count>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60020771</affiliation-url>
+			<afid>60020771</afid>
+			<affilname>University of Veterinary and Pharmaceutical Sciences Brno</affilname>
+			<affiliation-city>Brno</affiliation-city>
+			<affiliation-country>Czech Republic</affiliation-country>
+			<name-variant>University of Veterinary and Pharmaceutical Sciences</name-variant>
+			<name-variant>University of Veterinary and Pharmaceutical Sciences Brno</name-variant>
+		</affiliation>
+		<affiliation>
+			<affiliation-url>http://api.elsevier.com/content/affiliation/affiliation_id/60012614</affiliation-url>
+			<afid>60012614</afid>
+			<affilname>Universität Zürich</affilname>
+			<affiliation-city>Zurich</affiliation-city>
+			<affiliation-country>Switzerland</affiliation-country>
+			<name-variant>University of Zurich</name-variant>
+			<name-variant>University of Zürich</name-variant>
+			<name-variant>Universität Zürich</name-variant>
+		</affiliation>
+		<prism:aggregationType>Journal</prism:aggregationType>
+		<subtype>ar</subtype>
+		<subtypeDescription>Article</subtypeDescription>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55934048000</author-url>
+			<authid>55934048000</authid>
+			<authname>Juránková, J.</authname>
+			<given-name>Jana</given-name>
+			<surname>Juránková</surname>
+			<initials>J.</initials>
+			<afid>60020771</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/6602634089</author-url>
+			<authid>6602634089</authid>
+			<authname>Basso, W.</authname>
+			<given-name>Walter</given-name>
+			<surname>Basso</surname>
+			<initials>W.</initials>
+			<afid>60012614</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/23980872700</author-url>
+			<authid>23980872700</authid>
+			<authname>Neumayerová, H.</authname>
+			<given-name>Helena</given-name>
+			<surname>Neumayerová</surname>
+			<initials>H.</initials>
+			<afid>60020771</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/55336480400</author-url>
+			<authid>55336480400</authid>
+			<authname>Baláž, V.</authname>
+			<given-name>Vojt?ch</given-name>
+			<surname>Baláž</surname>
+			<initials>V.</initials>
+			<afid>60020771</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/6507548847</author-url>
+			<authid>6507548847</authid>
+			<authname>Jánová, E.</authname>
+			<given-name>Eva</given-name>
+			<surname>Jánová</surname>
+			<initials>E.</initials>
+			<afid>60020771</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/8299106600</author-url>
+			<authid>8299106600</authid>
+			<authname>Sidler, X.</authname>
+			<given-name>Xaver</given-name>
+			<surname>Sidler</surname>
+			<initials>X.</initials>
+			<afid>60012614</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/7006822338</author-url>
+			<authid>7006822338</authid>
+			<authname>Deplazes, P.</authname>
+			<given-name>Peter</given-name>
+			<surname>Deplazes</surname>
+			<initials>P.</initials>
+			<afid>60012614</afid>
+		</author>
+		<author>
+			<author-url>http://api.elsevier.com/content/author/author_id/7005935041</author-url>
+			<authid>7005935041</authid>
+			<authname>Koudela, B.</authname>
+			<given-name>B?etislav</given-name>
+			<surname>Koudela</surname>
+			<initials>B.</initials>
+			<afid>60020771</afid>
+		</author>
+		<authkeywords>Magnetic capture | Pigs | Real-time PCR | Toxoplasma gondii</authkeywords>
+	</entry>
+</search-results>

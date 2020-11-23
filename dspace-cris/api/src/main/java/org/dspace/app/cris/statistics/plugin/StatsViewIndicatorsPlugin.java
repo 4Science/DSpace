@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,13 +24,10 @@ import org.dspace.app.cris.discovery.CrisSearchService;
 import org.dspace.app.cris.metrics.common.model.ConstantMetrics;
 import org.dspace.app.cris.metrics.common.services.MetricsPersistenceService;
 import org.dspace.app.cris.model.CrisConstants;
-import org.dspace.app.cris.model.StatSubscription;
 import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.app.cris.statistics.CrisSolrLogger;
-import org.dspace.app.cris.statistics.SummaryStatBean;
-import org.dspace.app.cris.statistics.SummaryStatBean.StatDataBean;
-import org.dspace.app.cris.util.Researcher;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
@@ -73,21 +69,31 @@ public class StatsViewIndicatorsPlugin extends AStatsIndicatorsPlugin
             query.addFilterQuery(getFilterDefault());    
         }
         query.setFields("search.resourceid", "search.resourcetype",
-                resourceTypeId == Constants.ITEM ? "handle" : "cris-uuid");
+                resourceTypeId == Constants.ITEM ? "handle" : "cris-uuid",resourceTypeId >= CrisConstants.CRIS_DYNAMIC_TYPE_ID_START ? "crisdo.name": "objectname","crisdo.type");
         query.setRows(Integer.MAX_VALUE);
 
         try
         {
-            Researcher researcher = new Researcher();
             QueryResponse response = searchService.search(query);
             SolrDocumentList docList = response.getResults();
             Iterator<SolrDocument> solrDoc = docList.iterator();
+            int count = 0;
+            
+            String dspaceURL = ConfigurationManager.getProperty("dspace.url");
+            String searchCore = ConfigurationManager.getProperty("solr-statistics",
+    				"solr.join.core");
+            String joinQuery = "{!join from=ORIGINAL_mvuntokenized to=search.uniqueid fromIndex=" +searchCore+"}";
+            String baseItemURL = dspaceURL  + "/cris/stats/item.html?handle=";
+            String baseCRISURL = dspaceURL+ "/cris/stats/";
             while (solrDoc.hasNext())
             {
-                SolrDocument doc = solrDoc.next();
+            	count++;
+            	Date start = new Date();
+            	SolrDocument doc = solrDoc.next();
                 String uuid = (String) doc
                         .getFirstValue(resourceTypeId == Constants.ITEM
                                 ? "handle" : "cris-uuid");
+                
                 Integer resourceType = (Integer) doc
                         .getFirstValue("search.resourcetype");
                 Integer resourceId = (Integer) doc
@@ -95,52 +101,74 @@ public class StatsViewIndicatorsPlugin extends AStatsIndicatorsPlugin
                 try
                 {
 
-                    SummaryStatBean statDaily = researcher
-                            .getStatSubscribeService().getStatBean(context,
-                                    uuid, resourceTypeId,
-                                    StatSubscription.FREQUENCY_DAILY, 1);
-                    for (StatDataBean data : statDaily.getData())
-                    {
-                        Map<String, String> remark = new HashMap<String, String>();
-                        remark.put("link", statDaily.getStatURL());
-                        Date acquisitionDate = new Date();
+                    Date acquisitionDate = new Date();
+                    String url = "";
+                    Map<String, String> remark = new HashMap<String, String>();
+                    if(resourceType == Constants.ITEM) {
+	                    QueryResponse qr = statsService.query("search.uniqueid:"+ resourceTypeId+"-"+resourceId,  Integer.MAX_VALUE);
+	                    url =  baseItemURL+ uuid;
+	                    remark.put("link", url);
+	                    buildIndicator(pService, applicationService,
+	                            uuid, resourceType, resourceId,
+	                            qr.getResults().getNumFound(),
+	                            ConstantMetrics.STATS_INDICATOR_TYPE_VIEW,
+	                            null, acquisitionDate, remark);
+	
+	                    qr = statsService.query(joinQuery+ "search.resourceid:"+resourceId+" AND -withdrawn:true",  Integer.MAX_VALUE);
+	                    remark.clear();
+	                    remark.put("link", url +"&amp;type=bitstream" );
+	                    buildIndicator(pService, applicationService,
+	                            uuid, resourceType, resourceId,
+	                            qr.getResults().getNumFound(),
+	                            ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
+	                            null, acquisitionDate, remark);
+                    }else {
+                    	String publicPath ="";
+                    	switch (resourceType) {
+                    		case(CrisConstants.RP_TYPE_ID):
+                    			publicPath ="rp";
+                    			break;
+                    		case(CrisConstants.PROJECT_TYPE_ID):
+                    			publicPath ="pj";
+                    			break;
+                    		case(CrisConstants.OU_TYPE_ID):
+                    			publicPath ="ou";
+                    			break;
+                    		default:
+                    			publicPath= (String) doc.get("crisdo.type");
+                    		}
+                    	url = baseCRISURL + publicPath  + ".html?id="+ resourceId;
+	                    remark.put("link", url);
+	                    QueryResponse qr = statsService.query(resourceTypeId+"-"+resourceId,  Integer.MAX_VALUE);
+	                    buildIndicator(pService, applicationService,
+	                            uuid, resourceType, resourceId,
+	                            qr.getResults().getNumFound(),
+	                            ConstantMetrics.STATS_INDICATOR_TYPE_VIEW,
+	                            null, acquisitionDate, remark);
+	                    remark.clear();
+                        remark.put("link", url+"&amp;type=bitstream");
+                        
+                        qr = statsService.query(resourceTypeId+"-"+resourceId, "sectionid:*", null,0, Integer.MAX_VALUE, null, null, null, null, null, false);
                         buildIndicator(pService, applicationService,
                                 uuid, resourceType, resourceId,
-                                data.getTotalSelectedView(),
-                                ConstantMetrics.STATS_INDICATOR_TYPE_VIEW,
+                                qr.getResults().getNumFound(),
+                                ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
                                 null, acquisitionDate, remark);
-                        
-                        if(resourceTypeId==Constants.ITEM) {
-                            for (String topKey : data
-                                    .getPeriodAndTotalTopDownload().keySet())
-                            {
-                                List<Long> tmpList = data
-                                        .getPeriodAndTotalTopDownload().get(topKey);
-                                remark = new HashMap<String, String>();
-                                remark.put("link", statDaily.getStatURL()+"&amp;type=bitstream");
-                                buildIndicator(pService, applicationService,
-                                        uuid, resourceType, resourceId,
-                                        tmpList.get(1),
-                                        ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
-                                        null, acquisitionDate, remark);                                
-                            }
-                        }
-                        else {
-                            if(data.getTotalSelectedDownload()!=null && data.getTotalSelectedDownload()>0) {
-                                remark = new HashMap<String, String>();
-                                remark.put("link", statDaily.getStatURL()+"&amp;type=bitstream");
-                                buildIndicator(pService, applicationService,
-                                        uuid, resourceType, resourceId,
-                                        data.getTotalSelectedDownload(),
-                                        ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
-                                        null, acquisitionDate, remark);
-                            }
-                        }
                     }
-                    DSpaceObject dspaceObject = (DSpaceObject)statDaily.getObject();
-                    context.removeCached(dspaceObject, resourceId);
+					try {
+						DSpaceObject dspaceObject = DSpaceObject.find(context, resourceType, resourceId);
+						context.removeCached(dspaceObject, resourceId);
+					} catch (SQLException e) {
+						log.warn(e);
+					}
+                    if (count % 100 == 0) {
+                    	applicationService.clearCache();
+                    }
+                    Date end = new Date();
+                    long diff = end.getTime() - start.getTime();
+                    System.out.println("VIEW and DOWNLOAD METRICS done for :"+count +" in "+ diff);
                 }
-                catch (SolrServerException | SQLException e)
+                catch (SolrServerException e)
                 {
                     log.error("Error retrieving stats", e);
                 }

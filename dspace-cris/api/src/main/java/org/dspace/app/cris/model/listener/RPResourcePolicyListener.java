@@ -40,7 +40,7 @@ public class RPResourcePolicyListener implements PostUpdateEventListener,
     private static Logger log = Logger
             .getLogger(RPResourcePolicyListener.class);
 
-    private static final String QUERY_DELETE_WITH_EPERSON = "select * from resourcepolicy where eperson_id = ? resource_type_id = 9 and resource_id = ?";
+    private static final String QUERY_DELETE_WITH_EPERSON = "select * from resourcepolicy where eperson_id = ? and resource_type_id = 9 and resource_id = ?";
 
     private static final String QUERY_DELETE_WITHOUT_EPERSON = "select * from resourcepolicy where resource_type_id = 9 and resource_id = ?";
 

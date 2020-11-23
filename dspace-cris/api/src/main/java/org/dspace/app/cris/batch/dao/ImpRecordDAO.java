@@ -42,7 +42,7 @@ public abstract class ImpRecordDAO
 
     private final String GET_BY_LAST_MODIFIED_AND_EPERSON_ID_AND_SOURCEREF = "SELECT * FROM imp_record WHERE last_modified is NULL AND imp_eperson_id = ? AND imp_sourceref = ? order by imp_id ASC";
     
-    private final String COUNT_BY_LAST_MODIFIED_AND_EPERSON_ID_AND_SOURCEREF = "SELECT count(*) FROM imp_record WHERE last_modified is NULL AND imp_eperson_id = ? AND imp_sourceref = ?";
+    private final String COUNT_BY_LAST_MODIFIED_AND_EPERSON_ID_AND_SOURCEREF = "SELECT count(*) AS count FROM imp_record WHERE last_modified is NULL AND imp_eperson_id = ? AND imp_sourceref = ?";
 
     private final String GET_BY_METADATA_BY_IMPID = "SELECT * FROM imp_metadatavalue WHERE imp_id = ? ORDER BY imp_schema, imp_element, imp_qualifier, metadata_order ASC";
     

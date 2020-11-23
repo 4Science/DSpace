@@ -693,6 +693,8 @@
 	<!-- Orcid Data Loaders -->
 	<bean id="orcidOnlineDataLoader" class="org.dspace.app.cris.integration.orcid.OrcidOnlineDataLoader">
 		<property name="fieldMap" ref="orcidInputMap" />
+		<property name="cooldown" value="1000" /> <!--  # use to change the default (0) cooldown in ms between each batch of parallel calls to the ORCID service when importing publications in submission -->
+		<property name="numberOfThread" value="10" />
 	</bean>
 
 	<bean name="orcidInputMap" class="java.util.HashMap" scope="prototype">

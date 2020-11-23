@@ -54,6 +54,14 @@
     }
 %>
 
+<script type='text/javascript'>
+    function hover(element) {
+        element.className = "dropdown open";
+    }
+    function out(element) {
+        element.className = "dropdown";
+    }
+</script>
 
        <div class="navbar-header">
        <a class="navbar-home navbar-brand" href="<%= request.getContextPath() %>/"><img class="navbar-logo" src="<%= request.getContextPath() %>/image/navbar-logo.png" alt="Digital Library logo" /></a>
@@ -66,14 +74,14 @@
     if (user != null)
     {
 		%>
-		<li id="userloggedin-top-menu" class="dropdown">
+		<li id="userloggedin-top-menu" class="dropdown" onmouseover="hover(this);" onmouseout="out(this);">
 		<a href="#" class="dropdown-toggle text-right" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <fmt:message key="jsp.layout.navbar-default.loggedin">
 		      <fmt:param><%= StringUtils.abbreviate(navbarEmail, 20) %></fmt:param>
 		  </fmt:message> <b class="caret"></b></a>
 		<%
     } else {
 		%>
-		<li id="user-top-menu" class="dropdown">
+		<li id="user-top-menu" class="dropdown" onmouseover="hover(this);" onmouseout="out(this);">
              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <fmt:message key="jsp.layout.navbar-default.sign"/> <b class="caret"></b></a>
 	<% } %>             
              <ul class="dropdown-menu">

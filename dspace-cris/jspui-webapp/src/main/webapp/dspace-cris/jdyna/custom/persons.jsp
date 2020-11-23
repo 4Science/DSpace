@@ -66,9 +66,9 @@
 	    int idx = 1;
 	    for (String[] filter : appliedFilters)
 	    {
-	        httpFilters += "&amp;filter_field_" + relationName + "_"+idx+"="+URLEncoder.encode(filter[0],"UTF-8");
-	        httpFilters += "&amp;filter_type_" + relationName + "_"+idx+"="+URLEncoder.encode(filter[1],"UTF-8");
-	        httpFilters += "&amp;filter_value_" + relationName + "_"+idx+"="+URLEncoder.encode(filter[2],"UTF-8");
+	    	httpFilters += "&amp;filter_field_" + relationName + "_"+idx+"="+((filter[0]!=null)?URLEncoder.encode(filter[0],"UTF-8"):"");
+	        httpFilters += "&amp;filter_type_" + relationName + "_"+idx+"="+((filter[1]!=null)?URLEncoder.encode(filter[1],"UTF-8"):"");
+	        httpFilters += "&amp;filter_value_" + relationName + "_"+idx+"="+((filter[2]!=null)?URLEncoder.encode(filter[2],"UTF-8"):"");
 	        idx++;
 	    }
 	}

@@ -6,6 +6,19 @@
 -- http://www.dspace.org/license/
 --
 
-UPDATE cris_rp_pdef set shortname = 'iso-country' where shortname = 'iso-3166-country';
-UPDATE cris_ou_pdef set shortname = 'iso-country' where shortname = 'iso-3166-country';
-UPDATE cris_rp_pdef set shortname = 'orcid-profile-pref-iso-country' where shortname = 'orcid-profile-pref-iso-3166-country';
+BEGIN
+	BEGIN
+		EXECUTE IMMEDIATE
+			'UPDATE cris_rp_pdef set shortname = ''iso-country'' where shortname = ''iso-3166-country''';
+		EXECUTE IMMEDIATE			
+			'UPDATE cris_ou_pdef set shortname = ''iso-country'' where shortname = ''iso-3166-country''';
+		EXECUTE IMMEDIATE			
+			'UPDATE cris_rp_pdef set shortname = ''orcid-profile-pref-iso-country'' where shortname = ''orcid-profile-pref-iso-3166-country''';
+		EXCEPTION
+		WHEN OTHERS
+		THEN
+		    -- to see output you have enable DBMS OUTPUT on client (only for debug mode)      
+      		DBMS_OUTPUT.put_line ('ERROR: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+      		NULL;
+	END;
+END;	

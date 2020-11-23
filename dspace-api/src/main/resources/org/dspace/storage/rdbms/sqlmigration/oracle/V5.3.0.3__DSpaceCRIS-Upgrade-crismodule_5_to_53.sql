@@ -7,11 +7,16 @@
 --
 
 BEGIN
-	EXECUTE IMMEDIATE
-    	'alter table cris_orcid_queue add column fastlookupobjectname clob';
-    	'alter table cris_orcid_queue add column fastlookupuuid varchar2(255)';
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
+  BEGIN
+    EXECUTE IMMEDIATE 'alter table cris_orcid_queue add (fastlookupobjectname clob)';
+  EXCEPTION
+  WHEN OTHERS THEN
+    NULL;
+  END;
+  BEGIN
+    EXECUTE IMMEDIATE 'alter table cris_orcid_queue add (fastlookupuuid varchar2(255 CHAR))';
+  EXCEPTION
+  WHEN OTHERS THEN
+    NULL;
+  END;
 END;

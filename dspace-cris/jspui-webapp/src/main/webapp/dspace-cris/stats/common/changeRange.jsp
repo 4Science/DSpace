@@ -62,7 +62,7 @@ j(document).ready(function() {
             j('#stats_from_date').data("DateTimePicker").maxDate(e.date);
         });
         
-    	j("#formChangeRange").submit(function(){
+    	j("#formChangeRange").on("submit", function(){
     		var sdate= j("#stats_from_date").val();
     		var edate= j("#stats_to_date").val();
     		if(sdate.length ==0){

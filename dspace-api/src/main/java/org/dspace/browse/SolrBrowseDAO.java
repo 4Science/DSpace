@@ -228,6 +228,7 @@ public class SolrBrowseDAO implements BrowseDAO
         else if (!itemsDiscoverable)
         {
             query.addFilterQueries("discoverable:false");    
+            query.addFilterQueries("search.resourcetype:2");
         }
     }
 

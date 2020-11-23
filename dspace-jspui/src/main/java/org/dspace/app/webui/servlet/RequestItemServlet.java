@@ -47,7 +47,7 @@ public class RequestItemServlet extends DSpaceServlet
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(RequestItemServlet.class);
-    
+
     /** The information get by form step */
     public static final int ENTER_FORM_PAGE = 1;
 

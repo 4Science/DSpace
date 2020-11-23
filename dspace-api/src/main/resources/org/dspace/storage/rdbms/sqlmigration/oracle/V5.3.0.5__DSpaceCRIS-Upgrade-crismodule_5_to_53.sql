@@ -8,7 +8,7 @@
 
 BEGIN
 	EXECUTE IMMEDIATE
-    	'alter table cris_orcid_history add column entityUuid varchar2(255)';
+    	'alter table cris_orcid_history add (entityuuid varchar2(255))';
 	EXCEPTION
 	WHEN OTHERS
     THEN

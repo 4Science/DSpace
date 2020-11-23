@@ -42,7 +42,7 @@
 	<link rel="stylesheet" href="<%= request.getContextPath() %>/css/demo_table.css" type="text/css" media="all" />
 	<link rel="stylesheet" href="<%= request.getContextPath() %>/css/TableTools.css" type="text/css" media="all" />
 	                
-    <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.4.4.min.js"></script>    
+    <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-3.4.1.min.js"></script>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" charset="utf-8" 
 		src="<%= request.getContextPath() %>/js/TableTools.min.js"></script>

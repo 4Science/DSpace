@@ -351,13 +351,15 @@
 	  				<a class="btn btn-default" href="<%= request.getContextPath() %>/open-search?query=${fieldRSS}:${authority}&amp;format=rss"><i class="fa fa-rss"></i> <fmt:message key="jsp.cris.detail.link.rssfeed" /></a>
 				</div>
 				<c:if test="${(researcher_page_menu || canEdit) && !empty researcher}">
-				<div class="btn-group">
 						<c:if test="${!empty addModeType && addModeType=='display'}">
+							<div class="btn-group">
 							<a class="btn btn-default" href="<%= request.getContextPath() %>/cris/tools/rp/editDynamicData.htm?id=${researcher.id}&anagraficaId=${researcher.dynamicField.id}<c:if test='${!empty tabIdForRedirect}'>&tabId=${tabIdForRedirect}</c:if>"><i class="fa fa-edit"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.edit.primary-data"/></a>
+							</div>
 						 </c:if>
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						<span class="btn-group" onmouseover="hover(this);" onmouseout="out(this);" >
+						<a href="#" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 		    				<i class="fa fa-cog"></i> <i class="fa fa-caret-down"></i>
-		  				</button>
+		  				</a>
 						<ul class="dropdown-menu" role="menu">
 							<c:if test="${!empty addModeType && addModeType=='display'}">
 						    <li>
@@ -390,7 +392,7 @@
 							</li>
 							</c:if>							
 						</ul>
-					</div> 
+		  				</span>
 					
 <%-- 					<div class="btn-group">
 						<a class="btn btn-default" href="${root}/cris/uuid/${researcher.uuid}/relMgmt/publications"><i class="fa fa-book"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.manage-publication"/></a>
@@ -513,7 +515,7 @@
 	      		<input type="text" class="form-control" id="claimrp-validation" />
       			<input type="hidden" value="${requestScope.authority}" id="claimrp-rpkey"/>
       			<span class="input-group-btn">
-	        		<span href="" class="btn btn-success" id="claimrp-button"><fmt:message key="jsp.cris.detail.claimrp.button.text" /></span>
+	        		<span href="#" class="btn btn-success" id="claimrp-button"><fmt:message key="jsp.cris.detail.claimrp.button.text" /></span>
       			</span>
     		</div>
      		<h4 id="claimrp-result"></h4>

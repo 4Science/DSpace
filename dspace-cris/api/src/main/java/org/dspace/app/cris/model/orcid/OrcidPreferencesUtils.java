@@ -9,7 +9,9 @@ package org.dspace.app.cris.model.orcid;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,14 +32,22 @@ import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.cris.configuration.RelationPreferenceConfiguration;
 import org.dspace.app.cris.discovery.CrisSearchService;
 import org.dspace.app.cris.integration.PushToORCID;
+import org.dspace.app.cris.model.ACrisObject;
 import org.dspace.app.cris.model.CrisConstants;
+import org.dspace.app.cris.model.OrganizationUnit;
 import org.dspace.app.cris.model.Project;
 import org.dspace.app.cris.model.RelationPreference;
 import org.dspace.app.cris.model.ResearcherPage;
+import org.dspace.app.cris.model.SourceReference;
 import org.dspace.app.cris.model.VisibilityConstants;
 import org.dspace.app.cris.model.jdyna.ACrisNestedObject;
+import org.dspace.app.cris.model.jdyna.ProjectProperty;
+import org.dspace.app.cris.model.jdyna.RPNestedObject;
+import org.dspace.app.cris.model.jdyna.RPNestedPropertiesDefinition;
+import org.dspace.app.cris.model.jdyna.RPNestedProperty;
 import org.dspace.app.cris.model.jdyna.RPPropertiesDefinition;
 import org.dspace.app.cris.model.jdyna.RPProperty;
+import org.dspace.app.cris.model.jdyna.RPTypeNestedObject;
 import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.app.cris.service.RelationPreferenceService;
 import org.dspace.app.cris.util.Researcher;
@@ -51,18 +61,41 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
+import org.dspace.util.MultiFormatDateParser;
 import org.dspace.utils.DSpace;
+import org.orcid.jaxb.model.common_v3.AffiliationSummary;
+import org.orcid.jaxb.model.common_v3.Amount;
 import org.orcid.jaxb.model.common_v3.CreditName;
+import org.orcid.jaxb.model.common_v3.DisambiguatedOrganization;
 import org.orcid.jaxb.model.common_v3.ExternalId;
+import org.orcid.jaxb.model.common_v3.ExternalIds;
+import org.orcid.jaxb.model.common_v3.FuzzyDate;
+import org.orcid.jaxb.model.common_v3.FuzzyDate.Day;
+import org.orcid.jaxb.model.common_v3.FuzzyDate.Month;
+import org.orcid.jaxb.model.common_v3.Organization;
+import org.orcid.jaxb.model.common_v3.OrganizationAddress;
+import org.orcid.jaxb.model.common_v3.Url;
 import org.orcid.jaxb.model.common_v3.Visibility;
 import org.orcid.jaxb.model.record_v3.AddressType;
 import org.orcid.jaxb.model.record_v3.Addresses;
+import org.orcid.jaxb.model.record_v3.AffiliationGroup;
 import org.orcid.jaxb.model.record_v3.BiographyType;
+import org.orcid.jaxb.model.record_v3.EducationSummary;
+import org.orcid.jaxb.model.record_v3.Educations;
 import org.orcid.jaxb.model.record_v3.EmailType;
 import org.orcid.jaxb.model.record_v3.Emails;
+import org.orcid.jaxb.model.record_v3.EmploymentSummary;
+import org.orcid.jaxb.model.record_v3.Employments;
 import org.orcid.jaxb.model.record_v3.ExternalIdentifiers;
+import org.orcid.jaxb.model.record_v3.Funding;
+import org.orcid.jaxb.model.record_v3.FundingContributor;
+import org.orcid.jaxb.model.record_v3.FundingContributorAttributes;
+import org.orcid.jaxb.model.record_v3.FundingGroup;
+import org.orcid.jaxb.model.record_v3.FundingSummary;
+import org.orcid.jaxb.model.record_v3.Fundings;
 import org.orcid.jaxb.model.record_v3.KeywordType;
 import org.orcid.jaxb.model.record_v3.Keywords;
+import org.orcid.jaxb.model.record_v3.NameType;
 import org.orcid.jaxb.model.record_v3.NameType.FamilyName;
 import org.orcid.jaxb.model.record_v3.NameType.GivenNames;
 import org.orcid.jaxb.model.record_v3.OtherNameType;
@@ -70,7 +103,10 @@ import org.orcid.jaxb.model.record_v3.OtherNames;
 import org.orcid.jaxb.model.record_v3.Person;
 import org.orcid.jaxb.model.record_v3.ResearcherUrlType;
 import org.orcid.jaxb.model.record_v3.ResearcherUrls;
+import org.orcid.jaxb.model.utils.FundingContributorRole;
+import org.orcid.jaxb.model.utils.FundingType;
 
+import it.cilea.osd.jdyna.model.AValue;
 import it.cilea.osd.jdyna.value.BooleanValue;
 
 public class OrcidPreferencesUtils
@@ -119,6 +155,10 @@ public class OrcidPreferencesUtils
     private static final int ORCID_PREFS_SELECTED = 2;
 
     private static final int ORCID_PREFS_VISIBLE = 3;
+
+    private static Map<String, String> investigatorsMapping;
+
+    private static final int DEFAULT_PROPERTY_VISIBILITY = 1;
 
     public void prepareOrcidQueue(String crisId, DSpaceObject obj)
     {
@@ -937,42 +977,44 @@ public class OrcidPreferencesUtils
                 }
                 
                 // special case for the ORCID principal name stored as family + given
-                if (mapMetadata.containsKey("$fullname")) {
-                	FamilyName surname = orcidProfile.getName().getFamilyName();
-                	GivenNames firstname = orcidProfile.getName().getGivenNames();
-                	if (surname != null) {
-                		String fullname = surname.getValue();
-	                	if (firstname != null) {
-	                		fullname += ", " + firstname.getValue();
+                NameType name = orcidProfile.getName();
+                if (name != null) {
+					if (mapMetadata.containsKey("$fullname")) {
+	                	FamilyName surname = name.getFamilyName();
+	                	GivenNames firstname = name.getGivenNames();
+	                	if (surname != null) {
+	                		String fullname = surname.getValue();
+		                	if (firstname != null) {
+		                		fullname += ", " + firstname.getValue();
+		                	}
+		                	if (checkSyncAllowed(crisObject, mapMetadata.get("$fullname"), propsToReplace)) {
+		                		ResearcherPageUtils.buildTextValue(crisObject,
+		                                fullname,
+		                                mapMetadata.get("$fullname"),
+		                                name
+		                                        .getVisibility() == Visibility.PUBLIC
+		                                                ? VisibilityConstants.PUBLIC
+		                                                : VisibilityConstants.HIDE);
+		                	}
 	                	}
-	                	if (checkSyncAllowed(crisObject, mapMetadata.get("$fullname"), propsToReplace)) {
-	                		ResearcherPageUtils.buildTextValue(crisObject,
-	                                fullname,
-	                                mapMetadata.get("$fullname"),
-	                                orcidProfile.getName()
+	                }
+	
+	                if (mapMetadata.containsKey("credit-name"))
+	                {
+	                    CreditName creditName = name
+	                            .getCreditName();
+	                    if (creditName != null && checkSyncAllowed(crisObject, mapMetadata.get("credit-name"), propsToReplace))
+	                    {
+	                        ResearcherPageUtils.buildTextValue(crisObject,
+	                                creditName.getValue(),
+	                                mapMetadata.get("credit-name"),
+	                                name
 	                                        .getVisibility() == Visibility.PUBLIC
 	                                                ? VisibilityConstants.PUBLIC
 	                                                : VisibilityConstants.HIDE);
-	                	}
-                	}
-                }
-
-                if (mapMetadata.containsKey("credit-name"))
-                {
-                    CreditName creditName = orcidProfile.getName()
-                            .getCreditName();
-                    if (creditName != null && checkSyncAllowed(crisObject, mapMetadata.get("credit-name"), propsToReplace))
-                    {
-                        ResearcherPageUtils.buildTextValue(crisObject,
-                                creditName.getValue(),
-                                mapMetadata.get("credit-name"),
-                                orcidProfile.getName()
-                                        .getVisibility() == Visibility.PUBLIC
-                                                ? VisibilityConstants.PUBLIC
-                                                : VisibilityConstants.HIDE);
-                    }
-                }
-                
+	                    }
+	                }
+                }                
                 if (mapMetadata.containsKey("other-names"))
                 {
                     OtherNames otherNames = orcidProfile.getOtherNames();
@@ -1108,6 +1150,519 @@ public class OrcidPreferencesUtils
         return false;
     }
     
+    public static List<RPNestedObject> populateRPNestedAffiliations(ResearcherPage rp, String ORCID, String token)
+    {
+        List<RPNestedObject> nestedsCreated = new ArrayList<>();
+
+        String shortname = "affiliation";
+        ApplicationService applicationService = new Researcher()
+                .getApplicationService();
+        RPPropertiesDefinition rppd = applicationService
+                .likePropertiesDefinitionsByShortName(
+                        RPPropertiesDefinition.class,
+                        OrcidPreferencesUtils.PREFIX_ORCID_PROFILE_PREF + shortname).get(0);
+
+        if (rppd != null) {
+            String internalShortname = rppd.getShortName()
+                    .replaceFirst(
+                            OrcidPreferencesUtils.PREFIX_ORCID_PROFILE_PREF, "");
+
+            OrcidService orcidService = OrcidService.getOrcid();
+            Employments employments = orcidService.getEmployments(ORCID, token);
+            if (employments != null) {
+                String sourceRef = ORCID;
+                cleanRPNestedBySourceRefAndShortname(applicationService, rp, internalShortname, sourceRef);
+
+                List<AffiliationGroup> affiliationGroups = employments.getAffiliationGroup();
+                if (affiliationGroups != null) {
+                    for (AffiliationGroup affiliationGroup : affiliationGroups) {
+                        if (affiliationGroup != null) {
+                            List<EmploymentSummary> employmentSummaries = affiliationGroup.getEmploymentSummary();
+                            if (employmentSummaries != null) {
+                                for (EmploymentSummary employment : employmentSummaries) {
+                                    if (employment != null) {
+                                        AffiliationSummary affiliation = employment.getValue();
+                                        if (affiliation != null) {
+                                            String sourceId = affiliation.getPutCode().toString();
+
+                                            Organization organization = affiliation.getOrganization();
+                                            Date startDate = getDateFromFuzzyDate(affiliation.getStartDate());
+                                            Date endDate = getDateFromFuzzyDate(affiliation.getEndDate());
+                                            String role = affiliation.getRoleTitle();
+
+                                            nestedsCreated.add(
+                                                    createRPNested(applicationService, rp, internalShortname, sourceRef, sourceId,
+                                                            organization, startDate, endDate, role));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return nestedsCreated;
+    }
+
+    public static List<RPNestedObject> populateRPNestedEducations(ResearcherPage rp, String ORCID, String token)
+    {
+        List<RPNestedObject> nestedsCreated = new ArrayList<>();
+
+        String shortname = "education";
+        ApplicationService applicationService = new Researcher()
+                .getApplicationService();
+        RPPropertiesDefinition rppd = applicationService
+                .likePropertiesDefinitionsByShortName(
+                        RPPropertiesDefinition.class,
+                        OrcidPreferencesUtils.PREFIX_ORCID_PROFILE_PREF + shortname).get(0);
+
+        if (rppd != null) {
+            String internalShortname = rppd.getShortName()
+                    .replaceFirst(
+                            OrcidPreferencesUtils.PREFIX_ORCID_PROFILE_PREF, "");
+
+            OrcidService orcidService = OrcidService.getOrcid();
+            Educations educations = orcidService.getEducations(ORCID, token);
+            if (educations != null) {
+                String sourceRef = ORCID;
+                cleanRPNestedBySourceRefAndShortname(applicationService, rp, internalShortname, sourceRef);
+
+                List<AffiliationGroup> affiliationGroups = educations.getAffiliationGroup();
+                if (affiliationGroups != null) {
+                    for (AffiliationGroup affiliationGroup : affiliationGroups) {
+                        if (affiliationGroup != null) {
+                            List<EducationSummary> educationSummaries = affiliationGroup.getEducationSummary();
+                            if (educations != null) {
+                                for (EducationSummary education : educationSummaries) {
+                                    if (education != null) {
+                                        AffiliationSummary affiliation = education.getValue();
+                                        if (affiliation != null) {
+                                            String sourceId = affiliation.getPutCode().toString();
+
+                                            Organization organization = affiliation.getOrganization();
+                                            Date startDate = getDateFromFuzzyDate(affiliation.getStartDate());
+                                            Date endDate = getDateFromFuzzyDate(affiliation.getEndDate());
+                                            String role = affiliation.getRoleTitle();
+
+                                            nestedsCreated.add(
+                                                    createRPNested(applicationService, rp, internalShortname, sourceRef, sourceId,
+                                                            organization, startDate, endDate, role));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return nestedsCreated;
+    }
+
+    private static void cleanRPNestedBySourceRefAndShortname(ApplicationService applicationService,
+            ResearcherPage rp, String shortname, String sourceRef)
+    {
+        List<RPNestedObject> nestedObjects = applicationService.getNestedObjectsByParentIDAndShortname(
+                rp.getId(), shortname, rp.getClassNested());
+        for (RPNestedObject acno : nestedObjects) {
+            if (StringUtils.equals(sourceRef, acno.getSourceReference().getSourceRef())) {
+                applicationService.delete(rp.getClassNested(), acno.getId());
+            }
+        }
+    }
+
+    private static RPNestedObject createRPNested(ApplicationService applicationService,
+            ResearcherPage rp, String shortname, String sourceRef, String sourceId,
+            Organization organization, Date startDate, Date endDate, String role)
+    {
+        RPNestedObject nested = new RPNestedObject();
+        SourceReference sourceReference = new SourceReference();
+        sourceReference.setSourceRef(sourceRef);
+        sourceReference.setSourceID(sourceId);
+        nested.setSourceReference(sourceReference);
+        nested.setParent(rp);
+        nested.setTypo(
+                applicationService.findTypoByShortName(
+                        RPTypeNestedObject.class, shortname));
+        nested.setStatus(true);
+
+        if (StringUtils.isNotBlank(role)) {
+            buildRPNestedGenericValue(applicationService, nested, role, shortname + "role", DEFAULT_PROPERTY_VISIBILITY);
+        }
+        if (startDate != null) {
+            buildRPNestedGenericValue(applicationService, nested, startDate, shortname + "startdate", DEFAULT_PROPERTY_VISIBILITY);
+        }
+        if (endDate != null) {
+            buildRPNestedGenericValue(applicationService, nested, endDate, shortname + "enddate", DEFAULT_PROPERTY_VISIBILITY);
+        }
+
+        if (organization != null) {
+            String organizationSourceRef = null;
+            String organizationSourceId = null;
+            DisambiguatedOrganization disambiguatedOrganization = organization.getDisambiguatedOrganization();
+            if (disambiguatedOrganization != null) {
+                organizationSourceRef = disambiguatedOrganization.getDisambiguationSource();
+                organizationSourceId = disambiguatedOrganization.getDisambiguatedOrganizationIdentifier();
+            }
+            String organizationName = organization.getName();
+            OrganizationUnit ou = findCrisOrganisation(applicationService, organizationSourceRef,
+                    organizationSourceId, organizationName, null);
+            if (ou == null) {
+                ou = new OrganizationUnit();
+                ou.setStatus(getVisibility(CrisConstants.OU_TYPE_ID));
+                OrganizationAddress organizationAddress = organization.getAddress();
+                String organizationCity = organizationAddress.getCity();
+                String organizationCountry = organizationAddress.getCountry().toString();
+
+                if (organizationSourceRef != null
+                        && organizationSourceId != null) {
+                    ou.setSourceRef(organizationSourceRef);
+                    ou.setSourceID(organizationSourceId);
+                }
+                ResearcherPageUtils.buildGenericValue(ou, organizationName, "name", DEFAULT_PROPERTY_VISIBILITY);
+                ResearcherPageUtils.buildGenericValue(ou, organizationSourceRef, "disambiguation-identifier-source", DEFAULT_PROPERTY_VISIBILITY);
+                ResearcherPageUtils.buildGenericValue(ou, organizationSourceId, "disambiguation-identifier", DEFAULT_PROPERTY_VISIBILITY);
+                ResearcherPageUtils.buildGenericValue(ou, organizationCity, "city", DEFAULT_PROPERTY_VISIBILITY);
+                ResearcherPageUtils.buildGenericValue(ou, organizationCountry, "iso-country", DEFAULT_PROPERTY_VISIBILITY);
+                applicationService.saveOrUpdate(OrganizationUnit.class, ou);
+            }
+            buildRPNestedGenericValue(applicationService, nested, ou, shortname + "orgunit", DEFAULT_PROPERTY_VISIBILITY);
+        }
+
+        return nested;
+    }
+
+    private static void buildRPNestedGenericValue(ApplicationService applicationService, RPNestedObject nested,
+            Object valueToSet, String pdefKey, Integer visibility)
+    {
+        RPNestedPropertiesDefinition pdef = applicationService.findPropertiesDefinitionByShortName(
+                nested.getClassPropertiesDefinition(), pdefKey);
+        if (pdef == null) {
+            log.warn("Property " + pdefKey + " not found");
+            return;
+        }
+        AValue avalue = pdef.getRendering().getInstanceValore();
+        avalue.setOggetto(valueToSet);
+        RPNestedProperty prop = nested.createProprieta(pdef);
+        prop.setValue(avalue);
+        prop.setVisibility(visibility);
+    }
+
+    public static List<Project> populatePJ(ResearcherPage rp, String orcid, String token)
+    {
+        List<Project> pjsCreatedOrUpdated = new ArrayList<>();
+
+        ApplicationService applicationService = new Researcher()
+                .getApplicationService();
+        OrcidService orcidService = OrcidService.getOrcid();
+        Fundings fundings = orcidService.getFundings(orcid, token);
+        if (fundings != null)
+        {
+            for (FundingGroup fundingGroup : fundings.getGroup())
+            {
+                for (FundingSummary fundingSummary : fundingGroup.getFundingSummary())
+                {
+                    if (FundingType.GRANT.value().equals(fundingSummary.getType()))
+                    {
+                        String putCode = String.valueOf(fundingSummary.getPutCode());
+                        Funding funding = orcidService.getFunding(orcid, token, putCode);
+                        String title = funding.getTitle().getTitle();
+
+                        Project pj = findCrisObject(applicationService,
+                                Project.class, orcid, putCode, CrisConstants.PROJECT_TYPE_ID, title);
+                        if (pj == null)
+                        {
+                            pj = new Project();
+                            pj.setSourceRef(orcid);
+                            pj.setSourceID(putCode);
+                            pj.setStatus(getVisibility(CrisConstants.PROJECT_TYPE_ID));
+                        }
+                        else
+                        {
+                            for (String shortname : pj.getAnagrafica4view().keySet())
+                            {
+                                ResearcherPageUtils.cleanPropertyByPropertyDefinition(pj, shortname);
+                            }
+                        }
+
+                        ResearcherPageUtils.buildGenericValue(pj, title, "title", DEFAULT_PROPERTY_VISIBILITY);
+
+                        String type = funding.getType().toString();
+                        ResearcherPageUtils.buildGenericValue(pj, type, "type", DEFAULT_PROPERTY_VISIBILITY);
+
+                        Date startDate = getDateFromFuzzyDate(funding.getStartDate());
+                        ResearcherPageUtils.buildGenericValue(pj, startDate, "startdate", DEFAULT_PROPERTY_VISIBILITY);
+
+                        Date endDate = getDateFromFuzzyDate(funding.getEndDate());
+                        ResearcherPageUtils.buildGenericValue(pj, endDate, "expdate", DEFAULT_PROPERTY_VISIBILITY);
+
+                        String description = funding.getShortDescription();
+                        if (StringUtils.isNotBlank(description))
+                        {
+                            ResearcherPageUtils.buildGenericValue(pj, description, "abstract", DEFAULT_PROPERTY_VISIBILITY);
+                        }
+
+                        Url fundingURL = funding.getUrl();
+                        if (fundingURL != null)
+                        {
+                            String projectURL = fundingURL.getValue();
+                            if (StringUtils.isNotBlank(projectURL))
+                            {
+                                ResearcherPageUtils.buildGenericValue(pj, projectURL, "projectURL", DEFAULT_PROPERTY_VISIBILITY);
+                            }
+                        }
+
+                        Amount fundingAmount = funding.getAmount();
+                        if (fundingAmount != null)
+                        {
+                            String amount = fundingAmount.getValue();
+                            if (StringUtils.isNotBlank(amount))
+                            {
+                                ResearcherPageUtils.buildGenericValue(pj, amount, "grantamount", DEFAULT_PROPERTY_VISIBILITY);
+                            }
+                            String currencyCode = fundingAmount.getCurrencyCode();
+                            if (StringUtils.isNotBlank(currencyCode))
+                            {
+                                ResearcherPageUtils.buildGenericValue(pj, currencyCode, "granttype", DEFAULT_PROPERTY_VISIBILITY);
+                            }
+                        }
+
+                        ExternalIds externalIds = funding.getExternalIds();
+                        if (externalIds != null)
+                        {
+                            List<ExternalId> externalIdList = externalIds.getExternalId();
+                            if (externalIdList != null && !externalIdList.isEmpty())
+                            {
+                                for (ExternalId externalId : externalIdList)
+                                {
+                                    if ("grant_number".equals(externalId.getExternalIdType()))
+                                    {
+                                        String code = externalId.getExternalIdValue();
+                                        String awardURL = externalId.getExternalIdUrl();
+
+                                        if (StringUtils.isNotBlank(code))
+                                        {
+                                            ResearcherPageUtils.buildGenericValue(pj, code, "code", DEFAULT_PROPERTY_VISIBILITY);
+                                        }
+                                        if (StringUtils.isNotBlank(awardURL))
+                                        {
+                                            ResearcherPageUtils.buildGenericValue(pj, awardURL, "awardURL", DEFAULT_PROPERTY_VISIBILITY);
+                                            List<ProjectProperty> awardUrls = pj.getAnagrafica4view().get("awardURL");
+                                            List<ProjectProperty> projectUrls = pj.getAnagrafica4view().get("projectURL");
+                                            if ((awardUrls == null || awardUrls.size() == 0)
+                                                    && (projectUrls == null || projectUrls.size() == 0)) {
+                                                ResearcherPageUtils.buildGenericValue(pj, awardURL, "projectURL", DEFAULT_PROPERTY_VISIBILITY);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        ResearcherPageUtils.buildGenericValue(pj, rp, "principalinvestigator", DEFAULT_PROPERTY_VISIBILITY);
+
+                        Organization fundingOrganization = funding.getOrganization();
+                        String organizationSourceRef = null;
+                        String organizationSourceId = null;
+                        DisambiguatedOrganization organization = fundingOrganization.getDisambiguatedOrganization();
+                        if (organization != null)
+                        {
+                            organizationSourceRef = organization.getDisambiguationSource();
+                            organizationSourceId = organization.getDisambiguatedOrganizationIdentifier();
+                        }
+                        String organizationName = fundingOrganization.getName();
+                        OrganizationUnit ou = findCrisOrganisation(applicationService, organizationSourceRef,
+                                organizationSourceId, organizationName, null);
+                        if (ou == null)
+                        {
+                            ou = new OrganizationUnit();
+                            ou.setStatus(getVisibility(CrisConstants.OU_TYPE_ID));
+
+                            OrganizationAddress organizationAddress = fundingOrganization.getAddress();
+                            String organizationCity = organizationAddress.getCity();
+                            String organizationCountry = organizationAddress.getCountry().toString();
+
+                            if (organizationSourceRef != null
+                                    && organizationSourceId != null)
+                            {
+                                ou.setSourceRef(organizationSourceRef);
+                                ou.setSourceID(organizationSourceId);
+                            }
+                            ResearcherPageUtils.buildGenericValue(ou, organizationName, "name", DEFAULT_PROPERTY_VISIBILITY);
+                            ResearcherPageUtils.buildGenericValue(ou, organizationSourceRef, "disambiguation-identifier-source", DEFAULT_PROPERTY_VISIBILITY);
+                            ResearcherPageUtils.buildGenericValue(ou, organizationSourceId, "disambiguation-identifier", DEFAULT_PROPERTY_VISIBILITY);
+                            ResearcherPageUtils.buildGenericValue(ou, organizationCity, "city", DEFAULT_PROPERTY_VISIBILITY);
+                            ResearcherPageUtils.buildGenericValue(ou, organizationCountry, "iso-country", DEFAULT_PROPERTY_VISIBILITY);
+                            applicationService.saveOrUpdate(OrganizationUnit.class, ou);
+                        }
+                        ResearcherPageUtils.buildGenericValue(pj, ou, "funder", DEFAULT_PROPERTY_VISIBILITY);
+
+                        pjsCreatedOrUpdated.add(pj);
+                    }
+                }
+            }
+        }
+        return pjsCreatedOrUpdated;
+    }
+
+    private static Boolean getVisibility(Integer entityType)
+    {
+        String entityTypeText = CrisConstants.getEntityTypeText(entityType);
+        String enabled = ConfigurationManager.getProperty("cris", "import.batch.orcid.enabled." + entityTypeText);
+        if (StringUtils.isBlank(enabled))
+        {
+            return ConfigurationManager.getBooleanProperty("cris", "import.batch.orcid.enabled.entity");
+        }
+        return Boolean.valueOf(enabled);
+    }
+
+    private static String retrieveFundingContributorRole(FundingContributor fundingContributor)
+    {
+        String fundingContributorRole = FundingContributorRole.OTHER_CONTRIBUTION.value();
+        FundingContributorAttributes contributorAttributes = fundingContributor.getContributorAttributes();
+        if (contributorAttributes != null)
+        {
+            fundingContributorRole = contributorAttributes.getContributorRole();
+        }
+        return investigatorsMapping.get(fundingContributorRole);
+    }
+
+    public static Date getDateFromFuzzyDate(FuzzyDate date)
+    {
+        if (date != null)
+        {
+            String sDate = date.getYear().getValue();
+            Month month = date.getMonth();
+            if (month != null)
+            {
+                sDate += "-" + month.getValue();
+                Day day = date.getDay();
+                if (day != null)
+                {
+                    sDate += "-" + day.getValue();
+                }
+            }
+            return MultiFormatDateParser.parse(sDate);
+        }
+        return null;
+    }
+
+    private static <T extends ACrisObject> T findCrisObject(ApplicationService applicationService,
+            Class<T> crisObjectClass, String sourceRef, String sourceId, Integer type, String name)
+    {
+        T crisObject = null;
+        if (StringUtils.isNotBlank(sourceRef) && StringUtils.isNotBlank(sourceId)) {
+            crisObject = applicationService.getEntityBySourceId(sourceRef, sourceId, crisObjectClass);
+        }
+        if (crisObject == null && StringUtils.isNotBlank(name)) {
+            crisObject = findCRISObjectByName(applicationService, type, name);
+        }
+        return crisObject;
+    }
+
+    private static <T extends ACrisObject> T findCRISObjectByName(ApplicationService applicationService, Integer type, String name)
+    {
+        CrisSearchService crisSearchService = new Researcher().getCrisSearchService();
+        try {
+             SolrQuery solrQuery = new SolrQuery("{!lucene q.op=AND df=crisauthoritylookup}\"" + name + "\"");
+             solrQuery.addField("cris-id");
+             solrQuery.addField("crisauthoritylookup");
+             solrQuery.addFilterQuery("search.resourcetype:" + type);
+             solrQuery.setRows(100);
+             QueryResponse response = crisSearchService.search(solrQuery);
+             SolrDocumentList results = response.getResults();
+             T crisObject = singleStrongMatch(applicationService, results, "crisauthoritylookup", name);
+             if (crisObject != null) {
+                return crisObject;
+             }
+        } catch (SearchServiceException e) {
+            log.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    private static OrganizationUnit findCrisOrganisation(ApplicationService applicationService,
+            String sourceRef, String sourceId, String name, String departmentName)
+    {
+        OrganizationUnit crisObject = null;
+        if (StringUtils.isNotBlank(sourceRef) && StringUtils.isNotBlank(sourceId)) {
+            crisObject = applicationService.getEntityBySourceId(sourceRef, sourceId, OrganizationUnit.class);
+        }
+
+        if (crisObject == null && StringUtils.isNotBlank(name)) {
+            CrisSearchService crisSearchService = new Researcher().getCrisSearchService();
+            try {
+                SolrQuery solrQuery = null;
+                QueryResponse response = null;
+                SolrDocumentList results = null;
+                if (StringUtils.isNotBlank(departmentName)) {
+                    solrQuery = new SolrQuery("{!lucene q.op=AND df=crisauthoritylookup}\"" + name + "\" AND \"" + departmentName + "\"");
+                    solrQuery.addField("cris-id");
+                    solrQuery.addField("crisou.name");
+                    solrQuery.addFilterQuery("search.resourcetype:" + CrisConstants.OU_TYPE_ID);
+                    solrQuery.setRows(100);
+                    response = crisSearchService.search(solrQuery);
+                    results = response.getResults();
+                    crisObject = singleStrongMatch(applicationService, results, "crisou.name", name, departmentName);
+                    if (crisObject != null) {
+                        return crisObject;
+                    }
+                }
+                solrQuery = new SolrQuery("{!lucene q.op=AND df=crisauthoritylookup}\"" + name + "\"");
+                solrQuery.addField("cris-id");
+                solrQuery.addField("crisou.name");
+                solrQuery.addFilterQuery("search.resourcetype:" + CrisConstants.OU_TYPE_ID);
+                solrQuery.setRows(100);
+                response = crisSearchService.search(solrQuery);
+                results = response.getResults();
+                crisObject = singleStrongMatch(applicationService, results, "crisou.name", name);
+                if (crisObject != null) {
+                    return crisObject;
+                }
+            } catch (SearchServiceException e) {
+                log.warn(e.getMessage());
+            }
+            return null;
+        }
+        return crisObject;
+    }
+
+    private static <T extends ACrisObject> T singleStrongMatch(ApplicationService applicationService, SolrDocumentList results, String field, String... names) {
+        if (results == null || results.getNumFound() == 0) {
+            return null;
+        }
+        if (results.getNumFound() == 1) {
+            String crisID = (String) results.get(0).getFieldValue("cris-id");
+            return applicationService.getEntityByCrisId(crisID);
+        }
+
+        String crisID = null;
+        int numrecfounds = 0;
+        for (SolrDocument sd : results) {
+            Collection<Object> ounames = sd.getFieldValues(field);
+            boolean found = true;
+            for (String n : names) {
+                if (ounames != null) {
+                    for (Object o : ounames) {
+                        if (StringUtils.contains((String) o, n)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found) {
+                numrecfounds++;
+                crisID = (String) sd.getFieldValue("cris-id");
+            }
+        }
+        if (numrecfounds == 1) {
+            return applicationService.getEntityByCrisId(crisID);
+        }
+        return null;
+    }
+
     private static boolean hasBeenImportedInThisThread(ResearcherPage crisObject) {
     	return importedORCIDs.get().contains(crisObject.getCrisID());
     }
@@ -1295,4 +1850,13 @@ public class OrcidPreferencesUtils
         return false;
     }
 
+    public void setInvestigatorsMapping(Map<String, String> investigatorsMapping)
+    {
+        OrcidPreferencesUtils.investigatorsMapping = investigatorsMapping;
+    }
+
+    public Map<String, String> getInvestigatorsMapping()
+    {
+        return investigatorsMapping;
+    }
 }

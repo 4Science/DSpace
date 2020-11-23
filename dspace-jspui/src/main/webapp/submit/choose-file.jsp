@@ -401,9 +401,8 @@
         </div>
 		<br/>
         
-        <div class="row container">
-    		<div class="row">
-                    <%-- Document File: --%>
+        <div class="col-md-12">
+    		<div class="col-md-12">                    <%-- Document File: --%>
                     <div class="simple-upload">
                         <label class="col-md-<%= bSherpa?"3":"2" %>" for="tfile"><fmt:message key="jsp.submit.choose-file.document"/></label>
                         <input type="file" size="40" name="file" id="tfile" />
@@ -433,8 +432,8 @@
                             </td>
                             <td class="progress-text" nowrap="nowrap"></td>
                             <td class="progress-pause" nowrap="nowrap">
-                                <a href="#" onclick="resume(); return(false);" class="progress-resume-link"><img src="image/submit/resume.png" title="Resume upload" /></a>
-                                <a href="#" onclick="r.pause(); return(false);" class="progress-pause-link"><img src="image/submit/pause.png" title="Pause upload" /></a>
+                                <button class="btn btn-link progress-resume-link"><img src="image/submit/resume.png" title="Resume upload" /></button>
+                                <button class="btn btn-link progress-pause-link"><img src="image/submit/pause.png" title="Pause upload" /></button>
                             </td>
                         </tr>
                     </table>
@@ -548,6 +547,15 @@
                                 r.upload();
                             }
                         }
+
+                        $(".progress-pause-link").on("click", function(){
+                            r.pause();
+                            return(false);
+                        });
+                        $(".progress-resume-link").on("click", function(){
+                            resume();
+                            return(false);
+                        });
                     });
                 </script>
             <% } %>

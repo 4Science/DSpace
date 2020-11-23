@@ -894,9 +894,9 @@ public class SolrLogger
         // Date().getTime() - start)+"ms,"+numbFound+"records");
     }
 
-    public void query(String query, int max) throws SolrServerException
+    public QueryResponse query(String query, int max) throws SolrServerException
     {
-        query(query, null, null,0, max, null, null, null, null, null, false);
+        return query(query, null, null,0, max, null, null, null, null, null, false);
     }
 
     /**
@@ -1339,14 +1339,14 @@ public class SolrLogger
             
             //Start by creating a new core
             String coreName = "statistics-" + dcStart.getYearUTC();
-            HttpSolrServer statisticsYearServer = createCore(solr, coreName);
+            HttpSolrServer statisticsYearServer = createCore(getSolr(), coreName);
 
             System.out.println("Moving: " + totalRecords + " into core " + coreName);
             log.info("Moving: " + totalRecords + " records into core " + coreName);
 
             List<File> filesToUpload = new ArrayList<File>();
             for(int i = 0; i < totalRecords; i+=10000){
-                String solrRequestUrl = solr.getBaseURL() + "/select";
+                String solrRequestUrl = getSolr().getBaseURL() + "/select";
                 solrRequestUrl = generateURL(solrRequestUrl, yearQueryParams);
 
                 HttpGet get = new HttpGet(solrRequestUrl);
@@ -1394,7 +1394,7 @@ public class SolrLogger
 
     private HttpSolrServer createCore(HttpSolrServer solr, String coreName) throws IOException, SolrServerException {
         String solrDir = ConfigurationManager.getProperty("dspace.dir") + File.separator + "solr" +File.separator;
-        String baseSolrUrl = solr.getBaseURL().replace("statistics", "");
+        String baseSolrUrl = getSolr().getBaseURL().replace("statistics", "");
         HttpSolrServer returnServer = new HttpSolrServer(baseSolrUrl + "/" + coreName);
         try {
             SolrPingResponse ping = returnServer.ping();
@@ -1423,7 +1423,7 @@ public class SolrLogger
         Set<String> multivaluedFields = new HashSet<String>();
         LukeRequest lukeRequest = new LukeRequest();
         lukeRequest.setShowSchema(true);
-        LukeResponse process = lukeRequest.process(solr);
+        LukeResponse process = lukeRequest.process(getSolr());
         Map<String, LukeResponse.FieldInfo> fields = process.getFieldInfo();
         for(String fieldName : fields.keySet())
         {
@@ -1549,13 +1549,13 @@ public class SolrLogger
                 contentStreamUpdateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
                 contentStreamUpdateRequest.addFile(tempCsv, "text/plain;charset=utf-8");
 
-                solr.request(contentStreamUpdateRequest);
+                getSolr().request(contentStreamUpdateRequest);
             }
 
             //Now that all our new bitstream stats are in place, delete all the old ones !
-            solr.deleteByQuery("-bundleName:[* TO *] AND type:" + Constants.BITSTREAM);
+            getSolr().deleteByQuery("-bundleName:[* TO *] AND type:" + Constants.BITSTREAM);
             //Commit everything to wrap up
-            solr.commit(true, true);
+            getSolr().commit(true, true);
             //Clean up our directory !
             FileUtils.deleteDirectory(tempDirectory);
         } catch (Exception e) {
@@ -1589,12 +1589,12 @@ public class SolrLogger
             solrParams.set(CommonParams.ROWS, String.valueOf(10000));
 
             addAdditionalSolrYearCores(query);
-            long totalRecords = solr.query(query).getResults().getNumFound();
+            long totalRecords = getSolr().query(query).getResults().getNumFound();
             System.out.println("There are " + totalRecords + " usage events in SOLR for download/view.");
 
             for(int i = 0; i < totalRecords; i+=10000){
                 solrParams.set(CommonParams.START, String.valueOf(i));
-                QueryResponse queryResponse = solr.query(solrParams);
+                QueryResponse queryResponse = getSolr().query(solrParams);
                 SolrDocumentList docs = queryResponse.getResults();
 
                 File exportOutput = new File(tempDirectory.getPath() + File.separatorChar + "usagestats_" + i + ".csv");

@@ -73,6 +73,7 @@ public class DOIIdentifierProvider
     public static final String DOI_ELEMENT = "identifier";
     public static final String DOI_QUALIFIER = "uri";
     
+    public static final Integer IGNORED = -1;
     public static final Integer TO_BE_REGISTERED = 1;
     public static final Integer TO_BE_RESERVED = 2;
     public static final Integer IS_REGISTERED = 3;
@@ -204,6 +205,10 @@ public class DOIIdentifierProvider
     private void registerInternal(Context context, DSpaceObject dso, String identifier)
             throws IdentifierException
     {
+        if (StringUtils.isBlank(identifier)) {
+            return;
+        }
+
         String doi = DOI.formatIdentifier(identifier);
         TableRow doiRow = null;
 
@@ -224,7 +229,7 @@ public class DOIIdentifierProvider
         }
 
         // Check status of DOI
-        if (IS_REGISTERED == doiRow.getIntColumn("status"))
+        if (IGNORED != doiRow.getIntColumn("status"))
         {
             return;
         }
@@ -362,6 +367,10 @@ public class DOIIdentifierProvider
     public void updateMetadata(Context context, DSpaceObject dso, String identifier)
             throws IdentifierException, IllegalArgumentException, SQLException 
     {
+        if (StringUtils.isBlank(identifier)) {
+            return;
+        }
+
         String doi = DOI.formatIdentifier(identifier);
         TableRow doiRow = null;
         

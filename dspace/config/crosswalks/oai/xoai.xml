@@ -116,6 +116,24 @@
                 This contexts complies with Data Archive OpenAIRE rules.
             </Description>
         </Context>
+
+        <!--
+            OpenAIRE Guidelines 4.0:
+            - https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/
+        -->
+        <Context baseurl="openaire4" name="OpenAIRE v4 Context">
+            <!-- Date format, field prefixes, etc are ensured by the transformer -->
+            <Transformer ref="openaire4Transformer"/>
+            <!-- OpenAIRE filter -->
+            <Filter ref="openaire4Filter"/>
+            <!-- This Context includes bibliographic metadata describing open access and non open access items -->
+            <Set ref="openaire4Set"/>
+            <!-- Metadata Formats -->
+            <Format ref="oaiopenaire"/>
+            <Description>
+                This contexts complies with OpenAIRE Guidelines for Literature Repositories v4.0.
+            </Description>
+        </Context>
     </Contexts>
 
 
@@ -221,6 +239,12 @@
             <Namespace>https://www.openaire.eu/cerif-profile/1.1/</Namespace>
             <SchemaLocation>https://www.openaire.eu/schema/cris/1.1/openaire-cerif-profile.xsd</SchemaLocation>
         </Format>
+        <Format id="oaiopenaire">
+            <Prefix>oai_openaire</Prefix>
+            <XSLT>metadataFormats/oai_openaire.xsl</XSLT>
+            <Namespace>http://namespace.openaire.eu/schema/oaire/</Namespace>
+            <SchemaLocation>https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd</SchemaLocation>
+        </Format>
     </Formats>
 
     <Transformers>
@@ -232,6 +256,9 @@
         </Transformer>
         <Transformer id="openairecrisTransformer">
             <XSLT>transformers/openairecris.xsl</XSLT>
+        </Transformer>
+        <Transformer id="openaire4Transformer">
+            <XSLT>transformers/openaire4.xsl</XSLT>
         </Transformer>        
     </Transformers>
 
@@ -418,6 +445,41 @@
                 	<RightCondition>
                 		<Custom ref="dspaceItemCondition" />
                 	</RightCondition>
+                </And>
+            </Definition>
+        </Filter>
+
+        <!-- create a new filter for the openaire4 Context -->
+        <Filter id="openaire4Filter">
+            <Definition>
+                <And>
+                    <LeftCondition>
+                        <And>
+                            <LeftCondition>
+                                <And>
+                                    <LeftCondition>
+                                        <Custom ref="titleExistsCondition"/>
+                                    </LeftCondition>
+                                    <RightCondition>
+                                        <Custom ref="authorExistsCondition"/>
+                                    </RightCondition>
+                                </And>
+                            </LeftCondition>
+                            <RightCondition>
+                                <And>
+                                    <LeftCondition>
+                                        <Custom ref="identifierExistsCondition"/>
+                                    </LeftCondition>
+                                    <RightCondition>
+                                        <Custom ref="dateExistsCondition"/>
+                                    </RightCondition>
+                                </And>
+                            </RightCondition>
+                        </And>
+                    </LeftCondition>
+                    <RightCondition>
+                        <Custom ref="dspaceItemCondition" />
+                    </RightCondition>
                 </And>
             </Definition>
         </Filter>
@@ -765,6 +827,11 @@
             <Spec>openaire_data</Spec>
             <Name>OpenAIRE</Name>
             <!-- Just an alias or set a filter condition to expose only specific kind of items (dataset) -->
+        </Set>
+        <Set id="openaire4Set">
+            <Spec>openaire</Spec>
+            <Name>OpenAIRE set</Name>
+            <!-- Just an alias -->
         </Set>
     </Sets>
 </Configuration>

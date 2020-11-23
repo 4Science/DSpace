@@ -6,9 +6,7 @@
 -- http://www.dspace.org/license/
 --
 
-BEGIN
-	EXECUTE IMMEDIATE
-'truncate table cris_do_box2policygroup;
+truncate table cris_do_box2policygroup;
 truncate table cris_do_box2policysingle;
 truncate table cris_do_etab2policygroup;
 truncate table cris_do_etab2policysingle; 
@@ -56,30 +54,30 @@ alter table cris_rp_etab2policygroup drop column authorizedGroup;
 alter table cris_rp_etab2policysingle drop column authorizedSingle;
 alter table cris_rp_tab2policygroup drop column authorizedGroup;
 alter table cris_rp_tab2policysingle drop column authorizedSingle;
-alter table cris_do_box2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_do_box2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_do_etab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_do_etab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_do_tab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_do_tab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_ou_box2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_ou_box2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_ou_etab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_ou_etab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_ou_tab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_ou_tab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_pj_box2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_pj_box2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_pj_etab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_pj_etab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_pj_tab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_pj_tab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_rp_box2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_rp_box2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_rp_etab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_rp_etab2policysingle add column authorizedSingle_id number(10,0) not null;
-alter table cris_rp_tab2policygroup add column authorizedGroup_id number(10,0) not null;
-alter table cris_rp_tab2policysingle add column authorizedSingle_id number(10,0) not null;
+alter table cris_do_box2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_do_box2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_do_etab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_do_etab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_do_tab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_do_tab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_ou_box2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_ou_box2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_ou_etab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_ou_etab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_ou_tab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_ou_tab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_pj_box2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_pj_box2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_pj_etab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_pj_etab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_pj_tab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_pj_tab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_rp_box2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_rp_box2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_rp_etab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_rp_etab2policysingle add authorizedSingle_id number(10,0) not null;
+alter table cris_rp_tab2policygroup add authorizedGroup_id number(10,0) not null;
+alter table cris_rp_tab2policysingle add authorizedSingle_id number(10,0) not null;
 alter table cris_do_box2policygroup add constraint FK_ncnj9wab3w3dtuttmnqo7wmkg foreign key (authorizedGroup_id) references cris_do_pdef;
 alter table cris_do_box2policysingle add constraint FK_a6bmprm8xwlvj8bqmdptt25s8 foreign key (authorizedSingle_id) references cris_do_pdef;
 alter table cris_do_etab2policygroup add constraint FK_jt6tpe3s3do23qq5uv3tqm6om foreign key (authorizedGroup_id) references cris_do_pdef;
@@ -103,9 +101,4 @@ alter table cris_rp_box2policysingle add constraint FK_lesynsrx0csubq5a0sx31tv5w
 alter table cris_rp_etab2policygroup add constraint FK_461h8h92wrvyxxxywunkopdol foreign key (authorizedGroup_id) references cris_rp_pdef;
 alter table cris_rp_etab2policysingle add constraint FK_fkbp74vg34qxh8k788jey45sd foreign key (authorizedSingle_id) references cris_rp_pdef;
 alter table cris_rp_tab2policygroup add constraint FK_jtscxfde3kfpxuniwnox0rvy6 foreign key (authorizedGroup_id) references cris_rp_pdef;
-alter table cris_rp_tab2policysingle add constraint FK_jvw45mrhe2due2meew4jneqfc foreign key (authorizedSingle_id) references cris_rp_pdef;'
-	EXCEPTION
-	WHEN OTHERS
-    THEN
-       NULL;
-END;
+alter table cris_rp_tab2policysingle add constraint FK_jvw45mrhe2due2meew4jneqfc foreign key (authorizedSingle_id) references cris_rp_pdef;

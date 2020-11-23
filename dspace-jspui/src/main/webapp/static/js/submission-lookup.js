@@ -36,7 +36,7 @@ submissionLookupIdentifiers = function(identInputs){
 				submissionLookupShowResult(info, "-identifier");
 			}
 			j('#loading-search-result').modal("hide");
-			j('#tabs').find('a[href="#tabs-result"]').click();
+			j('#tabs').find('a[href="#tabs-result"]').trigger('click');
 		}
 	});
 	j('#loading-search-result').data('ajaxCall', ajaxCall);
@@ -72,7 +72,7 @@ submissionLookupSearch = function(){
 				submissionLookupShowResult(info, "-search");
 			}
 			j('#loading-search-result').modal('hide');
-			j('#tabs').find('a[href="#tabs-result"]').click();
+			j('#tabs').find('a[href="#tabs-result"]').trigger('click');
 		}
 	});
 	j('#loading-search-result').data('ajaxCall', ajaxCall);
@@ -103,7 +103,7 @@ submissionLookupDetails = function(button, suffixID){
 			{
 				submissionLookupShowDetails(info.result);
 			}
-			j('#tabs').find('a[href="#tabs-result"]').click();
+			j('#tabs').find('a[href="#tabs-result"]').trigger('click');
 		}
 	});
 }
@@ -157,7 +157,7 @@ submissionLookupShowResult = function(info, suffixID){
 		j('#result-list').append(par);
 		bt.button();
 		bt.data({uuid: info.result[i].uuid});
-		bt.click(function(){
+		bt.on('click',function(){
 			submissionLookupDetails(this, suffixID);
 		});
 	}
@@ -165,7 +165,7 @@ submissionLookupShowResult = function(info, suffixID){
 	j('#checkboxNotDup').show();
 	}
 	
-	j('#identifier-submission-button').click(function(){
+	j('#identifier-submission-button').on('click',function(){
 		var recordsChecked = [];
 		var warnCol = false;
 		j('#no-record').hide();
@@ -248,7 +248,7 @@ submissionLookupShowDetails = function(info){
 	var start = j('<button class="btn btn-success" type="button">');
 	start.append(j('#jsfilldatabuttonmessage').text());
 	start.button();
-	start.click(function(){
+	start.on('click',function(){
 		var selcolid = j('#select-collection').val();
 		if (selcolid != null && selcolid != -1)
 		{
@@ -323,7 +323,7 @@ submissionLookupFile = function(form){
 					if (clickResultTab) {
 						submissionLookupShowResult(json, "-loader");
 						j('#loading-file-result').modal("hide");
-						j('#tabs').find('a[href="#tabs-result"]').click();
+						j('#tabs').find('a[href="#tabs-result"]').trigger('click');
 					} else {
 						// skip details
 						j('#collectionid').val(json.result[index].collectionid);

@@ -76,7 +76,12 @@ public class ItemExportArchiveServlet extends DSpaceServlet {
 				response.setDateHeader("Last-Modified", lastModified);
 
 				// Check for if-modified-since header
-				long modSince = request.getDateHeader("If-Modified-Since");
+				long modSince = -1;
+				try {
+					modSince = request.getDateHeader("If-Modified-Since");
+				} catch (Exception e) {
+					// illegal argument
+				}
 
 				if (modSince != -1 && lastModified < modSince) {
 					// Item has not been modified since requested date,

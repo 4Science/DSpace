@@ -29,6 +29,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.IGlobalSearchResult;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.utils.DSpace;
 
 public class ThumbDisplayStrategy implements IDisplayMetadataValueStrategy
 {

@@ -62,29 +62,7 @@ public class StatsAggregateIndicatorsPlugin<ACO extends ACrisObject>
                 MetricsPersistenceService.class.getName(),
                 MetricsPersistenceService.class);
 
-        List<ACO> rs = new ArrayList<ACO>();
-
-        if (crisEntityTypeId > 1000)
-        {
-            DynamicObjectType dynamicType = applicationService.get(DynamicObjectType.class, crisEntityTypeId);
-        	long tot = applicationService.countResearchObjectByType(dynamicType);
-          	final int MAX_RESULT = 50;
-        	long numpages = (tot / MAX_RESULT) + 1;
-            for (int page = 1; page <= numpages; page++)
-            {
-        		rs.addAll((List<ACO>)applicationService.getResearchObjectPaginateListByType(dynamicType, "id", false, page, MAX_RESULT));
-        	}
-        }
-        else
-        {
-        	long tot = applicationService.count(crisEntityClazz);
-          	final int MAX_RESULT = 50;
-        	long numpages = (tot / MAX_RESULT) + 1;
-            for (int page = 1; page <= numpages; page++)
-            {
-        		rs.addAll(applicationService.getPaginateList(crisEntityClazz, "id", false, page, MAX_RESULT));
-        	}
-        }
+        List<ACO> rs = applicationService.getCrisObjectPaginate(crisEntityClazz, crisEntityTypeId);
 
         for (ACO rp : rs)
         {

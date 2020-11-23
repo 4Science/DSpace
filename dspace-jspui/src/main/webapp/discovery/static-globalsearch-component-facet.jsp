@@ -107,6 +107,7 @@
         <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
     </span>    
     <div class="input-group-btn search-panel">
+        <span onmouseover="hover(this);" onmouseout="out(this);">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         	<span id="search_concept"><fmt:message key="jsp.home.explore.global-menu.default" /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
         </button>
@@ -137,6 +138,7 @@
         
         
         </ul>
+        </span>
     </div>
     <input type="hidden" name="location" value="global" id="search_param">         
 </div>
