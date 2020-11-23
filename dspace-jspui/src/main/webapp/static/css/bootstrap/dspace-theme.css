@@ -28,7 +28,8 @@
 	}
 }
 
-.navbar-inverse {
+.navbar-inverse, .navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.open>a {
+	background-image: none;
 	background-color:#00458c;
 	border-color:#002c59;
 }
