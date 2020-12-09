@@ -220,7 +220,7 @@
 <a class="sr-only" href="#content">Skip navigation</a>
 <header class="navbar navbar-inverse navbar-square shp-no-mb">    
 
-<div class="container-fluid banner shp-margin" style="background-color:#333333db;">
+<div class="container-fluid banner shp-margin">
      <div class="row">
 		<% if (supportedLocales != null && supportedLocales.length > 1) { %>
 			 <ul class="nav navbar-language navbar-nav navbar-<%= isRtl ? "left" : "right" %>">

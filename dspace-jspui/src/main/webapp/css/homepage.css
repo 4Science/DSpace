@@ -589,3 +589,7 @@ img::-moz-selection {
 	background-color: #fff;
 	border: none;
 }
+
+.container-fluid.banner.shp-margin {
+	background-color:#333333db;
+}
