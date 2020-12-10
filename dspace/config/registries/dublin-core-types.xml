@@ -1441,4 +1441,103 @@
         <qualifier>patentno</qualifier>
         <scope_note>Used by the DSpace-CRIS default inputform</scope_note>
     </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>coverage</element>
+        <qualifier>culture</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>coverage</element>
+        <qualifier>temporalperiod</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>internal</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+	<dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>mint</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+       <schema>dc</schema>
+        <element>contributor</element>
+        <qualifier>issuingauthority</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>type</element>
+        <qualifier>materialandtechnique</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misd</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misg</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>mintingaxis</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>description</element>
+        <qualifier>obverse</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>description</element>
+        <qualifier>reverse</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>description</element>
+        <qualifier>obverselegend</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>description</element>
+        <qualifier>reverselegend</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
