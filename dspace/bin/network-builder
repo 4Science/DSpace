@@ -3,4 +3,4 @@
 # Get the DSPACE/bin directory
 BINDIR=`dirname $0`
 
-$BINDIR/dspace dsrun org.dspace.app.cris.batch.ScriptIndexNetwork -s coauthors
+$BINDIR/dspace dsrun org.dspace.app.cris.batch.ScriptIndexNetwork -a
