@@ -3923,7 +3923,6 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
    </value-pairs>
 
- <form-value-pairs>
    <value-pairs value-pairs-name="unit_of_description_types" dc-term="type">
      <pair>
        <displayed-value>Registro o altra unità rilegata</displayed-value>
