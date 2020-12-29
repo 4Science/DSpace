@@ -13,6 +13,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.audit.AuditService;
+import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.nbevent.service.NBEventService;
 import org.dspace.app.orcid.factory.OrcidHistoryServiceFactory;
 import org.dspace.app.orcid.factory.OrcidQueueServiceFactory;
@@ -46,11 +47,13 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
+import org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactory;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
 import org.dspace.layout.service.CrisLayoutBoxService;
 import org.dspace.layout.service.CrisLayoutFieldService;
+import org.dspace.layout.service.CrisLayoutMetric2BoxService;
 import org.dspace.layout.service.CrisLayoutTabService;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.service.ProcessService;
@@ -111,6 +114,8 @@ public abstract class AbstractBuilder<T, S> {
     static NBEventService nbEventService;
     static SolrSuggestionStorageService solrSuggestionService;
     static AuditService auditService;
+    static CrisMetricsService crisMetricsService;
+    static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
     static HarvestedCollectionService harvestedCollectionService;
 
     protected Context context;
@@ -174,8 +179,9 @@ public abstract class AbstractBuilder<T, S> {
         nbEventService = new DSpace().getSingletonService(NBEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         auditService = new DSpace().getSingletonService(AuditService.class);
+        crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
-
+        crisLayoutMetric2BoxService = CrisLayoutServiceFactory.getInstance().getMetric2BoxService();
     }
 
 
@@ -212,6 +218,8 @@ public abstract class AbstractBuilder<T, S> {
         orcidQueueService = null;
         orcidHistoryService = null;
         nbEventService = null;
+        crisMetricsService = null;
+        crisLayoutMetric2BoxService = null;
         harvestedCollectionService = null;
     }
 

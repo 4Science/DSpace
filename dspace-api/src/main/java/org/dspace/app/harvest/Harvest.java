@@ -20,10 +20,12 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -32,8 +34,10 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.harvest.HarvestedCollection;
+import org.dspace.harvest.HarvestingException;
 import org.dspace.harvest.OAIHarvester;
 import org.dspace.harvest.factory.HarvestServiceFactory;
+import org.dspace.harvest.model.OAIHarvesterOptions;
 import org.dspace.harvest.service.HarvestedCollectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +63,7 @@ public class Harvest {
     private static final CollectionService collectionService =
         ContentServiceFactory.getInstance().getCollectionService();
     private static final OAIHarvester harvester = HarvestServiceFactory.getInstance().getOAIHarvester();
+    private static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 
     public static void main(String[] argv) throws Exception {
         // create an options object and populate it
@@ -76,6 +81,8 @@ public class Harvest {
         options.addOption("P", "purge", false, "purge all harvestable collections");
 
         options.addOption("F", "force synchronization", false, "force the synchronization");
+        options.addOption("V", "validate", false, "to enable the item validation");
+        options.addOption("W", "workflow", false, "to start the item workflow after its creation");
 
 
         options.addOption("e", "eperson", true,
@@ -103,7 +110,9 @@ public class Harvest {
         String oaiSetID = null;
         String metadataKey = null;
         int harvestType = 0;
-        boolean forceSynchronization = false;
+        boolean forceSynch = false;
+        boolean validation = false;
+        boolean submitEnabled = true;
 
         if (line.hasOption('h')) {
             HelpFormatter myhelp = new HelpFormatter();
@@ -171,7 +180,15 @@ public class Harvest {
         if (line.hasOption('m')) {
             metadataKey = line.getOptionValue('m');
         }
-        forceSynchronization = line.hasOption('F');
+        if (line.hasOption('F')) {
+            forceSynch = true;
+        }
+        if (line.hasOption('V')) {
+            validation = true;
+        }
+        if (line.hasOption('W')) {
+            submitEnabled = false;
+        }
 
 
         // Instantiate our class
@@ -193,7 +210,8 @@ public class Harvest {
                 System.exit(1);
             }
 
-            harvester.runHarvest(collection, eperson, forceSynchronization);
+            harvester.runHarvest(collection, eperson, new OAIHarvesterOptions(forceSynch, validation, submitEnabled));
+
         } else if ("start".equals(command)) {
             // start the harvest loop
             startHarvester();
@@ -388,7 +406,7 @@ public class Harvest {
     /**
      * Run a single harvest cycle on the specified collection under the authorization of the supplied EPerson
      */
-    private void runHarvest(String collectionID, String email, boolean forceSynchronization) {
+    private void runHarvest(String collectionID, String email, OAIHarvesterOptions options) {
         System.out.println("Running: a harvest cycle on " + collectionID);
 
         System.out.print("Initializing the harvester... ");
@@ -397,21 +415,24 @@ public class Harvest {
             Collection collection = resolveCollection(collectionID);
             HarvestedCollection hc = harvestedCollectionService.find(context, collection);
 
+            if (hc == null) {
+                throw new HarvestingException("Provided collection is not set up for harvesting");
+            }
+
             // Harvest will not work for an anonymous user
             EPerson eperson = ePersonService.findByEmail(context, email);
 
             System.out.println("Harvest started... ");
             context.setCurrentUser(eperson);
 
-            UUID processId = UUID.randomUUID();
             long startTimestamp = System.currentTimeMillis();
 
-            logProcess(processId, hc, true, startTimestamp);
+            logProcess(options.getProcessId(), hc, true, startTimestamp);
 
-            harvester.runHarvest(context, hc, forceSynchronization, processId);
+            harvester.runHarvest(context, hc, options);
             context.complete();
 
-            logProcess(processId, hc, false, startTimestamp);
+            logProcess(options.getProcessId(), hc, false, startTimestamp);
 
             System.out.println("success. ");
 
@@ -492,14 +513,18 @@ public class Harvest {
         }
     }
 
-    private static void logProcess(UUID processId, HarvestedCollection harvestRow, boolean start, long startTimestamp) {
+    private static void logProcess(UUID processId, HarvestedCollection harvestRow, boolean start, long startTimestamp)
+        throws SQLException {
+
         Collection collection = harvestRow.getCollection();
+        Community parentCommunity = (Community) collectionService.getParentObject(context, collection);
 
         String logMessage = new StringBuilder(LOG_PREFIX)
             .append(processId).append(LOG_DELIMITER)
             .append(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date())).append(LOG_DELIMITER)
             .append(harvestRow.getOaiSource()).append(LOG_DELIMITER)
             .append(harvestRow.getOaiSetId() != null ? harvestRow.getOaiSetId() : "").append(LOG_DELIMITER)
+            .append(communityService.getName(parentCommunity)).append(LOG_DELIMITER)
             .append(collection.getID()).append(LOG_DELIMITER)
             .append(collectionService.getName(collection)).append(LOG_DELIMITER)
             .append(start ? "START" : "FINISH").append(LOG_DELIMITER)
