@@ -27,6 +27,9 @@ import org.dspace.core.Context;
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implements CrisMetricsDAO {
+    protected CrisMetricsDAOImpl() {
+        super();
+    }
 
     @Override
     public List<CrisMetrics> findAll(Context context, Integer limit, Integer offset) throws SQLException {
@@ -73,15 +76,6 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
     @Override
     public int countRows(Context context) throws SQLException {
         return count(createQuery(context, "SELECT count(*) from CrisMetrics"));
-    }
-
-    @Override
-    public void delete(Context context, CrisMetrics csrisMetrics) throws SQLException {
-        String stringQuery = "delete from CrisMetrics "
-                           + "WHERE id =:cris_metrics";
-        Query query = createQuery(context, stringQuery);
-        query.setParameter("cris_metrics", csrisMetrics.getId());
-        query.executeUpdate();
     }
 
     @Override
