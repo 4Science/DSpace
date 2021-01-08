@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -22,12 +23,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
-import org.dspace.content.DSpaceObject;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.ExternalService;
-import org.dspace.handle.HandleManager;
 import org.dspace.utils.DSpace;
 
 /**
@@ -161,16 +158,7 @@ public class IndexClient {
         } else if (line.hasOption("u")) {         	
         	String optionValue = line.getOptionValue("u");
 			String[] identifiers = optionValue.split("\\s*,\\s*");
-			for (String id : identifiers) {
-				DSpaceObject dso;
-				if (id.startsWith(ConfigurationManager.getProperty("handle.prefix")) || id.startsWith("123456789/")) {
-					dso = HandleManager.resolveToObject(context, id);
-				} else {
-
-					dso = dspace.getSingletonService(ExternalService.class).getObject(id);
-				}
-				indexer.indexContent(context, dso, line.hasOption("f"));
-			}
+			indexer.indexContent(context, Arrays.asList(identifiers), line.hasOption("f"));
         } else if (line.hasOption('e')) {
             try {
                 String filename = line.getOptionValue('e');

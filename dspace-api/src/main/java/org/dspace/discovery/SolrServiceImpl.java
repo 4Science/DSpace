@@ -85,6 +85,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
+import org.dspace.core.ExternalService;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.core.PluginManager;
@@ -2634,6 +2635,33 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 					context.abort();
 				}
 			}
+		}
+	}
+
+	@Override
+	public void indexContent(Context context, List<String> ids) throws SQLException {
+		indexContent(context, ids, false);
+	}
+
+	@Override
+	public void indexContent(Context context, List<String> ids, boolean force) throws SQLException {
+		for (String id : ids) {
+			DSpaceObject dso;
+			if (id.startsWith(ConfigurationManager.getProperty("handle.prefix")) || id.startsWith("123456789/")) {
+				dso = HandleManager.resolveToObject(context, id);
+			} else {
+				dso = new DSpace().getSingletonService(ExternalService.class).getObject(id);
+			}
+			indexContent(context, dso, force);
+		}
+	}
+
+	@Override
+	public void indexContent(Context context, List<String> ids, boolean force, boolean commit)
+			throws SQLException, SearchServiceException {
+		indexContent(context, ids, force);
+		if (commit) {
+			commit();
 		}
 	}
 	

@@ -16,7 +16,7 @@ import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.curate.AbstractCurationTask;
 import org.dspace.curate.Curator;
-import org.dspace.discovery.IndexClient;
+import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.utils.DSpace;
@@ -34,6 +34,9 @@ public class TreeReindexCurationTask extends AbstractCurationTask {
     private SearchService searchService = new DSpace().getServiceManager().getServiceByName(
             SearchService.class.getName(), SearchService.class);
 
+    private IndexingService indexer = new DSpace().getServiceManager().getServiceByName(
+            IndexingService.class.getName(), IndexingService.class);
+
     @Override
     public int perform(DSpaceObject dso)
             throws IOException {
@@ -50,11 +53,26 @@ public class TreeReindexCurationTask extends AbstractCurationTask {
     @Override
     public int perform(Context ctx, String id)
             throws IOException {
-        indexObjects(id);
+        indexObjects(ctx, id);
         return Curator.CURATE_SUCCESS;
     }
 
     private void indexObjects(String id) {
+        Context ctx = null;
+        try {
+            ctx = new Context();
+            indexObjects(ctx, id);
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException("Failed to reindex tree starting from object with id=" + id);
+        } finally {
+            if (ctx != null) {
+                ctx.abort();
+            }
+        }
+    }
+
+    private void indexObjects(Context context, String id) {
         List<String> objectsToReindex = new ArrayList<>();
 
         try {
@@ -62,10 +80,10 @@ public class TreeReindexCurationTask extends AbstractCurationTask {
             objectsToReindex = findByNode(id);
 
             // reindex objects
-            IndexClient.main(new String[] {"-f", "-u", StringUtils.join(objectsToReindex, ',')});
-        }
-        catch (SearchServiceException | SQLException | IOException e) {
+            indexer.indexContent(context, objectsToReindex, true);
+        } catch (SearchServiceException | SQLException e) {
             log.error(e.getMessage(), e);
+            throw new RuntimeException("Failed to reindex tree starting from object with id=" + id);
         }
     }
 

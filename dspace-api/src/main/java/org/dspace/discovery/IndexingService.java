@@ -31,6 +31,15 @@ public interface IndexingService {
 
     void indexContent(Context context, DSpaceObject dso,
             boolean force, boolean commit) throws SQLException, SearchServiceException;
+
+    void indexContent(Context context, List<String> ids)
+            throws SQLException;
+
+    void indexContent(Context context, List<String> ids,
+            boolean force) throws SQLException;
+
+    void indexContent(Context context, List<String> ids,
+            boolean force, boolean commit) throws SQLException, SearchServiceException;
     
     void unIndexContent(Context context, DSpaceObject dso)
             throws SQLException, IOException;
