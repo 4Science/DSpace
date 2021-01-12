@@ -111,12 +111,12 @@ public abstract class AbstractBuilder<T, S> {
     static CrisLayoutFieldService crisLayoutFieldService;
     static OrcidQueueService orcidQueueService;
     static OrcidHistoryService orcidHistoryService;
-    static NBEventService nbEventService;
-    static SolrSuggestionStorageService solrSuggestionService;
     static AuditService auditService;
     static CrisMetricsService crisMetricsService;
     static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
     static HarvestedCollectionService harvestedCollectionService;
+    static NBEventService nbEventService;
+    static SolrSuggestionStorageService solrSuggestionService;
 
     protected Context context;
 
@@ -176,12 +176,12 @@ public abstract class AbstractBuilder<T, S> {
         crisLayoutFieldService = CrisLayoutServiceFactory.getInstance().getFieldService();
         orcidQueueService = OrcidQueueServiceFactory.getInstance().getOrcidQueueService();
         orcidHistoryService = OrcidHistoryServiceFactory.getInstance().getOrcidHistoryService();
-        nbEventService = new DSpace().getSingletonService(NBEventService.class);
-        solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         auditService = new DSpace().getSingletonService(AuditService.class);
         crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
         crisLayoutMetric2BoxService = CrisLayoutServiceFactory.getInstance().getMetric2BoxService();
+        nbEventService = new DSpace().getSingletonService(NBEventService.class);
+        solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
     }
 
 
@@ -217,9 +217,9 @@ public abstract class AbstractBuilder<T, S> {
         crisLayoutFieldService = null;
         orcidQueueService = null;
         orcidHistoryService = null;
-        nbEventService = null;
         crisMetricsService = null;
         crisLayoutMetric2BoxService = null;
+        nbEventService = null;
         harvestedCollectionService = null;
     }
 
