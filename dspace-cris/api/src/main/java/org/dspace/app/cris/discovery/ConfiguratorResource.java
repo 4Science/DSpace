@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.dspace.app.cris.configuration.RelationConfiguration;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 
 public class ConfiguratorResource
 {
@@ -12,7 +13,11 @@ public class ConfiguratorResource
     private Map<String, Boolean> enabled;
 
     private Map<String, RelationConfiguration> relation;
-    
+
+    private Map<String, List<DiscoverySortFieldConfiguration>> sort;
+
+    private Map<String, String> sortOrder;
+
     public Map<String, Boolean> getEnabled()
     {
         return enabled;
@@ -41,6 +46,26 @@ public class ConfiguratorResource
     public void setRelation(Map<String, RelationConfiguration> relation)
     {
         this.relation = relation;
+    }
+
+    public Map<String, List<DiscoverySortFieldConfiguration>> getSort()
+    {
+        return sort;
+    }
+
+    public void setSort(Map<String, List<DiscoverySortFieldConfiguration>> sort)
+    {
+        this.sort = sort;
+    }
+
+    public Map<String, String> getSortOrder()
+    {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Map<String, String> sortOrder)
+    {
+        this.sortOrder = sortOrder;
     }
 
 }

@@ -117,6 +117,26 @@
 				</entry>
 			</map>
 		</property>
+		<property name="sort">
+			<map>
+				<entry key="crisfonds">
+					<list>
+						<ref bean="sortFondsName" />
+					</list>
+				</entry>
+				<entry key="item">
+					<list>
+						<ref bean="sortTitle" />
+					</list>
+				</entry>
+			</map>
+		</property>
+		<property name="sortOrder">
+			<map>
+				<entry key="crisfonds" value="asc" />
+				<entry key="item" value="asc" />
+			</map>
+		</property>
 	</bean>
 
 	<alias name="configuratorResource" alias="org.dspace.app.cris.discovery.ConfiguratorResource" />

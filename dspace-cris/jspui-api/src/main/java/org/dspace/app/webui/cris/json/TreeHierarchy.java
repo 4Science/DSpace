@@ -22,19 +22,16 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.cris.discovery.ConfiguratorResource;
-import org.dspace.app.cris.model.ACrisObject;
-import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.app.webui.json.JSONRequest;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
-import org.dspace.utils.DSpace;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 /**
  * @author Luigi Andrea Pascarelli
@@ -44,6 +41,8 @@ public class TreeHierarchy extends JSONRequest
 
     private static Logger log = Logger
             .getLogger(TreeHierarchy.class);
+
+    private static final String DEFAULT_ENTITY = "item";
 
     private SearchService searchService;
     
@@ -113,12 +112,13 @@ public class TreeHierarchy extends JSONRequest
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQuery("cris-id:\""+ pluginName + "\" OR handle:\""+ pluginName + "\"");
             solrQuery.setRows(Integer.MAX_VALUE);
-            solrQuery.setFields("treeroot_s");
+            solrQuery.setFields("treecontext_s", "treeroot_s");
             try
             {
                 QueryResponse response = searchService.search(solrQuery);
                 SolrDocumentList docList = response.getResults();
                 for(SolrDocument doc : docList) {
+                    String contextTree = (String)(doc.getFieldValue("treecontext_s"));
                     String valueRoot = (String)(doc.getFieldValue("treeroot_s"));
                     if(StringUtils.isBlank(valueRoot)) {
                         valueRoot = pluginName;
@@ -126,8 +126,9 @@ public class TreeHierarchy extends JSONRequest
                     //get all node leads by this root node
                     SolrQuery solrQueryInternal = new SolrQuery();
                     solrQueryInternal.setQuery("treeroot_s:\""+ valueRoot + "\"");
-                    solrQueryInternal.setFields("crisauthoritylookup","handle", "cris-id", "treeparent_s", "treeleaf_b", "treecontext_s");
+                    solrQueryInternal.setFields("crisauthoritylookup","handle", "cris-id", "treeparent_s", "treeleaf_b");
                     solrQueryInternal.setRows(Integer.MAX_VALUE);
+                    addSortFields(solrQueryInternal, contextTree);
                     QueryResponse responseInternal = searchService.search(solrQueryInternal);
                     SolrDocumentList docListInternal = responseInternal.getResults();
                     for(SolrDocument docInternal : docListInternal) {                  
@@ -169,11 +170,11 @@ public class TreeHierarchy extends JSONRequest
                             //retrieve all items
                             //get all node leads by this root node
                             SolrQuery solrQueryItem = new SolrQuery();
-                            String contextTree = (String)(docInternal.getFieldValue("treecontext_s"));                            
                             solrQueryItem.setQuery(MessageFormat.format(configurator.getRelation().get(contextTree).getQuery(),authority));
                             solrQueryItem.setFilterQueries("-withdrawn:true");
                             solrQueryItem.setRows(Integer.MAX_VALUE);
                             solrQueryItem.setFields("search.resourcetype", "search.resourceid", "handle", "dc.title");
+                            addSortFields(solrQueryItem);
                             QueryResponse responseItem = searchService.search(solrQueryItem);
                             SolrDocumentList docListItem = responseItem.getResults();
                             for(SolrDocument docItem : docListItem) {
@@ -211,6 +212,27 @@ public class TreeHierarchy extends JSONRequest
 
         JsonElement tree = json.toJsonTree(dto);
         resp.getWriter().write(tree.toString());
+    }
+
+    public void addSortFields(SolrQuery solrQuery) {
+        addSortFields(solrQuery, DEFAULT_ENTITY);
+    }
+
+    public void addSortFields(SolrQuery solrQuery, String contextTree) {
+        // retrieve all configured sort fields and sort order
+        List<DiscoverySortFieldConfiguration> sortFields = configurator.getSort().get(contextTree);
+        String sortOrder = configurator.getSortOrder().get(contextTree);
+        if (sortFields != null && !sortFields.isEmpty()) {
+            for (DiscoverySortFieldConfiguration sortField : sortFields) {
+                if(sortField != null) {
+                    // add sort clause to Solr query
+                    solrQuery.addSort(
+                            SearchUtils.getSearchService().toSortFieldIndex(
+                                    sortField.getMetadataField(), sortField.getType()),
+                            StringUtils.equalsIgnoreCase(sortOrder, "asc") ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc);
+                }
+            }
+        }
     }
 
     public void setSearchService(SearchService searchService)
