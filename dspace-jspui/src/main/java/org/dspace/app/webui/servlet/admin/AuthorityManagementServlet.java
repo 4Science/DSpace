@@ -105,7 +105,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
         String authority = request.getParameter("authority");
         
         List<String> metadataList;
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
         if (authority != null)
         {
             metadataList = cam.getAuthorityMetadataForAuthority(authority);
@@ -342,7 +342,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
         }
         else
         {
-            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
             Set<String> authorityNames = cam.getAuthorities();
             List<String> listnames = new LinkedList<String>();
             
@@ -373,7 +373,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
             HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException
     {
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
         AuthorityDAO dao = AuthorityDAOFactory.getInstance(context);
         int page = UIUtil.getIntParameter(request, "page");
         if (page < 0)
@@ -407,7 +407,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
             SQLException, AuthorizeException
     {
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
         AuthorityDAO dao = AuthorityDAOFactory.getInstance(context);
 
         // ItemIterator itemsIter = dao.findIssuedByAuthorityValue(issued,
@@ -539,7 +539,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
     {
     	boolean isAdmin = AuthorizeManager.isAdmin(context, context.getCurrentUser());
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
         AuthorityDAO dao = AuthorityDAOFactory.getInstance(context);
 
         // ItemIterator itemsIter = dao.findIssuedByAuthorityValue(issued,
@@ -677,7 +677,7 @@ public class AuthorityManagementServlet extends DSpaceServlet
             String authority, HttpServletRequest request,
             HttpServletResponse response) throws SQLException, ServletException, IOException
     {
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
         AuthorityDAO dao = AuthorityDAOFactory.getInstance(context);
         int page = UIUtil.getIntParameter(request, "page");
         if (page < 0)

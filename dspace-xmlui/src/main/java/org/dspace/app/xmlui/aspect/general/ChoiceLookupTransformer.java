@@ -163,7 +163,7 @@ public class ChoiceLookupTransformer extends AbstractDSpaceTransformer
         h.setValue(confIndicatorID);
         h = selectItem.addHidden("paramFail");
         h.setValue(T_fail);
-        boolean isClosed = ChoiceAuthorityManager.getManager().isClosed(field);
+        boolean isClosed = ChoiceAuthorityManager.getManager(context).isClosed(field);
         h = selectItem.addHidden("paramIsClosed");
         h.setValue(String.valueOf(isClosed));
         h = selectItem.addHidden("paramCollection");

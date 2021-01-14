@@ -273,7 +273,7 @@ public class ItemUtils
                 boolean metadataAuth = mam.isAuthorityControlled(val.schema, val.element, val.qualifier);
                 if (metadataAuth && (deep < authorityDeep)) {
                 	try {
-                		ChoiceAuthorityManager choicheAuthManager = ChoiceAuthorityManager.getManager();
+                		ChoiceAuthorityManager choicheAuthManager = ChoiceAuthorityManager.getManager(context);
                 		ChoiceAuthority choicheAuth = choicheAuthManager.getChoiceAuthority(m);
                 		if (choicheAuth != null && choicheAuth instanceof CRISAuthority) {
 							CRISAuthority crisAuthoriy = (CRISAuthority) choicheAuth;

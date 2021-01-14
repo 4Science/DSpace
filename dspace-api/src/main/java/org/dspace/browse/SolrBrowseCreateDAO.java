@@ -248,7 +248,7 @@ public class SolrBrowseCreateDAO implements BrowseCreateDAO,
                                             if (!ignorePrefered || isMultilanguage)
                                             {
                                                 preferedLabel = ChoiceAuthorityManager
-                                                        .getManager().getLabel(
+                                                        .getManager(context).getLabel(
                                                                 values[x].schema,
                                                                 values[x].element,
                                                                 values[x].qualifier,
@@ -277,7 +277,7 @@ public class SolrBrowseCreateDAO implements BrowseCreateDAO,
                                             if (!ignoreVariants)
                                             {
                                                 variants = ChoiceAuthorityManager
-                                                        .getManager()
+                                                        .getManager(context)
                                                         .getVariants(
                                                                 values[x].schema,
                                                                 values[x].element,

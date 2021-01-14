@@ -33,7 +33,7 @@ public class PendingMatchSolrIndexer implements SolrServiceIndexPlugin
         {
             Item item = (Item) dso;
 
-            List<String> listMetadata = ChoiceAuthorityManager.getManager()
+            List<String> listMetadata = ChoiceAuthorityManager.getManager(context)
                     .getAuthorityMetadataForAuthority(
                             RPAuthority.RP_AUTHORITY_NAME);
 

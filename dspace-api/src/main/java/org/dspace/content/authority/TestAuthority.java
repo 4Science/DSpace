@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.dspace.core.Context;
 
 /**
  * This is a *very* stupid test fixture for authority control with AuthorityVariantsSupport.
@@ -36,8 +37,8 @@ public class TestAuthority implements ChoiceAuthority, AuthorityVariantsSupport
     }
 
     @Override
-    public Choices getMatches(String field, String text, int collection,
-            int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String text,
+            int collection, int start, int limit, String locale)
     {
         Choices choices = new Choices(false);
         if (StringUtils.isNotBlank(text))
@@ -58,8 +59,8 @@ public class TestAuthority implements ChoiceAuthority, AuthorityVariantsSupport
     }
 
     @Override
-    public Choices getBestMatch(String field, String text, int collection,
-            String locale)
+    public Choices getBestMatch(Context context, String field, String text,
+            int collection, String locale)
     {
         Choices choices = new Choices(false);
         if (StringUtils.isNotBlank(text))
@@ -88,8 +89,8 @@ public class TestAuthority implements ChoiceAuthority, AuthorityVariantsSupport
     }
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 }

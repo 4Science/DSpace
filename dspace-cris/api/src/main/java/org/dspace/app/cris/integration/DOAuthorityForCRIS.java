@@ -9,6 +9,7 @@ package org.dspace.app.cris.integration;
 
 import org.dspace.app.cris.model.ResearchObject;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 
 public class DOAuthorityForCRIS extends CRISAuthorityForCRIS<ResearchObject>
 {
@@ -36,9 +37,9 @@ public class DOAuthorityForCRIS extends CRISAuthorityForCRIS<ResearchObject>
 	}
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}  
 
 }

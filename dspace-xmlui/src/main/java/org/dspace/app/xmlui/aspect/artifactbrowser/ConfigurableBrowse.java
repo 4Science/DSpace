@@ -906,7 +906,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
             {
                 if (bix.isAuthorityIndex())
                 {
-                    ChoiceAuthorityManager cm = ChoiceAuthorityManager.getManager();
+                    ChoiceAuthorityManager cm = ChoiceAuthorityManager.getManager(context);
                     String fk = cm.makeFieldKey(bix.getMetadata(0));
                     value = "\""+cm.getLabel(fk, info.getValue(), null)+"\"";
                 }

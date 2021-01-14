@@ -685,8 +685,7 @@ public class MetadataField
      * @throws SQLException
      */
     public static MetadataField[] findAllByElement(Context context, int schemaID,
-            String element, String qualifier) throws SQLException,
-            AuthorizeException
+            String element, String qualifier) throws SQLException            
     {
         List<MetadataField> fields = new ArrayList<MetadataField>();
 

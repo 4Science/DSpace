@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import org.dspace.core.Context;
+
 /**
  * Plugin interface that supplies an authority control mechanism for
  * one metadata field.
@@ -30,18 +32,19 @@ public interface ChoiceAuthority
      * set for any sample value, although it's a good idea to set the
      * defaultSelected index in the Choices instance to the choice, if any,
      * that matches the value.
-     *
+     * @param context DSpace context
      * @param field being matched for
      * @param text user's value to match
      * @param collection database ID of Collection for context (owner of Item)
      * @param start choice at which to start, 0 is first.
      * @param limit maximum number of choices to return, 0 for no limit.
      * @param locale explicit localization key if available, or null
+     *
      * @return a Choices object (never null).
      */
-    public Choices getMatches(String field, String text, int collection, int start, int limit, String locale);
+    public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale);
 
-    public Choices getMatches(String field, String text, int collection, int start, int limit, String locale, boolean externalInput);
+    public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale, boolean externalInput);
     
     /**
      * Get the single "best" match (if any) of a value in the authority
@@ -51,14 +54,14 @@ public interface ChoiceAuthority
      *
      * This call is typically used in non-interactive metadata ingest
      * where there is no interactive agent to choose from among options.
-     *
+     * @param context DSpace context
      * @param field being matched for
      * @param text user's value to match
      * @param collection database ID of Collection for context (owner of Item)
      * @param locale explicit localization key if available, or null
      * @return a Choices object (never null) with 1 or 0 values.
      */
-    public Choices getBestMatch(String field, String text, int collection, String locale);
+    public Choices getBestMatch(Context context, String field, String text, int collection, String locale);
 
     /**
      * Get the canonical user-visible "label" (i.e. short descriptive text)

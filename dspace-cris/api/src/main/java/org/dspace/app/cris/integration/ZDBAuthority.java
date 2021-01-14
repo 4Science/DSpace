@@ -18,6 +18,7 @@ import org.dspace.authority.zdb.ZDBAuthorityValue;
 import org.dspace.authority.zdb.ZDBService;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 import org.dspace.utils.DSpace;
 
 public class ZDBAuthority extends DOAuthority {
@@ -29,8 +30,8 @@ public class ZDBAuthority extends DOAuthority {
 	private ZDBService source = new DSpace().getServiceManager().getServiceByName("ZDBSource", ZDBService.class);
 
 	@Override
-	public Choices getMatches(String field, String query, int collection, int start, int limit, String locale) {
-		Choices choices = super.getMatches(field, query, collection, start, limit, locale);		
+	public Choices getMatches(Context context, String field, String query, int collection, int start, int limit, String locale) {
+		Choices choices = super.getMatches(context, field, query, collection, start, limit, locale);		
 		return new Choices(addExternalResults(field, query, choices, start, limit<=0?DEFAULT_MAX_ROWS:limit), choices.start, choices.total, choices.confidence, choices.more);
 	}
 

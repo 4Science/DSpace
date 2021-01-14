@@ -8,16 +8,17 @@
 package org.dspace.app.xmlui.cocoon;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.generation.AbstractGenerator;
-import org.dspace.content.authority.Choices;
-import org.dspace.content.authority.ChoiceAuthorityManager;
-import org.dspace.content.authority.ChoicesXMLGenerator;
-
-import org.xml.sax.SAXException;
-
 import org.apache.log4j.Logger;
+import org.dspace.app.xmlui.utils.ContextUtil;
+import org.dspace.content.authority.ChoiceAuthorityManager;
+import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.ChoicesXMLGenerator;
+import org.dspace.core.Context;
+import org.xml.sax.SAXException;
 
 /**
  * Generate XML description of Choice values to be used by
@@ -68,10 +69,17 @@ public class AJAXMenuGenerator extends AbstractGenerator
         String locale = parameters.getParameter("locale",null);
         log.debug("AJAX menu generator: field="+field+", query="+query+", start="+sstart+", limit="+slimit+", format="+format+", field="+field+", query="+query+", start="+sstart+", limit="+slimit+", format="+format+", locale = "+locale);
 
-        Choices result = ChoiceAuthorityManager.getManager().getMatches(field, query, collection, start, limit, locale, true);
+        try
+        {
+            Context context = ContextUtil.obtainContext(objectModel);
+            Choices result = ChoiceAuthorityManager.getManager(context).getMatches(field, query, collection, start, limit, locale, true);
+            log.debug("Result count = "+result.values.length+", default="+result.defaultSelected);
 
-        log.debug("Result count = "+result.values.length+", default="+result.defaultSelected);
-
-        ChoicesXMLGenerator.generate(result, format, contentHandler);
+            ChoicesXMLGenerator.generate(result, format, contentHandler);
+        }
+        catch (SQLException e)
+        {
+            throw new IOException(e);
+        }
     }
 }

@@ -42,9 +42,9 @@ public class ItemAuthority implements ChoiceAuthority
 
     // punt!  this is a poor implementation..
     @Override
-    public Choices getBestMatch(String field, String text, int collection, String locale)
+    public Choices getBestMatch( Context context, String field, String text, int collection, String locale)
     {
-        return getMatches(field, text, collection, 0, 2, locale);
+    	return getMatches(context, field, text, collection, 0, 2, locale);
     }
 
     /**
@@ -52,9 +52,8 @@ public class ItemAuthority implements ChoiceAuthority
 	 * filter query to limit the scope only to specific item types
 	 */
     @Override
-    public Choices getMatches(String field, String text, int collection, int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale)
     {
-    	Context context = null;
     	if (limit <= 0) {
     		limit = 20;
     	}
@@ -77,7 +76,6 @@ public class ItemAuthority implements ChoiceAuthority
         
         DiscoverResult resultSearch;
 		try {
-			context = new Context();
 			resultSearch = searchService.search(context,
 			        discoverQuery, false);
 			List<Choice> choiceList = new ArrayList<Choice>();
@@ -92,14 +90,9 @@ public class ItemAuthority implements ChoiceAuthority
 			return new Choices(results, 0, results.length, Choices.CF_AMBIGUOUS,
 					resultSearch.getTotalSearchResults() > (start + limit), 0);
 	        
-		} catch (SearchServiceException | SQLException e) {
+		} catch (SearchServiceException e) {
 			log.error(e.getMessage(), e);
 			return new Choices(true);
-		}
-		finally {
-			if (context != null && context.isValid()) {
-				context.abort();
-			}
 		}
     }
 
@@ -129,8 +122,8 @@ public class ItemAuthority implements ChoiceAuthority
     }
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 }

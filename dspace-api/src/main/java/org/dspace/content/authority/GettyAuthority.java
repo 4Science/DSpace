@@ -28,6 +28,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
+import org.dspace.core.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -128,18 +129,13 @@ public abstract class GettyAuthority implements ChoiceAuthority {
         return null;
     }
 	
-	
-    // this implements the specific RoMEO API args and XML tag naming
-	@Override
-    public abstract Choices getMatches(String field,String text, int collection, int start, int limit, String locale);
-	
-	public Choices getMatches(String field,String text, int collection, int start, int limit, String locale, boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context,String field, String text, int collection, int start, int limit, String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 
 	@Override
-	public Choices getBestMatch(String field, String text, int collection, String locale) {
-		return getMatches(field,text,collection,0,1,locale);
+	public Choices getBestMatch(Context context, String field, String text, int collection, String locale) {
+		return getMatches(context,field,text,collection, 0, 1, locale);
 	}
 
 	@Override

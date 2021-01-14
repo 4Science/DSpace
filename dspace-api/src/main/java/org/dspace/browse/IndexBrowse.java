@@ -445,7 +445,7 @@ public class IndexBrowse
                                             boolean isValueInVariants = false;
 
                                             // Are there variants of this value
-                                            List<String> variants = ChoiceAuthorityManager.getManager()
+                                            List<String> variants = ChoiceAuthorityManager.getManager(context)
                                                     .getVariants(value.schema, value.element, value.qualifier,
                                                             value.authority, value.language);
 

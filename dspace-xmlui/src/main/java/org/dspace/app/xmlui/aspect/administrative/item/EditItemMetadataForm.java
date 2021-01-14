@@ -220,7 +220,7 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
                 header.addCell().addContent(T_column3);
                 header.addCell().addContent(T_column4);
 
-                ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager();
+                ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager(context);
                 for(Metadatum value : values)
                 {
                         String name = value.schema + "_" + value.element;
@@ -274,7 +274,7 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
                                 Button unlock = authValue.addButton("authority_unlock_"+index,"ds-authority-lock");
                                 unlock.setHelp(T_unlock);
                             }
-                            if (ChoiceAuthorityManager.getManager().isChoicesConfigured(fieldKey))
+                            if (ChoiceAuthorityManager.getManager(context).isChoicesConfigured(fieldKey))
                             {
                                 mdValue.setChoices(fieldKey);
                                 if(Params.PRESENTATION_AUTHORLOOKUP.equals(cmgr.getPresentation(fieldKey))){
@@ -282,7 +282,7 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
                                 }else{
                                     mdValue.setChoicesPresentation(Params.PRESENTATION_LOOKUP);
                                 }
-                                mdValue.setChoicesClosed(ChoiceAuthorityManager.getManager().isClosed(fieldKey));
+                                mdValue.setChoicesClosed(ChoiceAuthorityManager.getManager(context).isClosed(fieldKey));
                             }
                         }
                         Text mdLang = row.addCell().addText("language_"+index);

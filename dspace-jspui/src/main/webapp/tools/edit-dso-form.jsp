@@ -17,6 +17,7 @@
   -    dc.types    - MetadataField[] - all metadata fields in the registry
   --%>
 
+<%@page import="org.dspace.app.webui.util.UIUtil"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"
@@ -52,6 +53,7 @@
 <%@ page import="org.dspace.content.authority.Choices" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="org.dspace.core.Context" %>
 
 <%
     DSpaceObject item = (DSpaceObject) request.getAttribute("item");
@@ -267,8 +269,9 @@
                 <th id="t5" class="oddRowEvenCol">&nbsp;</th>
             </tr>
 <%
+	Context context = UIUtil.obtainContext(request);
     MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-    ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+    ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
     Metadatum[] dcv = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
     String row = "even";
     

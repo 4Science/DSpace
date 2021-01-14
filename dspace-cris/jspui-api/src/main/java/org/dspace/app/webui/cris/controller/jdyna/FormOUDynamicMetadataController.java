@@ -73,11 +73,13 @@ public class FormOUDynamicMetadataController
         }
         // collection of edit tabs (all edit tabs created on system associate to
         // visibility)
-		Integer entityId = Integer.parseInt(request.getParameter("id"));
-
-		if (entityId == null) {
-			return null;
-		}
+        String entityStringID = request.getParameter("id");
+        if (StringUtils.isBlank(entityStringID)) {
+            return null;
+        }
+        
+        Integer entityId = Integer.parseInt(entityStringID);
+        
 		Context context = UIUtil.obtainContext(request);
 
 		List<EditTabOrganizationUnit> tabs = getApplicationService().getList(EditTabOrganizationUnit.class);

@@ -84,12 +84,14 @@ public class FormDODynamicMetadataController
         List<EditTabDynamicObject> tabs = getApplicationService()
                 .<BoxDynamicObject, DynamicObjectType, DynamicPropertiesDefinition, TabDynamicObject, EditTabDynamicObject>findEditTabByType(EditTabDynamicObject.class, typo);
 
-        Integer entityId = Integer.parseInt(request.getParameter("id"));
-                
-		if (entityId == null) {
-			return null;
-		}
-		Context context = UIUtil.obtainContext(request);
+        String entityStringID = request.getParameter("id");
+        if (StringUtils.isBlank(entityStringID)) {
+            return null;
+        }
+        
+        Integer entityId = Integer.parseInt(entityStringID);
+
+        Context context = UIUtil.obtainContext(request);
 		List<EditTabDynamicObject> authorizedTabs = new LinkedList<EditTabDynamicObject>();
 
 		for (EditTabDynamicObject tab : tabs) {

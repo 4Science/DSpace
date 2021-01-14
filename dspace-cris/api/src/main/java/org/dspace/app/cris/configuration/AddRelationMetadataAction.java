@@ -17,11 +17,12 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 import org.dspace.utils.DSpace;
 
 public class AddRelationMetadataAction extends RelationMetadataAction {
 
-    public boolean processSelectedItem(DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException {
+    public boolean processSelectedItem(Context context, DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException {
         if (target instanceof ACrisObject && selected instanceof Item) {
             String[] metadataActionSplitted = metadataAction.split("\\.");
             selected.addMetadata(metadataActionSplitted[0],

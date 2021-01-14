@@ -9,6 +9,7 @@ package org.dspace.app.webui.cris.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -55,7 +56,16 @@ public class ItemCrisRefMultiDisplayStrategy extends ASimpleDisplayStrategy impl
 			boolean emph) throws JspException {
     	String publicPath = null;
     	int minConfidence = -1;
-    	ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+    	
+        ChoiceAuthorityManager cam;
+        try
+        {
+            cam = ChoiceAuthorityManager.getManager(UIUtil.obtainContext(hrq));
+        }
+        catch (SQLException e)
+        {
+            throw new JspException(e);
+        }
 
 		
         String metadata;
@@ -287,7 +297,15 @@ public class ItemCrisRefMultiDisplayStrategy extends ASimpleDisplayStrategy impl
         String publicPath = null;
         int minConfidence = -1;
         if (StringUtils.isNotBlank(value)) {
-            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam;
+            try
+            {
+                cam = ChoiceAuthorityManager.getManager(UIUtil.obtainContext(hrq));
+            }
+            catch (SQLException e)
+            {
+                return "";
+            }
             String[] tokenized = Utils.tokenize(field);
             ChoiceAuthority ca = cam.getChoiceAuthority(tokenized[0], tokenized[1], tokenized[2]);
             minConfidence = MetadataAuthorityManager.getManager().getMinConfidence(tokenized[0], tokenized[1], tokenized[2]);

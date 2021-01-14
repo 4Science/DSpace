@@ -27,7 +27,7 @@ import org.dspace.utils.DSpace;
 /**
  * @author l.pascarelli
  *
- */
+ */ 
 public class CrisOrcidQueueConsumer implements Consumer {
 
 	private static final Logger log = Logger.getLogger(CrisOrcidQueueConsumer.class);
@@ -40,13 +40,14 @@ public class CrisOrcidQueueConsumer implements Consumer {
 			Item item = (Item) dso;
 			if (item.isArchived()) {
 				// 1)check the internal contributors
-				Set<String> listAuthoritiesManager = ChoiceAuthorityManager.getManager().getAuthorities();
+				ChoiceAuthorityManager manager = ChoiceAuthorityManager.getManager(ctx);
+                Set<String> listAuthoritiesManager = manager.getAuthorities();
 				for (String crisAuthority : listAuthoritiesManager) {
-					List<String> listMetadata = ChoiceAuthorityManager.getManager()
+					List<String> listMetadata = manager
 							.getAuthorityMetadataForAuthority(crisAuthority);
 
 					for (String metadata : listMetadata) {
-						ChoiceAuthority choiceAuthority = ChoiceAuthorityManager.getManager()
+						ChoiceAuthority choiceAuthority = manager
 								.getChoiceAuthority(metadata);
 						if (RPAuthority.class.isAssignableFrom(choiceAuthority.getClass())) {
 							// 2)check for each internal contributors if has

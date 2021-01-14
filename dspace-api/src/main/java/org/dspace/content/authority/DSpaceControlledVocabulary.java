@@ -25,6 +25,7 @@ import org.xml.sax.InputSource;
 import org.apache.log4j.Logger;
 
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 
 /**
@@ -158,7 +159,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Choic
     }
 
     @Override
-    public Choices getMatches(String field, String text, int collection, int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale)
     {
     	init();
     	log.debug("Getting matches for '" + text + "'");
@@ -221,11 +222,11 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Choic
     }
 
     @Override
-    public Choices getBestMatch(String field, String text, int collection, String locale)
+    public Choices getBestMatch(Context context, String field, String text, int collection, String locale)
     {
     	init();
     	log.debug("Getting best match for '" + text + "'");
-        return getMatches(field, text, collection, 0, 2, locale);
+        return getMatches(context, field, text, collection, 0, 2, locale);
     }
 
     @Override
@@ -243,8 +244,8 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Choic
     }
 
 	@Override
-	public Choices getMatches(String field, String query, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, query, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String query, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, query, collection, start, limit, locale);
 	}
 }

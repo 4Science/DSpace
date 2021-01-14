@@ -1143,7 +1143,7 @@ public class DSIndexer
                             if (mydc[j].authority != null && mydc[j].confidence >= MetadataAuthorityManager.getManager()
                                     .getMinConfidence(mydc[j].schema, mydc[j].element, mydc[j].qualifier))
                             {
-                                variants = ChoiceAuthorityManager.getManager()
+                                variants = ChoiceAuthorityManager.getManager(context)
                                             .getVariants(mydc[j].schema, mydc[j].element, mydc[j].qualifier,
                                                 mydc[j].authority, mydc[j].language);
 

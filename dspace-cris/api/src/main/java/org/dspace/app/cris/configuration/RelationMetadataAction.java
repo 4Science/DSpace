@@ -11,12 +11,13 @@ import java.sql.SQLException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Context;
 
 public abstract class RelationMetadataAction {
 
     protected String metadataAction;
 
-    public abstract boolean processSelectedItem(DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException;
+    public abstract boolean processSelectedItem(Context context, DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException;
 
     public String getMetadataAction() {
         return metadataAction;

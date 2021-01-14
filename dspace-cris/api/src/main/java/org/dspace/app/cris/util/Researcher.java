@@ -249,14 +249,14 @@ public class Researcher implements EPersonCRISIntegration
 
             String field = FILTER_MYDSPACE_MATCHES;
 
-            Choices result = ResearcherPageUtils.doGetMatches(field, query,
+            Choices result = ResearcherPageUtils.doGetMatches(context,field, query,
                     getConfigurationService(), getCrisSearchService());
 
             if (result.values == null
                     || (result.values != null && result.values.length == 0))
             {
                 query = eperson.getLastName();
-                result = ResearcherPageUtils.doGetMatches(field, query,
+                result = ResearcherPageUtils.doGetMatches(context,field, query,
                         getConfigurationService(), getCrisSearchService());
             }
 

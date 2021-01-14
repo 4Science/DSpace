@@ -35,12 +35,13 @@ public class MultilanguageAuthorityIndexer implements SolrServiceIndexPlugin
                 List<String> authorities = MetadataAuthorityManager.getManager()
                         .getAuthorityMetadata();
                 Item item = Item.find(context, dso.getID());
-
+                ChoiceAuthorityManager manager = ChoiceAuthorityManager.getManager(context);
+                
                 for (String fieldKey : authorities)
                 {
-                    String makeFieldKey = ChoiceAuthorityManager.getManager()
+                    String makeFieldKey = manager
                             .makeFieldKey(fieldKey);
-                    if (ChoiceAuthorityManager.getManager()
+                    if (manager
                             .isChoicesConfigured(makeFieldKey))
                     {
 
@@ -70,7 +71,7 @@ public class MultilanguageAuthorityIndexer implements SolrServiceIndexPlugin
                                         for (String locStr : localesArray)
                                         {
                                             Locale loc = new Locale(locStr);
-                                            indexAuthorityLabel(document,
+                                            indexAuthorityLabel(manager, document,
                                                     makeFieldKey, metadatum.authority,
                                                     loc != null
                                                             ? loc.getLanguage()
@@ -91,10 +92,10 @@ public class MultilanguageAuthorityIndexer implements SolrServiceIndexPlugin
 
     }
 
-    private void indexAuthorityLabel(SolrInputDocument doc, String fieldKey,
+    private void indexAuthorityLabel(ChoiceAuthorityManager manager, SolrInputDocument doc, String fieldKey,
             String authority, String loc)
     {
-        String indexValue = ChoiceAuthorityManager.getManager()
+        String indexValue = manager
                 .getLabel(fieldKey, authority, loc);
         indexValue = StringUtils.isEmpty(indexValue) ? authority : indexValue;
 

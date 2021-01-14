@@ -271,7 +271,7 @@ public class DescribeStep extends AbstractProcessingStep
             }
 
             String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
-            ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager(context);
             String inputType = inputs[j].getInputType();
             if (inputType.equals("name"))
             {

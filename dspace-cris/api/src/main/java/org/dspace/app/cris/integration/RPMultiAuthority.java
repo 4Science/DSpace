@@ -115,12 +115,7 @@ public class RPMultiAuthority extends CRISAuthority
      * matching RP will be returned choices for every variants form.
      * 
      * {@link ChoiceAuthority#getMatches(String, int, int, int, String)}
-     * 
-     * @param query
-     *            the lookup string
      * @param collection
-     *            (not used by this Authority)
-     * @param locale
      *            (not used by this Authority)
      * @param start
      *            (not used by this Authority)
@@ -128,12 +123,16 @@ public class RPMultiAuthority extends CRISAuthority
      *            (not used by this Authority)
      * @param locale
      *            (not used by this Authority)
+     * @param locale
+     *            (not used by this Authority)
+     * @param query
+     *            the lookup string
      * 
      * @return a Choices of RPs where a name form match the query string
      */
     @Override
-    public Choices getMatches(String field, String query, int collection,
-            int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String query,
+            int collection, int start, int limit, String locale)
     {
 
         try
@@ -181,7 +180,7 @@ public class RPMultiAuthority extends CRISAuthority
                 discoverQuery.setQuery(surnameQuery);
                 discoverQuery.setMaxResults(ResearcherPageUtils.MAX_RESULTS);
 
-                DiscoverResult result = _searchService.search(null,
+                DiscoverResult result = _searchService.search(context,
                         discoverQuery, true);
                 List<Choice> choiceList = new LinkedList<Choice>();
                 for (DSpaceObject dso : result.getDspaceObjects())
@@ -205,7 +204,7 @@ public class RPMultiAuthority extends CRISAuthority
                     String negativeFiltersStar = "-rpsurnames:(" + luceneQuery + ")";
                     discoverQuery.addFilterQueries(negativeFilters);
                     discoverQuery.addFilterQueries(negativeFiltersStar);
-                    result = _searchService.search(null, discoverQuery, true);
+                    result = _searchService.search(context, discoverQuery, true);
                     for (DSpaceObject dso : result.getDspaceObjects())
                     {
                         ResearcherPage rp = (ResearcherPage) dso;
@@ -256,13 +255,12 @@ public class RPMultiAuthority extends CRISAuthority
      * choices for every variants form, the default choice will be which that
      * match with the "query" string. This method is used by unattended
      * submssion only, interactive submission will use the
-     * {@link RPMultiAuthority#getMatches(String, String, int, int, int, String)}.
+     * {@link RPMultiAuthority#getMatches(Context, String, String, int, int, int, String)}.
      * The confidence value of the returned Choices will be
      * {@link Choices#CF_UNCERTAIN} if there is only a RP that match with the
      * lookup string or {@link Choices#CF_AMBIGUOUS} if there are more RPs.
      * 
-     * {@link ChoiceAuthority#getMatches(String, String, int, int, int, String)}
-     * 
+     * {@link ChoiceAuthority#getMatches(Context, String, String, int, int, int, String)}
      * @param field
      *            (not used by this Authority)
      * @param text
@@ -271,12 +269,13 @@ public class RPMultiAuthority extends CRISAuthority
      *            (not used by this Authority)
      * @param locale
      *            (not used by this Authority)
+     * 
      * @return a Choices of RPs that have an exact string match between a name
      *         forms and the text lookup string
      */
     @Override
-    public Choices getBestMatch(String field, String text, int collection,
-            String locale)
+    public Choices getBestMatch(Context context, String field, String text,
+            int collection, String locale)
     {
 
         try
@@ -297,7 +296,7 @@ public class RPMultiAuthority extends CRISAuthority
                                 + ClientUtils.escapeQueryChars(text.trim())
                                 + "\"");
                 discoverQuery.setMaxResults(50);
-                DiscoverResult result = searchService.search(null,
+                DiscoverResult result = searchService.search(context,
                         discoverQuery, true);
                 totalResult = (int) result.getTotalSearchResults();
                 for (DSpaceObject dso : result.getDspaceObjects())

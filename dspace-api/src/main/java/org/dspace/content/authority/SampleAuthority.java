@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import org.dspace.core.Context;
+
 /**
  * This is a *very* stupid test fixture for authority control, and also
  * serves as a trivial example of an authority plugin implementation.
@@ -33,7 +35,7 @@ public class SampleAuthority implements ChoiceAuthority
         "Saturday"
     };
 
-    public Choices getMatches(String field, String query, int collection, int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String query, int collection, int start, int limit, String locale)
     {
         int dflt = -1;
         Choice v[] = new Choice[values.length];
@@ -48,7 +50,7 @@ public class SampleAuthority implements ChoiceAuthority
         return new Choices(v, 0, v.length, Choices.CF_AMBIGUOUS, false, dflt);
     }
 
-    public Choices getBestMatch(String field, String text, int collection, String locale)
+    public Choices getBestMatch(Context context, String field, String text, int collection, String locale)
     {
         for (int i = 0; i < values.length; ++i)
         {
@@ -68,8 +70,8 @@ public class SampleAuthority implements ChoiceAuthority
     }
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 }

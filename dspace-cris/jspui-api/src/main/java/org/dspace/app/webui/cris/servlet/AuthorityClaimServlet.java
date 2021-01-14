@@ -537,7 +537,7 @@ public class AuthorityClaimServlet extends DSpaceServlet
         //the user form note (if exists otherwise retrieved by i18n file)
         String templateEmailParamUserNote = null;
         
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
 
         List<String> choices = new ArrayList<String>();
 

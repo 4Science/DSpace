@@ -330,7 +330,7 @@ public class AuthorityDAOPostgres implements AuthorityDAO {
     }
     
     private int[] getFieldIds(String authorityName) throws IllegalArgumentException, SQLException {
-        List<String> metadata = ChoiceAuthorityManager.getManager()
+        List<String> metadata = ChoiceAuthorityManager.getManager(context)
                 .getAuthorityMetadataForAuthority(authorityName);
         int[] ids = new int[metadata.size()];
         

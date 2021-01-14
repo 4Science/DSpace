@@ -27,6 +27,7 @@ import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.ChoiceAuthorityDetails;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
@@ -90,12 +91,7 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
      * matching RP will be returned choices for every variants form.
      * 
      * {@link ChoiceAuthority#getMatches(String, int, int, int, String)}
-     * 
-     * @param query
-     *            the lookup string
      * @param collection
-     *            (not used by this Authority)
-     * @param locale
      *            (not used by this Authority)
      * @param start
      *            (not used by this Authority)
@@ -103,11 +99,15 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
      *            (not used by this Authority)
      * @param locale
      *            (not used by this Authority)
+     * @param locale
+     *            (not used by this Authority)
+     * @param query
+     *            the lookup string
      * 
      * @return a Choices of RPs where a name form match the query string
      */
-    public Choices getMatches(String field, String query, int collection,
-            int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String query,
+            int collection, int start, int limit, String locale)
     {
         try
         {
@@ -146,7 +146,7 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
                 }
                 discoverQuery.setSortField("crisauthoritylookup_sort", SORT_ORDER.asc);
                 
-                DiscoverResult result = searchService.search(null,
+                DiscoverResult result = searchService.search(context,
                         discoverQuery, true);
 
                 List<Choice> choiceList = new ArrayList<Choice>();
@@ -184,10 +184,10 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
         }
     }
 
-    public Choices getMatches(String field, String query, int collection,
-            int start, int limit, String locale, boolean extra)
+    public Choices getMatches(Context context, String field, String query,
+            int collection, int start, int limit, String locale, boolean extra)
     {
-    	return getMatches(field, query, collection, start, limit, locale);
+    	return getMatches(context, field, query, collection, start, limit, locale);
     }
     
 	protected String getDisplayEntry(T cris, String locale) {
@@ -205,14 +205,13 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
      * This authority doesn't actual implements this method, an empty choices
      * object is always returned. This method is used by unattended submssion
      * only, interactive submission will use the
-     * {@link CRISAuthority#getMatches(String, String, int, int, int, String)}.
+     * {@link CRISAuthority#getMatches(Context, Context, String, String, int, int, int, String)}.
      * 
      * The confidence value of the returned Choices will be
      * {@link Choices#CF_UNCERTAIN} if there is only an object that match with the
      * lookup string or {@link Choices#CF_AMBIGUOUS} if there are more objects.
      * 
-     * {@link ChoiceAuthority#getMatches(String, String, int, int, int, String)}
-     * 
+     * {@link ChoiceAuthority#getMatches(Context, Context, String, String, int, int, int, String)}
      * @param field
      *            (not used by this Authority)
      * @param text
@@ -221,14 +220,14 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
      *            (not used by this Authority)
      * @param locale
      *            (not used by this Authority)
-     *            
+     * 
      * @return a Choices of CrisObject that have an exact string match between a name
      *         forms and the text lookup string
      * 
      * @return an empty Choices
      */
-    public Choices getBestMatch(String field, String text, int collection,
-            String locale)
+    public Choices getBestMatch(Context context, String field, String text,
+            int collection, String locale)
     {
         try
         {
@@ -263,7 +262,7 @@ public abstract class CRISAuthority<T extends ACrisObject> implements ChoiceAuth
                                 + ClientUtils.escapeQueryChars(text.trim())
                                 + "\"");
                 discoverQuery.setMaxResults(50);
-                DiscoverResult result = searchService.search(null,
+                DiscoverResult result = searchService.search(context,
                         discoverQuery, true);
                 totalResult = (int) result.getTotalSearchResults();
                 for (DSpaceObject dso : result.getDspaceObjects())

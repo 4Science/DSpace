@@ -7,6 +7,7 @@
  */
 package org.dspace.content.authority;
 
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,17 +17,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.content.Item;
 import org.dspace.core.PluginManager;
-
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Broker for ChoiceAuthority plugins, and for other information configured
@@ -51,8 +48,6 @@ public final class ChoiceAuthorityManager
 {
     private static Logger log = Logger.getLogger(ChoiceAuthorityManager.class);
 
-    private static ChoiceAuthorityManager cached = null;
-
     // map of field key to authority plugin
     private Map<String, ChoiceAuthority> controller = new HashMap<String, ChoiceAuthority>();
 
@@ -64,54 +59,48 @@ public final class ChoiceAuthorityManager
     
     // map of field key to closed value
     private Map<String, Boolean> closed = new HashMap<String, Boolean>();
+    
+    private Context ourContext = null;
 
-    private ChoiceAuthorityManager()
+    private ChoiceAuthorityManager(Context context) throws SQLException 
     {
 
+        ourContext = context;
+        
         Enumeration pn = ConfigurationManager.propertyNames();
         final String choicesPrefix = "choices.";
         final String choicesPlugin = "choices.plugin.";
         final String choicesPresentation = "choices.presentation.";
         final String choicesClosed = "choices.closed.";
-        Context context = null;
-        try 
-        {
-	        context = new Context();
-	        String defaultKey =  makeFieldKey(MetadataSchema.DC_SCHEMA, "authority", "default");
-	        String defaultfKey = ConfigurationManager.getProperty(choicesPlugin+MetadataSchema.DC_SCHEMA+".authority.default");
-	        ChoiceAuthority maDefault = (ChoiceAuthority) PluginManager
-                    .getNamedPlugin(ChoiceAuthority.class,
-                            ConfigurationManager
-                                    .getProperty(defaultKey));
-	        MetadataField[] tmp = MetadataField.findAllByElement(
-	                context, MetadataSchema.DC_SCHEMA_ID, "authority", Item.ANY);
-	        for(MetadataField mf : tmp) {
-	            String tmpKey = makeFieldKey(MetadataSchema.DC_SCHEMA, mf.getElement(), mf.getQualifier());
-	            String tmpfKey = ConfigurationManager.getProperty(choicesPlugin+MetadataSchema.DC_SCHEMA+"."+mf.getElement()+"."+mf.getQualifier());
-	            ChoiceAuthority ma = (ChoiceAuthority) PluginManager
-                        .getNamedPlugin(ChoiceAuthority.class,
-                                ConfigurationManager
-                                        .getProperty(tmpKey));
-	            if (ma == null)
-	            {
-	                ma = maDefault;
-	                tmpfKey = defaultfKey;
-	            }
 
-	            md2authorityname.put(tmpKey,
-	                        ConfigurationManager.getProperty(tmpfKey));
-                controller.put(tmpKey, ma);
-	        }
-        }
-        catch (Exception e) {
-        	log.error(e.getMessage(), e);
-        }
-        finally
+        String defaultKey = makeFieldKey(MetadataSchema.DC_SCHEMA, "authority",
+                "default");
+        String defaultfKey = ConfigurationManager.getProperty(choicesPlugin
+                + MetadataSchema.DC_SCHEMA + ".authority.default");
+        ChoiceAuthority maDefault = (ChoiceAuthority) PluginManager
+                .getNamedPlugin(ChoiceAuthority.class,
+                        ConfigurationManager.getProperty(defaultKey));
+        MetadataField[] tmp = MetadataField.findAllByElement(context,
+                MetadataSchema.DC_SCHEMA_ID, "authority", Item.ANY);
+        for (MetadataField mf : tmp)
         {
-            if (context != null && context.isValid())
+            String tmpKey = makeFieldKey(MetadataSchema.DC_SCHEMA,
+                    mf.getElement(), mf.getQualifier());
+            String tmpfKey = ConfigurationManager
+                    .getProperty(choicesPlugin + MetadataSchema.DC_SCHEMA + "."
+                            + mf.getElement() + "." + mf.getQualifier());
+            ChoiceAuthority ma = (ChoiceAuthority) PluginManager.getNamedPlugin(
+                    ChoiceAuthority.class,
+                    ConfigurationManager.getProperty(tmpKey));
+            if (ma == null)
             {
-                context.abort();
+                ma = maDefault;
+                tmpfKey = defaultfKey;
             }
+
+            md2authorityname.put(tmpKey,
+                    ConfigurationManager.getProperty(tmpfKey));
+            controller.put(tmpKey, ma);
         }
         property: while (pn.hasMoreElements())
         {
@@ -194,14 +183,21 @@ public final class ChoiceAuthorityManager
         }
     }
 
-    /** Factory method */
-    public static ChoiceAuthorityManager getManager()
+    /** Factory method 
+     * @param context 
+     * @throws AuthorizeException 
+     * @ 
+     */
+    public static ChoiceAuthorityManager getManager(Context context) 
     {
-        if (cached == null)
-        {
-            cached = new ChoiceAuthorityManager();
+        ChoiceAuthorityManager choiceAuthorityManager = null;
+        try {
+            choiceAuthorityManager = new ChoiceAuthorityManager(context);
         }
-        return cached;
+        catch(SQLException ex) {
+            log.warn(ex.getMessage());
+        }
+        return choiceAuthorityManager;
     }
 
     // translate tail of configuration key (supposed to be schema.element.qual)
@@ -229,8 +225,7 @@ public final class ChoiceAuthorityManager
     /**
      * Wrapper that calls getMatches method of the plugin corresponding to the
      * metadata field defined by schema,element,qualifier.
-     * 
-     * @see ChoiceAuthority#getMatches(String, String, int, int, int, String)
+     * @param context DSpace context
      * @param schema
      *            schema of metadata field
      * @param element
@@ -247,20 +242,23 @@ public final class ChoiceAuthorityManager
      *            maximum number of choices to return, 0 for no limit.
      * @param locale
      *            explicit localization key if available, or null
+     * 
+     * @see ChoiceAuthority#getMatches(Context, String, String, int, int, int, String)
      * @return a Choices object (never null).
+     * @throws AuthorizeException 
+     * @ 
      */
-    public Choices getMatches(String schema, String element, String qualifier,
-            String query, int collection, int start, int limit, String locale)
+    public Choices getMatches(String schema, String element,
+            String qualifier, String query, int collection, int start, int limit, String locale) 
     {
-        return getMatches(makeFieldKey(schema, element, qualifier), query,
-                collection, start, limit, locale);
+        return getMatches(makeFieldKey(schema, element, qualifier),
+                query, collection, start, limit, locale);
     }
 
     /**
      * Wrapper calls getMatches method of the plugin corresponding to the
      * metadata field defined by single field key.
-     * 
-     * @see ChoiceAuthority#getMatches(String, String, int, int, int, String)
+     * @param context DSpace context
      * @param fieldKey
      *            single string identifying metadata field
      * @param query
@@ -273,10 +271,14 @@ public final class ChoiceAuthorityManager
      *            maximum number of choices to return, 0 for no limit.
      * @param locale
      *            explicit localization key if available, or null
+     * 
+     * @see ChoiceAuthority#getMatches(Context, String, String, int, int, int, String)
      * @return a Choices object (never null).
+     * @throws AuthorizeException 
+     * @ 
      */
-    public Choices getMatches(String fieldKey, String query, int collection,
-            int start, int limit, String locale)
+    public Choices getMatches(String fieldKey, String query,
+            int collection, int start, int limit, String locale) 
     {
         ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null)
@@ -288,10 +290,11 @@ public final class ChoiceAuthorityManager
                             + "\".");
             }
         }
-        return ma.getMatches(fieldKey, query, collection, start, limit, locale);
+        return ma.getMatches(ourContext, fieldKey, query, collection, start, limit, locale);
     }
 
-    public Choices getMatches(String fieldKey, String query, int collection, int start, int limit, String locale, boolean externalInput) {
+
+    public Choices getMatches(String fieldKey, String query, int collection, int start, int limit, String locale, boolean externalInput)  {
         ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null) {
         	ma = reloadCache(fieldKey);
@@ -301,14 +304,14 @@ public final class ChoiceAuthorityManager
 	                            + "\".");
             }
         }
-        return ma.getMatches(fieldKey, query, collection, start, limit, locale, externalInput);
+        return ma.getMatches(ourContext, fieldKey, query, collection, start, limit, locale, externalInput);
     }
+
 
     /**
      * Wrapper that calls getBestMatch method of the plugin corresponding to the
      * metadata field defined by single field key.
-     * 
-     * @see ChoiceAuthority#getBestMatch(String, String, int, String)
+     * @param context DSpace context
      * @param fieldKey
      *            single string identifying metadata field
      * @param query
@@ -317,10 +320,13 @@ public final class ChoiceAuthorityManager
      *            database ID of Collection for context (owner of Item)
      * @param locale
      *            explicit localization key if available, or null
+     * @see ChoiceAuthority#getBestMatch(Context, String, String, int, String)
      * @return a Choices object (never null) with 1 or 0 values.
+     * @throws AuthorizeException 
+     * @ 
      */
-    public Choices getBestMatch(String fieldKey, String query, int collection,
-            String locale)
+    public Choices getBestMatch(String fieldKey,
+            String query, int collection, String locale) 
     {
         ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null)
@@ -332,15 +338,17 @@ public final class ChoiceAuthorityManager
                                 + fieldKey + "\".");
             }
         }
-        return ma.getBestMatch(fieldKey, query, collection, locale);
+        return ma.getBestMatch(ourContext, fieldKey, query, collection, locale);
     }
 
     /**
      * Wrapper that calls getLabel method of the plugin corresponding to the
      * metadata field defined by schema,element,qualifier.
+     * @throws AuthorizeException 
+     * @ 
      */
     public String getLabel(String schema, String element, String qualifier,
-            String authKey, String locale)
+            String authKey, String locale) 
     {
         return getLabel(makeFieldKey(schema, element, qualifier), authKey,
                 locale);
@@ -349,8 +357,10 @@ public final class ChoiceAuthorityManager
     /**
      * Wrapper that calls getLabel method of the plugin corresponding to the
      * metadata field defined by single field key.
+     * @throws AuthorizeException 
+     * @ 
      */
-    public String getLabel(String fieldKey, String authKey, String locale)
+    public String getLabel(String fieldKey, String authKey, String locale) 
     {
         ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null)
@@ -370,12 +380,14 @@ public final class ChoiceAuthorityManager
      * metadata field?
      * 
      * @return true if choices are configured for this field.
+     * @throws AuthorizeException 
+     * @ 
      */
-    public boolean isChoicesConfigured(String fieldKey)
+    public boolean isChoicesConfigured(String fieldKey) 
     {
         boolean result = controller.containsKey(fieldKey);
         if(fieldKey.contains("_authority_") && !result) {
-            reloadCache();
+            reloadCache(ourContext);
             return true;
         }
         return result;
@@ -450,10 +462,12 @@ public final class ChoiceAuthorityManager
 
     /**
      * Wrapper that calls reject method of the plugin corresponding
+     * @throws AuthorizeException 
+     * @ 
      * 
      */
     public void notifyReject(int itemID, String schema, String element,
-            String qualifier, String authorityKey)
+            String qualifier, String authorityKey) 
     {
         String makeFieldKey = makeFieldKey(schema, element,
                 qualifier);
@@ -470,10 +484,12 @@ public final class ChoiceAuthorityManager
 
     /**
      * Wrapper that calls accept potential method of the plugin corresponding
+     * @throws AuthorizeException 
+     * @ 
      * 
      */
     public void notifyAccept(int itemID, String schema, String element,
-			String qualifier, String authorityKey, int confidence)
+			String qualifier, String authorityKey, int confidence) 
     {
         String makeFieldKey = makeFieldKey(schema, element,
                 qualifier);
@@ -490,10 +506,12 @@ public final class ChoiceAuthorityManager
         
     /**
      * Wrapper that calls reject method of the plugin corresponding
+     * @throws AuthorizeException 
+     * @ 
      * 
      */
     public void notifyReject(int[] itemIDs, String schema, String element,
-            String qualifier, String authorityKey)
+            String qualifier, String authorityKey) 
     {
         String makeFieldKey = makeFieldKey(schema, element,
                 qualifier);
@@ -508,7 +526,7 @@ public final class ChoiceAuthorityManager
         }
     }
 
-    public Object getDetailsInfo(String field, String key, String locale)
+    public Object getDetailsInfo(String field, String key, String locale) 
     {
         ChoiceAuthority ma = controller.get(field);
         if(ma == null) {
@@ -545,37 +563,36 @@ public final class ChoiceAuthorityManager
         }
         return result;
     }
-    private ChoiceAuthority reloadCache(String fieldKey)
+    private ChoiceAuthority reloadCache(String fieldKey) 
     {
         ChoiceAuthority ma = null;
         if(fieldKey.contains("_authority_")) {
-            reloadCache();
+            reloadCache(ourContext);
             ma = controller.get(fieldKey);
         }
         return ma;
     }
     
-    public static void reloadCache() {
-        cached = null;
-        getManager();
+    public static void reloadCache(Context context)  {
+        getManager(context);
     }
 
 	public String getAuthorityName(String fieldKey) {
 		return md2authorityname.get(fieldKey);
 	}
 	
-	public ChoiceAuthority getChoiceAuthority(String metadata) {
+	public ChoiceAuthority getChoiceAuthority(String metadata)  {
 		String fieldKey = makeFieldKey(metadata);
 		return getChoose(fieldKey);
 	}
 
 	public ChoiceAuthority getChoiceAuthority(String schema, String element,
-			String qualifier) {
+			String qualifier)  {
 		String fieldKey = makeFieldKey(schema, element, qualifier);
 		return getChoose(fieldKey);
 	}
 	
-	private ChoiceAuthority getChoose(String fieldKey) {
+	private ChoiceAuthority getChoose(String fieldKey)  {
 		ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null)
         {

@@ -155,7 +155,7 @@ public class RelationServlet extends DSpaceServlet {
             if (isAmmissibleObject(context, request, discoveryConfiguration, ammissibleQuery)) {
             	try {
                     context.turnOffAuthorisationSystem();
-                    if (relationService.executeAction(action, cris, selectedObject)) {
+                    if (relationService.executeAction(context, action, cris, selectedObject)) {
                         addMessage(context, request, "jsp.layout.cris.relations.success.info", publicPath,
                                 cris.getName(), selectedPublicPath, selectedObject.getName(),
                                 action.equals("add") ? 

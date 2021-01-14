@@ -122,9 +122,9 @@ public class ValuePairsDisplayStrategy extends ASimpleDisplayStrategy
                         {
                             result += " ";
                         }
-                        Choices choices = choice.getBestMatch(field, r.value,
-                                colIdx,
-                                obtainContext.getCurrentLocale().toString());
+                        Choices choices = choice.getBestMatch(obtainContext, field,
+                                r.value,
+                                colIdx, obtainContext.getCurrentLocale().toString());
                         if (choices != null)
                         {
                             for (Choice ch : choices.values)
@@ -202,8 +202,8 @@ public class ValuePairsDisplayStrategy extends ASimpleDisplayStrategy
                             {
                                 result += " ";
                             }
-                            Choices choices = choice.getBestMatch(field,
-                                    r.value, colIdx, obtainContext
+                            Choices choices = choice.getBestMatch(obtainContext,
+                                    field, r.value, colIdx, obtainContext
                                             .getCurrentLocale().toString());
                             if (choices != null)
                             {

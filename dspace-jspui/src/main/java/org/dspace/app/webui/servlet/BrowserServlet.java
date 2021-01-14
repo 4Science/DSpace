@@ -177,7 +177,7 @@ public class BrowserServlet extends AbstractBrowserServlet
 		if (bInfo != null) {
 			if (bInfo.hasAuthority()) {
 				String humanValue = bInfo.getAuthority();
-				ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+				ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
 				MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
 				List<String> authorities = mam.getAuthorityMetadata();
 				String[] browseMetadata = bInfo.getBrowseIndex().getMetadata().split(",");

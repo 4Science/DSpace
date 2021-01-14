@@ -25,7 +25,6 @@ import org.dspace.app.cris.integration.CRISAuthority;
 import org.dspace.app.cris.integration.DOAuthority;
 import org.dspace.app.cris.metrics.common.services.MetricsPersistenceService;
 import org.dspace.app.cris.model.ACrisObject;
-import org.dspace.app.cris.model.CrisConstants;
 import org.dspace.app.cris.model.ResearchObject;
 import org.dspace.app.cris.model.jdyna.DynamicObjectType;
 import org.dspace.app.cris.service.ApplicationService;
@@ -92,8 +91,8 @@ public class CrisConsumer implements Consumer
             }
 
             ctx.turnOffAuthorisationSystem();
-            Set<String> listAuthoritiesManager = ChoiceAuthorityManager
-                    .getManager().getAuthorities();
+            ChoiceAuthorityManager manager = ChoiceAuthorityManager.getManager(ctx);
+            Set<String> listAuthoritiesManager = manager.getAuthorities();
 
             Map<String, List<Metadatum>> toBuild = new HashMap<String, List<Metadatum>>();
             Map<String, List<Metadatum>> toUpdate = new HashMap<String, List<Metadatum>>();
@@ -103,15 +102,14 @@ public class CrisConsumer implements Consumer
 
             for (String crisAuthority : listAuthoritiesManager)
             {
-                List<String> listMetadata = ChoiceAuthorityManager.getManager()
+                List<String> listMetadata = manager
                         .getAuthorityMetadataForAuthority(crisAuthority);
 
                 for (String metadata : listMetadata)
                 {
                     Metadatum[] Metadatums = item
                             .getMetadataByMetadataString(metadata);
-                    ChoiceAuthority choiceAuthority = ChoiceAuthorityManager
-                            .getManager().getChoiceAuthority(metadata);
+                    ChoiceAuthority choiceAuthority = manager.getChoiceAuthority(metadata);
                     if (CRISAuthority.class
                             .isAssignableFrom(choiceAuthority.getClass()))
                     {

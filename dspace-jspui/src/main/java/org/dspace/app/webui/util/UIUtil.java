@@ -125,9 +125,9 @@ public class UIUtil extends Util
         Context c = (Context) request.getAttribute("dspace.context");
 
 
-        if (c == null)
+        if (c == null || !c.isValid())
         {
-            // No context for this request yet
+            // No valid context for this request yet
             c = new Context();
             HttpSession session = request.getSession();
 

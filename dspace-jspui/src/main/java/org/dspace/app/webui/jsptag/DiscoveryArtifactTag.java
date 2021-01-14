@@ -112,8 +112,13 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 				if (artifact.getType() == 2 && !(artifact instanceof BrowseItem)) {
 						Bundle[] bundles = ((Item) artifact).getBundles("BRANDED_PREVIEW");
 
-						if (bundles.length > 0) {
-							Bitstream[] bitstreams = bundles[0].getBitstreams();
+					// fallback to basic thumbnail bundle if branded_preview not available
+					if (bundles.length == 0) {
+						bundles = ((Item) artifact).getBundles("THUMBNAIL");
+					}
+
+					if (bundles.length > 0) {
+						Bitstream[] bitstreams = bundles[0].getBitstreams();
 
 							out.println("<img class=\"media-object pull-left\" src=\"" + request.getContextPath() + "/retrieve/" + bitstreams[0].getID()
 									+ "/" + UIUtil.encodeBitstreamName(bitstreams[0].getName(), Constants.DEFAULT_ENCODING)

@@ -221,7 +221,7 @@ public class DescribeStep extends AbstractSubmissionStep
                         // if this field is configured as choice control and its
                         // presentation format is SELECT, render it as select field:
                         String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
-                        ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager();
+                        ChoiceAuthorityManager cmgr = ChoiceAuthorityManager.getManager(context);
                         if (cmgr.isChoicesConfigured(fieldKey) &&
                             Params.PRESENTATION_SELECT.equals(cmgr.getPresentation(fieldKey)))
                         {
@@ -465,11 +465,11 @@ public class DescribeStep extends AbstractSubmissionStep
                     fullName.setAuthorityControlled();
                     fullName.setAuthorityRequired(MetadataAuthorityManager.getManager().isAuthorityRequired(fieldKey));
                 }
-                if (ChoiceAuthorityManager.getManager().isChoicesConfigured(fieldKey))
+                if (ChoiceAuthorityManager.getManager(context).isChoicesConfigured(fieldKey))
                 {
                     fullName.setChoices(fieldKey);
-                    fullName.setChoicesPresentation(ChoiceAuthorityManager.getManager().getPresentation(fieldKey));
-                    fullName.setChoicesClosed(ChoiceAuthorityManager.getManager().isClosed(fieldKey));
+                    fullName.setChoicesPresentation(ChoiceAuthorityManager.getManager(context).getPresentation(fieldKey));
+                    fullName.setChoicesClosed(ChoiceAuthorityManager.getManager(context).isClosed(fieldKey));
                 }
 
                 // Setup the first and last name
@@ -830,11 +830,11 @@ public class DescribeStep extends AbstractSubmissionStep
                     textArea.setAuthorityControlled();
                     textArea.setAuthorityRequired(MetadataAuthorityManager.getManager().isAuthorityRequired(fieldKey));
                 }
-                if (ChoiceAuthorityManager.getManager().isChoicesConfigured(fieldKey))
+                if (ChoiceAuthorityManager.getManager(context).isChoicesConfigured(fieldKey))
                 {
                     textArea.setChoices(fieldKey);
-                    textArea.setChoicesPresentation(ChoiceAuthorityManager.getManager().getPresentation(fieldKey));
-                    textArea.setChoicesClosed(ChoiceAuthorityManager.getManager().isClosed(fieldKey));
+                    textArea.setChoicesPresentation(ChoiceAuthorityManager.getManager(context).getPresentation(fieldKey));
+                    textArea.setChoicesClosed(ChoiceAuthorityManager.getManager(context).isClosed(fieldKey));
                 }
                 if (dcInput.isRequired())
                 {
@@ -962,7 +962,7 @@ public class DescribeStep extends AbstractSubmissionStep
                     select.setDisabled();
                 }
 
-                Choices cs = ChoiceAuthorityManager.getManager().getMatches(fieldKey, "", coll.getID(), 0, 0, null);
+                Choices cs = ChoiceAuthorityManager.getManager(context).getMatches(fieldKey, "", coll.getID(), 0, 0, null);
                 if (Metadatums.length == 0)
                 {
                     select.addOption(true, "", "");
@@ -1174,11 +1174,11 @@ public class DescribeStep extends AbstractSubmissionStep
                     text.setAuthorityControlled();
                     text.setAuthorityRequired(MetadataAuthorityManager.getManager().isAuthorityRequired(fieldKey));
                 }
-                if (ChoiceAuthorityManager.getManager().isChoicesConfigured(fieldKey))
+                if (ChoiceAuthorityManager.getManager(context).isChoicesConfigured(fieldKey))
                 {
                     text.setChoices(fieldKey);
-                    text.setChoicesPresentation(ChoiceAuthorityManager.getManager().getPresentation(fieldKey));
-                    text.setChoicesClosed(ChoiceAuthorityManager.getManager().isClosed(fieldKey));
+                    text.setChoicesPresentation(ChoiceAuthorityManager.getManager(context).getPresentation(fieldKey));
+                    text.setChoicesClosed(ChoiceAuthorityManager.getManager(context).isClosed(fieldKey));
                 }
 
                 if (dcInput.isRequired())

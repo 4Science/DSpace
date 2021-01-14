@@ -17,17 +17,18 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.Metadatum;
 import org.dspace.content.authority.ChoiceAuthorityManager;
+import org.dspace.core.Context;
 import org.dspace.utils.DSpace;
 
 import it.cilea.osd.jdyna.model.Property;
 
 public class RemoveRelationMetadataAction extends RelationMetadataAction {
 
-    public boolean processSelectedItem(DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException {
+    public boolean processSelectedItem(Context context, DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException {
         if (target instanceof ACrisObject && selected instanceof Item) {
             Item item = (Item) selected;
             String crisID = ((ACrisObject)target).getCrisID();
-            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
             String[] metadata = metadataAction.split("\\.");
             Metadatum[] original = item.getMetadataByMetadataString(metadataAction);
             String schema = metadata[0];

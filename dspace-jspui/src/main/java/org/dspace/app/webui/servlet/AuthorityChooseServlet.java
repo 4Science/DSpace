@@ -65,7 +65,7 @@ public class AuthorityChooseServlet extends DSpaceServlet {
     private void process(Context context, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException, AuthorizeException {
         String[] paths = request.getPathInfo().split("/");
         String field = paths[paths.length-1];
-        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
 
         String query = request.getParameter("query");
         if (query == null) {

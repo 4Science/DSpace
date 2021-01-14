@@ -404,7 +404,7 @@ public class BindItemToRP
                                 		|| StringUtils.startsWithIgnoreCase(value.value, tempName.getName() + ";"))
                                 )
                         {
-                            matches = countNamesMatching(cacheCount,
+                            matches = countNamesMatching(context,cacheCount,
                                     tempName.getName());
                             item.addMetadata(
                                     value.schema,
@@ -495,7 +495,7 @@ public class BindItemToRP
 
 	}
 
-	private static int countNamesMatching(Map<String, Integer> cacheCount,
+	private static int countNamesMatching(Context context, Map<String, Integer> cacheCount,
             String name)
     {
         if (cacheCount.containsKey(name))
@@ -504,7 +504,7 @@ public class BindItemToRP
         }
         ChoiceAuthority ca = (ChoiceAuthority) PluginManager.getNamedPlugin(
                 ChoiceAuthority.class, RPAuthority.RP_AUTHORITY_NAME);
-        Choices choices = ca.getBestMatch(null, name, 0, null);
+        Choices choices = ca.getBestMatch(context, null, name, 0, null);
         cacheCount.put(name, choices.total);
         return choices.total;
     }

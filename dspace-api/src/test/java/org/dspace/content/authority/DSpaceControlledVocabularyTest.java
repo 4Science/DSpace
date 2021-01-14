@@ -85,8 +85,8 @@ public class DSpaceControlledVocabularyTest
         DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
                 PluginManager.getNamedPlugin(Class.forName(PLUGIN_INTERFACE), "farm");
         assertNotNull(instance);
-        Choices result = instance.getMatches(field, text, collection, start,
-                limit, locale);
+        Choices result = instance.getMatches(null, field, text, collection,
+                start, limit, locale);
         assertEquals("the farm::north 40", result.values[0].value);
     }
 

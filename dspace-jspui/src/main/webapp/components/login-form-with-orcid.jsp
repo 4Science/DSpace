@@ -43,7 +43,7 @@
       <p class="text-center">
       	<a href="<%= request.getContextPath() %>/oauth-login">
       	   	<button id="connect-orcid-button" <%-- onclick="openORCID()"--%> >
-      			<img id="orcid-id-icon" src="https://orcid.org/sites/default/files/images/orcid_24x24.png" width="24" height="24" alt="ORCID iD icon"/>
+      			<img id="orcid-id-icon" src="<%= request.getContextPath() %>/image/orcid_24x24.png" width="24" height="24" alt="ORCID iD icon"/>
       			<fmt:message key="jsp.components.login-form.orcid-login"/>
       		</button>
 		</a>

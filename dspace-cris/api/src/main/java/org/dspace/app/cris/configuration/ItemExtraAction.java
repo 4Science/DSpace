@@ -98,7 +98,7 @@ public class ItemExtraAction implements RelationPreferenceExtraAction
         {
             Item item = Item.find(context, itemID);
             String rpKey = cris.getCrisID();
-            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
             if (metadata == null)
             {
                 metadata = cam.getAuthorityMetadataForAuthority(getAuthorityName());
@@ -148,7 +148,7 @@ public class ItemExtraAction implements RelationPreferenceExtraAction
             Item item = Item.find(context, itemID);
             String rpKey = cris.getCrisID();
             // the item is not linked with the RP
-            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(context);
             metadata = cam
                     .getAuthorityMetadataForAuthority(getAuthorityName());
 

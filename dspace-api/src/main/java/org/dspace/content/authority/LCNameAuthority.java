@@ -25,6 +25,7 @@ import org.xml.sax.SAXParseException;
 import org.apache.log4j.Logger;
 
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 import org.dspace.content.DCPersonName;
 
 import org.apache.http.HttpEntity;
@@ -87,9 +88,9 @@ public class LCNameAuthority implements ChoiceAuthority
 
     // punt!  this is a poor implementation..
     @Override
-    public Choices getBestMatch(String field, String text, int collection, String locale)
+    public Choices getBestMatch(Context context, String field, String text, int collection, String locale)
     {
-        return getMatches(field, text, collection, 0, 2, locale);
+        return getMatches(context, field, text, collection, 0, 2, locale);
     }
 
     /**
@@ -97,7 +98,7 @@ public class LCNameAuthority implements ChoiceAuthority
      * Value is assumed to be in "Lastname, Firstname" format.
      */
     @Override
-    public Choices getMatches(String field, String text, int collection, int start, int limit, String locale)
+    public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale)
     {
         Choices result = queryPerson(text, start, limit);
         if (result == null)
@@ -380,8 +381,8 @@ public class LCNameAuthority implements ChoiceAuthority
     }
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 }

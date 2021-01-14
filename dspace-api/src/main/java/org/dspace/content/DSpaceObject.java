@@ -880,6 +880,8 @@ public abstract class DSpaceObject implements IGlobalSearchResult
      *            value has no language (for example, a date).
      * @param values
      *            the values to add.
+     * @throws AuthorizeException 
+     * @throws SQLException 
      */
     public void addMetadata(String schema, String element, String qualifier, String lang,
                             String[] values)
@@ -903,7 +905,7 @@ public abstract class DSpaceObject implements IGlobalSearchResult
     }
 
     protected void getAuthoritiesAndConfidences(String fieldKey, String[] values, String[] authorities, int[] confidences, int i) {
-        Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values[i], -1, null);
+        Choices c = ChoiceAuthorityManager.getManager(ourContext).getBestMatch(fieldKey, values[i], -1, null);
         authorities[i] = c.values.length > 0 ? c.values[0].authority : null;
         confidences[i] = c.confidence;
     }

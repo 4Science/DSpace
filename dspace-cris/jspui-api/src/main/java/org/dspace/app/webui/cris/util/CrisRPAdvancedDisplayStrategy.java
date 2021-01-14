@@ -53,7 +53,17 @@ public class CrisRPAdvancedDisplayStrategy extends ItemCrisRefDisplayStrategy {
     	String publicPath = null;
     	int minConfidence = -1;
 		if (metadataArray.length > 0) {
-			ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+            ChoiceAuthorityManager cam;
+            try
+            {
+                cam = ChoiceAuthorityManager
+                        .getManager(UIUtil.obtainContext(hrq));
+            }
+            catch (SQLException e)
+            {
+                throw new JspException(e);
+            }
+		    
 			ChoiceAuthority ca = cam.getChoiceAuthority(metadataArray[0].schema, metadataArray[0].element, metadataArray[0].qualifier);
 			minConfidence = MetadataAuthorityManager.getManager().getMinConfidence(metadataArray[0].schema, metadataArray[0].element, metadataArray[0].qualifier);
 			if (ca != null && ca instanceof CRISAuthority) {

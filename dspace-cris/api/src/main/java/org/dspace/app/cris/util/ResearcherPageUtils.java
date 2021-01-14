@@ -36,6 +36,7 @@ import org.dspace.content.DCPersonName;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
 import org.dspace.discovery.DiscoverResult;
@@ -369,7 +370,7 @@ return decorator.generateDisplayValue(alternativeName, rp);
         return applicationService.get(clazz, id);
     }
 
-    public static Choices doGetMatches(String field, String query) throws SearchServiceException
+    public static Choices doGetMatches(Context context,String field, String query) throws SearchServiceException
 	{
     	DSpace dspace = new DSpace();
     	SearchService searchService = dspace.getServiceManager().getServiceByName(
@@ -379,15 +380,18 @@ return decorator.generateDisplayValue(alternativeName, rp);
                 "org.dspace.services.ConfigurationService",
                 ConfigurationService.class);
     	
-    	return doGetMatches(field, query, configurationService, searchService);
+    	return doGetMatches(context,field, query, configurationService, searchService);
 	}
 
 	public static void applyCustomFilter(String field, DiscoverQuery discoverQuery,
 			ConfigurationService _configurationService) {
-		String filter = _configurationService.getPropertyAsType("cris." + RPAuthority.RP_AUTHORITY_NAME
-				+ ((field != null && !field.isEmpty()) ? "." + field : "") + ".filter", _configurationService
-				.getPropertyAsType("cris." + RPAuthority.RP_AUTHORITY_NAME + ".filter", String.class));
-		if (filter != null) {
+		String filter = _configurationService.getProperty("cris." + RPAuthority.RP_AUTHORITY_NAME
+				+ ((field != null && !field.isEmpty()) ? "." + field : "") + ".filter");
+		if(StringUtils.isBlank(filter)) {
+		    filter =_configurationService
+				.getProperty("cris." + RPAuthority.RP_AUTHORITY_NAME + ".filter");
+		}
+		if(StringUtils.isNotBlank(filter)) {
 			discoverQuery.addFilterQueries(filter);
 		}
 	}
@@ -431,7 +435,7 @@ return decorator.generateDisplayValue(alternativeName, rp);
         return extras;
     }
 
-    public static Choices doGetMatches(String field, String query, ConfigurationService _configurationService,
+    public static Choices doGetMatches(Context context,String field, String query, ConfigurationService _configurationService,
 			SearchService _searchService) throws SearchServiceException
 	{
 		Choices choicesResult;
@@ -469,7 +473,7 @@ return decorator.generateDisplayValue(alternativeName, rp);
 		    discoverQuery.setQuery(surnameQuery);
 		    discoverQuery.setMaxResults(MAX_RESULTS);
 		    
-		    DiscoverResult result = _searchService.search(null, discoverQuery, true);
+		    DiscoverResult result = _searchService.search(context, discoverQuery, true);
 			
 			List<Choice> choiceList = choiceResults(result);
 			int surnamesResult = choiceList.size();
@@ -487,7 +491,7 @@ return decorator.generateDisplayValue(alternativeName, rp);
 				String negativeFiltersStar = "-rpsurnames:(" + luceneQuery + ")";
 				discoverQuery.addFilterQueries(negativeFilters);
 				discoverQuery.addFilterQueries(negativeFiltersStar);
-		    	result = _searchService.search(null, discoverQuery, true);
+		    	result = _searchService.search(context, discoverQuery, true);
 		    	List<Choice> authorityLookupList = choiceResults(result);
 		    	if (authorityLookupList.size()>0){
 		    		choiceList.addAll(authorityLookupList);

@@ -47,13 +47,13 @@ public class RelationService {
         return false;
     }
 
-    public boolean executeAction(String action, DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException
+    public boolean executeAction(Context context, String action, DSpaceObject target, DSpaceObject selected) throws SQLException, AuthorizeException
     {
         if (action.equals("add")) {
-            return addAction.processSelectedItem(target, selected);
+            return addAction.processSelectedItem(context, target, selected);
         }
         else {
-            return removeAction.processSelectedItem(target, selected);
+            return removeAction.processSelectedItem(context, target, selected);
         }
     }
 

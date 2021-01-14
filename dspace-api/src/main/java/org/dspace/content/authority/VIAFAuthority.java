@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
+import org.dspace.core.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -37,7 +38,7 @@ public class VIAFAuthority implements ChoiceAuthority {
 	String viafurl = "http://viaf.org/viaf/AutoSuggest";
 	
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale) {
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale) {
 	
 		List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 		args.add(new BasicNameValuePair("query", text));
@@ -81,9 +82,9 @@ public class VIAFAuthority implements ChoiceAuthority {
 	}
 
 	@Override
-	public Choices getBestMatch(String field, String text, int collection, String locale) {
+	public Choices getBestMatch(Context context, String field, String text, int collection, String locale) {
 
-		return getMatches(field, text, collection, 0, 1, locale);
+		return getMatches(context, field, text, collection, 0, 1, locale);
 	}
 
 	@Override
@@ -93,9 +94,9 @@ public class VIAFAuthority implements ChoiceAuthority {
 	}
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 
 }

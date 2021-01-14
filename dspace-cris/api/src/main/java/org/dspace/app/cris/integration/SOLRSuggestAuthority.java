@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
+import org.dspace.core.Context;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.utils.DSpace;
@@ -33,12 +34,12 @@ public class SOLRSuggestAuthority implements ChoiceAuthority {
 			SearchService.class);
 
 	@Override
-	public Choices getBestMatch(String field, String text, int collection, String locale) {
-		return getMatches(field, text, collection, 0, 1, locale);
+	public Choices getBestMatch(Context context, String field, String text, int collection, String locale) {
+		return getMatches(context, field, text, collection, 0, 1, locale);
 	}
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale) {
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit, String locale) {
 		String facetname = org.dspace.core.ConfigurationManager
 				.getProperty(SOLRSuggestAuthority.class.getSimpleName() + "." + field+".facetname") + "_ac";
 		SolrQuery sQuery = new SolrQuery("*:*");
@@ -73,8 +74,8 @@ public class SOLRSuggestAuthority implements ChoiceAuthority {
 	}
 
 	@Override
-	public Choices getMatches(String field, String text, int collection, int start, int limit, String locale,
-			boolean extra) {
-		return getMatches(field, text, collection, start, limit, locale);
+	public Choices getMatches(Context context, String field, String text, int collection, int start, int limit,
+			String locale, boolean extra) {
+		return getMatches(context, field, text, collection, start, limit, locale);
 	}
 }

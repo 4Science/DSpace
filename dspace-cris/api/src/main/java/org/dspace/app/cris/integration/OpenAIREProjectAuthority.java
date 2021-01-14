@@ -21,6 +21,7 @@ import org.dspace.authority.openaireproject.OpenAireProject;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.Choices;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 import org.dspace.utils.DSpace;
 
 public class OpenAIREProjectAuthority extends ProjectAuthority {
@@ -37,18 +38,18 @@ public class OpenAIREProjectAuthority extends ProjectAuthority {
 	private List<OpenAIREExtraMetadataGenerator> generators = new DSpace().getServiceManager().getServicesByType(OpenAIREExtraMetadataGenerator.class);
 	
 	@Override
-	public Choices getMatches(String field, String query, int collection, int start, int limit, String locale) {
-		Choices choices = super.getMatches(field, query, collection, start, limit, locale);		
+	public Choices getMatches(Context context, String field, String query, int collection, int start, int limit, String locale) {
+		Choices choices = super.getMatches(context,  field, query, collection, start, limit, locale);		
 		return new Choices(addExtraResults(field, query, choices, start, limit <= 0?DEFAULT_MAX_ROWS:limit), choices.start, choices.total, choices.confidence, choices.more);
 	}
 	
 	@Override
-	public Choices getMatches(String field, String query, int collection, int start, int limit, String locale, boolean extra) {
+	public Choices getMatches(Context context, String field, String query, int collection, int start, int limit, String locale, boolean extra) {
 		if(extra)
 		{
-			return getMatches(field, query, collection, start, limit, locale);
+			return getMatches(context, field, query, collection, start, limit, locale);
 		} else {
-			return super.getMatches(field, query, collection, start, limit, locale);
+			return super.getMatches(context, field, query, collection, start, limit, locale);
 		}
 	}
 	

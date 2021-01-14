@@ -2145,7 +2145,7 @@ public class Item extends DSpaceObject implements BrowsableDSpaceObject
 
     @Override
     protected void getAuthoritiesAndConfidences(String fieldKey, String[] values, String[] authorities, int[] confidences, int i) {
-        Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values[i], getOwningCollectionID(), null);
+    	Choices c = ChoiceAuthorityManager.getManager(ourContext).getBestMatch(fieldKey, values[i], getOwningCollectionID(), null);
         authorities[i] = c.values.length > 0 ? c.values[0].authority : null;
         confidences[i] = c.confidence;
     }
