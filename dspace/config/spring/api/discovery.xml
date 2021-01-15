@@ -3092,6 +3092,7 @@
 	<bean id="sortArchivalUnit"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
 		<property name="metadataField" value="dc.identifier.archivalunit" />
+		<property name="type" value="integer" />
 	</bean>
 
 	<bean id="sortSubject"
