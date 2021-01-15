@@ -1240,6 +1240,17 @@ it, please enter the types and the actual numbers or codes.</hint>
 
        <field>
          <dc-schema>dc</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>archivalunit</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Numero di corda</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il numero di corda della risorsa.</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
          <dc-element>description</dc-element>
          <dc-qualifier>archivist</dc-qualifier>
          <repeatable>false</repeatable>
