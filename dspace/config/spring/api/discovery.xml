@@ -716,6 +716,7 @@
 					<list>
 						<ref bean="sortTitle" />
 						<ref bean="sortDateIssued" />
+						<ref bean="sortArchivalUnit" />
 					</list>
 				</property>
 			</bean>
@@ -1439,6 +1440,7 @@
 				<property name="sortFields">
 					<list>
 						<ref bean="sortFondsName" />
+						<ref bean="sortFondsIndex" />
 					</list>
 				</property>
 			</bean>
@@ -3087,6 +3089,11 @@
 		<property name="metadataField" value="dc.title" />
 	</bean>
 
+	<bean id="sortArchivalUnit"
+		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+		<property name="metadataField" value="dc.identifier.archivalunit" />
+	</bean>
+
 	<bean id="sortSubject"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
 		<property name="metadataField" value="dc.subject" />
@@ -3121,7 +3128,13 @@
 	<bean id="sortFondsName"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
 		<property name="metadataField" value="crisfonds.fondsname" />
-	</bean>	
+	</bean>
+
+	<bean id="sortFondsIndex"
+		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+		<property name="metadataField" value="crisfonds.fondsindex" />
+		<property name="type" value="integer" />
+	</bean>
 
 	<bean id="sortFamilyName"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">

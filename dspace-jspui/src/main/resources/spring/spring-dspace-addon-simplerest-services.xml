@@ -121,11 +121,13 @@
 			<map>
 				<entry key="crisfonds">
 					<list>
+						<ref bean="sortFondsIndex" />
 						<ref bean="sortFondsName" />
 					</list>
 				</entry>
 				<entry key="item">
 					<list>
+						<ref bean="sortArchivalUnit" />
 						<ref bean="sortTitle" />
 					</list>
 				</entry>
