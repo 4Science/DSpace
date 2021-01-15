@@ -1423,6 +1423,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         }else{
                             log.warn("Error while indexing sort date field, item: " + item.getHandle() + " metadata field: " + field + " date value: " + date);
                         }
+                    }else if(type.equals(DiscoveryConfigurationParameters.TYPE_INTEGER))
+                    {
+                        doc.addField(field + "_sint", value);
                     }else{
                         doc.addField(field + "_sort", value);
                     }
@@ -2389,6 +2392,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         if(type.equals(DiscoveryConfigurationParameters.TYPE_DATE))
         {
             return metadataField + "_dt";
+        }else if(type.equals(DiscoveryConfigurationParameters.TYPE_INTEGER))
+        {
+            return metadataField + "_sint";
         }else{
             return metadataField + "_sort";
         }

@@ -618,6 +618,8 @@
     <dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />
     <dynamicField name="*_dt" type="date" indexed="true" stored="true" multiValued="false" omitNorms="true"  docValues="true"/>
 
+    <dynamicField name="*_sint" type="sint" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
+
     <!--Used for WebServices -->
     <dynamicField name="customlocation.*" type="string" indexed="true" stored="true" multiValued="true"/>
        

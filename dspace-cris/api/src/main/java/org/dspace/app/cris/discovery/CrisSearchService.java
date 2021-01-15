@@ -560,6 +560,10 @@ public class CrisSearchService extends SolrServiceImpl
                             + " date value: " + svalue);
                 }
             }
+            else if (type.equals(DiscoveryConfigurationParameters.TYPE_INTEGER))
+            {
+                doc.addField(field + "_sint", svalue);
+            }
             else
             {
                 doc.addField(field + "_sort", svalue);
