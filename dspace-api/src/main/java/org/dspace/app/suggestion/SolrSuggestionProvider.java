@@ -12,6 +12,7 @@ import static org.dspace.app.suggestion.SolrSuggestionStorageService.CATEGORY;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.CONTRIBUTORS;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.DATE;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.DISPLAY;
+import static org.dspace.app.suggestion.SolrSuggestionStorageService.EVIDENCES;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.EXTERNAL_URI;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.PROCESSED;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.SOURCE;
@@ -20,13 +21,18 @@ import static org.dspace.app.suggestion.SolrSuggestionStorageService.TARGET_ID;
 import static org.dspace.app.suggestion.SolrSuggestionStorageService.TITLE;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -37,6 +43,7 @@ import org.dspace.content.Item;
 import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.external.model.ExternalDataObject;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,7 +54,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Andrea Bollini (andrea.bollini at 4science dot it)
  *
  */
-public class SolrSuggestionProvider implements SuggestionProvider {
+public abstract class SolrSuggestionProvider implements SuggestionProvider {
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SolrSuggestionProvider.class);
+
     protected SolrClient solrSuggestionClient;
 
     @Autowired
@@ -104,7 +113,7 @@ public class SolrSuggestionProvider implements SuggestionProvider {
     }
 
     @Override
-    public long countSuggestionByTarget(Context context, UUID target) {
+    public long countUnprocessedSuggestionByTarget(Context context, UUID target) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setRows(0);
         solrQuery.setQuery("*:*");
@@ -122,7 +131,8 @@ public class SolrSuggestionProvider implements SuggestionProvider {
     }
 
     @Override
-    public List<Suggestion> findAllSuggestions(Context context, UUID target, int pageSize, long offset) {
+    public List<Suggestion> findAllUnprocessedSuggestions(Context context, UUID target, int pageSize, long offset,
+            boolean ascending) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setRows(pageSize);
         solrQuery.setStart((int) offset);
@@ -131,6 +141,14 @@ public class SolrSuggestionProvider implements SuggestionProvider {
                 SOURCE + ":" + sourceName,
                 TARGET_ID + ":" + target.toString(),
                 PROCESSED + ":false");
+        if (ascending) {
+            solrQuery.addSort(SortClause.asc("trust"));
+        } else {
+            solrQuery.addSort(SortClause.desc("trust"));
+        }
+        solrQuery.addSort(SortClause.desc("date"));
+        solrQuery.addSort(SortClause.asc("title"));
+
         QueryResponse response = null;
         try {
             response = getSolr().query(solrQuery);
@@ -179,7 +197,7 @@ public class SolrSuggestionProvider implements SuggestionProvider {
     }
 
     @Override
-    public Suggestion findSuggestion(Context context, UUID target, String id) {
+    public Suggestion findUnprocessedSuggestion(Context context, UUID target, String id) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setRows(1);
         solrQuery.setQuery("*:*");
@@ -227,7 +245,7 @@ public class SolrSuggestionProvider implements SuggestionProvider {
 
     @Override
     public void rejectSuggestion(Context context, UUID target, String idPart) {
-        Suggestion suggestion = findSuggestion(context, target, idPart);
+        Suggestion suggestion = findUnprocessedSuggestion(context, target, idPart);
         try {
             solrSuggestionStorageService.flagSuggestionAsProcessed(suggestion);
         } catch (SolrServerException | IOException e) {
@@ -260,7 +278,32 @@ public class SolrSuggestionProvider implements SuggestionProvider {
                         new MetadataValueDTO("dc", "contributor", "author", null, (String) o));
             }
         }
+        String evidencesJson = (String) solrDoc.getFieldValue(EVIDENCES);
+        Type listType = new TypeToken<ArrayList<SuggestionEvidence>>() {}.getType();
+        List<SuggestionEvidence> evidences = new Gson().fromJson(evidencesJson, listType);
+        suggestion.getEvidences().addAll(evidences);
         return suggestion;
     }
 
+    @Override
+    public void flagRelatedSuggestionsAsProcessed(Context context, ExternalDataObject externalDataObject) {
+        if (!isExternalDataObjectPotentiallySuggested(context, externalDataObject)) {
+            return;
+        }
+        try {
+            solrSuggestionStorageService.flagAllSuggestionAsProcessed(sourceName, externalDataObject.getId());
+        } catch (SolrServerException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 
+     * @param context
+     * @param externalDataObject
+     * @return true if the externalDataObject could be suggested by this provider
+     *         (i.e. it comes from a DataProvider used by this suggestor)
+     */
+    protected abstract boolean isExternalDataObjectPotentiallySuggested(Context context,
+            ExternalDataObject externalDataObject);
 }

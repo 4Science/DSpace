@@ -35,12 +35,14 @@ public interface SuggestionService {
 
     public List<SuggestionSource> findAllSources(Context context, int pageSize, long offset);
 
-    public Suggestion findSuggestion(Context context, String id);
+    public Suggestion findUnprocessedSuggestion(Context context, String id);
 
     public void rejectSuggestion(Context context, String id);
 
     public List<Suggestion> findByTargetAndSource(Context context, UUID target, String source, int pageSize,
-            long offset);
+            long offset, boolean ascending);
 
     public long countAllByTargetAndSource(Context context, String source, UUID target);
+
+    public List<SuggestionProvider> getSuggestionProviders();
 }

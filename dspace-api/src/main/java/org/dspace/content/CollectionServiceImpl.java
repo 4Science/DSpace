@@ -7,6 +7,8 @@
  */
 package org.dspace.content;
 
+import static org.apache.commons.lang3.BooleanUtils.toBoolean;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -959,6 +961,11 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         return (int)resp.getTotalSearchResults();
     }
 
+    @Override
+    public boolean isSharedWorkspace(Context context, Collection collection) {
+        return toBoolean(getMetadataFirstValue(collection, "cris", "workspace", "shared", Item.ANY));
+    }
+
     /**
      * Finds all Indexed Collections where the current user has submit rights. If the user is an Admin,
      * this is all Indexed Collections. Otherwise, it includes those collections where
@@ -1017,15 +1024,17 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public Collection retrieveCollectionByRelationshipType(Item item, String relationshipType) throws SQLException {
+    public Collection retrieveCollectionByRelationshipType(Context context, Item item, String relationshipType)
+            throws SQLException {
         Collection ownCollection = item.getOwningCollection();
-        return retrieveCollectionByRelationshipType(ownCollection.getCommunities(), relationshipType);
+        return retrieveCollectionByRelationshipType(context, ownCollection.getCommunities(), relationshipType);
     }
 
-    private Collection retrieveCollectionByRelationshipType(List<Community> communities, String relationshipType) {
+    private Collection retrieveCollectionByRelationshipType(Context context, List<Community> communities,
+            String relationshipType) {
 
         for (Community community : communities) {
-            Collection collection = retriveCollectionByRelationshipType(community, relationshipType);
+            Collection collection = retriveCollectionByRelationshipType(context, community, relationshipType);
             if (collection != null) {
                 return collection;
             }
@@ -1033,31 +1042,37 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         for (Community community : communities) {
             List<Community> parentCommunities = community.getParentCommunities();
-            Collection collection = retrieveCollectionByRelationshipType(parentCommunities, relationshipType);
+            Collection collection = retrieveCollectionByRelationshipType(context, parentCommunities, relationshipType);
             if (collection != null) {
                 return collection;
             }
         }
 
-        return null;
+        return retriveCollectionByRelationshipType(context, null, relationshipType);
     }
 
     @Override
-    public Collection retriveCollectionByRelationshipType(Community community, String relationshipType) {
-
-        for (Collection collection : community.getCollections()) {
-            if (relationshipService.hasRelationshipType(collection, relationshipType)) {
-                return collection;
+    public Collection retriveCollectionByRelationshipType(Context context, Community community,
+            String relationshipType) {
+        context.turnOffAuthorisationSystem();
+        List<Collection> collections;
+        try {
+            collections = findCollectionsWithSubmit(null, context, community, relationshipType, 0, 1);
+        } catch (SQLException | SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
+        context.restoreAuthSystemState();
+        if (collections != null && collections.size() > 0) {
+            return collections.get(0);
+        }
+        if (community != null) {
+            for (Community subCommunity : community.getSubcommunities()) {
+                Collection collection = retriveCollectionByRelationshipType(context, subCommunity, relationshipType);
+                if (collection != null) {
+                    return collection;
+                }
             }
         }
-
-        for (Community subCommunity : community.getSubcommunities()) {
-            Collection collection = retriveCollectionByRelationshipType(subCommunity, relationshipType);
-            if (collection != null) {
-                return collection;
-            }
-        }
-
         return null;
     }
 

@@ -8,7 +8,6 @@
 package org.dspace.app.nbevent.service.impl;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +18,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -208,7 +208,13 @@ public class NBEventServiceImpl implements NBEventService {
                     doc.addField(TRUST, dto.getTrust());
                     doc.addField(MESSAGE, dto.getMessage());
                     doc.addField(LAST_UPDATE, new Date());
-                    doc.addField(RESOURCE_UUID, getResourceUUID(context, dto.getOriginalId()));
+                    final String resourceUUID = getResourceUUID(context, dto.getOriginalId());
+                    if (resourceUUID == null) {
+                        log.warn("Skipped event " + checksum + " related to the oai record " + dto.getOriginalId()
+                                + " as the record was not found");
+                        return;
+                    }
+                    doc.addField(RESOURCE_UUID, resourceUUID);
                     doc.addField(RELATED_UUID, dto.getRelated());
                     updateRequest.add(doc);
                     updateRequest.process(getSolr());
@@ -254,10 +260,13 @@ public class NBEventServiceImpl implements NBEventService {
     }
 
     @Override
-    public List<NBEvent> findEventsByTopicAndPage(Context context, String topic, long offset, int pageSize) {
+    public List<NBEvent> findEventsByTopicAndPage(Context context, String topic,
+            long offset, int pageSize,
+            String orderField, boolean ascending) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setStart(((Long) offset).intValue());
         solrQuery.setRows(pageSize);
+        solrQuery.setSort(orderField, ascending ? ORDER.asc : ORDER.desc);
         solrQuery.setQuery(TOPIC + ":" + topic.replaceAll("!", "/"));
         QueryResponse response;
         try {
@@ -292,21 +301,18 @@ public class NBEventServiceImpl implements NBEventService {
     }
 
     private String getResourceUUID(Context context, String originalId) throws Exception {
-        try {
-            String id = getHandleFromOriginalId(originalId);
-            if (id != null) {
-                Item item = (Item) handleService.resolveToObject(context, id);
-                if (item != null) {
-                    return item.getID().toString();
-                } else {
-                    throw new RuntimeException();
-                }
+        String id = getHandleFromOriginalId(originalId);
+        if (id != null) {
+            Item item = (Item) handleService.resolveToObject(context, id);
+            if (item != null) {
+                final String itemUuid = item.getID().toString();
+                context.uncacheEntity(item);
+                return itemUuid;
             } else {
-                throw new RuntimeException();
+                return null;
             }
-        } catch (RuntimeException | SQLException e) {
-            log.warn("OriginalID " + originalId + " not found");
-            throw e;
+        } else {
+            throw new RuntimeException("Malformed originalId " + originalId);
         }
     }
 
