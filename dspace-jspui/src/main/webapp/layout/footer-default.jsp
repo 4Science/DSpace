@@ -35,6 +35,9 @@
 	
 	boolean showCommList = ConfigurationManager.getBooleanProperty("community-list.show.all",true);
 	boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
+
+	boolean socialNetworksEnabled = ConfigurationManager.getBooleanProperty("socialnetworks.enabled", false);
+	String addThisProfileID = ConfigurationManager.getProperty("addthis.profileID");
 %>
 
             <%-- Right-hand side bar if appropriate --%>
@@ -96,5 +99,10 @@
 				</div>
 			</div>
 	    </footer>
+		<% if (socialNetworksEnabled && StringUtils.isNotBlank(addThisProfileID)) { %>
+			<script type="text/plain" data-type="text/javascript"
+				data-src="//s7.addthis.com/js/300/addthis_widget.js#pubid=<%= addThisProfileID %>"
+				data-name="add-this"></script>
+		<% } %>
     </body>
 </html>

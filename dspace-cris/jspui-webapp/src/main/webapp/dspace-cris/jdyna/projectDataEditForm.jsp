@@ -408,13 +408,18 @@
 				var div = j('<div id="pointer_'+id+'_selected_'+count+'" class="jdyna-pointer-value">');
             	var img = j('<img class="jdyna-icon jdyna-action-icon jdyna-delete-button" src="<%= request.getContextPath() %>/image/jdyna/delete_icon.gif">');
 				var path = j('#pointer_'+id+'_path').html();
+				var visibility = j("<input id='_"+path+"["+count+"].visibility' name='_"+path+"["+count+"].visibility' type='hidden'>"
+						+ "<input id='"+path+"["+count+"].visibility' name='"+path+"["+count+"].visibility' type='hidden' value='true'>"
+						+ "<input id='check"+path+"["+count+"].visibility' type='checkbox' value='true' checked='checked' onchange=\"cambiaBoolean('"+path+"["+count+"].visibility');;\" onclick=''>");
 				var input = j( "<input type='hidden' id='"+path+"["+count+"]"+"' name='"+path+"["+count+"]"+"'>" ).val(identifiervalue);
             	var display = j("<span>").text(displayvalue);
             	var selectedDiv = j("#pointer_"+id+"_selected");
             	selectedDiv.append(div);
             	div.append(input);
             	div.append(display);
-            	div.append("&nbsp;")
+            	div.append("&nbsp;");
+            	div.append(visibility);
+            	div.append("&nbsp;");
             	div.append(img);
             	div.effect('highlight');
             	j('#pointer_'+id+'_tot').html(count+1);

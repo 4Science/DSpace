@@ -11,6 +11,8 @@
   - HTML header for main home page
   --%>
 
+<%@page import="org.dspace.app.webui.util.UIUtil"%>
+<%@page import="java.util.Locale"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -40,6 +42,15 @@
     String dsVersion = Util.getSourceVersion();
     String generator = dsVersion == null ? "DSpace" : "DSpace "+dsVersion;
     String analyticsKey = ConfigurationManager.getProperty("jspui.google.analytics.key");
+    // by default social networks configuration is disable during submission
+    //boolean socialNetworksEnabled = ConfigurationManager.getBooleanProperty("socialnetworks.enabled", false);
+    boolean socialNetworksEnabled = false;
+
+    boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
+
+    // get the locale languages
+    Locale[] supportedLocales = I18nUtil.getSupportedLocales();
+    Locale sessionLocale = UIUtil.getSessionLocale(request);
 %>
 
 <!DOCTYPE html>
@@ -109,13 +120,12 @@
 		src='<%= request.getContextPath() %>/js/dedup-function.js'></script>
 	<script type='text/javascript'
 		src='<%= request.getContextPath() %>/js/dedup-behaviour.js'></script>
-			
     <%--Gooogle Analytics recording.--%>
     <%
     if (analyticsKey != null && analyticsKey.length() > 0)
     {
     %>
-        <script type="text/javascript">
+        <script type="text/plain" data-type="text/javascript" data-name="google-analytics">
             var _gaq = _gaq || [];
             _gaq.push(['_setAccount', '<%= analyticsKey %>']);
             _gaq.push(['_trackPageview']);
@@ -166,6 +176,9 @@
 <%    	
     }
 %>
+<% if(cookiesPolicyEnabled) { %>
+    <%@ include file="/klaro-config.jsp" %>
+<% } %>
 </header>
 
 <main id="content" role="main">
