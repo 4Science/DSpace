@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authority.factory.AuthorityServiceFactory;
 import org.dspace.authority.filler.AuthorityImportFiller;
-import org.dspace.authority.filler.AuthorityImportFillerHolder;
+import org.dspace.authority.filler.AuthorityImportFillerService;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authority.service.ItemSearchService;
 import org.dspace.content.Collection;
@@ -61,8 +61,6 @@ public class CrisConsumer implements Consumer {
 
     public static final String CONSUMER_NAME = "crisconsumer";
 
-    public static final String SOURCE_INTERNAL = "INTERNAL-SUBMISSION";
-
     private final static String NO_RELATIONSHIP_TYPE_FOUND_MSG = "No relationship.type found for field {}";
 
     private final static String ITEM_CREATION_MSG = "Creation of item with relationship.type = {} related to item {}";
@@ -92,7 +90,7 @@ public class CrisConsumer implements Consumer {
 
     private ConfigurationService configurationService;
 
-    private AuthorityImportFillerHolder authorityImportFillerHolder;
+    private AuthorityImportFillerService authorityImportFillerService;
 
     private ItemSearchService itemSearchService;
 
@@ -106,7 +104,7 @@ public class CrisConsumer implements Consumer {
         collectionService = ContentServiceFactory.getInstance().getCollectionService();
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         workflowService = WorkflowServiceFactory.getInstance().getWorkflowService();
-        authorityImportFillerHolder = AuthorityServiceFactory.getInstance().getAuthorityImportFillerHolder();
+        authorityImportFillerService = AuthorityServiceFactory.getInstance().getAuthorityImportFillerService();
         itemSearchService = new DSpace().getSingletonService(ItemSearchService.class);
         relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
     }
@@ -273,23 +271,13 @@ public class CrisConsumer implements Consumer {
     private void fillRelatedItem(Context context, MetadataValue metadata, Item relatedItem, boolean alreadyPresent)
         throws SQLException {
 
-        String authorityType = calculateAuthorityType(metadata);
-        AuthorityImportFiller filler = authorityImportFillerHolder.getFiller(authorityType);
+        AuthorityImportFiller filler = authorityImportFillerService.getAuthorityImportFillerByMetadata(metadata);
         if (filler != null && (!alreadyPresent || filler.allowsUpdate(context, metadata, relatedItem))) {
             filler.fillItem(context, metadata, relatedItem);
+        } else if (filler == null || (filler != null && !alreadyPresent)) {
+            itemService.addMetadata(context, relatedItem, "dc", "title", null, null, metadata.getValue());
         }
 
-    }
-
-    private String calculateAuthorityType(MetadataValue metadata) {
-        String authority = metadata.getAuthority();
-        if (StringUtils.isNotBlank(authority) && authority.startsWith(AuthorityValueService.GENERATE)) {
-            String[] split = StringUtils.split(authority, AuthorityValueService.SPLIT);
-            if (split.length > 1) {
-                return split[1];
-            }
-        }
-        return SOURCE_INTERNAL;
     }
 
 }
