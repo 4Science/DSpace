@@ -810,3 +810,6 @@ div.footerPanel {
 .uv .footerPanel .search .searchTextContainer {
     color: #000;
 }
+.uv .headerPanel .centerOptions .autocompleteText {
+    color: #000;
+}
