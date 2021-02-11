@@ -327,6 +327,10 @@ public class ResearchObject extends ACrisObjectWithTypeSupport<DynamicProperty, 
 
     
     public String getMetadataFieldName(Locale locale) {
-        return getAuthorityPrefix()+ getMetadataFieldTitle() + locale==null?"":locale.getLanguage();
+        String language = "";
+        if(locale!=null) {
+            language = locale.getLanguage();
+        }
+        return getAuthorityPrefix()+ getMetadataFieldTitle() + language;
     }
 }

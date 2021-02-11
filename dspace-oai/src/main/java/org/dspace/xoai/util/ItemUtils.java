@@ -201,8 +201,8 @@ public class ItemUtils
         return valueElem;
 
     }
-    public static Metadata retrieveMetadata (Context context, Item item, boolean specialIdentifier) {
-    	return retrieveMetadata(context, item, false, 0, specialIdentifier);
+    public static Metadata retrieveMetadata (Context context, Item item) {
+    	return retrieveMetadata(context, item, false, 0);
     }
     
     /***
@@ -216,7 +216,7 @@ public class ItemUtils
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Metadata retrieveMetadata (Context context, Item item, boolean skipAutority, int deep, boolean specialIdentifier) {
+	public static Metadata retrieveMetadata (Context context, Item item, boolean skipAutority, int deep) {
         Metadata metadata;
         
         // read all metadata into Metadata Object
@@ -281,7 +281,7 @@ public class ItemUtils
 							Metadata crisMetadata = null;
                 			if (o != null) 
                 			{								
-                				crisMetadata = retrieveMetadata(context, o, skipAutority, /*m, ((ACrisObject) o).getUuid(), Integer.toString(item.getID()),*/ 0);
+                				crisMetadata = retrieveMetadata(context, o, skipAutority, 0);
 							}else if (log.isDebugEnabled()) 
 							{
 								log.debug("WARNING: the item with id \"" + item.getID() + "\" contains the authority value \"" + val.authority + "\"  NOT IN the database - field " + val.schema + "."+ val.element + "."+ val.qualifier);
@@ -297,7 +297,7 @@ public class ItemUtils
                 			DSpaceObject dso = HandleManager.resolveToObject(context, val.authority);
                 			
                 			if (dso != null && dso instanceof Item) {
-                				Metadata itemMetadata = retrieveMetadata(context, (Item)dso, skipAutority, /*m, dso.getHandle(), Integer.toString(dso.getID()), true, */deep + 1, specialIdentifier);
+                				Metadata itemMetadata = retrieveMetadata(context, (Item)dso, skipAutority, deep + 1);
                 				if (itemMetadata != null && !itemMetadata.getElement().isEmpty()) {
                 					Element root = create(AUTHORITY);
                     				element.getElement().add(root);
@@ -433,25 +433,14 @@ public class ItemUtils
         // Other info
         Element other = create("others");
 
-        other.getField().add(
-                createValue("handle", item.getHandle()));
-        
-        String type = (String)item.getExtraInfo().get("item.cerifentitytype");
-        if(StringUtils.isNotBlank(type) && specialIdentifier) {
-            other.getField().add(
-                    createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle(), type)));
-            other.getField().add(
-                    createValue("type", XOAI.ITEMTYPE_SPECIAL));
-        }
-        else {
-            other.getField().add(
-                    createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle(), null)));
-            other.getField().add(
-                    createValue("type", XOAI.ITEMTYPE_DEFAULT));
-        }
-        other.getField().add(
-                createValue("lastModifyDate", item
-                        .getLastModified().toString()));
+        other.getField().add(createValue("handle", item.getHandle()));
+
+        other.getField().add(createValue("identifier",
+                DSpaceItem.buildIdentifier(item.getHandle(), null)));
+        other.getField().add(createValue("type", XOAI.ITEMTYPE_DEFAULT));
+
+        other.getField().add(createValue("lastModifyDate",
+                item.getLastModified().toString()));
         metadata.getElement().add(other);
 
         // Repository Info
@@ -602,9 +591,8 @@ public class ItemUtils
             other.getField().add(
                     createValue("handle", item.getHandle()));
             
-            String type = ConfigurationManager.getProperty("oai", "identifier.cerifentitytype." + item.getPublicPath());
             other.getField().add(
-                    createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle(), type)));
+                    createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle(), null)));
             
             Date m = new Date(item
                     .getTimeStampInfo().getLastModificationTime().getTime());

@@ -807,3 +807,6 @@ h1, h2, h3, h4, h5, h6 {
 div.footerPanel {
     background: url(../../../image/logo-4science-small.png) no-repeat center bottom;
 }
+.uv .footerPanel .search .searchTextContainer {
+    color: #000;
+}

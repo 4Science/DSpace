@@ -31,8 +31,8 @@ import javax.persistence.Table;
     @NamedQuery(name = "DynamicNestedPropertiesDefinition.findValoriDaMostrare", query = "from DynamicNestedPropertiesDefinition where showInList = true"),
     @NamedQuery(name = "DynamicNestedPropertiesDefinition.findAllWithPolicySingle", query = "from DynamicNestedPropertiesDefinition where rendering in (from WidgetEPerson)"),
     @NamedQuery(name = "DynamicNestedPropertiesDefinition.findAllWithPolicyGroup", query = "from DynamicNestedPropertiesDefinition where rendering in (from WidgetGroup)"),
-    @NamedQuery(name = "DynamicNestedPropertiesDefinition.likeAllWithPolicySingle", query = "from DynamicNestedPropertiesDefinition where shortName = ? and rendering in (from WidgetEPerson)"),
-    @NamedQuery(name = "DynamicNestedPropertiesDefinition.likeAllWithPolicyGroup", query = "from DynamicNestedPropertiesDefinition where shortName = ? and rendering in (from WidgetGroup)"),
+    @NamedQuery(name = "DynamicNestedPropertiesDefinition.likeAllWithPolicySingle", query = "from DynamicNestedPropertiesDefinition where shortName LIKE :par0 and rendering in (from WidgetEPerson)"),
+    @NamedQuery(name = "DynamicNestedPropertiesDefinition.likeAllWithPolicyGroup", query = "from DynamicNestedPropertiesDefinition where shortName LIKE :par0 and rendering in (from WidgetGroup)"),
     @NamedQuery(name = "DynamicNestedPropertiesDefinition.findAllWithCheckRadioDropdown", query = "from DynamicNestedPropertiesDefinition where rendering in (from WidgetCheckRadio)"),
     @NamedQuery(name = "DynamicNestedPropertiesDefinition.likeByShortName", query = "from DynamicNestedPropertiesDefinition where shortName LIKE :par0", hints = { @javax.persistence.QueryHint(name = "org.hibernate.cacheable", value = "true") })
 })
