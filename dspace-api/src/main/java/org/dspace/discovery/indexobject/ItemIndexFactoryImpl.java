@@ -367,12 +367,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 DSpaceServicesFactory
                                         .getInstance()
                                         .getConfigurationService()
-                                        .getPropertyAsType("discovery.index.authority.ignore-prefered." + field,
+                                        .getPropertyAsType("discovery.index.authority.ignore-preferred." + field,
                                                 DSpaceServicesFactory
                                                         .getInstance()
                                                         .getConfigurationService()
                                                         .getPropertyAsType(
-                                                                "discovery.index.authority.ignore-prefered",
+                                                                "discovery.index.authority.ignore-preferred",
                                                                 Boolean.FALSE),
                                                 true);
                         if (!ignorePrefered) {
@@ -648,6 +648,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                 if (authority != null) {
                     doc.addField(field + "_authority", authority);
                 }
+
+                if (meta.getAuthority() != null) {
+                    doc.addField(field + "_allauthority", meta.getAuthority());
+                }
+
                 if (toProjectionFields.contains(field) || toProjectionFields
                         .contains(unqualifiedField + "." + Item.ANY)) {
                     StringBuffer variantsToStore = new StringBuffer();
