@@ -101,6 +101,12 @@
 		<link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/dspace-theme.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/bootstrap-datetimepicker.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/homepage.css" />
+<% if (socialNetworksEnabled && StringUtils.isNotBlank(addThisProfileID)) { %>
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="<%= title %> - <%= siteName %>">
+		<meta name="twitter:image" content="<%= request.getContextPath() %>/image/homepage/glam-bkg.jpg">
+		<meta property="og:image" content="<%= request.getContextPath() %>/image/homepage/glam-bkg.jpg" />
+<% } %>
 <%
     if (!"NONE".equals(feedRef))
     {
