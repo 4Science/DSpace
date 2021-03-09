@@ -648,7 +648,7 @@
         }
    
          sb.append("</select></span></div>")
-               .append("<div class=\"col-md-2\"><span class=\"input-group\"><span class=\"input-group-addon\">")
+               .append("<div class=\"col-md-3\"><span class=\"input-group\"><span class=\"input-group-addon\">")
                .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.day"))
                .append("</span><input class=\"form-control\" type=\"text\" name=\"")
            .append(fieldName)
