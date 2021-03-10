@@ -3983,15 +3983,15 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Busta</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>envelope</stored-value>
      </pair>
      <pair>
        <displayed-value>Cartella</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>folder</stored-value>
      </pair>
      <pair>
        <displayed-value>Faldone</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>binder</stored-value>
      </pair>
      <pair>
        <displayed-value>Fascicolo</displayed-value>
@@ -3999,7 +3999,7 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Filza</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>string</stored-value>
      </pair>
      <pair>
        <displayed-value>Foglio</displayed-value>
@@ -4007,7 +4007,7 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Manifesto</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>manifest</stored-value>
      </pair>
      <pair>
        <displayed-value>Mappa</displayed-value>
@@ -4015,23 +4015,23 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Mazzo</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>deck</stored-value>
      </pair>
      <pair>
        <displayed-value>Opuscolo</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>brochure</stored-value>
      </pair>
      <pair>
        <displayed-value>Pacco</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>package</stored-value>
      </pair>
      <pair>
        <displayed-value>Plico</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>bundle</stored-value>
      </pair>
      <pair>
        <displayed-value>Quaderno</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>notebook</stored-value>
      </pair>
      <pair>
        <displayed-value>Registro</displayed-value>
@@ -4039,15 +4039,11 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Rivista</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>magazine</stored-value>
      </pair>
      <pair>
        <displayed-value>Rotolo</displayed-value>
-       <stored-value></stored-value>
-     </pair>
-     <pair>
-       <displayed-value>Rotolo</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>scroll</stored-value>
      </pair>
      <pair>
        <displayed-value>Scatola</displayed-value>
@@ -4059,11 +4055,11 @@ it, please enter the types and the actual numbers or codes.</hint>
      </pair>
      <pair>
        <displayed-value>Taccuino</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>pocketbook</stored-value>
      </pair>
      <pair>
        <displayed-value>Volume</displayed-value>
-       <stored-value></stored-value>
+       <stored-value>volume</stored-value>
      </pair>
      <pair>
        <displayed-value>Registrazione sonora</displayed-value>
