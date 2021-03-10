@@ -75,7 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * When an item is submitted and is somewhere in a workflow, it has a row in the
- * WorkflowItem table pointing to it.
+ * cwf_workflowitem table pointing to it.
  *
  * Once the item has completed the workflow it will be archived
  *
@@ -971,12 +971,13 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
 
         itemService.update(context, myitem);
 
-        // convert into personal workspace
-        WorkspaceItem wsi = returnToWorkspace(context, wi);
-
         // remove policy for controller
         removeUserItemPolicies(context, myitem, e);
         revokeReviewerPolicies(context, myitem);
+
+        // convert into personal workspace
+        WorkspaceItem wsi = returnToWorkspace(context, wi);
+
         // notify that it's been rejected
         notifyOfReject(context, wi, e, rejection_message);
         log.info(LogManager.getHeader(context, "reject_workflow", "workflow_item_id="
