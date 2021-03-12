@@ -145,6 +145,20 @@
     <scope_note></scope_note>
   </dc-type>
 
+   <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>corporatebody</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>family</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <dc-type>
 	<schema>dc</schema>
     <element>contributor</element>
@@ -438,6 +452,13 @@
     <element>description</element>
     <qualifier>abstract</qualifier>
     <scope_note>Abstract or summary.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>archivist</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -1144,7 +1165,14 @@
         <qualifier>license</qualifier>
         <scope_note></scope_note>
     </dc-type>
-    
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>rights</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>dc</schema>
         <element>relation</element>
@@ -1614,6 +1642,27 @@
         <schema>dc</schema>
         <element>identifier</element>
         <qualifier>archivalunit</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>bid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>NBN:IT</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>shelfmark</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
