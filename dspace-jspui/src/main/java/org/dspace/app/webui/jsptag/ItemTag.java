@@ -731,7 +731,7 @@ public class ItemTag extends TagSupport {
 
 										for (int idx = 1; idx < viewOptions.size() - 1; idx++) {
 											out.print("<li><a href=\"" + viewOptions.get(idx).link + "\">");
-											out.print(viewOptions.get(0).label);
+											out.print(viewOptions.get(idx).label);
 											out.print("</a></li>");
 										}
 
