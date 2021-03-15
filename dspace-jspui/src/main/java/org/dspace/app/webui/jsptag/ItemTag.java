@@ -998,12 +998,30 @@ public class ItemTag extends TagSupport {
 				showDownload = false;
 				continue;
 			}
-			ViewOption opt = new ViewOption();
-			opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
-					+ "&provider=" + externalProvider;
-			opt.label = LocaleSupport.getLocalizedMessage(pageContext,
-					"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider);
-			results.add(opt);
+
+			// retrieve viewers configuration
+			String[] viewers = null;
+			String sViewers = ConfigurationManager.getProperty(externalProvider + ".viewers");
+			if (StringUtils.isNotBlank(sViewers)) {
+				viewers = sViewers.split(",");
+			}
+			if (viewers != null && viewers.length > 0) {
+				for (String viewer : viewers) {
+					ViewOption opt = new ViewOption();
+					opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
+							+ "&provider=" + externalProvider + "&viewer=" + viewer;
+					opt.label = LocaleSupport.getLocalizedMessage(pageContext,
+							"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider + "." + viewer);
+					results.add(opt);
+				}
+			} else {
+				ViewOption opt = new ViewOption();
+				opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
+						+ "&provider=" + externalProvider;
+				opt.label = LocaleSupport.getLocalizedMessage(pageContext,
+						"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider);
+				results.add(opt);
+			}
 		}
 
 		if (showDownload) {
