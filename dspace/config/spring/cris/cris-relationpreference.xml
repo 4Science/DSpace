@@ -138,6 +138,15 @@
 			<value>dc.relation.fond_authority:{0}</value>
 		</property>
 	</bean>
+
+	<bean id="relationJOURNALFONDSVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">
+		<property name="relationName" value="crisjournalfonds.publications" />
+		<property name="relationClass" value="org.dspace.content.Item" />
+		<property name="query">
+			<value>dc.relation.journalfonds_authority:{0}</value>
+		</property>
+	</bean>
+
 	<bean id="relationFONDSVSFondsConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
 		<property name="relationName" value="crisfonds.children" />		
 		<property name="relationClass" value="org.dspace.app.cris.model.ResearchObject" />		
