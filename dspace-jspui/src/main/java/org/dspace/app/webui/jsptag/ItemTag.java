@@ -1007,20 +1007,11 @@ public class ItemTag extends TagSupport {
 			}
 			if (viewers != null && viewers.length > 0) {
 				for (String viewer : viewers) {
-					ViewOption opt = new ViewOption();
-					opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
-							+ "&provider=" + externalProvider + "&viewer=" + viewer;
-					opt.label = LocaleSupport.getLocalizedMessage(pageContext,
-							"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider + "." + viewer);
-					results.add(opt);
+					results.add(buildOption(context, request, pageContext, handle, bit, externalProvider,
+							"&viewer=" + viewer, "." + viewer));
 				}
 			} else {
-				ViewOption opt = new ViewOption();
-				opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
-						+ "&provider=" + externalProvider;
-				opt.label = LocaleSupport.getLocalizedMessage(pageContext,
-						"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider);
-				results.add(opt);
+				results.add(buildOption(context, request, pageContext, handle, bit, externalProvider));
 			}
 		}
 
@@ -1039,5 +1030,20 @@ public class ItemTag extends TagSupport {
 			results.add(opt);
 		}
 		return results;
+	}
+
+	public static ViewOption buildOption(Context context, HttpServletRequest request, PageContext pageContext,
+			String handle, Bitstream bit, String externalProvider) {
+		return buildOption(context, request, pageContext, handle, bit, externalProvider, "", "");
+	}
+
+	public static ViewOption buildOption(Context context, HttpServletRequest request, PageContext pageContext,
+			String handle, Bitstream bit, String externalProvider, String viewerParameter, String viewerLabel) {
+		ViewOption opt = new ViewOption();
+		opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
+				+ "&provider=" + externalProvider + viewerParameter;
+		opt.label = LocaleSupport.getLocalizedMessage(pageContext,
+				"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider + viewerLabel);
+		return opt;
 	}
 }
