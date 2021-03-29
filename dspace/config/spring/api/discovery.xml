@@ -159,6 +159,7 @@
                 <entry key="crisjournals" value-ref="crisJournalsConfiguration" />
 				<entry key="crisevents" value-ref="crisEventsConfiguration" />
 				<entry key="crisfonds" value-ref="crisFondsConfiguration" />
+				<entry key="crisjournalfonds" value-ref="crisJournalFondsConfiguration" />
 				<entry key="crisplace" value-ref="crisPlaceConfiguration" />
                 <entry key="crisfamily" value-ref="crisFamilyConfiguration" />
 				<entry key="crisconcept" value-ref="crisConceptConfiguration" />
@@ -1520,6 +1521,118 @@
 				</property>
 				<!--The minimum number of matching terms across the metadata fields above 
 				     					before an item is found as related -->
+				<property name="minTermFrequency" value="5" />
+				<!--The maximum number of related items displayed -->
+				<property name="max" value="3" />
+				<!--The minimum word length below which words will be ignored -->
+				<property name="minWordLength" value="5" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="crisJournalFondsConfiguration"
+		class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+		scope="prototype">
+		<property name="globalConfigurationEnabled" value="true" />
+		<property name="id" value="crisJournalFondsConfiguration" />
+
+		<!--Which sidebar facets are to be displayed -->
+		<property name="sidebarFacets" ref="facetsJournalFondsConfiguration"/>
+		<!--The search filters which can be used on the discovery search page -->
+		<property name="searchFilters">
+			<list>
+				<ref bean="searchFilterCrisJournalFondsName" />
+			</list>
+		</property>
+		<!--The sort filters for the discovery search -->
+		<property name="searchSortConfiguration">
+			<bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+				<property name="defaultSort" ref="sortJournalFondsName"/>
+				<!--DefaultSortOrder can either be desc or asc (desc is default) -->
+				<property name="defaultSortOrder" value="asc" />
+				<property name="sortFields">
+					<list>
+						<ref bean="sortJournalFondsName" />
+						<ref bean="sortJournalFondsIndex" />
+					</list>
+				</property>
+			</bean>
+		</property>
+		<!-- Any default filter queries, these filter queries will be used for all
+				queries done by discovery for this configuration -->
+		<property name="defaultFilterQueries">
+			<list>
+				<value>search.resourcetype:1010</value>
+			</list>
+		</property>
+		<!--The configuration for the recent submissions -->
+		<property name="recentSubmissionConfiguration">
+			<bean
+				class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+				<property name="metadataSortField" value="crisfonds.fondscreationtime" />
+				<property name="type" value="date" />
+				<property name="max" value="11" />
+				<property name="metadataFields">
+				<bean
+				class="org.dspace.discovery.configuration.DiscoveryViewConfiguration">
+				<property name="metadataHeadingFields">
+					<list>
+						<bean
+							class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
+							<property name="mandatory" value="true"/>
+							<property name="field" value="crisfonds.fondsname" />
+							<property name="decorator" value="cristitle" />
+							<property name="preHtml" value="&lt;br /&gt;&lt;b&gt;" />
+							<property name="postHtml" value="&lt;/b&gt; &lt;br /&gt;" />
+						</bean>
+					</list>
+				</property>
+				<property name="metadataDescriptionFields">
+					<list>
+						<bean
+							class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
+							<property name="mandatory" value="true"/>
+							<property name="field" value="crisfonds.fondsdescription" />
+							<property name="preHtml" value="&lt;br /&gt;" />
+						</bean>
+					</list>
+				</property>
+				<property name="thumbnail" value="crisfonds.fondspicture"/>
+				</bean>
+				</property>
+			</bean>
+		</property>
+		<!--Default result per page -->
+		<property name="defaultRpp" value="50" />
+		<property name="hitHighlightingConfiguration">
+				<bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightingConfiguration">
+				<property name="metadataFields">
+					<list>
+						<bean
+							class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+									<property name="field" value="crisfonds.fondsname" />
+									<property name="maxSize" value="250" />
+									<property name="snippets" value="2" />
+						</bean>
+					</list>
+				</property>
+				</bean>
+		</property>
+		<property name="moreLikeThisConfiguration">
+			<bean
+				class="org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration">
+				<!-- When altering this list also alter the "xmlui.Discovery.RelatedItems.help"
+						key as it describes the metadata fields below -->
+				<property name="similarityMetadataFields">
+					<list>
+						<value>dc.title</value>
+						<value>dc.contributor.author</value>
+						<value>dc.creator</value>
+						<value>dc.subject</value>
+					</list>
+				</property>
+				<!-- The minimum number of matching terms across the metadata fields above
+						before an item is found as related -->
 				<property name="minTermFrequency" value="5" />
 				<!--The maximum number of related items displayed -->
 				<property name="max" value="3" />
@@ -3072,7 +3185,17 @@
 			</list>
 		</property>
 	</bean>
-	
+
+	<bean id="searchFilterCrisJournalFondsName"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="crisjournalfondname" />
+		<property name="metadataFields">
+			<list>
+				<value>crisjournalfonds.journalfondsname</value>
+			</list>
+		</property>
+	</bean>
+
 	<bean id="searchFilterCrisFondsType"
 		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
 		<property name="indexFieldName" value="crisfondtype" />
@@ -3134,6 +3257,17 @@
 	<bean id="sortFondsIndex"
 		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
 		<property name="metadataField" value="crisfonds.fondsindex" />
+		<property name="type" value="integer" />
+	</bean>
+
+	<bean id="sortJournalFondsName"
+		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+		<property name="metadataField" value="crisjournalfonds.journalfondsname" />
+	</bean>
+
+	<bean id="sortJournalFondsIndex"
+		class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+		<property name="metadataField" value="crisjournalfonds.journalfondsindex" />
 		<property name="type" value="integer" />
 	</bean>
 
@@ -3291,6 +3425,13 @@
 				<ref bean="searchFilterCrisFondsOrganizzation" />
 				<ref bean="searchFilterCrisFondsCustodian" />
 				<ref bean="searchFilterCrisFondsProject" />
+		</list>
+		</constructor-arg>
+	</bean>
+	<bean id="facetsJournalFondsConfiguration" class="java.util.ArrayList">
+		<constructor-arg>
+		<list>
+				<ref bean="searchFilterCrisJournalFondsName" />
 		</list>
 		</constructor-arg>
 	</bean>

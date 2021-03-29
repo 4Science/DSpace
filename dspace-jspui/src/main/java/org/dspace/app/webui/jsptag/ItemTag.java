@@ -731,7 +731,7 @@ public class ItemTag extends TagSupport {
 
 										for (int idx = 1; idx < viewOptions.size() - 1; idx++) {
 											out.print("<li><a href=\"" + viewOptions.get(idx).link + "\">");
-											out.print(viewOptions.get(0).label);
+											out.print(viewOptions.get(idx).label);
 											out.print("</a></li>");
 										}
 
@@ -998,12 +998,21 @@ public class ItemTag extends TagSupport {
 				showDownload = false;
 				continue;
 			}
-			ViewOption opt = new ViewOption();
-			opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
-					+ "&provider=" + externalProvider;
-			opt.label = LocaleSupport.getLocalizedMessage(pageContext,
-					"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider);
-			results.add(opt);
+
+			// retrieve viewers configuration
+			String[] viewers = null;
+			String sViewers = ConfigurationManager.getProperty(externalProvider + ".viewers");
+			if (StringUtils.isNotBlank(sViewers)) {
+				viewers = sViewers.split(",");
+			}
+			if (viewers != null && viewers.length > 0) {
+				for (String viewer : viewers) {
+					results.add(buildOption(context, request, pageContext, handle, bit, externalProvider,
+							"&viewer=" + viewer, "." + viewer));
+				}
+			} else {
+				results.add(buildOption(context, request, pageContext, handle, bit, externalProvider));
+			}
 		}
 
 		if (showDownload) {
@@ -1021,5 +1030,20 @@ public class ItemTag extends TagSupport {
 			results.add(opt);
 		}
 		return results;
+	}
+
+	public static ViewOption buildOption(Context context, HttpServletRequest request, PageContext pageContext,
+			String handle, Bitstream bit, String externalProvider) {
+		return buildOption(context, request, pageContext, handle, bit, externalProvider, "", "");
+	}
+
+	public static ViewOption buildOption(Context context, HttpServletRequest request, PageContext pageContext,
+			String handle, Bitstream bit, String externalProvider, String viewerParameter, String viewerLabel) {
+		ViewOption opt = new ViewOption();
+		opt.link = request.getContextPath() + "/explore?bitstream_id=" + bit.getID() + "&handle=" + handle
+				+ "&provider=" + externalProvider + viewerParameter;
+		opt.label = LocaleSupport.getLocalizedMessage(pageContext,
+				"org.dspace.app.webui.jsptag.ItemTag.explore." + externalProvider + viewerLabel);
+		return opt;
 	}
 }
