@@ -53,6 +53,17 @@
 
     boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
     
+    String imageURL = (String) request.getAttribute("imageURL");
+    if (StringUtils.isBlank(imageURL)) {
+        // retrieve default image URL
+        imageURL = ConfigurationManager.getProperty("socialnetworks.image.default");
+    }
+    if (StringUtils.isBlank(imageURL)) {
+        // build default image URL
+        String dspaceURL = ConfigurationManager.getProperty("dspace.url");
+        imageURL = dspaceURL + "/image/homepage/glam-bkg.jpg";
+    }
+
     // get the locale languages
     Locale[] supportedLocales = I18nUtil.getSupportedLocales();
     Locale sessionLocale = UIUtil.getSessionLocale(request);
@@ -104,8 +115,8 @@
 <% if (socialNetworksEnabled && StringUtils.isNotBlank(addThisProfileID)) { %>
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="<%= title %> - <%= siteName %>">
-		<meta name="twitter:image" content="<%= request.getContextPath() %>/image/homepage/glam-bkg.jpg">
-		<meta property="og:image" content="<%= request.getContextPath() %>/image/homepage/glam-bkg.jpg" />
+		<meta name="twitter:image" content="<%= imageURL %>">
+		<meta property="og:image" content="<%= imageURL %>"/>
 <% } %>
 <%
     if (!"NONE".equals(feedRef))
