@@ -11,6 +11,7 @@
   - HTML header for main home page
   --%>
 
+<%@page import="org.apache.commons.lang3.BooleanUtils"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -52,16 +53,14 @@
     String addThisProfileID = ConfigurationManager.getProperty("addthis.profileID");
 
     boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
-    
-    String imageURL = (String) request.getAttribute("imageURL");
-    if (StringUtils.isBlank(imageURL)) {
+
+    String pageURL = UIUtil.getOriginalURL(request);
+
+    String imageURL = "";
+    boolean socialMetatagsAdded = BooleanUtils.toBoolean((Boolean) request.getAttribute("social-metatags.added"));
+    if (!socialMetatagsAdded) {
         // retrieve default image URL
         imageURL = ConfigurationManager.getProperty("socialnetworks.image.default");
-    }
-    if (StringUtils.isBlank(imageURL)) {
-        // build default image URL
-        String dspaceURL = ConfigurationManager.getProperty("dspace.url");
-        imageURL = dspaceURL + "/image/homepage/glam-bkg.jpg";
     }
 
     // get the locale languages
@@ -112,10 +111,13 @@
 		<link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/dspace-theme.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/bootstrap-datetimepicker.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/homepage.css" />
-<% if (socialNetworksEnabled && StringUtils.isNotBlank(addThisProfileID)) { %>
+<% if (!socialMetatagsAdded) { %>
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="<%= title %> - <%= siteName %>">
 		<meta name="twitter:image" content="<%= imageURL %>">
+		<meta property="og:url" content="<%= pageURL %>">
+		<meta property="og:title" content="<%= title %> - <%= siteName %>">
+		<meta property="og:description" content="">
 		<meta property="og:image" content="<%= imageURL %>"/>
 <% } %>
 <%

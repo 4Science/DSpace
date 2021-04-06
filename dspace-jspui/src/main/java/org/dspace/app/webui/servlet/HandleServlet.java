@@ -22,13 +22,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.GoogleMetadata;
+import org.dspace.app.util.OpenGraphMetadata;
+import org.dspace.app.util.SocialNetworkMetadata;
+import org.dspace.app.util.TwitterMetadata;
 import org.dspace.app.webui.util.Authenticate;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -420,6 +421,27 @@ public class HandleServlet extends DSpaceServlet
                     xmlo.output(new Text("\n"), sw);
                 }
             }
+
+            // add Open Graph metadata
+            SocialNetworkMetadata openGraphMetadata = new OpenGraphMetadata(context, item);
+            xmlo.output(new Text("\n"), sw);
+
+            for (Element e: openGraphMetadata.disseminateList()) {
+                xmlo.output(e, sw);
+                xmlo.output(new Text("\n"), sw);
+            }
+
+            // add Twitter metadata
+            SocialNetworkMetadata twitterMetadata = new TwitterMetadata(context, item);
+            xmlo.output(new Text("\n"), sw);
+
+            for (Element e: twitterMetadata.disseminateList()) {
+                xmlo.output(e, sw);
+                xmlo.output(new Text("\n"), sw);
+            }
+
+            request.setAttribute("social-metatags.added", Boolean.valueOf(true));
+
             headMetadata = sw.toString();
         }
         catch (CrosswalkException ce)
@@ -450,37 +472,6 @@ public class HandleServlet extends DSpaceServlet
             }
         }
 
-        // build image URL
-        String imageURL = "";
-        if (item != null) {
-            String imageID = "";
-            Bitstream bitstream = retrievePrimaryBitstream(context, item, Constants.CONTENT_BUNDLE_NAME);
-            if (bitstream != null) {
-                imageID = bitstream.getMetadata("bitstream.iiif.imageid");
-                if (StringUtils.isBlank(imageID)) {
-                    bitstream = retrievePrimaryBitstream(context, item, "IIIF-PDF-" + bitstream.getID());
-                    if (bitstream != null) {
-                        imageID = bitstream.getMetadata("bitstream.iiif.imageid");
-                    }
-                }
-            }
-            if (StringUtils.isNotBlank(imageID)) {
-                String sWidth = bitstream.getMetadata("bitstream.image.width");
-                int width = Integer.parseInt(sWidth);
-                String sHeight = bitstream.getMetadata("bitstream.image.height");
-                int height = Integer.parseInt(sHeight);
-
-                // manage horizontal image when the width is at least twice the height
-                // e.g. w = 20 h = 9 -> w = 9*2 = 18
-                if (height < width/2) {
-                    width = height*2;
-                }
-
-                // build IIIF image URL
-                imageURL = imageID + "/0,0," + width + "," + (width/2) + "/" + Math.min(width, 1200) + ",/0/default.jpg";
-            }
-        }
-
         // Fire usage event.
         new DSpace().getEventService().fireEvent(
             		new UsageEvent(
@@ -493,29 +484,10 @@ public class HandleServlet extends DSpaceServlet
         request.setAttribute("suggest.enable", Boolean.valueOf(suggestEnable));
         request.setAttribute("display.all", Boolean.valueOf(displayAll));
         request.setAttribute("item", item);
-        request.setAttribute("imageURL", imageURL);
         request.setAttribute("collections", collections);
         request.setAttribute("dspace.layout.head", headMetadata);
         request.setAttribute("crisID", context.getCrisID());
         JSPManager.showJSP(request, response, "/display-item.jsp");
-    }
-
-    private Bitstream retrievePrimaryBitstream(Context context, Item item, String bundleName)
-            throws SQLException {
-        Bitstream bitstream = null;
-        Bundle[] bundles = item.getBundles(bundleName);
-        if (bundles != null && bundles.length > 0) {
-            for (Bundle bundle : bundles) {
-                bitstream = Bitstream.find(context, bundle.getPrimaryBitstreamID());
-                if (bitstream == null) {
-                    Bitstream[] bitstreams = bundle.getBitstreams();
-                    if (bitstreams != null && bitstreams.length > 0) {
-                        bitstream = bitstreams[0];
-                    }
-                }
-            }
-        }
-        return bitstream;
     }
 
     private void preProcessItemHome(Context context, HttpServletRequest request,
