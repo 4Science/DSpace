@@ -54,15 +54,6 @@
 
     boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
 
-    String pageURL = UIUtil.getOriginalURL(request);
-
-    String imageURL = "";
-    boolean socialMetatagsAdded = BooleanUtils.toBoolean((Boolean) request.getAttribute("social-metatags.added"));
-    if (!socialMetatagsAdded) {
-        // retrieve default image URL
-        imageURL = ConfigurationManager.getProperty("socialnetworks.image.default");
-    }
-
     // get the locale languages
     Locale[] supportedLocales = I18nUtil.getSupportedLocales();
     Locale sessionLocale = UIUtil.getSessionLocale(request);
@@ -85,6 +76,8 @@
             }
         }
     }
+    
+    boolean socialMetatagsAdded = BooleanUtils.toBoolean((Boolean) request.getAttribute("social-metatags.added"));
 %>
 <!DOCTYPE html>
 <html>
@@ -93,7 +86,19 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="Generator" content="<%= generator %>" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">		
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<% if (!socialMetatagsAdded) {
+    	String pageURL = UIUtil.getOriginalURL(request);
+    	// retrieve default image URL
+    	String imageURL = ConfigurationManager.getProperty("socialnetworks.image.default");
+%>
+		<meta name="twitter:card" property="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" property="twitter:title" content="<%= title %> - <%= siteName %>">
+		<meta name="twitter:image" property="twitter:image" content="<%= imageURL %>">
+		<meta name="og:url" property="og:url" content="<%= pageURL %>">
+		<meta name="og:title" property="og:title" content="<%= title %> - <%= siteName %>">
+		<meta name="og:image" property="og:image" content="<%= imageURL %>"/>
+<% } %>
         <link rel="resourcesync sitemap" href="<%= resourceSyncBaseURL %>/resourcesync.xml" type="application/xml"/>
         <link rel="shortcut icon" href="<%= request.getContextPath() %>/favicon.ico" type="image/x-icon"/>
 	    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/jquery-ui/redmond/jquery-ui-1.12.1.css" type="text/css" />
@@ -111,15 +116,6 @@
 		<link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/dspace-theme.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/bootstrap-datetimepicker.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/homepage.css" />
-<% if (!socialMetatagsAdded) { %>
-		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="<%= title %> - <%= siteName %>">
-		<meta name="twitter:image" content="<%= imageURL %>">
-		<meta property="og:url" content="<%= pageURL %>">
-		<meta property="og:title" content="<%= title %> - <%= siteName %>">
-		<meta property="og:description" content="">
-		<meta property="og:image" content="<%= imageURL %>"/>
-<% } %>
 <%
     if (!"NONE".equals(feedRef))
     {
