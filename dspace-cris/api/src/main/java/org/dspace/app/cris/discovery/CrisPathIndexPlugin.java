@@ -58,11 +58,11 @@ public class CrisPathIndexPlugin
             ACrisObject<P, TP, NP, NTP, ACNO, ATNO> crisObject,
             SolrInputDocument document)
     {
-        String result = "";
         String metadataKeyParent = crisObject.getAuthorityPrefix() + "parent";
         String metadataKeyLeaf = crisObject.getAuthorityPrefix() + "leaf";
-        result = getRootInfo(crisObject, metadataKeyParent);
-        document.addField("treeroot_s", result);
+        ACrisObject root = getRootInfo(crisObject, metadataKeyParent);
+        document.addField("treeroot_s", root.getCrisID());
+        document.addField("treerootname_s", root.getName());
         document.addField("treecontext_s", crisObject.getTypeText());
         List<P> ppLeaf = crisObject.getAnagrafica4view().get(metadataKeyLeaf);
         for (P metadata : ppLeaf) {
@@ -79,7 +79,7 @@ public class CrisPathIndexPlugin
         }
     }
 
-    private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> String getRootInfo(
+    private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> ACrisObject getRootInfo(
             ACrisObject<P, TP, NP, NTP, ACNO, ATNO> crisObject,
             String metadataKey)
     {
@@ -90,7 +90,7 @@ public class CrisPathIndexPlugin
             ACrisObject aCrisObject = (ACrisObject) val.getObject();
             return getRootInfo(aCrisObject, metadataKey);
         }
-        return crisObject.getCrisID();
+        return crisObject;
     }
 
     @Override
