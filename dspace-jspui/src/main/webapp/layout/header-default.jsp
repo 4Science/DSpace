@@ -11,6 +11,7 @@
   - HTML header for main home page
   --%>
 
+<%@page import="org.apache.commons.lang3.BooleanUtils"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -55,7 +56,7 @@
     String addThisProfileID = ConfigurationManager.getProperty("addthis.profileID");
 
     boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
-    
+
     // get the locale languages
     Locale[] supportedLocales = I18nUtil.getSupportedLocales();
     Locale sessionLocale = UIUtil.getSessionLocale(request);
@@ -78,6 +79,8 @@
             }
         }
     }
+    
+    boolean socialMetatagsAdded = BooleanUtils.toBoolean((Boolean) request.getAttribute("social-metatags.added"));
 %>
 <!DOCTYPE html>
 <html>
@@ -86,7 +89,19 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="Generator" content="<%= generator %>" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">		
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<% if (!socialMetatagsAdded) {
+    	String pageURL = UIUtil.getOriginalURL(request);
+    	// retrieve default image URL
+    	String imageURL = ConfigurationManager.getProperty("socialnetworks.image.default");
+%>
+		<meta name="twitter:card" property="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" property="twitter:title" content="<%= title %> - <%= siteName %>">
+		<meta name="twitter:image" property="twitter:image" content="<%= imageURL %>">
+		<meta name="og:url" property="og:url" content="<%= pageURL %>">
+		<meta name="og:title" property="og:title" content="<%= title %> - <%= siteName %>">
+		<meta name="og:image" property="og:image" content="<%= imageURL %>"/>
+<% } %>
         <link rel="resourcesync sitemap" href="<%= resourceSyncBaseURL %>/resourcesync.xml" type="application/xml"/>
         <link rel="shortcut icon" href="<%= request.getContextPath() %>/favicon.ico" type="image/x-icon"/>
 	    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/jquery-ui/redmond/jquery-ui-1.12.1.css" type="text/css" />
