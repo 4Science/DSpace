@@ -83,6 +83,9 @@ public class ExploreServlet extends DSpaceServlet {
 		request.setAttribute("handle", handle);
 		request.setAttribute("itemTitle", title);
 
+		// disable social networks configuration
+		request.setAttribute("socialNetworksEnabled", false);
+
 		ViewerConfigurationService viewerConfigurationService = new DSpace()
 				.getSingletonService(ViewerConfigurationService.class);
 		JSPViewer viewer = viewerConfigurationService.getMapViewers().get(viewname);

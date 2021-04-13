@@ -92,6 +92,7 @@ div.panel.panel-primary ul.list-group li.list-group-item.active {border-left: 3p
 div.panel.panel-primary ul.list-group li.list-group-item.active .badge {background-color: #2780e3;}
 ol.breadcrumb li {color: white; font-style: italic;}
 ol.breadcrumb li a {color: white; font-weight: bold; font-style: normal;}
+html {font-size: 14px;}
 body.undernavigation {overflow-x: hidden;
 // padding-top: 65px;
 }
