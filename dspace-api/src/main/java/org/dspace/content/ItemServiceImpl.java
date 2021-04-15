@@ -25,6 +25,10 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.orcid.OrcidHistory;
+import org.dspace.app.orcid.OrcidQueue;
+import org.dspace.app.orcid.service.OrcidHistoryService;
+import org.dspace.app.orcid.service.OrcidQueueService;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
@@ -119,6 +123,12 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
     @Autowired(required = true)
     private RelationshipMetadataService relationshipMetadataService;
+
+    @Autowired(required = true)
+    private OrcidHistoryService orcidHistoryService;
+
+    @Autowired(required = true)
+    private OrcidQueueService orcidQueueService;
 
     protected ItemServiceImpl() {
         super();
@@ -699,6 +709,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // remove version attached to the item
         removeVersion(context, item);
+
+        removeOrcidSynchronizationStuff(context, item);
 
         // Also delete the item if it appears in a harvested collection.
         HarvestedItem hi = harvestedItemService.find(context, item);
@@ -1451,5 +1463,27 @@ prevent the generation of resource policy entry values with null dspace_object a
                 .stream().findFirst().orElse(null);
     }
 
+
+    private void removeOrcidSynchronizationStuff(Context context, Item item) throws SQLException, AuthorizeException {
+
+        try {
+
+            context.turnOffAuthorisationSystem();
+
+            List<OrcidHistory> orcidHistories = orcidHistoryService.findByOwner(context, item);
+            for (OrcidHistory orcidHistory : orcidHistories) {
+                orcidHistoryService.delete(context, orcidHistory);
+            }
+
+            List<OrcidQueue> orcidQueues = orcidQueueService.findByOwnerId(context, item.getID());
+            for (OrcidQueue orcidQueue : orcidQueues) {
+                orcidQueueService.delete(context, orcidQueue);
+            }
+
+        } finally {
+            context.restoreAuthSystemState();
+        }
+
+    }
 
 }
