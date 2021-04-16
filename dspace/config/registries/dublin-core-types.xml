@@ -145,6 +145,20 @@
     <scope_note></scope_note>
   </dc-type>
 
+   <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>corporatebody</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>family</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <dc-type>
 	<schema>dc</schema>
     <element>contributor</element>
@@ -438,6 +452,13 @@
     <element>description</element>
     <qualifier>abstract</qualifier>
     <scope_note>Abstract or summary.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>archivist</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
   <dc-type>
@@ -1144,7 +1165,14 @@
         <qualifier>license</qualifier>
         <scope_note></scope_note>
     </dc-type>
-    
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>rights</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>dc</schema>
         <element>relation</element>
@@ -1640,29 +1668,78 @@
 
     <dc-type>
         <schema>dc</schema>
-        <element>contributor</element>
-        <qualifier>corporatebody</qualifier>
+        <element>relation</element>
+        <qualifier>ispartofcontainer</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
         <schema>dc</schema>
-        <element>contributor</element>
-        <qualifier>family</qualifier>
+        <element>relation</element>
+        <qualifier>issue</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
         <schema>dc</schema>
-        <element>description</element>
-        <qualifier>archivist</qualifier>
+        <element>relation</element>
+        <qualifier>issueother</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
         <schema>dc</schema>
-        <element>rights</element>
-        <qualifier>note</qualifier>
+        <element>relation</element>
+        <qualifier>stpieceper</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>stpieceperstart</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>stpieceperend</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>stpieceperother</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>stpieceperotherstart</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>stpieceperotherend</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>edition</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>journalfonds</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

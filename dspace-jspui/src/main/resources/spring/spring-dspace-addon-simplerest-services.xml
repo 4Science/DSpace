@@ -103,17 +103,59 @@
 						</bean>
 					</list>
 				</entry>
+				<entry key="2">
+					<list>
+						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
+							<property name="label" value="Name"/>
+							<property name="labelKey" value="tree.journalfonds.name"/>
+							<property name="metadata" value="journalfondsname"/>
+							<property name="url" value="false"/>
+						</bean>
+						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
+							<property name="label" value="Url"/>
+							<property name="labelKey" value="tree.journalfonds.url"/>
+							<property name="metadata" value="url::handle"/>
+							<property name="url" value="true"/>
+						</bean>
+					</list>
+				</entry>
+				<entry key="item-2">
+					<list>
+						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
+							<property name="label" value="Author"/>
+							<property name="labelKey" value="tree.item.author"/>
+							<property name="metadata" value="dc.contributor.author"/>
+							<property name="url" value="false"/>
+						</bean>
+						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
+							<property name="label" value="Title"/>
+							<property name="labelKey" value="tree.item.title"/>
+							<property name="metadata" value="dc.title"/>
+							<property name="url" value="false"/>
+						</bean>
+						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
+							<property name="label" value="Url"/>
+							<property name="labelKey" value="tree.item.url"/>
+							<property name="metadata" value="url::handle"/>
+							<property name="url" value="true"/>
+						</bean>
+					</list>
+				</entry>
 			</map>
 		</property>
 		<property name="enabled">
 			<map>
 				<entry key="fonds" value="true" />
+				<entry key="journalfonds" value="true"/>
 			</map>
 		</property>
 		<property name="relation">
 			<map>
 				<entry key="crisfonds">
 					<ref bean="relationFONDSVSItemConfiguration" />
+				</entry>
+				<entry key="crisjournalfonds">
+					<ref bean="relationJOURNALFONDSVSItemConfiguration"/>
 				</entry>
 			</map>
 		</property>
@@ -123,6 +165,12 @@
 					<list>
 						<ref bean="sortFondsIndex" />
 						<ref bean="sortFondsName" />
+					</list>
+				</entry>
+				<entry key="crisjournalfonds">
+					<list>
+						<ref bean="sortJournalFondsIndex" />
+						<ref bean="sortJournalFondsName" />
 					</list>
 				</entry>
 				<entry key="item">
@@ -136,6 +184,7 @@
 		<property name="sortOrder">
 			<map>
 				<entry key="crisfonds" value="asc" />
+				<entry key="crisjournalfonds" value="asc" />
 				<entry key="item" value="asc" />
 			</map>
 		</property>

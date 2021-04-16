@@ -22,6 +22,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.GoogleMetadata;
+import org.dspace.app.util.OpenGraphMetadata;
+import org.dspace.app.util.SocialNetworkMetadata;
+import org.dspace.app.util.TwitterMetadata;
 import org.dspace.app.webui.util.Authenticate;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
@@ -418,6 +421,27 @@ public class HandleServlet extends DSpaceServlet
                     xmlo.output(new Text("\n"), sw);
                 }
             }
+
+            // add Open Graph metadata
+            SocialNetworkMetadata openGraphMetadata = new OpenGraphMetadata(context, item);
+            xmlo.output(new Text("\n"), sw);
+
+            for (Element e: openGraphMetadata.disseminateList()) {
+                xmlo.output(e, sw);
+                xmlo.output(new Text("\n"), sw);
+            }
+
+            // add Twitter metadata
+            SocialNetworkMetadata twitterMetadata = new TwitterMetadata(context, item);
+            xmlo.output(new Text("\n"), sw);
+
+            for (Element e: twitterMetadata.disseminateList()) {
+                xmlo.output(e, sw);
+                xmlo.output(new Text("\n"), sw);
+            }
+
+            request.setAttribute("social-metatags.added", Boolean.valueOf(true));
+
             headMetadata = sw.toString();
         }
         catch (CrosswalkException ce)
@@ -465,7 +489,7 @@ public class HandleServlet extends DSpaceServlet
         request.setAttribute("crisID", context.getCrisID());
         JSPManager.showJSP(request, response, "/display-item.jsp");
     }
-    
+
     private void preProcessItemHome(Context context, HttpServletRequest request,
             HttpServletResponse response, Item item)
         throws ServletException, IOException, SQLException
