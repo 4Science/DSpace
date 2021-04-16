@@ -1480,6 +1480,39 @@
          <required></required>
        </field>
 
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Descrizione</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire la descrizione dell'oggetto</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>function</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Funzione</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire la descrizione della funzione dell'oggetto</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>use</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Modalità d'uso</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire la modalità d'uso dell'oggetto</hint>
+         <required></required>
+       </field>
+
      </page>
 
      <page number="4">
@@ -2111,6 +2144,17 @@
          <label>Larghezza</label>
          <input-type>onebox</input-type>
          <hint>in questo campo si inseriscono le informazioni di larghezza non standard (non presenti quindi nel menu a tendina)</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier></dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Descrizione</label>
+         <input-type>textarea</input-type>
+         <hint>Inserire la descrizione della fotografia</hint>
          <required></required>
        </field>
 
