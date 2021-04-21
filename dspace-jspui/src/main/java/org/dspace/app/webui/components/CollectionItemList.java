@@ -119,10 +119,23 @@ public class CollectionItemList implements CollectionHomeProcessor
             scope.setEtAl(etal);
             scope.setOffset(offset);
             scope.setResultsPerPage(perpage);
+
+            int sortByHandle;
+            String sSortByHandle = ConfigurationManager.getProperty("webui.collection." + collection.getHandle() + ".sort");
+            try {
+                sortByHandle = Integer.valueOf(sSortByHandle);
+            } catch (NumberFormatException e) {
+                sortByHandle = -1;
+            }
+            String sOrderByHandle = SortOption.DESCENDING;
+            if (StringUtils.equalsIgnoreCase(
+                    ConfigurationManager.getProperty("webui.collection." + collection.getHandle() + ".order"),
+                    SortOption.ASCENDING)) {
+                sOrderByHandle = SortOption.ASCENDING;
+            }
             
-            
+            Integer sortID =-1;
             if (StringUtils.isNotBlank(sort)) {
-            	Integer sortID =-1;
                 try
                 {
                 	int num = Integer.parseInt(sort);
@@ -141,14 +154,14 @@ public class CollectionItemList implements CollectionHomeProcessor
                 }catch( NumberFormatException e){
                 	
                 }
-                
-                if(sortID != -1) {
-                	scope.setSortBy(sortID);
-                	scope.setOrder(order);
-                }else if(number!= -1) {
-                	scope.setSortBy(number);
-                    scope.setOrder(SortOption.DESCENDING);
-                }
+            }
+
+            if (sortID != -1) {
+                scope.setSortBy(sortID);
+                scope.setOrder(order);
+            } else if (sortByHandle > 0) {
+                scope.setSortBy(sortByHandle);
+                scope.setOrder(sOrderByHandle);
             }
             else if(number != -1)
             {
