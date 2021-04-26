@@ -2923,8 +2923,8 @@
         "en_US", "en", "es", "de", "fr", "it", "ja", "zh", "other", ""
      -->
    <value-pairs value-pairs-name="common_iso_languages" dc-term="language_iso">
-      <pair>
-       <displayed-value>Nessuna</displayed-value>
+     <pair>
+       <displayed-value>N/A</displayed-value>
        <stored-value></stored-value>
      </pair>
      <pair>
@@ -2982,6 +2982,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="license_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Tutti i diritti riservati</displayed-value>
        <stored-value>Tutti i diritti riservati</stored-value>
@@ -3055,6 +3059,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="common_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Animation</displayed-value>
        <stored-value>Animation</stored-value>
@@ -3214,6 +3222,10 @@
 
    <value-pairs value-pairs-name="unit_of_description_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>Registro o altra unità rilegata</displayed-value>
        <stored-value>registry</stored-value>
      </pair>
@@ -3255,6 +3267,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="archival_materials_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Album</displayed-value>
        <stored-value>album</stored-value>
@@ -3390,6 +3406,10 @@
 
    <value-pairs value-pairs-name="title_integration" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>dettaglio</displayed-value>
        <stored-value>dettaglio</stored-value>
      </pair>
@@ -3460,6 +3480,10 @@
 
    <value-pairs value-pairs-name="pictures_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>negativo</displayed-value>
        <stored-value>negativo</stored-value>
      </pair>
@@ -3486,6 +3510,10 @@
    </value-pairs>
 
   <value-pairs value-pairs-name="issue_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
    <pair>
        <displayed-value>supplemento</displayed-value>
        <stored-value>supplemento</stored-value>
@@ -3502,7 +3530,7 @@
 
    <value-pairs value-pairs-name="common_date_note" dc-term="type">
      <pair>
-       <displayed-value></displayed-value>
+       <displayed-value>N/A</displayed-value>
        <stored-value></stored-value>
      </pair>
      <pair>
@@ -3565,6 +3593,10 @@
 
    <value-pairs value-pairs-name="pictures_color_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>b/n</displayed-value>
        <stored-value>b/n</stored-value>
      </pair>
@@ -3579,6 +3611,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="pictures_material_and_technique" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>allumina/carta</displayed-value>
        <stored-value>allumina/carta</stored-value>
@@ -3639,6 +3675,10 @@
 
    <value-pairs value-pairs-name="pictures_format" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>6x6</displayed-value>
        <stored-value>6x6</stored-value>
      </pair>
@@ -3685,6 +3725,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="common_preservation_state" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>buono</displayed-value>
        <stored-value>buono</stored-value>
