@@ -1661,6 +1661,18 @@
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
          <dc-qualifier>bibliographytitle</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Bibliografia</label>
@@ -2392,6 +2404,18 @@
          <label>Editore</label>
          <input-type>onebox</input-type>
          <hint>Inserire l'editore della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
          <parent>dc_relation_bibliographytitle</parent>
          <required></required>
        </field>
