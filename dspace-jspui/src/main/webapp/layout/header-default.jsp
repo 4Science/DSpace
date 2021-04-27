@@ -290,7 +290,11 @@ if (currentPage.contains("?")) {
 <% if (currentPage.endsWith("/home.jsp")) { %>
   <% if (showTopNews) { %>
   <div class="row">
+    <% if (request.getAttribute("carousel_news") != null) { %>
+      <dspace:include page="/components/carousel-builder.jsp" />
+    <% } else { %>
       <%= topNews %>
+    <% } %>
   </div>
   <% } else { %>
   <div class="intro intro-background">
