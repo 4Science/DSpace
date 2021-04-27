@@ -1661,6 +1661,18 @@
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
          <dc-qualifier>bibliographytitle</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Bibliografia</label>
@@ -2399,6 +2411,18 @@
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
          <dc-qualifier>bibliographytitle</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Bibliografia</label>
@@ -2655,6 +2679,77 @@
          <label>Descrizione del soggetto della moneta</label>
          <input-type>onebox</input-type>
          <hint>Inserire la descrizione del soggetto della moneta</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographytype</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipo di bibliografia</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il tipo di bibliografia</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyauthors</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Autore/i</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyplace</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Luogo di edizione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographypublisher</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Editore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'editore della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographytitle</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Bibliografia</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il titolo della risorsa bibliografica</hint>
          <required></required>
        </field>
 
