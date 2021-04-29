@@ -110,18 +110,18 @@ public class CrisObjectsSitemapGenerator implements ISitemapGeneratorPlugin
     {
         for (ACrisObject crisObj : crisObjects)
         {
-            String url = crisURLStem + crisObj.getAuthorityPrefix() + "/"
+            String url = crisURLStem + crisObj.getPublicPath() + "/"
                     + crisObj.getCrisID();
             if (BooleanUtils.isNotTrue(crisObj.getStatus())) {
                 continue;
             }
             if (makeHTMLMap)
             {
-                html.addURL(url, null);
+                html.addURL(url, crisObj.getLastModified());
             }
             if (makeSitemapOrg)
             {
-                sitemapsOrg.addURL(url, null);
+                sitemapsOrg.addURL(url, crisObj.getLastModified());
             }
             applicationService.clearCache();
         }

@@ -28,27 +28,30 @@ import gr.ekt.bte.dataloader.FileDataLoader;
 import gr.ekt.bte.exceptions.EmptySourceException;
 import gr.ekt.bte.exceptions.MalformedSourceException;
 import gr.ekt.bte.record.MapRecord;
+import gr.ekt.bteio.loaders.RISDataLoader;
 
 /**
- * Based on {@link gr.ekt.bteio.loaders.RISDataLoader} implementation.
- * It follows the Endnote file format specification as described on
- * https://en.wikipedia.org/wiki/EndNote
+ * Works based on gr.ekt.bteio.loaders.RISDataLoader
+ * This implementation manage the Byte Order Mark at the start of the file.
+ * It also relax the requirement about extra space after the "ER -" as Citavi seems
+ * to don't include it 
  * 
- * It deals with the eventual presence of the BOM marker that some tools insert
+ * @author Pasquale Cavallo (pasquale.cavallo at 4science dot it)
+ *
  */
-public class EndnoteDataLoader extends FileDataLoader {
+public class RisDataLoader extends FileDataLoader {
 
-    private static Logger logger_ = Logger.getLogger(EndnoteDataLoader.class);
+    private static Logger logger_ = Logger.getLogger(RISDataLoader.class);
     private BufferedReader reader_;
     private Map<String, String> field_map_;
 
-    public EndnoteDataLoader() {
+    public RisDataLoader() {
         super();
         reader_ = null;
         field_map_ = null;
     }
 
-    public EndnoteDataLoader(String filename, Map<String, String> field_map) throws EmptySourceException {
+    public RisDataLoader(String filename, Map<String, String> field_map) throws EmptySourceException {
         super(filename);
         field_map_ = field_map;
         openReader();
@@ -59,67 +62,65 @@ public class EndnoteDataLoader extends FileDataLoader {
         if (reader_ == null) {
             throw new EmptySourceException("Input file is not open");
         }
-       RecordSet records = new RecordSet();
+        RecordSet records = new RecordSet();
 
         try {
             String line;
             boolean in_record = false;
             int line_cnt = 0;
-            int inRecordCount = 0;
             MapRecord rec = null;
 
             String ris_tag = null;
-            while ((line = reader_.readLine()) != null) {
+            while((line = reader_.readLine()) != null) {
                 line_cnt++;
 
-                // Ignore empty lines
-                if (line.isEmpty() || line.equals("") || line.matches("^\\s*$")) {
+                //Ignore empty lines
+                if(line.isEmpty() || line.equals("") || line.matches("^\\s*$")) {
                     continue;
                 }
-                Pattern endnote_pattern = Pattern.compile("(^%[A-Z|0-9]) ?(.*)$");
-                Matcher ris_matcher = endnote_pattern.matcher(line);
+                Pattern ris_pattern = Pattern.compile("^([A-Z][A-Z0-9])  - {0,1}(.*)$");
+                Matcher ris_matcher = ris_pattern.matcher(line);
                 Value val;
                 if (ris_matcher.matches()) {
                     ris_tag = ris_matcher.group(1);
-
-                    if (ris_tag.equals("%0")) {
-                        if (inRecordCount > 0) {
-                            in_record = false;
-                            records.addRecord(rec);
-                            rec = null;
-                        }
-                    }
                     if (!in_record) {
-                        // The first tag of the record should be "TY". If we
-                        // encounter it we should create a new record.
-                        if (ris_tag.equals("%0")) {
+                        //The first tag of the record should be "TY". If we
+                        //encounter it we should create a new record.
+                        if (ris_tag.equals("TY")) {
                             in_record = true;
-                            inRecordCount++;
                             rec = new MapRecord();
-                        } else {
-                            logger_.debug("Line: " + line_cnt + " in file " + filename + " should contain tag \"%0\"");
-                            throw new MalformedSourceException(
-                                    "Line: " + line_cnt + " in file " + filename + " should contain tag \"%0\"");
+                        }
+                        else {
+                            logger_.debug("Line: " + line_cnt + " in file " + filename + " should contain tag \"TY\"");
+                            throw new MalformedSourceException("Line: " + line_cnt + " in file " + filename + " should contain tag \"TY\"");
                         }
                     }
 
-                    // If there is no mapping for the current tag we do not
-                    // know what to do with it, so we ignore it.
+                    //If the tag is the end record tag ("ER") we stop
+                    //being in a record. Add the current record in the
+                    //record set and skip the rest of the processing.
+                    if (ris_tag.equals("ER")) {
+                        in_record = false;
+                        records.addRecord(rec);
+                        rec = null;
+                        continue;
+                    }
+
+                    //If there is no mapping for the current tag we do not
+                    //know what to do with it, so we ignore it.
                     if (!field_map_.containsKey(ris_tag)) {
                         logger_.warn("Tag \"" + ris_tag + "\" is not in the field map. Ignoring");
                         continue;
                     }
                     val = new StringValue(ris_matcher.group(2));
-                } else {
+                }
+                else {
                     val = new StringValue(line);
                 }
                 String field = field_map_.get(ris_tag);
                 if (field != null) {
                     rec.addValue(field, val);
                 }
-            }
-            if(rec!= null ) {
-            	records.addRecord(rec);
             }
         } catch (IOException e) {
             logger_.info("Error while reading from file " + filename);
@@ -144,7 +145,6 @@ public class EndnoteDataLoader extends FileDataLoader {
             reader_ = null;
         }
     }
-
     @Override
     protected void finalize() throws Throwable {
         reader_.close();
@@ -152,9 +152,9 @@ public class EndnoteDataLoader extends FileDataLoader {
 
     private void openReader() throws EmptySourceException {
         try {
-            BOMInputStream is = new BOMInputStream(new FileInputStream(filename));
-            Reader reader = new InputStreamReader(is);
-            reader_ = new BufferedReader(reader);
+        	BOMInputStream is = new BOMInputStream(new FileInputStream(filename));
+        	Reader reader = new InputStreamReader(is);
+        	reader_ = new BufferedReader(reader);
         } catch (FileNotFoundException e) {
             throw new EmptySourceException("File " + filename + " not found");
         }
@@ -168,8 +168,7 @@ public class EndnoteDataLoader extends FileDataLoader {
     }
 
     /**
-     * @param field_map_
-     *            the field_map_ to set
+     * @param field_map_ the field_map_ to set
      */
     public void setFieldMap(Map<String, String> field_map_) {
         this.field_map_ = field_map_;

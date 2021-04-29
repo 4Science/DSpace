@@ -8,17 +8,20 @@
 package org.dspace.storage.bitstore;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.model.UploadResult;
 
@@ -65,6 +68,9 @@ public class S3BitStoreService extends ABitStoreService
     /** S3 service */
     private AmazonS3 s3Service = null;
 
+    /** transfer manager */
+    private TransferManager transferManager = null;
+
     public S3BitStoreService()
     {
     }
@@ -81,9 +87,23 @@ public class S3BitStoreService extends ABitStoreService
             log.warn("Empty S3 access or secret");
         }
 
+        // region
+        Regions regions = Regions.DEFAULT_REGION;
+        if (StringUtils.isNotBlank(awsRegionName)) {
+            try {
+                regions = Regions.fromName(awsRegionName);
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid aws_region: " + awsRegionName);
+            }
+        }
+
         // init client
         AWSCredentials awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
-        s3Service = new AmazonS3Client(awsCredentials);
+        s3Service = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withRegion(regions)
+                .build();
+        log.info("S3 Region set to: " + regions.getName());
 
         // bucket name
         if(StringUtils.isEmpty(bucketName)) {
@@ -92,7 +112,7 @@ public class S3BitStoreService extends ABitStoreService
         }
 
         try {
-            if(! s3Service.doesBucketExist(bucketName)) {
+            if(! s3Service.doesBucketExistV2(bucketName)) {
                 s3Service.createBucket(bucketName);
                 log.info("Creating new S3 Bucket: " + bucketName);
             }
@@ -103,17 +123,9 @@ public class S3BitStoreService extends ABitStoreService
             throw new IOException(e);
         }
 
-        // region
-        if(StringUtils.isNotBlank(awsRegionName)) {
-            try {
-                Regions regions = Regions.fromName(awsRegionName);
-                Region region = Region.getRegion(regions);
-                s3Service.setRegion(region);
-                log.info("S3 Region set to: " + region.getName());
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid aws_region: " + awsRegionName);
-            }
-        }
+        transferManager = TransferManagerBuilder.standard()
+                .withS3Client(s3Service)
+                .build();
 
         log.info("AWS S3 Assetstore ready to go! bucket:"+bucketName);
     }
@@ -148,7 +160,6 @@ public class S3BitStoreService extends ABitStoreService
             tempFile.deleteOnExit();
 
             GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, key);
-            TransferManager transferManager = new TransferManager(s3Service);
             Download download = transferManager.download(getObjectRequest, tempFile);
             download.waitForCompletion();
 
@@ -186,7 +197,6 @@ public class S3BitStoreService extends ABitStoreService
             Long contentLength = Long.valueOf(scratchFile.length());
 
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, scratchFile);
-            TransferManager transferManager = new TransferManager(s3Service);
             Upload upload = transferManager.upload(putObjectRequest);
             UploadResult uploadResult = upload.waitForUploadResult();
 

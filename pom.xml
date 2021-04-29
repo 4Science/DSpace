@@ -38,7 +38,7 @@
 		<org.hibernate.annotations.version>4.0.2.Final</org.hibernate.annotations.version>
 		<org.hibernate.jpa.version>1.0.1.Final</org.hibernate.jpa.version>
 		
-		<org.jdyna.version>5.20</org.jdyna.version>
+		<org.jdyna.version>5.21</org.jdyna.version>
 		<it.cilea.ccommons.version>2.5</it.cilea.ccommons.version>
 		
 		<ckan.addon.modules>[CRIS-5.2-SNAPSHOT,CRIS-6.0-SNAPSHOT)</ckan.addon.modules>
@@ -1495,12 +1495,12 @@
          <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.3.2</version>
+            <version>4.4.14</version>
          </dependency>
          <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.5</version>
+            <version>4.5.13</version>
          </dependency>
         <dependency>
              <groupId>org.slf4j</groupId>

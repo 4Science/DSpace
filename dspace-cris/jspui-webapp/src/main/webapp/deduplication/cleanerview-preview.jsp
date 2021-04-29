@@ -48,6 +48,7 @@
 <%@ page import="org.dspace.content.Metadatum" %>
 <%@ page import="org.dspace.content.Item" %>
 <%@ page import="org.dspace.eperson.EPerson" %>
+<%@ page import="org.dspace.app.webui.util.UIUtil" %>
 <%@ page import="org.apache.commons.lang3.StringUtils" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
@@ -710,7 +711,7 @@ $(document).ready(function() {
 	
 <%	
 	MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-	ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+	ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager(UIUtil.obtainContext(request));
  	Map dcCounter = new HashMap();
  	HashMap traceFieldValue = new HashMap();
  	//String row = "even"; //ONLY used on bitstream table

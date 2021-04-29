@@ -80,7 +80,7 @@
 	<link type="text/css" href="<%=request.getContextPath()%>/static/css/jquery/ui/all/jquery-ui-latest.custom.css" rel="stylesheet" media="all"/>
 
 	<script type="text/javascript" src="<%= request.getContextPath() %>/javascripts/tmpl.min.js"> </script>
-	<script type='text/javascript' src="<%= request.getContextPath() %>/static/js/jquery/jquery-3.4.1.min.js"></script>
+	<script type='text/javascript' src="<%= request.getContextPath() %>/static/js/jquery/jquery-3.6.0.min.js"></script>
 	<script type='text/javascript' src='<%= request.getContextPath() %>/static/js/jquery/jquery-ui-1.12.1.min.js'></script>
     <script type='text/javascript' src="<%=request.getContextPath()%>/js/jquery.layout-1.4.4.js"></script>
 	<script type='text/javascript' src='<%= request.getContextPath() %>/static/js/bootstrap/bootstrap.min.js'></script>

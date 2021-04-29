@@ -44,7 +44,7 @@ if (sessionLocale != null) {
 							</h3>
 						</div>
 						<div class="panel-body">
-							<div class="container">
+							<div>
 								<div class="alert alert-info" role="alert">
 									<fmt:message
 										key="jsp.orcid.custom.box.label.preferences.pushmode" />
@@ -80,7 +80,7 @@ if (sessionLocale != null) {
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.publications"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
     							<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.publications.tips"/></div>
     							<div class="clearfix"></div>
 								<c:forEach
@@ -103,7 +103,7 @@ if (sessionLocale != null) {
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.grant"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
     							<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.projects.tips"/></div>
     							<div class="clearfix"></div>
 								<c:forEach
@@ -128,7 +128,7 @@ if (sessionLocale != null) {
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.profile"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
     							<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.profile.tips"/></div>
     							<div class="clearfix"></div>		
 								<c:forEach

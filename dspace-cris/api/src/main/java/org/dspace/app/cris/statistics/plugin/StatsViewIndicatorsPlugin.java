@@ -122,6 +122,12 @@ public class StatsViewIndicatorsPlugin extends AStatsIndicatorsPlugin
 	                            qr.getResults().getNumFound(),
 	                            ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
 	                            null, acquisitionDate, remark);
+	                    try {
+							DSpaceObject dspaceObject = DSpaceObject.find(context, resourceType, resourceId);
+							context.removeCached(dspaceObject, resourceId);
+						} catch (SQLException | NullPointerException e) {
+							log.warn(e);
+						}
                     }else {
                     	String publicPath ="";
                     	switch (resourceType) {
@@ -155,12 +161,6 @@ public class StatsViewIndicatorsPlugin extends AStatsIndicatorsPlugin
                                 ConstantMetrics.STATS_INDICATOR_TYPE_DOWNLOAD,
                                 null, acquisitionDate, remark);
                     }
-					try {
-						DSpaceObject dspaceObject = DSpaceObject.find(context, resourceType, resourceId);
-						context.removeCached(dspaceObject, resourceId);
-					} catch (SQLException e) {
-						log.warn(e);
-					}
                     if (count % 100 == 0) {
                     	applicationService.clearCache();
                     }

@@ -1519,7 +1519,6 @@ public class PushToORCID
                 fuzzyDate.setDay(day);
             }
             funding.setEndDate(fuzzyDate);
-            return funding;
         }
 
         if (itemMetadata.getExternalIdentifier() != null)

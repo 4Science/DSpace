@@ -1440,6 +1440,31 @@
 		</property>							
 		<property name="validator" ref="rpNestedAnagraficaValidator" />
 	</bean>
+
+	<bean id="reorderRPNestedDetailsController"
+		class="it.cilea.osd.jdyna.controller.NestedObjectDetailsController">
+		<property name="applicationService">
+			<ref bean="applicationService" />
+		</property>
+		<constructor-arg index="0">
+			<value>org.dspace.app.cris.model.jdyna.RPNestedObject</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value>org.dspace.app.cris.model.jdyna.DecoratorRPTypeNested</value>
+		</constructor-arg>
+		<property name="specificPartPath">
+			<value>rp</value>
+		</property>
+		<property name="specificContextPath">
+			<value>/cris/tools/</value>
+		</property>
+		<property name="detailsView">
+			<value>nestedListPage</value>
+		</property>
+		<property name="method">
+			<value>reorder</value>
+		</property>
+	</bean>
 	
 
 	
@@ -2925,6 +2950,33 @@
 			</value>
 		</property>		
 		<property name="validator" ref="projectNestedAnagraficaValidator" />
+	</bean>
+
+	<bean id="reorderProjectNestedDetailsController"
+		class="it.cilea.osd.jdyna.controller.NestedObjectDetailsController">
+		<property name="applicationService">
+			<ref bean="applicationService" />
+		</property>
+
+		<constructor-arg index="0">
+			<value>org.dspace.app.cris.model.jdyna.ProjectNestedObject</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value>org.dspace.app.cris.model.jdyna.DecoratorProjectTypeNested
+			</value>
+		</constructor-arg>
+		<property name="specificPartPath">
+			<value>project</value>
+		</property>
+		<property name="specificContextPath">
+			<value>/cris/tools/</value>
+		</property>
+		<property name="detailsView">
+			<value>nestedListPage</value>
+		</property>
+		<property name="method">
+			<value>reorder</value>
+		</property>
 	</bean>
 	
 
@@ -4504,6 +4556,32 @@
 			</value>
 		</property>		
 		<property name="validator" ref="ouNestedAnagraficaValidator" />
+	</bean>
+
+	<bean id="reorderOUNestedDetailsController"
+		class="it.cilea.osd.jdyna.controller.NestedObjectDetailsController">
+		<property name="applicationService">
+			<ref bean="applicationService" />
+		</property>
+
+		<constructor-arg index="0">
+			<value>org.dspace.app.cris.model.jdyna.OUNestedObject</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value>org.dspace.app.cris.model.jdyna.DecoratorOUTypeNested</value>
+		</constructor-arg>
+		<property name="specificPartPath">
+			<value>ou</value>
+		</property>
+		<property name="specificContextPath">
+			<value>/cris/tools/</value>
+		</property>
+		<property name="detailsView">
+			<value>nestedListPage</value>
+		</property>
+		<property name="method">
+			<value>reorder</value>
+		</property>
 	</bean>
 	
 
@@ -6460,6 +6538,29 @@
 		</property>		
 		<property name="validator" ref="doNestedAnagraficaValidator" />
 	</bean>
+
+	<bean id="reorderDONestedDetailsController"
+		class="it.cilea.osd.jdyna.controller.NestedObjectDetailsController">
+		<property name="applicationService">
+			<ref bean="applicationService" />
+		</property>
+
+		<constructor-arg index="0">
+			<value>org.dspace.app.cris.model.jdyna.DynamicNestedObject</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value>org.dspace.app.cris.model.jdyna.DecoratorDynamicTypeNested</value>
+		</constructor-arg>
+		<property name="specificContextPath">
+			<value>/cris/tools/</value>
+		</property>
+		<property name="detailsView">
+			<value>nestedListPage</value>
+		</property>
+		<property name="method">
+			<value>reorder</value>
+		</property>
+	</bean>
 	
 
 	
@@ -7061,24 +7162,28 @@
 				<prop key="/tools/rp/addNested.htm">editRPNestedDetailsController</prop>
 				<prop key="/tools/rp/editNested.htm">editRPNestedDetailsController</prop>				
 				<prop key="/tools/rp/deleteNested.htm">deleteRPNestedDetailsController</prop>
+				<prop key="/tools/rp/reorderNested.htm">reorderRPNestedDetailsController</prop>
 				<prop key="/project/viewNested.htm">viewProjectNestedDetailsController</prop>
 				<prop key="/tools/project/preferredNested.htm">miscProjectNestedDetailsController</prop>
 				<prop key="/tools/project/notPreferredNested.htm">miscProjectNestedDetailsController</prop>
 				<prop key="/tools/project/addNested.htm">editProjectNestedDetailsController</prop>
 				<prop key="/tools/project/editNested.htm">editProjectNestedDetailsController</prop>				
 				<prop key="/tools/project/deleteNested.htm">deleteProjectNestedDetailsController</prop>
+				<prop key="/tools/project/reorderNested.htm">reorderProjectNestedDetailsController</prop>
 				<prop key="/ou/viewNested.htm">viewOUNestedDetailsController</prop>
 				<prop key="/tools/ou/preferredNested.htm">miscOUNestedDetailsController</prop>
 				<prop key="/tools/ou/notPreferredNested.htm">miscOUNestedDetailsController</prop>
 				<prop key="/tools/ou/addNested.htm">editOUNestedDetailsController</prop>
 				<prop key="/tools/ou/editNested.htm">editOUNestedDetailsController</prop>				
 				<prop key="/tools/ou/deleteNested.htm">deleteOUNestedDetailsController</prop>
+				<prop key="/tools/ou/reorderNested.htm">reorderOUNestedDetailsController</prop>
 				<prop key="/*/viewNested.htm">viewDONestedDetailsController</prop>
 				<prop key="/tools/*/preferredNested.htm">miscDONestedDetailsController</prop>
 				<prop key="/tools/*/notPreferredNested.htm">miscDONestedDetailsController</prop>				
 				<prop key="/tools/*/addNested.htm">editDONestedDetailsController</prop>
 				<prop key="/tools/*/editNested.htm">editDONestedDetailsController</prop>				
 				<prop key="/tools/*/deleteNested.htm">deleteDONestedDetailsController</prop>				
+				<prop key="/tools/*/reorderNested.htm">reorderDONestedDetailsController</prop>
 								
 				<!-- Controller to load embedded navigation and calculate if show or 
 					hidden the Tabs -->

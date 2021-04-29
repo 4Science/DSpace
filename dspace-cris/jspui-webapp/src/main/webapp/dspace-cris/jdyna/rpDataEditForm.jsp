@@ -330,6 +330,110 @@
 										}
 									});	
 							});
+							j('#nested_'+id+'_showreorderbutton').click(function(){
+								// show list of nesteds to reorder
+								var ajaxurlviewreordernested =
+									"<%= request.getContextPath() %>/cris/${specificPartPath}/viewNested.htm";
+								j.ajax( {
+									url : ajaxurlviewreordernested,
+									data : {
+										"parentID" : ${anagraficadto.objectId},
+										"typeNestedID" : id,
+										"pageCurrent": 0,
+										"limit": 9999,
+										"editmode": true,
+										"totalHit": j('#nested_'+id+"_totalHit").html(),
+										"admin": ${admin}
+									},
+									success : function(data) {
+										j('#nested_'+id+'_reorderbody').html(data);
+										// add move up button and move down button to each row
+										j('#nested_'+id+'_reorderbody tbody tr').append("<button id=\"button-up\" type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-arrow-up\"></span></button>");
+										j('#nested_'+id+'_reorderbody tbody tr').append("<button id=\"button-down\" type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-arrow-down\"></span></button>");
+										// add id on each row
+										j('#nested_'+id+'_reorderbody tbody tr').each(function() {
+											var nestedValue = j(this).find('.nested_edit_button');
+											nestedValueID = j(nestedValue).attr('id').substring(j(nestedValue).attr('id').lastIndexOf('_')+1);
+	                                        j(this).attr("id", 'nested_'+id+'_reorderbody_'+nestedValueID);
+	                                        j(this).addClass('nested_'+id+'_reorderbody');
+										});
+										// disable move up button on the first row
+										j('.nested_'+id+'_reorderbody button').first().addClass("disabled");
+										// disable move down button on the last row
+										j('.nested_'+id+'_reorderbody button').last().addClass("disabled");
+										// remove unused buttons
+										j('#nested_'+id+'_reorderbody .nested_preferred_button').parent().addClass('hidden');
+										j('#nested_'+id+'_reorderbody #nested_'+id+'_addbutton').addClass('hidden');
+										j('#nested_'+id+'_reorderbody #nested_'+id+'_showreorderbutton').addClass('hidden');
+										postfunction();
+									},
+									error : function(data) {
+									}
+								});
+							});
+							j('#nested_'+id+'_reorderbody #button-up').click(function(){
+								// move row up
+								var target = j(this).parent();
+								var content = j(this).parent().prev();
+								switchRows(id, target, content);
+							});
+							j('#nested_'+id+'_reorderbody #button-down').click(function(){
+								// move row down
+								var target = j(this).parent().next();
+								var content = j(this).parent();
+								switchRows(id, target, content);
+							});
+							function switchRows(id, target, content) {
+								// remove disabled class on buttons -> safety check when moving rows
+								j(target).find('button').removeClass("disabled");
+								j(content).find('button').removeClass("disabled");
+								// move the content row after the target row
+								j(target).after(j(content));
+								// disable first move up button and last move down button
+								j('.nested_'+id+'_reorderbody button').first().addClass("disabled");
+								j('.nested_'+id+'_reorderbody button').last().addClass("disabled");
+								// update order of nesteds
+								var ajaxurlreordernested =
+									"<%= request.getContextPath() %>/cris/tools/${specificPartPath}/reorderNested.htm";
+								j.ajax( {
+									url : ajaxurlreordernested,
+									data : {
+										"targetID": j(target).attr('id'),
+										"contentID": j(content).attr('id'),
+										"parentID" : ${anagraficadto.objectId},
+										"typeNestedID" : id,
+										"editmode" : true,
+										"admin": ${admin}
+									},
+									success : function(data) {
+									},
+									error : function(data) {
+									}
+								});
+							}
+							j('#nested_'+id+'_reorderbutton').click(function(){
+								// update list of nesteds
+								var ajaxurlviewreordernested =
+									"<%= request.getContextPath() %>/cris/${specificPartPath}/viewNested.htm";
+								j.ajax( {
+									url : ajaxurlviewreordernested,
+									data : {
+										"parentID" : ${anagraficadto.objectId},
+										"typeNestedID" : id,
+										"pageCurrent": j('#nested_'+id+"_pageCurrent").html(),
+										"limit": j('#nested_'+id+"_limit").html(),
+										"editmode": true,
+										"totalHit": j('#nested_'+id+"_totalHit").html(),
+										"admin": ${admin}
+									},
+									success : function(data) {
+										j('#viewnested_'+id).html(data);
+										postfunction();
+									},
+									error : function(data) {
+									}
+								});
+							});
 							j('#nested_'+id+'_next').click(
 									function() {
 								    	ajaxFunction(parseInt(j('#nested_'+id+"_pageCurrent").html())+1);
