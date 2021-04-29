@@ -7,7 +7,7 @@
 %>
 
 <div class="col-md-12 hidden-xs">
-	<div id="carousel" class="carousel slide" data-ride="carousel" style="font-weight:bold">
+	<div id="carousel" class="carousel slide" data-ride="carousel" style="font-weight:bold; background-color:#000;">
 		<ol class="carousel-indicators">
 	<%	boolean first = true;
 		for(int i = 0; i < news.size(); i++)	

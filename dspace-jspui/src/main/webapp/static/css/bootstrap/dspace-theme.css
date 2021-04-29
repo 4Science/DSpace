@@ -814,3 +814,8 @@ div.footerPanel {
 .uv .headerPanel .centerOptions .autocompleteText {
     color: #000;
 }
+
+.carousel-inner > .item > a > img, .carousel-inner > .item > img {
+    margin-left: auto;
+    margin-right: auto;
+}
