@@ -819,3 +819,15 @@ div.footerPanel {
     margin-left: auto;
     margin-right: auto;
 }
+
+/* right and left arrows to show and hide addthis panel */
+.at4-arrow.at-right {
+    padding: 22px;
+    margin-left:-30px;
+}
+.at4-arrow.at-right, .at4-arrow.at-left {
+    background-size: 150px;
+}
+.at4-arrow.at-left {
+    padding: 15px;
+}
