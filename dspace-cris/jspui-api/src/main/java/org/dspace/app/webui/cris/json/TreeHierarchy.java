@@ -62,8 +62,8 @@ public class TreeHierarchy extends JSONRequest
             // only the first level
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQuery("treeparent_s:\"" + selectedNode + "\"");
-            solrQuery.setRows(Integer.MAX_VALUE);
             solrQuery.setFields("crisauthoritylookup","handle", "cris-id", "treeleaf_b");
+            solrQuery.setRows(Integer.MAX_VALUE);
             try
             {
                 QueryResponse response = searchService.search(solrQuery);
@@ -73,11 +73,10 @@ public class TreeHierarchy extends JSONRequest
                     String value = "";
                     if (doc.getFieldValue("crisauthoritylookup") instanceof String)
                     {
-                        value = (String) doc.getFieldValue("v");
+                        value = (String) doc.getFieldValue("crisauthoritylookup");
                     }
                     else
                     {
-
                         for (String ss : (List<String>) doc.getFieldValue("crisauthoritylookup"))
                         {
                             value += ss;
@@ -134,16 +133,18 @@ public class TreeHierarchy extends JSONRequest
                     for(SolrDocument docInternal : docListInternal) {                  
                         JSNodeDTO node = new JSNodeDTO();
                         String value = "";
-                        if (docInternal.getFieldValue("crisauthoritylookup") instanceof String)
+                        if (docInternal.getFieldValue("crisauthoritylookup") != null)
                         {
-                            value = (String) docInternal.getFieldValue("crisauthoritylookup");
-                        }
-                        else
-                        {
-
-                            for (String ss : (List<String>) docInternal.getFieldValue("crisauthoritylookup"))
+                            if (docInternal.getFieldValue("crisauthoritylookup") instanceof String)
                             {
-                                value = ss;
+                                value = (String) docInternal.getFieldValue("crisauthoritylookup");
+                            }
+                            else
+                            {
+                                for (String ss : (List<String>) docInternal.getFieldValue("crisauthoritylookup"))
+                                {
+                                    value = ss;
+                                }
                             }
                         }
                         String authority = (String)(docInternal.getFieldValue("cris-id"));
@@ -166,15 +167,15 @@ public class TreeHierarchy extends JSONRequest
                         dto.add(node);
                         
                         Boolean leaf = (Boolean)(docInternal.getFieldValue("treeleaf_b"));
-                        if(leaf) {
+                        if(leaf != null && leaf) {
                             //retrieve all items
                             //get all node leads by this root node
                             SolrQuery solrQueryItem = new SolrQuery();
                             solrQueryItem.setQuery(MessageFormat.format(configurator.getRelation().get(contextTree).getQuery(),authority));
                             solrQueryItem.setFilterQueries("-withdrawn:true");
-                            solrQueryItem.setRows(Integer.MAX_VALUE);
                             solrQueryItem.setFields("search.resourcetype", "search.resourceid", "handle", "dc.title");
                             addSortFields(solrQueryItem);
+                            solrQueryItem.setRows(Integer.MAX_VALUE);
                             QueryResponse responseItem = searchService.search(solrQueryItem);
                             SolrDocumentList docListItem = responseItem.getResults();
                             for(SolrDocument docItem : docListItem) {
