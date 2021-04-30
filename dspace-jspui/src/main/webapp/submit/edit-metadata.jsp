@@ -1289,24 +1289,17 @@
       boolean readonly, int fieldCountIncr, List qualMap, String label, PageContext pageContext, int collectionID, List<DCInput> children,boolean hasParent)
       throws java.io.IOException
     {
-    	Metadatum[] unfiltered = item.getMetadata(schema, element, Item.ANY, Item.ANY);
-    	// filter out both unqualified and qualified values occurring elsewhere in inputs
-    	List<Metadatum> filtered = new ArrayList<Metadatum>();
-    	for (int i = 0; i < unfiltered.length; i++)
+    	// retrieve metadata using qualMap values
+    	List<Metadatum> supportedQualifiers = new ArrayList<Metadatum>();
+    	for (int i = 0; i < qualMap.size(); i+=2)
     	{
-    		String unfilteredFieldName = unfiltered[i].element;
-    		String qualifierToCheck = "";
-    		if(unfiltered[i].qualifier != null && unfiltered[i].qualifier.length()>0) {
-    			unfilteredFieldName += "." + unfiltered[i].qualifier;
-    			qualifierToCheck = unfiltered[i].qualifier;
-    		}
-    		int foundPos = qualMap.indexOf(qualifierToCheck);
-    		if ( foundPos != -1 && foundPos % 2 == 1 )
+    		Metadatum[] metadata = item.getMetadata(schema, element, (String)qualMap.get(i+1), item.ANY);
+    		for (int j = 0; j < metadata.length; j++)
     		{
-    			filtered.add( unfiltered[i] );
-   			}
+    			supportedQualifiers.add(metadata[j]);
+    		}
       	}
-      	Metadatum[] defaults = filtered.toArray(new Metadatum[0]);
+      	Metadatum[] defaults = supportedQualifiers.toArray(new Metadatum[0]);
 
       	int fieldCount = defaults.length + fieldCountIncr;
       	StringBuffer sb = new StringBuffer();

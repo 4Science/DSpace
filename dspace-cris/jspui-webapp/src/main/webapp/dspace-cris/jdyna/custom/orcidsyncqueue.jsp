@@ -265,7 +265,7 @@ jQuery(document).ready(function() {
                                                                     </c:choose>
 								</c:otherwise>
 							</c:choose>							
-                                        <br/><a href="<%= request.getContextPath() %>/cris/tools/rp/editDynamicData.htm?id=${researcher.id}&tabId=17"><fmt:message key="jsp.orcid.custom.pushlink"/></a><br/>
+                                        <br/><a href="<%= request.getContextPath() %>/cris/tools/rp/editDynamicData.htm?id=${researcher.id}"><fmt:message key="jsp.orcid.custom.pushlink"/></a><br/>
 							<hr/>
 
 							<%-- <span><fmt:message key="jsp.orcid.custom.box.label.preferences.warning.v2"/></span>

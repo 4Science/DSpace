@@ -33,7 +33,6 @@
 <%@ page import="org.dspace.submit.AbstractProcessingStep" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
-
 <%
 	// Obtain DSpace context
     Context context = UIUtil.obtainContext(request);

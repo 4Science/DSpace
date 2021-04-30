@@ -1661,6 +1661,18 @@
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
          <dc-qualifier>bibliographytitle</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Bibliografia</label>
@@ -2399,6 +2411,18 @@
        <field>
          <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
          <dc-qualifier>bibliographytitle</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Bibliografia</label>
@@ -2655,6 +2679,77 @@
          <label>Descrizione del soggetto della moneta</label>
          <input-type>onebox</input-type>
          <hint>Inserire la descrizione del soggetto della moneta</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographytype</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Tipo di bibliografia</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il tipo di bibliografia</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyauthors</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Autore/i</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyplace</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Luogo di edizione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographypublisher</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Editore</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'editore della risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographyyear</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Anno di pubblicazione</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
+         <parent>dc_relation_bibliographytitle</parent>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>bibliographytitle</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Bibliografia</label>
+         <input-type>onebox</input-type>
+         <hint>Inserire il titolo della risorsa bibliografica</hint>
          <required></required>
        </field>
 
@@ -2923,8 +3018,8 @@
         "en_US", "en", "es", "de", "fr", "it", "ja", "zh", "other", ""
      -->
    <value-pairs value-pairs-name="common_iso_languages" dc-term="language_iso">
-      <pair>
-       <displayed-value>Nessuna</displayed-value>
+     <pair>
+       <displayed-value>N/A</displayed-value>
        <stored-value></stored-value>
      </pair>
      <pair>
@@ -2982,6 +3077,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="license_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Tutti i diritti riservati</displayed-value>
        <stored-value>Tutti i diritti riservati</stored-value>
@@ -3055,6 +3154,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="common_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Animation</displayed-value>
        <stored-value>Animation</stored-value>
@@ -3214,6 +3317,10 @@
 
    <value-pairs value-pairs-name="unit_of_description_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>Registro o altra unità rilegata</displayed-value>
        <stored-value>registry</stored-value>
      </pair>
@@ -3255,6 +3362,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="archival_materials_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>Album</displayed-value>
        <stored-value>album</stored-value>
@@ -3390,6 +3501,10 @@
 
    <value-pairs value-pairs-name="title_integration" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>dettaglio</displayed-value>
        <stored-value>dettaglio</stored-value>
      </pair>
@@ -3460,6 +3575,10 @@
 
    <value-pairs value-pairs-name="pictures_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>negativo</displayed-value>
        <stored-value>negativo</stored-value>
      </pair>
@@ -3486,6 +3605,10 @@
    </value-pairs>
 
   <value-pairs value-pairs-name="issue_types" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
    <pair>
        <displayed-value>supplemento</displayed-value>
        <stored-value>supplemento</stored-value>
@@ -3502,7 +3625,7 @@
 
    <value-pairs value-pairs-name="common_date_note" dc-term="type">
      <pair>
-       <displayed-value></displayed-value>
+       <displayed-value>N/A</displayed-value>
        <stored-value></stored-value>
      </pair>
      <pair>
@@ -3565,6 +3688,10 @@
 
    <value-pairs value-pairs-name="pictures_color_types" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>b/n</displayed-value>
        <stored-value>b/n</stored-value>
      </pair>
@@ -3579,6 +3706,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="pictures_material_and_technique" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>allumina/carta</displayed-value>
        <stored-value>allumina/carta</stored-value>
@@ -3639,6 +3770,10 @@
 
    <value-pairs value-pairs-name="pictures_format" dc-term="type">
      <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
+     <pair>
        <displayed-value>6x6</displayed-value>
        <stored-value>6x6</stored-value>
      </pair>
@@ -3685,6 +3820,10 @@
    </value-pairs>
 
    <value-pairs value-pairs-name="common_preservation_state" dc-term="type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value></stored-value>
+     </pair>
      <pair>
        <displayed-value>buono</displayed-value>
        <stored-value>buono</stored-value>

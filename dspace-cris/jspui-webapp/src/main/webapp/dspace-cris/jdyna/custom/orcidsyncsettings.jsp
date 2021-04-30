@@ -34,7 +34,7 @@
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.publications"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
 							<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.publications.details.tips"/></div>
 							<div class="clearfix">&nbsp;</div>
     						<c:choose>	
@@ -64,7 +64,7 @@
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.grant"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
 							<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.projects.details.tips"/></div>
 							<div class="clearfix">&nbsp;</div>	
     						<c:choose>	
@@ -95,7 +95,7 @@
     						<h3 class="panel-title"><fmt:message key="jsp.orcid.custom.box.label.preferences.profile"/></h3>
   						</div>
   						<div class="panel-body">
-    						<div class="container">
+    						<div>
 									<div class="label label-info"><fmt:message key="jsp.orcid.custom.box.label.preferences.profile.details.tips"/></div>
 									<div class="clearfix">&nbsp;</div>
 									<c:forEach items="${propertiesDefinitionsInHolder[holder.shortName]}" var="tipologiaDaVisualizzare" varStatus="status">

@@ -168,24 +168,26 @@ public abstract class AbstractBrowserServlet extends DSpaceServlet
                     sortBy = so.getNumber();
                 }
             }
-            else if (bi != null && bi.isItemIndex() && !bi.isInternalIndex())
-            {
-                // If a default sort option is specified by the index, but it isn't
-                // the same as sort option requested, attempt to find an index that
-                // is configured to use that sort by default
-                // This is so that we can then highlight the correct option in the navigation
-                SortOption bso = bi.getSortOption();
-                SortOption so = SortOption.getSortOption(sortBy);
-                if ( bso != null && bso.equals(so))
-                {
-                    BrowseIndex newBi = BrowseIndex.getBrowseIndex(so);
-                    if (newBi != null)
-                    {
-                        bi   = newBi;
-                        type = bi.getName();
-                    }
-                }
-            }
+// CST-4011 DSpace-CRIS add the possibility to apply default filter to a browse index so 
+// we cannot change the index to match the sort preference as this will lead to a wrong filter        
+//            else if (bi != null && bi.isItemIndex() && !bi.isInternalIndex())
+//            {
+//                // If a default sort option is specified by the index, but it isn't
+//                // the same as sort option requested, attempt to find an index that
+//                // is configured to use that sort by default
+//                // This is so that we can then highlight the correct option in the navigation
+//                SortOption bso = bi.getSortOption();
+//                SortOption so = SortOption.getSortOption(sortBy);
+//                if ( bso != null && bso.equals(so))
+//                {
+//                    BrowseIndex newBi = BrowseIndex.getBrowseIndex(so);
+//                    if (newBi != null)
+//                    {
+//                        bi   = newBi;
+//                        type = bi.getName();
+//                    }
+//                }
+//            }
 
             if (order == null && bi != null)
             {

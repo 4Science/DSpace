@@ -237,12 +237,12 @@ function sortBy(idx, ord)
         
         if (bi.hasNextPage())
         {
-            next = next + "?offset=" + bi.getNextOffset();
+            next = next + "?offset=" + bi.getNextOffset() + "&sort_by=" + sortBy + "&order=" + direction;
         }
         
         if (bi.hasPrevPage())
         {
-            prev = prev + "?offset=" + bi.getPrevOffset();
+            prev = prev + "?offset=" + bi.getPrevOffset() + "&sort_by=" + sortBy + "&order=" + direction;
         }
         
         String bi_name_key = "browse.menu." + bi.getSortOption().getName();

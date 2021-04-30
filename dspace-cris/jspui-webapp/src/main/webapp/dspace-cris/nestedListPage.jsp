@@ -96,6 +96,27 @@
 	</c:if>	
 	<c:if test="${(editmode && admin) || ((editmode && decoratorPropertyDefinition.accessLevel eq HIGH_ACCESS) && ((editmode && decoratorPropertyDefinition.repeatable) || (editmode && empty results)))}">
 		<span class="glyphicon glyphicon-plus"id="nested_${decoratorPropertyDefinition.real.id}_addbutton" ></span>
+		<c:if test="${totalHit > 1}">
+			<!-- button to trigger nested reorder modal -->
+			<button type="button" class="btn btn-default pull-right" id="nested_${decoratorPropertyDefinition.real.id}_showreorderbutton" data-toggle="modal" data-target="#nested_${decoratorPropertyDefinition.real.id}_reordermodal"><fmt:message key="jsp.cris.nested.detail.reorder" /></button>
+
+			<!-- nested reorder modal -->
+			<div class="modal" id="nested_${decoratorPropertyDefinition.real.id}_reordermodal" tabindex="-1" style="min-width: 800px;">
+				<div class="modal-dialog modal-dialog-centered reorder-modal" role="dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title"><fmt:message key="jsp.cris.nested.detail.reorder.modal.title" /></h5>
+						</div>
+						<div class="modal-body" id="nested_${decoratorPropertyDefinition.real.id}_reorderbody">
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close"><fmt:message key="jsp.cris.nested.detail.reorder.modal.close" /></button>
+							<button type="button" class="btn btn-primary" id="nested_${decoratorPropertyDefinition.real.id}_reorderbutton" data-dismiss="modal"><fmt:message key="jsp.cris.nested.detail.reorder.modal.save" /></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</c:if>
 	</c:if>	
 	</div>
 	<c:if test="${decoratorPropertyDefinition.real.newline}">

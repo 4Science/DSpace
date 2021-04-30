@@ -8,12 +8,17 @@
 package org.dspace.submit.extraction;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.log4j.Logger;
 
 import gr.ekt.bte.core.DataLoadingSpec;
 import gr.ekt.bte.core.RecordSet;
@@ -24,26 +29,27 @@ import gr.ekt.bte.exceptions.MalformedSourceException;
 import gr.ekt.bte.record.MapRecord;
 import gr.ekt.bteio.loaders.EndnoteDataLoader;
 
-import org.apache.log4j.Logger;
-
 /**
- * Based on {@link gr.ekt.bteio.loaders.EndnoteDataLoader} implementation
+ * Based on {@link gr.ekt.bteio.loaders.EndnoteDataLoader} implementation.
+ * It implements the ISI-CE format (.ciw)
  * 
+ * This implementation manage the Byte Order Mark at the start of the file.
+ *
  * @author Luigi Andrea Pascarelli (luigiandrea.pascarelli at 4science.it)
  */
-public class WOSRISDataLoader extends FileDataLoader {
+public class ISICECiwDataLoader extends FileDataLoader {
 
     private static Logger logger_ = Logger.getLogger(EndnoteDataLoader.class);
     private BufferedReader reader_;
     private Map<String, String> field_map_;
 
-    public WOSRISDataLoader() {
+    public ISICECiwDataLoader() {
         super();
         reader_ = null;
         field_map_ = null;
     }
 
-    public WOSRISDataLoader(String filename, Map<String, String> field_map) throws EmptySourceException {
+    public ISICECiwDataLoader(String filename, Map<String, String> field_map) throws EmptySourceException {
         super(filename);
         field_map_ = field_map;
         openReader();
@@ -159,7 +165,9 @@ public class WOSRISDataLoader extends FileDataLoader {
 
     private void openReader() throws EmptySourceException {
         try {
-            reader_ = new BufferedReader(new FileReader(filename));
+            BOMInputStream is = new BOMInputStream(new FileInputStream(filename));
+            Reader reader = new InputStreamReader(is);
+            reader_ = new BufferedReader(reader);
         } catch (FileNotFoundException e) {
             throw new EmptySourceException("File " + filename + " not found");
         }

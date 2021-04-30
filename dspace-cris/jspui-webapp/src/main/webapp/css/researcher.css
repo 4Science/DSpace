@@ -1220,3 +1220,18 @@ div.subscription-current {
 .badge-pill {
     background-color: white;
 }	
+
+.modal-dialog-centered {
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-align:center;
+    -ms-flex-align:center;
+    align-items:center;
+    min-height:calc(100% - (.5rem * 2));
+}
+
+.ui-widget-content div .modal-dialog.reorder-modal {
+    width: max-content;
+    margin: 0px auto !important;
+}

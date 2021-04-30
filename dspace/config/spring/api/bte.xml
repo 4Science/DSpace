@@ -25,7 +25,7 @@
 				<entry key="ciniiXML" value-ref="ciniiFileDataLoader" />
 				<entry key="bibtex" value-ref="bibTeXDataLoader" />
 				<entry key="ris" value-ref="risDataLoader" />
-				<entry key="wosris" value-ref="wosRISDataLoader" />
+				<entry key="isiceciw" value-ref="isiceCiwDataLoader" />
 				<entry key="endnote" value-ref="endnoteDataLoader" />
 				<entry key="csv" value-ref="csvDataLoader" />
 				<entry key="tsv" value-ref="tsvDataLoader" />
@@ -132,7 +132,7 @@
 	            <entry key="ciniiXML" value-ref="ciniiFileDataLoader"/>
 	            <entry key="bibtex" value-ref="bibTeXDataLoader"/>
 	            <entry key="ris" value-ref="risDataLoader"/>
-	            <entry key="wosris" value-ref="wosRISDataLoader"/>
+	            <entry key="isiceciw" value-ref="isiceCiwDataLoader" />
 	            <entry key="endnote" value-ref="endnoteDataLoader"/>
 	            <entry key="csv" value-ref="csvDataLoader"/>
 	            <entry key="tsv" value-ref="tsvDataLoader"/>
@@ -511,7 +511,7 @@
 
 	<!-- The keys in the RIS data loader map have to be the RIS tags that 
 		need to be loaded. -->
-	<bean id="risDataLoader" class="gr.ekt.bteio.loaders.RISDataLoader">
+	<bean id="risDataLoader" class="org.dspace.submit.extraction.RisDataLoader">
 		<property name="fieldMap">
 			<map>
 				<entry key="T1" value="title" />
@@ -537,7 +537,7 @@
 		</property>
 	</bean>
 
-	<bean id="wosRISDataLoader" class="org.dspace.submit.extraction.WOSRISDataLoader">
+	<bean id="isiceCiwDataLoader" class="org.dspace.submit.extraction.ISICECiwDataLoader">
 		<property name="fieldMap">
 			<map>
 				<entry key="TI" value="title" />

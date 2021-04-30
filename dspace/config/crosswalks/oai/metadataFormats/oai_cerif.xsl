@@ -1567,7 +1567,7 @@
     <xsl:template match="/">
 
         <!-- item -->
-        <xsl:if test="doc:metadata/doc:element[@name='others']/doc:field[@name='type']/text()='cfitem'">
+        <xsl:if test="doc:metadata/doc:element[@name='others']/doc:field[@name='type']/text()='item'">
         	<!-- check type (is a publication or a product or ...) -->
         	<xsl:call-template name="item_chooser">
 				<xsl:with-param name="selector" select="." />
