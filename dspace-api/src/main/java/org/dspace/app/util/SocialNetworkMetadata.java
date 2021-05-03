@@ -51,7 +51,13 @@ public abstract class SocialNetworkMetadata extends MappingMetadata {
         this.item = item;
         itemURL = HandleManager.resolveToURL(context, item.getHandle());
         itemName = item.getName();
+        if (StringUtils.isBlank(itemName)) {
+            itemName = "";
+        }
         itemDescription = item.getMetadata("dc.type");
+        if (StringUtils.isBlank(itemDescription)) {
+            itemDescription = "";
+        }
         imageURL = buildImageURL();
     }
 
