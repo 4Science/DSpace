@@ -728,6 +728,12 @@
     </dc-type>
      <dc-type>
         <schema>dc</schema>
+        <element>relation</element>
+         <qualifier>document</qualifier>
+        <scope_note></scope_note>
+    </dc-type>    
+     <dc-type>
+        <schema>dc</schema>
         <element>identifier</element>
          <qualifier>codex</qualifier>
         <scope_note></scope_note>
