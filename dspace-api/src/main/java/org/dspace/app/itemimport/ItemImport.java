@@ -20,6 +20,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
@@ -87,6 +89,8 @@ import org.xml.sax.SAXException;
 public class ItemImport
 {
     private static final Logger log = Logger.getLogger(ItemImport.class);
+    
+    private static final Pattern BITSTREAM_METADATA_PATTERN = Pattern.compile("\\tmd\\.\\S+:[^\\t]+");
 
     private static boolean useWorkflow = false;
 
@@ -1489,6 +1493,14 @@ public class ItemImport
                             primary = true;
                             primaryStr = "\t **Setting as primary bitstream**";
                         }
+                        
+                        // get the metadata specified in the line
+                        List<String> mds = new ArrayList<>();
+                        Matcher match = BITSTREAM_METADATA_PATTERN.matcher(line);
+                        while (match.find()) 
+                    	{
+							mds.add(match.group());
+						}
 
                         if (bundleExists)
                         {
@@ -1506,23 +1518,26 @@ public class ItemImport
                             System.out.println("\tBitstream: " + bitstreamName + primaryStr);
                         }
 
-                        if (permissionsExist || descriptionExists)
+                        if (permissionsExist || descriptionExists || !mds.isEmpty())
                         {
-                            String extraInfo = bitstreamName;
+                            StringBuilder extraInfo = new StringBuilder(bitstreamName);
 
                             if (permissionsExist)
                             {
-                                extraInfo = extraInfo
-                                        + line.substring(pMarkerIndex, pEndIndex);
+                                extraInfo.append(line.substring(pMarkerIndex, pEndIndex));
                             }
 
                             if (descriptionExists)
                             {
-                                extraInfo = extraInfo
-                                        + line.substring(dMarkerIndex, dEndIndex);
+                                extraInfo.append(line.substring(dMarkerIndex, dEndIndex));
                             }
+                            
+                            for (String info : mds) 
+                            {
+								extraInfo.append(info);
+							}
 
-                            options.add(extraInfo);
+                            options.add(extraInfo.toString());
                         }
                     }
                 }
@@ -1755,6 +1770,14 @@ public class ItemImport
                 }
                 descriptionExists = true;
             }
+            
+            // get the metadata specified in the line
+            List<String> mds = new ArrayList<>();
+            Matcher match = BITSTREAM_METADATA_PATTERN.matcher(line);
+            while (match.find()) 
+        	{
+				mds.add(match.group());
+			}
 
             int bsEndIndex = line.indexOf("\t");
             String bitstreamName = line.substring(0, bsEndIndex);
@@ -1838,6 +1861,7 @@ public class ItemImport
             }
             else if (!isTest)
             {
+            	boolean update = false;
                 if (permissionsExist)
                 {
                     if (myGroup == null)
@@ -1857,14 +1881,29 @@ public class ItemImport
                         setPermission(c, myGroup, actionID, bs);
                     }
                 }
+                
+                if (!mds.isEmpty()) 
+                {
+                	for (String md : mds)
+                	{
+						String[] metadata = StringUtils.split( StringUtils.substringBetween( md, "\tmd.", ":"), '.');
+                		bs.addMetadata(metadata[0], metadata[1], metadata.length > 2 ? metadata[2] : null, null, StringUtils.substringAfter(md, ":"));
+					}
+                	update = true;
+				}
 
                 if (descriptionExists)
                 {
                     System.out.println("\tSetting description for "
                             + bitstreamName);
                     bs.setDescription(thisDescription);
-                    bs.update();
+                    update = true;
                 }
+                
+                if (update)
+                {
+					bs.update();
+				}
             }
         }
     }
