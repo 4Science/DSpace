@@ -327,22 +327,36 @@
         -->
         <Filter id="openAireCRISFilter">
             <Definition>
-                <And>
-                    <LeftCondition>
+            	<And>
+					<LeftCondition>
                         <Or>
                             <LeftCondition>
-                                <Custom ref="itemAccessCondition"/>
+                                <Custom ref="CerifEntityTypeExistsCondition"/>
                             </LeftCondition>
                             <RightCondition>
-                                <Custom ref="itemWithdrawnCondition"/>
+                                <Custom ref="strictCrisObjectTypeCondition"/>
                             </RightCondition>
-                        </Or>
-                    </LeftCondition>
-                    <RightCondition>
-                        <Custom ref="crisObjectTypeCondition"/>
-                    </RightCondition>
-                </And>
-            </Definition>
+                        </Or>				
+					</LeftCondition>
+                	<RightCondition>
+		                <And>
+		                    <LeftCondition>
+		                        <Or>
+		                            <LeftCondition>
+		                                <Custom ref="itemAccessCondition"/>
+		                            </LeftCondition>
+		                            <RightCondition>
+		                                <Custom ref="itemWithdrawnCondition"/>
+		                            </RightCondition>
+		                        </Or>
+		                    </LeftCondition>
+		                    <RightCondition>
+		                        <Custom ref="crisObjectTypeCondition"/>
+		                    </RightCondition>
+		                </And>
+                	</RightCondition>
+                </And>		                
+            </Definition>        
         </Filter>
         
         <!-- OpenAIRE filter for records returned by OAI-PMH.
@@ -581,6 +595,14 @@
                 <string name="field">dc.publisher</string>
             </Configuration>
         </CustomCondition>
+        
+        <!-- This condition determines if an Item has a "item.cerifentitytype" -->
+        <CustomCondition id="CerifEntityTypeExistsCondition">
+            <Class>org.dspace.xoai.filter.DSpaceMetadataExistsFilter</Class>
+            <Configuration>
+                <string name="field">item.cerifentitytype</string>
+            </Configuration>
+        </CustomCondition>        
 
         <!-- This condition determines if an Item has a "dc.type" field
              specifying one of the valid DRIVER document types. -->
@@ -634,6 +656,20 @@
                 </list>
             </Configuration>
         </CustomCondition>
+        
+        <CustomCondition id="strictCrisObjectTypeCondition">
+            <Class>org.dspace.xoai.filter.DSpaceEntityTypeFilter</Class>
+            <Configuration>
+                <list name="values">
+                    <string>project</string>
+                    <string>rp</string>
+                    <string>ou</string>
+                    <string>journals</string>
+                    <string>events</string>
+                    <string>equipment</string>
+                </list>
+            </Configuration>
+        </CustomCondition>        
         
         <!-- This condition determines if an Item has a "dc.rights" field
              specifying "open access", which is required for DRIVER
