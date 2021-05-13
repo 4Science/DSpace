@@ -185,7 +185,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
@@ -590,7 +589,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire parole chiave e/o descrittori di soggetto della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
@@ -846,7 +844,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
