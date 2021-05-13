@@ -152,6 +152,17 @@
        </field>
 
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>archivalunit</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Numero di corda</label>
+          <input-type>number</input-type>
+          <hint>Inserire il numero di corda della risorsa.</hint>
+          <required></required>
+        </field>
+
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>type</dc-element>
          <dc-qualifier></dc-qualifier>
