@@ -2342,7 +2342,7 @@ public class ItemImport
 						errorWriter.print(exceptionString);
 						errorWriter.close();
 						
-                        emailErrorMessage(eperson, exceptionString);
+                        emailErrorMessage(eperson, theFilePath, exceptionString);
                         throw new Exception(e.getMessage());
                     }
                     catch (Exception e2)
@@ -2419,7 +2419,7 @@ public class ItemImport
      *            - the error message
      * @throws MessagingException
      */
-    public static void emailErrorMessage(EPerson eperson, String error)
+    public static void emailErrorMessage(EPerson eperson, String filepath, String error)
             throws MessagingException
     {
         log.warn("An error occurred during item import, the user will be notified. " + error);
@@ -2429,6 +2429,7 @@ public class ItemImport
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "bte_batch_import_error"));
             email.addRecipient(eperson.getEmail());
             email.addArgument(error);
+            email.addArgument(filepath);
             email.addArgument(ConfigurationManager.getProperty("dspace.url") + "/feedback");
 
             email.send();
