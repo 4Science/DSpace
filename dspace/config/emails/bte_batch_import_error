@@ -1,7 +1,8 @@
 # Email sent to DSpace users when they BTE batch import fails.
 #
 # Parameters: {0} the export error
-#             {1} the URL to the feedback page
+#             {1} the file's path
+#             {2} the URL to the feedback page
 #             
 #
 # See org.dspace.core.Email for information on the format of this file.
@@ -10,16 +11,22 @@ Subject: DSpace - Batch import non è stato completato - The batch import was no
 Il batch import avviato dall''interfaccia utente di DSpace non è stata completata, per le seguenti ragioni:
  {0}
 
-Per ulteriori informazioni è possibile contattare l'amministratore di sistema:
+Il file interessato è il seguente:
  {1}
+
+Per ulteriori informazioni è possibile contattare l''amministratore di sistema:
+ {2}
 
  Gli amministratori del repository
  ----------------------------------------------------------------------
 The batch import you initiated from the DSpace UI was not completed, due to the following reason:
  {0}
 
-For more information you may contact your system administrator:
+The interested file is:
  {1}
+
+For more information you may contact your system administrator:
+ {2}
 
 
 
