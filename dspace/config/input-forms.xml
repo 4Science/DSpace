@@ -152,6 +152,17 @@
        </field>
 
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>archivalunit</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Numero di corda</label>
+          <input-type>number</input-type>
+          <hint>Inserire il numero di corda della risorsa.</hint>
+          <required></required>
+        </field>
+
+        <field>
 		 <dc-schema>dc</dc-schema>
          <dc-element>type</dc-element>
          <dc-qualifier></dc-qualifier>
@@ -185,7 +196,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
@@ -590,7 +600,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire parole chiave e/o descrittori di soggetto della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
@@ -846,7 +855,6 @@
          <input-type>onebox</input-type>
          <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
          <required></required>
-         <vocabulary>srsc</vocabulary>
        </field>
 
        <field>
