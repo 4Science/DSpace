@@ -24,13 +24,12 @@ public class OrcidHistoryRestConverter implements DSpaceConverter<OrcidHistory, 
     @Override
     public OrcidHistoryRest convert(OrcidHistory modelObject, Projection projection) {
         OrcidHistoryRest rest = new OrcidHistoryRest();
-        rest.setId(modelObject.getId());
+        rest.setId(modelObject.getID());
         rest.setOwnerId(modelObject.getOwner().getID());
-        rest.setEntityId(modelObject.getEntity().getID());
+        rest.setEntityId(modelObject.getEntity() != null ? modelObject.getEntity().getID() : null);
         rest.setResponseMessage(modelObject.getResponseMessage());
         rest.setStatus(modelObject.getStatus());
-        rest.setLastAttempt(modelObject.getLastAttempt());
-        rest.setSuccessAttempt(modelObject.getSuccessAttempt());
+        rest.setTimestamp(modelObject.getTimestamp());
         rest.setProjection(projection);
         rest.setPutCode(modelObject.getPutCode());
         return rest;

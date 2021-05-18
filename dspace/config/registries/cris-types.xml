@@ -89,7 +89,7 @@
     <dc-type>
         <schema>cris</schema>
         <element>orcid</element>
-        <qualifier>sync-projects</qualifier>
+        <qualifier>sync-fundings</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
@@ -97,6 +97,13 @@
         <schema>cris</schema>
         <element>orcid</element>
         <qualifier>sync-profile</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>orcid</element>
+        <qualifier>webhook</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

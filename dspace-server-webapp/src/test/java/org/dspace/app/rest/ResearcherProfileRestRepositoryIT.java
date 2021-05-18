@@ -12,8 +12,8 @@ import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static java.util.Arrays.asList;
 import static java.util.UUID.fromString;
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
-import static org.dspace.app.profile.OrcidEntitySynchronizationPreference.ALL;
-import static org.dspace.app.profile.OrcidEntitySynchronizationPreference.MINE;
+import static org.dspace.app.profile.OrcidEntitySyncPreference.ALL;
+import static org.dspace.app.profile.OrcidEntitySyncPreference.MINE;
 import static org.dspace.app.rest.matcher.HalMatcher.matchLinks;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
@@ -23,8 +23,16 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -39,15 +47,21 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.jayway.jsonpath.JsonPath;
+import org.dspace.app.orcid.OrcidQueue;
+import org.dspace.app.orcid.client.OrcidClient;
+import org.dspace.app.orcid.model.OrcidTokenResponseDTO;
+import org.dspace.app.orcid.webhook.OrcidWebhookServiceImpl;
 import org.dspace.app.rest.model.MetadataValueRest;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
+import org.dspace.app.rest.model.patch.RemoveOperation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.OrcidQueueBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -73,6 +87,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private OrcidWebhookServiceImpl orcidWebhookService;
 
     private EPerson user;
 
@@ -933,7 +950,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.orcid", is("0000-1111-2222-3333")))
             .andExpect(jsonPath("$.orcidSynchronization.mode", is("MANUAL")))
             .andExpect(jsonPath("$.orcidSynchronization.publicationsPreference", is("DISABLED")))
-            .andExpect(jsonPath("$.orcidSynchronization.projectsPreference", is("DISABLED")))
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is("DISABLED")))
             .andExpect(jsonPath("$.orcidSynchronization.profilePreferences", empty()));
 
         String itemId = getItemIdByProfileId(authToken, ePersonId);
@@ -1010,7 +1027,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     }
 
     @Test
-    public void testPatchToSetOrcidSynchronizationPreferenceForProjects() throws Exception {
+    public void testPatchToSetOrcidSynchronizationPreferenceForFundings() throws Exception {
 
         context.turnOffAuthorisationSystem();
 
@@ -1035,31 +1052,31 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isCreated());
 
-        List<Operation> operations = asList(new ReplaceOperation("/orcid/projects", ALL.name()));
+        List<Operation> operations = asList(new ReplaceOperation("/orcid/fundings", ALL.name()));
 
         getClient(authToken).perform(patch("/api/cris/profiles/{id}", ePersonId)
             .content(getPatchContent(operations))
             .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.projectsPreference", is(ALL.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(ALL.name())));
 
         getClient(authToken).perform(get("/api/cris/profiles/{id}", ePersonId))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.projectsPreference", is(ALL.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(ALL.name())));
 
-        operations = asList(new ReplaceOperation("/orcid/projects", MINE.name()));
+        operations = asList(new ReplaceOperation("/orcid/fundings", MINE.name()));
 
         getClient(authToken).perform(patch("/api/cris/profiles/{id}", ePersonId)
             .content(getPatchContent(operations))
             .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.projectsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(MINE.name())));
 
         getClient(authToken).perform(get("/api/cris/profiles/{id}", ePersonId))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.projectsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(MINE.name())));
 
-        operations = asList(new ReplaceOperation("/orcid/projects", "INVALID_VALUE"));
+        operations = asList(new ReplaceOperation("/orcid/fundings", "INVALID_VALUE"));
 
         getClient(authToken).perform(patch("/api/cris/profiles/{id}", ePersonId)
             .content(getPatchContent(operations))
@@ -1252,6 +1269,641 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void testOwnerPatchToDisconnectProfileFromOrcidWithDisabledConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "disabled");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(ePerson.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testAdminPatchToDisconnectProfileFromOrcidWithDisabledConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", null);
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testAnotherUserPatchToDisconnectProfileFromOrcidWithDisabledConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        EPerson anotherUser = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withEmail("user@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Another", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(anotherUser.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testOwnerPatchToDisconnectProfileFromOrcidWithOnlyOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(ePerson.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+            .andExpect(jsonPath("$.visible", is(false)))
+            .andExpect(jsonPath("$.type", is("profile")))
+            .andExpect(jsonPath("$.orcid").doesNotExist())
+            .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+    }
+
+    @Test
+    public void testAdminPatchToDisconnectProfileFromOrcidWithOnlyOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testAnotherUserPatchToDisconnectProfileFromOrcidWithOnlyOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "admin_and_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(anotherUser.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testOwnerPatchToDisconnectProfileFromOrcidWithOnlyAdminConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_admin");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(ePerson.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testAdminPatchToDisconnectProfileFromOrcidWithOnlyAdminConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_admin");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+            .andExpect(jsonPath("$.visible", is(false)))
+            .andExpect(jsonPath("$.type", is("profile")))
+            .andExpect(jsonPath("$.orcid").doesNotExist())
+            .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+    }
+
+    @Test
+    public void testAnotherUserPatchToDisconnectProfileFromOrcidWithOnlyAdminConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_admin");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(anotherUser.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testOwnerPatchToDisconnectProfileFromOrcidWithAdminAndOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "admin_and_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(ePerson.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+            .andExpect(jsonPath("$.visible", is(false)))
+            .andExpect(jsonPath("$.type", is("profile")))
+            .andExpect(jsonPath("$.orcid").doesNotExist())
+            .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+    }
+
+    @Test
+    public void testAdminPatchToDisconnectProfileFromOrcidWithAdminAndOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "admin_and_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+            .andExpect(jsonPath("$.visible", is(false)))
+            .andExpect(jsonPath("$.type", is("profile")))
+            .andExpect(jsonPath("$.orcid").doesNotExist())
+            .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+    }
+
+    @Test
+    public void testAnotherUserPatchToDisconnectProfileFromOrcidWithAdminAndOwnerConfiguration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "admin_and_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(anotherUser.getEmail(), password))
+            .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(firstQueueRecord), notNullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+    }
+
+    @Test
+    public void testProfileDisconnectionFromOrcidCauseOrcidWebhookUnregistration() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "only_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        String orcid = "0000-1111-2222-3333";
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid(orcid)
+            .withOrcidAccessToken("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4")
+            .withOrcidRefreshToken("6b29a03d-f494-4690-889f-2c0ddf26b82d")
+            .withOrcidScope("/read")
+            .withOrcidScope("/write")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .build();
+
+        Item profile = createProfile(ePerson);
+
+        addMetadata(profile, "cris", "orcid", "webhook", "2020-02-02");
+
+        OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+        OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
+
+        context.restoreAuthSystemState();
+
+        OrcidClient orcidClient = orcidWebhookService.getOrcidClient();
+        OrcidClient orcidClientMock = mock(OrcidClient.class);
+
+        String webhookAccessToken = "603315a5-cf2e-40ad-934a-24357a890bf9";
+        when(orcidClientMock.getWebhookAccessToken()).thenReturn(buildTokenResponse(webhookAccessToken));
+
+        try {
+
+            orcidWebhookService.setOrcidClient(orcidClientMock);
+
+            getClient(getAuthToken(ePerson.getEmail(), password))
+                .perform(patch("/api/cris/profiles/{id}", ePerson.getID().toString())
+                    .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+                .andExpect(jsonPath("$.visible", is(false)))
+                .andExpect(jsonPath("$.type", is("profile")))
+                .andExpect(jsonPath("$.orcid").doesNotExist())
+                .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+            assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+            assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+            profile = context.reloadEntity(profile);
+
+            assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+            assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
+            assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
+            assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+            assertThat(getMetadataValues(profile, "cris.orcid.webhook"), empty());
+
+            verify(orcidClientMock).getWebhookAccessToken();
+            verify(orcidClientMock).unregisterWebhook(eq(webhookAccessToken), eq(orcid), any());
+            verifyNoMoreInteractions(orcidClientMock);
+
+        } finally {
+            orcidWebhookService.setOrcidClient(orcidClient);
+        }
+
+    }
+
+    private Item createProfile(EPerson ePerson) throws Exception {
+
+        String authToken = getAuthToken(ePerson.getEmail(), password);
+
+        AtomicReference<UUID> ePersonIdRef = new AtomicReference<UUID>();
+        AtomicReference<UUID> itemIdRef = new AtomicReference<UUID>();
+
+        getClient(authToken).perform(post("/api/cris/profiles/")
+            .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isCreated())
+            .andDo(result -> ePersonIdRef.set(fromString(read(result.getResponse().getContentAsString(), "$.id"))));
+
+        getClient(authToken).perform(get("/api/cris/profiles/{id}/item", ePersonIdRef.get())
+            .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andDo(result -> itemIdRef.set(fromString(read(result.getResponse().getContentAsString(), "$.id"))));
+
+        return itemService.find(context, itemIdRef.get());
+    }
+
     private String getItemIdByProfileId(String token, String id) throws SQLException, Exception {
         MvcResult result = getClient(token).perform(get("/api/cris/profiles/{id}/item", id))
             .andExpect(status().isOk())
@@ -1260,7 +1912,26 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         return readAttributeFromResponse(result, "$.id");
     }
 
+    private List<MetadataValue> getMetadataValues(Item item, String metadataField) {
+        return itemService.getMetadataByMetadataString(item, metadataField);
+    }
+
     private <T> T readAttributeFromResponse(MvcResult result, String attribute) throws UnsupportedEncodingException {
         return JsonPath.read(result.getResponse().getContentAsString(), attribute);
+    }
+
+    private void addMetadata(Item item, String schema, String element, String qualifier,
+        String value) throws Exception {
+        context.turnOffAuthorisationSystem();
+        item = context.reloadEntity(item);
+        itemService.addMetadata(context, item, schema, element, qualifier, null, value, null, -1);
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
+    }
+
+    private OrcidTokenResponseDTO buildTokenResponse(String accessToken) {
+        OrcidTokenResponseDTO response = new OrcidTokenResponseDTO();
+        response.setAccessToken(accessToken);
+        return response;
     }
 }
