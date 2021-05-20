@@ -34,9 +34,12 @@
 </c:choose>
 <c:set var="jsDataObjectName" scope="page"> data_${statType}_${objectName}_${pieType}_${pieType}</c:set>
 <script type="text/javascript"><!--
-		var j = jQuery;
-       
-
+var j = jQuery;
+j(document).ready(function() {       
+		
+		google.charts.setOnLoadCallback(drawChart_${jsDataObjectName});
+		
+		function drawChart_${jsDataObjectName}() {
         var ${jsDataObjectName} = new google.visualization.DataTable();
           ${jsDataObjectName}.addColumn('string','${pieType}');
           ${jsDataObjectName}.addColumn('number','Visit');
@@ -84,21 +87,15 @@
     		
           }
           
-          
-       
-       
-
-        
-        j(document).ready(function() {        	
+           	
             j('div#statstab-content-${pieType}').bind('redraw', function() {            	
             	setTimeout(function(){drawChart_${statType}_${objectName}_${pieType}_${pieType}()},500);
             	//drawChart_${statType}_${objectName}_${pieType}_${pieType}();
         	});
-            google.setOnLoadCallback(drawChart_${statType}_${objectName}_${pieType}_${pieType});            
-        });
+            google.charts.setOnLoadCallback(drawChart_${statType}_${objectName}_${pieType}_${pieType});            
 	                	
-       
-
+		}
+});
 -->
 </script>
 <%-- this is the javascript to build the pie --%>

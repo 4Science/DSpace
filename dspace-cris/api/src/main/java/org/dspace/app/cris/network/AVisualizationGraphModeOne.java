@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -36,12 +37,17 @@ public abstract class AVisualizationGraphModeOne extends AVisualizationGraph
     public List<VisualizationGraphNode> load(List<String[]> discardedNode,
             Integer importedNodes, Boolean otherError) throws Exception
     {
+        //define field to read the authors
+        String fieldAuthor = ConfigurationManager.getProperty(NetworkPlugin.CFG_MODULE, "network.connection.loader."+getConnectionName()+".authorfield");
+        if(StringUtils.isBlank(fieldAuthor)) {
+            fieldAuthor = "author_filter";
+        }
         // load all publications
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
 
         solrQuery.setFields("search.resourceid", "search.resourcetype",
-                "author_filter", "dc.title", "handle");
+                fieldAuthor, "dc.title", "handle");
         solrQuery.addFilterQuery("search.resourcetype:[2 TO 4]");
 
         int start = 0;
@@ -95,7 +101,7 @@ public abstract class AVisualizationGraphModeOne extends AVisualizationGraph
                     Object obj = publication.getFieldValue("dc.title");
                     String handle = (String) publication
                             .getFieldValue("handle");
-                    Object authList = publication.getFieldValue("author_filter");
+                    Object authList = publication.getFieldValue(fieldAuthor);
 
                     List<String> values = new ArrayList<String>();
                     if (obj instanceof ArrayList)

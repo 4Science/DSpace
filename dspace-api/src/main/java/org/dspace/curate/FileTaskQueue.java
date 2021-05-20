@@ -12,8 +12,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -117,11 +122,28 @@ public class FileTaskQueue implements TaskQueue
             // stop when no more queues or one found locked
             File qDir = ensureQueue(queueName);
             readTicket = ticket;
-            int queueIdx = 0;
-            while (true)
+            File[] queueFiles = qDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.startsWith("queue");
+                }
+            });
+            Arrays.sort(queueFiles, new Comparator<File>(){
+                public int compare(File queueFile1, File queueFile2)
+                {
+                    try {
+                        return Files.readAttributes(queueFile1.toPath(), BasicFileAttributes.class).creationTime()
+                                .compareTo(Files.readAttributes(queueFile2.toPath(), BasicFileAttributes.class).creationTime());
+                    } catch (IOException e) {
+                        log.warn(e.getMessage(), e);
+                    }
+                    return 0;
+                }
+            });
+            for (File queue : queueFiles)
             {
-                File queue = new File(qDir, "queue" + Integer.toString(queueIdx));
-                File lock = new File(qDir, "lock" + Integer.toString(queueIdx));
+                int queueIdx = Integer.parseInt(queue.getName().replace("queue", ""));
+                File lock = new File(qDir, "lock" + queueIdx);
 
                 // If the queue file exists, atomically check for a lock file and create one if it doesn't exist
                 // If the lock file exists already, then this simply returns false
@@ -150,11 +172,6 @@ public class FileTaskQueue implements TaskQueue
                     }
                     readList.add(queueIdx);
                 }
-                else
-                {
-                    break;
-                }
-                queueIdx++;
             }
         }
         return entrySet;

@@ -25,6 +25,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
@@ -482,7 +483,7 @@ public class MediaFilterManager
     }
 
     /**
-     * Iterate through the item's bitstreams in the ORIGINAL bundle, applying
+     * Iterate through the item's bitstreams in the bundles specified inside filter.bundles, applying
      * filters if possible.
      * 
      * @return true if any bitstreams processed, 
@@ -490,13 +491,22 @@ public class MediaFilterManager
      */
     public static boolean filterItem(Context c, Item myItem) throws Exception
     {
-        // get 'original' bundles
-        Bundle[] myBundles = myItem.getBundles("ORIGINAL");
+    	// get the bundles
+        List<Bundle> myBundles = new ArrayList<Bundle>();
+        String bundles = ConfigurationManager.getProperty(FILTER_PREFIX + ".bundles");
+        String[] bundlesArray;
+        
+        bundlesArray = StringUtils.isNotBlank(bundles) ? bundles.split(",\\s*") : new String[]{"ORIGINAL"};
+        
+        for (String bundle : bundlesArray) {
+        	myBundles.addAll(Arrays.asList(myItem.getBundles(bundle)));
+		}
+        
         boolean done = false;
-        for (int i = 0; i < myBundles.length; i++)
+        for (int i = 0; i < myBundles.size(); i++)
         {
         	// now look at all of the bitstreams
-            Bitstream[] myBitstreams = myBundles[i].getBitstreams();
+            Bitstream[] myBitstreams = myBundles.get(i).getBitstreams();
             
             for (int k = 0; k < myBitstreams.length; k++)
             {

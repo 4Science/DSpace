@@ -479,13 +479,15 @@ function DSpaceChoicesAcceptOnClick ()
                 authValue = select.options[select.selectedIndex].authority;
                 of.elements[authorityInput].value = authValue;
             }
+            else {
+            	of.elements[authorityInput].value = '';
+            }
             if (of.elements[confInput] != null)
                 of.elements[confInput].value = 'accepted';
             // make indicator blank if no authority value
             DSpaceUpdateConfidence(window.opener.document, confIndicatorID,
                     authValue == null || authValue == '' ? 'blank' :'accepted');
         }
-
         if (select.selectedIndex >= 0 && select.options[select.selectedIndex].data != null)
         {
 			var extra = select.options[select.selectedIndex].data;

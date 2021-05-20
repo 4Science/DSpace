@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.Util;
 import org.dspace.app.webui.servlet.DSpaceServlet;
@@ -260,17 +261,22 @@ public class CurateServlet extends DSpaceServlet
         String task   = request.getParameter("curate_task");
         Curator curator = getCurator(task);
         boolean success = false;
+        String result = null;
         try
         {
-            curator.queue(context, handle, TASK_QUEUE_NAME);
-            success = true;
+        	if (StringUtils.isNotBlank(handle)) {
+        		curator.queue(context, handle, TASK_QUEUE_NAME);
+        		success = true;
+        	}else {
+        		result = I18nUtil.getMessage("CurationServlet.queue.missing-handle", context);
+			}
         }
         catch (Exception e)
         {
             // no-op (any error should be logged by the Curator itself)
         }
 
-        request.setAttribute("task_result", new CurateTaskResult("queue", getTaskName(task), handle, null, null, success));
+        request.setAttribute("task_result", new CurateTaskResult("queue", getTaskName(task), handle, null, result, success));
     }
 
     private CurateTaskResult getCurateMessage(Context context, Curator curator, String task, String handle, boolean success)

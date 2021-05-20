@@ -24,9 +24,9 @@
 	<script type="text/javascript" src="${contextPath}/js/rgbcolor.js"></script>
 	<script type="text/javascript" src="${contextPath}/js/canvg.js"></script>
 	<script type="text/javascript" src="${contextPath}/js/stats.js"></script>
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">      
-      google.load('visualization', '1.1', {packages: ['corechart', 'controls']});
+    	google.charts.load('current', {packages: ['corechart','controls']});
     </script>
     
 	
@@ -34,7 +34,7 @@
 	<style type="text/css">
 	  #map_canvas { height: 100% }
 	</style>
-	<script src="//maps.googleapis.com/maps/api/js?key=<%= ConfigurationManager.getProperty("key.googleapi.maps") %>&sensor=true&v=3" type="text/javascript"></script>
+	<script src="//maps.googleapis.com/maps/api/js?key=<%= ConfigurationManager.getProperty("key.googleapi.maps") %>&v=3" type="text/javascript"></script>
 	
 	<script type="text/javascript">
 		function setMessage(message,div){

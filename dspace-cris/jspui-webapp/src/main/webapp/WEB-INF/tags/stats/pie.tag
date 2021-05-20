@@ -21,9 +21,11 @@
 <div class="target_stats" id="${targetDiv}"></div>
 </div>
 <script type="text/javascript"><!--
+var j = jQuery;
+j(document).ready(function() {              
+google.charts.setOnLoadCallback(drawChart_${jsDataObjectName});
 
-              
-
+function drawChart_${jsDataObjectName}() {
         var ${jsDataObjectName} = new google.visualization.DataTable();
           ${jsDataObjectName}.addColumn('string','${pieType}');
           ${jsDataObjectName}.addColumn('number','Visit');
@@ -65,16 +67,12 @@
                chart.draw(${jsDataObjectName}, options);              	
              }
 
-       j(document).ready(function() {
     	   j('div#statstab-content-${pieType}').bind('redraw', function() {   
     		   setInterval(function(){drawChart_${statType}_${objectName}_${pieType}_${pieType}()},500);          		
        	   });
-           google.setOnLoadCallback(drawChart_${statType}_${objectName}_${pieType}_${pieType});        	
-       });
+    	   google.charts.setOnLoadCallback(drawChart_${statType}_${objectName}_${pieType}_${pieType});        	
 	           
-	                	
-        	        
-
-
+}
+});     	        
 -->
 </script>

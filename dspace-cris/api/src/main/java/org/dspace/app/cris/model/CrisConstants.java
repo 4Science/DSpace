@@ -22,7 +22,7 @@ public class CrisConstants {
     private static Logger log = Logger
             .getLogger(CrisConstants.class);
     
-    private static final String PREFIX_TYPE = "CRIS";
+    public static final String PREFIX_TYPE = "CRIS";
 
     private static ApplicationService applicationService;
     

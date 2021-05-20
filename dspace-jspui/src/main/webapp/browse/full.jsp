@@ -92,6 +92,9 @@ function sortBy(idx, ord)
 	}
 	
 	type = bix.getName();
+	if(type==null && withdrawn) {
+		type = "title";
+	}
 	
 	// next and previous links are of the form:
 	// [handle/<prefix>/<suffix>/]browse?type=<type>&sort_by=<sort_by>&order=<order>[&value=<value>][&rpp=<rpp>][&[focus=<focus>|vfocus=<vfocus>]
@@ -131,8 +134,8 @@ function sortBy(idx, ord)
 	
     String sharedLink = linkBase + urlFragment + "?";
 
-    if (bix.getName() != null)
-        sharedLink += "type=" + URLEncoder.encode(bix.getName(), "UTF-8");
+    if (type != null)
+        sharedLink += "type=" + URLEncoder.encode(type, "UTF-8");
 
     sharedLink += "&amp;sort_by=" + URLEncoder.encode(Integer.toString(so.getNumber()), "UTF-8") +
 				  "&amp;order=" + URLEncoder.encode(direction, "UTF-8") +
