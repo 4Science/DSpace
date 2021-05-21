@@ -7,6 +7,10 @@
  */
 package org.dspace.app.rest;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,6 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dspace.app.orcid.client.OrcidClient;
+import org.dspace.app.orcid.factory.OrcidServiceFactory;
+import org.dspace.app.orcid.factory.OrcidServiceFactoryImpl;
 import org.dspace.app.rest.matcher.ItemAuthorityMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
@@ -30,7 +37,9 @@ import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedSearch;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -48,6 +57,22 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    private OrcidClient orcidClient;
+
+    private OrcidClient orcidClientMock = mock(OrcidClient.class);
+
+    @Before
+    public void setup() {
+        ((OrcidServiceFactoryImpl) OrcidServiceFactory.getInstance()).setOrcidClient(orcidClientMock);
+        when(orcidClientMock.expandedSearch(any(), anyInt(), anyInt())).thenReturn(new ExpandedSearch());
+    }
+
+    @After
+    public void after() {
+        ((OrcidServiceFactoryImpl) OrcidServiceFactory.getInstance()).setOrcidClient(orcidClient);
+    }
 
     @Test
     public void singleItemAuthorityTest() throws Exception {
@@ -97,15 +122,15 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                         .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
                             ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
                                 "Author 1", "Author 1", "vocabularyEntry",
-                                "oairecerif_author_affiliation", "OrgUnit_1::"
+                                "data-oairecerif_author_affiliation", "OrgUnit_1::"
                                     + orgUnit_1.getID()),
                             ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_2.getID().toString(),
                                 "Author 2", "Author 2", "vocabularyEntry",
-                                "oairecerif_author_affiliation", "OrgUnit_1::"
+                                "data-oairecerif_author_affiliation", "OrgUnit_1::"
                                     + orgUnit_1.getID()),
                             ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_3.getID().toString(),
                                 "Author 3", "Author 3", "vocabularyEntry",
-                                "oairecerif_author_affiliation", "OrgUnit_2::"
+                                "data-oairecerif_author_affiliation", "OrgUnit_2::"
                                     + orgUnit_2.getID())
                         )))
                         .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
@@ -172,14 +197,14 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                        .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
                                // filled with AuthorAuthority extra metadata generator
                                ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
-                               "Author 1(OrgUnit_1)", "Author 1", "vocabularyEntry", "oairecerif_author_affiliation",
-                               "OrgUnit_1::" + orgUnit_1.getID()),
+                               "Author 1(OrgUnit_1)", "Author 1", "vocabularyEntry",
+                               "data-oairecerif_author_affiliation", "OrgUnit_1::" + orgUnit_1.getID()),
                                ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
-                               "Author 1(OrgUnit_2)", "Author 1", "vocabularyEntry", "oairecerif_author_affiliation",
-                               "OrgUnit_2::" + orgUnit_2.getID()),
+                               "Author 1(OrgUnit_2)", "Author 1", "vocabularyEntry",
+                               "data-oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID()),
                                ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_2.getID().toString(),
-                               "Author 2(OrgUnit_2)", "Author 2", "vocabularyEntry", "oairecerif_author_affiliation",
-                               "OrgUnit_2::" + orgUnit_2.getID()),
+                               "Author 2(OrgUnit_2)", "Author 2", "vocabularyEntry",
+                               "data-oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID()),
                                // filled with EditorAuthority extra metadata generator
                                ItemAuthorityMatcher.matchItemAuthorityProperties(author_1.getID().toString(),
                                "Author 1", "Author 1", "vocabularyEntry"),
@@ -213,7 +238,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
                            ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
-                               "Author 1", "Author 1", "vocabularyEntry", "oairecerif_author_affiliation", "")
+                               "Author 1", "Author 1", "vocabularyEntry", "data-oairecerif_author_affiliation", "")
                        )))
                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
