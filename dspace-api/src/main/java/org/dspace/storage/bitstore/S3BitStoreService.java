@@ -83,27 +83,32 @@ public class S3BitStoreService extends ABitStoreService
      *  - bucket name
      */
     public void init() throws IOException {
-        if(StringUtils.isBlank(getAwsAccessKey()) || StringUtils.isBlank(getAwsSecretKey())) {
-            log.warn("Empty S3 access or secret");
-        }
+        if(StringUtils.isNotBlank(getAwsAccessKey()) || StringUtils.isNotBlank(getAwsSecretKey())) {
+            log.warn("Use S3 credentials read from the xml file");
 
-        // region
-        Regions regions = Regions.DEFAULT_REGION;
-        if (StringUtils.isNotBlank(awsRegionName)) {
-            try {
-                regions = Regions.fromName(awsRegionName);
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid aws_region: " + awsRegionName);
+            // region
+            Regions regions = Regions.DEFAULT_REGION;
+            if (StringUtils.isNotBlank(awsRegionName)) {
+                try {
+                    regions = Regions.fromName(awsRegionName);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid aws_region: " + awsRegionName);
+                }
             }
+    
+            // init client
+            AWSCredentials awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
+            s3Service = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(regions)
+                    .build();
+            log.info("S3 Region set to: " + regions.getName());
+    
+        } else {
+            log.warn("Use IAM role or aws environment credentials");
+            
+            s3Service = AmazonS3ClientBuilder.defaultClient();
         }
-
-        // init client
-        AWSCredentials awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
-        s3Service = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .withRegion(regions)
-                .build();
-        log.info("S3 Region set to: " + regions.getName());
 
         // bucket name
         if(StringUtils.isEmpty(bucketName)) {
@@ -126,7 +131,7 @@ public class S3BitStoreService extends ABitStoreService
         transferManager = TransferManagerBuilder.standard()
                 .withS3Client(s3Service)
                 .build();
-
+        
         log.info("AWS S3 Assetstore ready to go! bucket:"+bucketName);
     }
 

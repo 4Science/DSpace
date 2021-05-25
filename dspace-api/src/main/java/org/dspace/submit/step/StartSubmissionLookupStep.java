@@ -43,6 +43,7 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.submit.AbstractProcessingStep;
 import org.dspace.submit.lookup.DSpaceWorkspaceItemOutputGenerator;
 import org.dspace.submit.lookup.SubmissionItemDataLoader;
@@ -291,7 +292,7 @@ public class StartSubmissionLookupStep extends AbstractProcessingStep
             }
             if(!b_dto.isEmpty()){
             	
-				Thread thread = new ThreadImporter(request, context.getCurrentUser().getID(), b_dto, id,inputSet);
+				Thread thread = new ThreadImporter(request, context.getCurrentUser().getID(), context.getSpecialGroups(), b_dto, id,inputSet);
 				thread.start();
             	
             }
@@ -365,6 +366,8 @@ public class StartSubmissionLookupStep extends AbstractProcessingStep
 
     	private int epersonid;
 
+    	Group[] specialGroups;
+
     	private int col;
     	
     	DCInputSet inputset;
@@ -373,9 +376,10 @@ public class StartSubmissionLookupStep extends AbstractProcessingStep
     	/** log4j logger */
     	private Logger log = Logger.getLogger(ThreadImporter.class);
 
-    	public ThreadImporter(HttpServletRequest request, int epersonid, List<ItemSubmissionLookupDTO> dto, int col, DCInputSet inputset) {
+    	public ThreadImporter(HttpServletRequest request, int epersonid, Group[] specialGroups, List<ItemSubmissionLookupDTO> dto, int col, DCInputSet inputset) {
     		this.dto = dto;
     		this.epersonid = epersonid;
+    		this.specialGroups = specialGroups;
     		this.col = col;
     		this.inputset =inputset;
     		this.request = request;
@@ -388,6 +392,11 @@ public class StartSubmissionLookupStep extends AbstractProcessingStep
     			context.turnOffItemWrapper();
     			EPerson eperson = EPerson.find(context, epersonid);
     			context.setCurrentUser(eperson);
+    			if (specialGroups != null && specialGroups.length > 0) {
+    				for (Group specialGroup : specialGroups) {
+    					context.setSpecialGroup(specialGroup.getID());
+    				}
+    			}
     			SubmissionLookupService slService = new DSpace().getServiceManager().getServiceByName(
     					SubmissionLookupService.class.getCanonicalName(), SubmissionLookupService.class);
 
