@@ -1329,6 +1329,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1372,6 +1373,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1422,6 +1424,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1470,6 +1473,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), empty());
     }
 
     @Test
@@ -1513,6 +1517,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1556,6 +1561,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1599,6 +1605,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1647,6 +1654,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), empty());
     }
 
     @Test
@@ -1690,6 +1698,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
@@ -1738,6 +1747,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), empty());
     }
 
     @Test
@@ -1786,6 +1796,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), empty());
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), empty());
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), empty());
     }
 
     @Test
@@ -1829,6 +1840,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(getMetadataValues(profile, "cris.orcid.access-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.refresh-token"), not(empty()));
         assertThat(getMetadataValues(profile, "cris.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "cris.orcid.authenticated"), not(empty()));
     }
 
     @Test
