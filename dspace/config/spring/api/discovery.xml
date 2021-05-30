@@ -1846,7 +1846,6 @@
                         <ref bean="sortFamilyName"/>
                         <ref bean="sortGivenName"/>
                         <ref bean="sortBirthDate"/>
-                        <ref bean="sortDateAccessioned"/>
                     </list>
                 </property>
             </bean>
