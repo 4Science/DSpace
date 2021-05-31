@@ -22,6 +22,36 @@
                         <ref bean="arxivLiveImportDataProvider"/>
                     </list>
                 </entry>
+                <entry key="dc.identifier.doi">
+                    <list>
+                        <ref bean="crossRefLiveImportDataProvider"/>
+                    </list>
+                </entry>
+                <entry key="dc.identifier.adsbibcode">
+                    <list>
+                        <ref bean="adsLiveImportDataProvider" />
+                    </list>
+                </entry>
+                <entry key="dc.identifier.isi">
+                    <list>
+                        <ref bean="wosLiveImportDataProvider" />
+                    </list>
+                </entry>
+                <entry key="dc.identifier.patentno">
+                    <list>
+                        <ref bean="epoLiveImportDataProvider" />
+                    </list>
+                </entry>
+                <entry key="dc.identifier.applicationnumber">
+                    <list>
+                        <ref bean="epoLiveImportDataProvider" />
+                    </list>
+                </entry>
+                <entry key="dcterms.dateSubmitted">
+                    <list>
+                        <ref bean="epoLiveImportDataProvider" />
+                    </list>
+                </entry>
 	        </map>           
         </property>
     </bean>
