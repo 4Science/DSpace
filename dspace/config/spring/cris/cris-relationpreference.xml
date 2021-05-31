@@ -198,6 +198,14 @@
 			<value>crisevents.eventsrelatedinterpretation_authority:{0}</value>
 		</property>
 	</bean>
+	
+	<bean id="relationPATHVSItemConfiguration" class="org.dspace.app.cris.configuration.RelationConfiguration">    										
+		<property name="relationName" value="crispj.publications" />		
+		<property name="relationClass" value="org.dspace.content.Item" />		
+		<property name="query">
+			<value>dc.relation.path_authority:{0}</value>
+		</property>
+	</bean>
 						
 	<!-- <bean id="relationPJVSItemPoliciesSecurityConfiguration" class="org.dspace.app.cris.configuration.PoliciesSecurityCheck">
 		<property name="epersonFields">
