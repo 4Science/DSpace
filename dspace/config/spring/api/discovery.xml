@@ -97,6 +97,9 @@
 	<!--  Additional indexing plugin to index the carousel news order -->
 	<bean id="newsOrderIndexer" class="org.dspace.app.cris.discovery.NewsOrderIndexer"/>
 	
+	<!--  Additional indexing plugin to index the path order -->
+	<bean id="pathOrderIndexer" class="org.dspace.app.cris.discovery.PathOrderIndexer"/>
+
 	<!--Bean that is used for mapping communities/collections to certain discovery 
 		configurations. -->
 	<bean
