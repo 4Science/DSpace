@@ -15,6 +15,7 @@
   -    recent.submissions - RecetSubmissions
   --%>
 
+<%@page import="org.dspace.app.webui.util.PathEntryObject"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -47,7 +48,6 @@
 
 <%
     Community[] communities = (Community[]) request.getAttribute("communities");
-
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
 
@@ -68,6 +68,7 @@
     MostViewedBean mostViewedItem = (MostViewedBean) request.getAttribute("mostViewedItem");
     MostViewedBean mostCitedItem = (MostViewedBean) request.getAttribute("mostCitedItem");
     MostViewedBean mostViewedBitstream = (MostViewedBean) request.getAttribute("mostDownloadedItem");
+    List<PathEntryObject> paths = (List<PathEntryObject>) request.getAttribute("paths_list");
     boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
 %>
 
@@ -86,6 +87,14 @@
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
 </div>
+<%	if(paths != null && !paths.isEmpty())
+	{	%>
+<div class="row">
+	<div class="col-md-12 path-carousel">
+	    <%@ include file="/components/path-list.jsp" %>
+	</div>
+</div>
+<%	}	%>
 <div class="row">
 	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	
