@@ -848,8 +848,7 @@ div.footerPanel {
 }
 
 .path-card {
-	max-height: 300px;
-	min-height: 260px;
+	height: 270px;
 	justify-content: center;
 	text-align: center;
 }
@@ -863,6 +862,11 @@ div.footerPanel {
 
 .path-card > .path-centertext > a {
 	-webkit-line-clamp: 10;
+	padding-top: 0px !important;
+}
+
+.path-card > b > a {
+	padding-top: 5px;
 }
 
 .path-carousel {

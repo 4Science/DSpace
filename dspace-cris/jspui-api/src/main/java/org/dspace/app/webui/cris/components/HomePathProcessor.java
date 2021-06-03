@@ -15,6 +15,7 @@ import org.apache.solr.common.SolrDocument;
 import org.dspace.app.webui.discovery.HomeCarouselProcessor;
 import org.dspace.app.webui.util.PathEntryObject;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
@@ -31,6 +32,7 @@ public class HomePathProcessor implements SiteHomeProcessor
 	public static final String SOLR_PATH_IMAGE = "crispath.pathpicture";
 	private static final String SOLR_PATH_QUERY = "crisdo.type:path";
 	private static SortClause SORT_CLAUSE = new SortClause("pathindex_sort", ORDER.asc);
+	private static final int SOLR_MAX = ConfigurationManager.getIntProperty("path-list.results.show", Integer.MAX_VALUE);
 	
 	private SearchService searcher = new DSpace().getSingletonService(SearchService.class);
 
@@ -42,7 +44,7 @@ public class HomePathProcessor implements SiteHomeProcessor
 		List<PathEntryObject> paths = new ArrayList<>();
 		
 		SolrQuery sq = new SolrQuery(SOLR_PATH_QUERY);
-		sq.setRows(Integer.MAX_VALUE);
+		sq.setRows(SOLR_MAX);
 		sq.addField(SOLR_PATH_TEXT);
 		sq.addField(SOLR_PATH_ID);
 		sq.addField(SOLR_PATH_IMAGE);

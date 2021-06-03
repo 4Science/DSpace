@@ -7,9 +7,10 @@
     http://www.dspace.org/license/
 
 --%>
+<%@page import="org.dspace.core.ConfigurationManager"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 
-<div class="panel panel-info vertical-carousel" data-itemstoshow="12">
+<div class="panel panel-info vertical-carousel" data-itemstoshow="<%= ConfigurationManager.getIntProperty("path-list.results.show", 12) %>">
 	<div class="panel-heading">
 		<h3 class="panel-title" id="pathListTitle">
 			<fmt:message key="jsp.components.pathlist"/>
@@ -25,7 +26,6 @@
 						$(".pathlist span").addClass("hidden");
 						$(".pathlist > .list-group-item-heading").addClass("thumbnail-heading");
 						$(".path > img").addClass("center-block");
-						$("#pathListTitle > div > i").addClass("hidden");
 						$(".pathlist").addClass("col-sm-2");
 						$(".path-heading").addClass("path-card");
 						
@@ -63,7 +63,9 @@
 			</div>
 		</div>
 		<div class="list-groups">
-		<%	for (PathEntryObject peo : paths) {	%>
+		<%	for (PathEntryObject peo : paths) {
+				if (StringUtils.isBlank(peo.getText()))
+					continue;	//prevent new entries that are being indexed from showing as null	%>
 			<div class="list-group-item pathlist thumbnail col-sm-2">
 				<div class="list-group-item-heading path-heading">
 				<%	boolean imagePresent = StringUtils.isNotBlank(peo.getImage());
