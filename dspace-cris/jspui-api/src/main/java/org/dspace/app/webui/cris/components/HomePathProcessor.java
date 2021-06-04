@@ -27,10 +27,11 @@ public class HomePathProcessor implements SiteHomeProcessor
 {
 	private static final Logger log = Logger.getLogger(HomePathProcessor.class);
 	
-	public static final String SOLR_PATH_TEXT = "crispath.pathname";
-	public static final String SOLR_PATH_ID = "cris-id";
-	public static final String SOLR_PATH_IMAGE = "crispath.pathpicture";
+	private static final String SOLR_PATH_TEXT = "crispath.pathname";
+	private static final String SOLR_PATH_ID = "cris-id";
+	private static final String SOLR_PATH_IMAGE = "crispath.pathpicture";
 	private static final String SOLR_PATH_QUERY = "crisdo.type:path";
+	private static final String SOLR_PATH_FILTER = "discoverable:true";
 	private static SortClause SORT_CLAUSE = new SortClause("pathindex_sort", ORDER.asc);
 	private static final int SOLR_MAX = ConfigurationManager.getIntProperty("path-list.results.show", Integer.MAX_VALUE);
 	
@@ -44,6 +45,7 @@ public class HomePathProcessor implements SiteHomeProcessor
 		List<PathEntryObject> paths = new ArrayList<>();
 		
 		SolrQuery sq = new SolrQuery(SOLR_PATH_QUERY);
+		sq.addFilterQuery(SOLR_PATH_FILTER);
 		sq.setRows(SOLR_MAX);
 		sq.addField(SOLR_PATH_TEXT);
 		sq.addField(SOLR_PATH_ID);
