@@ -233,6 +233,9 @@
 			  			</button>
 			  			<ul class="dropdown-menu" role="menu">
 						    <li>
+									<c:if test="${ entity.typo.shortName=='path' }">
+										<a href="${root}/cris/uuid/${entity.uuid}/relMgmt/publications"><i class="fa fa-book"></i><fmt:message key="jsp.layout.navbar-hku.staff-mode.manage-publication"/></a>
+									</c:if>
 									<a href="<%= request.getContextPath() %>/cris/tools/${specificPartPath}/editDynamicData.htm?id=${entity.id}&anagraficaId=${entity.dynamicField.id}<c:if test='${!empty tabIdForRedirect}'>&tabId=${tabIdForRedirect}</c:if>"><i class="fa fa-pencil-square-o"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.edit.do"><fmt:param>${entity.typo.label}</fmt:param></fmt:message></a>
 							</li>
 						</ul>
