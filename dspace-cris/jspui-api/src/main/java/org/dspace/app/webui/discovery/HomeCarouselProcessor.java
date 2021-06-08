@@ -101,7 +101,7 @@ public class HomeCarouselProcessor implements SiteHomeProcessor
 	 * @param contextPath
 	 * @return
 	 */
-	public static String getImageLink(String link, String contextPath)
+	public String getImageLink(String link, String contextPath)
 	{
 		return contextPath
 					+ "/cris/do/fileservice/"
