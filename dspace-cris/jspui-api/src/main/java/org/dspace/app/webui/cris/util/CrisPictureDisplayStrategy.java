@@ -3,6 +3,7 @@ package org.dspace.app.webui.cris.util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.cris.model.ACrisObject;
 import org.dspace.app.cris.model.CrisConstants;
 import org.dspace.app.cris.service.ApplicationService;
@@ -20,6 +21,9 @@ import it.cilea.osd.jdyna.web.tag.JDynATagLibraryFunctions;
 public class CrisPictureDisplayStrategy
         implements IDisplayMetadataValueStrategy
 {
+	private static final String DEFAULT_CLASS = "cris-thubmnail img-thumbnail";
+	private static final String PATH_CLASS = "media-object pull-left center-block";
+	
     /** Config value of thumbnail view toggle */
     private boolean showThumbs;
 
@@ -124,13 +128,20 @@ public class CrisPictureDisplayStrategy
             }
 
             String displayObject = crisObject.getMetadata(crispicture);
+            
+            if (StringUtils.isBlank(displayObject)) {
+				return "";
+			}
+            
             String fileName = JDynATagLibraryFunctions.getFileName(displayObject);
             String img = hrq.getContextPath() + "/"+ servletPath +"/" + JDynATagLibraryFunctions.getFileFolder(displayObject) + "?filename=" + fileName;            
            
             String alt = fileName;
-            String title = "A preview " + fileName + " picture"; 
+            String title = "A preview " + fileName + " picture";
             
-            thumbFrag.append("<img class=\"cris-thubmnail img-thumbnail\" src=\"").append(img).append("\" alt=\"")
+            boolean alternateForPath = "path".equals(crisObject.getPublicPath().trim()) && hrq.getAttribute("paths_list") != null; // alternative class for paths in home page
+            
+            thumbFrag.append("<img class=\"").append(alternateForPath ? PATH_CLASS : DEFAULT_CLASS).append("\" src=\"").append(img).append("\" alt=\"")
                     .append(alt + "\" title=\"")
                     .append(title + "\" ")
                     .append("/ border=\"0\"/>");

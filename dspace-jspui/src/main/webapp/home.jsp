@@ -15,7 +15,6 @@
   -    recent.submissions - RecetSubmissions
   --%>
 
-<%@page import="org.dspace.app.webui.util.PathEntryObject"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -45,6 +44,7 @@
 <%@page import="org.dspace.core.Utils"%>
 <%@page import="org.dspace.content.Bitstream"%>
 <%@ page import="org.dspace.app.webui.util.LocaleUIHelper" %>
+<%@page import="org.dspace.app.webui.components.PathEntries"%>
 
 <%
     Community[] communities = (Community[]) request.getAttribute("communities");
@@ -68,7 +68,7 @@
     MostViewedBean mostViewedItem = (MostViewedBean) request.getAttribute("mostViewedItem");
     MostViewedBean mostCitedItem = (MostViewedBean) request.getAttribute("mostCitedItem");
     MostViewedBean mostViewedBitstream = (MostViewedBean) request.getAttribute("mostDownloadedItem");
-    List<PathEntryObject> paths = (List<PathEntryObject>) request.getAttribute("paths_list");
+    PathEntries paths = (PathEntries) request.getAttribute("paths_list");
     boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
 %>
 
@@ -87,7 +87,7 @@
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
 </div>
-<%	if(paths != null && !paths.isEmpty())
+<%	if(paths != null && paths.count() > 0)
 	{	%>
 <div class="row">
 	<div class="col-md-12 path-carousel">

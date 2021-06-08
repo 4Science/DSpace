@@ -103,10 +103,11 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 		String browseIndex = null;
 		boolean viewFull = false;
 
-		out.println("<div class=\"list-group-item-heading\">");
+		out.print("<div class=\"list-group-item-heading ");
 		if (view != null) {
 			if (view.getThumbnail() != null) {
 				String tag = StringUtils.substringAfter(view.getThumbnail(), ".");
+				out.println(tag + "-heading\">");
 				out.println("<div class=\"media " + tag + " \">");
 
 				if (artifact.getType() == 2 && !(artifact instanceof BrowseItem)) {
@@ -136,8 +137,9 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 	                }				    
 				}
 				out.println("</div>");
+			} else {
+				out.println("\">");
 			}
-			
 			for (DiscoveryViewFieldConfiguration dvfc : view.getMetadataHeadingFields()) {
 				printViewField(out, request, context, browseIndex, viewFull,
 						dvfc);
@@ -155,6 +157,7 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 
 
 		} else {
+			out.println("\">");
 			if (artifact.getType() == 2) {
 				printDefault(out, request, context, browseIndex, viewFull, "title", "dc.title");
 			}
