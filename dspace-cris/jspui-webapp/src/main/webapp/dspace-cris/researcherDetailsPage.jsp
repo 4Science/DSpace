@@ -360,7 +360,7 @@
 						<a href="#" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 		    				<i class="fa fa-cog"></i> <i class="fa fa-caret-down"></i>
 		  				</a>
-						<ul class="dropdown-menu" role="menu">
+						<ul class="dropdown-menu dropdownleft" role="menu">
 							<c:if test="${!empty addModeType && addModeType=='display'}">
 						    <li>
 								<a href="<%= request.getContextPath() %>/cris/tools/rp/editDynamicData.htm?id=${researcher.id}&anagraficaId=${researcher.dynamicField.id}<c:if test='${!empty tabIdForRedirect}'>&tabId=${tabIdForRedirect}</c:if>"><i class="fa fa-pencil-square-o"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.edit.primary-data"/></a>

@@ -831,3 +831,8 @@ div.footerPanel {
 .at4-arrow.at-left {
     padding: 15px;
 }
+.dropdownleft
+{
+	left: auto;
+	right: 0;
+}
