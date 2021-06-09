@@ -10,7 +10,12 @@
 <%@page import="org.dspace.core.ConfigurationManager"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 
-<div class="panel panel-info vertical-carousel" data-itemstoshow="<%= ConfigurationManager.getIntProperty("path-list.results.show", 12) %>">
+
+<%	if(paths != null && paths.count() > 0)
+	{	%>
+<div class="row">
+<div class="col-md-12 path-carousel">
+<div class="panel panel-info vertical-carousel" data-itemstoshow="<%= (int) request.getAttribute("paths_list_max") %>">
 	<div class="panel-heading">
 		<h3 class="panel-title" id="pathListTitle">
 			<fmt:message key="jsp.components.pathlist"/>
@@ -76,10 +81,13 @@
 				<%	}	%>
 		</div>
 		<div class="list-groups">
-		<%	for (IGlobalSearchResult obj : paths.getRecentSubmissions()) {	%>
+		<%	for (IGlobalSearchResult obj : paths.getPaths()) {	%>
 		
 			<dspace:discovery-artifact style="path" artifact="<%= obj %>" view="<%= paths.getConfiguration() %>"/>
 		<%	}	%>
 		</div>
 	</div>
 </div>
+</div>
+</div>
+<%	}	%>

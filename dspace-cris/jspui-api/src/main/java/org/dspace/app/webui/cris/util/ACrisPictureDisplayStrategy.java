@@ -3,6 +3,7 @@ package org.dspace.app.webui.cris.util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.cris.model.ACrisObject;
 import org.dspace.app.cris.model.CrisConstants;
 import org.dspace.app.cris.service.ApplicationService;
@@ -125,6 +126,11 @@ public abstract class ACrisPictureDisplayStrategy
             }
 
             String displayObject = crisObject.getMetadata(crispicture);
+            
+            if (StringUtils.isBlank(displayObject)) {
+				return "";
+			}
+            
             String fileName = JDynATagLibraryFunctions.getFileName(displayObject);
             String img = hrq.getContextPath() + "/"+ servletPath +"/" + JDynATagLibraryFunctions.getFileFolder(displayObject) + "?filename=" + fileName;            
            

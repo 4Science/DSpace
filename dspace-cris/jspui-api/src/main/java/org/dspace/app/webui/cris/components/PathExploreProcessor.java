@@ -2,22 +2,30 @@ package org.dspace.app.webui.cris.components;
 
 import java.util.List;
 
+import org.dspace.app.cris.service.ApplicationService;
+import org.dspace.discovery.SearchService;
 import org.dspace.discovery.configuration.DiscoveryViewConfiguration;
 
 public class PathExploreProcessor
 {
-    private int maxResults = 10;
+    private int maxResults = Integer.MAX_VALUE;
+    
+    private int carouselMax = 12;
 
     private String queryDefault = "*:*";
 
     private String sortCriteria;
 
-    private String sortOrder = "DESC";
+    private String sortOrder = "ASC";
 
     private List<String> fq;
     
     private DiscoveryViewConfiguration configuration;
 
+    private ApplicationService applicationService;
+    
+    private SearchService searchService;
+    
     public int getMaxResults()
     {
         return maxResults;
@@ -77,6 +85,28 @@ public class PathExploreProcessor
     {
         this.configuration = configuration;
     }
-    
-    
+
+	public ApplicationService getApplicationService() {
+		return applicationService;
+	}
+
+	public void setApplicationService(ApplicationService applicationService) {
+		this.applicationService = applicationService;
+	}
+
+	public SearchService getSearchService() {
+		return searchService;
+	}
+
+	public void setSearchService(SearchService searchService) {
+		this.searchService = searchService;
+	}
+
+	public int getCarouselMax() {
+		return carouselMax;
+	}
+
+	public void setCarouselMax(int carouselMax) {
+		this.carouselMax = carouselMax;
+	}
 }

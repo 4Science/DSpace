@@ -20,7 +20,7 @@ public class PathEntries
 	 */
 	public PathEntries(List<IGlobalSearchResult> paths)
 	{
-		this.paths = (IGlobalSearchResult[])paths.toArray();
+		this.paths = paths.toArray(new IGlobalSearchResult[paths.size()]);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class PathEntries
 	 * 
 	 * @return	an array of paths
 	 */
-	public IGlobalSearchResult[] getRecentSubmissions()
+	public IGlobalSearchResult[] getPaths()
 	{
 		return (IGlobalSearchResult[])ArrayUtils.clone(paths);
 	}
@@ -52,7 +52,7 @@ public class PathEntries
 	 * @param i		the position of the paths to retrieve
 	 * @return		the paths
 	 */
-	public IGlobalSearchResult getRecentSubmission(int i)
+	public IGlobalSearchResult getPath(int i)
 	{
 		if (i < paths.length)
 		{

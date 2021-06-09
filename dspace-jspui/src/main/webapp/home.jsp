@@ -87,14 +87,7 @@
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
 </div>
-<%	if(paths != null && paths.count() > 0)
-	{	%>
-<div class="row">
-	<div class="col-md-12 path-carousel">
-	    <%@ include file="/components/path-list.jsp" %>
-	</div>
-</div>
-<%	}	%>
+<%@ include file="/components/path-list.jsp" %>
 <div class="row">
 	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	

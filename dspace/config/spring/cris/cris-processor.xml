@@ -16,10 +16,10 @@
 		<property name="sortCriteria" value="pathindex_sort" />
 		<property name="searchService" ref="org.dspace.discovery.SearchService" />
 		<property name="applicationService" ref="applicationService" />
-		<property name="maxResults" value="12" />
 		<property name="fq">
 			<list>
 				<value>crisdo.type:path</value>
+				<value>discoverable:true</value>
 			</list>
 		</property>		
 		<property name="configuration">
