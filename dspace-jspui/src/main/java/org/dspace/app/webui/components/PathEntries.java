@@ -1,5 +1,7 @@
 package org.dspace.app.webui.components;
 
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.dspace.discovery.IGlobalSearchResult;
 import org.dspace.discovery.configuration.DiscoveryViewConfiguration;
@@ -16,9 +18,9 @@ public class PathEntries
 	 * 
 	 * @param items
 	 */
-	public PathEntries(IGlobalSearchResult[] paths)
+	public PathEntries(List<IGlobalSearchResult> paths)
 	{
-		this.paths = (IGlobalSearchResult[]) ArrayUtils.clone(paths);
+		this.paths = (IGlobalSearchResult[])paths.toArray();
 	}
 
 	/**

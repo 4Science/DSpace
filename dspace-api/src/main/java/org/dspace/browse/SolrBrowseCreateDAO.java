@@ -383,16 +383,10 @@ public class SolrBrowseCreateDAO implements BrowseCreateDAO,
                 Metadatum[] Metadatum = item.getMetadataByMetadataString(so.getMetadata());
                 if (Metadatum != null && Metadatum.length > 0 && !"extra".equalsIgnoreCase(so.getType()))
                 {
-                	if ("number".equalsIgnoreCase(so.getType()))
-                	{
-						doc.addField("bi_sort_" + so.getNumber() + "_sort", Integer.valueOf(Metadatum[0].value));
-
-					}else {
-	                    String nValue = OrderFormat
-	                            .makeSortString(Metadatum[0].value,
-	                                    Metadatum[0].language, so.getType());
-	                    doc.addField("bi_sort_" + so.getNumber() + "_sort", nValue);
-					}
+                    String nValue = OrderFormat
+                            .makeSortString(Metadatum[0].value,
+                                    Metadatum[0].language, so.getType());
+                    doc.addField("bi_sort_" + so.getNumber() + "_sort", nValue);
                 }
             }
         }

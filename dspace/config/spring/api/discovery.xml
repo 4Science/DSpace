@@ -168,7 +168,6 @@
 				<entry key="crisconcept" value-ref="crisConceptConfiguration" />
 				<entry key="crisinterpretation" value-ref="crisInterpretationConfiguration" />
                 <entry key="crisopera" value-ref="crisOperaConfiguration" />
-                <entry key="crispath" value-ref="crisPathConfiguration" />
 				<!--Use site to override the default configuration for the home page 
 					& default discovery page -->
 				<!--<entry key="site" value-ref="defaultConfiguration" /> -->
@@ -2622,40 +2621,6 @@
 				<property name="max" value="3" />
 				<!--The minimum word length below which words will be ignored -->
 				<property name="minWordLength" value="5" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="crisPathConfiguration"
-		class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-		scope="prototype">
-		<property name="globalConfigurationEnabled" value="true" />
-		<property name="id" value="crisPathConfiguration" />
-		<!--The configuration for the recent submissions -->
-		<property name="recentSubmissionConfiguration">
-			<bean
-				class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
-				<property name="metadataSortField" value="crispath.pathindex" />
-				<property name="type" value="number" />
-				<property name="max" value="100" />
-				<property name="metadataFields">
-					<bean
-						class="org.dspace.discovery.configuration.DiscoveryViewConfiguration">
-						<property name="thumbnail" value="crispath.path"/>
-						<property name="metadataHeadingFields">
-							<list>
-								<bean
-									class="org.dspace.discovery.configuration.DiscoveryViewFieldConfiguration">
-									<property name="mandatory" value="true" />
-									<property name="preHtml" value="&lt;b class&#61;&quot;text-path&quot;&gt;" />
-									<property name="postHtml" value="&lt;/b&gt;" />
-									<property name="field" value="pathname" />
-									<property name="decorator" value="cristitle" />
-								</bean>
-							</list>
-						</property>
-					</bean>
-				</property>
 			</bean>
 		</property>
 	</bean>

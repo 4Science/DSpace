@@ -24,49 +24,49 @@
 					 thumbTag= StringUtils.substringAfter(paths.getConfiguration().getThumbnail(), ".");	%>
 			<div class="col-md-12" style="padding-bottom: 5px;">
 				<script>
-					$(document).ready(function(){
-						$(".<%= thumbTag %>list > .list-group-item-description").addClass("hidden");
-						$(".<%= thumbTag %>list").addClass("thumbnail");
-						$(".<%= thumbTag %>list span").addClass("hidden");
-						$(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
-						$(".<%= thumbTag %> > img").addClass("center-block");
-						$(".<%= thumbTag %>list").addClass("col-sm-2");
-						$(".<%= thumbTag %>-heading").addClass("<%= thumbTag %>-card");
-						$(".<%= thumbTag %>-heading > .media").each(function(){
-							var html = $(this).html();
+					jQuery(document).ready(function(){
+						jQuery(".<%= thumbTag %>list > .list-group-item-description").addClass("hidden");
+						jQuery(".<%= thumbTag %>list").addClass("thumbnail");
+						jQuery(".<%= thumbTag %>list span").addClass("hidden");
+						jQuery(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
+						jQuery(".<%= thumbTag %> > img").addClass("center-block");
+						jQuery(".<%= thumbTag %>list").addClass("col-sm-2");
+						jQuery(".<%= thumbTag %>-heading").addClass("<%= thumbTag %>-card");
+						jQuery(".<%= thumbTag %>-heading > .media").each(function(){
+							var html = jQuery(this).html();
 							if(!html.trim())
 							{
-								$(this).parent().children(".text-path").addClass("path-centertext")
-								$(this).remove();
+								jQuery(this).parent().children(".text-path").addClass("path-centertext")
+								jQuery(this).remove();
 							}
 						});
 						
-						$("#hidePath").click(function(){
-							$(".<%= thumbTag %>list > .list-group-item-description").removeClass("hidden");
-							$(".<%= thumbTag %>").addClass("hidden");
-							$(".<%= thumbTag %>list").removeClass("thumbnail");
-							$(".<%= thumbTag %>list span").removeClass("hidden");
-							$(".<%= thumbTag %>list > .list-group-item-heading").removeClass("thumbnail-heading");
-							$("#hidePath").removeClass("btn-default");
-							$("#hidePath").addClass("btn-primary");
-							$("#showPath").addClass("btn-default");
-							$("#showPath").removeClass("btn-primary");
-							$(".<%= thumbTag %>list").removeClass("col-sm-2");
-							$(".<%= thumbTag %>-heading").removeClass("<%= thumbTag %>-card");
+						jQuery("#hidePath").click(function(){
+							jQuery(".<%= thumbTag %>list > .list-group-item-description").removeClass("hidden");
+							jQuery(".<%= thumbTag %>").addClass("hidden");
+							jQuery(".<%= thumbTag %>list").removeClass("thumbnail");
+							jQuery(".<%= thumbTag %>list span").removeClass("hidden");
+							jQuery(".<%= thumbTag %>list > .list-group-item-heading").removeClass("thumbnail-heading");
+							jQuery("#hidePath").removeClass("btn-default");
+							jQuery("#hidePath").addClass("btn-primary");
+							jQuery("#showPath").addClass("btn-default");
+							jQuery("#showPath").removeClass("btn-primary");
+							jQuery(".<%= thumbTag %>list").removeClass("col-sm-2");
+							jQuery(".<%= thumbTag %>-heading").removeClass("<%= thumbTag %>-card");
 				  		});
 						
-						$("#showPath").click(function(){
-							$(".<%= thumbTag %>list > .list-group-item-description").addClass("hidden");
-							$(".<%= thumbTag %>list").addClass("thumbnail");
-							$(".<%= thumbTag %>list span").addClass("hidden");
-							$(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
-							$(".<%= thumbTag %>").removeClass("hidden");
-							$("#showPath").removeClass("btn-default");
-							$("#showPath").addClass("btn-primary");
-							$("#hidePath").removeClass("btn-primary");
-							$("#hidePath").addClass("btn-default");
-							$(".<%= thumbTag %>list").addClass("col-sm-2");
-							$(".<%= thumbTag %>-heading").addClass("<%= thumbTag %>-card");
+						jQuery("#showPath").click(function(){
+							jQuery(".<%= thumbTag %>list > .list-group-item-description").addClass("hidden");
+							jQuery(".<%= thumbTag %>list").addClass("thumbnail");
+							jQuery(".<%= thumbTag %>list span").addClass("hidden");
+							jQuery(".<%= thumbTag %>list > .list-group-item-heading").addClass("thumbnail-heading");
+							jQuery(".<%= thumbTag %>").removeClass("hidden");
+							jQuery("#showPath").removeClass("btn-default");
+							jQuery("#showPath").addClass("btn-primary");
+							jQuery("#hidePath").removeClass("btn-primary");
+							jQuery("#hidePath").addClass("btn-default");
+							jQuery(".<%= thumbTag %>list").addClass("col-sm-2");
+							jQuery(".<%= thumbTag %>-heading").addClass("<%= thumbTag %>-card");
 				  		});
 					});
 				</script>

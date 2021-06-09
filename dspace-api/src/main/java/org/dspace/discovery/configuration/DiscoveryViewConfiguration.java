@@ -13,6 +13,8 @@ public class DiscoveryViewConfiguration {
 
 	private String thumbnail;
 	
+	private String thumbnailDisplayStrategy = "crispicture";
+	
 	private List<DiscoveryViewFieldConfiguration> metadataHeadingFields;
 	private List<DiscoveryViewFieldConfiguration> metadataDescriptionFields;
 	
@@ -40,4 +42,14 @@ public class DiscoveryViewConfiguration {
 	public void setThumbnail(String thumbnail) {
 		this.thumbnail = thumbnail;
 	}
+
+    public String getThumbnailDisplayStrategy()
+    {
+        return thumbnailDisplayStrategy;
+    }
+
+    public void setThumbnailDisplayStrategy(String thumbnailDisplayStrategy)
+    {
+        this.thumbnailDisplayStrategy = thumbnailDisplayStrategy;
+    }
 }
