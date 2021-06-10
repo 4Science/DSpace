@@ -173,7 +173,10 @@ public class TreeHierarchy extends JSONRequest
                             SolrQuery solrQueryItem = new SolrQuery();
                             solrQueryItem.setQuery(MessageFormat.format(configurator.getRelation().get(contextTree).getQuery(),authority));
                             solrQueryItem.setFilterQueries("-withdrawn:true");
-                            solrQueryItem.setFields("search.resourcetype", "search.resourceid", "handle", "dc.title");
+                            solrQueryItem.setFields("search.resourcetype", "search.resourceid", "handle");
+                            for (String field : configurator.getLeafTitleMetadata()) {
+								solrQueryItem.addField(field);
+							}
                             addSortFields(solrQueryItem);
                             solrQueryItem.setRows(Integer.MAX_VALUE);
                             QueryResponse responseItem = searchService.search(solrQueryItem);
@@ -183,19 +186,7 @@ public class TreeHierarchy extends JSONRequest
                                 String handle = (String)(docItem.getFieldValue("handle"));
                                 nodeItem.setId(handle.replace("/", "_"));
                                 nodeItem.setParent(authority);
-                                String valueItem = "";
-                                if (docItem.getFieldValue("dc.title") instanceof String)
-                                {
-                                    valueItem = (String) docItem.getFieldValue("dc.title");
-                                }
-                                else
-                                {
-
-                                    for (String ss : (List<String>) docItem.getFieldValue("dc.title"))
-                                    {
-                                        valueItem = ss;
-                                    }
-                                }
+                                String valueItem = configurator.getLeafLabel(docItem);
                                 nodeItem.setText(valueItem);
                                 nodeItem.setIcon("fa fa-bars");
                                 dto.add(nodeItem);

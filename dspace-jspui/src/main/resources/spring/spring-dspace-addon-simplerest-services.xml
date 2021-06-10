@@ -188,6 +188,11 @@
 				<entry key="item" value="asc" />
 			</map>
 		</property>
+		<property name="leafTitleMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<alias name="configuratorResource" alias="org.dspace.app.cris.discovery.ConfiguratorResource" />

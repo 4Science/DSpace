@@ -3,6 +3,7 @@ package org.dspace.app.cris.discovery;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.common.SolrDocument;
 import org.dspace.app.cris.configuration.RelationConfiguration;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 
@@ -17,6 +18,8 @@ public class ConfiguratorResource
     private Map<String, List<DiscoverySortFieldConfiguration>> sort;
 
     private Map<String, String> sortOrder;
+    
+    private List<String> leafTitleMetadata;
 
     public Map<String, Boolean> getEnabled()
     {
@@ -68,4 +71,23 @@ public class ConfiguratorResource
         this.sortOrder = sortOrder;
     }
 
+	public List<String> getLeafTitleMetadata()
+	{
+		return leafTitleMetadata;
+	}
+
+	public void setLeafTitleMetadata(List<String> leafTitleMetadata)
+	{
+		this.leafTitleMetadata = leafTitleMetadata;
+	}
+	
+	public String getLeafLabel(SolrDocument docItem)
+	{
+		String result = (String) docItem.getFirstValue(this.leafTitleMetadata.get(0));
+		if (result == null) {
+			return "";
+		}
+		return result;
+	}
+	
 }
