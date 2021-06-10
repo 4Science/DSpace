@@ -874,3 +874,9 @@ div.footerPanel {
 	padding-left: 30px;
 	min-height: 100px;
 }
+
+.dropdownleft
+{
+	left: auto;
+	right: 0;
+}
