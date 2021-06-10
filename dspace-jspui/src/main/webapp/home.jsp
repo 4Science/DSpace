@@ -44,10 +44,10 @@
 <%@page import="org.dspace.core.Utils"%>
 <%@page import="org.dspace.content.Bitstream"%>
 <%@ page import="org.dspace.app.webui.util.LocaleUIHelper" %>
+<%@page import="org.dspace.app.webui.components.PathEntries"%>
 
 <%
     Community[] communities = (Community[]) request.getAttribute("communities");
-
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
 
@@ -68,6 +68,7 @@
     MostViewedBean mostViewedItem = (MostViewedBean) request.getAttribute("mostViewedItem");
     MostViewedBean mostCitedItem = (MostViewedBean) request.getAttribute("mostCitedItem");
     MostViewedBean mostViewedBitstream = (MostViewedBean) request.getAttribute("mostDownloadedItem");
+    PathEntries paths = (PathEntries) request.getAttribute("paths_list");
     boolean isRtl = StringUtils.isNotBlank(LocaleUIHelper.ifLtr(request, "","rtl"));
 %>
 
@@ -86,6 +87,7 @@
 	<%@ include file="discovery/static-globalsearch-component-facet.jsp" %>
 	<% } %>        
 </div>
+<%@ include file="/components/path-list.jsp" %>
 <div class="row">
 	<div class="col-md-4">
 		<%@ include file="components/most-viewed.jsp" %>	

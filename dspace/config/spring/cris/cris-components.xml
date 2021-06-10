@@ -520,6 +520,7 @@
                                 <entry key="interpretationdocuments" value-ref="publicationlistforinterpretation"/>
                                 <entry key="interpretationperson" value-ref="personlistforinterpretation"/>
                                 <entry key="interpretationevents" value-ref="eventlistforinterpretation" />
+				<entry key="pathpublications" value-ref="publicationlistforpath" />
 			</map>
 		</property>
 	</bean>
@@ -823,5 +824,29 @@
 		</property>
 	</bean>	
 
+	<!-- Publication list for Paths dynamic entity -->
+	<bean id="publicationlistforpath"
+		class="org.dspace.app.webui.cris.components.ItemsConfigurerComponent">
+		<property name="relationConfiguration" ref="relationPATHVSItemConfiguration" />
+		<property name="commonFilter"><util:constant static-field="org.dspace.app.webui.cris.util.RelationPreferenceUtil.HIDDEN_FILTER" /></property>		
+		<property name="target" value="org.dspace.app.cris.model.ResearchObject" />
+		<property name="facets" ref="facetsItemConfiguration"/>		
+		<property name="types">
+			<map>
+				<entry key="selected" value-ref="selectedForPathComponent" />
+				<entry key="all" value-ref="allObjectsComponent" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="selectedForPathComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="selected" />
+		<property name="facetQuery"><value>relationpreferences.crispath.publications.selected:{1}</value></property>
+		<property name="order"><value>desc</value></property>
+		<property name="rpp"><value>20</value></property>		
+		<!-- selected component should be sorted by score (-1) -->
+	    <property name="sortby"><value>-1</value></property>		
+	</bean>
 	
 </beans>

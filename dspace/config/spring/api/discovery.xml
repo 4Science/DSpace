@@ -96,6 +96,9 @@
 
 	<!--  Additional indexing plugin to index the carousel news order -->
 	<bean id="newsOrderIndexer" class="org.dspace.app.cris.discovery.NewsOrderIndexer"/>
+	
+	<!--  Additional indexing plugin to index the path order -->
+	<bean id="pathOrderIndexer" class="org.dspace.app.cris.discovery.PathOrderIndexer"/>
 
 	<!--Bean that is used for mapping communities/collections to certain discovery 
 		configurations. -->
@@ -455,6 +458,7 @@
 				<!--Only find items, communities and collections -->
 				<value>search.resourcetype:2 OR search.resourcetype:[9 TO 11] OR search.resourcetype:[1001 TO 9999]</value>
 				<value>-crisdo.type:news</value>
+				<value>-crisdo.type:path</value>
 			</list>
 		</property>
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->

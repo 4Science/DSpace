@@ -103,7 +103,13 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 		String browseIndex = null;
 		boolean viewFull = false;
 
-		out.println("<div class=\"list-group-item-heading\">");
+        if (view != null && view.getThumbnail() != null) {
+            out.println("<div class=\"list-group-item-heading " + StringUtils.substringAfter(view.getThumbnail(), ".") + "-heading\" >");
+        }
+        else {
+            out.println("<div class=\"list-group-item-heading\">");
+        }
+        
 		if (view != null) {
 			if (view.getThumbnail() != null) {
 				String tag = StringUtils.substringAfter(view.getThumbnail(), ".");
@@ -128,7 +134,7 @@ public class DiscoveryArtifactTag extends BodyTagSupport {
 					// TODO MANANAGE COLLECTION AND COMMUNITY
 				    if (artifact.getType() >= 9 || artifact instanceof BrowseItem) {
 			            IDisplayMetadataValueStrategy strategy = (IDisplayMetadataValueStrategy) PluginManager
-			                        .getNamedPlugin(IDisplayMetadataValueStrategy.class, "crispicture");
+			                        .getNamedPlugin(IDisplayMetadataValueStrategy.class, view.getThumbnailDisplayStrategy());
 
 	                    if (strategy != null) {
 	                        out.println(strategy.getMetadataDisplay(request, -1, true, "thumbnail", -1, "thumbnail", new Metadatum[]{}, (BrowseItem) artifact, true, true)); 	                        

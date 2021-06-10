@@ -831,6 +831,50 @@ div.footerPanel {
 .at4-arrow.at-left {
     padding: 15px;
 }
+
+.path-heading > .media {
+	height: 200px;
+	position: relative;
+}
+
+.path-heading > .media > .media-object {
+	max-height: 100%;
+	max-width: 100%;
+	padding-right: 0px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.path-card {
+	height: 270px;
+	justify-content: center;
+	text-align: center;
+}
+
+.path-card > .path-centertext {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.path-card > .path-centertext > a {
+	-webkit-line-clamp: 10;
+	padding-top: 0px !important;
+}
+
+.path-card > b > a {
+	padding-top: 5px;
+}
+
+.path-carousel {
+	padding-right: 30px;
+	padding-left: 30px;
+	min-height: 100px;
+}
+
 .dropdownleft
 {
 	left: auto;
