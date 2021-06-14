@@ -560,7 +560,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
@@ -871,7 +871,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
@@ -1189,7 +1189,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
@@ -1912,7 +1912,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
@@ -2606,7 +2606,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
@@ -2983,7 +2983,7 @@
 		 <dc-schema>dc</dc-schema>
          <dc-element>relation</dc-element>
          <dc-qualifier>path</dc-qualifier>
-         <repeatable>false</repeatable>
+         <repeatable>true</repeatable>
          <label>Percorso</label>
          <input-type>onebox</input-type>
          <hint></hint>
