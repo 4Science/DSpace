@@ -45,10 +45,7 @@
     String dsVersion = Util.getSourceVersion();
     String generator = dsVersion == null ? "DSpace" : "DSpace "+dsVersion;
     String analyticsKey = ConfigurationManager.getProperty("jspui.google.analytics.key");
-    Boolean socialNetworksEnabled = (Boolean) request.getAttribute("socialNetworksEnabled");
-    if (socialNetworksEnabled == null) {
-        socialNetworksEnabled = ConfigurationManager.getBooleanProperty("socialnetworks.enabled", false);
-    }
+    boolean socialNetworksEnabled = ConfigurationManager.getBooleanProperty("socialnetworks.enabled", false);
     String addThisProfileID = ConfigurationManager.getProperty("addthis.profileID");
 
     boolean cookiesPolicyEnabled = ConfigurationManager.getBooleanProperty("cookies.policy.enabled", false);
