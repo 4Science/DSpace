@@ -888,10 +888,9 @@ public class ItemImportOA
     }
 
     /**
-     * Recupera dal TableRow le informazioni per creare il metadato, per
-     * l'authority inserendo il segnaposto "N/A" verr� memorizzato il valore
-     * vuoto e quindi il sistema non cercher� di associare un authority in
-     * automatico.
+     * Get the information from the TableRow for the specific metadata.
+     * The authority column can use the special value [GUESS], case insensitive, 
+     * to rely on the getBestMatch to guess a potential authority
      * 
      * @param c
      * @param i
@@ -970,11 +969,11 @@ public class ItemImportOA
             share = (Integer)n[6];//.getIntColumn("IMP_SHARE");
         }
 
-        if (authority != null && authority.equals("N/A"))
+        if (authority != null && authority.equalsIgnoreCase("[GUESS]"))
         {
-            // remove placeholder and insert the value
+            // remove placeholder
             authority = null;
-            confidence = Choices.CF_UNSET;
+            
             if (bShare)
             {
                 //TODO not yet implemented
@@ -983,11 +982,10 @@ public class ItemImportOA
             }
             else
             {
-                i.getItemService().addMetadata(c, i, schema, element, qualifier, language, value,
-                        authority, confidence);
+                i.getItemService().addMetadata(c, i, schema, element, qualifier, language, value);
             }
         }
-        else if (StringUtils.isNotEmpty(authority))
+        else
         {
             if (bShare)
             {
@@ -999,19 +997,6 @@ public class ItemImportOA
             {
             	i.getItemService().addMetadata(c, i, schema, element, qualifier, language, value,
                         authority, confidence);
-            }
-        }
-        else
-        {
-            if (bShare)
-            {
-                //TODO not yet implemented
-                // i.addMetadata(schema, element, qualifier, language, value,
-                // share);
-            }
-            else
-            {
-            	i.getItemService().addMetadata(c, i, schema, element, qualifier, language, value);
             }
         }
     }
