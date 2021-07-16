@@ -41,7 +41,9 @@ public class SolrBrowseDAO implements BrowseDAO
 {
     
     private String userLocale;
-    
+
+    private boolean isMultilingual = false;
+
     public SolrBrowseDAO(Context context, String userLocale)
     {
         this.context = context;
@@ -155,9 +157,8 @@ public class SolrBrowseDAO implements BrowseDAO
             addExtraFilter(table, query);
             if (distinct)
             {
-                DiscoverFacetField dff = new DiscoverFacetField(facetField,
-                        DiscoveryConfigurationParameters.TYPE_TEXT, -1,
-                        DiscoveryConfigurationParameters.SORT.VALUE, false);
+                DiscoverFacetField dff = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT,
+                        -1, DiscoveryConfigurationParameters.SORT.VALUE, false, this.isMultilingual);
                 query.addFacetField(dff);
                 query.setFacetMinCount(1);
                 query.setMaxResults(0);
@@ -809,5 +810,15 @@ public class SolrBrowseDAO implements BrowseDAO
     public void setAuthorityValue(String value)
     {
         this.authority = value;
+    }
+
+    @Override
+    public void setIsMultilingual(boolean isMultilingual) {
+        this.isMultilingual = isMultilingual;
+    }
+
+    @Override
+    public boolean isMultilingual() {
+        return this.isMultilingual;
     }
 }

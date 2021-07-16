@@ -101,6 +101,8 @@ public class BrowseDAOPostgres implements BrowseDAO
     /** whether this is a distinct browse or not */
     private boolean distinct = false;
 
+    private boolean isMultilingual = false;
+
     // administrative attributes for this class
 
     /** a cache of the actual query to be executed */
@@ -1440,5 +1442,15 @@ public class BrowseDAOPostgres implements BrowseDAO
 
     public void setEnableBrowseFrequencies(boolean enableBrowseFrequencies) {
         this.enableBrowseFrequencies = enableBrowseFrequencies;
+    }
+
+    @Override
+    public void setIsMultilingual(boolean isMultilingual) {
+        this.isMultilingual = isMultilingual;
+    }
+
+    @Override
+    public boolean isMultilingual() {
+        return this.isMultilingual;
     }
 }

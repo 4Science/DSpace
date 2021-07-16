@@ -366,6 +366,18 @@ public interface BrowseDAO
     public boolean isDistinct();
 
     /**
+     * Set whether browse results are multilingual or not
+     */
+    public void setIsMultilingual(boolean isMultilingual);
+
+    /**
+     * Are the browse results multilingual?
+     *
+     * @return true if multilingual, false if not
+     */
+    public boolean isMultilingual();
+
+    /**
      * If we have specified a container id and container field, we must also specify
      * a container table.  This is the name of the table that maps the item onto
      * the distinct value.  Since we are in a container, this value will actually be

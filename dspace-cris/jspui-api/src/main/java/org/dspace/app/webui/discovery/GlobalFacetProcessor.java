@@ -75,8 +75,8 @@ public class GlobalFacetProcessor implements SiteHomeProcessor
                 request, null, DiscoveryConfiguration.GLOBAL_CONFIGURATIONNAME, true);
         
         for(String keyMapSecondLevel : mapsSecondLevel.keySet()) {
-			queryArgs.addFacetField(new DiscoverFacetField(keyMapSecondLevel,
-					DiscoveryConfigurationParameters.TYPE_TEXT, -1, SORT.COUNT, false));
+            queryArgs.addFacetField(new DiscoverFacetField(keyMapSecondLevel,
+                    DiscoveryConfigurationParameters.TYPE_TEXT, -1, SORT.COUNT, false, true));
         }
         queryArgs.setMaxResults(0);
         DiscoverResult qResults;
