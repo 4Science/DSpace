@@ -42,7 +42,7 @@
 	    for (int i = 0; i < results2.length; i++)
 	    {
 	    	String value = Utils.addEntities(results2[i][0]);
-	    	int count = Integer.parseInt(results2[i][2]);
+	        int count = Integer.parseInt(results2[i][3]);
 			data.put(value, count);
 	    }
     %>

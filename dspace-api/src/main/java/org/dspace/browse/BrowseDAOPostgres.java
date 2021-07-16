@@ -416,10 +416,10 @@ public class BrowseDAOPostgres implements BrowseDAO
                 String authorityResult = row.getStringColumn("authority");
                 if (enableBrowseFrequencies){
                     long frequency = row.getLongColumn("num");
-                    results.add(new String[]{valueResult,authorityResult, String.valueOf(frequency)});
+                    results.add(new String[]{valueResult, "", authorityResult, String.valueOf(frequency)});
                 }
                 else
-                    results.add(new String[]{valueResult,authorityResult, ""});
+                    results.add(new String[]{valueResult, "", authorityResult,  ""});
             }
 
             return results;
