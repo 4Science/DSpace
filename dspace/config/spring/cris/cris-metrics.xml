@@ -114,7 +114,7 @@
    		<property name="metrics" value="view"/>
    		<property name="fq">
    			<list>
-   				<value>search.resourcetype:2</value>
+   				<value>search.resourcetype:2 and withdrawn:false</value>
    			</list>
    		</property>
    	</bean>
@@ -124,7 +124,7 @@
    		<property name="metrics" value="download"/>
    		<property name="fq">
    			<list>
-   				<value>search.resourcetype:2</value>
+   				<value>search.resourcetype:2 and withdrawn:false</value>
    			</list>
    		</property>
    	</bean>
@@ -135,7 +135,7 @@
    		<property name="metrics" value="scopus"/>
    		<property name="fq">
    			<list>
-   				<value>search.resourcetype:2</value>
+   				<value>search.resourcetype:2 and withdrawn:false</value>
    			</list>
    		</property>
    	</bean>
@@ -145,7 +145,7 @@
    		<property name="metrics" value="wos"/>
    		<property name="fq">
    			<list>
-   				<value>search.resourcetype:2</value>
+   				<value>search.resourcetype:2 and withdrawn:false</value>
    			</list>
    		</property>
    	</bean>
@@ -156,7 +156,7 @@
    		<property name="metrics" value="pubmed"/>
    		<property name="fq">
    			<list>
-   				<value>search.resourcetype:2</value>
+   				<value>search.resourcetype:2 and withdrawn:false</value>
    			</list>
    		</property>
    	</bean>
