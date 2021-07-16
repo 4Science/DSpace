@@ -7,6 +7,8 @@
  */
 package org.dspace.app.cris.metrics.scopus.services;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,7 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.cris.metrics.common.model.ConstantMetrics;
 import org.dspace.app.cris.metrics.scopus.dto.ScopusResponse;
@@ -120,15 +123,18 @@ public class ScopusService {
 				HttpResponse response = client.execute(method);
 				int statusCode = response.getStatusLine().getStatusCode();
 				HttpEntity responseBody = response.getEntity();
+				String body = EntityUtils.toString(responseBody);
 
 				if (statusCode != HttpStatus.SC_OK) {
 					scopusResponse = new ScopusResponse("Scopus return not OK status: " + statusCode, ConstantMetrics.STATS_INDICATOR_TYPE_ERROR);
 				} else if (null != responseBody) {
+					
                     if (log.isDebugEnabled())
                     {                      
-                        log.debug(responseBody.getContent());
+                        log.debug(body);
                     }
-					scopusResponse = new ScopusResponse(responseBody.getContent());
+                    InputStream is = new ByteArrayInputStream(body.getBytes());
+					scopusResponse = new ScopusResponse(is);
 				} else {
 					scopusResponse = new ScopusResponse("Scopus returned no response", ConstantMetrics.STATS_INDICATOR_TYPE_ERROR);
 				}
