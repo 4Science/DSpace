@@ -166,7 +166,9 @@ public class ImportExportUtils {
 	 * Defaul visibility, it is used when no visibility attribute and old value
 	 * founded
 	 */
-	public static final String DEFAULT_VISIBILITY = "1";
+	public static final String DEFAULT_VISIBILITY = "PUBLIC";
+	public static final String PUBLIC_VISIBILITY = "PUBLIC";
+	public static final String HIDE_VISIBILITY = "HIDE";
 
 	public static final String LABELCAPTION_VISIBILITY_SUFFIX = " visibility";
 
@@ -1837,7 +1839,7 @@ public class ImportExportUtils {
 		for (ValoreDTO temp : old) {
 			pe.setValue(temp.getObject());
 			if (pe.getAsText().equals(nodetext)) {
-				vis = temp.getVisibility() ? "1" : "0";
+				vis = temp.getVisibility() ? PUBLIC_VISIBILITY : HIDE_VISIBILITY;
 				founded = true;
 				break;
 			}
