@@ -498,4 +498,11 @@
             <class>org.dspace.storage.bitstore.BitStoreMigrate</class>
         </step>
     </command>
+     <command>
+        <name>beacon</name>
+        <description>Generates Beacon File</description>
+        <step>
+            <class>org.dspace.app.cris.util.BeaconMaker</class>
+        </step>
+    </command>	
 </commands>

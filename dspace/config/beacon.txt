@@ -1,0 +1,5 @@
+#FORMAT: Beacon
+#DESCRIPTION: Your Dspace Repository
+#PREFIX: http://d-nb.info/gnd/{ID}
+#TARGET: http://localhost/gnd/{ID}
+#FEED: http://localhost/beacon

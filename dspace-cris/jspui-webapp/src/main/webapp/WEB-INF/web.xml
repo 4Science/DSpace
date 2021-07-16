@@ -552,6 +552,22 @@
         <servlet-name>relations</servlet-name>
         <servlet-class>org.dspace.app.webui.cris.servlet.RelationServlet</servlet-class>
     </servlet>
+    
+     <servlet>
+        <servlet-name>seealso</servlet-name>
+        <servlet-class>org.dspace.app.webui.cris.servlet.SeealsoServlet</servlet-class>
+    </servlet>
+
+    
+     <servlet>
+        <servlet-name>beacon</servlet-name>
+        <servlet-class>org.dspace.app.webui.cris.servlet.BeaconProviderServlet</servlet-class>
+    </servlet>
+
+     <servlet>
+    	<servlet-name>gndforwarding</servlet-name>
+    	<servlet-class>org.dspace.app.webui.cris.servlet.GNDForwardingServlet</servlet-class>
+     </servlet>    
 
 	<!-- spring mvc cris -->
 	<servlet>
@@ -1034,6 +1050,20 @@
 	  	<url-pattern>/json/*</url-pattern>
 	</servlet-mapping>
 	
+    	<servlet-mapping>
+     	   <servlet-name>seealso</servlet-name>
+           	<url-pattern>/seealso</url-pattern>
+	 </servlet-mapping>
+
+      	 <servlet-mapping>
+        <servlet-name>beacon</servlet-name>
+        <url-pattern>/beacon</url-pattern>
+    </servlet-mapping>
+
+   <servlet-mapping>
+	<servlet-name>gndforwarding</servlet-name>
+	<url-pattern>/gnd/*</url-pattern>
+   </servlet-mapping>
 
   <servlet-mapping>
       <servlet-name>SearchResultLogServlet</servlet-name>
