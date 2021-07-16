@@ -103,7 +103,7 @@ public class OUDetailsController
         boolean isAdmin = CrisAuthorizeManager.isAdmin(context,ou);
         boolean canEdit = isAdmin || CrisAuthorizeManager.canEdit(context, applicationService, EditTabOrganizationUnit.class, ou);
         if ((ou.getStatus() == null || ou.getStatus().booleanValue() == false)
-                && !isAdmin)
+                && !canEdit)
         {
             
             if (currUser != null

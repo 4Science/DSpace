@@ -104,7 +104,7 @@ public class ProjectDetailsController
         boolean isAdmin = CrisAuthorizeManager.isAdmin(context,grant);
         boolean canEdit = isAdmin || CrisAuthorizeManager.canEdit(context, applicationService, EditTabProject.class, grant);
         if ((grant.getStatus() == null || grant.getStatus().booleanValue() == false)
-                && !isAdmin)
+                && !canEdit)
         {
             
             if (currUser != null
