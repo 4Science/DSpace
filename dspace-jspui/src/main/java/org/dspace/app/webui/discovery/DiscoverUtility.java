@@ -476,9 +476,13 @@ public class DiscoverUtility
             //
             // }
 
-            if (rpp > 0)
+            if (rpp > 0 && rpp <= discoveryConfiguration.getMaxRpp())
             {
                 queryArgs.setMaxResults(rpp);
+            }
+            else if (rpp > 0 && rpp > discoveryConfiguration.getMaxRpp())
+            {
+                queryArgs.setMaxResults(discoveryConfiguration.getMaxRpp());
             }
             else
             {
