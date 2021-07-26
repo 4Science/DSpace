@@ -12,10 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dspace.app.cris.model.ACrisObject;
-import org.dspace.app.webui.cris.util.RelationPreferenceUtil;
-
-
 public class BeanComponent implements ICrisBeanComponent
 {
         
@@ -28,7 +24,9 @@ public class BeanComponent implements ICrisBeanComponent
     private int rpp = Integer.MAX_VALUE;
     
     private int sortby = -1;
-    
+
+    private String sortType = "";
+
     private boolean useCommonFilter = true;
     
     private boolean useRelationQuery = true;
@@ -92,6 +90,16 @@ public class BeanComponent implements ICrisBeanComponent
     public void setSortby(int sortby)
     {
         this.sortby = sortby;
+    }
+
+    public String getSortType()
+    {
+        return sortType;
+    }
+
+    public void setSortType(String sortType)
+    {
+        this.sortType = sortType;
     }
 
     public List<String> getFilters()

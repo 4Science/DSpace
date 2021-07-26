@@ -49,6 +49,13 @@
 		<property name="applicationService" ref="applicationService" />
 	</bean>
 
+	<!-- Additional indexing plugin to implement the browse system for crispath relation
+		preference -->
+	<bean id="crisPathRelationIndexer" scope="prototype"
+		class="org.dspace.app.cris.discovery.CrisPathRelationBrowseSolrIndexPlugin">
+		<property name="applicationService" ref="applicationService" />
+	</bean>
+
 	<!-- Additional indexing plugin to add bitstream identifier to item SOLR 
 		document -->
 	<bean id="bitstreamIndexer" class="org.dspace.app.cris.discovery.BitstreamSolrIndexer">

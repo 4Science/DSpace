@@ -139,6 +139,7 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
         int start = 0;
 
         int sortBy = -1;
+        String sortType = "";
         String order = "";
         int rpp = -1;
         int etAl = -1;
@@ -161,10 +162,11 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
                 start = 0;
             }
             sortBy = getSortBy(request, type);
+            sortType = getSortType(request, type);
             order = getOrder(request, type);
             rpp = getRPP(request, type);
             etAl = getEtAl(request, type);
-            orderfield = getOrderField(sortBy);
+            orderfield = getOrderField(sortBy, sortType);
             ascending = SortOption.ASCENDING.equalsIgnoreCase(order);
 
             // Perform the search
@@ -183,10 +185,11 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
         	List<String> extraFields = getExtraFields(type);
             type = activeTypes.get(0)[0];
             sortBy = getSortBy(request, type);
+            sortType = getSortType(request, type);
             order = getOrder(request, type);
             rpp = getRPP(request, type);
             etAl = getEtAl(request, type);
-            orderfield = getOrderField(sortBy);
+            orderfield = getOrderField(sortBy, sortType);
             ascending = SortOption.ASCENDING.equalsIgnoreCase(order);
             docs = search(context, request, type, cris, start, rpp, orderfield,
                     ascending, extraFields);
@@ -291,9 +294,14 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
         }
     }
 
-	private String getOrderField(int sortBy) throws SortException {
+	private String getOrderField(int sortBy, String sortType) throws SortException {
 		String orderfield;
-		orderfield = sortBy != -1 ? "bi_sort_" + sortBy + "_sort" : null;
+		orderfield = sortBy != -1 ? "bi_sort_" + sortBy : null;
+		if (sortType.equals(DiscoveryConfigurationParameters.TYPE_INTEGER)) {
+            orderfield += "_sint";
+        } else {
+            orderfield += "_sort";
+        }
 		if (orderfield != null && "extra".equalsIgnoreCase(SortOption.getSortOption(sortBy).getType())) {
 			orderfield = SortOption.getSortOption(sortBy).getMetadata().substring("extra.".length());
 		}
@@ -788,6 +796,14 @@ public abstract class ASolrConfigurerComponent<T extends DSpaceObject, IBC exten
             }
         }
         return sortBy;
+    }
+
+    private String getSortType(HttpServletRequest request, String type)
+    {
+        if (getTypes() != null && getTypes().containsKey(type)) {
+            return getTypes().get(type).getSortType();
+        }
+        return null;
     }
 
     protected List<String> getFilters(String type)
