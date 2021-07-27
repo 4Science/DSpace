@@ -13,6 +13,7 @@ import it.cilea.osd.jdyna.components.IBeanSubComponent;
 
 public interface ICrisBeanComponent extends IBeanSubComponent
 {
+    String getSortType();
     String getFacetQuery();
     String getFacetField();
     List<String> getExtraFields();

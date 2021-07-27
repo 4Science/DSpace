@@ -833,8 +833,7 @@
 		<property name="facets" ref="facetsItemConfiguration"/>		
 		<property name="types">
 			<map>
-				<entry key="selected" value-ref="selectedForPathComponent" />
-				<entry key="all" value-ref="allObjectsComponent" />
+				<entry key="all" value-ref="allWithSelectedFirstForPathComponent" />
 			</map>
 		</property>
 	</bean>
@@ -848,5 +847,16 @@
 		<!-- selected component should be sorted by score (-1) -->
 	    <property name="sortby"><value>-1</value></property>		
 	</bean>
-	
+
+	<bean id="allWithSelectedFirstForPathComponent"
+		class="org.dspace.app.webui.cris.components.BeanFacetComponent">
+		<property name="componentIdentifier" value="all" />
+		<property name="facetQuery"><value>relationpreferences.crispath.publications.selected:{1} OR *:*</value></property>
+		<property name="order"><value>asc</value></property>
+		<property name="rpp"><value>20</value></property>
+		<!-- selected component should be sorted by score (-1) -->
+		<property name="sortby"><value>10</value></property>
+		<property name="sortType"><value>integer</value></property>
+	</bean>
+
 </beans>
