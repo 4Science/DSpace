@@ -437,7 +437,25 @@
 			ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value="Publications" />
 	</bean>	
+	
+	<bean class="org.dspace.content.ItemEnhancer">
+		<property name="alias" value="treefondsroot" />
+		<property name="metadata">
+			<list>
+				<value>dc.relation.fond</value>
+			</list>
+		</property>
+		<property name="generators">
+			<list>				
+			    <ref bean="enhancerFondsTreeRoot"/>
+			</list>
+		</property>
+	</bean>
 
 	<bean name="enhancerFulltext" class="org.dspace.content.integration.defaultvalues.FulltextInfoGenerator"/>
 	<bean name="enhancerPermissionFulltext" class="org.dspace.content.integration.defaultvalues.FulltextPermissionGenerator"/>
+	<bean name="enhancerFondsTreeRoot" class="org.dspace.app.cris.integration.TreeRootGenerator">
+		<property name="searchService" ref="org.dspace.discovery.SearchService" />
+		<property name="fieldName" value="crisfonds.fondsname" />
+	</bean>
 </beans>

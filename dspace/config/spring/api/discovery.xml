@@ -1465,7 +1465,7 @@
 		     			queries done by discovery for this configuration -->
 		<property name="defaultFilterQueries">
 			<list>
-				<value>resourcetype_authority:crisfonds</value>
+				<value>resourcetype_authority:crisfonds AND -crisfonds.fondsparent_authority:*</value>
 			</list>
 		</property>
 		<!--The configuration for the recent submissions -->
@@ -3096,7 +3096,7 @@
 		<property name="indexFieldName" value="fond" />
 		<property name="metadataFields">
 			<list>
-				<value>dc.relation.fond</value>
+				<value>item.treefondsroot</value>
 			</list>
 		</property>
 	</bean>
@@ -3344,6 +3344,7 @@
 				<ref bean="searchFilterAuthor" />
 				<ref bean="searchFilterIssued" />
 				<ref bean="searchFilterType" />
+				<ref bean="searchFilterFond" />
 		</list>
 		</constructor-arg>
 	</bean>
