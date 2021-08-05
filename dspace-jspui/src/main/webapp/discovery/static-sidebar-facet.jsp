@@ -16,6 +16,7 @@
   -    discovery.searchScope - the search scope 
   --%>
 
+<%@page import="org.dspace.core.Utils"%>
 <%@page import="org.dspace.discovery.configuration.DiscoverySearchFilterFacet"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Set"%>
@@ -100,7 +101,7 @@
 	                + "&amp;filtertype="+URLEncoder.encode(fvalue.getFilterType(),"UTF-8")
 	                + "&amp;location="+URLEncoder.encode(searchScope,"UTF-8") %>"
 	                title="<fmt:message key="jsp.search.facet.narrow"><fmt:param><%=fvalue.getDisplayedValue() %></fmt:param></fmt:message>">
-	                <%= StringUtils.abbreviate(fvalue.getDisplayedValue(),36) %></a></li><%
+	                <%= Utils.addEntities(StringUtils.abbreviate(fvalue.getDisplayedValue(),36)) %></a></li><%
 		        }
 		        idx++;
 		    }
