@@ -965,7 +965,7 @@
          <repeatable>false</repeatable>
          <label>Link all'OPAC</label>
          <input-type>onebox</input-type>
-         <hint>Inserire l'URL per l'attivazione del collegamento con l'Opac dell'Università  di Pavia.</hint>
+         <hint>Inserire l'URL per l'attivazione del collegamento con l'Opac dell'Università.</hint>
          <required></required>
        </field>
 
