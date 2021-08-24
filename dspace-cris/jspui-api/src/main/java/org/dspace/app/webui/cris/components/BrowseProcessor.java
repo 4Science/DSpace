@@ -35,4 +35,11 @@ public class BrowseProcessor implements ExploreProcessor {
 		return model;
 	}
 
+    @Override
+    public void process(HttpServletRequest request,
+            HttpServletResponse response) throws Exception
+    {
+        //NOOP
+    }
+
 }

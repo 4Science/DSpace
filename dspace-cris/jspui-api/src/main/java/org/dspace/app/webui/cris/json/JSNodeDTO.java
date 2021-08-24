@@ -1,6 +1,7 @@
 package org.dspace.app.webui.cris.json;
 
 import java.util.List;
+import java.util.Map;
 
 //Alternative format of the node (id & parent are required)
 //{
@@ -30,8 +31,9 @@ public class JSNodeDTO
     private String text;
     private String icon;
     private JSNodeStateDTO state;
-    private List<String> li_attr;
-    private List<String> a_attr;
+    private String li_attr;
+    private Map<String,String> a_attr;
+    private List<JSNodeChildrenDTO> children;
     
     public String getId()
     {
@@ -73,20 +75,28 @@ public class JSNodeDTO
     {
         this.state = state;
     }
-    public List<String> getLi_attr()
+    public String getLi_attr()
     {
         return li_attr;
     }
-    public void setLi_attr(List<String> li_attr)
+    public void setLi_attr(String li_attr)
     {
         this.li_attr = li_attr;
     }
-    public List<String> getA_attr()
+    public Map<String,String> getA_attr()
     {
         return a_attr;
     }
-    public void setA_attr(List<String> a_attr)
+    public void setA_attr(Map<String,String> a_attr)
     {
         this.a_attr = a_attr;
+    }
+    public List<JSNodeChildrenDTO> getChildren()
+    {
+        return children;
+    }
+    public void setChildren(List<JSNodeChildrenDTO> children)
+    {
+        this.children = children;
     }
 }

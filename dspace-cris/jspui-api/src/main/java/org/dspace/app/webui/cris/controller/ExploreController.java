@@ -19,23 +19,12 @@ import org.dspace.app.webui.cris.components.ExploreMapProcessors;
 import org.dspace.app.webui.cris.components.ExploreProcessor;
 import org.dspace.app.webui.discovery.DiscoverUtility;
 import org.dspace.app.webui.util.UIUtil;
-import org.dspace.browse.BrowsableDSpaceObject;
-import org.dspace.browse.BrowseDSpaceObject;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
-import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
-import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
-import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.utils.DSpace;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -87,6 +76,8 @@ public class ExploreController extends BaseAbstractController {
 						if (process != null) {
 							model.putAll(process);
 						}
+						// used to add extra attribute the response directly
+						expProc.process(request, response);
 					}
 				}
 			}

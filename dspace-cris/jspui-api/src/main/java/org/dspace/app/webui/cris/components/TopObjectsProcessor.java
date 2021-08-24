@@ -93,4 +93,11 @@ public class TopObjectsProcessor implements ExploreProcessor {
 		model.put("top_"+type, rs);
 		return model;
 	}
+
+    @Override
+    public void process(HttpServletRequest request,
+            HttpServletResponse response) throws Exception
+    {
+        //NOOP
+    }
 }

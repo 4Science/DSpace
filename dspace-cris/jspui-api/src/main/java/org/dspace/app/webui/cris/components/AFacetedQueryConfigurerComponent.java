@@ -80,7 +80,7 @@ public abstract class AFacetedQueryConfigurerComponent<T extends DSpaceObject>
                 catch (MissingResourceException e)
                 {
                     log.warn(
-                            "Missing Resource: jsp.layout.dspace.detail.fieldset-legend.component."
+                            "Missing TreeResource: jsp.layout.dspace.detail.fieldset-legend.component."
                                     + type);
                     message = I18nUtil.getMessage(
                             "jsp.layout.dspace.detail.fieldset-legend.component.default",

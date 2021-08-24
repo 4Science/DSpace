@@ -13,6 +13,7 @@ public class JSDetailsDTO
 {
     private String label;
     private List<String> value;
+    private List<String> valueUrl;
     private boolean url;
     
     public String getLabel()
@@ -38,6 +39,14 @@ public class JSDetailsDTO
     public void setUrl(boolean url)
     {
         this.url = url;
+    }
+    public List<String> getValueUrl()
+    {
+        return valueUrl;
+    }
+    public void setValueUrl(List<String> valueUrl)
+    {
+        this.valueUrl = valueUrl;
     }
     
 }

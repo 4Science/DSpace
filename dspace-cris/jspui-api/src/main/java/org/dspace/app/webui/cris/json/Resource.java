@@ -17,8 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.dspace.app.cris.discovery.ConfiguratorProfile;
-import org.dspace.app.cris.discovery.ConfiguratorResource;
+import org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator;
+import org.dspace.app.cris.discovery.tree.TreeViewConfigurator;
+import org.dspace.app.cris.model.ACrisObject;
 import org.dspace.app.cris.model.CrisConstants;
 import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.app.webui.json.JSONRequest;
@@ -28,7 +29,6 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.handle.HandleManager;
-import org.dspace.utils.DSpace;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -42,7 +42,7 @@ public class Resource extends JSONRequest
     private static Logger log = Logger.getLogger(Resource.class);
 
     private ApplicationService applicationService;
-    private ConfiguratorResource configurator;
+    private TreeViewConfigurator configurator;
     
     @Override
     public void doJSONRequest(Context context, HttpServletRequest req,
@@ -71,6 +71,10 @@ public class Resource extends JSONRequest
                 pluginName = pluginName.replace("_", "/");
                 object = HandleManager.resolveToObject(context, pluginName);
                 profile = "item-" + profile;
+                // Check first if we have a specific profile for the item
+                if (!configurator.getProfile().containsKey(profile)) {
+					profile = "item";
+				}
             }
             catch (IllegalStateException | SQLException e)
             {
@@ -80,25 +84,25 @@ public class Resource extends JSONRequest
 
         if (configurator.getProfile().containsKey(profile))
         {
-            for (ConfiguratorProfile pp : configurator.getProfile()
+            for (TreeViewResourceConfigurator pp : configurator.getProfile()
                     .get(profile))
             {
                 boolean addNode = false;
                 JSDetailsDTO node = new JSDetailsDTO();
-                String label = "";
-                if (StringUtils.isNotBlank(pp.getLabelKey())) {
-                    label = I18nUtil.getMessage(pp.getLabelKey(), context.getCurrentLocale(), false);
+                if(StringUtils.isBlank(pp.getLabelKey())) {
+                    node.setLabel(pp.getLabel());
                 }
-                if (StringUtils.isBlank(label) || label.equals(pp.getLabelKey())) {
-                    label = pp.getLabel();
+                else {
+                    node.setLabel(I18nUtil.getMessage(pp.getLabelKey(), context.getCurrentLocale(), false));
                 }
-                node.setLabel(label);
                 if (pp.isUrl())
                 {
+                    List<String> value = new ArrayList<String>();
                     List<String> urls = new ArrayList<String>();
                     if (object.getType() >= CrisConstants.CRIS_TYPE_ID_START)
                     {
                         urls.add(ConfigurationManager.getProperty("dspace.url")+"/cris/uuid/"+object.getHandle());
+                        value.add(((ACrisObject)(object)).getCrisID());
                     }
                     else
                     {
@@ -106,13 +110,15 @@ public class Resource extends JSONRequest
                         {
                             urls.add(HandleManager.resolveToURL(context,
                                     object.getHandle()));
+                            value.add(object.getHandle());
                         }
                         catch (SQLException e)
                         {
                             log.error(e.getMessage(), e);
                         }
                     }
-                    node.setValue(urls);
+                    node.setValue(value);
+                    node.setValueUrl(urls);
                     addNode = true;
                 }
                 else
@@ -139,7 +145,7 @@ public class Resource extends JSONRequest
         this.applicationService = applicationService;
     }
 
-    public void setConfigurator(ConfiguratorResource configurator)
+    public void setConfigurator(TreeViewConfigurator configurator)
     {
         this.configurator = configurator;
     }

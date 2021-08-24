@@ -1,6 +1,6 @@
-package org.dspace.app.cris.discovery;
+package org.dspace.app.cris.discovery.tree;
 
-public class ConfiguratorProfile
+public class TreeViewResourceConfigurator
 {
     private String label;
     private String labelKey;

@@ -8,133 +8,118 @@
     http://www.dspace.org/license/
 
 -->
-<!-- The contents of this file are subject to the license and copyright detailed 
-	in the LICENSE and NOTICE files at the root of the source tree and available 
-	online at http://www.dspace.org/license/ -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean name="tree" class="org.dspace.app.webui.cris.json.TreeHierarchy">
-		<property name="searchService" ref="org.dspace.discovery.SearchService" />
-		<property name="configurator" ref="configuratorResource" />
-	</bean>
+    <bean name="tree" class="org.dspace.app.webui.cris.json.TreeHierarchy">
+    	<property name="searchService" ref="org.dspace.discovery.SearchService" />
+    	<property name="configurator" ref="treeViewConfigurator"/>
+    </bean>
+    
+    <bean name="resource" class="org.dspace.app.webui.cris.json.Resource">
+    	<property name="configurator" ref="treeViewConfigurator"/>
+		<property name="applicationService" ref="applicationService" />
+    </bean>
 
-	<bean name="resource" class="org.dspace.app.webui.cris.json.Resource">
-		<property name="configurator" ref="configuratorResource" />
+	<bean id="solrServiceTreeNodeRootIndexPlugin"
+		class="org.dspace.app.cris.discovery.tree.TreeViewIndexPlugin">
+		<property name="configurator" ref="treeViewConfigurator"/>
 		<property name="applicationService" ref="applicationService" />
 	</bean>
 
-	<bean id="solrServiceTreeNodeRootIndexPlugin" class="org.dspace.app.cris.discovery.CrisPathIndexPlugin">
-		<property name="configurator" ref="configuratorResource" />
-		<property name="applicationService" ref="applicationService" />
-	</bean>
-
-	<bean id="configuratorResource" class="org.dspace.app.cris.discovery.ConfiguratorResource"
+	<bean id="treeViewConfigurator"
+		class="org.dspace.app.cris.discovery.tree.TreeViewConfigurator"
 		scope="prototype">
 		<property name="profile">
+			<!-- the map key for CRIS object is the shortname of the configured box (except for Item details). Please use convention with <authority-prefix>-tree -->
 			<map>
-				<entry key="1">
+				<entry key="fondsboxtree">
 					<list>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Name" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.name"/>
-							<property name="metadata" value="fondsname" />
-							<property name="url" value="false" />
+							<property name="metadata" value="fondsname"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Person" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.creatorperson"/>
-							<property name="metadata" value="fondscreatorperson" />
-							<property name="url" value="false" />
+							<property name="metadata" value="fondscreatorperson"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Family" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.creatorfamily"/>
-							<property name="metadata" value="fondscreatorfamily" />
-							<property name="url" value="false" />
-						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Corporate Body" />
+							<property name="metadata" value="fondscreatorfamily"/>
+							<property name="url" value="false"/>
+						</bean>												
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.creatorcorporatebody"/>
-							<property name="metadata" value="fondscreatorcorporatebody" />
-							<property name="url" value="false" />
+							<property name="metadata" value="fondscreatorcorporatebody"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Type" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.type"/>
-							<property name="metadata" value="fondstype" />
-							<property name="url" value="false" />
+							<property name="metadata" value="fondstype"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Description" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.description"/>
-							<property name="metadata" value="fondsdescription" />
-							<property name="url" value="false" />
+							<property name="metadata" value="fondsdescription"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Url" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.fonds.url"/>
-							<property name="metadata" value="url::handle" />
-							<property name="url" value="true" />
-						</bean>
-					</list>
-				</entry>
-				<entry key="item-1">
+							<property name="metadata" value="url::handle"/>
+							<property name="url" value="true"/>
+						</bean>																		
+					</list>										
+				</entry>			
+<!-- 			<entry key="item-fondsboxtree">
 					<list>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Author" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.author"/>
-							<property name="metadata" value="dc.contributor.author" />
-							<property name="url" value="false" />
+							<property name="metadata" value="dc.contributor.author"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Title" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.title"/>
-							<property name="metadata" value="dc.title" />
-							<property name="url" value="false" />
+							<property name="metadata" value="dc.title"/>
+							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Url" />
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.url"/>
-							<property name="metadata" value="url::handle" />
-							<property name="url" value="true" />
-						</bean>
-					</list>
-				</entry>
-				<entry key="2">
+							<property name="metadata" value="url::handle"/>
+							<property name="url" value="true"/>
+						</bean>																		
+					</list>										
+				</entry>	-->
+				<entry key="journalfondstabtree">
 					<list>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Name"/>
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.journalfonds.name"/>
 							<property name="metadata" value="journalfondsname"/>
 							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Url"/>
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.journalfonds.url"/>
 							<property name="metadata" value="url::handle"/>
 							<property name="url" value="true"/>
 						</bean>
 					</list>
 				</entry>
-				<entry key="item-2">
+				<entry key="item">
 					<list>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Author"/>
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.author"/>
 							<property name="metadata" value="dc.contributor.author"/>
 							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Title"/>
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.title"/>
 							<property name="metadata" value="dc.title"/>
 							<property name="url" value="false"/>
 						</bean>
-						<bean class="org.dspace.app.cris.discovery.ConfiguratorProfile">
-							<property name="label" value="Url"/>
+						<bean class="org.dspace.app.cris.discovery.tree.TreeViewResourceConfigurator">
 							<property name="labelKey" value="tree.item.url"/>
 							<property name="metadata" value="url::handle"/>
 							<property name="url" value="true"/>
@@ -144,18 +129,22 @@
 			</map>
 		</property>
 		<property name="enabled">
-			<map>
-				<entry key="fonds" value="true" />
+			<map>			
+				<entry key="fonds" value="true"/>
 				<entry key="journalfonds" value="true"/>
 			</map>
 		</property>
-		<property name="relation">
-			<map>
+		<property name="relations">
+			<map>			
 				<entry key="crisfonds">
-					<ref bean="relationFONDSVSItemConfiguration" />
+					<list>
+						<ref bean="relationFONDSVSItemConfiguration"/>
+					</list>
 				</entry>
 				<entry key="crisjournalfonds">
-					<ref bean="relationJOURNALFONDSVSItemConfiguration"/>
+					<list>
+						<ref bean="relationJOURNALFONDSVSItemConfiguration"/>
+					</list>
 				</entry>
 			</map>
 		</property>
@@ -188,12 +177,65 @@
 				<entry key="item" value="asc" />
 			</map>
 		</property>
+		<property name="showRelationCount">
+			<map>
+				<entry key="crisfonds" value="false"/>
+				<entry key="crisjournalfonds" value="false"/>
+			</map>
+		</property>		
+		<!-- the follow property works in relation with the "leafs" property -->
+		<property name="showRelationOnLeaf">
+			<map>
+				<entry key="crisfonds" value="true"/>
+				<entry key="crisjournalfonds" value="true"/>
+			</map>
+		</property>
+		<property name="icons">
+			<map>
+		<!--	<entry key="crisfonds" value="fa fa-archive"/>
+				<entry key="crisjournalfonds" value="fa fa-archive"/>	-->
+			</map>
+		</property>		
+		<property name="parents">
+			<map>			
+				<entry key="fonds">
+					<list>
+						<value>fondsparent</value>
+					</list>
+				</entry>
+				<entry key="journalfonds">
+					<list>
+						<value>journalfondsparent</value>
+					</list>
+				</entry>
+			</map>
+		</property>
+		<property name="leafs">
+			<map>			
+				<entry key="fonds">
+					<list>
+						<value>fondsleaf</value>
+					</list>
+				</entry>
+				<entry key="journalfonds">
+					<list>
+						<value>journalfondsleaf</value>
+					</list>
+				</entry>
+			</map>
+		</property>
+		<!-- configure the value of the metadato to show node collapsed -->
+		<property name="closed">
+			<map>
+			</map>
+		</property>
 		<property name="leafTitleMetadata">
 			<list>
 				<value>dc.title</value>
 			</list>
 		</property>
 	</bean>
-
-	<alias name="configuratorResource" alias="org.dspace.app.cris.discovery.ConfiguratorResource" />
+	
+	<alias name="treeViewConfigurator"
+		alias="org.dspace.app.cris.discovery.tree.TreeViewConfigurator" />
 </beans>

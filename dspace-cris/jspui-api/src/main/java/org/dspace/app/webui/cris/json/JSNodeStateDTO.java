@@ -1,5 +1,11 @@
 package org.dspace.app.webui.cris.json;
 
+/**
+ * Class to represent a state for a single node 
+ * 
+ * @author Luigi Andrea Pascarelli
+ *
+ */
 public class JSNodeStateDTO
 {
 

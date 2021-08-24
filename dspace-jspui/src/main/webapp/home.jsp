@@ -96,6 +96,13 @@
 		<%@ include file="components/most-downloaded.jsp" %>
 	</div>
 </div>
+<!--
+<div class="row">
+	<div class="col-md-12">
+		<%@ include file="/components/treeview-component.jsp" %>	
+	</div>
+</div>
+--%>
 <%
 if (communities != null && communities.length != 0)
 {
