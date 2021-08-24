@@ -224,7 +224,7 @@
 				</entry>
 			</map>
 		</property>
-		<!-- configure the value of the metadato to show node collapsed -->
+		<!-- configure the value of the metadata to show node collapsed -->
 		<property name="closed">
 			<map>
 			</map>
@@ -233,6 +233,13 @@
 			<list>
 				<value>dc.title</value>
 			</list>
+		</property>
+		<!-- the depth of the tree to open when first loading(overwritten by closed), default 0 -->
+		<property name="displayDepth">
+			<map>			
+				<entry key="fonds" value="2" />
+				<entry key="journalfonds" value="2" />
+			</map>
 		</property>
 	</bean>
 	

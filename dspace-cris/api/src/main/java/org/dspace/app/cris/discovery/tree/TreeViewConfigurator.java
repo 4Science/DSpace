@@ -31,7 +31,9 @@ public class TreeViewConfigurator
 
     private Map<String, String> sortOrder;
     
-    private List<String> leafTitleMetadata; 
+    private List<String> leafTitleMetadata;
+    
+    private Map<String, Integer> displayDepth;
     
     public Map<String, Boolean> getEnabled()
     {
@@ -160,6 +162,14 @@ public class TreeViewConfigurator
 			return "";
 		}
 		return result;
+	}
+
+	public Map<String, Integer> getDisplayDepth() {
+		return displayDepth;
+	}
+
+	public void setDisplayDepth(Map<String, Integer> displayDepth) {
+		this.displayDepth = displayDepth;
 	}
 
 }

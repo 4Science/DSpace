@@ -74,14 +74,16 @@ public class TreeViewIndexPlugin
                 break;
             }
         }
-
+        
+        int depth = getRootDepth(crisObject, metadataKeyParent, 0);
         result = getRootInfo(crisObject, metadataKeyParent);
         document.addField("treeroot_s", result);
         document.addField("treecontext_s", crisObject.getTypeText());
+        document.addField("treenode.depth", depth);
         
         Map<String, String> metadataNodeClosedProp = configurator.getClosed().get(crisObject.getAuthorityPrefix());
         
-        boolean found = false;
+        boolean closed = false;
         if (metadataNodeClosedProp != null)
         {
         	external : for(String metadataNodeClosed : metadataNodeClosedProp.keySet()) {
@@ -89,7 +91,7 @@ public class TreeViewIndexPlugin
         			String nodeIsClosed = crisObject.getMetadata(metadataNodeClosed);
         			if(StringUtils.isNotBlank(nodeIsClosed)) {
         				if(nodeIsClosed.equals(metadataNodeClosedProp.get(metadataNodeClosed))) {
-        					found = true;
+        					closed = true;
         					break external;
         				}
         			}
@@ -97,9 +99,19 @@ public class TreeViewIndexPlugin
         		
         	}
 		}
-
+        // if node is not closed by metadata check if the max opened levels are configured
+        if (!closed)
+        {
+        	Integer showDepth = configurator.getDisplayDepth().get(crisObject.getAuthorityPrefix());
+        	showDepth = showDepth == null ? 0 : showDepth;
+        	if (depth >= showDepth)
+        	{
+				closed = true;
+			}
+		}
+        
         //it's a boolean value
-        document.addField("treenodeclosed_b", found);
+        document.addField("treenodeclosed_b", closed);
         
         //multiple leaf metadata (but retrieve only the first value)
         List<String> metadataKeyLeafs = configurator.getLeafs().get(crisObject.getAuthorityPrefix());
@@ -132,6 +144,36 @@ public class TreeViewIndexPlugin
         }
         
         addRootInfo(crisObject, metadataKeyParent, document);
+    }
+    /**
+     * find the distance from the root
+     * 
+     * @see #getRootInfo(ACrisObject, String)
+     * 
+     * @param <P>
+     * @param <TP>
+     * @param <NP>
+     * @param <NTP>
+     * @param <ACNO>
+     * @param <ATNO>
+     * @param crisObject
+     * @param metadataKey
+     * @param depth
+     * @return
+     */
+    private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> int getRootDepth(
+            ACrisObject<P, TP, NP, NTP, ACNO, ATNO> crisObject,
+            String metadataKey, int depth)
+    {
+    	List<P> pp = crisObject.getAnagrafica4view().get(metadataKey);
+        for (P metadata : pp)
+        {
+            PointerValue val = ((PointerValue) metadata.getValue());
+            ACrisObject aCrisObject = (ACrisObject) val.getObject();
+            depth++;
+            return getRootDepth(aCrisObject, metadataKey, depth);
+        }
+        return depth;
     }
 
     private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> String getRootInfo(
