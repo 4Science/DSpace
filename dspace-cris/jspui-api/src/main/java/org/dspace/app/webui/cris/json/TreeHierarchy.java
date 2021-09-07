@@ -225,12 +225,13 @@ public class TreeHierarchy extends JSONRequest
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQuery("cris-id:\""+ pluginName + "\" OR handle:\""+ pluginName + "\"");
             solrQuery.setRows(Integer.MAX_VALUE);
-            solrQuery.setFields("treeroot_s");
+            solrQuery.setFields("treecontext_s", "treeroot_s");
             try
             {
                 QueryResponse response = searchService.search(solrQuery);
                 SolrDocumentList docList = response.getResults();
                 for(SolrDocument doc : docList) {
+                    String contextTree = (String)(doc.getFieldValue("treecontext_s"));
                     String valueRoot = (String)(doc.getFieldValue("treeroot_s"));
                     if(StringUtils.isBlank(valueRoot)) {
                         valueRoot = pluginName;
@@ -238,8 +239,9 @@ public class TreeHierarchy extends JSONRequest
                     //get all node leads by this root node
                     SolrQuery solrQueryInternal = new SolrQuery();
                     solrQueryInternal.setQuery("treeroot_s:\""+ valueRoot + "\"");
-                    solrQueryInternal.setFields("crisauthoritylookup","handle", "cris-id", "treeparent_s", "treeleaf_b", "treecontext_s", "treenodeclosed_b");
+                    solrQueryInternal.setFields("crisauthoritylookup","handle", "cris-id", "treeparent_s", "treeleaf_b", "treenodeclosed_b");
                     solrQueryInternal.setRows(Integer.MAX_VALUE);
+                    addSortFields(solrQueryInternal, contextTree);
                     QueryResponse responseInternal = searchService.search(solrQueryInternal);
                     SolrDocumentList docListInternal = responseInternal.getResults();
                     for(SolrDocument docInternal : docListInternal) {                  
@@ -273,9 +275,7 @@ public class TreeHierarchy extends JSONRequest
                         if(authority.equals(pluginName)) {
                             jsNodeStateDTO.setSelected(true);
                         }
-                        
-                        String contextTree = (String)(docInternal.getFieldValue("treecontext_s"));
-                        
+
                         node.setId(authority);
                         node.setText(value);
                         node.setParent(parent);

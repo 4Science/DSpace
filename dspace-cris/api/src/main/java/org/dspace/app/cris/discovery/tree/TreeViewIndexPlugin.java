@@ -61,7 +61,6 @@ public class TreeViewIndexPlugin
             ACrisObject<P, TP, NP, NTP, ACNO, ATNO> crisObject,
             SolrInputDocument document)
     {
-        String result = "";
         //multiple parent metadata (but retrieve only the first value)
         List<String> metadataKeyParents = configurator.getParents().get(crisObject.getAuthorityPrefix());
         
@@ -76,8 +75,9 @@ public class TreeViewIndexPlugin
         }
         
         int depth = getRootDepth(crisObject, metadataKeyParent, 0);
-        result = getRootInfo(crisObject, metadataKeyParent);
-        document.addField("treeroot_s", result);
+        ACrisObject root = getRootInfo(crisObject, metadataKeyParent);
+        document.addField("treeroot_s", root.getCrisID());
+        document.addField("treerootname_s", root.getName());
         document.addField("treecontext_s", crisObject.getTypeText());
         document.addField("treenode.depth", depth);
         
@@ -176,7 +176,7 @@ public class TreeViewIndexPlugin
         return depth;
     }
 
-    private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> String getRootInfo(
+    private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> ACrisObject getRootInfo(
             ACrisObject<P, TP, NP, NTP, ACNO, ATNO> crisObject,
             String metadataKey)
     {
@@ -187,7 +187,7 @@ public class TreeViewIndexPlugin
             ACrisObject aCrisObject = (ACrisObject) val.getObject();
             return getRootInfo(aCrisObject, metadataKey);
         }
-        return crisObject.getCrisID();
+        return crisObject;
     }
 
     private <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> void addRootInfo(
