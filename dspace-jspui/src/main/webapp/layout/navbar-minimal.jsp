@@ -29,6 +29,7 @@
 <%@ page import="org.dspace.browse.BrowseIndex" %>
 <%@ page import="org.dspace.browse.BrowseInfo" %>
 <%@ page import="java.util.Map" %>
+<%@page import="org.dspace.core.Utils"%>
 <%
     // Is anyone logged in?
     EPerson user = (EPerson) request.getAttribute("dspace.current.user");
@@ -50,7 +51,7 @@
 
     if (user != null)
     {
-        navbarEmail = user.getEmail();
+        navbarEmail = Utils.addEntities(user.getEmail());
     }
 %>
 

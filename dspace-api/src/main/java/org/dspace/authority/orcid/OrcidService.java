@@ -510,6 +510,22 @@ public class OrcidService extends RestSource
 
         return getAuthorityValuesFromOrcidResults(results);
     }
+    
+    /**
+     * Used to retrieve Orcid Profile using orcid ID
+     * 
+     * @param text
+     * @param start
+     * @param max
+     * @return
+     * @throws IOException
+     */
+    public List<AuthorityValue> queryOrcidByOrcidId(
+            String orcidId) throws IOException
+    {
+        List<Result> results = search("orcid:"+orcidId, 0, 1);
+        return getAuthorityValuesFromOrcidResults(results);
+    }
 
     /**
      * 

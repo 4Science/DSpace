@@ -7,6 +7,7 @@
  */
 package org.dspace.discovery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.common.util.ContentStreamBase;
 import org.dspace.content.Bitstream;
@@ -56,6 +57,9 @@ public class BitstreamContentStream extends ContentStreamBase
 
                 }
             }
+        } else if (StringUtils.contains(contentType, ";")) {
+            // check if mime type contains parameters
+            return StringUtils.strip(StringUtils.substringBefore(contentType, ";"));
         }
         return contentType;
     }

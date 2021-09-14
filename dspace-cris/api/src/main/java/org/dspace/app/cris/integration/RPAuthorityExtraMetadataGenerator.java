@@ -17,6 +17,8 @@ public interface RPAuthorityExtraMetadataGenerator
 {
 
     public Map<String, String> build(ResearcherPage rp);
+
+    public String getParentInputFormMetadata();
     
     public List<Choice> buildAggregate(ResearcherPage rp);
 

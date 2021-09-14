@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.cris.model.ResearcherPage;
+import org.dspace.app.cris.model.jdyna.RPProperty;
 import org.dspace.app.cris.util.ResearcherPageUtils;
 import org.dspace.content.Item;
 import org.dspace.content.Metadatum;
@@ -23,23 +24,39 @@ public class RPExtraAuthorityMetadataGenerator
         implements RPAuthorityExtraMetadataGenerator
 {
 
-    private String relatedInputformMetadata = "dc_contributor_department";
+    private String relatedInputformMetadata;
+    
+    private String additionalInputformMetadata;
+    
+    private String parentInputFormMetadata;
 
-    private String schema = "affiliation";
+    private String schema;
 
-    private String element = "affiliationorgunit";
+    private String element;
 
-    private String qualifier = "name";
+    private String qualifier;
 
+    private String additionalRpMetadata;
+    
     //use with aggregate mode
     private boolean singleResultOnAggregate = true;
 
     @Override
     public Map<String, String> build(ResearcherPage rp)
     {
+        String orcid = null;
+        if(StringUtils.isNotBlank(getAdditionalRpMetadata())) {
+            orcid = rp.getMetadata(additionalRpMetadata);
+            if(StringUtils.isBlank(orcid)) {
+                orcid = "";
+            }
+        }
         // only single result is supported
         Map<String, String> extras = new HashMap<String, String>();
-        buildSingleExtraByRP(rp, extras);
+        buildSingleExtraByMetadataFromRP(rp, extras);
+        if(StringUtils.isNotEmpty(getAdditionalInputformMetadata())) {
+            extras.put("data-" + getAdditionalInputformMetadata(), orcid);
+        }
         return extras;
     }
 
@@ -47,14 +64,30 @@ public class RPExtraAuthorityMetadataGenerator
     public List<Choice> buildAggregate(ResearcherPage rp)
     {
         List<Choice> choiceList = new LinkedList<Choice>();
+        
+		List<RPProperty> dyna = rp.getAnagrafica4view().get(additionalRpMetadata);
+		
+		String orcid = null;
+		if(! dyna.isEmpty()) {
+			orcid = dyna.get(0).toString();
+		}
+		
+		if (StringUtils.isBlank(orcid)) 
+		{
+			orcid = "";
+		}
+		
         if (isSingleResultOnAggregate())
         {
             Map<String, String> extras = new HashMap<String, String>();
-            buildSingleExtraByRP(rp, extras);
+            buildSingleExtraByMetadataFromRP(rp, extras);
+            if(StringUtils.isNotEmpty(getAdditionalInputformMetadata())) {
+                extras.put("data-" + getAdditionalInputformMetadata(), orcid);
+            }
             choiceList.add(
                     new Choice(ResearcherPageUtils.getPersistentIdentifier(rp),
-                            rp.getFullName(),
                             ResearcherPageUtils.getLabel(rp.getFullName(), rp),
+                            rp.getFullName(),
                             extras));
         }
         else
@@ -65,6 +98,9 @@ public class RPExtraAuthorityMetadataGenerator
             {
                 Map<String, String> extras = new HashMap<String, String>();
                 buildSingleExtraByMetadata(mm, extras);
+                if(StringUtils.isNotEmpty(getAdditionalInputformMetadata())) {
+                    extras.put("data-" + getAdditionalInputformMetadata(), orcid);
+                }
                 choiceList.add(new Choice(
                         ResearcherPageUtils.getPersistentIdentifier(rp),
                         ResearcherPageUtils.getLabel(rp.getFullName(), rp)  + "(" + mm.value + ")",
@@ -76,12 +112,16 @@ public class RPExtraAuthorityMetadataGenerator
             {
                 Map<String, String> extras = new HashMap<String, String>();
                 extras.put("data-" + getRelatedInputformMetadata(), "");
+                if(StringUtils.isNotEmpty(getAdditionalInputformMetadata())) {
+                    extras.put("data-" + getAdditionalInputformMetadata(), orcid);
+                }
                 choiceList.add(new Choice(
                         ResearcherPageUtils.getPersistentIdentifier(rp),
-                        rp.getFullName(),
                         ResearcherPageUtils.getLabel(rp.getFullName(), rp),
+                        rp.getFullName(),
                         extras));
             }
+
         }
         return choiceList;
     }
@@ -104,10 +144,10 @@ public class RPExtraAuthorityMetadataGenerator
             {
                 extras.put("data-" + getRelatedInputformMetadata(), mm.value);
             }
-        }
+        }        
     }
 
-    protected void buildSingleExtraByRP(ResearcherPage rp,
+    protected void buildSingleExtraByMetadataFromRP(ResearcherPage rp,
             Map<String, String> extras)
     {
         Metadatum mm = rp.getMetadatumFirstValue(getSchema(), getElement(),
@@ -165,4 +205,31 @@ public class RPExtraAuthorityMetadataGenerator
         this.singleResultOnAggregate = singleResultOnAggregate;
     }
 
+    public String getAdditionalInputformMetadata()
+    {
+        return additionalInputformMetadata;
+    }
+
+    public void setAdditionalInputformMetadata(String additionalInputformMetadata)
+    {
+        this.additionalInputformMetadata = additionalInputformMetadata;
+    }
+
+    public String getParentInputFormMetadata()
+    {
+        return parentInputFormMetadata;
+    }
+
+    public void setParentInputFormMetadata(String parentMetadata)
+    {
+        this.parentInputFormMetadata = parentMetadata;
+    }
+
+	public String getAdditionalRpMetadata() {
+		return additionalRpMetadata;
+	}
+
+	public void setAdditionalRpMetadata(String additionalRpMetadata) {
+		this.additionalRpMetadata = additionalRpMetadata;
+	}
 }

@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
+<%@ page import="org.dspace.core.Utils" %>
 <%@ page import="org.dspace.browse.BrowseInfo" %>
 <%@ page import="org.dspace.sort.SortOption" %>
 <%@ page import="org.dspace.content.Collection" %>
@@ -251,6 +252,23 @@ jQuery(document).ready(function() {
 			submitButt.attr("disabled", !checkboxes.is(":checked"));	
 		}		
 	});
+	
+	var selectedStart = jQuery("#starts_with").val();
+	var sortStart = jQuery("#sort_by").val();
+	if(selectedStart !== null)
+	{
+		jQuery("#sort_by").change(function()
+		{
+			if(sortStart !== jQuery("#sort_by").val())
+			{
+				jQuery("#starts_with").val("");
+			}else
+			{
+				jQuery("#starts_with").val(selectedStart)
+			}
+		});
+	}
+	
 });
 -->
 
@@ -430,7 +448,7 @@ jQuery(document).ready(function() {
 	{
 %>
 		<label for="sort_by"><fmt:message key="browse.full.sort-by"/></label>
-		<select class="form-control" name="sort_by">
+		<select class="form-control" name="sort_by" id="sort_by">
 <%
 		for (SortOption sortBy : sortOptions)
 		{
@@ -525,6 +543,10 @@ jQuery(document).ready(function() {
 %>
 		</select>
 
+	<%	if (StringUtils.isNotBlank(request.getParameter("starts_with"))) {	%>
+			<input type="hidden" name="starts_with" id="starts_with" value="<%= Utils.addEntities(request.getParameter("starts_with")) %>"/>
+	<%	}	%>
+	
 		<input type="submit" class="btn btn-default" name="submit_browse" value="<fmt:message key="jsp.general.update"/>"/>
 
 <%

@@ -19,4 +19,7 @@ public interface OrcidAuthorityExtraMetadataGenerator
     public Map<String, String> build(OrcidService source, String rp);
 
     public List<Choice> buildAggregate(OrcidService source, AuthorityValue value);
+    
+    public String getParentInputFormMetadata();
+
 }

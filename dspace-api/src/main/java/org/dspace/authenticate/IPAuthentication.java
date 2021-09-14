@@ -28,9 +28,9 @@ import org.dspace.eperson.Group;
  * Adds users to special groups based on IP address. Configuration parameter
  * form is:
  * <P>
- * {@code authentication.ip.<GROUPNAME> = <IPRANGE>[, <IPRANGE> ...]}
+ * {@code authentication-ip.<GROUPNAME> = <IPRANGE>[, <IPRANGE> ...]}
  * <P>
- * e.g. {@code authentication.ip.MIT = 18., 192.25.0.0/255.255.0.0}
+ * e.g. {@code authentication-ip.MIT = 18., 192.25.0.0/255.255.0.0}
  * <P>
  * Negative matches can be included by prepending the range with a '-'. For example if you want
  * to include all of a class B network except for users of a contained class c network, you could use:

@@ -17,6 +17,7 @@
     prefix="fmt" %>
 
 <%@ page import="java.io.PrintWriter" %>
+<%@ page import="org.dspace.core.Utils"%>
 
 <%@ page isErrorPage="true" %>
 
@@ -38,7 +39,7 @@
     </p>
     <!--
     <%
-    String error = request.getAttribute("error.message").toString();
+    String error =  Utils.addEntities(request.getAttribute("error.message").toString());
     if(error == null)
     {
         out.println("No stack trace available<br/>");

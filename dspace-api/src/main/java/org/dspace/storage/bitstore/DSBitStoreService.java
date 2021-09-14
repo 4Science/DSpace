@@ -300,4 +300,5 @@ public class DSBitStoreService extends ABitStoreService
     public String virtualPath(TableRow bitstream) throws IOException {
         return path(bitstream);
     }
+
 }

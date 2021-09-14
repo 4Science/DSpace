@@ -25,7 +25,8 @@
 <!-- 
 	<bean id="org.dspace.app.cris.integration.RPExtraAuthorityMetadataGenerator" 
     	class="org.dspace.app.cris.integration.RPExtraAuthorityMetadataGenerator">
-    	<property name="relatedInputformMetadata" value="dc_contributor_department"/>
+		<property name="parentInputFormMetadata" value="dc_contributor_author" />
+    	<property name="relatedInputformMetadata" value="dc_contributor_affiliation"/>
     	<property name="schema" value="affiliation"/>
     	<property name="element" value="affiliationorgunit"/>
 		<property name="qualifier" value="name"/>
@@ -39,14 +40,14 @@
 <!-- 
 	<bean id="org.dspace.app.cris.integration.RPExtraOrgUnitAuthorityMetadataGenerator" 
     	class="org.dspace.app.cris.integration.RPExtraOrgUnitAuthorityMetadataGenerator">
-    	<property name="relatedInputformMetadata" value="dc_contributor_department"/>
+    	<property name="relatedInputformMetadata" value="dc_contributor_affiliation"/>
     </bean>
     
     NOTE THE ABOVE BEAN CONFIGURATION (RPExtraOrgUnitAuthorityMetadataGenerator) COULD BE REPLACED BY (RPExtraOrgUnitAuthorityMetadataGenerator) WITH THE FOLLOW CONFIGURATION 
     
     <bean id="org.dspace.app.cris.integration.RPExtraOrgUnitAuthorityMetadataGenerator" 
     	class="org.dspace.app.cris.integration.RPExtraAuthorityMetadataGenerator">
-    	<property name="relatedInputformMetadata" value="dc_contributor_department"/>
+    	<property name="relatedInputformMetadata" value="dc_contributor_affiliation"/>
     	<property name="schema" value="crisrp"/>
     	<property name="element" value="dept"/>
     	
@@ -59,7 +60,7 @@
 <!-- 
 	<bean id="org.dspace.app.cris.integration.OrcidExtraEmploymentAuthorityMetadataGenerator" 
     	class="org.dspace.app.cris.integration.OrcidExtraEmploymentAuthorityMetadataGenerator">
-    	<property name="relatedInputformMetadata" value="dc_contributor_department"/>
+    	<property name="relatedInputformMetadata" value="dc_contributor_affiliation"/>
     	USE THE FOLLOW PROPERTY WITH ORCIDMultiAuthority implementation to aggregate "extra" result (see ORCIDMultiAuthority)
     	<property name="singleResultOnAggregate" value="false"/>
     </bean> 

@@ -50,11 +50,11 @@ public class RPExtraOrgUnitAuthorityMetadataGenerator
         if (isSingleResultOnAggregate())
         {
             Map<String, String> extras = new HashMap<String, String>();
-            buildSingleExtraByRP(rp, extras);
+            buildSingleExtraByMetadataFromRP(rp, extras);
             choiceList.add(
                     new Choice(ResearcherPageUtils.getPersistentIdentifier(rp),
-                            rp.getFullName(),
                             ResearcherPageUtils.getLabel(rp.getFullName(), rp),
+                            rp.getFullName(),
                             extras));
         }
         else
@@ -70,8 +70,8 @@ public class RPExtraOrgUnitAuthorityMetadataGenerator
                 }
                 choiceList.add(new Choice(
                         ResearcherPageUtils.getPersistentIdentifier(rp),
-                        rp.getFullName(),
                         ResearcherPageUtils.getLabel(rp.getFullName(), rp),
+                        rp.getFullName(),
                         extras));
             }
             // manage value to empty html element
@@ -81,16 +81,15 @@ public class RPExtraOrgUnitAuthorityMetadataGenerator
                 extras.put("data-" + getRelatedInputformMetadata(), "");
                 choiceList.add(new Choice(
                         ResearcherPageUtils.getPersistentIdentifier(rp),
-                        rp.getFullName(),
                         ResearcherPageUtils.getLabel(rp.getFullName(), rp),
-                        extras));
+                        rp.getFullName(), extras));
             }
         }
         return choiceList;
     }
 
     @Override
-    protected void buildSingleExtraByRP(ResearcherPage rp,
+    protected void buildSingleExtraByMetadataFromRP(ResearcherPage rp,
             Map<String, String> extras)
     {
         List<RestrictedFieldWithLock> metadatas = rp.getOrgUnit();

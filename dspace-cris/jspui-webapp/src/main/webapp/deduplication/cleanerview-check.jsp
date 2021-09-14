@@ -279,7 +279,7 @@
 								<td width="37px"><input type="checkbox" name="itemstomerge" id="itemstomerge_<%= itemID%>" value="<%= itemID%>" onclick="toggleRadio(<%= itemID%>,'<%= formID %>',this);"/></td>
 							<%} %>
 							<td width="220px">
-						 		<div><b><fmt:message key="jsp.layout.submit.checkduplicate.type"/></b> <%= item.getParentObject().getName() %></div>
+								<div><b><fmt:message key="jsp.layout.submit.checkduplicate.type"/></b> <%= item.getParentObject()!=null?item.getParentObject().getName():"" %></div>
 						 		<div><b><fmt:message key="jsp.layout.submit.checkduplicate.itemID"/></b> <a href="<%= request.getContextPath() %>/tools/edit-item?item_id=<%= itemID %>" target="_blank"><%= itemID %></a></div>
 								<%
 							 	if(item.getHandle()!=null){

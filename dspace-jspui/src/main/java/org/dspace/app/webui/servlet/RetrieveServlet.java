@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.IViewer;
 import org.dspace.app.webui.util.JSPManager;
@@ -24,7 +25,6 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
-import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -32,7 +32,6 @@ import org.dspace.core.LogManager;
 import org.dspace.core.PluginManager;
 import org.dspace.core.Utils;
 import org.dspace.plugin.BitstreamHomeProcessor;
-import org.dspace.plugin.ItemHomeProcessor;
 import org.dspace.usage.UsageEvent;
 import org.dspace.utils.DSpace;
 
@@ -44,7 +43,7 @@ import org.dspace.utils.DSpace;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class RetrieveServlet extends DSpaceServlet
+public class RetrieveServlet extends RangeHeaderSupportServlet
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(RetrieveServlet.class);
@@ -107,6 +106,13 @@ public class RetrieveServlet extends DSpaceServlet
         // Did we get a bitstream?
         if (bitstream != null)
         {
+            boolean isRangeHeader = false;
+            long contentResourceLength = -1;
+            String value = request.getHeader(RANGE);
+            if(StringUtils.isNotBlank(value)) {
+                isRangeHeader = true;    
+            }
+            
             preProcessBitstreamHome(context, request, response, bitstream);
             // Check whether we got a License and if it should be displayed
             // (Note: list of bundles may be empty array, if a bitstream is a Community/Collection logo)
@@ -142,24 +148,32 @@ public class RetrieveServlet extends DSpaceServlet
             response.setContentType(bitstream.getFormat().getMIMEType());
 
             // Response length
-            response.setHeader("Content-Length", String.valueOf(bitstream
-                    .getSize()));
+            contentResourceLength = bitstream
+                    .getSize();
+            response.setHeader("Content-Length", String.valueOf(contentResourceLength));
             
     		if(threshold != -1 && bitstream.getSize() >= threshold)
     		{
     			UIUtil.setBitstreamDisposition(bitstream.getName(), request, response);
     		}
 
-            Utils.bufferedCopy(is, response.getOutputStream());
-            is.close();
-            response.getOutputStream().flush();
+            if(isRangeHeader) {
+                writePartialContent(request, response, is, contentResourceLength, bitstream.getFormat().getMIMEType());
+            }
+            else {
+                Utils.bufferedCopy(is, response.getOutputStream());
+                is.close();
+                response.getOutputStream().flush();
+            }
+            if(!isRangeHeader) {
+                new DSpace().getEventService().fireEvent(
+                        new UsageEvent(
+                                UsageEvent.Action.VIEW,
+                                request,
+                                context,
+                                bitstream));                
+            }
 
-            new DSpace().getEventService().fireEvent(
-                    new UsageEvent(
-                            UsageEvent.Action.VIEW,
-                            request,
-                            context,
-                            bitstream));
         }
         else
         {

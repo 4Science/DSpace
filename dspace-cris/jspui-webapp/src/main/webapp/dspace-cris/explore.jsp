@@ -21,6 +21,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -97,14 +98,14 @@ function submitForm() {
 </script>
 </c:set>
 <c:set var="fmtkey">
- jsp.layout.navbar-default.cris.${location}
+ jsp.layout.navbar-default.cris.${fn:escapeXml(location)}
 </c:set>
-<dspace:layout locbar="link" parenttitlekey="${fmtkey}" parentlink="/cris/explore/${location}" titlekey="${fmtkey}">
+<dspace:layout locbar="link" parenttitlekey="${fmtkey}" parentlink="/cris/explore/${fn:escapeXml(location)}" titlekey="${fmtkey}">
 <div class="row">
 	<div class="col-sm-12 col-md-10 col-md-offset-1">
-		<h2><fmt:message key="jsp.explore.${location}.search" /></h2>
+		<h2><fmt:message key="jsp.explore.${fn:escapeXml(location)}.search" /></h2>
 		<form id="searchform" class="form-group" action="<%= request.getContextPath() %>/simple-search">
-			<input type="hidden" id="location" name="location" value="${location}" />
+			<input type="hidden" id="location" name="location" value="${fn:escapeXml(location)}" />
 			<input type="hidden" id="query" name="query" value="" />
 		<div class="row datainput">
 		<div class="col-xs-4 col-sm-3">
@@ -266,7 +267,7 @@ function submitForm() {
 	</div>
 
 	<div class="row">
-	<c:set var="discovery.searchScope" value="${location}" scope="request"/>
+	<c:set var="discovery.searchScope" value="${fn:escapeXml(location)}" scope="request"/>
 	<%@ include file="/discovery/static-sidebar-facet.jsp" %>
 	</div>
 	

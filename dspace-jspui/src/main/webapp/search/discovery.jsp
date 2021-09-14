@@ -79,6 +79,9 @@
 	}
 	String crisID = request.getParameter("crisID") != null ? (String) request.getParameter("crisID") : "";
 	String relationName = request.getParameter("relationName") != null ? (String) request.getParameter("relationName") : "";
+	if(StringUtils.isNotBlank(relationName)) {
+	    relationName = Utils.addEntities(relationName);
+	}
 	ACrisObject cris = (ACrisObject) request.getAttribute("crisObject");
 	boolean addRelation = request.getAttribute("addRelation") != null ? ((Boolean)request.getAttribute("addRelation")).booleanValue() : false;
 	boolean removeRelation = request.getAttribute("removeRelation") != null ? ((Boolean)request.getAttribute("removeRelation")).booleanValue() : false;

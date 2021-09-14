@@ -15,6 +15,7 @@
   -    authenticated.email - email of authenticated user, if any
   --%>
 
+<%@page import="org.dspace.core.Utils"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -46,7 +47,7 @@
 		fromPage = "";
     }
     
-    String crisClaimedProfile = (String)request.getAttribute("feedback.crisclaim");
+    String crisClaimedProfile = Utils.addEntities((String)request.getAttribute("feedback.crisclaim"));
 %>
 
 <dspace:layout titlekey="jsp.feedback.form.title">

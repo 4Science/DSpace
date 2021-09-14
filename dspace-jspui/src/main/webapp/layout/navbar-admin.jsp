@@ -25,6 +25,7 @@
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.dspace.core.ConfigurationManager"%>
 <%@ page import="org.dspace.app.cris.model.CrisConstants"%>
+<%@page import="org.dspace.core.Utils"%>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -50,7 +51,7 @@
     String navbarEmail = null;
     if (user != null)
     {
-        navbarEmail = user.getEmail();
+        navbarEmail = Utils.addEntities(user.getEmail());
     }
 
 	boolean statsCleanerEnabled = ConfigurationManager.getBooleanProperty("usage-statistics","webui.statistics.showCleaner");

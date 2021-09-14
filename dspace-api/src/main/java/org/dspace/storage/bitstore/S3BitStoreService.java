@@ -26,6 +26,7 @@ import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.model.UploadResult;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
@@ -35,6 +36,7 @@ import org.dspace.storage.rdbms.TableRow;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -457,12 +459,17 @@ public class S3BitStoreService extends ABitStoreService
 
     @Override
     public String path(TableRow bitstream) throws IOException {
-        return virtualPath(bitstream);
+        final File tempFile = File.createTempFile("s3-virtual-path", "temp");
+        tempFile.deleteOnExit();
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            IOUtils.copy(get(bitstream), out);
+        }
+        return tempFile.getAbsolutePath();
     }
 
     @Override
     public String virtualPath(TableRow bitstream) throws IOException {
         return getBaseDir().getCanonicalPath() + "/" + getFullKey(
-                bitstream.getStringColumn("internal_id"));
+                bitstream.getStringColumn("internal_id"));            
     }
 }

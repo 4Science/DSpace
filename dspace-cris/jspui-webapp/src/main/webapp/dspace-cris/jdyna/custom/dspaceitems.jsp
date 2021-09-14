@@ -83,7 +83,8 @@
 	String query = request.getQueryString();
 	boolean globalShowFacets = false;
 	if (addRelations || (info!=null && info.getItems()!=null && info.getItems().length > 0)) {
-	    
+		
+	    String infoOrder = Utils.addEntities(info.getOrder());
 %>
 
 <c:set var="info" value="<%= info %>" scope="request" />
@@ -226,15 +227,15 @@ if (info.getPagetotal() > 1)
 			
 <form id="sortform<%= info.getType() %>" action="#<%= info.getType() %>" method="get">
 	   <input id="sort_by<%= info.getType() %>" type="hidden" name="sort_by<%= info.getType() %>" value=""/>
-       <input id="order<%= info.getType() %>" type="hidden" name="order<%= info.getType() %>" value="<%= info.getOrder() %>" />
+       <input id="order<%= info.getType() %>" type="hidden" name="order<%= info.getType() %>" value="<%= infoOrder %>" />
        <% if (appliedFilters != null && appliedFilters.size() >0 ) 
    		{
 	   	    int idx = 1;
 	   	    for (String[] filter : appliedFilters)
 	   	    { %>
-	   	    	<input id="filter_field_<%= relationName + "_" + idx %>" type="hidden" name="filter_field_<%= relationName + "_" + idx %>" value="<%= filter[0]%>"/>
-	   	    	<input id="filter_type_<%= relationName + "_" + idx %>" type="hidden" name="filter_type_<%= relationName + "_" + idx %>" value="<%= filter[1]%>"/>
-	   	    	<input id="filter_value_<%= relationName + "_" + idx %>" type="hidden" name="filter_value_<%= relationName + "_" + idx %>" value="<%= filter[2] %>"/>
+	   	    	<input id="filter_field_<%= relationName + "_" + idx %>" type="hidden" name="filter_field_<%= relationName + "_" + idx %>" value="<%= Utils.addEntities(filter[0]) %>"/>
+	   	    	<input id="filter_type_<%= relationName + "_" + idx %>" type="hidden" name="filter_type_<%= relationName + "_" + idx %>" value="<%= Utils.addEntities(filter[1]) %>"/>
+	   	    	<input id="filter_value_<%= relationName + "_" + idx %>" type="hidden" name="filter_value_<%= relationName + "_" + idx %>" value="<%= Utils.addEntities(filter[2]) %>"/>
 	   	      <%  
 	   	        idx++;
 	   	    }
@@ -274,10 +275,10 @@ if (info.getPagetotal() > 1)
 		</label>
 			<input id="<%= info.getType() %>submit_export" class="btn btn-default" type="submit" name="submit_export" value="<fmt:message key="exportcitation.option.submitexport" />" disabled/>
 		</div>	
-		<dspace:itemlist itemStart="<%=info.getStart()+1%>" items="<%= (Item[])info.getItems() %>" sortOption="<%= info.getSo() %>" authorLimit="<%= info.getEtAl() %>" order="<%= info.getOrder() %>" config="${info[holder.shortName].type}" radioButton="false" inputName="<%= info.getType() + \"item_id\"%>" type="<%= info.getType() %>"/>
+		<dspace:itemlist itemStart="<%=info.getStart()+1%>" items="<%= (Item[])info.getItems() %>" sortOption="<%= info.getSo() %>" authorLimit="<%= info.getEtAl() %>" order="<%= infoOrder %>" config="${info[holder.shortName].type}" radioButton="false" inputName="<%= info.getType() + \"item_id\"%>" type="<%= info.getType() %>"/>
 		</form>
 <% } else { %>
-		<dspace:itemlist itemStart="<%=info.getStart()+1%>" items="<%= (Item[])info.getItems() %>" sortOption="<%= info.getSo() %>" authorLimit="<%= info.getEtAl() %>" order="<%= info.getOrder() %>" config="${info[holder.shortName].type}" type="<%= info.getType() %>"/>
+		<dspace:itemlist itemStart="<%=info.getStart()+1%>" items="<%= (Item[])info.getItems() %>" sortOption="<%= info.getSo() %>" authorLimit="<%= info.getEtAl() %>" order="<%= infoOrder %>" config="${info[holder.shortName].type}" type="<%= info.getType() %>"/>
 <% } %>
 </div>
 </div>

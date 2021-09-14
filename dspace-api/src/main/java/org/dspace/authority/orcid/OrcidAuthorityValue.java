@@ -137,22 +137,26 @@ public class OrcidAuthorityValue extends PersonAuthorityValue {
 		if (profile.getPerson() != null) {
 
 			NameType name = profile.getPerson().getName();
-
-			if (updateValue(name.getFamilyName().getValue(), getLastName())) {
-				setLastName(name.getFamilyName().getValue());
-			}
-
-			if (updateValue(name.getGivenNames().getValue(), getFirstName())) {
-				setFirstName(name.getGivenNames().getValue());
-			}
-
-			if (name.getCreditName() != null) {
-				if (StringUtils.isNotBlank(name.getCreditName().getValue())) {
-					if (!getNameVariants().contains(name.getCreditName())) {
-						addNameVariant(name.getCreditName().getValue());
-						update = true;
-					}
-				}
+			if(name!=null) {
+			    if(name.getFamilyName()!=null) {
+        			if (updateValue(name.getFamilyName().getValue(), getLastName())) {
+        				setLastName(name.getFamilyName().getValue());
+        			}
+			    }
+                if(name.getGivenNames()!=null) {    
+        			if (updateValue(name.getGivenNames().getValue(), getFirstName())) {
+        				setFirstName(name.getGivenNames().getValue());
+        			}
+                }
+    
+    			if (name.getCreditName() != null) {
+    				if (StringUtils.isNotBlank(name.getCreditName().getValue())) {
+    					if (!getNameVariants().contains(name.getCreditName())) {
+    						addNameVariant(name.getCreditName().getValue());
+    						update = true;
+    					}
+    				}
+    			}
 			}
 			
 			

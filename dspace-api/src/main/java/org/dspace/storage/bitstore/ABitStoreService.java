@@ -31,15 +31,7 @@ public abstract class ABitStoreService implements BitStoreService
 
     /** the asset directory */
     private File baseDir;
-
-    public File getBaseDir() {
-        return baseDir;
-    }
-
-    public void setBaseDir(File baseDir) {
-        this.baseDir = baseDir;
-    }
-
+    
     /**
      * Return the relative path formed by the intermediate path and the bitstream internal id.
      *
@@ -87,4 +79,12 @@ public abstract class ABitStoreService implements BitStoreService
         buf.append(File.separator);
         return buf.toString();
     }
+    
+    public File getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
+    }    
 }

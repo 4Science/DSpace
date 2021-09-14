@@ -70,72 +70,19 @@ public class ValuePairsDisplayStrategy extends ASimpleDisplayStrategy
             log.error(e.getMessage(), e);
         }
 
-        String result = "";
+        List<String> result = new ArrayList<>();
         try
         {
             Context obtainContext = UIUtil.obtainContext(hrq);
             Collection collection = Collection.find(obtainContext, colIdx);
-            if (collection != null)
-            {
-                result = getResult(colIdx, field, metadataArray, result,
-                        obtainContext, collection);
-            }
-            else
+            if (collection == null)
             {
                 Item item = Item.find(obtainContext, itemid);
                 collection = item.getParentObject();
-                result = getResult(colIdx, field, metadataArray, result,
-                        obtainContext, collection);
             }
-
-            // workaround, a sort of fuzzy match search in all valuepairs (possible wrong result due to the same stored value in many valuepairs)
-            if (StringUtils.isBlank(result))
-            {
-                String language = I18nUtil.getSupportedLocale(obtainContext.getCurrentLocale()).getLanguage();
-                Map<String, List<String>> mappedValuePairs = dcInputsReader.get(language)
-                        .getMappedValuePairs();
-                List<String> pairsnames = new ArrayList<String>();
-                if (mappedValuePairs != null)
-                {
-                    for (String key : mappedValuePairs.keySet())
-                    {
-                        List<String> values = mappedValuePairs.get(key);
-                        for (String vv : values)
-                        {
-                            if (StringUtils.equals(field, vv))
-                            {
-                                pairsnames.add(key);
-                            }
-                        }
-                    }
-                }
-
-                for (String pairsname : pairsnames)
-                {
-                    ChoiceAuthority choice = (ChoiceAuthority) PluginManager
-                            .getNamedPlugin(ChoiceAuthority.class, pairsname);
-
-                    int ii = 0;
-                    for (Metadatum r : metadataArray)
-                    {
-                        if (ii > 0)
-                        {
-                            result += " ";
-                        }
-                        Choices choices = choice.getBestMatch(obtainContext, field,
-                                r.value,
-                                colIdx, obtainContext.getCurrentLocale().toString());
-                        if (choices != null)
-                        {
-                            for (Choice ch : choices.values)
-                            {
-                                result += ch.label;
-                            }
-                        }
-                    }
-                }
-            }
-
+            // Try to find the labels for the valuepairs based on language and collection or value
+            result.addAll(getLabels(colIdx, field, metadataArray,
+            		obtainContext, collection));
         }
         catch (SQLException | DCInputsReaderException e)
         {
@@ -143,43 +90,68 @@ public class ValuePairsDisplayStrategy extends ASimpleDisplayStrategy
         }
         
         StringBuffer sb = new StringBuffer();
-        if (!disableCrossLinks && StringUtils.isNotEmpty(browseType))
+        int indexSplit = 0;
+    	boolean link = !disableCrossLinks && StringUtils.isNotEmpty(browseType);
+        for (Metadatum mm : metadataArray)
         {
-            String[] splittedResult = StringUtils.split(result);
-            int indexSplit = 0;
-            for (Metadatum mm : metadataArray)
+            try
             {
-                try
+            	if (indexSplit > 0) {
+					sb.append("<br />");
+				}
+            	
+            	if (link)
+            	{
+            		sb.append("<a href=\"").append(hrq.getContextPath())
+	            		.append("/browse?type=").append(browseType).append("&amp;")
+	            		.append(viewFull ? "vfocus" : "value").append("=")
+	            		.append(URLEncoder.encode(mm.value, "UTF-8"))
+	            		.append("\">");
+				}
+            	
+                if (result.size() >= (1 + indexSplit) && StringUtils.isNotBlank(result.get(indexSplit)))
                 {
-                    sb.append("<a href=\"" + hrq.getContextPath()
-                            + "/browse?type=" + browseType + "&amp;"
-                            + (viewFull ? "vfocus" : "value") + "="
-                            + URLEncoder.encode(mm.value, "UTF-8"));
-                    sb.append("\"\">");
-                    if(indexSplit < splittedResult.length) {
-                        sb.append(splittedResult[indexSplit]);
-                    }
-                    sb.append("</a>");
-                }
-                catch (UnsupportedEncodingException e)
-                {
-                    log.warn(e.getMessage());
-                }
-                indexSplit++;
+					sb.append(result.get(indexSplit));
+				} else {
+					sb.append(mm.value);
+				}
+                
+                if (link) {
+                	sb.append("</a>");
+				}
             }
-            return sb.toString();
+            catch (UnsupportedEncodingException e)
+            {
+                log.warn(e.getMessage());
+            }
+            indexSplit++;
         }
-        return result;
+        return sb.toString();
+        
     }
 
-    private String getResult(int colIdx, String field,
-            Metadatum[] metadataArray, String result, Context obtainContext,
+    /**
+     * Try to find the labels for the specified metadata by collection and language,
+     * if not found look in all valuepairs
+     * 
+     * @param colIdx
+     * @param field
+     * @param metadataArray
+     * @param obtainContext
+     * @param collection
+     * @return
+     * @throws DCInputsReaderException
+     */
+    private List<String> getLabels(int colIdx, String field,
+            Metadatum[] metadataArray, Context obtainContext,
             Collection collection) throws DCInputsReaderException
     {
+    	List<String> results = new ArrayList<String>();
+    	
         String language = I18nUtil.getSupportedLocale(obtainContext.getCurrentLocale()).getLanguage();
         DCInputSet dcInputSet = dcInputsReader.get(language)
                 .getInputs(collection.getHandle());
-        for (int i = 0; i < dcInputSet.getNumberPages(); i++)
+        parent:for (int i = 0; i < dcInputSet.getNumberPages(); i++)
         {
             DCInput[] dcInput = dcInputSet.getPageRows(i, false, false);
             for (DCInput myInput : dcInput)
@@ -187,43 +159,94 @@ public class ValuePairsDisplayStrategy extends ASimpleDisplayStrategy
                 String key = myInput.getPairsType();
                 if (StringUtils.isNotBlank(key))
                 {
-                    
                     String inputField = Utils.standardize(myInput.getSchema(), myInput.getElement(), myInput.getQualifier(), ".");
 
                     if (inputField.equals(field))
                     {
-                        ChoiceAuthority choice = (ChoiceAuthority) PluginManager
-                                .getNamedPlugin(ChoiceAuthority.class, key);
-
-                        int ii = 0;
-                        for (Metadatum r : metadataArray)
+                        results.addAll(getLabel(colIdx, field, metadataArray, obtainContext, key));
+                        if (!results.isEmpty())
                         {
-                            if (ii > 0)
-                            {
-                                result += " ";
-                            }
-                            Choices choices = choice.getBestMatch(obtainContext,
-                                    field, r.value, colIdx, obtainContext
-                                            .getCurrentLocale().toString());
-                            if (choices != null)
-                            {
-                                int iii = 0;
-                                for (Choice ch : choices.values)
-                                {
-                                    result += ch.label;
-                                    if (iii > 0)
-                                    {
-                                        result += " ";
-                                    }
-                                    iii++;
-                                }
-                            }
-                        }
+							break parent;
+						}
                     }
                 }
             }
         }
-        return result;
+        
+        // workaround, a sort of fuzzy match search in all valuepairs (possible wrong result due to the same stored value in many valuepairs)
+        if (results.isEmpty())
+        {
+            Map<String, List<String>> mappedValuePairs = dcInputsReader.get(language)
+                    .getMappedValuePairs();
+            
+            if (mappedValuePairs != null)
+            {
+                for (String key : mappedValuePairs.keySet())
+                {
+                    if (mappedValuePairs.get(key).contains(field))
+                    {
+                    	results.addAll(getLabel(colIdx, field, metadataArray, obtainContext, key));
+						if (!results.isEmpty())
+						{
+							break;
+						}
+					}
+                }
+            }
+        }
+        return results;
+    }
+    
+    /**
+     * Get the labels for the specified value pairs
+     * 
+     * @param colIdx
+     * @param field
+     * @param metadataArray
+     * @param obtainContext
+     * @param key
+     * @return
+     */
+    private List<String> getLabel(int colIdx, String field,
+    		Metadatum[] metadataArray, Context obtainContext,
+    		String key)
+    {
+    	List<String> results = new ArrayList<String>();
+    	ChoiceAuthority choice = (ChoiceAuthority) PluginManager
+                .getNamedPlugin(ChoiceAuthority.class, key);
+    	int nulls = 0;
+    	
+        for (Metadatum r : metadataArray)
+        {
+            Choices choices = choice.getBestMatch(obtainContext,
+                    field, r.value, colIdx, obtainContext
+                            .getCurrentLocale().toString());
+            if (choices != null)
+            {
+            	StringBuilder result = new StringBuilder();
+                boolean multiple = false;
+                for (Choice ch : choices.values)
+                {
+                	if (multiple)
+                	{
+                		result.append(" ");
+                	}else {
+						multiple = true;
+					}
+                    result.append(ch.label);
+                }
+                results.add(result.toString());
+            }else {
+				results.add(null);
+				nulls ++;
+			}
+        }
+        
+        if (nulls == metadataArray.length)
+        {
+			results.clear();
+		}
+        return results;
     }
 
 }

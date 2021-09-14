@@ -338,7 +338,7 @@ function sortBy(idx, ord)
 %>
                 <input type="hidden" id="ssort_by" name="sort_by" value="" />
                 <input type="hidden" id="sorder" name="order" value="<%= direction %>" />
-                <input type="hidden" id="offset" name="offset" value="<%= request.getParameter("offset")==null?0:request.getParameter("offset") %>" />
+                <input type="hidden" id="offset" name="offset" value="<%= request.getParameter("offset")==null?0:Utils.addEntities(request.getParameter("offset")) %>" />
 		</form>
 <%
    } // end of if (show_title)

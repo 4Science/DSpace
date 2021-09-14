@@ -239,6 +239,11 @@
 	}
 %>
 		</select>
+		
+	<%	if (StringUtils.isNotBlank(request.getParameter("starts_with"))) {	%>
+		<input type="hidden" name="starts_with" value="<%= Utils.addEntities(request.getParameter("starts_with")) %>"/>
+	<%	}	%>
+		
 		<input type="submit" class="btn btn-default" name="submit_browse" value="<fmt:message key="jsp.general.update"/>"/>
 	</form>
 	</div>
