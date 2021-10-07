@@ -29,6 +29,7 @@
 <%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
 <%@ page import="org.dspace.app.webui.util.CurateTaskResult" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
+<%@ page import="org.apache.commons.lang3.BooleanUtils" %>
 <%!
     private static final String TASK_QUEUE_NAME = ConfigurationManager.getProperty("curate", "ui.queuename");
 %>
@@ -40,6 +41,10 @@
     }
     String groupOptions = (String)request.getAttribute("curate_group_options");
     String taskOptions = (String)request.getAttribute("curate_task_options");
+
+    boolean canPerform = BooleanUtils.toBoolean(request.getParameter("canPerform"));
+    boolean performEnabled = canPerform ||
+            ConfigurationManager.getBooleanProperty("curate", "ui.perform.enabled");
 %>
 
 <dspace:layout 
@@ -88,7 +93,10 @@
   
   <div class="input-group">
 	<input type="hidden" name="handle" value="<%= handle %>"/>
+    <input type="hidden" name="canPerform" value="<%= canPerform %>"/>
+    <% if (performEnabled) { %>
     <input class="btn btn-default" type="submit" name="submit_main_curate" value="<fmt:message key="jsp.tools.curate.perform.button"/>" />
+    <% } %>
     <input class="btn btn-default" type="submit" name="submit_main_queue" value="<fmt:message key="jsp.tools.curate.queue.button"/>" />
     <input class="btn btn-default" type="submit" name="submit_main_cancel" value="<fmt:message key="jsp.dspace-admin.general.cancel"/>" />
   </div>

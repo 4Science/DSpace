@@ -31,6 +31,7 @@
 <%@ page import="org.dspace.content.Item" %>
 <%@ page import="org.dspace.content.Metadatum" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
+<%@ page import="org.apache.commons.lang3.BooleanUtils" %>
 <%!
     private static final String TASK_QUEUE_NAME = ConfigurationManager.getProperty("curate", "ui.queuename");
 %>
@@ -48,6 +49,10 @@
     }
     String groupOptions = (String)request.getAttribute("curate_group_options");
     String taskOptions = (String)request.getAttribute("curate_task_options");
+
+    boolean canPerform = BooleanUtils.toBoolean(request.getParameter("canPerform"));
+    boolean performEnabled = canPerform ||
+            ConfigurationManager.getBooleanProperty("curate", "ui.perform.enabled");
 %>
 
 <dspace:layout style="submission" titlekey="jsp.tools.curate.item.title"
@@ -89,8 +94,11 @@
 		  <br/>
           <div class="col-md-4 row pull-right">
           	<input type="hidden" name="item_id" value="<%= itemID %>"/>
-          	<input class="btn btn-warning col-md-6" type="submit" name="submit_item_queue" value="<fmt:message key="jsp.tools.curate.queue.button"/>" />
+            <input type="hidden" name="canPerform" value="<%= canPerform %>"/>
+          	<input class="btn btn-warning col-md-6 <%= performEnabled ? "" : "pull-right" %>" type="submit" name="submit_item_queue" value="<fmt:message key="jsp.tools.curate.queue.button"/>" />
+            <% if (performEnabled) { %>
           	<input class="btn btn-primary col-md-6" type="submit" name="submit_item_curate" value="<fmt:message key="jsp.tools.curate.perform.button"/>" />
+            <% } %>
           </div>
           
 	</form>
@@ -98,6 +106,7 @@
 		<div class="row container">
          	<form method="get" action="<%=request.getContextPath()%>/tools/edit-item">
             	<input type="hidden" name="item_id" value="<%= itemID %>"/>
+                <input type="hidden" name="canPerform" value="<%= canPerform %>"/>
     			<input class="btn btn-default" type="submit" value="<fmt:message key="jsp.tools.curate.return.item.button"/>"/>
 	        </form>
        </div>
