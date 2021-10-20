@@ -32,6 +32,9 @@
 <%@ page import="org.dspace.content.Metadatum" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
 <%@ page import="org.apache.commons.lang3.BooleanUtils" %>
+<%@page import="java.util.Arrays"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
+<%@page import="java.util.List"%>
 <%!
     private static final String TASK_QUEUE_NAME = ConfigurationManager.getProperty("curate", "ui.queuename");
 %>
@@ -50,9 +53,15 @@
     String groupOptions = (String)request.getAttribute("curate_group_options");
     String taskOptions = (String)request.getAttribute("curate_task_options");
 
+	boolean performEnabled = true;
     boolean canPerform = BooleanUtils.toBoolean(request.getParameter("canPerform"));
-    boolean performEnabled = canPerform ||
-            ConfigurationManager.getBooleanProperty("curate", "ui.perform.enabled");
+	List<String> disableds = Arrays.asList(StringUtils.stripAll(StringUtils.split(ConfigurationManager.getProperty("curate", "ui.perform.disabled"), ',')));
+    if (!canPerform && !disableds.isEmpty())
+    {
+		String current = (String)request.getAttribute("curate_selected_option");
+		current = StringUtils.isBlank(current) ? "general" : current;
+		performEnabled = ! disableds.contains(current);
+    }
 %>
 
 <dspace:layout style="submission" titlekey="jsp.dspace-admin.curate.item.title"

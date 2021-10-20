@@ -234,6 +234,7 @@ public class CurateServlet extends DSpaceServlet
         String groupOptions = getGroupSelectOptions(group);
         String taskOptions  = getTaskSelectOptions(group);
 
+        request.setAttribute("curate_selected_option", group);
         request.setAttribute("curate_group_options", groupOptions);
         request.setAttribute("curate_task_options", taskOptions);
         JSPManager.showJSP(request, response, page);
