@@ -85,6 +85,7 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1547,7 +1548,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
             solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, itemType(metric.getResource()));
-            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, metric.getResource().getID());
+            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(metric.getResource().getID()));
             req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
             solrClient.request(req);
             solrClient.commit();
