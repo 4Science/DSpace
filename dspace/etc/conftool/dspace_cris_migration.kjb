@@ -593,7 +593,7 @@
           <variable_type>JVM</variable_type>
         </field>
         <field>
-          <variable_name>NESTED_PDEF</variable_name>
+          <variable_name>NESTED_PROP_DEF</variable_name>
           <variable_value>old_cris_rp_no_pdef</variable_value>
           <variable_type>JVM</variable_type>
         </field>

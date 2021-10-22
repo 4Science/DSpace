@@ -378,7 +378,11 @@ public class OAIHarvester {
     }
 
     private Item searchItem(Context context, Element record, String repositoryId, Collection collection) {
-        Item item = itemSearchService.search(context, calculateCrisSourceId(record, repositoryId));
+        Optional<String> crisSourceId = calculateCrisSourceId(record, repositoryId);
+        if (crisSourceId.isEmpty()) {
+            return null;
+        }
+        Item item = itemSearchService.search(context, crisSourceId.get());
         return item != null && collection.equals(item.getOwningCollection()) ? item : null;
     }
 
@@ -473,7 +477,7 @@ public class OAIHarvester {
         }
 
         if (isItemValid) {
-            installOrStartWorkflow(context, workspaceItem, handle, options.isSubmissionEnabled());
+            installOrStartWorkflow(context, workspaceItem, handle, options.isInstallationEnabled());
         }
 
         harvestedItem.setHarvestDate(new Date());
@@ -487,10 +491,10 @@ public class OAIHarvester {
     }
 
     private void installOrStartWorkflow(Context context, WorkspaceItem workspaceItem, String handle,
-        boolean submissionEnabled) throws Exception {
+        boolean installationEnabled) throws Exception {
         try {
 
-            if (submissionEnabled) {
+            if (installationEnabled) {
                 installItemService.installItem(context, workspaceItem, handle);
             } else {
                 workflowService.start(context, workspaceItem);
@@ -553,8 +557,10 @@ public class OAIHarvester {
         }
 
         if (CollectionUtils.isEmpty(itemService.getMetadata(item, CRIS.getName(), "sourceId", null, null))) {
-            String crisSourceId = calculateCrisSourceId(record, repositoryId);
-            itemService.addMetadata(context, item, CRIS.getName(), "sourceId", null, null, crisSourceId);
+            Optional<String> crisSourceId = calculateCrisSourceId(record, repositoryId);
+            if (crisSourceId.isPresent()) {
+                itemService.addMetadata(context, item, CRIS.getName(), "sourceId", null, null, crisSourceId.get());
+            }
         }
 
         itemService.update(context, item);
@@ -581,8 +587,10 @@ public class OAIHarvester {
         itemService.addMetadata(context, item, "dc", "description", "provenance", "en", provenanceMsg);
     }
 
-    private String calculateCrisSourceId(Element record, String repositoryId) {
-        return repositoryId + SPLIT + getMetadataIdentifier(record);
+    private Optional<String> calculateCrisSourceId(Element record, String repositoryId) {
+        return getMetadataIdentifier(record)
+            .map(identifier -> repositoryId + SPLIT + identifier)
+            .or(() -> Optional.ofNullable(getItemIdentifier(record)));
     }
 
     private Set<String> getMetadataFieldsToKeep() {
@@ -843,13 +851,13 @@ public class OAIHarvester {
         return getHeader(record).getChild("identifier", OAI_NS).getText();
     }
 
-    private String getMetadataIdentifier(Element record) {
+    private Optional<String> getMetadataIdentifier(Element record) {
         List<Element> metadataElements = getMetadataElements(record);
         if (CollectionUtils.isEmpty(metadataElements)) {
-            return null;
+            return Optional.empty();
         }
 
-        return metadataElements.get(0).getAttributeValue("id");
+        return Optional.ofNullable(metadataElements.get(0).getAttributeValue("id"));
     }
 
     /**
@@ -863,15 +871,11 @@ public class OAIHarvester {
      * @return null or the handle to be used.
      */
     private String extractHandle(Item item) {
-        String[] acceptedHandleServers = configurationService.getArrayProperty("oai.harvester.acceptedHandleServer");
-        if (acceptedHandleServers == null) {
-            acceptedHandleServers = new String[] {"hdl.handle.net"};
-        }
+        String[] acceptedHandleServers = configurationService.getArrayProperty("oai.harvester.acceptedHandleServer",
+            new String[] { "hdl.handle.net" });
 
-        String[] rejectedHandlePrefixes = configurationService.getArrayProperty("oai.harvester.rejectedHandlePrefix");
-        if (rejectedHandlePrefixes == null) {
-            rejectedHandlePrefixes = new String[] {"123456789"};
-        }
+        String[] rejectedHandlePrefixes = configurationService.getArrayProperty("oai.harvester.rejectedHandlePrefix",
+            new String[] { "123456789" });
 
         List<MetadataValue> values = itemService.getMetadata(item, "dc", "identifier", Item.ANY, Item.ANY);
 

@@ -104,6 +104,7 @@
                 <!-- Edit Configurations -->
                 <entry key="editCommunity" value-ref="editCommunityConfiguration"/>
                 <entry key="editCollection" value-ref="editCollectionConfiguration"/>
+                <entry key="lucky-search" value-ref="lucky"/>
             </map>
         </property>
         <property name="toIgnoreMetadataFields">
@@ -3159,5 +3160,55 @@
             </list>
         </property>
     </bean>
-
+    <bean id="lucky" class="org.dspace.discovery.configuration.DiscoveryConfiguration">
+        <property name="indexAlways" value="true"/>
+        <!-- filter queries for lucky configuration-->
+        <property name="defaultFilterQueries">
+            <list>
+                <value>search.resourcetype:Item</value>
+            </list>
+        </property>
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitle"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!-- empty list of facets-->
+        <property name="sidebarFacets">
+            <list>
+            </list>
+        </property>
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterOrcid" />
+                <ref bean="searchFilterDoi" />
+            </list>
+        </property>
+    </bean>
+    <bean id="searchFilterOrcid" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="orcid"/>
+        <property name="metadataFields">
+            <list>
+                <value>person.identifier.orcid</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+    </bean>
+    <bean id="searchFilterDoi" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="doi"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.identifier.doi</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+    </bean>
 </beans>

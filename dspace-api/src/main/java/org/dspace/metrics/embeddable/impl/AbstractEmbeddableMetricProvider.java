@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.dspace.app.metrics.CrisMetrics;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Item;
 import org.dspace.content.logic.Filter;
 import org.dspace.content.logic.LogicalStatementException;
@@ -20,6 +21,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.metrics.embeddable.EmbeddableMetricProvider;
 import org.dspace.metrics.embeddable.model.EmbeddableCrisMetrics;
+import org.dspace.services.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,10 @@ public abstract class AbstractEmbeddableMetricProvider implements EmbeddableMetr
 
     @Autowired(required = true)
     private ItemService itemService;
+    @Autowired(required = true)
+    protected ConfigurationService configurationService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
     private Filter filterService;
 
@@ -115,5 +121,8 @@ public abstract class AbstractEmbeddableMetricProvider implements EmbeddableMetr
         this.itemService = itemService;
     }
 
+    protected boolean isUsageAdmin() {
+        return configurationService.getBooleanProperty("usage-statistics.authorization.admin.usage", false);
+    }
 
 }

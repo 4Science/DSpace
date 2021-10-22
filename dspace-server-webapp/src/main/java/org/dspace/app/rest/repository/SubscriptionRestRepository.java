@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,7 @@ import org.dspace.app.rest.utils.DSpaceObjectUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Subscription;
@@ -96,7 +98,8 @@ public class SubscriptionRestRepository extends DSpaceRestRepository
             String resourceType = req.getParameter("resourceType");
             List<Subscription> subscriptionList = subscribeService.findAll(context, resourceType,
                     pageable.getPageSize(), Math.toIntExact(pageable.getOffset()));
-            return converter.toRestPage(subscriptionList, pageable, utils.obtainProjection());
+            Long total = subscribeService.countAll(context);
+            return converter.toRestPage(subscriptionList, pageable, total,  utils.obtainProjection());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -113,7 +116,8 @@ public class SubscriptionRestRepository extends DSpaceRestRepository
                     || authorizeService.isAdmin(context, context.getCurrentUser())) {
                 List<Subscription> subscriptionList = subscribeService.getSubscriptionsByEPerson(context,
                         ePerson, pageable.getPageSize(), Math.toIntExact(pageable.getOffset()));
-                return converter.toRestPage(subscriptionList, pageable, utils.obtainProjection());
+                Long total = subscribeService.countAllByEPerson(context, ePerson);
+                return converter.toRestPage(subscriptionList, pageable, total, utils.obtainProjection());
             } else {
                 throw new AuthorizeException("Only admin or e-person themselves can search for it's subscription");
             }
@@ -144,7 +148,8 @@ public class SubscriptionRestRepository extends DSpaceRestRepository
                 List<Subscription> subscriptionList =
                         subscribeService.getSubscriptionsByEPersonAndDso(context, ePerson, dSpaceObject,
                                 pageable.getPageSize(), Math.toIntExact(pageable.getOffset()));
-                return converter.toRestPage(subscriptionList, pageable, subscriptionList.size(),
+                Long total = subscribeService.countAllByEPersonAndDSO(context, ePerson, dSpaceObject);
+                return converter.toRestPage(subscriptionList, pageable, total,
                         utils.obtainProjection());
             } else {
                 throw new AuthorizeException("Only admin or e-person themselves can search for it's subscription");
@@ -170,15 +175,25 @@ public class SubscriptionRestRepository extends DSpaceRestRepository
         ObjectMapper mapper = new ObjectMapper();
         SubscriptionRest subscriptionRest = null;
         try {
-            ServletInputStream input = req.getInputStream();
-            subscriptionRest = mapper.readValue(input, SubscriptionRest.class);
-        } catch (IOException e1) {
-            throw new UnprocessableEntityException("error parsing the body");
-        }
-        try {
-            Subscription subscription = null;
             DSpaceObject dSpaceObject = dspaceObjectUtil.findDSpaceObject(context, UUID.fromString(dsoId));
             EPerson ePerson = personService.findByIdOrLegacyId(context, epersonId);
+            if (ePerson == null || dSpaceObject == null) {
+                throw new BadRequestException("Id of person or dspace object must represents reals ids");
+            }
+            // user must have read permissions to dataspace object
+            if (!authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject,  Constants.READ, true)) {
+                throw new AuthorizeException("The user has not READ rights on this DSO");
+            }
+            // if user is admin do not make this control,
+            // otherwise make this control because normal user can only subscribe with their own ID of user.
+            if (!authorizeService.isAdmin(context)) {
+                if (!ePerson.equals(context.getCurrentUser())) {
+                    throw new AuthorizeException("Only administrator can subscribe for other persons");
+                }
+            }
+            ServletInputStream input = req.getInputStream();
+            subscriptionRest = mapper.readValue(input, SubscriptionRest.class);
+            Subscription subscription = null;
             List<SubscriptionParameterRest> subscriptionParameterList = subscriptionRest.getSubscriptionParameterList();
             if (subscriptionParameterList != null) {
                 List<SubscriptionParameter> subscriptionParameters = new ArrayList<>();
@@ -200,6 +215,8 @@ public class SubscriptionRestRepository extends DSpaceRestRepository
 
         } catch (AuthorizeException authorizeException) {
             throw new AuthorizeException(authorizeException.getMessage());
+        } catch (IOException ioException) {
+            throw new UnprocessableEntityException("error parsing the body");
         }
     }
 

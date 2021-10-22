@@ -7,8 +7,10 @@
  */
 package org.dspace.metrics.embeddable.impl;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
@@ -44,8 +46,15 @@ public class DefaultDownloadEmbeddableProvider extends AbstractEmbeddableMetricP
 
     @Override
     public String innerHtml(Context context, Item item) {
-        String prefix = configurationService.getProperty("dspace.ui.url") + "/statistics/items/" + item.getID();
-        return this.TEMPLATE.replace("{{searchText}}", prefix);
+        try {
+            String prefix = StringUtils.EMPTY;
+            if (!isUsageAdmin() || (isUsageAdmin() && authorizeService.isAdmin(context))) {
+                prefix = configurationService.getProperty("dspace.ui.url") + "/statistics/items/" + item.getID();
+            }
+            return this.TEMPLATE.replace("{{searchText}}", prefix);
+        } catch (SQLException e) {
+            throw new RuntimeException("SQLException occurred when checking if the current user is an admin", e);
+        }
     }
 
     @Override

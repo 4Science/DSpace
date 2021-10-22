@@ -24,4 +24,5 @@
 	<bean name="personItemAuthorityService" class="org.dspace.content.authority.PersonItemAuthorityService" />
 	<bean name="itemAuthorityService" class="org.dspace.content.authority.ItemAuthorityServiceImpl" />
 
+
 </beans>

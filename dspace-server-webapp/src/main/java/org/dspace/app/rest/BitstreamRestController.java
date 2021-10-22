@@ -181,7 +181,12 @@ public class BitstreamRestController {
         if (citationDocumentService.isCitationEnabledForBitstream(bit, context)) {
             return generateBitstreamWithCitation(context, bit);
         } else {
-            return Pair.of(bitstreamService.retrieve(context, bit),bit.getSizeBytes());
+            context.turnOffAuthorisationSystem();
+            try {
+                return Pair.of(bitstreamService.retrieve(context, bit), bit.getSizeBytes());
+            } finally {
+                context.restoreAuthSystemState();
+            }
         }
     }
 

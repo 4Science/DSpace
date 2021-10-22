@@ -26,7 +26,7 @@ public class OAIHarvesterOptions {
 
     private final Boolean itemValidationEnabled;
 
-    private final Boolean submissionEnabled;
+    private final Boolean installationEnabled;
 
     public OAIHarvesterOptions(Boolean forceSynchronization, Boolean recordValidationEnabled,
         Boolean itemValidationEnabled, Boolean submissionEnabled) {
@@ -35,12 +35,12 @@ public class OAIHarvesterOptions {
     }
 
     public OAIHarvesterOptions(UUID processId, Boolean forceSynchronization, Boolean recordValidationEnabled,
-        Boolean itemValidationEnabled, Boolean submissionEnabled) {
+        Boolean itemValidationEnabled, Boolean installationEnabled) {
         this.processId = processId;
         this.forceSynchronization = forceSynchronization;
         this.itemValidationEnabled = itemValidationEnabled;
         this.recordValidationEnabled = recordValidationEnabled;
-        this.submissionEnabled = submissionEnabled;
+        this.installationEnabled = installationEnabled;
     }
 
     public UUID getProcessId() {
@@ -51,8 +51,8 @@ public class OAIHarvesterOptions {
         return forceSynchronization;
     }
 
-    public Boolean isSubmissionEnabled() {
-        return submissionEnabled;
+    public Boolean isInstallationEnabled() {
+        return installationEnabled;
     }
 
     public Boolean isRecordValidationEnabled() {

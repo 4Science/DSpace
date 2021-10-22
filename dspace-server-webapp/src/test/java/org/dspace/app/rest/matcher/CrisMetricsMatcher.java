@@ -8,6 +8,7 @@
 package org.dspace.app.rest.matcher;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 import java.time.ZoneId;
@@ -45,12 +46,15 @@ public class CrisMetricsMatcher {
                      );
     }
 
-    public static Matcher<? super Object> matchCrisDynamicMetrics(UUID itemUuid, String type) {
+    public static Matcher<? super Object> matchCrisDynamicMetrics(UUID itemUuid, String type, String remark) {
         return allOf(
                 hasJsonPath("$.id", itemUuid != null ?
                                         is(itemUuid.toString() + ":" + type) :
                                         Matchers.endsWith("-" + type)),
-                hasJsonPath("$.metricType", is(type)), hasJsonPath("$.type", is(CrisMetricsRest.NAME)));
+                hasJsonPath("$.metricType", is(type)),
+                hasJsonPath("$.type", is(CrisMetricsRest.NAME)),
+                hasJsonPath("$.remark", containsString(remark))
+                );
     }
 
     private static String formatDate(Date date) {

@@ -553,7 +553,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>is date or text</from>
+      <from>is date or text or boolean</from>
       <to>is pointer</to>
       <enabled>Y</enabled>
     </hop>
@@ -643,7 +643,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>is date or text</from>
+      <from>is date or text or boolean</from>
       <to>calculate metadata value</to>
       <enabled>Y</enabled>
     </hop>
@@ -665,11 +665,6 @@
     <hop>
       <from>Get ENTITY_TYPE from variables 3</from>
       <to>is Person</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>is Person</from>
-      <to>Get eperson</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -773,11 +768,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Append cris owner</from>
-      <to>Add imp_metadatavalue_id</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Add imp_metadatavalue_id</from>
       <to>wait insert into imp_record</to>
       <enabled>Y</enabled>
@@ -834,17 +824,17 @@
     </hop>
     <hop>
       <from>Join rows 6</from>
-      <to>Select values 4 2</to>
+      <to>Select values 7</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values 4 2</from>
+      <from>Select values 7</from>
       <to>Append streams</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Join rows 5</from>
-      <to>Select values 4 2 2</to>
+      <to>Select values 8</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -853,7 +843,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values 4 2 2</from>
+      <from>Select values 8</from>
       <to>Append streams</to>
       <enabled>Y</enabled>
     </hop>
@@ -869,7 +859,112 @@
     </hop>
     <hop>
       <from>Sort rows</from>
-      <to>is date or text</to>
+      <to>is date or text or boolean</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>is Person</from>
+      <to>Get eperson</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get ENTITY_TYPE from variables 3</from>
+      <to>is Person 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>is Person 2</from>
+      <to>Join rows 7</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows 7</from>
+      <to>Get orcid auth token</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get orcid auth token</from>
+      <to>token not null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>token not null</from>
+      <to>add metadata</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orcid authentication configuration</from>
+      <to>Join rows 7</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add metadata</from>
+      <to>select metadata attributes 4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append cris owner</from>
+      <to>Append orcid token</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>select metadata attributes 4</from>
+      <to>Append orcid token</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get ENTITY_TYPE from variables 3</from>
+      <to>is Person 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>is Person 3</from>
+      <to>Join rows 8</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orcid scopes configuration</from>
+      <to>Join rows 8</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows 8</from>
+      <to>check scope</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check scope</from>
+      <to>has scope</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>has scope</from>
+      <to>add metadata 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append orcid token</from>
+      <to>Append orcid scopes</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append orcid scopes</from>
+      <to>Add imp_metadatavalue_id</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>select metadata attributes</from>
+      <to>Append orcid scopes</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add metadata 2</from>
+      <to>add order 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add order 2</from>
+      <to>select metadata attributes</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -938,8 +1033,8 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1104</xloc>
-      <yloc>1600</yloc>
+      <xloc>1504</xloc>
+      <yloc>1664</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1033,7 +1128,7 @@
     <name>Append cris owner</name>
     <type>Append</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -1051,7 +1146,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1104</xloc>
+      <xloc>1248</xloc>
       <yloc>1504</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1078,7 +1173,61 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>960</xloc>
+      <xloc>992</xloc>
+      <yloc>1504</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Append orcid scopes</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Append orcid token</head_name>
+    <tail_name>select metadata attributes</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>1504</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Append orcid token</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Append cris owner</head_name>
+    <tail_name>select metadata attributes 4</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
       <yloc>1504</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1094,8 +1243,8 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <head_name>Select values 4 2</head_name>
-    <tail_name>Select values 4 2 2</tail_name>
+    <head_name>Select values 7</head_name>
+    <tail_name>Select values 8</tail_name>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -1357,7 +1506,7 @@ var metadata_authority = 'will be referenced::LEGACY-ID::' + pointer_crisid;
     <name>Get ENTITY_TYPE from variables 3</name>
     <type>GetVariable</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -1466,7 +1615,48 @@ WHERE rpage.crisid = ? AND ep.eperson_id = rpage.epersonid;</sql>
     </remotesteps>
     <GUI>
       <xloc>1248</xloc>
-      <yloc>800</yloc>
+      <yloc>848</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Get orcid auth token</name>
+    <type>DBJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <rowlimit>1</rowlimit>
+    <sql>select distinct(v.textvalue) as metadata_value
+FROM old_jdyna_values v, old_cris_rp_prop prop, old_cris_rp_pdef pdef
+where v.id = prop.value_id 
+and prop.typo_id = pdef.id
+and pdef.shortname in('system-orcid-token-activities-update', 'system-orcid-token-person-update', 'system-orcid-token-read-limited', 'system-orcid-token-authenticate')
+and prop.parent_id = ?</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>Y</replace_vars>
+    <parameter>
+      <field>
+        <name>parent_id</name>
+        <type>String</type>
+      </field>
+    </parameter>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
+      <yloc>832</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1757,7 +1947,7 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>480</xloc>
+      <xloc>432</xloc>
       <yloc>1104</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1911,6 +2101,80 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>Join rows 7</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue/>
+        <function>=</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
+      <yloc>720</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Join rows 8</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue/>
+        <function>=</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>720</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>Rename to metadata_visibility</name>
     <type>SelectValues</type>
     <description/>
@@ -2030,6 +2294,9 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>metadata_visibility</name>
       </field>
+      <field>
+        <name>language</name>
+      </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
@@ -2085,6 +2352,9 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>metadata_visibility</name>
       </field>
+      <field>
+        <name>language</name>
+      </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
@@ -2133,248 +2403,6 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
-    <name>Select values 4 2</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>parent_id</name>
-      </field>
-      <field>
-        <name>visibility</name>
-      </field>
-      <field>
-        <name>shortname</name>
-      </field>
-      <field>
-        <name>dtype</name>
-      </field>
-      <field>
-        <name>sortvalue</name>
-      </field>
-      <field>
-        <name>datevalue</name>
-      </field>
-      <field>
-        <name>textvalue</name>
-      </field>
-      <field>
-        <name>linkdescription</name>
-      </field>
-      <field>
-        <name>linkvalue</name>
-      </field>
-      <field>
-        <name>fileextension</name>
-      </field>
-      <field>
-        <name>filefolder</name>
-      </field>
-      <field>
-        <name>filemime</name>
-      </field>
-      <field>
-        <name>filename</name>
-      </field>
-      <field>
-        <name>doublevalue</name>
-      </field>
-      <field>
-        <name>rpvalue</name>
-      </field>
-      <field>
-        <name>projectvalue</name>
-      </field>
-      <field>
-        <name>ouvalue</name>
-      </field>
-      <field>
-        <name>dovalue</name>
-      </field>
-      <field>
-        <name>booleanvalue</name>
-      </field>
-      <field>
-        <name>classificationvalue</name>
-      </field>
-      <field>
-        <name>custompointer</name>
-      </field>
-      <field>
-        <name>row_number</name>
-      </field>
-      <field>
-        <name>id</name>
-      </field>
-      <field>
-        <name>crisid</name>
-      </field>
-      <field>
-        <name>status</name>
-      </field>
-      <field>
-        <name>imp_record_id</name>
-      </field>
-      <field>
-        <name>entity_type</name>
-      </field>
-      <field>
-        <name>short_name</name>
-      </field>
-      <field>
-        <name>schema</name>
-      </field>
-      <field>
-        <name>element</name>
-      </field>
-      <field>
-        <name>qualifier</name>
-      </field>
-      <select_unspecified>Y</select_unspecified>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>512</xloc>
-      <yloc>800</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Select values 4 2 2</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>parent_id</name>
-      </field>
-      <field>
-        <name>visibility</name>
-      </field>
-      <field>
-        <name>shortname</name>
-      </field>
-      <field>
-        <name>dtype</name>
-      </field>
-      <field>
-        <name>sortvalue</name>
-      </field>
-      <field>
-        <name>datevalue</name>
-      </field>
-      <field>
-        <name>textvalue</name>
-      </field>
-      <field>
-        <name>linkdescription</name>
-      </field>
-      <field>
-        <name>linkvalue</name>
-      </field>
-      <field>
-        <name>fileextension</name>
-      </field>
-      <field>
-        <name>filefolder</name>
-      </field>
-      <field>
-        <name>filemime</name>
-      </field>
-      <field>
-        <name>filename</name>
-      </field>
-      <field>
-        <name>doublevalue</name>
-      </field>
-      <field>
-        <name>rpvalue</name>
-      </field>
-      <field>
-        <name>projectvalue</name>
-      </field>
-      <field>
-        <name>ouvalue</name>
-      </field>
-      <field>
-        <name>dovalue</name>
-      </field>
-      <field>
-        <name>booleanvalue</name>
-      </field>
-      <field>
-        <name>classificationvalue</name>
-      </field>
-      <field>
-        <name>custompointer</name>
-      </field>
-      <field>
-        <name>row_number</name>
-      </field>
-      <field>
-        <name>id</name>
-      </field>
-      <field>
-        <name>crisid</name>
-      </field>
-      <field>
-        <name>status</name>
-      </field>
-      <field>
-        <name>imp_record_id</name>
-      </field>
-      <field>
-        <name>entity_type</name>
-      </field>
-      <field>
-        <name>short_name</name>
-      </field>
-      <field>
-        <name>schema</name>
-      </field>
-      <field>
-        <name>element</name>
-      </field>
-      <field>
-        <name>qualifier</name>
-      </field>
-      <select_unspecified>Y</select_unspecified>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>688</xloc>
-      <yloc>800</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
     <name>Select values 5</name>
     <type>SelectValues</type>
     <description/>
@@ -2402,6 +2430,254 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>352</xloc>
       <yloc>528</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values 7</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>parent_id</name>
+      </field>
+      <field>
+        <name>visibility</name>
+      </field>
+      <field>
+        <name>shortname</name>
+      </field>
+      <field>
+        <name>dtype</name>
+      </field>
+      <field>
+        <name>sortvalue</name>
+      </field>
+      <field>
+        <name>datevalue</name>
+      </field>
+      <field>
+        <name>textvalue</name>
+      </field>
+      <field>
+        <name>linkdescription</name>
+      </field>
+      <field>
+        <name>linkvalue</name>
+      </field>
+      <field>
+        <name>fileextension</name>
+      </field>
+      <field>
+        <name>filefolder</name>
+      </field>
+      <field>
+        <name>filemime</name>
+      </field>
+      <field>
+        <name>filename</name>
+      </field>
+      <field>
+        <name>doublevalue</name>
+      </field>
+      <field>
+        <name>rpvalue</name>
+      </field>
+      <field>
+        <name>projectvalue</name>
+      </field>
+      <field>
+        <name>ouvalue</name>
+      </field>
+      <field>
+        <name>dovalue</name>
+      </field>
+      <field>
+        <name>booleanvalue</name>
+      </field>
+      <field>
+        <name>classificationvalue</name>
+      </field>
+      <field>
+        <name>custompointer</name>
+      </field>
+      <field>
+        <name>row_number</name>
+      </field>
+      <field>
+        <name>id</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>status</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>entity_type</name>
+      </field>
+      <field>
+        <name>short_name</name>
+      </field>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>Y</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>800</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values 8</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>parent_id</name>
+      </field>
+      <field>
+        <name>visibility</name>
+      </field>
+      <field>
+        <name>shortname</name>
+      </field>
+      <field>
+        <name>dtype</name>
+      </field>
+      <field>
+        <name>sortvalue</name>
+      </field>
+      <field>
+        <name>datevalue</name>
+      </field>
+      <field>
+        <name>textvalue</name>
+      </field>
+      <field>
+        <name>linkdescription</name>
+      </field>
+      <field>
+        <name>linkvalue</name>
+      </field>
+      <field>
+        <name>fileextension</name>
+      </field>
+      <field>
+        <name>filefolder</name>
+      </field>
+      <field>
+        <name>filemime</name>
+      </field>
+      <field>
+        <name>filename</name>
+      </field>
+      <field>
+        <name>doublevalue</name>
+      </field>
+      <field>
+        <name>rpvalue</name>
+      </field>
+      <field>
+        <name>projectvalue</name>
+      </field>
+      <field>
+        <name>ouvalue</name>
+      </field>
+      <field>
+        <name>dovalue</name>
+      </field>
+      <field>
+        <name>booleanvalue</name>
+      </field>
+      <field>
+        <name>classificationvalue</name>
+      </field>
+      <field>
+        <name>custompointer</name>
+      </field>
+      <field>
+        <name>row_number</name>
+      </field>
+      <field>
+        <name>id</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>status</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>entity_type</name>
+      </field>
+      <field>
+        <name>short_name</name>
+      </field>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>Y</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>688</xloc>
+      <yloc>800</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2466,7 +2742,7 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>480</xloc>
+      <xloc>432</xloc>
       <yloc>1344</yloc>
       <draw>Y</draw>
     </GUI>
@@ -2555,6 +2831,18 @@ WHERE property_def.id = properties.typo_id
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
       </field>
+      <field>
+        <name>language</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -2566,7 +2854,7 @@ WHERE property_def.id = properties.typo_id
     </remotesteps>
     <GUI>
       <xloc>1248</xloc>
-      <yloc>1264</yloc>
+      <yloc>1200</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2640,8 +2928,146 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>960</xloc>
+      <xloc>992</xloc>
       <yloc>496</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>add metadata</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>metadata_order</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>0</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>language</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
+      <yloc>1200</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>add metadata 2</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>metadata_authority</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>language</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>1104</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2822,6 +3248,8 @@ WHERE property_def.id = properties.typo_id
 	var metadata_value = textvalue;
 } else if(dtype == 'date'){
 	var metadata_value = datevalue;
+} else if(dtype == 'boolean'){
+	var metadata_value = booleanvalue;
 }</jsScript_script>
       </jsScript>
     </jsScripts>
@@ -2868,7 +3296,8 @@ WHERE property_def.id = properties.typo_id
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>var metadata_value = crisid;
 var metadata_authority = null;
-var metadata_visibility = null;</jsScript_script>
+var metadata_visibility = null;
+var language = null;</jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
@@ -2896,6 +3325,14 @@ var metadata_visibility = null;</jsScript_script>
         <precision>-1</precision>
         <replace>N</replace>
       </field>
+      <field>
+        <name>language</name>
+        <rename>language</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -2906,8 +3343,53 @@ var metadata_visibility = null;</jsScript_script>
       </output>
     </remotesteps>
     <GUI>
-      <xloc>960</xloc>
+      <xloc>992</xloc>
       <yloc>800</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>check scope</name>
+    <type>DBJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <rowlimit>1</rowlimit>
+    <sql>select count(v.id) as has_scope
+FROM old_jdyna_values v, old_cris_rp_prop prop, old_cris_rp_pdef pdef
+where v.id = prop.value_id 
+and prop.typo_id = pdef.id
+and pdef.shortname = ?
+and parent_id = ?</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>Y</replace_vars>
+    <parameter>
+      <field>
+        <name>shortname</name>
+        <type>String</type>
+      </field>
+      <field>
+        <name>parent_id</name>
+        <type>String</type>
+      </field>
+    </parameter>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>832</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -4394,6 +4876,50 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>has scope</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>add metadata 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>has_scope</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>1</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>960</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>insert into imp_bitstream</name>
     <type>TableOutput</type>
     <description/>
@@ -4518,6 +5044,10 @@ WHERE property_def.id = properties.typo_id
         <column_name>security_level</column_name>
         <stream_name>metadata_visibility</stream_name>
       </field>
+      <field>
+        <column_name>text_lang</column_name>
+        <stream_name>language</stream_name>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -4528,8 +5058,8 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1312</xloc>
-      <yloc>1712</yloc>
+      <xloc>1712</xloc>
+      <yloc>1792</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -4650,7 +5180,95 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
-    <name>is date or text</name>
+    <name>is Person 2</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Join rows 7</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>entity_type_var</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>Person</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1376</xloc>
+      <yloc>608</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>is Person 3</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Join rows 8</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>entity_type_var</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>Person</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1664</xloc>
+      <yloc>496</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>is date or text or boolean</name>
     <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -4684,18 +5302,39 @@ WHERE property_def.id = properties.typo_id
           <condition>
             <negated>N</negated>
             <operator>OR</operator>
-            <leftvalue>dtype</leftvalue>
-            <function>=</function>
-            <rightvalue/>
-            <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>date</text>
-              <length>-1</length>
-              <precision>-1</precision>
-              <isnull>N</isnull>
-              <mask/>
-            </value>
+            <conditions>
+              <condition>
+                <negated>N</negated>
+                <leftvalue>dtype</leftvalue>
+                <function>=</function>
+                <rightvalue/>
+                <value>
+                  <name>constant</name>
+                  <type>String</type>
+                  <text>date</text>
+                  <length>-1</length>
+                  <precision>-1</precision>
+                  <isnull>N</isnull>
+                  <mask/>
+                </value>
+              </condition>
+              <condition>
+                <negated>N</negated>
+                <operator>OR</operator>
+                <leftvalue>dtype</leftvalue>
+                <function>=</function>
+                <rightvalue/>
+                <value>
+                  <name>constant</name>
+                  <type>String</type>
+                  <text>boolean</text>
+                  <length>-1</length>
+                  <precision>-1</precision>
+                  <isnull>N</isnull>
+                  <mask/>
+                </value>
+              </condition>
+            </conditions>
           </condition>
         </conditions>
       </condition>
@@ -4709,7 +5348,7 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>480</xloc>
+      <xloc>432</xloc>
       <yloc>1552</yloc>
       <draw>Y</draw>
     </GUI>
@@ -4897,6 +5536,18 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>qualifier</name>
         <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>language</name>
+        <type>None</type>
         <length>-1</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
@@ -5140,6 +5791,18 @@ WHERE property_def.id = properties.typo_id
         <decimal/>
         <group/>
       </field>
+      <field>
+        <name>language</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
     </fields>
     <sheets>
       <sheet>
@@ -5182,6 +5845,252 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>orcid authentication configuration</name>
+    <type>ExcelInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <header>Y</header>
+    <noempty>Y</noempty>
+    <stoponempty>N</stoponempty>
+    <filefield/>
+    <sheetfield/>
+    <sheetrownumfield/>
+    <rownumfield/>
+    <sheetfield/>
+    <filefield/>
+    <limit>0</limit>
+    <encoding/>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <accept_filenames>N</accept_filenames>
+    <accept_field/>
+    <accept_stepname/>
+    <file>
+      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>schema</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>element</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>qualifier</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <sheets>
+      <sheet>
+        <name>orcid_token</name>
+        <startrow>0</startrow>
+        <startcol>0</startcol>
+      </sheet>
+    </sheets>
+    <strict_types>N</strict_types>
+    <error_ignored>N</error_ignored>
+    <error_line_skipped>N</error_line_skipped>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <spreadsheet_type>JXL</spreadsheet_type>
+    <password>Encrypted </password>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1568</xloc>
+      <yloc>608</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>orcid scopes configuration</name>
+    <type>ExcelInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <header>Y</header>
+    <noempty>Y</noempty>
+    <stoponempty>N</stoponempty>
+    <filefield/>
+    <sheetfield/>
+    <sheetrownumfield/>
+    <rownumfield/>
+    <sheetfield/>
+    <filefield/>
+    <limit>0</limit>
+    <encoding/>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <accept_filenames>N</accept_filenames>
+    <accept_field/>
+    <accept_stepname/>
+    <file>
+      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>shortname</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>schema</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>element</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>qualifier</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>metadata_value</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <sheets>
+      <sheet>
+        <name>orcid_scopes</name>
+        <startrow>0</startrow>
+        <startcol>0</startcol>
+      </sheet>
+    </sheets>
+    <strict_types>N</strict_types>
+    <error_ignored>N</error_ignored>
+    <error_line_skipped>N</error_line_skipped>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <spreadsheet_type>JXL</spreadsheet_type>
+    <password>Encrypted </password>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>368</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>owner not null</name>
     <type>FilterRows</type>
     <description/>
@@ -5212,7 +6121,7 @@ WHERE property_def.id = properties.typo_id
     </remotesteps>
     <GUI>
       <xloc>1248</xloc>
-      <yloc>1008</yloc>
+      <yloc>960</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5234,6 +6143,10 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>crisid</name>
       </field>
+      <field>
+        <name>id</name>
+        <rename>parent_id</rename>
+      </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
@@ -5245,8 +6158,66 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1152</xloc>
-      <yloc>288</yloc>
+      <xloc>1248</xloc>
+      <yloc>192</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>select metadata attributes</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>metadata_value</name>
+      </field>
+      <field>
+        <name>metadata_order</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>1376</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5288,6 +6259,9 @@ WHERE property_def.id = properties.typo_id
       </field>
       <field>
         <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
       </field>
       <select_unspecified>N</select_unspecified>
     </fields>
@@ -5344,6 +6318,9 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>metadata_visibility</name>
       </field>
+      <field>
+        <name>language</name>
+      </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
@@ -5355,8 +6332,66 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>960</xloc>
+      <xloc>992</xloc>
       <yloc>1008</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>select metadata attributes 4</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>metadata_value</name>
+      </field>
+      <field>
+        <name>metadata_order</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
+      <yloc>1376</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5401,6 +6436,41 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>768</xloc>
       <yloc>1200</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>token not null</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>add metadata</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>metadata_value</leftvalue>
+        <function>IS NOT NULL</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1504</xloc>
+      <yloc>960</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5477,8 +6547,8 @@ WHERE property_def.id = properties.typo_id
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1312</xloc>
-      <yloc>1600</yloc>
+      <xloc>1504</xloc>
+      <yloc>1792</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5510,6 +6580,48 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>976</xloc>
       <yloc>1840</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>add order 2</name>
+    <type>FieldsChangeSequence</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <start>0</start>
+    <increment>1</increment>
+    <resultfieldName>metadata_order</resultfieldName>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>parent_id</name>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>1248</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

@@ -15,7 +15,7 @@ import java.util.Map;
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-public interface LinkableEntityAuthority {
+public interface LinkableEntityAuthority extends ChoiceAuthority {
 
     /**
      * Get the linked entity type managed by the authority
@@ -29,5 +29,6 @@ public interface LinkableEntityAuthority {
      *
      * @return the linked external source identifier as a String
      */
-    public Map<String,String> getExternalSource();
+    public Map<String, String> getExternalSource();
+
 }

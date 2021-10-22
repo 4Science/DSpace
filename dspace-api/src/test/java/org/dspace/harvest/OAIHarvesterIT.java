@@ -1068,7 +1068,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             .build();
         context.restoreAuthSystemState();
 
-        harvester.runHarvest(context, harvestRow, getOptionsWithSubmissionNotEnabled());
+        harvester.runHarvest(context, harvestRow, getOptionsWithInstallationNotEnabled());
 
         verify(mockClient).resolveNamespaceToPrefix(BASE_URL, getMetadataFormatNamespace("cerif").getURI());
         verify(mockClient).identify(BASE_URL);
@@ -1549,7 +1549,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         return new OAIHarvesterOptions(randomUUID(), null, true, true, true);
     }
 
-    private OAIHarvesterOptions getOptionsWithSubmissionNotEnabled() {
+    private OAIHarvesterOptions getOptionsWithInstallationNotEnabled() {
         return new OAIHarvesterOptions(randomUUID(), null, null, null, false);
     }
 

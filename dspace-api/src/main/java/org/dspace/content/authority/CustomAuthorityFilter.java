@@ -12,40 +12,34 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides some custom filter queries to be used during Item Authority
- * lookup.
+ * Provides some custom filter queries to be used during Item Authority lookup.
  *
  * @author Corrado Lombardi (corrado.lombardi at 4science.it)
  *
  */
 public abstract class CustomAuthorityFilter {
 
-    private List<String> supportedEntities;
+    protected List<String> customQueries;
 
     /**
      *
      * @return a list of custom solr filter queries
      */
-    public List<String> getFilterQueries(String entityType) {
-        if (appliesTo(entityType)) {
+    public List<String> getFilterQueries(LinkableEntityAuthority linkableEntityAuthority) {
+        if (appliesTo(linkableEntityAuthority)) {
             return createFilterQueries();
         }
         return Collections.emptyList();
     }
 
-    protected abstract List<String> createFilterQueries();
-
     /**
-     * Defines if instance can provide additional filter queries
-     * for given relationship type
+     * Defines if instance can provide additional filter queries for given
+     * relationship type
      */
-    private boolean appliesTo(String entityType) {
-        return Optional.ofNullable(supportedEntities)
-            .map(e -> e.contains(entityType))
-            .orElse(true);
+    public abstract boolean appliesTo(LinkableEntityAuthority linkableEntityAuthority);
+
+    protected final List<String> createFilterQueries() {
+        return Optional.ofNullable(customQueries).orElseGet(Collections::emptyList);
     }
 
-    public void setSupportedEntities(List<String> supportedEntities) {
-        this.supportedEntities = supportedEntities;
-    }
 }

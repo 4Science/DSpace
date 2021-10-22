@@ -114,7 +114,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         }
 
         customAuthorityFilters.stream()
-            .flatMap(caf -> caf.getFilterQueries(entityType).stream())
+            .flatMap(caf -> caf.getFilterQueries(this).stream())
             .forEach(solrQuery::addFilterQuery);
 
         try {
@@ -222,14 +222,13 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             return new HashMap<String, String>();
         }
 
-        String entityType = getLinkedEntityType();
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("search.resourceid:" + key);
 
         customAuthorityFilters.stream()
-            .flatMap(caf -> caf.getFilterQueries(entityType).stream())
+            .flatMap(caf -> caf.getFilterQueries(this).stream())
             .forEach(solrQuery::addFilterQuery);
 
         try {
@@ -260,4 +259,5 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         }
         return false;
     }
+
 }

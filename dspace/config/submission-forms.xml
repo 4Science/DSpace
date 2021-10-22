@@ -3100,11 +3100,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value />
       </pair>
       <pair>
-        <displayed-value>Afganistán</displayed-value>
+        <displayed-value>Afghanistan</displayed-value>
         <stored-value>AF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas de Åland</displayed-value>
+        <displayed-value>Åland Islands</displayed-value>
         <stored-value>AX</stored-value>
       </pair>
       <pair>
@@ -3116,7 +3116,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>DZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Samoa Americana</displayed-value>
+        <displayed-value>American Samoa</displayed-value>
         <stored-value>AS</stored-value>
       </pair>
       <pair>
@@ -3128,15 +3128,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>AO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Anguila</displayed-value>
+        <displayed-value>Anguilla</displayed-value>
         <stored-value>AI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Antártida</displayed-value>
+        <displayed-value>Antarctica</displayed-value>
         <stored-value>AQ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Antigua y Barbuda</displayed-value>
+        <displayed-value>Antigua and Barbuda</displayed-value>
         <stored-value>AG</stored-value>
       </pair>
       <pair>
@@ -3160,16 +3160,16 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>AT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Azerbayán</displayed-value>
+        <displayed-value>Azerbaijan</displayed-value>
         <stored-value>AZ</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bahrain</displayed-value>
+        <stored-value>BH</stored-value>
       </pair>
       <pair>
         <displayed-value>Bahamas</displayed-value>
         <stored-value>BS</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Bahrein</displayed-value>
-        <stored-value>BH</stored-value>
       </pair>
       <pair>
         <displayed-value>Bangladesh</displayed-value>
@@ -3180,59 +3180,59 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>BB</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bielorrusia</displayed-value>
+        <displayed-value>Belarus</displayed-value>
         <stored-value>BY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bélgica</displayed-value>
+        <displayed-value>Belgium</displayed-value>
         <stored-value>BE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Belice</displayed-value>
+        <displayed-value>Belize</displayed-value>
         <stored-value>BZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Benín</displayed-value>
+        <displayed-value>Benin</displayed-value>
         <stored-value>BJ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Bermudas</displayed-value>
+        <displayed-value>Bermuda</displayed-value>
         <stored-value>BM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bhután</displayed-value>
+        <displayed-value>Bhutan</displayed-value>
         <stored-value>BT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bolivia</displayed-value>
+        <displayed-value>Bolivia, Plurinational State of</displayed-value>
         <stored-value>BO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bonaire, San Eustaquio y Saba</displayed-value>
+        <displayed-value>Bonaire, Sint Eustatius and Saba</displayed-value>
         <stored-value>BQ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Bosnia y Herzegovina</displayed-value>
+        <displayed-value>Bosnia and Herzegovina</displayed-value>
         <stored-value>BA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Botsuana</displayed-value>
+        <displayed-value>Botswana</displayed-value>
         <stored-value>BW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Isla Bouvet</displayed-value>
+        <displayed-value>Bouvet Island</displayed-value>
         <stored-value>BV</stored-value>
       </pair>
       <pair>
-        <displayed-value>Brasil</displayed-value>
+        <displayed-value>Brazil</displayed-value>
         <stored-value>BR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Territorio Británico del Océano Índico</displayed-value>
+        <displayed-value>British Indian Ocean Territory</displayed-value>
         <stored-value>IO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Brunéi</displayed-value>
+        <displayed-value>Brunei Darussalam</displayed-value>
         <stored-value>BN</stored-value>
       </pair>
       <pair>
@@ -3248,27 +3248,27 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>BI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Cabo Verde</displayed-value>
-        <stored-value>CV</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Camboya</displayed-value>
+        <displayed-value>Cambodia</displayed-value>
         <stored-value>KH</stored-value>
       </pair>
       <pair>
-        <displayed-value>Camerún</displayed-value>
+        <displayed-value>Cameroon</displayed-value>
         <stored-value>CM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Canadá</displayed-value>
+        <displayed-value>Canada</displayed-value>
         <stored-value>CA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Caimán</displayed-value>
+        <displayed-value>Cape Verde</displayed-value>
+        <stored-value>CV</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cayman Islands</displayed-value>
         <stored-value>KY</stored-value>
       </pair>
       <pair>
-        <displayed-value>República Centroafricana</displayed-value>
+        <displayed-value>Central African Republic</displayed-value>
         <stored-value>CF</stored-value>
       </pair>
       <pair>
@@ -3284,11 +3284,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>CN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Isla de Navidad</displayed-value>
+        <displayed-value>Christmas Island</displayed-value>
         <stored-value>CX</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Cocos (Keeling)</displayed-value>
+        <displayed-value>Cocos (Keeling) Islands</displayed-value>
         <stored-value>CC</stored-value>
       </pair>
       <pair>
@@ -3296,19 +3296,19 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>CO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Comoras</displayed-value>
+        <displayed-value>Comoros</displayed-value>
         <stored-value>KM</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Congo</displayed-value>
-        <stored-value>CD</stored-value>
       </pair>
       <pair>
         <displayed-value>Congo</displayed-value>
         <stored-value>CG</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Cook</displayed-value>
+        <displayed-value>Congo, the Democratic Republic of the</displayed-value>
+        <stored-value>CD</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cook Islands</displayed-value>
         <stored-value>CK</stored-value>
       </pair>
       <pair>
@@ -3316,11 +3316,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>CR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Costa de Marfil</displayed-value>
+        <displayed-value>Côte d'Ivoire</displayed-value>
         <stored-value>CI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Croacia</displayed-value>
+        <displayed-value>Croatia</displayed-value>
         <stored-value>HR</stored-value>
       </pair>
       <pair>
@@ -3328,23 +3328,23 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>CU</stored-value>
       </pair>
       <pair>
-        <displayed-value>Curazao</displayed-value>
+        <displayed-value>Curaçao</displayed-value>
         <stored-value>CW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Chipre</displayed-value>
+        <displayed-value>Cyprus</displayed-value>
         <stored-value>CY</stored-value>
       </pair>
       <pair>
-        <displayed-value>República Checa</displayed-value>
+        <displayed-value>Czech Republic</displayed-value>
         <stored-value>CZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Dinamarca</displayed-value>
+        <displayed-value>Denmark</displayed-value>
         <stored-value>DK</stored-value>
       </pair>
       <pair>
-        <displayed-value>Yibuti</displayed-value>
+        <displayed-value>Djibouti</displayed-value>
         <stored-value>DJ</stored-value>
       </pair>
       <pair>
@@ -3352,7 +3352,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>DM</stored-value>
       </pair>
       <pair>
-        <displayed-value>República Dominicana</displayed-value>
+        <displayed-value>Dominican Republic</displayed-value>
         <stored-value>DO</stored-value>
       </pair>
       <pair>
@@ -3360,7 +3360,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>EC</stored-value>
       </pair>
       <pair>
-        <displayed-value>Egipto</displayed-value>
+        <displayed-value>Egypt</displayed-value>
         <stored-value>EG</stored-value>
       </pair>
       <pair>
@@ -3368,7 +3368,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>SV</stored-value>
       </pair>
       <pair>
-        <displayed-value>Guinea Ecuatorial</displayed-value>
+        <displayed-value>Equatorial Guinea</displayed-value>
         <stored-value>GQ</stored-value>
       </pair>
       <pair>
@@ -3380,43 +3380,43 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>EE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Etiopía</displayed-value>
+        <displayed-value>Ethiopia</displayed-value>
         <stored-value>ET</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Malvinas</displayed-value>
+        <displayed-value>Falkland Islands (Malvinas)</displayed-value>
         <stored-value>FK</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Feroe</displayed-value>
+        <displayed-value>Faroe Islands</displayed-value>
         <stored-value>FO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Fiyi</displayed-value>
+        <displayed-value>Fiji</displayed-value>
         <stored-value>FJ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Finlandia</displayed-value>
+        <displayed-value>Finland</displayed-value>
         <stored-value>FI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Francia</displayed-value>
+        <displayed-value>France</displayed-value>
         <stored-value>FR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Guayana Francesa</displayed-value>
+        <displayed-value>French Guiana</displayed-value>
         <stored-value>GF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Polinesia Francesa</displayed-value>
+        <displayed-value>French Polynesia</displayed-value>
         <stored-value>PF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Territorios Australes y Antárticas Franceses</displayed-value>
+        <displayed-value>French Southern Territories</displayed-value>
         <stored-value>TF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Gabón</displayed-value>
+        <displayed-value>Gabon</displayed-value>
         <stored-value>GA</stored-value>
       </pair>
       <pair>
@@ -3428,7 +3428,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>GE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Alemania</displayed-value>
+        <displayed-value>Germany</displayed-value>
         <stored-value>DE</stored-value>
       </pair>
       <pair>
@@ -3440,19 +3440,19 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>GI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Grecia</displayed-value>
+        <displayed-value>Greece</displayed-value>
         <stored-value>GR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Groenlandia</displayed-value>
+        <displayed-value>Greenland</displayed-value>
         <stored-value>GL</stored-value>
       </pair>
       <pair>
-        <displayed-value>Granada</displayed-value>
+        <displayed-value>Grenada</displayed-value>
         <stored-value>GD</stored-value>
       </pair>
       <pair>
-        <displayed-value>Guadalupe</displayed-value>
+        <displayed-value>Guadeloupe</displayed-value>
         <stored-value>GP</stored-value>
       </pair>
       <pair>
@@ -3480,15 +3480,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>GY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Haití</displayed-value>
+        <displayed-value>Haiti</displayed-value>
         <stored-value>HT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Heard y McDonald</displayed-value>
+        <displayed-value>Heard Island and McDonald Islands</displayed-value>
         <stored-value>HM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Ciudad del Vaticano</displayed-value>
+        <displayed-value>Holy See (Vatican City State)</displayed-value>
         <stored-value>VA</stored-value>
       </pair>
       <pair>
@@ -3496,15 +3496,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>HN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Hong kong</displayed-value>
+        <displayed-value>Hong Kong</displayed-value>
         <stored-value>HK</stored-value>
       </pair>
       <pair>
-        <displayed-value>Hungría</displayed-value>
+        <displayed-value>Hungary</displayed-value>
         <stored-value>HU</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islandia</displayed-value>
+        <displayed-value>Iceland</displayed-value>
         <stored-value>IS</stored-value>
       </pair>
       <pair>
@@ -3516,19 +3516,19 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>ID</stored-value>
       </pair>
       <pair>
-        <displayed-value>Irán</displayed-value>
+        <displayed-value>Iran, Islamic Republic of</displayed-value>
         <stored-value>IR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Irak</displayed-value>
+        <displayed-value>Iraq</displayed-value>
         <stored-value>IQ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Irlanda</displayed-value>
+        <displayed-value>Ireland</displayed-value>
         <stored-value>IE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Isla de Man</displayed-value>
+        <displayed-value>Isle of Man</displayed-value>
         <stored-value>IM</stored-value>
       </pair>
       <pair>
@@ -3536,7 +3536,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>IL</stored-value>
       </pair>
       <pair>
-        <displayed-value>Italia</displayed-value>
+        <displayed-value>Italy</displayed-value>
         <stored-value>IT</stored-value>
       </pair>
       <pair>
@@ -3544,7 +3544,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>JM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Japón</displayed-value>
+        <displayed-value>Japan</displayed-value>
         <stored-value>JP</stored-value>
       </pair>
       <pair>
@@ -3552,15 +3552,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>JE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Jordania</displayed-value>
+        <displayed-value>Jordan</displayed-value>
         <stored-value>JO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Kazajistán</displayed-value>
+        <displayed-value>Kazakhstan</displayed-value>
         <stored-value>KZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Kenia</displayed-value>
+        <displayed-value>Kenya</displayed-value>
         <stored-value>KE</stored-value>
       </pair>
       <pair>
@@ -3568,11 +3568,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>KI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Corea del Norte</displayed-value>
+        <displayed-value>Korea, Democratic People's Republic of</displayed-value>
         <stored-value>KP</stored-value>
       </pair>
       <pair>
-        <displayed-value>Corea del Sur</displayed-value>
+        <displayed-value>Korea, Republic of</displayed-value>
         <stored-value>KR</stored-value>
       </pair>
       <pair>
@@ -3580,23 +3580,23 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>KW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Kirgizstán</displayed-value>
+        <displayed-value>Kyrgyzstan</displayed-value>
         <stored-value>KG</stored-value>
       </pair>
       <pair>
-        <displayed-value>Laos</displayed-value>
+        <displayed-value>Lao People's Democratic Republic</displayed-value>
         <stored-value>LA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Letonia</displayed-value>
+        <displayed-value>Latvia</displayed-value>
         <stored-value>LV</stored-value>
       </pair>
       <pair>
-        <displayed-value>Líbano</displayed-value>
+        <displayed-value>Lebanon</displayed-value>
         <stored-value>LB</stored-value>
       </pair>
       <pair>
-        <displayed-value>Lesoto</displayed-value>
+        <displayed-value>Lesotho</displayed-value>
         <stored-value>LS</stored-value>
       </pair>
       <pair>
@@ -3604,7 +3604,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>LR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Libia</displayed-value>
+        <displayed-value>Libya</displayed-value>
         <stored-value>LY</stored-value>
       </pair>
       <pair>
@@ -3612,11 +3612,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>LI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Lituania</displayed-value>
+        <displayed-value>Lithuania</displayed-value>
         <stored-value>LT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Luxemburgo</displayed-value>
+        <displayed-value>Luxembourg</displayed-value>
         <stored-value>LU</stored-value>
       </pair>
       <pair>
@@ -3624,7 +3624,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Macedônia</displayed-value>
+        <displayed-value>Macedonia, the Former Yugoslav Republic of</displayed-value>
         <stored-value>MK</stored-value>
       </pair>
       <pair>
@@ -3636,11 +3636,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Malasia</displayed-value>
+        <displayed-value>Malaysia</displayed-value>
         <stored-value>MY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Maldivas</displayed-value>
+        <displayed-value>Maldives</displayed-value>
         <stored-value>MV</stored-value>
       </pair>
       <pair>
@@ -3652,11 +3652,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Marshall</displayed-value>
+        <displayed-value>Marshall Islands</displayed-value>
         <stored-value>MH</stored-value>
       </pair>
       <pair>
-        <displayed-value>Martinica</displayed-value>
+        <displayed-value>Martinique</displayed-value>
         <stored-value>MQ</stored-value>
       </pair>
       <pair>
@@ -3664,7 +3664,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Mauricio</displayed-value>
+        <displayed-value>Mauritius</displayed-value>
         <stored-value>MU</stored-value>
       </pair>
       <pair>
@@ -3672,19 +3672,19 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>YT</stored-value>
       </pair>
       <pair>
-        <displayed-value>México</displayed-value>
+        <displayed-value>Mexico</displayed-value>
         <stored-value>MX</stored-value>
       </pair>
       <pair>
-        <displayed-value>Micronesia</displayed-value>
+        <displayed-value>Micronesia, Federated States of</displayed-value>
         <stored-value>FM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Moldavia</displayed-value>
+        <displayed-value>Moldova, Republic of</displayed-value>
         <stored-value>MD</stored-value>
       </pair>
       <pair>
-        <displayed-value>Mónaco</displayed-value>
+        <displayed-value>Monaco</displayed-value>
         <stored-value>MC</stored-value>
       </pair>
       <pair>
@@ -3700,7 +3700,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MS</stored-value>
       </pair>
       <pair>
-        <displayed-value>Marruecos</displayed-value>
+        <displayed-value>Morocco</displayed-value>
         <stored-value>MA</stored-value>
       </pair>
       <pair>
@@ -3708,7 +3708,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>MZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Birmania</displayed-value>
+        <displayed-value>Myanmar</displayed-value>
         <stored-value>MM</stored-value>
       </pair>
       <pair>
@@ -3724,15 +3724,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>NP</stored-value>
       </pair>
       <pair>
-        <displayed-value>Países Bajos</displayed-value>
+        <displayed-value>Netherlands</displayed-value>
         <stored-value>NL</stored-value>
       </pair>
       <pair>
-        <displayed-value>Nueva Caledonia</displayed-value>
+        <displayed-value>New Caledonia</displayed-value>
         <stored-value>NC</stored-value>
       </pair>
       <pair>
-        <displayed-value>Nueva Zelanda</displayed-value>
+        <displayed-value>New Zealand</displayed-value>
         <stored-value>NZ</stored-value>
       </pair>
       <pair>
@@ -3752,23 +3752,23 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>NU</stored-value>
       </pair>
       <pair>
-        <displayed-value>Isla Norfolk</displayed-value>
+        <displayed-value>Norfolk Island</displayed-value>
         <stored-value>NF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Marianas del Norte</displayed-value>
+        <displayed-value>Northern Mariana Islands</displayed-value>
         <stored-value>MP</stored-value>
       </pair>
       <pair>
-        <displayed-value>Noruega</displayed-value>
+        <displayed-value>Norway</displayed-value>
         <stored-value>NO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Omán</displayed-value>
+        <displayed-value>Oman</displayed-value>
         <stored-value>OM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Pakistán</displayed-value>
+        <displayed-value>Pakistan</displayed-value>
         <stored-value>PK</stored-value>
       </pair>
       <pair>
@@ -3776,15 +3776,15 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>PW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Palestina</displayed-value>
+        <displayed-value>Palestine, State of</displayed-value>
         <stored-value>PS</stored-value>
       </pair>
       <pair>
-        <displayed-value>Panamá</displayed-value>
+        <displayed-value>Panama</displayed-value>
         <stored-value>PA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Papúa Nueva Guinea</displayed-value>
+        <displayed-value>Papua New Guinea</displayed-value>
         <stored-value>PG</stored-value>
       </pair>
       <pair>
@@ -3792,19 +3792,19 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>PY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Perú</displayed-value>
+        <displayed-value>Peru</displayed-value>
         <stored-value>PE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Filipinas</displayed-value>
+        <displayed-value>Philippines</displayed-value>
         <stored-value>PH</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Pitcairn</displayed-value>
+        <displayed-value>Pitcairn</displayed-value>
         <stored-value>PN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Polonia</displayed-value>
+        <displayed-value>Poland</displayed-value>
         <stored-value>PL</stored-value>
       </pair>
       <pair>
@@ -3820,47 +3820,47 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>QA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Reunión</displayed-value>
+        <displayed-value>Réunion</displayed-value>
         <stored-value>RE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Rumanía</displayed-value>
+        <displayed-value>Romania</displayed-value>
         <stored-value>RO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Rusia</displayed-value>
+        <displayed-value>Russian Federation</displayed-value>
         <stored-value>RU</stored-value>
       </pair>
       <pair>
-        <displayed-value>Ruanda</displayed-value>
+        <displayed-value>Rwanda</displayed-value>
         <stored-value>RW</stored-value>
       </pair>
       <pair>
-        <displayed-value>San Bartolomé</displayed-value>
+        <displayed-value>Saint Barthélemy</displayed-value>
         <stored-value>BL</stored-value>
       </pair>
       <pair>
-        <displayed-value>Santa Elena</displayed-value>
+        <displayed-value>Saint Helena, Ascension and Tristan da Cunha</displayed-value>
         <stored-value>SH</stored-value>
       </pair>
       <pair>
-        <displayed-value>San Cristóbal y Nieves</displayed-value>
+        <displayed-value>Saint Kitts and Nevis</displayed-value>
         <stored-value>KN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Santa Lucía</displayed-value>
+        <displayed-value>Saint Lucia</displayed-value>
         <stored-value>LC</stored-value>
       </pair>
       <pair>
-        <displayed-value>San Martín (Francia)</displayed-value>
+        <displayed-value>Saint Martin (French part)</displayed-value>
         <stored-value>MF</stored-value>
       </pair>
       <pair>
-        <displayed-value>San Pedro y Miquelón</displayed-value>
+        <displayed-value>Saint Pierre and Miquelon</displayed-value>
         <stored-value>PM</stored-value>
       </pair>
       <pair>
-        <displayed-value>San Vicente y las Granadinas</displayed-value>
+        <displayed-value>Saint Vincent and the Grenadines</displayed-value>
         <stored-value>VC</stored-value>
       </pair>
       <pair>
@@ -3872,11 +3872,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>SM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Santo Tomé y Príncipe</displayed-value>
+        <displayed-value>Sao Tome and Principe</displayed-value>
         <stored-value>ST</stored-value>
       </pair>
       <pair>
-        <displayed-value>Arabia Saudita</displayed-value>
+        <displayed-value>Saudi Arabia</displayed-value>
         <stored-value>SA</stored-value>
       </pair>
       <pair>
@@ -3892,27 +3892,27 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>SC</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sierra Leona</displayed-value>
+        <displayed-value>Sierra Leone</displayed-value>
         <stored-value>SL</stored-value>
       </pair>
       <pair>
-        <displayed-value>Singapur</displayed-value>
+        <displayed-value>Singapore</displayed-value>
         <stored-value>SG</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sint Maarten (parte neerlandesa)</displayed-value>
+        <displayed-value>Sint Maarten (Dutch part)</displayed-value>
         <stored-value>SX</stored-value>
       </pair>
       <pair>
-        <displayed-value>Eslovaquia</displayed-value>
+        <displayed-value>Slovakia</displayed-value>
         <stored-value>SK</stored-value>
       </pair>
       <pair>
-        <displayed-value>Eslovenia</displayed-value>
+        <displayed-value>Slovenia</displayed-value>
         <stored-value>SI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Salomón</displayed-value>
+        <displayed-value>Solomon Islands</displayed-value>
         <stored-value>SB</stored-value>
       </pair>
       <pair>
@@ -3920,71 +3920,71 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>SO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sudáfrica</displayed-value>
+        <displayed-value>South Africa</displayed-value>
         <stored-value>ZA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Georgias del Sur y Sandwich del Sur</displayed-value>
+        <displayed-value>South Georgia and the South Sandwich Islands</displayed-value>
         <stored-value>GS</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sudán del Sur</displayed-value>
+        <displayed-value>South Sudan</displayed-value>
         <stored-value>SS</stored-value>
       </pair>
       <pair>
-        <displayed-value>España</displayed-value>
+        <displayed-value>Spain</displayed-value>
         <stored-value>ES</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sri lanka</displayed-value>
+        <displayed-value>Sri Lanka</displayed-value>
         <stored-value>LK</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sudán</displayed-value>
+        <displayed-value>Sudan</displayed-value>
         <stored-value>SD</stored-value>
       </pair>
       <pair>
-        <displayed-value>Surinám</displayed-value>
+        <displayed-value>Suriname</displayed-value>
         <stored-value>SR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Svalbard y Jan Mayen</displayed-value>
+        <displayed-value>Svalbard and Jan Mayen</displayed-value>
         <stored-value>SJ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Swazilandia</displayed-value>
+        <displayed-value>Swaziland</displayed-value>
         <stored-value>SZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Suecia</displayed-value>
+        <displayed-value>Sweden</displayed-value>
         <stored-value>SE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Suiza</displayed-value>
+        <displayed-value>Switzerland</displayed-value>
         <stored-value>CH</stored-value>
       </pair>
       <pair>
-        <displayed-value>Siria</displayed-value>
+        <displayed-value>Syrian Arab Republic</displayed-value>
         <stored-value>SY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Taiwán</displayed-value>
+        <displayed-value>Taiwan, Province of China</displayed-value>
         <stored-value>TW</stored-value>
       </pair>
       <pair>
-        <displayed-value>Tadjikistán</displayed-value>
+        <displayed-value>Tajikistan</displayed-value>
         <stored-value>TJ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Tanzania</displayed-value>
+        <displayed-value>Tanzania, United Republic of</displayed-value>
         <stored-value>TZ</stored-value>
       </pair>
       <pair>
-        <displayed-value>Tailandia</displayed-value>
+        <displayed-value>Thailand</displayed-value>
         <stored-value>TH</stored-value>
       </pair>
       <pair>
-        <displayed-value>Timor Oriental</displayed-value>
+        <displayed-value>Timor-Leste</displayed-value>
         <stored-value>TL</stored-value>
       </pair>
       <pair>
@@ -4000,23 +4000,23 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>TO</stored-value>
       </pair>
       <pair>
-        <displayed-value>Trinidad y Tobago</displayed-value>
+        <displayed-value>Trinidad and Tobago</displayed-value>
         <stored-value>TT</stored-value>
       </pair>
       <pair>
-        <displayed-value>Tunez</displayed-value>
+        <displayed-value>Tunisia</displayed-value>
         <stored-value>TN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Turquía</displayed-value>
+        <displayed-value>Turkey</displayed-value>
         <stored-value>TR</stored-value>
       </pair>
       <pair>
-        <displayed-value>Turkmenistán</displayed-value>
+        <displayed-value>Turkmenistan</displayed-value>
         <stored-value>TM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Turcas y Caicos</displayed-value>
+        <displayed-value>Turks and Caicos Islands</displayed-value>
         <stored-value>TC</stored-value>
       </pair>
       <pair>
@@ -4028,31 +4028,31 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>UG</stored-value>
       </pair>
       <pair>
-        <displayed-value>Ucrania</displayed-value>
+        <displayed-value>Ukraine</displayed-value>
         <stored-value>UA</stored-value>
       </pair>
       <pair>
-        <displayed-value>Emiratos Árabes Unidos</displayed-value>
+        <displayed-value>United Arab Emirates</displayed-value>
         <stored-value>AE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Reino Unido</displayed-value>
+        <displayed-value>United Kingdom</displayed-value>
         <stored-value>GB</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Ultramarinas Menores de Estados Unidos</displayed-value>
-        <stored-value>UM</stored-value>
+        <displayed-value>United States</displayed-value>
+        <stored-value>US</stored-value>
       </pair>
       <pair>
-        <displayed-value>Estados Unidos de América</displayed-value>
-        <stored-value>US</stored-value>
+        <displayed-value>United States Minor Outlying Islands</displayed-value>
+        <stored-value>UM</stored-value>
       </pair>
       <pair>
         <displayed-value>Uruguay</displayed-value>
         <stored-value>UY</stored-value>
       </pair>
       <pair>
-        <displayed-value>Uzbekistán</displayed-value>
+        <displayed-value>Uzbekistan</displayed-value>
         <stored-value>UZ</stored-value>
       </pair>
       <pair>
@@ -4060,27 +4060,27 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>VU</stored-value>
       </pair>
       <pair>
-        <displayed-value>Venezuela</displayed-value>
+        <displayed-value>Venezuela, Bolivarian Republic of</displayed-value>
         <stored-value>VE</stored-value>
       </pair>
       <pair>
-        <displayed-value>Vietnam</displayed-value>
+        <displayed-value>Viet Nam</displayed-value>
         <stored-value>VN</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Vírgenes Británicas</displayed-value>
+        <displayed-value>Virgin Islands, British</displayed-value>
         <stored-value>VG</stored-value>
       </pair>
       <pair>
-        <displayed-value>Islas Vírgenes de los Estados Unidos</displayed-value>
+        <displayed-value>Virgin Islands, U.S.</displayed-value>
         <stored-value>VI</stored-value>
       </pair>
       <pair>
-        <displayed-value>Wallis y Futuna</displayed-value>
+        <displayed-value>Wallis and Futuna</displayed-value>
         <stored-value>WF</stored-value>
       </pair>
       <pair>
-        <displayed-value>Sahara Occidental</displayed-value>
+        <displayed-value>Western Sahara</displayed-value>
         <stored-value>EH</stored-value>
       </pair>
       <pair>
@@ -4092,7 +4092,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>ZM</stored-value>
       </pair>
       <pair>
-        <displayed-value>Zimbabue</displayed-value>
+        <displayed-value>Zimbabwe</displayed-value>
         <stored-value>ZW</stored-value>
       </pair>
     </value-pairs>

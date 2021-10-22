@@ -27,7 +27,6 @@ import java.util.UUID;
 
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.metrics.CrisMetrics;
-import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.rest.matcher.CrisMetricsMatcher;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
@@ -41,10 +40,8 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
-import org.dspace.discovery.SolrServiceImpl;
 import org.dspace.metrics.scopus.UpdateScopusMetrics;
 import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +52,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTest {
-    private final ConfigurationService configurationService =
-        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @Autowired
     private AuthorizeService authorizeService;
-
     @Autowired
-    private CrisMetricsService crisMetricsService;
-
-    @Autowired
-    private SolrServiceImpl searchService;
+    private ConfigurationService configurationService;
 
     @Test
     public void findAllTest() throws Exception {
@@ -80,7 +72,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("10.1016/19")
                 .withTitle("Title item A").build();
 
-        CrisMetrics metric = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType("view")
                 .withMetricCount(2312)
                 .isLast(true).build();
@@ -198,7 +190,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("10.1016/19")
                 .withTitle("Title item A").build();
 
-        CrisMetrics metrics1 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType("view")
                 .withMetricCount(2312)
                 .isLast(true).build();
@@ -275,21 +267,24 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("30.1100/31")
                 .withTitle("Title item B").build();
 
-        CrisMetrics metrics1 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType("view")
                 .withMetricCount(2312)
                 .isLast(true).build();
 
-        CrisMetrics metrics2 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
                 .withMetricCount(43)
                 .isLast(true).build();
 
-        CrisMetrics metrics3 = CrisMetricsBuilder.createCrisMetrics(context, itemB)
+        CrisMetricsBuilder.createCrisMetrics(context, itemB)
                 .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
                 .withMetricCount(103)
                 .isLast(true).build();
         context.restoreAuthSystemState();
+
+        String embeddedView = "<a title=\"\" href=\"\">View</a>";
+        String embeddedDownload = "<a title=\"\" href=\"\">Downloads</a>";
 
         String tokenEperson = getAuthToken(eperson.getEmail(), password);
         getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
@@ -297,11 +292,71 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
                 .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
                         )))
                 .andExpect(jsonPath("$._links.self.href",
                         Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
+                .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    @Test
+    public void findLinkedEntitiesMetricsWithoutNotExistedInSolrDocumentAndUsageAdminNotConfigured() throws Exception {
+        configurationService.setProperty("usage-statistics.authorization.admin.usage", null);
+
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDoiIdentifier("10.1016/19")
+                                .withTitle("Title item A")
+                                .build();
+
+        Item itemB = ItemBuilder.createItem(context, col1)
+                                .withDoiIdentifier("30.1100/31")
+                                .withTitle("Title item B")
+                                .build();
+
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
+                          .withMetricType("view")
+                          .withMetricCount(2312)
+                          .isLast(true)
+                          .build();
+
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
+                          .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
+                          .withMetricCount(43)
+                          .isLast(true)
+                          .build();
+
+        CrisMetricsBuilder.createCrisMetrics(context, itemB)
+                          .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
+                          .withMetricCount(103)
+                          .isLast(true)
+                          .build();
+
+        context.restoreAuthSystemState();
+
+        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+
+        String tokenEperson = getAuthToken(eperson.getEmail(), password);
+        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
+                    CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                    CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
+                    )))
+                .andExpect(jsonPath("$._links.self.href",Matchers.containsString("api/core/items/" + itemA.getID() +
+                                    "/metrics")))
                 .andExpect(jsonPath("$.page.totalElements", is(2)));
     }
 
@@ -318,25 +373,71 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("10.1016/19")
                 .withTitle("Title item A").build();
 
-        CrisMetrics metrics1 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType("view")
                 .withMetricCount(2312)
                 .isLast(true).build();
 
-        CrisMetrics metrics2 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
                 .withMetricCount(43)
                 .isLast(true).build();
 
         context.restoreAuthSystemState();
 
+        String embeddedView = "<a title=\"\" href=\"\">View</a>";
+        String embeddedDownload = "<a title=\"\" href=\"\">Downloads</a>";
+
         getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
                 .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
+                        )))
+                .andExpect(jsonPath("$._links.self.href",
+                        Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
+                .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    @Test
+    public void findLinkedEntitiesMetricsWithUserNotLoggedAndUsageAdminNotConfiguredTest() throws Exception {
+        configurationService.setProperty("usage-statistics.authorization.admin.usage", null);
+
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                .withDoiIdentifier("10.1016/19")
+                .withTitle("Title item A").build();
+
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
+                .withMetricType("view")
+                .withMetricCount(2312)
+                .isLast(true).build();
+
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
+                .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
+                .withMetricCount(43)
+                .isLast(true).build();
+
+        context.restoreAuthSystemState();
+
+        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+
+        getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
                         )))
                 .andExpect(jsonPath("$._links.self.href",
                         Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
@@ -356,12 +457,12 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("10.1016/19")
                 .withTitle("Title item A").build();
 
-        CrisMetrics metrics1 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType("view")
                 .withMetricCount(2312)
                 .isLast(true).build();
 
-        CrisMetrics metrics2 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
                 .withMetricCount(43)
                 .isLast(true).build();
@@ -429,17 +530,21 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
 
         assertEquals(0, status);
+        String remarkGoogleScholar = "scholar.google.com/scholar?q=Title+item+A";
+        String remarkAltmetric = "data-doi=10.1016/j.gene.2009.04.019";
+        String remarkEmbeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
 
-        String tokenEperson = getAuthToken(admin.getEmail(), password);
-        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                         CrisMetricsMatcher.matchCrisMetrics(metric),
                         CrisMetricsMatcher.matchCrisMetrics(metric2),
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar",remarkGoogleScholar),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", remarkAltmetric),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
+                                                                                   remarkEmbeddedDownload)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                         Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
@@ -459,7 +564,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withDoiIdentifier("10.1016/19")
                 .withTitle("Title item A").build();
 
-        CrisMetrics metric = CrisMetricsBuilder.createCrisMetrics(context, itemA)
+        CrisMetricsBuilder.createCrisMetrics(context, itemA)
                 .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
                 .withMetricCount(21)
                 .withDeltaPeriod1(3.0)
@@ -511,16 +616,22 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
-        String tokenEperson = getAuthToken(admin.getEmail(), password);
-        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
+
+        String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
+        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String altmetric = "data-doi=10.1016/j.gene.2009.04.019";
+        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                         CrisMetricsMatcher.matchCrisMetrics(metric),
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",embeddedDownload),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
@@ -586,16 +697,20 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
-        String tokenEperson = getAuthToken(admin.getEmail(), password);
-        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
+
+        String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
+        String altmetric = "data-doi=10.1016/j.gene.2009.04.019";
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                         CrisMetricsMatcher.matchCrisMetrics(metric),
                         CrisMetricsMatcher.matchCrisMetrics(metric_view),
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
                         CrisMetricsMatcher.matchCrisMetrics(metric_download),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar"),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
@@ -645,17 +760,21 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         assertEquals(0, handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin));
 
+        String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
+        String embeddedDownload = "<a title=\"\" href=\"\">Downloads</a>";
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        String tokenEperson = getAuthToken(admin.getEmail(), password);
+        String tokenEperson = getAuthToken(eperson.getEmail(), password);
 
         getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                                           CrisMetricsMatcher.matchCrisMetrics(metric),
                                           CrisMetricsMatcher.matchCrisMetrics(metric2),
-                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar"),
-                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download")
+                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar",
+                                                                                                      googleScholar),
+                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
+                                                                                                       embeddedDownload)
                                           )))
                                .andExpect(jsonPath("$.page.totalElements", is(4)));
 
@@ -671,13 +790,17 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                              .contentType(contentType))
                              .andExpect(status().isOk());
 
+        googleScholar = "https://scholar.google.com/scholar?q=New+Title";
+
         getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                                           CrisMetricsMatcher.matchCrisMetrics(metric),
                                           CrisMetricsMatcher.matchCrisMetrics(metric2),
-                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar"),
-                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download")
+                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar",
+                                                                                                      googleScholar),
+                                          CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
+                                                                                                       embeddedDownload)
                                           )))
                                .andExpect(jsonPath("$.page.totalElements", is(4)));
     }
