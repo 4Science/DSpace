@@ -110,6 +110,9 @@ public class CrisMetricsRestPermissionEvaluatorPlugin extends RestObjectPermissi
         } else {
 
             CrisMetrics metric = crisItemMetricsService.find(context, target.toString());
+            if (Objects.isNull(metric)) {
+                return null;
+            }
             DSpaceObject dSpaceObject = metric.getResource();
             if (dSpaceObject instanceof HibernateProxy) {
                 HibernateProxy hibernateProxy = (HibernateProxy) dSpaceObject;
