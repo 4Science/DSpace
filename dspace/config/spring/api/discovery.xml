@@ -3084,7 +3084,7 @@
 	</bean>
 	
 	<bean id="searchFilterLicense"
-		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		class="org.dspace.discovery.configuration.DiscoverySearchMultilanguageFilterFacet">
 		<property name="indexFieldName" value="license" />
 		<property name="metadataFields">
 			<list>
