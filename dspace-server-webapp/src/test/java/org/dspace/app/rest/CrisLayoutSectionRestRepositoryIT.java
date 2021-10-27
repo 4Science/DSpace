@@ -13,6 +13,7 @@ import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndBrow
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCountersComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndFacetComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndSearchComponent;
+import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndTextRowComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withSearchComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withTopComponent;
@@ -68,19 +69,25 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndSearchComponent("fundings_and_projects", 0, 1, "col-md-8", "project_funding"))))
 
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndSearchComponent("site", 0, 0, "col-md-12", "site"))))
+
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 1, 0, "col-md-12 py-4", Arrays.asList("researchoutputs",
+                        hasItem(withIdAndTextRowComponent("site", 0, 0 , "style", "text-metadata"))))
+
+
+            .andExpect(jsonPath("$._embedded.sections",
+                hasItem(withIdAndSearchComponent("site", 1, 0, "col-md-12", "site"))))
+
+            .andExpect(jsonPath("$._embedded.sections",
+                hasItem(withIdAndCountersComponent("site", 2, 0, "col-md-12 py-4", Arrays.asList("researchoutputs",
                                                                                                  "project_funding",
                                                                                                  "person")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndTopComponent("site", 2, 0, "col-md-6", "homePageTopItems", "dc.date.accessioned",
+              hasItem(withIdAndTopComponent("site", 3, 0, "col-md-6", "homePageTopItems", "dc.date.accessioned",
                                             "desc"))))
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndTopComponent("site", 2, 1, "col-md-6", "homePageTopItems", "metric.view",
+              hasItem(withIdAndTopComponent("site", 3, 1, "col-md-6", "homePageTopItems", "metric.view",
                                             "desc"))))
             ;
     }
