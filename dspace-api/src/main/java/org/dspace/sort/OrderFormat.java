@@ -41,6 +41,7 @@ public class OrderFormat
 	public static final String TEXT   = "text";
 	public static final String DATE   = "date";
     public static final String AUTHORITY = "authority";
+    public static final String NUMBER = "number";
 	
 	// Array of all available order delegates - avoids excessive calls to plugin manager
 	private static final String[] delegates = PluginManager.getAllPluginNames(OrderFormatDelegate.class);
@@ -50,6 +51,7 @@ public class OrderFormat
     private static final OrderFormatDelegate textDelegate   = new OrderFormatText();
     private static final OrderFormatDelegate dateDelegate   = new OrderFormatDate();
     private static final OrderFormatDelegate authorityDelegate = new OrderFormatText();
+    private static final OrderFormatDelegate numberDelegate = new OrderFormatNumber();
     
     /**
      * Generate a sort string for the given DC metadata
@@ -98,6 +100,11 @@ public class OrderFormat
             if (type.equalsIgnoreCase(OrderFormat.AUTHORITY) && authorityDelegate != null)
             {
               return authorityDelegate.makeSortString(value, language);
+            }
+            
+            if (type.equalsIgnoreCase(OrderFormat.NUMBER) && numberDelegate != null)
+            {
+              return numberDelegate.makeSortString(value, language);
             }
     	}
 
