@@ -55,7 +55,7 @@ public class OrcidHistorySendToOrcidRestPermissionEvaluatorPlugin extends RestOb
         }
 
         Request request = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(request.getServletRequest());
+        Context context = ContextUtil.obtainContext(request.getHttpServletRequest());
 
         EPerson currentUser = context.getCurrentUser();
         String url = targetId.toString();

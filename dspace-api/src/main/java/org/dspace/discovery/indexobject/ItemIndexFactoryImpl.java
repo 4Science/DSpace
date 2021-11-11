@@ -42,7 +42,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.discovery.FullTextContentStreams;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchUtils;
@@ -375,10 +375,13 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                                                 "discovery.index.authority.ignore-preferred",
                                                                 Boolean.FALSE),
                                                 true);
-                        if (!ignorePrefered) {
 
-                            preferedLabel = choiceAuthorityService
-                                    .getLabel(meta, collection, meta.getLanguage());
+                        if (!ignorePrefered) {
+                            try {
+                                preferedLabel = choiceAuthorityService.getLabel(meta, collection, meta.getLanguage());
+                            } catch (Exception e) {
+                                log.warn("Failed to get preferred label for " + field, e);
+                            }
                         }
 
                         boolean ignoreVariants =
@@ -393,8 +396,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                                                 Boolean.FALSE),
                                                 true);
                         if (!ignoreVariants) {
-                            variants = choiceAuthorityService
+                            try {
+                                variants = choiceAuthorityService
                                     .getVariants(meta, collection);
+                            } catch (Exception e) {
+                                log.warn("Failed to get variants for " + field, e);
+                            }
                         }
 
                     }
@@ -680,7 +687,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             }
 
         } catch (Exception e) {
-            log.error(LogManager.getHeader(context, "item_metadata_discovery_error",
+            log.error(LogHelper.getHeader(context, "item_metadata_discovery_error",
                     "Item identifier: " + item.getID()), e);
         }
 
@@ -703,7 +710,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             }
 
         } catch (Exception e) {
-            log.error(LogManager.getHeader(context, "item_publication_group_discovery_error",
+            log.error(LogHelper.getHeader(context, "item_publication_group_discovery_error",
                     "Item identifier: " + item.getID()), e);
         }
 

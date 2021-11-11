@@ -23,6 +23,7 @@ import org.dspace.app.rest.submit.AbstractProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.rest.submit.factory.PatchOperationFactory;
 import org.dspace.app.rest.submit.factory.impl.PatchOperation;
+import org.dspace.app.rest.utils.DCInputsReaderFactory;
 import org.dspace.app.util.DCInput;
 import org.dspace.app.util.DCInputSet;
 import org.dspace.app.util.DCInputsReader;
@@ -47,7 +48,7 @@ public class DescribeStep extends AbstractProcessingStep {
     private DCInputsReader inputReader;
 
     public DescribeStep() throws DCInputsReaderException {
-        inputReader = new DCInputsReader();
+        inputReader = DCInputsReaderFactory.getDCInputsReader();
     }
 
     @Override

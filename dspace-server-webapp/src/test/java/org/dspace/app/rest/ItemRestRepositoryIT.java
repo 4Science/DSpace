@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.RelationshipBuilder;
 import org.dspace.builder.RelationshipTypeBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
+import org.dspace.builder.VersionBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Bitstream;
@@ -88,17 +90,26 @@ import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.versioning.Version;
+import org.dspace.versioning.service.VersioningService;
 import org.dspace.workflow.WorkflowItem;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MvcResult;
 
 public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
+
+    @Autowired
+    private VersioningService versioningService;
 
     @Autowired
     private CollectionService collectionService;
@@ -109,12 +120,26 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Autowired
     private OrcidHistoryService orcidHistoryService;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
+    @Autowired
+    private GroupService groupService;
+
+    @Autowired
+    private ItemService itemService;
+
     private Item publication1;
     private Item author1;
     private Item author2;
     RelationshipType isAuthorOfPublication;
     private Relationship relationship1;
     private Relationship relationship2;
+
+    @Before
+    public void init() {
+        configurationService.setProperty("edit.metadata.allowed-group", "");
+    }
 
     @Test
     public void findAllTest() throws Exception {
@@ -131,6 +156,11 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
         Collection col2 = CollectionBuilder.createCollection(context, child1).withName("Collection 2").build();
 
+        List<Item> items = new ArrayList();
+        // This comparator is used to sort our test Items by java.util.UUID (which sorts them based on the RFC
+        // and not based on String comparison, see also https://stackoverflow.com/a/51031298/3750035 )
+        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID());
+
         //2. Three public items that are readable by Anonymous with different subjects
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Public item 1")
@@ -138,6 +168,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withAuthor("Smith, Donald").withAuthor("Doe, John")
                                       .withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem1);
 
         Item publicItem2 = ItemBuilder.createItem(context, col2)
                                       .withTitle("Public item 2")
@@ -145,6 +176,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
                                       .withSubject("TestingForMore").withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem2);
 
         Item publicItem3 = ItemBuilder.createItem(context, col2)
                                       .withTitle("Public item 3")
@@ -153,19 +185,19 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withSubject("AnotherTest").withSubject("TestingForMore")
                                       .withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem3);
+        // sort items list by UUID (as Items will come back ordered by UUID)
+        items.sort(compareByUUID);
 
         context.restoreAuthSystemState();
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/core/items"))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded.items", Matchers.containsInAnyOrder(
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem1,
-                                        "Public item 1", "2017-10-17"),
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem2,
-                                        "Public item 2", "2016-02-13"),
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem3,
-                                        "Public item 3", "2016-02-13")
+                   .andExpect(jsonPath("$._embedded.items", Matchers.containsInRelativeOrder(
+                           ItemMatcher.matchItemProperties(items.get(0)),
+                           ItemMatcher.matchItemProperties(items.get(1)),
+                           ItemMatcher.matchItemProperties(items.get(2))
                    )))
                    .andExpect(jsonPath("$._links.self.href",
                            Matchers.containsString("/api/core/items")))
@@ -205,6 +237,11 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                            .withTemplateItem()
                                            .build();
 
+        List<Item> items = new ArrayList();
+        // This comparator is used to sort our test Items by java.util.UUID (which sorts them based on the RFC
+        // and not based on String comparison, see also https://stackoverflow.com/a/51031298/3750035 )
+        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID());
+
         //2. Three public items that are readable by Anonymous with different subjects
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Public item 1")
@@ -212,6 +249,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withAuthor("Smith, Donald").withAuthor("Doe, John")
                                       .withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem1);
 
         Item publicItem2 = ItemBuilder.createItem(context, col2)
                                       .withTitle("Public item 2")
@@ -219,6 +257,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
                                       .withSubject("TestingForMore").withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem2);
 
         Item publicItem3 = ItemBuilder.createItem(context, col2)
                                       .withTitle("Public item 3")
@@ -227,6 +266,9 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                       .withSubject("AnotherTest").withSubject("TestingForMore")
                                       .withSubject("ExtraEntry")
                                       .build();
+        items.add(publicItem3);
+        // sort items list by UUID (as Items will come back ordered by UUID)
+        items.sort(compareByUUID);
 
         // Create a Workspace Item (which in turn creates an Item with "in_archive=false")
         // This is only created to prove that WorkspaceItems are NOT counted/listed in this endpoint
@@ -252,16 +294,13 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         getClient(token).perform(get("/api/core/items")
                    .param("size", "2"))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded.items", Matchers.containsInAnyOrder(
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem1,
-                               "Public item 1", "2017-10-17"),
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem2,
-                               "Public item 2", "2016-02-13")
+                   .andExpect(jsonPath("$._embedded.items", Matchers.containsInRelativeOrder(
+                       ItemMatcher.matchItemProperties(items.get(0)),
+                       ItemMatcher.matchItemProperties(items.get(1))
                    )))
                    .andExpect(jsonPath("$._embedded.items", Matchers.not(
                            Matchers.contains(
-                               ItemMatcher.matchItemWithTitleAndDateIssued(publicItem3,
-                                       "Public item 3", "2016-02-13"),
+                               ItemMatcher.matchItemProperties(items.get(2)),
                                ItemMatcher.matchItemWithTitleAndDateIssued(itemInWorkspace,
                                        "In Progress Item", "2018-02-05"),
                                ItemMatcher.matchItemWithTitleAndDateIssued(itemInWorkflow,
@@ -291,15 +330,12 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                    .param("page", "1"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.items", Matchers.contains(
-                       ItemMatcher.matchItemWithTitleAndDateIssued(publicItem3,
-                               "Public item 3", "2016-02-13")
+                           ItemMatcher.matchItemProperties(items.get(2))
                    )))
                    .andExpect(jsonPath("$._embedded.items", Matchers.not(
                        Matchers.contains(
-                           ItemMatcher.matchItemWithTitleAndDateIssued(publicItem1,
-                                   "Public item 1", "2017-10-17"),
-                           ItemMatcher.matchItemWithTitleAndDateIssued(publicItem2,
-                                   "Public item 2", "2016-02-13"),
+                           ItemMatcher.matchItemProperties(items.get(0)),
+                           ItemMatcher.matchItemProperties(items.get(1)),
                            ItemMatcher.matchItemWithTitleAndDateIssued(itemInWorkspace,
                                    "In Progress Item", "2018-02-05"),
                            ItemMatcher.matchItemWithTitleAndDateIssued(itemInWorkflow,
@@ -1144,7 +1180,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         ReplaceOperation replaceOperation = new ReplaceOperation("/discoverable", "false");
         ops.add(replaceOperation);
         String patchBody = getPatchContent(ops);
-
+        context.restoreAuthSystemState();
         // make private
         getClient(token).perform(patch("/api/core/items/" + item.getID())
             .content(patchBody)
@@ -3009,14 +3045,14 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         Community community = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
             .build();
-        Collection collection = CollectionBuilder.createCollection(context, community).withName("Collection").build();
+        Collection collection = CollectionBuilder.createCollection(context, community).withName("Collection")
+                                                 .withEntityType(person.getLabel()).build();
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Author1")
             .withIssueDate("2017-10-17")
             .withAuthor("Smith, Donald")
             .withPersonIdentifierLastName("Smith")
             .withPersonIdentifierFirstName("Donald")
-            .withEntityType("Person")
             .build();
         context.restoreAuthSystemState();
 
@@ -3045,12 +3081,12 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         Community community = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
             .build();
-        Collection collection = CollectionBuilder.createCollection(context, community).withName("Collection").build();
+        Collection collection = CollectionBuilder.createCollection(context, community).withName("Collection")
+                                                 .withEntityType(publication.getLabel()).build();
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Publication1")
             .withAuthor("Testy, TEst")
             .withIssueDate("2015-01-01")
-            .withEntityType("Publication")
             .build();
         context.restoreAuthSystemState();
 
@@ -3061,7 +3097,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             .andExpect(jsonPath("$.entityType", is("Publication")));
 
         String adminToken = getAuthToken(admin.getEmail(), password);
-        getClient(ePersonToken).perform(get("/api/core/items/" + item.getID()))
+        getClient(adminToken).perform(get("/api/core/items/" + item.getID()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", ItemMatcher.matchItemProperties(item)))
             .andExpect(jsonPath("$.entityType", is("Publication")));
@@ -3684,8 +3720,10 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
                                           .build();
-        Collection col1 = CollectionBuilder
-            .createCollection(context, parentCommunity).withName("Collection 1").build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+                                           .withEntityType("Person").build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 2")
+                                           .withEntityType("Publication").build();
 
         author1 = ItemBuilder.createItem(context, col1)
                              .withTitle("Author1")
@@ -3693,21 +3731,18 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                              .withAuthor("Smith, Donald")
                              .withPersonIdentifierLastName("Smith")
                              .withPersonIdentifierFirstName("Donald")
-                             .withEntityType("Person")
                              .build();
 
         author2 = ItemBuilder.createItem(context, col1)
                              .withTitle("Author2")
                              .withIssueDate("2016-02-13")
                              .withAuthor("Smith, Maria")
-                             .withEntityType("Person")
                              .build();
 
-        publication1 = ItemBuilder.createItem(context, col1)
+        publication1 = ItemBuilder.createItem(context, col2)
                                   .withTitle("Publication1")
                                   .withAuthor("Testy, TEst")
                                   .withIssueDate("2015-01-01")
-                                  .withEntityType("Publication")
                                   .build();
 
         EntityType publication = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
@@ -3955,8 +3990,11 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
                                           .build();
-        Collection col1 = CollectionBuilder
-            .createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+                                           .withEntityType("Person").build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 2")
+                                           .withEntityType("Publication").build();
 
         author1 = ItemBuilder.createItem(context, col1)
                              .withTitle("Author1")
@@ -3964,21 +4002,18 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                              .withAuthor("Smith, Donald")
                              .withPersonIdentifierLastName("Smith")
                              .withPersonIdentifierFirstName("Donald")
-                             .withEntityType("Person")
                              .build();
 
         author2 = ItemBuilder.createItem(context, col1)
                              .withTitle("Author2")
                              .withIssueDate("2016-02-13")
                              .withAuthor("Smith, Maria")
-                             .withEntityType("Person")
                              .build();
 
-        publication1 = ItemBuilder.createItem(context, col1)
+        publication1 = ItemBuilder.createItem(context, col2)
                                   .withTitle("Publication1")
                                   .withAuthor("Testy, TEst")
                                   .withIssueDate("2015-01-01")
-                                  .withEntityType("Publication")
                                   .build();
 
         EntityType publication = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
@@ -4308,5 +4343,470 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         getClient().perform(get("/api/core/items/" + item.getID() + "/thumbnail"))
                    .andExpect(status().isNoContent());
     }
+    @Test
+    public void putItemMetadataWithUserNotPartOfGroupConfigured() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        String itemUuidString = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ItemRest itemRest = new ItemRest();
+            itemRest.setName("Practices of research data curation in institutional repositories:" +
+                    " A qualitative view from repository staff");
+            itemRest.setInArchive(true);
+            itemRest.setDiscoverable(true);
+            itemRest.setWithdrawn(false);
+            String token = getAuthToken(admin.getEmail(), password);
+            MvcResult mvcResult = getClient(token).perform(post("/api/core/items?owningCollection=" +
+                            col1.getID().toString())
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+            String content = mvcResult.getResponse().getContentAsString();
+            Map<String,Object> map = mapper.readValue(content, Map.class);
+            itemUuidString = String.valueOf(map.get("uuid"));
+            String itemHandleString = String.valueOf(map.get("handle"));
+            itemRest.setMetadata(new MetadataRest()
+                    .put("dc.description", new MetadataValueRest("<p>Some cool HTML code here</p>")));
+            itemRest.setUuid(itemUuidString);
+            itemRest.setHandle(itemHandleString);
+            Group group = GroupBuilder.createGroup(context).build();
+            configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+            context.restoreAuthSystemState();
+            // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
+            getClient(token).perform(put("/api/core/items/" + itemUuidString)
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isForbidden());
+        } finally {
+            ItemBuilder.deleteItem(UUID.fromString(itemUuidString));
+        }
+    }
+    @Test
+    public void putItemMetadataWithUserPartOfGroupConfigured() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+        // add group with eperson as member
+        Group group = GroupBuilder.createGroup(context).addMember(eperson).build();
+        groupService.update(context, group);
+        context.commit();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        String itemUuidString = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ItemRest itemRest = new ItemRest();
+            itemRest.setName("Practices of research data curation in institutional repositories:" +
+                    " A qualitative view from repository staff");
+            itemRest.setInArchive(true);
+            itemRest.setDiscoverable(true);
+            itemRest.setWithdrawn(false);
+            String token = getAuthToken(admin.getEmail(), password);
+            MvcResult mvcResult = getClient(token).perform(post("/api/core/items?owningCollection=" +
+                            col1.getID().toString())
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+            String content = mvcResult.getResponse().getContentAsString();
+            Map<String,Object> map = mapper.readValue(content, Map.class);
+            itemUuidString = String.valueOf(map.get("uuid"));
+            String itemHandleString = String.valueOf(map.get("handle"));
+            itemRest.setMetadata(new MetadataRest()
+                    .put("dc.description", new MetadataValueRest("<p>Some cool HTML code here</p>"))
+                    .put("dc.description.abstract",
+                            new MetadataValueRest("Sample item created via the REST API"))
+                    .put("dc.description.tableofcontents", new MetadataValueRest("<p>HTML News</p>"))
+                    .put("dc.rights", new MetadataValueRest("New Custom Copyright Text"))
+                    .put("dc.title", new MetadataValueRest("New title")));
+            itemRest.setUuid(itemUuidString);
+            itemRest.setHandle(itemHandleString);
+            // add write rights to the user
+            ResourcePolicyBuilder.createResourcePolicy(context)
+                    .withUser(eperson)
+                    .withAction(WRITE)
+                    .withDspaceObject(itemService.find(context, UUID.fromString(itemUuidString)))
+                    .build();
 
+            context.restoreAuthSystemState();
+            token = getAuthToken(eperson.getEmail(), password);
+            configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+            // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
+            getClient(token).perform(put("/api/core/items/" + itemUuidString)
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isOk());
+        } finally {
+            ItemBuilder.deleteItem(UUID.fromString(itemUuidString));
+        }
+    }
+
+    @Test
+    public void finadVersionForItemTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                          .withTitle("Public test item")
+                          .withIssueDate("2021-04-27")
+                          .withAuthor("Doe, John")
+                          .withSubject("ExtraEntry")
+                          .build();
+
+        Version v2 = VersionBuilder.createVersion(context, item, "test").build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                             .andExpect(content().contentType(contentType))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", Matchers.allOf(
+                                     hasJsonPath("$.version", is(1)),
+                                     hasJsonPath("$.summary", emptyOrNullString()),
+                                     hasJsonPath("$.submitterName", is("first last")),
+                                     hasJsonPath("$.type", is("version"))
+                                     )));
+    }
+
+    @Test
+    public void findVersionOfItemNoContentTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                             .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findVersionItemUnauthorizedTest() throws Exception {
+        configurationService.setProperty("versioning.item.history.view.admin", true);
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test").build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        VersionBuilder.createVersion(context, item, "test").build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/items/" + item.getID() + "/version"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void findVersionForItemForbiddenTest() throws Exception {
+        configurationService.setProperty("versioning.item.history.view.admin", true);
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        VersionBuilder.createVersion(context, item, "test").build();
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                               .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findVersionForItemAndProprtyHistoryViewAdminIsDisabledTest() throws Exception {
+        configurationService.setProperty("versioning.item.history.view.admin", false);
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        VersionBuilder.createVersion(context, item, "test").build();
+        Version v1 = versioningService.getVersion(context, item);
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$", Matchers.allOf(
+                                       hasJsonPath("$.version", is(1)),
+                                       hasJsonPath("$.summary", emptyOrNullString()),
+                                       hasJsonPath("$.type", is("version"))
+                                       )))
+                               .andExpect(jsonPath("$._links.versionhistory.href", Matchers
+                                         .containsString("api/versioning/versions/" + v1.getID() + "/versionhistory")))
+                               .andExpect(jsonPath("$._links.item.href", Matchers
+                                         .containsString("api/versioning/versions/" + v1.getID() + "/item")))
+                               .andExpect(jsonPath("$._links.self.href", Matchers
+                                         .containsString("api/versioning/versions/" + v1.getID() )));
+    }
+
+    @Test
+    public void findVersionForItemBadRequestTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        VersionBuilder.createVersion(context, item, "test").build();
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/items/wrongID/version"))
+                               .andExpect(status().isBadRequest());
+
+        getClient(epersonToken).perform(get("/api/core/items/1/version"))
+                               .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void findVersionForItemWithoutVersionsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        item.setSubmitter(eperson);
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                               .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findVersionForItemWithoutVersionsWithVersioningDisabledTest() throws Exception {
+        configurationService.setProperty("versioning.enabled", false);
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection test")
+                                          .build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withTitle("Public test item")
+                               .withIssueDate("2021-04-27")
+                               .withAuthor("Doe, John")
+                               .withSubject("ExtraEntry")
+                               .build();
+
+        item.setSubmitter(eperson);
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(epersonToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                               .andExpect(status().isForbidden());
+
+        getClient(epersonToken).perform(get("/api/core/items/" + item.getID() + "/version"))
+                               .andExpect(status().isForbidden());
+
+        getClient().perform(get("/api/core/items/" + item.getID() + "/version"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    public void patchItemMetadataWithUserPartOfGroupConfigured() throws Exception {
+        context.turnOffAuthorisationSystem();
+        // add admin person as member to the group
+        Group group = GroupBuilder.createGroup(context).addMember(admin).build();
+        groupService.update(context, group);
+        context.commit();
+        // ** GIVEN **
+        // 1. A community-collection structure with one parent community with
+        // sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+            .withName("Sub Community")
+            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+            .withName("Collection 1").build();
+        // 2. One public item
+        Item item = ItemBuilder.createItem(context, col1)
+            .withTitle("Public item 1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald").withAuthor("Doe, John")
+            .withSubject("ExtraEntry")
+            .build();
+        // add write permission to the user admin
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withUser(admin)
+            .withAction(WRITE)
+            .withDspaceObject(itemService.find(context, item.getID()))
+            .build();
+        context.restoreAuthSystemState();
+        configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+        String token = getAuthToken(admin.getEmail(), password);
+        List<Operation> ops = new ArrayList<Operation>();
+        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        ops.add(replaceOperation);
+        String patchBody = getPatchContent(ops);
+        // withdraw item
+        // expect status to be OK as the user is part of the group configured in property edit.metadata.allowed-group
+        getClient(token).perform(patch("/api/core/items/" + item.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid", Matchers.is(item.getID().toString())))
+                .andExpect(jsonPath("$.withdrawn", Matchers.is(true)))
+                .andExpect(jsonPath("$.inArchive", Matchers.is(false)));
+    }
+
+    @Test
+    public void patchItemMetadataWithUserNotPartOfGroupConfigured() throws Exception {
+        context.turnOffAuthorisationSystem();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1").build();
+        //2. One public item
+        Item item = ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                .withSubject("ExtraEntry")
+                .build();
+        // add write rights to the user admin
+        ResourcePolicyBuilder.createResourcePolicy(context)
+                .withUser(admin)
+                .withAction(WRITE)
+                .withDspaceObject(itemService.find(context, item.getID()))
+                .build();
+        // add admin as member in the group
+        Group group = GroupBuilder.createGroup(context).build();
+        groupService.update(context, group);
+        context.commit();
+        context.restoreAuthSystemState();
+        configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+        String token = getAuthToken(admin.getEmail(), password);
+        List<Operation> ops = new ArrayList<Operation>();
+        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        ops.add(replaceOperation);
+        String patchBody = getPatchContent(ops);
+        // withdraw item
+        // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
+        getClient(token).perform(patch("/api/core/items/" + item.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+    }
 }

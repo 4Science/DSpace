@@ -577,6 +577,11 @@
       <to>insert into orcid_history</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>Generate rows</from>
+      <to>add orcid authenticated metadata value</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <step>
     <name>Add sequence</name>
@@ -664,6 +669,38 @@
     <GUI>
       <xloc>672</xloc>
       <yloc>752</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Generate rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+    </fields>
+    <limit>1</limit>
+    <never_ending>N</never_ending>
+    <interval_in_ms>5000</interval_in_ms>
+    <row_time_field>now</row_time_field>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>880</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -928,6 +965,79 @@
     <GUI>
       <xloc>528</xloc>
       <yloc>48</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>add orcid authenticated metadata value</name>
+    <type>ExecSQL</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <execute_each_row>N</execute_each_row>
+    <single_statement>Y</single_statement>
+    <replace_variables>N</replace_variables>
+    <quoteString>N</quoteString>
+    <sql>INSERT INTO metadatavalue 
+SELECT 
+nextval('metadatavalue_seq'),
+(SELECT field.metadata_field_id 
+ from metadatafieldregistry field, metadataschemaregistry sc 
+ where field.element = 'orcid' 
+ and field.qualifier = 'authenticated'
+ and sc.short_id = 'cris' 
+ and field.metadata_schema_id = sc.metadata_schema_id),
+'true',
+null,
+0,
+null,
+-1,
+item.uuid,
+null
+FROM item item 
+WHERE exists ( 
+	SELECT * FROM metadatavalue 
+	where dspace_object_id = item.uuid
+	and metadata_field_id = (SELECT field.metadata_field_id 
+							 from metadatafieldregistry field, metadataschemaregistry sc 
+							 where field.element = 'orcid' 
+							 and field.qualifier = 'access-token'
+							 and sc.short_id = 'cris' 
+							 and field.metadata_schema_id = sc.metadata_schema_id)
+) and exists ( 
+	SELECT * FROM metadatavalue 
+	where dspace_object_id = item.uuid
+	and metadata_field_id = (SELECT field.metadata_field_id 
+							 from metadatafieldregistry field, metadataschemaregistry sc 
+							 where field.element = 'identifier' 
+							 and field.qualifier = 'orcid'
+							 and sc.short_id = 'person' 
+							 and field.metadata_schema_id = sc.metadata_schema_id)
+);</sql>
+    <set_params>N</set_params>
+    <insert_field/>
+    <update_field/>
+    <delete_field/>
+    <read_field/>
+    <arguments>
+    </arguments>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>880</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

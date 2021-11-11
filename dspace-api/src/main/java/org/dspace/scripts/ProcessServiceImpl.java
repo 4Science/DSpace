@@ -42,7 +42,7 @@ import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.scripts.service.ProcessService;
@@ -89,7 +89,7 @@ public class ProcessServiceImpl implements ProcessService {
                 });
 
         Process createdProcess = processDAO.create(context, process);
-        log.info(LogManager.getHeader(context, "process_create",
+        log.info(LogHelper.getHeader(context, "process_create",
                                       "Process has been created for eperson with email " + ePerson.getEmail()
                                           + " with ID " + createdProcess.getID() + " and scriptName " +
                                           scriptName + " and parameters " + parameters));
@@ -136,7 +136,7 @@ public class ProcessServiceImpl implements ProcessService {
         process.setProcessStatus(ProcessStatus.RUNNING);
         process.setStartTime(new Date());
         update(context, process);
-        log.info(LogManager.getHeader(context, "process_start", "Process with ID " + process.getID()
+        log.info(LogHelper.getHeader(context, "process_start", "Process with ID " + process.getID()
             + " and name " + process.getName() + " has started"));
 
     }
@@ -146,7 +146,7 @@ public class ProcessServiceImpl implements ProcessService {
         process.setProcessStatus(ProcessStatus.FAILED);
         process.setFinishedTime(new Date());
         update(context, process);
-        log.info(LogManager.getHeader(context, "process_fail", "Process with ID " + process.getID()
+        log.info(LogHelper.getHeader(context, "process_fail", "Process with ID " + process.getID()
             + " and name " + process.getName() + " has failed"));
 
     }
@@ -156,7 +156,7 @@ public class ProcessServiceImpl implements ProcessService {
         process.setProcessStatus(ProcessStatus.COMPLETED);
         process.setFinishedTime(new Date());
         update(context, process);
-        log.info(LogManager.getHeader(context, "process_complete", "Process with ID " + process.getID()
+        log.info(LogHelper.getHeader(context, "process_complete", "Process with ID " + process.getID()
             + " and name " + process.getName() + " has been completed"));
 
     }
@@ -189,7 +189,7 @@ public class ProcessServiceImpl implements ProcessService {
             bitstreamService.delete(context, bitstream);
         }
         processDAO.delete(context, process);
-        log.info(LogManager.getHeader(context, "process_delete", "Process with ID " + process.getID()
+        log.info(LogHelper.getHeader(context, "process_delete", "Process with ID " + process.getID()
             + " and name " + process.getName() + " has been deleted"));
     }
 

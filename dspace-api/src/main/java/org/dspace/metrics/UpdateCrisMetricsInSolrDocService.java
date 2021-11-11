@@ -9,8 +9,10 @@ package org.dspace.metrics;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.metrics.service.CrisMetricsServiceImpl;
@@ -38,7 +40,15 @@ public class UpdateCrisMetricsInSolrDocService {
             List<CrisMetrics> metrics = crisMetricsService.findAllLast(context,-1,-1);
             handler.logInfo("Metric update start");
             for (CrisMetrics metric : metrics) {
-                crisIndexingService.updateMetrics(context, metric);
+                try {
+                    crisIndexingService.updateMetrics(context, metric);
+                } catch (RemoteSolrException rse) {
+                    if (StringUtils.containsIgnoreCase(rse.getMessage(), "Did not find child ID Item-")) {
+                        log.error(rse.getMessage());
+                    } else {
+                        throw rse;
+                    }
+                }
             }
             handler.logInfo("Metric update end");
             if (optimize) {

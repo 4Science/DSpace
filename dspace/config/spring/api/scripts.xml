@@ -108,4 +108,10 @@
         <property name="description" value="Perform subscriptions send"/>
         <property name="dspaceRunnableClass" value="org.dspace.subscriptions.SubscriptionEmailNotificationCli"/>
     </bean>
+        
+    <bean id="harvest" class="org.dspace.app.harvest.HarvestCliScriptConfiguration">
+        <property name="description" value="Manage the OAI-PMH harvesting of external collections"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.harvest.HarvestCli"/>
+    </bean>
+    
 </beans>

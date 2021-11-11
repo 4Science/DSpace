@@ -10,6 +10,8 @@ package org.dspace.content.logic.condition;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.content.logic.LogicalStatementException;
 import org.dspace.content.service.CollectionService;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @version $Revision$
  */
 public abstract class AbstractCondition implements Condition {
+
     private Map<String, Object> parameters = new HashMap<>();
 
     @Autowired(required = true)
@@ -33,6 +36,9 @@ public abstract class AbstractCondition implements Condition {
     protected CollectionService collectionService;
     @Autowired(required = true)
     protected HandleService handleService;
+
+    // Logging
+    Logger log = LogManager.getLogger(AbstractCondition.class);
 
     /**
      * Get parameters set by spring configuration in item-filters.xml
@@ -51,6 +57,7 @@ public abstract class AbstractCondition implements Condition {
      * @param parameters
      * @throws LogicalStatementException
      */
+    @Autowired(required = true)
     @Override
     public void setParameters(Map<String, Object> parameters) throws LogicalStatementException {
         this.parameters = parameters;

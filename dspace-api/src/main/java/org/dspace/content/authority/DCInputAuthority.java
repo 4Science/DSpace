@@ -73,6 +73,11 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
     }
 
     @Override
+    public boolean isPublic() {
+        return true;
+    }
+
+    @Override
     public boolean storeAuthorityInMetadata() {
         // For backward compatibility value pairs don't store authority in
         // the metadatavalue

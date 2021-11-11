@@ -12,6 +12,7 @@ import static org.dspace.app.bulkimport.utils.WorkbookUtils.getRowValues;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +38,7 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.core.CrisConstants;
 import org.dspace.utils.DSpace;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -167,7 +170,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             "export", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Conference1||Conference2", "DataSet",
             "CIT-01", "Publication Description" };
 
-        asserThatSheetHas(mainSheet, "items", 3, Arrays.asList(mainSheetHeader, mainSheetFirstRow, mainSheetSecondRow));
+        asserThatSheetHas(mainSheet, "items", 3, mainSheetHeader, Arrays.asList(mainSheetFirstRow, mainSheetSecondRow));
 
         Sheet authorSheet = workbook.getSheetAt(1);
         String[] authorSheetHeader = { "PARENT-ID", "dc.contributor.author", "oairecerif.author.affiliation" };
@@ -175,21 +178,23 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         String[] authorSheetSecondRow = { firstItemId, "Walter White", "Company" };
         String[] authorSheetThirdRow = { secondItemId, "Jesse Pinkman", "Company" };
 
-        asserThatSheetHas(authorSheet, "dc.contributor.author", 4, asList(authorSheetHeader, authorSheetFirstRow,
+        asserThatSheetHas(authorSheet, "dc.contributor.author", 4, authorSheetHeader, asList(authorSheetFirstRow,
             authorSheetSecondRow, authorSheetThirdRow));
 
         Sheet editorSheet = workbook.getSheetAt(2);
         String[] editorSheetHeader = { "PARENT-ID", "dc.contributor.editor", "oairecerif.editor.affiliation" };
         String[] editorSheetFirstRow = { secondItemId, "Editor", "Editor Affiliation" };
 
-        asserThatSheetHas(editorSheet, "dc.contributor.editor", 2, asList(editorSheetHeader, editorSheetFirstRow));
+        List<String[]> rows = new ArrayList<String[]>();
+        rows.add(editorSheetFirstRow);
+        asserThatSheetHas(editorSheet, "dc.contributor.editor", 2, editorSheetHeader, rows);
 
         Sheet projectSheet = workbook.getSheetAt(3);
         String[] projectSheetHeader = { "PARENT-ID", "dc.relation.project", "dc.relation.grantno" };
         String[] projectSheetFirstRow = { firstItemId, "Test Project$$d9471fee-34fa-4a39-9658-443c4bb47b22$$600", "" };
         String[] projectSheetSecondRow = { secondItemId, "Test Project", "01" };
 
-        asserThatSheetHas(projectSheet, "dc.relation.project", 3, asList(projectSheetHeader, projectSheetFirstRow,
+        asserThatSheetHas(projectSheet, "dc.relation.project", 3, projectSheetHeader, asList(projectSheetFirstRow,
             projectSheetSecondRow));
     }
 
@@ -258,6 +263,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
             Item secondPublication = ItemBuilder.createItem(context, collection)
                 .withEntityType("Publication")
+                .withTitleForLanguage("Seconda pubblicazione", "it")
                 .withTitleForLanguage("Second publication", "en")
                 .withIssueDate("2019-01-01")
                 .build();
@@ -272,6 +278,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
             Item fourthPublication = ItemBuilder.createItem(context, collection)
                 .withEntityType("Publication")
+                .withTitleForLanguage("Pubblicazione", "it")
                 .withTitle("Fourth publication")
                 .withIssueDate("2017-01-01")
                 .withAuthor("Carl Johnson")
@@ -299,11 +306,11 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             Sheet mainSheet = workbook.getSheetAt(0);
             String[] header = { "ID", "dc.title", "dc.date.issued", "dc.subject", "dc.title[it]", "dc.title[en]" };
             String[] firstRow = { firstId, "First publication", "2020-01-01", "", "Prima pubblicazione", "" };
-            String[] secondRow = { secondId, "", "2019-01-01", "", "", "Second publication" };
+            String[] secondRow = { secondId, "", "2019-01-01", "", "Seconda pubblicazione", "Second publication" };
             String[] thirdRow = { thirdId, "Third publication", "2018-01-01", "", "Terza pubblicazione", "" };
-            String[] fourthRow = { fourthId, "Fourth publication", "2017-01-01", "test||export", "", "" };
+            String[] fourthRow = { fourthId, "Fourth publication", "2017-01-01", "test||export", "Pubblicazione", "" };
 
-            asserThatSheetHas(mainSheet, "items", 5, asList(header, firstRow, secondRow, thirdRow, fourthRow));
+            asserThatSheetHas(mainSheet, "items", 5, header, asList(firstRow, secondRow, thirdRow, fourthRow));
 
             Sheet authorSheet = workbook.getSheetAt(1);
             String[] authorSheetHeader = { "PARENT-ID", "dc.contributor.author", "oairecerif.author.affiliation" };
@@ -313,7 +320,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             String[] authorSheetFourthRow = { fourthId, "Carl Johnson", "" };
             String[] authorSheetFifthRow = { fourthId, "Red White", "" };
 
-            asserThatSheetHas(authorSheet, "dc.contributor.author", 6, asList(authorSheetHeader, authorSheetFirstRow,
+            asserThatSheetHas(authorSheet, "dc.contributor.author", 6, authorSheetHeader, asList(authorSheetFirstRow,
                 authorSheetSecondRow, authorSheetThirdRow, authorSheetFourthRow, authorSheetFifthRow));
 
         } finally {
@@ -322,12 +329,19 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     }
 
-    private void asserThatSheetHas(Sheet sheet, String name, int rowsNumber, List<String[]> rows) {
+    @SuppressWarnings("unchecked")
+    private void asserThatSheetHas(Sheet sheet, String name, int rowsNumber, String[] header, List<String[]> rows) {
         assertThat(sheet.getSheetName(), equalTo(name));
         assertThat(sheet.getPhysicalNumberOfRows(), equalTo(rowsNumber));
-        int rowCount = 0;
+        assertThat(getRowValues(sheet.getRow(0), header.length), contains(header));
+
+        int rowCount = 1;
+        Matcher<List<String>>[] rowMatchers = rows.stream()
+            .map(row -> contains(row))
+            .toArray(Matcher[]::new);
+
         for (String[] row : rows) {
-            assertThat(getRowValues(sheet.getRow(rowCount++), row.length), contains(row));
+            assertThat(getRowValues(sheet.getRow(rowCount++), row.length), anyOf(rowMatchers));
         }
     }
 

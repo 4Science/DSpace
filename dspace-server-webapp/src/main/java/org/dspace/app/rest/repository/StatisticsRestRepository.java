@@ -44,10 +44,10 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
     }
 
     @Override
-    @PreAuthorize("hasPermission(#uuidObjectReportId, 'usagereport', 'READ')")
-    public UsageReportRest findOne(Context context, String uuidObjectReportId) {
-        UUID uuidObject = UUID.fromString(StringUtils.substringBefore(uuidObjectReportId, "_"));
-        String reportId = StringUtils.substringAfter(uuidObjectReportId, "_");
+    @PreAuthorize("hasPermission(#id, 'usagereport', 'READ')")
+    public UsageReportRest findOne(Context context, String id) {
+        UUID uuidObject = UUID.fromString(StringUtils.substringBefore(id, "_"));
+        String reportId = StringUtils.substringAfter(id, "_");
 
         UsageReportRest usageReportRest = null;
         try {

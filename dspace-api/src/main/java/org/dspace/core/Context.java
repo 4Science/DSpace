@@ -9,13 +9,14 @@ package org.dspace.core;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.EmptyStackException;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.Stack;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.Logger;
@@ -46,8 +47,6 @@ import org.springframework.util.CollectionUtils;
  * changes and free up the resources.
  * <P>
  * The context object is also used as a cache for CM API objects.
- *
- * @version $Revision$
  */
 public class Context implements AutoCloseable {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(Context.class);
@@ -81,13 +80,13 @@ public class Context implements AutoCloseable {
     /**
      * A stack with the history of authorisation system check modify
      */
-    private Stack<Boolean> authStateChangeHistory;
+    private Deque<Boolean> authStateChangeHistory;
 
     /**
      * A stack with the name of the caller class that modify authorisation
      * system check
      */
-    private Stack<String> authStateClassCallHistory;
+    private Deque<String> authStateClassCallHistory;
 
     /**
      * Group IDs of special groups user is a member of
@@ -117,7 +116,7 @@ public class Context implements AutoCloseable {
     /**
      * Cache that is only used the context is in READ_ONLY mode
      */
-    private ContextReadOnlyCache readOnlyCache = new ContextReadOnlyCache();
+    private final ContextReadOnlyCache readOnlyCache = new ContextReadOnlyCache();
 
     protected EventService eventService;
 
@@ -157,8 +156,6 @@ public class Context implements AutoCloseable {
 
     /**
      * Initializes a new context object.
-     *
-     * @throws SQLException if there was an error obtaining a database connection
      */
     protected void init() {
         updateDatabase();
@@ -183,12 +180,13 @@ public class Context implements AutoCloseable {
 
         specialGroups = new ArrayList<>();
 
-        authStateChangeHistory = new Stack<>();
-        authStateClassCallHistory = new Stack<>();
+        authStateChangeHistory = new ConcurrentLinkedDeque<>();
+        authStateClassCallHistory = new ConcurrentLinkedDeque<>();
 
         if (this.mode != null) {
             setMode(this.mode);
         }
+
     }
 
     /**
@@ -313,10 +311,10 @@ public class Context implements AutoCloseable {
         Boolean previousState;
         try {
             previousState = authStateChangeHistory.pop();
-        } catch (EmptyStackException ex) {
-            log.warn(LogManager.getHeader(this, "restore_auth_sys_state",
-                                          "not previous state info available "
-                                              + ex.getLocalizedMessage()));
+        } catch (NoSuchElementException ex) {
+            log.warn(LogHelper.getHeader(this, "restore_auth_sys_state",
+                    "not previous state info available:  {}"),
+                    ex::getLocalizedMessage);
             previousState = Boolean.FALSE;
         }
         if (log.isDebugEnabled()) {
@@ -324,13 +322,19 @@ public class Context implements AutoCloseable {
             StackTraceElement[] stackTrace = currThread.getStackTrace();
             String caller = stackTrace[stackTrace.length - 1].getClassName();
 
-            String previousCaller = (String) authStateClassCallHistory.pop();
+            String previousCaller;
+            try {
+                previousCaller = (String) authStateClassCallHistory.pop();
+            } catch (NoSuchElementException ex) {
+                previousCaller = "none";
+                log.warn(LogHelper.getHeader(this, "restore_auth_sys_state",
+                        "no previous caller info available:  {}"),
+                        ex::getLocalizedMessage);
+            }
 
             // if previousCaller is not the current caller *only* log a warning
             if (!previousCaller.equals(caller)) {
-                log
-                    .warn(LogManager
-                              .getHeader(
+                log.warn(LogHelper.getHeader(
                                   this,
                                   "restore_auth_sys_state",
                                   "Class: "
@@ -339,7 +343,7 @@ public class Context implements AutoCloseable {
                                       + previousCaller));
             }
         }
-        ignoreAuth = previousState.booleanValue();
+        ignoreAuth = previousState;
     }
 
     /**
@@ -491,7 +495,7 @@ public class Context implements AutoCloseable {
             throw new IllegalStateException("Attempt to mutate object in read-only context");
         }
         if (events == null) {
-            events = new LinkedList<Event>();
+            events = new LinkedList<>();
         }
 
         events.add(event);
@@ -659,11 +663,7 @@ public class Context implements AutoCloseable {
      * @return true if member
      */
     public boolean inSpecialGroup(UUID groupID) {
-        if (specialGroups.contains(groupID)) {
-            return true;
-        }
-
-        return false;
+        return specialGroups.contains(groupID);
     }
 
     /**
@@ -673,7 +673,7 @@ public class Context implements AutoCloseable {
      * @throws SQLException if database error
      */
     public List<Group> getSpecialGroups() throws SQLException {
-        List<Group> myGroups = new ArrayList<Group>();
+        List<Group> myGroups = new ArrayList<>();
         for (UUID groupId : specialGroups) {
             myGroups.add(EPersonServiceFactory.getInstance().getGroupService().find(this, groupId));
         }
@@ -698,7 +698,7 @@ public class Context implements AutoCloseable {
 
         currentUserPreviousState = currentUser;
         specialGroupsPreviousState = specialGroups;
-        specialGroups = new ArrayList<UUID>();
+        specialGroups = new ArrayList<>();
         currentUser = newUser;
     }
 
@@ -740,11 +740,13 @@ public class Context implements AutoCloseable {
 
 
     /**
-     * Returns the size of the cache of all object that have been read from the database so far. A larger number
-     * means that more memory is consumed by the cache. This also has a negative impact on the query performance. In
-     * that case you should consider uncaching entities when they are no longer needed (see
-     * {@link Context#uncacheEntity(ReloadableEntity)} () uncacheEntity}).
+     * Returns the size of the cache of all object that have been read from the
+     * database so far.  A larger number means that more memory is consumed by
+     * the cache. This also has a negative impact on the query performance. In
+     * that case you should consider uncaching entities when they are no longer
+     * needed (see {@link Context#uncacheEntity(ReloadableEntity)} () uncacheEntity}).
      *
+     * @return cache size.
      * @throws SQLException When connecting to the active cache fails.
      */
     public long getCacheSize() throws SQLException {
@@ -780,7 +782,7 @@ public class Context implements AutoCloseable {
                     dbConnection.setConnectionMode(false, false);
                     break;
                 default:
-                    log.warn("New context mode detected that has nog been configured.");
+                    log.warn("New context mode detected that has not been configured.");
                     break;
             }
         } catch (SQLException ex) {
@@ -833,7 +835,7 @@ public class Context implements AutoCloseable {
      * entity. This means changes to the entity will be tracked and persisted to the database.
      *
      * @param entity The entity to reload
-     * @param <E>    The class of the enity. The entity must implement the {@link ReloadableEntity} interface.
+     * @param <E>    The class of the entity. The entity must implement the {@link ReloadableEntity} interface.
      * @return A (possibly) <b>NEW</b> reference to the entity that should be used for further processing.
      * @throws SQLException When reloading the entity from the database fails.
      */
@@ -846,7 +848,7 @@ public class Context implements AutoCloseable {
      * Remove an entity from the cache. This is necessary when batch processing a large number of items.
      *
      * @param entity The entity to reload
-     * @param <E>    The class of the enity. The entity must implement the {@link ReloadableEntity} interface.
+     * @param <E>    The class of the entity. The entity must implement the {@link ReloadableEntity} interface.
      * @throws SQLException When reloading the entity from the database fails.
      */
     @SuppressWarnings("unchecked")
@@ -855,8 +857,13 @@ public class Context implements AutoCloseable {
     }
 
     public Boolean getCachedAuthorizationResult(DSpaceObject dspaceObject, int action, EPerson eperson) {
+        return getCachedAuthorizationResult(dspaceObject, action, eperson, null);
+    }
+
+    public Boolean getCachedAuthorizationResult(DSpaceObject dspaceObject, int action,
+        EPerson eperson, Boolean inheritance) {
         if (isReadOnly()) {
-            return readOnlyCache.getCachedAuthorizationResult(dspaceObject, action, eperson);
+            return readOnlyCache.getCachedAuthorizationResult(dspaceObject, action, eperson, inheritance);
         } else {
             return null;
         }
@@ -864,8 +871,13 @@ public class Context implements AutoCloseable {
 
     public void cacheAuthorizedAction(DSpaceObject dspaceObject, int action, EPerson eperson, Boolean result,
                                       ResourcePolicy rp) {
+        cacheAuthorizedAction(dspaceObject, action, eperson, null, result, rp);
+    }
+
+    public void cacheAuthorizedAction(DSpaceObject dspaceObject, int action, EPerson eperson,
+        Boolean inheritance, Boolean result, ResourcePolicy rp) {
         if (isReadOnly()) {
-            readOnlyCache.cacheAuthorizedAction(dspaceObject, action, eperson, result);
+            readOnlyCache.cacheAuthorizedAction(dspaceObject, action, eperson, inheritance, result);
             try {
                 uncacheEntity(rp);
             } catch (SQLException e) {

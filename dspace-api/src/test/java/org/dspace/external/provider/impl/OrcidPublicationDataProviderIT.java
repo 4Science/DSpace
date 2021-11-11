@@ -357,7 +357,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
 
     private Predicate<MetadataValueDTO> metadata(String metadataField, String value) {
         MetadataFieldName metadataFieldName = new MetadataFieldName(metadataField);
-        return metadata(metadataFieldName.SCHEMA, metadataFieldName.ELEMENT, metadataFieldName.QUALIFIER, value);
+        return metadata(metadataFieldName.schema, metadataFieldName.element, metadataFieldName.qualifier, value);
     }
 
     private Predicate<MetadataValueDTO> metadata(String schema, String element, String qualifier, String value) {

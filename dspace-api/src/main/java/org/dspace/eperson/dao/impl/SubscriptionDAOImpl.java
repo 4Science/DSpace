@@ -8,6 +8,7 @@
 package org.dspace.eperson.dao.impl;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Query;
@@ -142,7 +143,7 @@ public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> impl
                 criteriaBuilder.equal(childJoin.get(SubscriptionParameter_.name), "frequency"),
                 criteriaBuilder.equal(childJoin.get(SubscriptionParameter_.value), frequencyValue)
                 ));
-        List<javax.persistence.criteria.Order> orderList = new LinkedList<>();
+        List<javax.persistence.criteria.Order> orderList = new ArrayList<>(1);
         orderList.add(criteriaBuilder.asc(subscriptionRoot.get(Subscription_.ePerson)));
         orderList.add(criteriaBuilder.asc(subscriptionRoot.get(Subscription_.id)));
         criteriaQuery.orderBy(orderList);

@@ -17,6 +17,7 @@ import java.util.List;
 public class CrisLayoutSection {
 
     private final String id;
+    private final boolean visible;
 
     /**
      * A list where each element represent a row of section components.
@@ -27,14 +28,22 @@ public class CrisLayoutSection {
      * @param id
      * @param sectionComponents
      */
-    public CrisLayoutSection(String id, List<List<CrisLayoutSectionComponent>> sectionComponents) {
+    public CrisLayoutSection(String id, boolean visible, List<List<CrisLayoutSectionComponent>> sectionComponents) {
         super();
         this.id = id;
+        this.visible = visible;
         this.sectionComponents = sectionComponents;
     }
 
     public String getId() {
         return id;
+    }
+
+    /**
+     * @return the visibility status
+     */
+    public boolean isVisible() {
+        return visible;
     }
 
     public List<List<CrisLayoutSectionComponent>> getSectionComponents() {

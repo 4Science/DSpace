@@ -35,19 +35,21 @@ import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractEntityIntegrationTest;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
-import org.dspace.builder.RelationshipBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.hamcrest.Matcher;
@@ -67,6 +69,9 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     private RelationshipTypeService relationshipTypeService;
 
     @Autowired
+    private RelationshipService relationshipService;
+
+    @Autowired
     private EntityTypeService entityTypeService;
 
     @Autowired
@@ -76,7 +81,9 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     private WorkspaceItemService workspaceItemService;
 
     private Collection collection;
-    private WorkspaceItem publicationItem;
+    private Collection collection2;
+    private WorkspaceItem publicationWorkspaceItem;
+    private Item publicationItem;
     private Item personItem1;
     private Item personItem2;
     private RelationshipType publicationPersonRelationshipType;
@@ -84,9 +91,6 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     private List<String> authorsOriginalOrder;
 
     private List<MetadataValue> authorsMetadataOriginalOrder;
-
-    private AtomicReference<Integer> idRef1;
-    private AtomicReference<Integer> idRef2;
 
     private String addedAuthor;
     private String replacedAuthor;
@@ -102,6 +106,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .build();
         collection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
+                .withEntityType("Person")
+                .withSubmissionDefinition("traditional")
+                .build();
+        collection2 = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withEntityType("Publication")
+                .withSubmissionDefinition("traditional")
                 .build();
 
         context.restoreAuthSystemState();
@@ -110,8 +121,8 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     @After
     @Override
     public void destroy() throws Exception {
+        cleanupRelations();
         super.destroy();
-        cleanupPersonRelations();
     }
 
     /**
@@ -143,18 +154,15 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .withTitle("Person 1")
                 .withPersonIdentifierFirstName("Sarah")
                 .withPersonIdentifierLastName("Dahlen")
-                .withEntityType("Person")
                 .build();
         personItem2 = ItemBuilder.createItem(context, collection)
                 .withTitle("Person 2")
                 .withPersonIdentifierFirstName("Oliver")
                 .withPersonIdentifierLastName("Linton")
-                .withEntityType("Person")
                 .build();
-        publicationItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-                .withTitle("Publication 1")
-                .withEntityType("Publication")
-                .build();
+        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection2)
+                                                       .withTitle("Publication 1")
+                                                       .build();
         publicationPersonRelationshipType = relationshipTypeService.findbyTypesAndTypeName(context,
                 entityTypeService.findByEntityType(context, "Publication"),
                 entityTypeService.findByEntityType(context, "Person"),
@@ -164,7 +172,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
 
         // Make sure we grab the latest instance of the Item from the database before adding a regular author
-        WorkspaceItem publication = workspaceItemService.find(context, publicationItem.getID());
+        WorkspaceItem publication = workspaceItemService.find(context, publicationWorkspaceItem.getID());
         itemService.addMetadata(context, publication.getItem(),
                 "dc", "contributor", "author", Item.ANY, authorsOriginalOrder.get(0));
         workspaceItemService.update(context, publication);
@@ -172,20 +180,18 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
         context.restoreAuthSystemState();
 
         // Create a relationship between publication and person 1
-        idRef1 = new AtomicReference<>();
         getClient(adminToken).perform(post("/api/core/relationships")
                 .param("relationshipType", publicationPersonRelationshipType.getID().toString())
                 .contentType(MediaType.parseMediaType
                         (org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE))
-                .content("https://localhost:8080/server/api/core/items/" + publicationItem.getItem().getID() + "\n" +
+                .content("https://localhost:8080/server/api/core/items/" + publicationWorkspaceItem.getItem().getID() + "\n" +
                                 "https://localhost:8080/server/api/core/items/" + personItem1.getID()))
-                .andExpect(status().isCreated())
-                .andDo(result -> idRef1.set(read(result.getResponse().getContentAsString(), "$.id")));
+            .andExpect(status().isCreated());
         context.turnOffAuthorisationSystem();
 
         // Add two more regular authors
         List<String> regularMetadata = new ArrayList<>();
-        publication = workspaceItemService.find(context, publicationItem.getID());
+        publication = workspaceItemService.find(context, publicationWorkspaceItem.getID());
         regularMetadata.add(authorsOriginalOrder.get(2));
         regularMetadata.add(authorsOriginalOrder.get(3));
         itemService.addMetadata(context, publication.getItem(),
@@ -200,12 +206,12 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .param("relationshipType", publicationPersonRelationshipType.getID().toString())
                 .contentType(MediaType.parseMediaType
                         (org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE))
-                .content("https://localhost:8080/server/api/core/items/" + publicationItem.getItem().getID() + "\n" +
+                .content("https://localhost:8080/server/api/core/items/" + publicationWorkspaceItem.getItem().getID() + "\n" +
                                 "https://localhost:8080/server/api/core/items/" + personItem2.getID()))
                 .andExpect(status().isCreated())
                              .andDo(result -> idRef2.set(read(result.getResponse().getContentAsString(), "$.id")));
 
-        publication = workspaceItemService.find(context, publicationItem.getID());
+        publication = workspaceItemService.find(context, publicationWorkspaceItem.getID());
         authorsMetadataOriginalOrder =
                 itemService.getMetadata(publication.getItem(), "dc", "contributor", "author", Item.ANY);
         assertEquals(authorsMetadataOriginalOrder.size(), 5);
@@ -222,23 +228,50 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     }
 
     /**
-     * Clean up created Person Relationshipts
-     * @throws IOException
-     * @throws SQLException
+     * A method to create a simple Item with 5 authors
      */
-    private void cleanupPersonRelations() throws IOException, SQLException {
-        if (idRef1 != null) {
-            RelationshipBuilder.deleteRelationship(idRef1.get());
-            idRef1 = null;
+    private void initSimplePublicationItem() throws Exception {
+        // Setup the original order of authors
+        authorsOriginalOrder = new ArrayList<>();
+        authorsOriginalOrder.add("Whyte, William");
+        authorsOriginalOrder.add("Dahlen, Sarah");
+        authorsOriginalOrder.add("Peterson, Karrie");
+        authorsOriginalOrder.add("Perotti, Enrico");
+        authorsOriginalOrder.add("Linton, Oliver");
+        authorsOriginalOrder.add("bla, Oliver");
+
+        context.turnOffAuthorisationSystem();
+
+        publicationItem = ItemBuilder.createItem(context, collection)
+                                     .withTitle("Publication 1")
+                                     .build();
+
+        for (String author : authorsOriginalOrder) {
+            itemService.addMetadata(
+                context, publicationItem, "dc", "contributor", "author", Item.ANY, author
+            );
         }
-        if (idRef2 != null) {
-            RelationshipBuilder.deleteRelationship(idRef2.get());
-            idRef2 = null;
-        }
+
+        context.restoreAuthSystemState();
     }
 
     /**
-     * A method to create a workspace publication containing 5 authors: 3 regular authors and 2 related Person items.
+     * Clean up created Relationshipts
+     * @throws IOException
+     * @throws SQLException
+     * @throws AuthorizeException
+     */
+    private void cleanupRelations() throws IOException, SQLException, AuthorizeException {
+        context.turnOffAuthorisationSystem();
+        List<Relationship> relationships = relationshipService.findAll(context);
+        for (Relationship relationship : relationships) {
+            relationshipService.delete(context, relationship);
+        }
+        context.restoreAuthSystemState();
+    }
+
+    /**
+     * A method to create a publication Item containing 5 authors: 3 regular authors and 2 related Person items.
      * The authors are added in a specific order:
      * - "Whyte, William": Regular author
      * - "Dahlen, Sarah": Regular Person
@@ -259,22 +292,22 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         context.turnOffAuthorisationSystem();
 
-        publicationItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-                                              .withTitle("Publication 1")
-                                              .withEntityType("Publication")
-                                              .build();
+        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                                                       .withTitle("Publication 1")
+                                                       .withEntityType("Publication")
+                                                       .build();
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
         // Make sure we grab the latest instance of the Item from the database before adding a regular author
-        WorkspaceItem publication = workspaceItemService.find(context, publicationItem.getID());
+        WorkspaceItem publication = workspaceItemService.find(context, publicationWorkspaceItem.getID());
         itemService.addMetadata(context, publication.getItem(),
                                 "dc", "contributor", "author", Item.ANY, authorsOriginalOrder);
         workspaceItemService.update(context, publication);
 
         context.restoreAuthSystemState();
 
-        publication = workspaceItemService.find(context, publicationItem.getID());
+        publication = workspaceItemService.find(context, publicationWorkspaceItem.getID());
         List<MetadataValue> publicationAuthorList =
                 itemService.getMetadata(publication.getItem(), "dc", "contributor", "author", Item.ANY);
         assertEquals(publicationAuthorList.size(), 5);
@@ -1147,13 +1180,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$.sections.traditionalpageone",
@@ -1214,11 +1247,136 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isUnprocessableEntity());
 
+    }
+
+    /**
+     * This test will move an Item's dc.contributor.author value from position 1 to 2 using a PATCH request with
+     * a single move operation.
+     * Original Order: 0,1,2,3,4
+     * Expected Order: 0,2,1,3,4
+     */
+    @Test
+    public void moveMetadataAuthorOneToTwoTest() throws Exception {
+        initSimplePublicationItem();
+
+        List<String> expectedOrder = List.of(
+            authorsOriginalOrder.get(0),
+            authorsOriginalOrder.get(2),
+            authorsOriginalOrder.get(1),
+            authorsOriginalOrder.get(3),
+            authorsOriginalOrder.get(4)
+        );
+        List<Operation> moves = List.of(
+            getMetadataMoveAuthorOperation(1, 2)
+        );
+
+        moveMetadataAuthorTest(moves, expectedOrder);
+    }
+
+    /**
+     * This test will move an Item's dc.contributor.author value from position 2 to 1 using a PATCH request with
+     * a single move operation.
+     * Original Order: 0,1,2,3,4
+     * Expected Order: 0,2,1,3,4
+     */
+    @Test
+    public void moveMetadataAuthorTwoToOneTest() throws Exception {
+        initSimplePublicationItem();
+
+        List<String> expectedOrder = List.of(
+            authorsOriginalOrder.get(0),
+            authorsOriginalOrder.get(2),
+            authorsOriginalOrder.get(1),
+            authorsOriginalOrder.get(3),
+            authorsOriginalOrder.get(4)
+        );
+        List<Operation> moves = List.of(
+            getMetadataMoveAuthorOperation(2, 1)
+        );
+
+        moveMetadataAuthorTest(moves, expectedOrder);
+    }
+
+    /**
+     * This test will move an Item's dc.contributor.author value from position 1 to 4 using a PATCH request with
+     * a single move operation.
+     * Original Order: 0,1,2,3,4
+     * Expected Order: 0,2,3,4,1
+     */
+    @Test
+    public void moveMetadataAuthorOneToFourTest() throws Exception {
+        initSimplePublicationItem();
+
+        List<String> expectedOrder = List.of(
+            authorsOriginalOrder.get(0),
+            authorsOriginalOrder.get(2),
+            authorsOriginalOrder.get(3),
+            authorsOriginalOrder.get(4),
+            authorsOriginalOrder.get(1)
+        );
+        List<Operation> moves = List.of(
+            getMetadataMoveAuthorOperation(1, 4)
+        );
+
+        moveMetadataAuthorTest(moves, expectedOrder);
+    }
+
+    /**
+     * This test will move an Item's dc.contributor.author value from position 4 to 1 using a PATCH request with
+     * a single move operation.
+     * Original Order: 0,1,2,3,4
+     * Expected Order: 0,4,1,2,3
+     */
+    @Test
+    public void moveMetadataAuthorFourToOneTest() throws Exception {
+        initSimplePublicationItem();
+
+        List<String> expectedOrder = List.of(
+            authorsOriginalOrder.get(0),
+            authorsOriginalOrder.get(4),
+            authorsOriginalOrder.get(1),
+            authorsOriginalOrder.get(2),
+            authorsOriginalOrder.get(3)
+        );
+        List<Operation> moves = List.of(
+            getMetadataMoveAuthorOperation(4, 1)
+        );
+
+        moveMetadataAuthorTest(moves, expectedOrder);
+    }
+
+    /**
+     * This test will move an Item's dc.contributor.author value from position 4 to 1 using a PATCH request with
+     * multiple move operations and verify the order of the authors within the section.
+     * The move operations are equivalent to a regular 4 to 1 move and representative of the kind of PATCH request the
+     * frontend actually sends in this kind of scenario.
+     * Original Order: 0,1,2,3,4
+     * Expected Order: 0,4,1,2,3
+     */
+    @Test
+    public void moveMetadataAuthorFourToOneMultiOpTest() throws Exception {
+        initSimplePublicationItem();
+
+        List<String> expectedOrder = List.of(
+            authorsOriginalOrder.get(0),
+            authorsOriginalOrder.get(4),
+            authorsOriginalOrder.get(1),
+            authorsOriginalOrder.get(2),
+            authorsOriginalOrder.get(3)
+        );
+        List<Operation> moves = List.of(
+            getMetadataMoveAuthorOperation(1, 2),
+            getMetadataMoveAuthorOperation(1, 3),
+            getMetadataMoveAuthorOperation(2, 4),
+            getMetadataMoveAuthorOperation(3, 1)
+        );
+
+        moveMetadataAuthorTest(moves, expectedOrder);
     }
 
     /**
@@ -1237,13 +1395,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                 .content(patchBody)
                 .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.sections.traditionalpageone", Matchers.allOf(
@@ -1253,6 +1411,35 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                         Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(3), 3)),
                         Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(4), 4))
                 )));
+    }
+
+    /**
+     * This method rearranges an Item's dc.contributor.author values using multiple PATCH request and verifies the order
+     * of the authors within the section using an ordered list of expected author names.
+     * @param moves               A list of move operations
+     * @param expectedOrder     A list of author names sorted in the expected order
+     */
+    private void moveMetadataAuthorTest(List<Operation> moves, List<String> expectedOrder) throws Exception {
+        String patchBody = getPatchContent(moves);
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(patch("/api/core/items/" + publicationItem.getID())
+                                     .content(patchBody)
+                                     .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                        .andExpect(status().isOk());
+
+        String authorField = "dc.contributor.author";
+        getClient(token).perform(get("/api/core/items/" + publicationItem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(jsonPath("$.metadata", Matchers.allOf(
+                            Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(0), 0)),
+                            Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(1), 1)),
+                            Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(2), 2)),
+                            Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(3), 3)),
+                            Matchers.is(MetadataMatcher.matchMetadata(authorField, expectedOrder.get(4), 4))
+                        )));
     }
 
     /**
@@ -1274,13 +1461,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$.sections.traditionalpageone", Matchers.allOf(
@@ -1310,13 +1497,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$.sections.traditionalpageone", Matchers.allOf(
@@ -1345,13 +1532,13 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$.sections.traditionalpageone", Matchers.allOf(
@@ -1388,7 +1575,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationItem.getID())
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
                                          .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
@@ -1400,7 +1587,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
         });
 
 
-        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationItem.getID()))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$.sections.traditionalpageone", Matchers.allOf(matchers)));
@@ -1415,6 +1602,16 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     private MoveOperation getTraditionalPageOneMoveAuthorOperation(int from, int path) {
         return new MoveOperation("/sections/traditionalpageone/dc.contributor.author/" + path,
                 "/sections/traditionalpageone/dc.contributor.author/" + from);
+    }
+
+    /**
+     * Create a move operation on an Item's metadata field "dc.contributor.author".
+     * @param from  The "from" index to use for the Move operation
+     * @param path  The "path" index to use for the Move operation
+     */
+    private MoveOperation getMetadataMoveAuthorOperation(int from, int path) {
+        return new MoveOperation("/metadata/dc.contributor.author/" + path,
+                                 "/metadata/dc.contributor.author/" + from);
     }
 
 }

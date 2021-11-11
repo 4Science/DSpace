@@ -64,6 +64,7 @@ public class Subscription implements ReloadableEntity<Integer> {
     protected Subscription() {
     }
 
+    @Override
     public Integer getID() {
         return id;
     }

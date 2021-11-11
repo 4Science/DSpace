@@ -10,17 +10,12 @@ package org.dspace.metrics.embeddable.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.JsonObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 
 public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvider {
-
-    private static final String TEMPLATE =
-            "<div class='altmetric-embed' "
-            + "data-badge-popover=\"{{popover}}\" "
-            + "data-badge-type=\"{{badgeType}}\" "
-            + "{{doiAttr}} {{pmidAttr}}></div>";
 
     protected String doiField;
 
@@ -44,30 +39,25 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
 
     @Override
     public String innerHtml(Context context, Item item) {
-
         String doiAttr = this.calculateAttribute(item, doiField, doiDataAttr);
         String pmidAtt = this.calculateAttribute(item, pmidField, pmidDataAttr);
-
-        return  getTemplate()
-                .replace("{{popover}}", this.popover)
-                .replace("{{badgeType}}", this.badgeType)
-                .replace("{{doiAttr}}", doiAttr)
-                .replace("{{pmidAttr}}", pmidAtt);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("popover", this.popover);
+        jsonObject.addProperty("badgeType", this.badgeType);
+        jsonObject.addProperty("doiAttr", doiAttr);
+        jsonObject.addProperty("pmidAttr", pmidAtt);
+        return jsonObject.toString();
     }
 
     protected String calculateAttribute(Item item, String field, String attr) {
         if (field != null && attr != null) {
             List<MetadataValue> values = this.getItemService().getMetadataByMetadataString(item, field);
             if (!values.isEmpty()) {
-                return attr + "=" + Optional.ofNullable(values.get(0))
-                    .map(MetadataValue::getValue).orElse("");
+                return Optional.ofNullable(values.get(0))
+                        .map(MetadataValue::getValue).orElse("");
             }
         }
         return "";
-    }
-
-    protected String getTemplate() {
-        return TEMPLATE;
     }
 
     @Override

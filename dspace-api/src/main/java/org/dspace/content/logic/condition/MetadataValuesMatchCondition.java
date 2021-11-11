@@ -15,9 +15,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.logic.LogicalStatementException;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A condition that returns true if any pattern in a list of patterns matches any value
@@ -27,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @version $Revision$
  */
 public class MetadataValuesMatchCondition extends AbstractCondition {
-    @Autowired(required = true)
-    protected ItemService itemService;
 
     private static Logger log = Logger.getLogger(MetadataValuesMatchCondition.class);
 

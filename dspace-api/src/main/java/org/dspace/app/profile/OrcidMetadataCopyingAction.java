@@ -71,8 +71,8 @@ public class OrcidMetadataCopyingAction implements AfterResearcherProfileCreatio
         }
 
         MetadataFieldName metadata = new MetadataFieldName(itemMetadataField);
-        itemService.clearMetadata(context, item, metadata.SCHEMA, metadata.ELEMENT, metadata.QUALIFIER, ANY);
-        itemService.addMetadata(context, item, metadata.SCHEMA, metadata.ELEMENT, metadata.QUALIFIER, null, values);
+        itemService.clearMetadata(context, item, metadata.schema, metadata.element, metadata.qualifier, ANY);
+        itemService.addMetadata(context, item, metadata.schema, metadata.element, metadata.qualifier, null, values);
 
     }
 

@@ -18,7 +18,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.eperson.dao.SubscriptionDAO;
 import org.dspace.eperson.service.SubscribeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,9 +96,9 @@ public class SubscribeServiceImpl implements SubscribeService {
             } else {
                 subscriptionDAO.deleteByDSOAndEPerson(context, dSpaceObject, eperson);
 
-                log.info(LogManager.getHeader(context, "unsubscribe",
-                        "eperson_id=" + eperson.getID() + ",collection_id="
-                                + dSpaceObject.getID()));
+                log.info(LogHelper.getHeader(context, "unsubscribe",
+                                              "eperson_id=" + eperson.getID() + ",collection_id="
+                                                  + dSpaceObject.getID()));
             }
         } else {
             throw new AuthorizeException(

@@ -594,5 +594,6 @@
 
 	<!-- Item export format SERVICE -->
 	<bean class="org.dspace.content.integration.crosswalks.service.ItemExportFormatServiceImpl"/>
+	<bean class="org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService"/>
 
 </beans>

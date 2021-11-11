@@ -24,10 +24,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.layout.CrisLayoutSection;
+import org.dspace.layout.CrisLayoutSectionComponent;
+import org.dspace.layout.service.impl.CrisLayoutSectionServiceImpl;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Integration tests for {@link CrisLayoutSectionRestRepository}.
@@ -36,6 +43,9 @@ import org.junit.Test;
  *
  */
 public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegrationTest {
+
+    @Autowired
+    CrisLayoutSectionServiceImpl crisLayoutSectionService;
 
     @Test
     public void testFindAll() throws Exception {
@@ -90,6 +100,48 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
               hasItem(withIdAndTopComponent("site", 3, 1, "col-md-6", "homePageTopItems", "metric.view",
                                             "desc"))))
             ;
+    }
+
+    @Test
+    public void testSearchVisibleTopBarSections() throws Exception {
+
+        List<CrisLayoutSection> originalSections = new LinkedList<>();
+        originalSections.addAll(crisLayoutSectionService.getComponents());
+
+        List<List<CrisLayoutSectionComponent>> components = new ArrayList<List<CrisLayoutSectionComponent>>();
+
+        components.add(new ArrayList<CrisLayoutSectionComponent>());
+        components.get(0).add(new org.dspace.layout.CrisLayoutSearchComponent());
+
+        List<CrisLayoutSection> sectionsForMock = new LinkedList<>();
+        sectionsForMock.add(new CrisLayoutSection("CasualIdForTestingPurposes1", true, components));
+        sectionsForMock.add(new CrisLayoutSection("CasualIdForTestingPurposes2", false, components));
+        sectionsForMock.add(new CrisLayoutSection("CasualIdForTestingPurposes3", true, components));
+
+
+        //MOCKING the sections
+        crisLayoutSectionService.getComponents().clear();
+        crisLayoutSectionService.getComponents().addAll(sectionsForMock);
+        //end setting up the mock
+
+        try {
+            getClient().perform(get("/api/layout/sections/search/visibleTopBarSections"))
+                .andExpect(status().isOk())
+                // Only 2 sections are set up to be visible in the top bar
+                .andExpect(jsonPath("$._embedded.sections", hasSize(2)))
+                // One has id -> CasualIdForTestingPurposes1
+                .andExpect(jsonPath("$._embedded.sections[0].id", is("CasualIdForTestingPurposes1")))
+                // The other has id -> CasualIdForTestingPurposes3
+                .andExpect(jsonPath("$._embedded.sections[1].id", is("CasualIdForTestingPurposes3")));
+        } catch (Exception e) {
+            // Test Failed
+        } finally {
+            // Restoring situation previous to mock
+            crisLayoutSectionService.getComponents().clear();
+            crisLayoutSectionService.getComponents().addAll(originalSections);
+            // end restoring
+        }
+
     }
 
     @Test

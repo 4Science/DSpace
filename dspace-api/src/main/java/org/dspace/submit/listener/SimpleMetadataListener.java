@@ -14,14 +14,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.ExternalDataProvider;
-import org.dspace.external.provider.impl.LiveImportDataProvider;
-import org.dspace.importer.external.epo.service.EpoImportMetadataSourceServiceImpl;
 
 /**
  * This is the basic implementation for the MetadataListener interface.
@@ -38,7 +33,7 @@ public class SimpleMetadataListener implements MetadataListener {
      */
     private Map<String, List<ExternalDataProvider>> externalDataProvidersMap;
 
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private List<ExternalIdGenerator> generators;
 
     public Map<String, List<ExternalDataProvider>> getExternalDataProvidersMap() {
         return externalDataProvidersMap;
@@ -56,10 +51,10 @@ public class SimpleMetadataListener implements MetadataListener {
     @Override
     public ExternalDataObject getExternalDataObject(Context context, Item item, Set<String> changedMetadata) {
         // we loop over the available provider and return the first found object
-        for (String m : changedMetadata) {
-            List<ExternalDataProvider> providers = externalDataProvidersMap.get(m);
+        for (String metadata : changedMetadata) {
+            List<ExternalDataProvider> providers = externalDataProvidersMap.get(metadata);
             for (ExternalDataProvider prov : providers) {
-                String id = generateExternalId(context, prov, item, changedMetadata, m);
+                String id = generateExternalId(context, prov, item, metadata);
                 if (StringUtils.isNotBlank(id)) {
                     Optional<ExternalDataObject> result = prov.getExternalDataObject(id);
                     if (result.isPresent()) {
@@ -81,40 +76,25 @@ public class SimpleMetadataListener implements MetadataListener {
      * @param context         the DSpace Context Object
      * @param prov            the ExternalDataProvider that need to received an Id
      * @param item            the item
-     * @param changedMetadata the metadata that are recently changed
-     * @param m               the changed metadata that lead to the selected
+     * @param metadata        the changed metadata that lead to the selected
      *                        ExternalDataProvider
      * @return an Id if any that can be used to query the {@link ExternalDataProvider}
      */
-    protected String generateExternalId(Context context, ExternalDataProvider prov, Item item,
-            Set<String> changedMetadata, String m) {
-        List<MetadataValue> metadataByMetadataString = itemService.getMetadataByMetadataString(item, m);
-        //FIXME move to a subclass / introduce a factory to retrieve a custom generator by provider
-        if (prov instanceof LiveImportDataProvider
-                && ((LiveImportDataProvider) prov).getQuerySource() instanceof EpoImportMetadataSourceServiceImpl) {
-            EpoImportMetadataSourceServiceImpl epoProv = (EpoImportMetadataSourceServiceImpl)
-                    ((LiveImportDataProvider) prov).getQuerySource();
-            String dateFiledMd = epoProv.getDateFiled().getField();
-            String applicationNumberMd = epoProv.getApplicationNumber().getField();
-            if (StringUtils.equals(m, dateFiledMd)
-                    || StringUtils.equals(m, applicationNumberMd)) {
-                List<MetadataValue> dateFiled = itemService.getMetadataByMetadataString(item, dateFiledMd);
-                List<MetadataValue> applicNo = itemService.getMetadataByMetadataString(item, applicationNumberMd);
-                if (dateFiled != null && dateFiled.size() == 1 && applicNo != null && applicNo.size() == 1) {
-                    return applicNo.get(0).getValue() + EpoImportMetadataSourceServiceImpl.APP_NO_DATE_SEPARATOR
-                            + dateFiled.get(0).getValue();
-                } else {
-                    return null;
-                }
+    protected String generateExternalId(Context context, ExternalDataProvider provider, Item item, String metadata) {
+        for (ExternalIdGenerator generator : generators) {
+            if (generator.support(provider)) {
+                return generator.generateExternalId(context, provider, item, metadata);
             }
         }
-        // only suggest an identifier if there is exactly one value for the metadata. If
-        // there are more values it is highly probable that a lookup was already
-        // performed when the first value was added
-        if (metadataByMetadataString != null && metadataByMetadataString.size() == 1) {
-            return metadataByMetadataString.get(0).getValue();
-        }
-        return null;
+        return StringUtils.EMPTY;
+    }
+
+    public List<ExternalIdGenerator> getGenerators() {
+        return generators;
+    }
+
+    public void setGenerators(List<ExternalIdGenerator> generators) {
+        this.generators = generators;
     }
 
 }

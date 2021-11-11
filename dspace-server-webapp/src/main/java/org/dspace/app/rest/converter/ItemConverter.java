@@ -86,6 +86,9 @@ public class ItemConverter
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired
+    private DCInputsReader dcInputsReader;
+
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemConverter.class);
 
     @Override
@@ -184,10 +187,8 @@ public class ItemConverter
 
     // private method to catch checked exception that might occur during a lambda call
     private List<DCInputSet> dcInputsSet(final String sd) {
-        final DCInputsReader dcInputsReader;
         try {
-            dcInputsReader = new DCInputsReader();
-            return dcInputsReader.getInputsBySubmissionName(sd);
+            return this.dcInputsReader.getInputsBySubmissionName(sd);
 
         } catch (DCInputsReaderException e) {
             throw new RuntimeException(e.getMessage(), e);

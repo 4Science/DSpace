@@ -96,7 +96,7 @@ public class EmbeddableGoogleScholarProviderTest {
         verify(provider, times(1)).getTemplate("Publication");
 
         // should replace searchText with the calculatedSearchText
-        assertEquals(innerHtml, "TextSearch=calculatedText");
+        assertEquals(innerHtml, "{\"href\":\"TextSearch=calculatedText\"}");
     }
 
     @Test
@@ -118,9 +118,9 @@ public class EmbeddableGoogleScholarProviderTest {
     public void getTemplate() {
         when(provider.getTemplate(any())).thenCallRealMethod();
         // should return Publication Template when entityType is Publication
-        assertEquals(provider.getTemplate("Publication"), provider.PUBLICATION_TEMPLATE);
+        assertEquals(provider.getTemplate("Publication"), provider.PUBLICATION_URL);
         // should return Person Template when entityType is Person
-        assertEquals(provider.getTemplate("Person"), provider.PERSON_TEMPLATE);
+        assertEquals(provider.getTemplate("Person"), provider.PERSON_URL);
     }
 
 }

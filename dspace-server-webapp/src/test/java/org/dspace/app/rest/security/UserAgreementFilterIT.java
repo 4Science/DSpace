@@ -69,7 +69,7 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
     public void tryToAccessToItemRestEndpoinWithoutAcceptedTermsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         // enabled filter that require to accept terms
-        configurationService.setProperty("user-agreement.filter-enabled", "true");
+        configurationService.setProperty("user-agreement.enabled", "true");
 
         EPerson userA = EPersonBuilder.createEPerson(context)
                                       .withNameInMetadata("Mykhaylo", "Boychuk")
@@ -100,14 +100,14 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
         getClient(tokenAdmin).perform(get("/api/core/items/" + privateItem.getID()))
                              .andExpect(status().isForbidden());
 
-        configurationService.setProperty("user-agreement.filter-enabled", "false");
+        configurationService.setProperty("user-agreement.enabled", "false");
     }
 
     @Test
     public void tryToAccessToItemRestEndpoinWithAcceptedTermsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         // enabled filter that require to accept terms
-        configurationService.setProperty("user-agreement.filter-enabled", "true");
+        configurationService.setProperty("user-agreement.enabled", "true");
 
         EPerson userA = EPersonBuilder.createEPerson(context)
                                       .withNameInMetadata("Stas", "Senyk")
@@ -138,7 +138,7 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
                                .andExpect(jsonPath("$", is(ItemMatcher
                                   .matchItemWithTitleAndDateIssued(privateItem, "Public item 1", "2020-10-14"))));
 
-        configurationService.setProperty("user-agreement.filter-enabled", "false");
+        configurationService.setProperty("user-agreement.enabled", "false");
     }
 
 
@@ -146,7 +146,7 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
     public void userLoggedWithoutAcceptedTermsHasAccessToOpenedPathTest() throws Exception {
         context.turnOffAuthorisationSystem();
         // enabled filter that require to accept terms
-        configurationService.setProperty("user-agreement.filter-enabled", "true");
+        configurationService.setProperty("user-agreement.enabled", "true");
 
         EPerson userA = EPersonBuilder.createEPerson(context)
                                       .withNameInMetadata("Stas", "Senyk")
@@ -181,14 +181,14 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
                                .andExpect(jsonPath("$", is(ItemMatcher
                                   .matchItemWithTitleAndDateIssued(privateItem, "Public item 1", "2020-10-14"))));
 
-        configurationService.setProperty("user-agreement.filter-enabled", "false");
+        configurationService.setProperty("user-agreement.enabled", "false");
         resetOpenPathConfigurations(oldOpenPathPatterns);
     }
 
     @Test
     public void userNotLoggedHasAccessToOpenedPathTest() throws Exception {
         // enabled filter that require to accept terms
-        configurationService.setProperty("user-agreement.filter-enabled", "true");
+        configurationService.setProperty("user-agreement.enabled", "true");
 
         getClient().perform(get("/api/authn/status"))
                    .andExpect(status().isOk())
@@ -196,14 +196,14 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
                    .andExpect(jsonPath("$.authenticated", is(false)))
                    .andExpect(jsonPath("$.type", is("status")));
 
-        configurationService.setProperty("user-agreement.filter-enabled", "false");
+        configurationService.setProperty("user-agreement.enabled", "false");
     }
 
     @Test
     public void tryToAccessToItemRestEndpointUserThatCanIgnoreTermsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         // enabled filter that require to accept terms
-        configurationService.setProperty("user-agreement.filter-enabled", "true");
+        configurationService.setProperty("user-agreement.enabled", "true");
 
         EPerson userA = EPersonBuilder.createEPerson(context)
                                       .withNameInMetadata("Mykhaylo", "Boychuk")
@@ -233,7 +233,7 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
                              .andExpect(jsonPath("$", is(ItemMatcher
                                 .matchItemWithTitleAndDateIssued(publicItem, "Public item 1", "2020-10-14"))));
 
-        configurationService.setProperty("user-agreement.filter-enabled", "false");
+        configurationService.setProperty("user-agreement.enabled", "false");
     }
 
     private void resetOpenPathConfigurations(String[] values) {

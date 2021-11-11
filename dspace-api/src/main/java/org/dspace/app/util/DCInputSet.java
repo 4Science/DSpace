@@ -45,9 +45,10 @@ public class DCInputSet {
      * @param listMap        map
      * @throws DCInputsReaderException
      */
-    public DCInputSet(String formName, List<List<Map<String, String>>> rows, Map<String, List<String>> listMap)
+    public DCInputSet(DCInputsReader inputReader, String formName, List<List<Map<String, String>>> rows,
+        Map<String, List<String>> listMap)
         throws DCInputsReaderException {
-        inputReader = new DCInputsReader();
+        this.inputReader = inputReader;
         this.formName = formName;
         this.inputs = new DCInput[rows.size()][];
         for (int i = 0; i < inputs.length; i++) {

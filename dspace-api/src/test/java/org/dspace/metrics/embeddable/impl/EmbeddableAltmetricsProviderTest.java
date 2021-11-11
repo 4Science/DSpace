@@ -76,11 +76,11 @@ public class EmbeddableAltmetricsProviderTest {
         .thenReturn("calculatedDoi");
         when(provider.calculateAttribute(eq(item), eq("pmidField"), eq("pmidAttr")))
         .thenReturn("calculatedPmid");
-        when(provider.getTemplate()).thenReturn("template {{doiAttr}} {{pmidAttr}} {{popover}} {{badgeType}}");
 
         String innerHtml = provider.innerHtml(context, item);
 
-        assertEquals(innerHtml, "template calculatedDoi calculatedPmid popover badgeType");
+        assertEquals(innerHtml, "{\"popover\":\"popover\",\"badgeType\":" +
+                "\"badgeType\",\"doiAttr\":\"calculatedDoi\",\"pmidAttr\":\"calculatedPmid\"}");
 
     }
 
@@ -89,7 +89,7 @@ public class EmbeddableAltmetricsProviderTest {
         // should concat attr with first metadata value of field
         when(provider.calculateAttribute(eq(item), eq("field"), eq("attr"))).thenCallRealMethod();
         when(itemService.getMetadataByMetadataString(any(), eq("field"))).thenReturn(fieldValueList);
-        assertEquals(provider.calculateAttribute(item, "field", "attr"), "attr=value");
+        assertEquals(provider.calculateAttribute(item, "field", "attr"), "value");
     }
 
 

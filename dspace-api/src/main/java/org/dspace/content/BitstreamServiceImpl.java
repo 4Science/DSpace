@@ -28,7 +28,7 @@ import org.dspace.content.service.BundleService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Event;
@@ -49,7 +49,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     /**
      * log4j logger
      */
-    private static Logger log = org.apache.logging.log4j.LogManager.getLogger(BitstreamServiceImpl.class);
+    private static final Logger log
+            = org.apache.logging.log4j.LogManager.getLogger();
 
 
     @Autowired(required = true)
@@ -83,7 +84,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         if (bitstream == null) {
             if (log.isDebugEnabled()) {
-                log.debug(LogManager.getHeader(context, "find_bitstream",
+                log.debug(LogHelper.getHeader(context, "find_bitstream",
                                                "not_found,bitstream_id=" + id));
             }
 
@@ -92,7 +93,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         // not null, return Bitstream
         if (log.isDebugEnabled()) {
-            log.debug(LogManager.getHeader(context, "find_bitstream",
+            log.debug(LogHelper.getHeader(context, "find_bitstream",
                                            "bitstream_id=" + id));
         }
 
@@ -106,7 +107,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public Bitstream clone(Context context, Bitstream bitstream)
-            throws SQLException {
+            throws SQLException, AuthorizeException {
         // Create a new bitstream with a new ID.
         Bitstream clonedBitstream = bitstreamDAO.create(context, new Bitstream());
         // Set the internal identifier, file size, checksum, and
@@ -116,18 +117,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         clonedBitstream.setChecksum(bitstream.getChecksum());
         clonedBitstream.setChecksumAlgorithm(bitstream.getChecksumAlgorithm());
         clonedBitstream.setFormat(bitstream.getBitstreamFormat());
-
-        try {
-            //Update our bitstream but turn off the authorization system since permissions
-            //haven't been set at this point in time.
-            context.turnOffAuthorisationSystem();
-            update(context, clonedBitstream);
-        } catch (AuthorizeException e) {
-            log.error(e);
-            //Can never happen since we turn off authorization before we update
-        } finally {
-            context.restoreAuthSystemState();
-        }
+        update(context, clonedBitstream);
         return clonedBitstream;
     }
 
@@ -141,7 +131,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // Store the bits
         UUID bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
-        log.info(LogManager.getHeader(context, "create_bitstream",
+        log.info(LogHelper.getHeader(context, "create_bitstream",
                                       "bitstream_id=" + bitstreamID));
 
         // Set the format to "unknown"
@@ -201,7 +191,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         bitstreamStorageService.register(
             context, bitstream, assetstore, bitstreamPath);
 
-        log.info(LogManager.getHeader(context,
+        log.info(LogHelper.getHeader(context,
                                       "create_bitstream",
                                       "bitstream_id=" + bitstream.getID()));
 
@@ -258,7 +248,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // Check authorisation
         authorizeService.authorizeAction(context, bitstream, Constants.WRITE);
 
-        log.info(LogManager.getHeader(context, "update_bitstream",
+        log.info(LogHelper.getHeader(context, "update_bitstream",
                                       "bitstream_id=" + bitstream.getID()));
         super.update(context, bitstream);
         if (bitstream.isModified()) {
@@ -283,7 +273,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // changed to a check on delete
         // Check authorisation
         authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
-        log.info(LogManager.getHeader(context, "delete_bitstream",
+        log.info(LogHelper.getHeader(context, "delete_bitstream",
                                       "bitstream_id=" + bitstream.getID()));
 
         context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, bitstream.getID(),
@@ -360,7 +350,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     public void expunge(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
         authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
         if (!bitstream.isDeleted()) {
-            throw new IllegalStateException("Bitstream must be deleted before it can be removed from the database");
+            throw new IllegalStateException("Bitstream " + bitstream.getID().toString()
+                    + " must be deleted before it can be removed from the database.");
         }
         bitstreamDAO.delete(context, bitstream);
     }

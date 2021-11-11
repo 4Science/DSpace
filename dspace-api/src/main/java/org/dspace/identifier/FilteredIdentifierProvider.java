@@ -43,7 +43,7 @@ public abstract class FilteredIdentifierProvider extends IdentifierProvider {
      * @return identifier
      * @throws IdentifierException
      */
-    public abstract String register(Context context, DSpaceObject dso, Boolean skipFilter)
+    public abstract String register(Context context, DSpaceObject dso, boolean skipFilter)
         throws IdentifierException;
 
     /**
@@ -54,7 +54,7 @@ public abstract class FilteredIdentifierProvider extends IdentifierProvider {
      * @param skipFilter - boolean indicating whether to skip any filtering of items before performing registration
      * @throws IdentifierException
      */
-    public abstract void register(Context context, DSpaceObject dso, String identifier, Boolean skipFilter)
+    public abstract void register(Context context, DSpaceObject dso, String identifier, boolean skipFilter)
         throws IdentifierException;
 
     /**
@@ -67,7 +67,7 @@ public abstract class FilteredIdentifierProvider extends IdentifierProvider {
      * @throws IllegalArgumentException
      * @throws SQLException
      */
-    public abstract void reserve(Context context, DSpaceObject dso, String identifier, Boolean skipFilter)
+    public abstract void reserve(Context context, DSpaceObject dso, String identifier, boolean skipFilter)
         throws IdentifierException, IllegalArgumentException, SQLException;
 
     /**
@@ -78,16 +78,15 @@ public abstract class FilteredIdentifierProvider extends IdentifierProvider {
      * @return a String containing the new identifier
      * @throws IdentifierException
      */
-    public abstract String mint(Context context, DSpaceObject dso, Boolean skipFilter) throws IdentifierException;
+    public abstract String mint(Context context, DSpaceObject dso, boolean skipFilter) throws IdentifierException;
 
     /**
      * Check configured item filters to see if this identifier is allowed to be minted
      * @param context    - DSpace context
      * @param dso        - DSpaceObject to be inspected
-     * @return a Boolean indicating whether an identifier may be minted for this item (after filters are applied)
      * @throws IdentifierException
      */
-    public abstract Boolean canMint(Context context, DSpaceObject dso) throws IdentifierException;
+    public abstract void checkMintable(Context context, DSpaceObject dso) throws IdentifierException;
 
 
 }

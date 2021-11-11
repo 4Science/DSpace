@@ -11,29 +11,16 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 
 public class EmbeddableGoogleScholarProvider extends AbstractEmbeddableMetricProvider {
 
-    protected final String PERSON_TEMPLATE =
-            "<a "
-            + "target=\"_blank\" "
-            + "title=\"\" "
-                + "href=\"https://scholar.google.com/citations?view_op=search_authors&mauthors={{searchText}}\""
-            + ">"
-            + "Check"
-            + "</a>";
+    protected final String PERSON_URL = "https://scholar.google.com/citations?view_op=search_authors&mauthors={{searchText}}";
 
-    protected final String PUBLICATION_TEMPLATE =
-            "<a "
-            + "target=\"_blank\" "
-            + "title=\"\" "
-            + "href=\"https://scholar.google.com/scholar?q={{searchText}}\""
-            + ">"
-            + "Check"
-            + "</a>";
+    protected final String PUBLICATION_URL = "https://scholar.google.com/scholar?q={{searchText}}";
 
     protected String field;
 
@@ -46,15 +33,13 @@ public class EmbeddableGoogleScholarProvider extends AbstractEmbeddableMetricPro
 
     @Override
     public String innerHtml(Context context, Item item) {
-
         String entityType = this.getEntityType(item);
-
         String searchText = calculateSearchText(item);
-
-        String innerHtml = this.getTemplate(entityType).replace("{{searchText}}",
-            URLEncoder.encode(searchText, Charset.defaultCharset()));
-
-        return innerHtml;
+        String href = this.getTemplate(entityType).replace("{{searchText}}",
+                URLEncoder.encode(searchText, Charset.defaultCharset()));
+        JsonObject json = new JsonObject();
+        json.addProperty("href", href);
+        return json.toString();
     }
 
     protected String calculateSearchText(Item item) {
@@ -75,7 +60,7 @@ public class EmbeddableGoogleScholarProvider extends AbstractEmbeddableMetricPro
     }
 
     protected String getTemplate(String entityType) {
-        return entityType.equals("Publication") ? PUBLICATION_TEMPLATE : PERSON_TEMPLATE;
+        return entityType.equals("Publication") ? PUBLICATION_URL : PERSON_URL;
     }
 
     public String getField() {

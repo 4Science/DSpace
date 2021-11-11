@@ -7,13 +7,11 @@
  */
 package org.dspace.layout.service.impl;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.dspace.layout.CrisLayoutSection;
-import org.dspace.layout.CrisLayoutSectionComponent;
 import org.dspace.layout.service.CrisLayoutSectionService;
 
 /**
@@ -24,40 +22,49 @@ import org.dspace.layout.service.CrisLayoutSectionService;
  */
 public class CrisLayoutSectionServiceImpl implements CrisLayoutSectionService {
 
-    private Map<String, List<List<CrisLayoutSectionComponent>>> componentMap = new HashMap<>();
+    private List<CrisLayoutSection> components = new LinkedList<>();
 
     @Override
     public List<CrisLayoutSection> findAll() {
-        return componentMap.entrySet().stream()
-            .map(e -> new CrisLayoutSection(e.getKey(), e.getValue()))
-            .collect(Collectors.toList());
+        return components;
     }
+
 
     @Override
     public CrisLayoutSection findOne(String id) {
-        if (!componentMap.containsKey(id)) {
-            return null;
-        }
-        return new CrisLayoutSection(id, componentMap.get(id));
+        return components.stream().filter(
+            component -> component.getId().equals(id)).findFirst().orElse(null);
     }
 
     @Override
     public int countTotal() {
-        return componentMap.size();
+        return components.size();
+    }
+
+    @Override
+    public int countVisibleSectionsInTopBar() {
+        return findAllVisibleSectionsInTopBar().size();
     }
 
     /**
-     * @return the componentMap
+     * @return the components
      */
-    public Map<String, List<List<CrisLayoutSectionComponent>>> getComponentMap() {
-        return componentMap;
+    public List<CrisLayoutSection> getComponents() {
+        return components;
     }
 
     /**
-     * @param componentMap the componentMap to set
+     * @param components the list of components to set
      */
-    public void setComponentMap(Map<String, List<List<CrisLayoutSectionComponent>>> componentMap) {
-        this.componentMap = componentMap;
+    public void setComponents(List<CrisLayoutSection> components) {
+        this.components = components;
+    }
+
+    @Override
+    public List<CrisLayoutSection> findAllVisibleSectionsInTopBar() {
+        return components.stream()
+            .filter(CrisLayoutSection::isVisible)
+            .collect(Collectors.toList());
     }
 
 }

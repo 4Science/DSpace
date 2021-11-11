@@ -100,8 +100,8 @@ public class CollectionBuilder extends AbstractDSpaceObjectBuilder<Collection> {
         return setMetadataSingleValue(collection, MetadataSchemaEnum.DC.getName(), "title", null, name);
     }
 
-    public CollectionBuilder withEntityType(final String name) {
-        return setMetadataSingleValue(collection, "dspace", "entity", "type", name);
+    public CollectionBuilder withEntityType(final String entityType) {
+        return setMetadataSingleValue(collection, "dspace", "entity", "type", entityType);
     }
 
     /**

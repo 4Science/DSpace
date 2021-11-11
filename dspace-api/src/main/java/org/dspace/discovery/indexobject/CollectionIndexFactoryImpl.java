@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -23,8 +24,8 @@ import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.CrisConstants;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration;
@@ -112,8 +113,7 @@ public class CollectionIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Ind
                 CollectionService.MD_LICENSE, Item.ANY);
         String title = collectionService.getMetadataFirstValue(collection,
                 CollectionService.MD_NAME, Item.ANY);
-        String relation = collectionService.getMetadataFirstValue(collection,
-                CrisConstants.MD_ENTITY_TYPE, Item.ANY);
+        String entityType = collectionService.getMetadataFirstValue(collection, "dspace", "entity", "type", Item.ANY);
 
         List<String> toIgnoreMetadataFields = SearchUtils.getIgnoredMetadataFields(collection.getType());
         addContainerMetadataField(doc, highlightedMetadataFields, toIgnoreMetadataFields, "dc.description",
@@ -128,8 +128,13 @@ public class CollectionIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Ind
                                   rights_license);
         addContainerMetadataField(doc, highlightedMetadataFields, toIgnoreMetadataFields, "dc.title", title);
         doc.addField("dc.title_sort", title);
+
+        if (StringUtils.isBlank(entityType)) {
+            entityType = Constants.ENTITY_TYPE_NONE;
+        }
+
         addContainerMetadataField(doc, highlightedMetadataFields, toIgnoreMetadataFields,
-                                                                              "dspace.entity.type", relation);
+                                  "dspace.entity.type", entityType);
         return doc;
     }
 

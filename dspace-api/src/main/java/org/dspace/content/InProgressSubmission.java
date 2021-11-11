@@ -18,7 +18,6 @@ import org.dspace.eperson.EPerson;
  * which stage of submission they are (in workspace or workflow system)
  *
  * @author Robert Tansley
- * @version $Revision$
  */
 public interface InProgressSubmission<ID extends Serializable> extends ReloadableEntity<ID> {
     /**

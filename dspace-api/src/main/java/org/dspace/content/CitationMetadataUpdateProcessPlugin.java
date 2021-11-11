@@ -15,7 +15,7 @@ import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.PluginService;
 
@@ -55,7 +55,7 @@ public class CitationMetadataUpdateProcessPlugin implements AdditionalMetadataUp
             getItemService().addMetadata(context, item, schemaOutputMetadata, elementOutputMetadata,
                     qualifierOutputMetadata, null, out.toString());
         } catch (Exception e) {
-            log.error(LogManager.getHeader(context, "citationMetadataUpdateProcessPlugin", "item_id=" + item.getID()),
+            log.error(LogHelper.getHeader(context, "citationMetadataUpdateProcessPlugin", "item_id=" + item.getID()),
                     e);
         }
     }

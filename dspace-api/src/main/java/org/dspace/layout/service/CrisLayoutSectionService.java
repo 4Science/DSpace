@@ -25,6 +25,15 @@ public interface CrisLayoutSectionService {
      */
     List<CrisLayoutSection> findAll();
 
+
+    /**
+     * Find all the configured CRIS layout sections
+     * marked as visible.
+     * 
+     * @return a list of visible layout sections
+     */
+    List<CrisLayoutSection> findAllVisibleSectionsInTopBar();
+
     /**
      * Find a single CRIS layout section by the given id.
      *
@@ -39,4 +48,12 @@ public interface CrisLayoutSectionService {
      * @return the count result
      */
     int countTotal();
+
+    /**
+     * Counts all the visible CRIS layout sections
+     * in the top bar
+     * 
+     * @return the count result
+     */
+    int countVisibleSectionsInTopBar();
 }

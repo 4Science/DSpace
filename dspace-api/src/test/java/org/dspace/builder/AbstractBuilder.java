@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.audit.AuditService;
 import org.dspace.app.metrics.service.CrisMetricsService;
@@ -18,6 +19,8 @@ import org.dspace.app.nbevent.service.NBEventService;
 import org.dspace.app.orcid.factory.OrcidServiceFactory;
 import org.dspace.app.orcid.service.OrcidHistoryService;
 import org.dspace.app.orcid.service.OrcidQueueService;
+import org.dspace.app.requestitem.factory.RequestItemServiceFactory;
+import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.suggestion.SolrSuggestionStorageService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -62,6 +65,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
+import org.dspace.versioning.service.VersioningService;
 import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
 import org.dspace.xmlworkflow.service.XmlWorkflowService;
 import org.dspace.xmlworkflow.storedcomponents.service.ClaimedTaskService;
@@ -120,6 +124,8 @@ public abstract class AbstractBuilder<T, S> {
     static NBEventService nbEventService;
     static SolrSuggestionStorageService solrSuggestionService;
     static SubscribeService subscribeService;
+    static RequestItemService requestItemService;
+    static VersioningService versioningService;
 
     protected Context context;
 
@@ -132,7 +138,7 @@ public abstract class AbstractBuilder<T, S> {
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(AbstractDSpaceObjectBuilder.class);
+    private static final Logger log = LogManager.getLogger();
 
     protected AbstractBuilder(Context context) {
         this.context = context;
@@ -167,6 +173,9 @@ public abstract class AbstractBuilder<T, S> {
         relationshipTypeService = ContentServiceFactory.getInstance().getRelationshipTypeService();
         entityTypeService = ContentServiceFactory.getInstance().getEntityTypeService();
         processService = ScriptServiceFactory.getInstance().getProcessService();
+        requestItemService = RequestItemServiceFactory.getInstance().getRequestItemService();
+        versioningService = DSpaceServicesFactory.getInstance().getServiceManager()
+                                 .getServiceByName(VersioningService.class.getName(), VersioningService.class);
 
         // Temporarily disabled
         claimedTaskService = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService();
@@ -227,6 +236,8 @@ public abstract class AbstractBuilder<T, S> {
         nbEventService = null;
         harvestedCollectionService = null;
         subscribeService = null;
+        requestItemService = null;
+        versioningService = null;
     }
 
     public static void cleanupObjects() throws Exception {

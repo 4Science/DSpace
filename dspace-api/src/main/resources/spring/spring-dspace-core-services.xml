@@ -47,6 +47,7 @@
     <bean class="org.dspace.storage.rdbms.GroupServiceInitializer"/>
     <bean class="org.dspace.storage.rdbms.PostgreSQLCryptoChecker"/>
     <bean class="org.dspace.storage.rdbms.SiteServiceInitializer"/>
+    <bean class="org.dspace.storage.rdbms.EntityTypeServiceInitializer"/>
 
     <bean id="org.dspace.content.template.TemplateItemValueService"
           class="org.dspace.content.template.TemplateItemValueService">

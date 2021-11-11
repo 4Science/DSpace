@@ -47,7 +47,7 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
     @Autowired
     private AuthorityUtils authorityUtils;
 
-    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @PreAuthorize("@vocabularySecurity.isVocabularyPublic(#name) || hasAuthority('AUTHENTICATED')")
     public Page<VocabularyEntryRest> filter(@Nullable HttpServletRequest request, String name,
                                           @Nullable Pageable optionalPageable, Projection projection) {
         Context context = obtainContext();
@@ -70,8 +70,17 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
                     "one of filter or entryID parameter is required for not scrollable vocabularies");
         }
         Choices choices = null;
+
         if (BooleanUtils.toBoolean(exact)) {
             choices = ca.getBestMatch(filter, context.getCurrentLocale().toString());
+            if (choices.values.length == 0) {
+                Choice choice = ca.getChoice(filter, context.getCurrentLocale().toString());
+                if (choice != null) {
+                    choices = new Choices(new Choice[] {choice}, 0, 1, Choices.CF_ACCEPTED, false);
+                } else {
+                    choices = new Choices(false);
+                }
+            }
         } else if (StringUtils.isNotBlank(entryID)) {
             Choice choice = ca.getChoice(entryID,
                     context.getCurrentLocale().toString());

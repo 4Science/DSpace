@@ -9,8 +9,11 @@ package org.dspace.app.rest.repository;
 
 import java.util.List;
 
+import org.dspace.app.rest.Parameter;
+import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.model.CrisLayoutSectionRest;
 import org.dspace.core.Context;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.layout.CrisLayoutSection;
 import org.dspace.layout.service.CrisLayoutSectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +52,14 @@ public class CrisLayoutSectionRestRepository extends DSpaceRestRepository<CrisLa
         return converter.toRestPage(layoutSections, pageable, total, utils.obtainProjection());
     }
 
+    @SearchRestMethod(name = "visibleTopBarSections")
+    @PreAuthorize("permitAll()")
+    public Page<CrisLayoutSectionRest> searchVisibleTopBarSections(@Parameter(value = "query") String q,
+        Pageable pageable) throws SearchServiceException {
+        List<CrisLayoutSection> layoutSections = crisLayoutSectionService.findAllVisibleSectionsInTopBar();
+        int total = crisLayoutSectionService.countVisibleSectionsInTopBar();
+        return converter.toRestPage(layoutSections, pageable, total, utils.obtainProjection());
+    }
     @Override
     public Class<CrisLayoutSectionRest> getDomainClass() {
         return CrisLayoutSectionRest.class;

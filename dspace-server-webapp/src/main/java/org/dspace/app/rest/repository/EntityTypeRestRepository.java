@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,6 +85,38 @@ public class EntityTypeRestRepository extends DSpaceRestRepository<EntityTypeRes
         }
     }
 
+    /**
+     * Retrieves all entity types related to the collections
+     * on which the current user can deposit and supported by External provider
+     *
+     * @param pageable    The pagination information
+     * @return
+     */
+    @SearchRestMethod(name = "findAllByAuthorizedExternalSource")
+    public Page<EntityTypeRest> findAllByAuthorizedExternalSource(Pageable pageable) {
+        try {
+            Context context = obtainContext();
+            List<String> types = entityTypeService.getSubmitAuthorizedTypes(context);
+            List<EntityType> entityTypes = types.stream()
+                    .filter(x -> externalDataService.getExternalDataProvidersForEntityType(x).size() > 0)
+                    .map(type -> {
+                        if (StringUtils.isBlank(type)) {
+                            return null;
+                        }
+                        try {
+                            return entityTypeService.findByEntityType(context, type);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e.getMessage(), e);
+                        }
+                    })
+                    .filter(x -> Objects.nonNull(x))
+                    .collect(Collectors.toList());
+            return converter.toRestPage(entityTypes, pageable, utils.obtainProjection());
+        } catch (SQLException | SolrServerException | IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     @Override
     public Class<EntityTypeRest> getDomainClass() {
         return EntityTypeRest.class;
@@ -110,30 +143,6 @@ public class EntityTypeRestRepository extends DSpaceRestRepository<EntityTypeRes
         }
     }
 
-    @SearchRestMethod(name = "findAllByAuthorizedExternalSource")
-    public Page<EntityTypeRest> findAllByAuthorizedExternalSource(Pageable pageable) {
-        try {
-            Context context = obtainContext();
-            List<String> types = getSubmitAuthorizedTypes(context);
-            List<EntityType> entityTypes = types.stream()
-                    .filter(x -> externalDataService.getExternalDataProvidersForEntityType(x).size() > 0)
-                    .map(type -> {
-                        if (StringUtils.isBlank(type)) {
-                            return null;
-                        }
-                        try {
-                            return entityTypeService.findByEntityType(context, type);
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e.getMessage(), e);
-                        }
-                    })
-                    .filter(x -> x != null)
-                    .collect(Collectors.toList());
-            return converter.toRestPage(entityTypes, pageable, utils.obtainProjection());
-        } catch (SQLException | SolrServerException | IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
     private List<String> getSubmitAuthorizedTypes(Context context)
             throws SQLException, SolrServerException, IOException {
         List<String> types = new ArrayList<>();

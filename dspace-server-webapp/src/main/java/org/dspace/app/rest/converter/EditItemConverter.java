@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.converter;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.model.ErrorRest;
@@ -133,10 +135,9 @@ public class EditItemConverter
         rest.setSubmitter(converter.toRest(submitter, projection));
     }
 
-    @SuppressWarnings("unchecked")
     private void addValidationErrorsToItem(EditItem obj, EditItemRest rest) {
         Request currentRequest = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(currentRequest.getServletRequest());
+        Context context = ContextUtil.obtainContext((HttpServletRequest) currentRequest.getServletRequest());
 
         validationService.validate(context, obj).stream()
             .map(ErrorRest::fromValidationError)

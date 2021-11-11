@@ -56,6 +56,7 @@ public class HarvestedItem implements ReloadableEntity<Integer> {
     protected HarvestedItem() {
     }
 
+    @Override
     public Integer getID() {
         return id;
     }

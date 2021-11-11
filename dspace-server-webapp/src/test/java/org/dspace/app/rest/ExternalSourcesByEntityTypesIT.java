@@ -135,8 +135,9 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                     .andExpect(jsonPath("$._embedded.entitytypes",
                             containsInAnyOrder(
                                     EntityTypeMatcher.matchEntityTypeEntry(publicationType),
+                                    EntityTypeMatcher.matchEntityTypeEntry(projectType),
                                     EntityTypeMatcher.matchEntityTypeEntry(fundingType))))
-                    .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)));
+                    .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
 
             getClient(adminToken).perform(get("/api/core/entitytypes/search/findAllByAuthorizedExternalSource"))
                     .andExpect(status().isOk())
@@ -144,8 +145,9 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                             containsInAnyOrder(
                                     EntityTypeMatcher.matchEntityTypeEntry(orgUnitType),
                                     EntityTypeMatcher.matchEntityTypeEntry(fundingType),
+                                    EntityTypeMatcher.matchEntityTypeEntry(projectType),
                                     EntityTypeMatcher.matchEntityTypeEntry(publicationType))))
-                    .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
+                    .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
 
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))

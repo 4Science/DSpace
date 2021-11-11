@@ -7,6 +7,8 @@
  */
 package org.dspace.identifier.doi;
 
+import org.dspace.identifier.IdentifierNotApplicableException;
+
 /**
  *
  * Thrown when an identifier should not be applied to an item, eg. when it has been filtered by an item filter
@@ -14,7 +16,7 @@ package org.dspace.identifier.doi;
  *
  * @author Kim Shepherd
  */
-public class DOIIdentifierNotApplicableException extends DOIIdentifierException {
+public class DOIIdentifierNotApplicableException extends IdentifierNotApplicableException {
 
     public DOIIdentifierNotApplicableException() {
         super();

@@ -79,4 +79,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.orcid.script.OrcidBulkPull"/>
     </bean>
 
+    <bean id="harvest" class="org.dspace.app.harvest.HarvestScriptConfiguration">
+        <property name="description" value="Manage the OAI-PMH harvesting of external collections"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.harvest.Harvest"/>
+    </bean>
+    
 </beans>

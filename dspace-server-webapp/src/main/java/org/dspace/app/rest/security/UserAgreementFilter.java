@@ -54,7 +54,7 @@ public class UserAgreementFilter extends OncePerRequestFilter {
 
         Context context = ContextUtil.obtainContext(request);
 
-        boolean filterEnabled = configurationService.getBooleanProperty("user-agreement.filter-enabled", false);
+        boolean filterEnabled = configurationService.getBooleanProperty("user-agreement.enabled", false);
         if (!filterEnabled) {
             filterChain.doFilter(request, response);
             return;

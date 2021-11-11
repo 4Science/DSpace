@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.dspace.core.service.LicenseService;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
@@ -143,12 +144,23 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public Collection create(Context context, Community community, String handle)
-        throws SQLException, AuthorizeException {
+            throws SQLException, AuthorizeException {
+        return create(context, community, handle, null);
+    }
+
+    @Override
+    public Collection create(Context context, Community community,
+                             String handle, UUID uuid) throws SQLException, AuthorizeException {
         if (community == null) {
             throw new IllegalArgumentException("Community cannot be null when creating a new collection.");
         }
 
-        Collection newCollection = collectionDAO.create(context, new Collection());
+        Collection newCollection;
+        if (uuid != null) {
+            newCollection = collectionDAO.create(context, new Collection(uuid));
+        }  else {
+            newCollection = collectionDAO.create(context, new Collection());
+        }
         //Add our newly created collection to our community, authorization checks occur in THIS method
         communityService.addCollection(context, community, newCollection);
 
@@ -160,9 +172,10 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         authorizeService.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.READ, null);
         // now create the default policies for submitted items
         authorizeService
-            .createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_ITEM_READ, null);
+                .createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_ITEM_READ, null);
         authorizeService
-            .createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_BITSTREAM_READ, null);
+                .createResourcePolicy(context, newCollection, anonymousGroup, null,
+                        Constants.DEFAULT_BITSTREAM_READ, null);
 
         collectionDAO.save(context, newCollection);
 
@@ -178,12 +191,12 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.CREATE, Constants.COLLECTION,
-                                   newCollection.getID(), newCollection.getHandle(),
-                                   getIdentifiers(context, newCollection)));
+                newCollection.getID(), newCollection.getHandle(),
+                getIdentifiers(context, newCollection)));
 
-        log.info(LogManager.getHeader(context, "create_collection",
-                                      "collection_id=" + newCollection.getID())
-                     + ",handle=" + newCollection.getHandle());
+        log.info(LogHelper.getHeader(context, "create_collection",
+                "collection_id=" + newCollection.getID())
+                + ",handle=" + newCollection.getHandle());
 
         return newCollection;
     }
@@ -332,7 +345,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
          * whitespace.
          */
         if (value == null) {
-            clearMetadata(context, collection, field.SCHEMA, field.ELEMENT, field.QUALIFIER, Item.ANY);
+            clearMetadata(context, collection, field.schema, field.element, field.qualifier, Item.ANY);
             collection.setMetadataModified();
         } else {
             super.setMetadataSingleValue(context, collection, field, null, value);
@@ -359,7 +372,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         if (is == null) {
             collection.setLogo(null);
-            log.info(LogManager.getHeader(context, "remove_logo",
+            log.info(LogHelper.getHeader(context, "remove_logo",
                                           "collection_id=" + collection.getID()));
         } else {
             Bitstream newLogo = bitstreamService.create(context, is);
@@ -371,7 +384,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
                 .getPoliciesActionFilter(context, collection, Constants.READ);
             authorizeService.addPolicies(context, policies, newLogo);
 
-            log.info(LogManager.getHeader(context, "set_logo",
+            log.info(LogHelper.getHeader(context, "set_logo",
                                           "collection_id=" + collection.getID() + "logo_bitstream_id="
                                               + newLogo.getID()));
         }
@@ -407,7 +420,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         try {
             workflow = workflowFactory.getWorkflow(collection);
         } catch (WorkflowConfigurationException e) {
-            log.error(LogManager.getHeader(context, "setWorkflowGroup",
+            log.error(LogHelper.getHeader(context, "setWorkflowGroup",
                     "collection_id=" + collection.getID() + " " + e.getMessage()), e);
         }
         if (!StringUtils.equals(workflowFactory.getDefaultWorkflow().getID(), workflow.getID())) {
@@ -538,6 +551,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         // register this as the admin group
         collection.setAdmins(admins);
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(),
+                                              null, getIdentifiers(context, collection)));
         return admins;
     }
 
@@ -554,6 +569,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         // Remove the link to the collection table.
         collection.setAdmins(null);
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(),
+                                              null, getIdentifiers(context, collection)));
     }
 
     @Override
@@ -583,7 +600,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             Item template = itemService.createTemplateItem(context, collection);
             collection.setTemplateItem(template);
 
-            log.info(LogManager.getHeader(context, "create_template_item",
+            log.info(LogHelper.getHeader(context, "create_template_item",
                                           "collection_id=" + collection.getID() + ",template_item_id="
                                               + template.getID()));
         }
@@ -598,7 +615,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         Item template = collection.getTemplateItem();
 
         if (template != null) {
-            log.info(LogManager.getHeader(context, "remove_template_item",
+            log.info(LogHelper.getHeader(context, "remove_template_item",
                                           "collection_id=" + collection.getID() + ",template_item_id="
                                               + template.getID()));
             // temporarily turn off auth system, we have already checked the permission on the top of the method
@@ -618,7 +635,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // Check authorisation
         authorizeService.authorizeAction(context, collection, Constants.ADD);
 
-        log.info(LogManager.getHeader(context, "add_item", "collection_id="
+        log.info(LogHelper.getHeader(context, "add_item", "collection_id="
             + collection.getID() + ",item_id=" + item.getID()));
 
         // Create mapping
@@ -659,7 +676,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // Check authorisation
         canEdit(context, collection, true);
 
-        log.info(LogManager.getHeader(context, "update_collection",
+        log.info(LogHelper.getHeader(context, "update_collection",
                                       "collection_id=" + collection.getID()));
 
         super.update(context, collection);
@@ -671,8 +688,11 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             collection.clearModified();
         }
         if (collection.isMetadataModified()) {
-            collection.clearDetails();
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.COLLECTION, collection.getID(),
+                                         collection.getDetails(),getIdentifiers(context, collection)));
+            collection.clearModified();
         }
+        collection.clearDetails();
     }
 
     @Override
@@ -717,8 +737,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     @Override
     public void delete(Context context, Collection collection) throws SQLException, AuthorizeException, IOException {
         crisMetricsService.deleteByResourceID(context, collection);
-        log.info(LogManager.getHeader(context, "delete_collection",
-                                      "collection_id=" + collection.getID()));
+        log.info(LogHelper.getHeader(context, "delete_collection", "collection_id=" + collection.getID()));
 
         // remove harvested collections.
         HarvestedCollection hc = harvestedCollectionService.find(context, collection);
@@ -915,8 +934,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
                                         int defaultRead)
         throws SQLException, AuthorizeException {
         Group role = groupService.create(context);
-        groupService.setName(role, "COLLECTION_" + collection.getID().toString() + "_" + typeOfGroupString +
-            "_DEFAULT_READ");
+        groupService.setName(role, getDefaultReadGroupName(collection, typeOfGroupString));
 
         // Remove existing privileges from the anonymous group.
         authorizeService.removePoliciesActionFilter(context, collection, defaultRead);
@@ -925,6 +943,12 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         authorizeService.addPolicy(context, collection, defaultRead, role);
         groupService.update(context, role);
         return role;
+    }
+
+    @Override
+    public String getDefaultReadGroupName(Collection collection, String typeOfGroupString) {
+        return "COLLECTION_" + collection.getID().toString() + "_" + typeOfGroupString +
+            "_DEFAULT_READ";
     }
 
     @Override
@@ -966,7 +990,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * Finds all Indexed Collections where the current user has submit rights. If the user is an Admin,
      * this is all Indexed Collections. Otherwise, it includes those collections where
      * an indexed "submit" policy lists either the eperson or one of the eperson's groups
-     * 
+     *
      * @param context                    DSpace context
      * @param discoverQuery
      * @param entityType                 limit the returned collection to those related to given entity type
@@ -1007,6 +1031,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
                 buildFilter.append(" AND ");
             }
             buildFilter.append("search.entitytype:").append(entityType);
+        }
+
+        if (Objects.nonNull(community)) {
+            discoverQuery.addFilterQueries("location.comm:" + community.getID().toString());
+        }
+        if (StringUtils.isNotBlank(entityType)) {
+            discoverQuery.addFilterQueries("search.entitytype:" + entityType);
         }
         if (StringUtils.isNotBlank(q)) {
             StringBuilder buildQuery = new StringBuilder();
@@ -1088,7 +1119,6 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     @Override
     public List<Collection> findCollectionsAdministered(String query, Context context, int offset, int limit)
         throws SQLException, SearchServiceException {
-
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);
@@ -1180,4 +1210,5 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         return (int) retrieveCollectionsAdministeredByEntityType(context,
                 discoverQuery, query, entityType).getTotalSearchResults();
     }
+
 }

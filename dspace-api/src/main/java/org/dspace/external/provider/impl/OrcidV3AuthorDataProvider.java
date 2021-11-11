@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -217,11 +218,10 @@ public class OrcidV3AuthorDataProvider extends AbstractExternalDataProvider {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        if (bios == null) {
+        if (Objects.isNull(bios)) {
             return Collections.emptyList();
-        } else {
-            return bios.stream().map(bio -> convertToExternalDataObject(bio)).collect(Collectors.toList());
         }
+        return bios.stream().map(bio -> convertToExternalDataObject(bio)).collect(Collectors.toList());
     }
 
     @Override

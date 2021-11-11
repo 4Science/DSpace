@@ -23,7 +23,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
+import org.dspace.core.LogHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -78,7 +78,7 @@ public class CrisMetricsServiceImpl implements CrisMetricsService {
         cm.setResource(dSpaceObject);
         cm.setAcquisitionDate(new Date());
         CrisMetrics metric = crisMetricsDAO.create(context, cm);
-        log.info(LogManager.getHeader(context, "create_cris_metrics", "cris_metrics_id=" + metric.getId()));
+        log.info(LogHelper.getHeader(context, "create_cris_metrics", "cris_metrics_id=" + metric.getId()));
         return metric;
     }
 

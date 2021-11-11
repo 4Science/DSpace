@@ -57,7 +57,6 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
     private AuthorizeService authorizeService;
     @Autowired
     private ConfigurationService configurationService;
-
     @Test
     public void findAllTest() throws Exception {
         context.turnOffAuthorisationSystem();
@@ -173,7 +172,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/cris/metrics/" + CrisMetricsBuilder.getRestStoredMetricId(metric.getID())))
-                .andExpect(status().isOk());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -385,20 +384,11 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         context.restoreAuthSystemState();
 
-        String embeddedView = "<a title=\"\" href=\"\">View</a>";
-        String embeddedDownload = "<a title=\"\" href=\"\">Downloads</a>";
-
         getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
-                        )))
-                .andExpect(jsonPath("$._links.self.href",
-                        Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(2)));
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(0)))
+                .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
     @Test
@@ -428,20 +418,11 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         context.restoreAuthSystemState();
 
-        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
-        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
-
         getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload)
-                        )))
-                .andExpect(jsonPath("$._links.self.href",
-                        Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(2)));
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(0)))
+                .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
     @Test
@@ -531,9 +512,8 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         assertEquals(0, status);
         String remarkGoogleScholar = "scholar.google.com/scholar?q=Title+item+A";
-        String remarkAltmetric = "data-doi=10.1016/j.gene.2009.04.019";
+        String remarkAltmetric = "10.1016/j.gene.2009.04.019";
         String remarkEmbeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
-
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
@@ -544,11 +524,12 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar",remarkGoogleScholar),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", remarkAltmetric),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
-                                                                                   remarkEmbeddedDownload)
+                                                                                   remarkEmbeddedDownload),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                         Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(6)));
+                .andExpect(jsonPath("$.page.totalElements", is(7)));
     }
 
     @Test
@@ -619,7 +600,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
         String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
-        String altmetric = "data-doi=10.1016/j.gene.2009.04.019";
+        String altmetric = "10.1016/j.gene.2009.04.019";
         String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
@@ -631,11 +612,12 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",embeddedDownload),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric)
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(6)));
+                .andExpect(jsonPath("$.page.totalElements", is(7)));
     }
     @Test
     public void findLinkedEntitiesMetricsWithViewAndDownloadsMetricsTest() throws Exception {
@@ -699,7 +681,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         assertEquals(0, status);
 
         String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
-        String altmetric = "data-doi=10.1016/j.gene.2009.04.019";
+        String altmetric = "10.1016/j.gene.2009.04.019";
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
@@ -710,11 +692,12 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
                         CrisMetricsMatcher.matchCrisMetrics(metric_download),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric)
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(6)));
+                .andExpect(jsonPath("$.page.totalElements", is(7)));
     }
 
     @Test

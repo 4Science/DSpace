@@ -292,7 +292,7 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
 
         MetadataFieldName field = new MetadataFieldName(metadata);
         for (String value : values.get()) {
-            externalData.addMetadata(new MetadataValueDTO(field.SCHEMA, field.ELEMENT, field.QUALIFIER, null, value));
+            externalData.addMetadata(new MetadataValueDTO(field.schema, field.element, field.qualifier, null, value));
         }
     }
 

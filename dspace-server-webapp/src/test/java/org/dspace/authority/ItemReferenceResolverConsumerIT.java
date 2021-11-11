@@ -31,8 +31,10 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.eperson.EPerson;
+import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Integration test to verify the references resolving of
@@ -49,6 +51,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     private Collection personCollection;
 
     private InstallItemService installItemService;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Before
     public void setup() throws Exception {
@@ -118,6 +123,108 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
             itemWithOrcid.getID().toString(), 0, 600)));
+    }
+
+    @Test
+    public void testItemReferenceResolverConsumerOrcidMetadataTitleToUpdate() throws SQLException {
+        //When property cris.item-reference-resolver.override-metadata-value is true update Title
+        context.turnOffAuthorisationSystem();
+        boolean previousOverrideMetadataValue = configurationService
+            .getBooleanProperty("cris.item-reference-resolver.override-metadata-value");
+        configurationService.setProperty("cris.item-reference-resolver.override-metadata-value", true);
+        String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
+
+        Item firstItem = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("First Item")
+            .withAuthor("Stephen K.", orcidAuthority)
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Second Item")
+            .withAuthor("Stephen K.", orcidAuthority)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        firstItem = context.reloadEntity(firstItem);
+        assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
+            orcidAuthority, 0, 600)));
+
+        secondItem = context.reloadEntity(secondItem);
+        assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
+            orcidAuthority, 0, 600)));
+
+        context.turnOffAuthorisationSystem();
+
+        Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
+            .withTitle("Stephen King")
+            .withEntityType("Person")
+            .withOrcidIdentifier("0000-0002-1825-0097")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        //Check if item has dc.contributor.author updated with new name
+        firstItem = context.reloadEntity(firstItem);
+        assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen King", null,
+            itemWithOrcid.getID().toString(), 0, 600)));
+
+        //Check if item has dc.contributor.author updated with new name
+        secondItem = context.reloadEntity(secondItem);
+        assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen King", null,
+            itemWithOrcid.getID().toString(), 0, 600)));
+        configurationService.setProperty("previousOverrideMetadataValue", previousOverrideMetadataValue);
+    }
+
+    @Test
+    public void testItemReferenceResolverConsumerOrcidMetadataTitleNotToUpdate() throws SQLException {
+        //When property cris.item-reference-resolver.override-metadata-value is true update Title
+        context.turnOffAuthorisationSystem();
+        boolean previousOverrideMetadataValue = configurationService
+            .getBooleanProperty("cris.item-reference-resolver.override-metadata-value");
+        configurationService.setProperty("cris.item-reference-resolver.override-metadata-value", false);
+        String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
+
+        Item firstItem = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("First Item")
+            .withAuthor("H. P. Lovecraft", orcidAuthority)
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Second Item")
+            .withAuthor("H. P. Lovecraft", orcidAuthority)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        firstItem = context.reloadEntity(firstItem);
+        assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
+            orcidAuthority, 0, 600)));
+
+        secondItem = context.reloadEntity(secondItem);
+        assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
+            orcidAuthority, 0, 600)));
+
+        context.turnOffAuthorisationSystem();
+
+        Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
+            .withTitle("Howard Phillips Lovecraft")
+            .withEntityType("Person")
+            .withOrcidIdentifier("0000-0002-1825-0097")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        //Check item doesn't have dc.contributor.author updated with new name
+        firstItem = context.reloadEntity(firstItem);
+        assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
+            itemWithOrcid.getID().toString(), 0, 600)));
+
+        //Check item doesn't have dc.contributor.author updated with new name
+        secondItem = context.reloadEntity(secondItem);
+        assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
+            itemWithOrcid.getID().toString(), 0, 600)));
+        configurationService.setProperty("previousOverrideMetadataValue", previousOverrideMetadataValue);
     }
 
     @Test

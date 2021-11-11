@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.rest.authorization.impl.EditMetadataFeature;
 import org.dspace.app.rest.converter.MetadataConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
@@ -50,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -91,6 +93,9 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
 
     @Autowired
     RelationshipTypeService relationshipTypeService;
+
+    @Autowired
+    EditMetadataFeature editMetadataFeature;
 
     @Autowired
     private UriListHandlerService uriListHandlerService;
@@ -139,6 +144,10 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
     @PreAuthorize("hasPermission(#id, 'ITEM', #patch)")
     protected void patch(Context context, HttpServletRequest request, String apiCategory, String model, UUID id,
                          Patch patch) throws AuthorizeException, SQLException {
+        Item item = itemService.find(context, id);
+        if (!editMetadataFeature.isAuthorized(context, converter.toRest(item, utils.obtainProjection()))) {
+            throw new AccessDeniedException("Current user not authorized for this operation");
+        }
         patchDSpaceObject(apiCategory, model, id, patch);
     }
 
@@ -317,7 +326,9 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
         } catch (IOException e1) {
             throw new UnprocessableEntityException("Error parsing request body", e1);
         }
-
+        if (!editMetadataFeature.isAuthorized(context, itemRest)) {
+            throw new AccessDeniedException("Current user not authorized for this operation");
+        }
         Item item = itemService.find(context, uuid);
         if (item == null) {
             throw new ResourceNotFoundException(apiCategory + "." + model + " with id: " + uuid + " not found");
