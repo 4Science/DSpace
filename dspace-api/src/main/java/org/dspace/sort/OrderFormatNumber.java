@@ -1,17 +1,21 @@
 package org.dspace.sort;
 
+import org.apache.commons.lang3.StringUtils;
+import org.dspace.core.ConfigurationManager;
+
 /**
- * Formatter that adds "0" as left padding if the string is less than 7 characters long
+ * Formatter that adds "0" as left padding if the string is less than MAX_PADDING characters long
  *
  */
 public class OrderFormatNumber implements OrderFormatDelegate {
 
+	private static final int MAX_PADDING = ConfigurationManager.getIntProperty("browse.OrderFormatNumber.padding.max", 7);
+	
 	@Override
 	public String makeSortString(String value, String language)
 	{
-		int padding = 7;
-		
-		padding -= value.length();
+		value = StringUtils.strip(value);
+		int padding = MAX_PADDING - value.length();
 		
 		if (padding > 0)
         {
