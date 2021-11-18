@@ -67,7 +67,7 @@
     boolean submit_button = (submit_b == null ? false : submit_b.booleanValue());
 
 	// get the browse indices
-    BrowseIndex[] bis = BrowseIndex.getBrowseCollectionIndices();
+    BrowseIndex[] bis = BrowseIndex.getBrowseCollectionIndices(collection.getHandle());
 
     // Put the metadata values into guaranteed non-null variables
     String name = collection.getMetadata("name");
