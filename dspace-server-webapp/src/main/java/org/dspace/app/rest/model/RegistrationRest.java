@@ -7,9 +7,11 @@
  */
 package org.dspace.app.rest.model;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dspace.app.rest.RestResourceController;
 
@@ -27,8 +29,10 @@ public class RegistrationRest extends RestAddressableModel {
 
     private String email;
     private UUID user;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> groupNames = Collections.emptyList();
 
-    private List<UUID> groups;
+    private List<UUID> groups = Collections.emptyList();
     /**
      * Generic getter for the email
      * @return the email value of this RegisterRest
@@ -83,5 +87,13 @@ public class RegistrationRest extends RestAddressableModel {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getType() {
         return NAME;
+    }
+
+    public List<String> getGroupNames() {
+        return groupNames;
+    }
+
+    public void setGroupNames(List<String> groupNames) {
+        this.groupNames = groupNames;
     }
 }

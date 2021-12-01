@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
+import org.dspace.app.rest.exception.UnprocessableEditException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.model.ErrorRest;
@@ -41,6 +42,8 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonServiceImpl;
+import org.dspace.validation.model.ValidationError;
+import org.dspace.validation.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -79,6 +82,9 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
 
     @Autowired
     ItemService itemService;
+
+    @Autowired
+    private ValidationService validationService;
 
     public EditItemRestRepository() throws SubmissionConfigReaderException {
         submissionConfigReader = new SubmissionConfigReader();
@@ -295,6 +301,12 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
                     "Patch path operation need to starts with '" + OPERATION_PATH_SECTIONS + "'");
             }
         }
+
+        List<ValidationError> errors = validationService.validate(context, source);
+        if (errors != null && !errors.isEmpty()) {
+            throw new UnprocessableEditException(errors);
+        }
+
         eis.update(context, source);
         context.restoreAuthSystemState();
     }

@@ -7,9 +7,9 @@
  */
 package org.dspace.app.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import org.dspace.app.rest.RestResourceController;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The CrisLayoutBox REST Resource
@@ -17,61 +17,39 @@ import org.dspace.app.rest.RestResourceController;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@LinksRest(links = {
-        @LinkRest(
-                name = CrisLayoutBoxRest.SECURITY_METADATA,
-                method = "getSecurityMetadata"
-        ),
-        @LinkRest(
-                name = CrisLayoutBoxRest.CONFIGURATON,
-                method = "getConfiguration"
-        )
-})
-public class CrisLayoutBoxRest extends BaseObjectRest<Integer> {
+public class CrisLayoutBoxRest implements Serializable {
 
     private static final long serialVersionUID = 1759482359230180793L;
 
-    public static final String NAME = "box";
-    public static final String CATEGORY = RestAddressableModel.LAYOUT;
     public static final String FIELDS = "fields";
     public static final String SECURITY_METADATA = "securitymetadata";
     public static final String CONFIGURATON = "configuration";
+
+    private Integer id;
+
     private String shortname;
+
     private String header;
+
     private String entityType;
+
     private Boolean collapsed;
+
     private Boolean minor;
+
     private String style;
+
     private Integer security;
+
     private String boxType;
-    private Boolean clear;
+
     private Integer maxColumns;
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestModel#getType()
-     */
-    @Override
-    @JsonProperty(access = Access.READ_ONLY)
-    public String getType() {
-        return NAME;
-    }
+    private CrisLayoutBoxConfigurationRest configuration;
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestAddressableModel#getCategory()
-     */
-    @Override
-    @JsonProperty(access = Access.READ_ONLY)
-    public String getCategory() {
-        return CATEGORY;
-    }
+    private List<String> metadataSecurityFields = new ArrayList<String>();
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestAddressableModel#getController()
-     */
-    @Override
-    public Class<RestResourceController> getController() {
-        return RestResourceController.class;
-    }
+    private Boolean container = true;
 
     public String getShortname() {
         return shortname;
@@ -181,19 +159,49 @@ public class CrisLayoutBoxRest extends BaseObjectRest<Integer> {
         this.boxType = boxType;
     }
 
-    public Boolean getClear() {
-        return clear;
-    }
-
-    public void setClear(Boolean clear) {
-        this.clear = clear;
-    }
-
     public Integer getMaxColumns() {
         return maxColumns;
     }
 
     public void setMaxColumns(Integer maxColumns) {
         this.maxColumns = maxColumns;
+    }
+
+    public List<String> getMetadataSecurityFields() {
+        return metadataSecurityFields;
+    }
+
+    public void setMetadataSecurityFields(List<String> metadataSecurityFields) {
+        this.metadataSecurityFields = metadataSecurityFields;
+    }
+
+    public CrisLayoutBoxConfigurationRest getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(CrisLayoutBoxConfigurationRest configuration) {
+        this.configuration = configuration;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the container
+     */
+    public Boolean isContainer() {
+        return container;
+    }
+
+    /**
+     * @param container the container to set
+     */
+    public void setContainer(Boolean container) {
+        this.container = container;
     }
 }

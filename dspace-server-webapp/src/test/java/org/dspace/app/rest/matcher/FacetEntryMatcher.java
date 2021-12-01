@@ -33,6 +33,16 @@ public class FacetEntryMatcher {
         );
     }
 
+    public static Matcher<? super Object> languageFacet(boolean hasNext) {
+        return allOf(
+            hasJsonPath("$.name", is("language")),
+            hasJsonPath("$.facetType", is("text")),
+            hasJsonPath("$.facetLimit", any(Integer.class)),
+            hasJsonPath("$._links.self.href", containsString("api/discover/facets/language")),
+            hasJsonPath("$._links", matchNextLink(hasNext, "api/discover/facets/language"))
+        );
+    }
+
     public static Matcher<? super Object> authorFacetWithMinMax(boolean hasNext, String min, String max) {
         return allOf(
             hasJsonPath("$.name", is("author")),

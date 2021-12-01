@@ -379,7 +379,7 @@ public class DCInput {
 
     /**
      * Get the style for this form field
-     * 
+     *
      * @return the style
      */
     public String getStyle() {
@@ -438,12 +438,11 @@ public class DCInput {
      * Gets the display string that corresponds to the passed storage string in
      * a particular display-storage pair set.
      *
-     * @param pairTypeName Name of display-storage pair set to search
      * @param storedString the string that gets stored
      * @return the displayed string whose selection causes storageString to be
      * stored, null if no match
      */
-    public String getDisplayString(String pairTypeName, String storedString) {
+    public String getDisplayString(String storedString) {
         if (valueList != null && storedString != null) {
             for (int i = 0; i < valueList.size(); i += 2) {
                 if (storedString.equals(valueList.get(i + 1))) {
@@ -565,6 +564,14 @@ public class DCInput {
             return true;
         }
         return false;
+    }
+
+    public boolean isDropDown() {
+        return "dropdown".equals(getInputType());
+    }
+
+    public boolean isList() {
+        return "list".equals(getInputType());
     }
 
     public boolean validate(String value) {

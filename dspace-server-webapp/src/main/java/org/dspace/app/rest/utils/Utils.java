@@ -53,7 +53,6 @@ import org.dspace.app.rest.exception.PaginationException;
 import org.dspace.app.rest.exception.RepositoryNotFoundException;
 import org.dspace.app.rest.model.BaseObjectRest;
 import org.dspace.app.rest.model.CommunityRest;
-import org.dspace.app.rest.model.CrisLayoutBoxRest;
 import org.dspace.app.rest.model.CrisMetricsRest;
 import org.dspace.app.rest.model.LinkRest;
 import org.dspace.app.rest.model.LinksRest;
@@ -311,9 +310,6 @@ public class Utils {
         }
         if (StringUtils.equals(modelPlural, "vocabularies")) {
             return VocabularyRest.NAME;
-        }
-        if (StringUtils.equals(modelPlural, "boxes")) {
-            return CrisLayoutBoxRest.NAME;
         }
         if (StringUtils.equals(modelPlural, "orcidqueues")) {
             return OrcidQueueRest.NAME;

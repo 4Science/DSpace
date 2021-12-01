@@ -10,8 +10,6 @@ package org.dspace.app.rest.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dspace.app.rest.RestResourceController;
-
 
 /**
  * The CrisLayoutMetricsConfiguration details
@@ -19,39 +17,22 @@ import org.dspace.app.rest.RestResourceController;
  * @author Alessandro Martelli (alessandro.martelli at 4science.it)
  *
  */
-public class CrisLayoutMetricsConfigurationRest extends BaseObjectRest<Integer>
-        implements CrisLayoutBoxConfigurationRest {
+public class CrisLayoutMetricsConfigurationRest implements CrisLayoutBoxConfigurationRest {
 
-    private static final long serialVersionUID = 6507793437056522786L;
     public static final String NAME = "boxmetricsconfiguration";
-    public static final String CATEGORY = RestAddressableModel.LAYOUT;
 
     private Integer maxColumns;
 
     private List<String> metrics = new ArrayList<>();
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestModel#getType()
-     */
-    @Override
+    private String type = NAME;
+
     public String getType() {
-        return NAME;
+        return type;
     }
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestAddressableModel#getCategory()
-     */
-    @Override
-    public String getCategory() {
-        return CATEGORY;
-    }
-
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.model.RestAddressableModel#getController()
-     */
-    @Override
-    public Class<RestResourceController> getController() {
-        return RestResourceController.class;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<String> getMetrics() {

@@ -149,6 +149,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -196,6 +197,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -243,6 +245,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -498,6 +501,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -517,14 +521,13 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":SECOND")
                              .content(patchBody)
                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                             .andExpect(status().isOk());
+                             .andExpect(status().isUnprocessableEntity());
 
-        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":SECOND"))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
-                                     hasJsonPath("$['dc.date.issued'][0].value", is("2015-06-25"))
-                                     )))
-                             .andExpect(jsonPath("$.sections.onlyTitle['dc.contributor.author']").doesNotExist());
+                             .andExpect(jsonPath("$.sections.onlyTitle", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is(itemA.getName()))
+                                     )));
     }
 
     @Test
@@ -833,6 +836,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -941,6 +945,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
                                            .withName("Collection 1").build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
@@ -1044,4 +1049,140 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                                      )))
                              .andExpect(jsonPath("$.sections.titleAndIssuedDate['dc.title']").doesNotExist());
     }
+
+    @Test
+    public void patchRemoveMandatoryMetadataTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1").build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withTitle("My Title")
+                                .withIssueDate("2021-11-11")
+                                .withAuthor("Mykhaylo, Boychuk")
+                                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> operations = new ArrayList<Operation>();
+        List<Operation> operations2 = new ArrayList<Operation>();
+
+        List<Map<String, String>> abstractValues = new ArrayList<Map<String, String>>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "New Abstract");
+        abstractValues.add(value);
+
+        operations.add(new RemoveOperation("/sections/titleAndIssuedDate/dc.title/0"));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.description.abstract", abstractValues));
+
+        String patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isUnprocessableEntity())
+                             .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
+                             .andExpect(jsonPath("$.[0].paths[0]", is("/sections/titleAndIssuedDate/dc.title")));
+
+        // verify that the patch changes have not been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is(itemA.getName())),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2021-11-11"))
+                                     )))
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate['dc.description.abstract']")
+                             .doesNotExist());
+
+        operations2.add(new AddOperation("/sections/titleAndIssuedDate/dc.description.abstract", abstractValues));
+        operations2.add(new RemoveOperation("/sections/titleAndIssuedDate/dc.title/0"));
+
+        String patchBody2 = getPatchContent(operations2);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody2)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isUnprocessableEntity())
+                             .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
+                             .andExpect(jsonPath("$.[0].paths[0]", is("/sections/titleAndIssuedDate/dc.title")));
+
+        // verify that the patch changes have not been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is(itemA.getName())),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2021-11-11"))
+                                     )))
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate['dc.description.abstract']")
+                             .doesNotExist());
+    }
+
+    @Test
+    public void patchRemoveAndAddMandatoryMetadataTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1").build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withTitle("My Title")
+                                .withIssueDate("2021-11-11")
+                                .withAuthor("Mykhaylo, Boychuk").build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> operations = new ArrayList<Operation>();
+
+        List<Map<String, String>> abstractValues = new ArrayList<Map<String, String>>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "New Abstract");
+        abstractValues.add(value);
+
+        List<Map<String, String>> titleValues = new ArrayList<Map<String, String>>();
+        Map<String, String> titleValue = new HashMap<String, String>();
+        titleValue.put("value", "New TITLE");
+        titleValues.add(titleValue);
+
+        operations.add(new RemoveOperation("/sections/titleAndIssuedDate/dc.title/0"));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.description.abstract", abstractValues));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", titleValues));
+
+        String patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("New TITLE")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2021-11-11")),
+                                     hasJsonPath("$['dc.description.abstract'][0].value", is("New Abstract"))
+                                     )));
+
+        // verify that the patch changes have been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("New TITLE")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2021-11-11")),
+                                     hasJsonPath("$['dc.description.abstract'][0].value", is("New Abstract"))
+                                     )));
+    }
+
 }

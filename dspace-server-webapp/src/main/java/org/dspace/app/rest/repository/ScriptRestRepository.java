@@ -6,21 +6,17 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.repository;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -31,13 +27,10 @@ import org.dspace.app.rest.scripts.handler.impl.RestDSpaceRunnableHandler;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.service.EPersonService;
 import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.service.ScriptService;
-import org.dspace.services.ConfigurationService;
-import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,19 +45,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(ScriptRest.CATEGORY + "." + ScriptRest.NAME)
 public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, String> {
 
-    private static final Logger log = LogManager.getLogger();
-
     @Autowired
     private ScriptService scriptService;
 
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
-
-    @Autowired
-    private ConfigurationService configurationService;
-
-    @Autowired
-    private EPersonService ePersonService;
 
     @Override
     @PreAuthorize("permitAll()")
@@ -112,8 +97,7 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         if (!scriptToExecute.isAllowedToExecute(context)) {
             throw new AuthorizeException("Current user is not eligible to execute script with name: " + scriptName);
         }
-        EPerson user = getUser(context).orElseThrow(() -> new IllegalStateException(
-                "An anonymous user tried to start a process and no default user is configured"));
+        EPerson user = context.getCurrentUser();
         RestDSpaceRunnableHandler restDSpaceRunnableHandler = new RestDSpaceRunnableHandler(
             user, scriptToExecute.getName(), dSpaceCommandLineParameters, context.getSpecialGroups());
         List<String> args = constructArgs(dSpaceCommandLineParameters);
@@ -199,15 +183,6 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         if (!fileNames.containsAll(fileNamesFromOptions)) {
             throw new UnprocessableEntityException("Files given in properties aren't all present in the request");
         }
-    }
-
-    private Optional<EPerson> getUser(Context context) throws SQLException {
-        EPerson currentUser = context.getCurrentUser();
-        if (currentUser != null) {
-            return Optional.of(currentUser);
-        }
-        String defaultUserId = configurationService.getProperty("process.start.default-user");
-        return Optional.ofNullable(ePersonService.find(context, UUIDUtils.fromString(defaultUserId)));
     }
 
 }

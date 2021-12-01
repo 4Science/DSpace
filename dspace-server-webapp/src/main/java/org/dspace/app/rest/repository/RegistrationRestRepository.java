@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -95,7 +96,7 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         if (StringUtils.isBlank(registrationRest.getEmail())) {
             throw new UnprocessableEntityException("The email cannot be omitted from the Registration endpoint");
         }
-        if (Objects.nonNull(registrationRest.getGroups())) {
+        if (Objects.nonNull(registrationRest.getGroups()) && registrationRest.getGroups().size() > 0) {
             try {
                 if (Objects.isNull(context.getCurrentUser())
                     || (!authorizeService.isAdmin(context)
@@ -118,7 +119,8 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
                     throw new DSpaceBadRequestException(
                             "Password cannot be updated for the given EPerson with email: " + eperson.getEmail());
                 }
-                accountService.sendForgotPasswordInfo(context, registrationRest.getEmail());
+                accountService.sendForgotPasswordInfo(context, registrationRest.getEmail(),
+                        registrationRest.getGroups());
             } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
                 log.error("Something went wrong with sending forgot password info email: "
                               + registrationRest.getEmail(), e);
@@ -179,6 +181,11 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         if (ePerson != null) {
             registrationRest.setUser(ePerson.getID());
         }
+        List<String> groupNames = registrationData.getGroups()
+                .stream().map(Group::getName).collect(Collectors.toList());
+        registrationRest.setGroupNames(groupNames);
+        registrationRest.setGroups(registrationData
+                .getGroups().stream().map(Group::getID).collect(Collectors.toList()));
         return registrationRest;
     }
 }

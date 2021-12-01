@@ -1025,6 +1025,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                             }
 
                             String field = transformFacetField(facetFieldConfig, facetField.getName(), true);
+                            String currentLocalePrefix = context.getCurrentLocale().getLanguage() + "_";
+                            field = StringUtils.removeStart(field, currentLocalePrefix);
+
                             long countInPage = 0;
                             int idxFC = 0;
                             long missing = 0;

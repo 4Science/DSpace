@@ -9,6 +9,7 @@ package org.dspace.app.rest.security;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.dspace.app.rest.utils.ContextUtil;
@@ -17,12 +18,10 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.service.EPersonService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.dspace.util.UUIDUtils;
@@ -49,13 +48,7 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
     private RequestService requestService;
 
     @Autowired
-    private EPersonService ePersonService;
-
-    @Autowired
     private ContentServiceFactory contentServiceFactory;
-
-    @Autowired
-    private BitstreamService bitstreamService;
 
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
@@ -105,10 +98,9 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
                         }
                     }
 
-                    if (dSpaceObject instanceof Bitstream
-                        && context.getCurrentUser() == null
-                        && bitstreamService.isRelatedToAProcessStartedByDefaultUser(context,
-                            (Bitstream) dSpaceObject)) {
+                    if (dSpaceObject instanceof Bitstream && Objects.isNull(context.getCurrentUser())
+                            && authorizeService.authorizeActionBoolean(context, (Bitstream) dSpaceObject,
+                                    restPermission.getDspaceApiActionId())) {
                         return true;
                     }
 

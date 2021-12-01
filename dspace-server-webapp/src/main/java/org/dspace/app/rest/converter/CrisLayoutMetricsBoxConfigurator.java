@@ -15,9 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.CrisLayoutBoxConfigurationRest;
 import org.dspace.app.rest.model.CrisLayoutMetricsConfigurationRest;
 import org.dspace.content.CrisLayoutMetric2BoxPriorityComparator;
+import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutMetric2Box;
+import org.dspace.layout.service.CrisLayoutMetric2BoxService;
 import org.dspace.metrics.CrisItemMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,12 +33,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CrisLayoutMetricsBoxConfigurator implements CrisLayoutBoxConfigurator {
 
-    private final CrisItemMetricsService crisItemMetricsService;
+    @Autowired
+    private CrisItemMetricsService crisItemMetricsService;
 
     @Autowired
-    public CrisLayoutMetricsBoxConfigurator(final CrisItemMetricsService crisItemMetricsService) {
-        this.crisItemMetricsService = crisItemMetricsService;
-    }
+    private CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
 
     @Override
     public boolean support(CrisLayoutBox box) {
@@ -46,7 +47,6 @@ public class CrisLayoutMetricsBoxConfigurator implements CrisLayoutBoxConfigurat
     @Override
     public CrisLayoutBoxConfigurationRest getConfiguration(CrisLayoutBox box) {
         CrisLayoutMetricsConfigurationRest rest = new CrisLayoutMetricsConfigurationRest();
-        rest.setId(box.getID());
         rest.setMaxColumns(box.getMaxColumns());
         List<CrisLayoutMetric2Box> layoutMetrics = box.getMetric2box();
         Collections.sort(layoutMetrics, new CrisLayoutMetric2BoxPriorityComparator());
@@ -64,6 +64,18 @@ public class CrisLayoutMetricsBoxConfigurator implements CrisLayoutBoxConfigurat
                 .ifPresent(result::add);
         });
         return result;
+    }
+
+    @Override
+    public void configure(Context context, CrisLayoutBox box, CrisLayoutBoxConfigurationRest rest) {
+        if (!(rest instanceof CrisLayoutMetricsConfigurationRest)) {
+            throw new IllegalArgumentException("Invalid METRICS configuration provided");
+        }
+
+        CrisLayoutMetricsConfigurationRest metricsConfiguration = ((CrisLayoutMetricsConfigurationRest) rest);
+        box.setMaxColumns(metricsConfiguration.getMaxColumns());
+        crisLayoutMetric2BoxService.addMetrics(context, box, metricsConfiguration.getMetrics());
+
     }
 
 }

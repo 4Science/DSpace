@@ -7,8 +7,6 @@
  */
 package org.dspace.layout.service;
 
-import java.sql.SQLException;
-
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -30,8 +28,6 @@ public interface CrisLayoutBoxAccessService {
      * @param box     layout box
      * @param item    item to whom metadata contained in the box belong to
      * @return true if access has to be granded, false otherwise
-     * @throws SQLException in case of error during database access
      */
-    boolean hasAccess(Context context, EPerson user, CrisLayoutBox box, Item item)
-        throws SQLException;
+    boolean hasAccess(Context context, EPerson user, CrisLayoutBox box, Item item);
 }

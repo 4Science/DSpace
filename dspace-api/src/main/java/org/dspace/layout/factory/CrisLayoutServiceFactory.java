@@ -7,6 +7,8 @@
  */
 package org.dspace.layout.factory;
 
+import org.dspace.layout.script.service.CrisLayoutToolParser;
+import org.dspace.layout.script.service.CrisLayoutToolValidator;
 import org.dspace.layout.service.CrisLayoutBoxService;
 import org.dspace.layout.service.CrisLayoutFieldService;
 import org.dspace.layout.service.CrisLayoutMetadataGroupService;
@@ -39,5 +41,9 @@ public abstract class CrisLayoutServiceFactory {
     public abstract CrisLayoutSectionService getSectionService();
 
     public abstract CrisLayoutMetadataGroupService getMetadataGroupService();
+
+    public abstract CrisLayoutToolValidator getCrisLayoutToolValidator();
+
+    public abstract CrisLayoutToolParser getCrisLayoutToolParser();
 
 }

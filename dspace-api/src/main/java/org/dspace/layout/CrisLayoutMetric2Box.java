@@ -57,6 +57,7 @@ public class CrisLayoutMetric2Box {
         this.box = box;
         this.position = position;
         this.type = type;
+        this.box.addMetric2box(this);
     }
 
     public Integer getId() {

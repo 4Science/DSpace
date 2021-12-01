@@ -141,7 +141,7 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
 
             itemWithReference.getMetadata().stream()
                 .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
-                .forEach(metadataValue -> setAuthorityAndReferences(metadataValue, item, isValueToUpdate));
+                .forEach(metadataValue -> setReferences(metadataValue, item, isValueToUpdate));
 
             itemService.update(context, itemWithReference);
         }
@@ -151,7 +151,7 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
      * @return whether Title metadata needs to be updated
      */
     private boolean checkWhetherTitleNeedsToBeSet() {
-        return configurationService.getBooleanProperty("cris.item-reference-resolver.override-metadata-value");
+        return configurationService.getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
     }
 
     private Iterator<ReloadableEntity<?>> findItemsToResolve(Context context, List<String> authorities,
@@ -175,7 +175,7 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
 
     }
 
-    private void setAuthorityAndReferences(MetadataValue metadataValue, Item item, boolean isValueToUpdate) {
+    private void setReferences(MetadataValue metadataValue, Item item, boolean isValueToUpdate) {
         metadataValue.setAuthority(item.getID().toString());
         metadataValue.setConfidence(Choices.CF_ACCEPTED);
         String newMetadataValue = itemService.getMetadata(item, "dc.title");

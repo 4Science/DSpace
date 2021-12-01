@@ -54,6 +54,17 @@ public interface CrisLayoutTabService extends DSpaceCRUDService<CrisLayoutTab> {
             throws SQLException, AuthorizeException;
 
     /**
+     * Find the tab with the given id and fetch all the rows, cells and boxes
+     * contained therein.
+     *
+     * @param  context The relevant DSpace Context
+     * @param  id      the tab id
+     * @return         the tab, if any
+     * @throws SQLException An exception that provides information on a database errors.
+     */
+    public CrisLayoutTab findAndEagerlyFetch(Context context, Integer id) throws SQLException;
+
+    /**
      * Find all CrisLayoutTab {@link CrisLayoutTab} in the database
      * @param context The relevant DSpace Context
      * @param limit how many results return
@@ -62,6 +73,14 @@ public interface CrisLayoutTabService extends DSpaceCRUDService<CrisLayoutTab> {
      * @throws SQLException An exception that provides information on a database errors.
      */
     public List<CrisLayoutTab> findAll(Context context, Integer limit, Integer offset) throws SQLException;
+
+    /**
+     * Find all CrisLayoutTab {@link CrisLayoutTab} in the database
+     * @param context The relevant DSpace Context
+     * @return List of CrisLayoutTab {@link CrisLayoutTab}
+     * @throws SQLException An exception that provides information on a database errors.
+     */
+    public List<CrisLayoutTab> findAll(Context context) throws SQLException;
 
     /**
      * Returns the total number of tabs {@link CrisLayoutTab} in the database
@@ -123,8 +142,7 @@ public interface CrisLayoutTabService extends DSpaceCRUDService<CrisLayoutTab> {
     public Long totalMetadataField(Context context, Integer tabId) throws SQLException;
 
     /**
-     * Find all tabs associated at an specific item. The tabs are sorted by priority ascending and the
-     * empty tabs are filter out.
+     * Find all tabs associated at an specific item. The tabs are sorted by priority ascending.
      * @param context The relevant DSpace Context
      * @param itemUuid String that represents UUID of the item {@link Item}
      * @return List of CrisLayoutTab {@link CrisLayoutTab}

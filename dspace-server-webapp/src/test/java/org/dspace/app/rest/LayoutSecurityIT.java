@@ -107,7 +107,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -119,7 +119,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -191,7 +191,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -203,7 +203,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -283,7 +283,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -295,7 +295,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -399,7 +399,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -411,7 +411,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -515,14 +515,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -534,7 +534,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -546,7 +546,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, issueDate, 0, 0)
                               .withLabel("LABEL IssueDate")
                               .withRendering("RENDERIGN IssueDate")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box3)
                               .build();
 
@@ -558,7 +558,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTHOR")
                               .withRendering("RENDERIGN AUTHOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box4)
                               .build();
 
@@ -645,7 +645,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -657,7 +657,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -736,7 +736,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -748,7 +748,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -760,7 +760,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box3)
                               .build();
 
@@ -851,7 +851,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -863,7 +863,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -950,7 +950,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -962,7 +962,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -1058,7 +1058,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1072,13 +1072,13 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTOR")
                               .withRendering("RENDERIGN AUTOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -1157,7 +1157,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1).build();
 
         CrisLayoutBox box2 = CrisLayoutBoxBuilder.createBuilder(context, eType, true, true)
@@ -1168,13 +1168,13 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1285,7 +1285,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1299,19 +1299,19 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTOR")
                               .withRendering("RENDERIGN AUTOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1421,7 +1421,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1).build();
 
         CrisLayoutBox box2 = CrisLayoutBoxBuilder.createBuilder(context, eType, true, true)
@@ -1432,13 +1432,13 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1530,7 +1530,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1542,14 +1542,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTHOR")
                               .withRendering("RENDERIGN AUTHOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1644,7 +1644,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1656,14 +1656,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTHOR")
                               .withRendering("RENDERIGN AUTHOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1783,7 +1783,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1797,14 +1797,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, author, 0, 0)
                               .withLabel("LABEL AUTHOR")
                               .withRendering("RENDERIGN AUTHOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2).build();
 
         context.restoreAuthSystemState();
@@ -1918,7 +1918,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, dateIssued, 0, 0)
                               .withLabel("LABEL DATE")
                               .withRendering("RENDERIGN DATE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -1990,7 +1990,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, dateIssued, 0, 0)
                               .withLabel("LABEL DATE")
                               .withRendering("RENDERIGN DATE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1).build();
 
         context.restoreAuthSystemState();
@@ -2063,7 +2063,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, dateIssued, 0, 0)
                               .withLabel("LABEL DATE")
                               .withRendering("RENDERIGN DATE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1).build();
 
         context.restoreAuthSystemState();
@@ -2129,14 +2129,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
                               .withLabel("LABEL ABS")
                               .withRendering("RENDERIGN ABS")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, education, 0, 0)
                               .withLabel("LABEL Education")
                               .withRendering("RENDERIGN Education")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .withNestedField(crisMetadataGroup)
                               .build();
@@ -2149,7 +2149,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box2)
                               .build();
 
@@ -2212,7 +2212,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, description, 0, 0)
                 .withLabel("LABEL ABS")
                 .withRendering("RENDERIGN ABS")
-                .withStyle("STYLE")
+                .withRowStyle("STYLE")
                 .withBox(box1)
                 .build();
         context.restoreAuthSystemState();
@@ -2265,7 +2265,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, description, 0, 0)
                 .withLabel("LABEL ABS")
                 .withRendering("RENDERIGN ABS")
-                .withStyle("STYLE")
+                .withRowStyle("STYLE")
                 .withBox(box1)
                 .build();
         context.restoreAuthSystemState();
@@ -2326,7 +2326,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, description, 0, 0)
                 .withLabel("LABEL ABS")
                 .withRendering("RENDERIGN ABS")
-                .withStyle("STYLE")
+                .withRowStyle("STYLE")
                 .withBox(box1)
                 .build();
 
@@ -2420,7 +2420,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
             .withLabel("LABEL ABS")
             .withRendering("RENDERIGN ABS")
-            .withStyle("STYLE")
+            .withRowStyle("STYLE")
             .withBox(box1)
             .build();
 
@@ -2432,7 +2432,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
             .withLabel("LABEL TITLE")
             .withRendering("RENDERIGN TITLE")
-            .withStyle("STYLE")
+            .withRowStyle("STYLE")
             .withBox(box2)
             .build();
 

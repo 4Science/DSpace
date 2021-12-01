@@ -1979,21 +1979,21 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
                               .withLabel("LABEL SUBJECT")
                               .withRendering("RENDERIGN SUBJECT")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
                               .withLabel("LABEL CONTRBUTOR")
                               .withRendering("RENDERIGN CONTRIBUTOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -2055,21 +2055,21 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
                               .withLabel("LABEL SUBJECT")
                               .withRendering("RENDERIGN SUBJECT")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
                               .withLabel("LABEL CONTRBUTOR")
                               .withRendering("RENDERIGN CONTRIBUTOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
@@ -2138,21 +2138,21 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
                               .withLabel("LABEL TITLE")
                               .withRendering("RENDERIGN TITLE")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
                               .withLabel("LABEL SUBJECT")
                               .withRendering("RENDERIGN SUBJECT")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 
         CrisLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
                               .withLabel("LABEL CONTRBUTOR")
                               .withRendering("RENDERIGN CONTRIBUTOR")
-                              .withStyle("STYLE")
+                              .withRowStyle("STYLE")
                               .withBox(box1)
                               .build();
 

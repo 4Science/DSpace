@@ -1,3 +1,4 @@
+
 /**
  * The contents of this file are subject to the license and copyright
  * detailed in the LICENSE and NOTICE files at the root of the source
@@ -9,11 +10,9 @@ package org.dspace.layout.service.impl;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,15 +28,13 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutCell;
+import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
-import org.dspace.layout.CrisLayoutTab2Box;
 import org.dspace.layout.dao.CrisLayoutTabDAO;
-import org.dspace.layout.service.CrisLayoutBoxAccessService;
-import org.dspace.layout.service.CrisLayoutBoxService;
-import org.dspace.layout.service.CrisLayoutTabAccessService;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -58,24 +55,12 @@ public class CrisLayoutTabServiceImplTest {
     private AuthorizeService authorizeService;
     @Mock
     private ItemService itemService;
-    @Mock
-    private CrisLayoutBoxService boxService;
-    @Mock
-    private CrisLayoutBoxAccessService crisLayoutBoxAccessService;
 
-    @Mock
-    private CrisLayoutTabAccessService crisLayoutTabAccessService;
-
+    @InjectMocks
     private CrisLayoutTabServiceImpl crisLayoutTabService;
 
-    @Before
-    public void setUp() throws Exception {
-        crisLayoutTabService = new CrisLayoutTabServiceImpl(tabDao, authorizeService, itemService, boxService,
-                                                            crisLayoutBoxAccessService, crisLayoutTabAccessService);
-    }
-
     @Test
-    public void onlyGrantedTabsContainingGrantedBoxesAreReturned() throws SQLException {
+    public void allTabsAreReturned() throws SQLException {
         String itemUuid = UUID.randomUUID().toString();
         Item item = mock(Item.class);
         String entityType = "relationshipEntity";
@@ -112,15 +97,13 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(item.getMetadata()).thenReturn(itemMetadata);
-
-        when(tabDao.findByEntityType(context, entityType))
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType))
             .thenReturn(Arrays.asList(tabOne, tabTwo, tabThree, tabWithoutBoxes, tabWithOnlyForbiddenBoxes));
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
 
         assertThat(tabs.stream().map(CrisLayoutTab::getShortName).collect(toList()),
-                   containsInAnyOrder("tab1", "tab2"));
+            containsInAnyOrder("tab1", "tab2", "tab3", "empty", "forbidden"));
 
     }
 
@@ -137,7 +120,7 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(tabDao.findByEntityType(context, entityType)).thenReturn(emptyList());
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType)).thenReturn(emptyList());
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
 
@@ -157,7 +140,7 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(tabDao.findByEntityType(context, entityType)).thenReturn(null);
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType)).thenReturn(List.of());
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
 
@@ -185,18 +168,16 @@ public class CrisLayoutTabServiceImplTest {
     private CrisLayoutTab tab(String shortName, boolean grantedAccess, CrisLayoutBox...boxes) throws SQLException {
         CrisLayoutTab tab = new CrisLayoutTab();
         tab.setShortName(shortName);
-        tab.setTab2Box(Arrays.stream(boxes).map(this::tabToBox).collect(toList()));
 
-        when(crisLayoutTabAccessService.hasAccess(eq(context), any(), eq(tab), any()))
-            .thenReturn(grantedAccess);
+        for (CrisLayoutBox box : boxes) {
+            CrisLayoutRow row = new CrisLayoutRow();
+            CrisLayoutCell cell = new CrisLayoutCell();
+            tab.addRow(row);
+            row.addCell(cell);
+            cell.addBox(box);
+        }
 
         return tab;
-    }
-
-    private CrisLayoutTab2Box tabToBox(CrisLayoutBox box) {
-        CrisLayoutTab2Box boxOne = new CrisLayoutTab2Box();
-        boxOne.setBox(box);
-        return boxOne;
     }
 
     private MetadataValue metadataValue() {
@@ -219,10 +200,6 @@ public class CrisLayoutTabServiceImplTest {
         throws SQLException {
         CrisLayoutBox box = new CrisLayoutBox();
         box.setId(new Random().nextInt(10000));
-        when(boxService.hasContent(context, box, item, itemMetadata))
-            .thenReturn(hasContent);
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), eq(box), any()))
-            .thenReturn(grantedAccess);
         return box;
     }
 }

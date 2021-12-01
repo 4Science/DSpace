@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,10 +24,6 @@ import org.dspace.app.rest.RestResourceController;
  */
 @LinksRest(links = {
         @LinkRest(
-                name = CrisLayoutTabRest.BOXES,
-                method = "getBoxes"
-        ),
-        @LinkRest(
                 name = CrisLayoutTabRest.SECURITY_METADATA,
                 method = "getSecurityMetadata"
         )
@@ -37,7 +34,6 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
 
     public static final String NAME = "tab";
     public static final String CATEGORY = RestAddressableModel.LAYOUT;
-    public static final String BOXES = "boxes";
     public static final String SECURITY_METADATA = "securitymetadata";
 
     private String shortname;
@@ -45,7 +41,8 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
     private String entityType;
     private Integer priority;
     private Integer security;
-    private List<CrisLayoutBoxRest> boxes;
+    private Boolean leading;
+    private List<CrisLayoutRowRest> rows = new ArrayList<>();
 
     /* (non-Javadoc)
      * @see org.dspace.app.rest.model.RestModel#getType()
@@ -141,19 +138,27 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
         this.security = security;
     }
 
-    /**
-     * @return the boxes
-     */
     @JsonInclude(Include.NON_NULL)
-    public List<CrisLayoutBoxRest> getBoxes() {
-        return boxes;
+    public List<CrisLayoutRowRest> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<CrisLayoutRowRest> rows) {
+        this.rows = rows;
     }
 
     /**
-     * @param boxes the boxes to set
+     * @return the leading
      */
-    public void setBoxes(List<CrisLayoutBoxRest> boxes) {
-        this.boxes = boxes;
+    public Boolean isLeading() {
+        return leading;
+    }
+
+    /**
+     * @param leading the leading to set
+     */
+    public void setLeading(Boolean leading) {
+        this.leading = leading;
     }
 
 }

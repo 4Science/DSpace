@@ -44,49 +44,56 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
     @SequenceGenerator(name = "cris_layout_box_id_seq", sequenceName = "cris_layout_box_id_seq", allocationSize = 1)
     @Column(name = "id", unique = true, nullable = false, insertable = true, updatable = false)
     private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
     private EntityType entitytype;
+
     @Column(name = "type")
     private String type;
+
     @Column(name = "collapsed", nullable = false)
     private Boolean collapsed;
+
     @Column(name = "shortname")
     private String shortname;
+
     @Column(name = "header")
     private String header;
+
     @Column(name = "minor", nullable = false)
     private Boolean minor;
+
     @Column(name = "security")
     private Integer security;
+
     @Column(name = "style")
     private String style;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "cris_layout_box2securitymetadata",
         joinColumns = {@JoinColumn(name = "box_id")},
         inverseJoinColumns = {@JoinColumn(name = "metadata_field_id")}
     )
-    private Set<MetadataField> metadataSecurityFields;
+    private Set<MetadataField> metadataSecurityFields = new HashSet<>();
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "box", cascade = CascadeType.ALL)
-    @OrderBy(value = "row, priority")
-    private List<CrisLayoutField> layoutFields;
-    @OneToMany(
-            mappedBy = "box",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<CrisLayoutMetric2Box> metric2box;
-    @OneToMany(
-            mappedBy = "box",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<CrisLayoutTab2Box> tab2box = new ArrayList<>();
-    @Column(name = "clear")
-    private Boolean clear;
+    @OrderBy(value = "row, cell, priority")
+    private List<CrisLayoutField> layoutFields = new ArrayList<>();
+
+    @OneToMany(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CrisLayoutMetric2Box> metric2box = new ArrayList<>();
+
     @Column(name = "max_columns")
     private Integer maxColumns = null;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cell")
+    private CrisLayoutCell cell;
+
+    @Column(name = "container")
+    private Boolean container = true;
 
     @Override
     public Integer getID() {
@@ -189,6 +196,10 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
         this.security = security.getValue();
     }
 
+    public void setSecurity(Integer security) {
+        this.security = security;
+    }
+
     public String getStyle() {
         return style;
     }
@@ -206,10 +217,11 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
     }
 
     public void addMetadataSecurityFields(Set<MetadataField> metadataFields) {
-        if (this.metadataSecurityFields == null) {
-            this.metadataSecurityFields = new HashSet<>();
-        }
         this.metadataSecurityFields.addAll(metadataFields);
+    }
+
+    public void addMetadataSecurityFields(MetadataField metadataField) {
+        this.metadataSecurityFields.add(metadataField);
     }
 
     public List<CrisLayoutField> getLayoutFields() {
@@ -221,18 +233,7 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
             this.layoutFields = new ArrayList<>();
         }
         this.layoutFields.add(layoutField);
-    }
-
-    public void setLayoutFields(List<CrisLayoutField> layoutFields) {
-        this.layoutFields = layoutFields;
-    }
-
-    public Boolean getClear() {
-        return clear;
-    }
-
-    public void setClear(Boolean clear) {
-        this.clear = clear;
+        layoutField.setBox(this);
     }
 
     public Integer getMaxColumns() {
@@ -247,16 +248,26 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
         return metric2box;
     }
 
-    public void setMetric2box(List<CrisLayoutMetric2Box> box2metric) {
-        this.metric2box = box2metric;
+    public void addMetric2box(CrisLayoutMetric2Box box2metric) {
+        box2metric.setBox(this);
+        this.metric2box.add(box2metric);
     }
 
-    public List<CrisLayoutTab2Box> getTab2box() {
-        return tab2box;
+
+    public CrisLayoutCell getCell() {
+        return cell;
     }
 
-    public void setTab2box(List<CrisLayoutTab2Box> tab2box) {
-        this.tab2box = tab2box;
+    public void setCell(CrisLayoutCell cell) {
+        this.cell = cell;
+    }
+
+    public Boolean isContainer() {
+        return container;
+    }
+
+    public void setContainer(Boolean container) {
+        this.container = container;
     }
 
     @Override

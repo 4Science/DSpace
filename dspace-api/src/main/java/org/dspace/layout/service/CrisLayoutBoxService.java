@@ -9,13 +9,10 @@ package org.dspace.layout.service;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
-import org.dspace.content.MetadataField;
-import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxConfiguration;
@@ -50,51 +47,8 @@ public interface CrisLayoutBoxService extends DSpaceCRUDService<CrisLayoutBox> {
      * @return the stored CrisLayoutBox instance
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public CrisLayoutBox create(
-            Context context,
-            EntityType eType,
-            String boxType,
-            boolean collapsed,
-            boolean minor) throws SQLException, AuthorizeException;
-
-    /**
-     * Find all boxes of a specific tab
-     * @param context The relevant DSpace Context
-     * @param tabId Id of tab container
-     * @return List of CrisLayoutBox {@link CrisLayoutBox}
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public List<CrisLayoutBox> findByTabId(Context context, Integer tabId) throws SQLException;
-
-    /**
-     * Find all boxes of a specific tab
-     * @param context The relevant DSpace Context
-     * @param tabId Id of tab container
-     * @param limit how many results return
-     * @param offset the position of the first result to return
-     * @return List of CrisLayoutBox {@link CrisLayoutBox}
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public List<CrisLayoutBox> findByTabId(Context context, Integer tabId, Integer limit, Integer offset)
-            throws SQLException;
-
-    /**
-     * Returns the total number of boxes contained in the tab identified by its id
-     * @param context The relevant DSpace Context
-     * @param tabId Id of tab container
-     * @return total boxes number in tab
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public Long countTotalBoxesInTab(Context context, Integer tabId) throws SQLException;
-
-    /**
-     * Returns total number of the boxes that are available for the specified entity type {@link EntityType}
-     * @param context The relevant DSpace Context
-     * @param entityType entity type label {@link EntityType}
-     * @return total boxes number of the entity type
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public Long countTotalEntityBoxes(Context context, String entityType) throws SQLException;
+    public CrisLayoutBox create(Context context, EntityType eType, String boxType, boolean collapsed, boolean minor)
+        throws SQLException, AuthorizeException;
 
     /**
      * Returns the boxes that are available for the specified entity type
@@ -105,72 +59,40 @@ public interface CrisLayoutBoxService extends DSpaceCRUDService<CrisLayoutBox> {
      * @return List of CrisLayoutBox {@link CrisLayoutBox}
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public List<CrisLayoutBox> findEntityBoxes(
-            Context context, String entityType, Integer limit, Integer offset) throws SQLException;
-
-    /**
-     * Returns all metadata field associated at box
-     * @param context The relevant DSpace Context
-     * @param boxId id of the box
-     * @param limit how many results return
-     * @param offset the position of the first result to return
-     * @return List of MetadataField {@link MetadataField}
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public List<MetadataField> getMetadataField(Context context, Integer boxId, Integer limit, Integer offset)
-            throws SQLException;
-
-    /**
-     * Returns the total number of metadata field
-     * @param context The relevant DSpace Context
-     * @param boxId id of the box
-     * @return the total metadata number of the box
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public Long totalMetadataField(Context context, Integer boxId) throws SQLException;
-
-    /**
-     * Find all tabs associated at an specific item
-     * @param context The relevant DSpace Context
-     * @param itemUuid String that represents UUID of item
-     * @param tabId Id of tab container
-     * @return List of CrisLayoutBox {@link CrisLayoutBox}
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public List<CrisLayoutBox> findByItem(
-            Context context, UUID itemUuid, Integer tabId) throws SQLException;
-
-    /**
-     * find a box by its shortname
-     * @param context The relevant DSpace Context
-     * @param entityType the label of the entityType
-     * @param shortname of the box to search
-     * @return CrisLayoutBox if present, null otherwise
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public CrisLayoutBox findByShortname(Context context, String entityType, String shortname) throws SQLException;
+    public List<CrisLayoutBox> findByEntityType(Context context, String entityType, Integer limit, Integer offset)
+        throws SQLException;
 
     /**
      * Check if the box has content to show
-     * 
+     *
      * @param context The relevant DSpace Context
      * @param box     CrisLayoutBox instance
      * @param item    the box's item
      * @param values  metadataValue of item
      * @return true if the box has content to show, false otherwise
      */
-    public boolean hasContent(Context context, CrisLayoutBox box, Item item, List<MetadataValue> values);
+    public boolean hasContent(Context context, CrisLayoutBox box, Item item);
+
+    /**
+     * Establishes wether or not, current user is enabled to have access to layout data
+     * contained in a layout box for a given Item.
+     *
+     * @param context current Context
+     * @param box     layout box
+     * @param item    item to whom metadata contained in the box belong to
+     * @return true if access has to be granded, false otherwise
+     */
+    public boolean hasAccess(Context context, CrisLayoutBox box, Item item);
 
     /**
      * Retrieve the configuration details of a specific box. By default the
      * configuration object is just a wrapper of box object as all the details are
      * currently stored inside the box object itself
-     * 
-     * @param context the dspace context
+     *
      * @param box     the CrisLayoutBox
      * @return the configuration details
      */
-    public CrisLayoutBoxConfiguration getConfiguration(Context context, CrisLayoutBox box);
+    public CrisLayoutBoxConfiguration getConfiguration(CrisLayoutBox box);
     /**
      * Retrieve the configuration details of a specific box. By default the
      * configuration object is just a wrapper of box object as all the details are
@@ -180,5 +102,5 @@ public interface CrisLayoutBoxService extends DSpaceCRUDService<CrisLayoutBox> {
      * @param entity    entity type
      * @return type type of the box
      */
-    public List<CrisLayoutBox> findBoxesWithEntityAndType(Context context, String entity, String type);
+    public List<CrisLayoutBox> findByEntityAndType(Context context, String entity, String type);
 }

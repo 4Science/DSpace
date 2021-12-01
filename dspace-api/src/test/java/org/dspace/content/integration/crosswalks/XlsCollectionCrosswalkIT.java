@@ -8,9 +8,9 @@
 package org.dspace.content.integration.crosswalks;
 
 import static java.util.Arrays.asList;
-import static org.dspace.app.bulkimport.utils.WorkbookUtils.getRowValues;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
+import static org.dspace.util.WorkbookUtils.getRowValues;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;

@@ -711,7 +711,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
             // child1's admin user is NOT allowed access to the item belong collection1
             String tokenAdminChild1 = getAuthToken(adminChild1.getEmail(), "qwerty05");
-            getClient(tokenAdminCol2).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            getClient(tokenAdminChild1).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
                                 .andExpect(status().isForbidden());
 
             checkNumberOfStatsRecords(bitstream, 2);

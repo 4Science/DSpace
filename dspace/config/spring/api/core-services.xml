@@ -166,6 +166,8 @@
     
     <bean class="org.dspace.authenticate.OidcAuthenticationBean" id="oidcAuthentication"/>
     <bean class="org.dspace.authenticate.oidc.impl.OidcClientImpl" />
+    <bean class="org.dspace.layout.script.service.impl.CrisLayoutToolValidatorImpl"/>
+    <bean class="org.dspace.layout.script.service.impl.CrisLayoutToolParserImpl"/>
     
 </beans>
 

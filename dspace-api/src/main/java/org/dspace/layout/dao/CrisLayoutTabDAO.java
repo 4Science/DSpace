@@ -9,10 +9,8 @@ package org.dspace.layout.dao;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 import org.dspace.content.EntityType;
-import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.core.GenericDAO;
@@ -28,6 +26,17 @@ import org.dspace.layout.CrisLayoutTab;
  *
  */
 public interface CrisLayoutTabDAO extends GenericDAO<CrisLayoutTab> {
+
+    /**
+     * Find the tab with the given id and fetch all the rows, cells and boxes
+     * contained therein.
+     *
+     * @param  context The relevant DSpace Context
+     * @param  id      the tab id
+     * @return         the tab, if any
+     * @throws SQLException An exception that provides information on a database errors.
+     */
+    public CrisLayoutTab findAndEagerlyFetchBoxes(Context context, Integer id) throws SQLException;
 
     /**
      * Returns the total number of tabs {@link CrisLayoutTab} in the database
@@ -53,7 +62,8 @@ public interface CrisLayoutTabDAO extends GenericDAO<CrisLayoutTab> {
      * @return List of CrisLayoutTab {@link CrisLayoutTab}
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public List<CrisLayoutTab> findByEntityType(Context context, String entityType) throws SQLException;
+    public List<CrisLayoutTab> findByEntityTypeAndEagerlyFetchBoxes(Context context,
+        String entityType) throws SQLException;
 
     /**
      * Returns all tabs in database filtered by entity type {@link EntityType}
@@ -64,7 +74,7 @@ public interface CrisLayoutTabDAO extends GenericDAO<CrisLayoutTab> {
      * @return List of CrisLayoutTab {@link CrisLayoutTab}
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public List<CrisLayoutTab> findByEntityType(
+    public List<CrisLayoutTab> findByEntityTypeAndEagerlyFetchBoxes(
             Context context, String entityType, Integer limit, Integer offset) throws SQLException;
 
     /**
@@ -87,14 +97,5 @@ public interface CrisLayoutTabDAO extends GenericDAO<CrisLayoutTab> {
      */
     public List<MetadataField> getMetadataField(Context context, Integer tabId, Integer limit, Integer offset)
             throws SQLException;
-
-    /**
-     * Find all tabs associated at an specific item.
-     * @param context The relevant DSpace Context
-     * @param intemUUid UUID of the item {@link Item}
-     * @return List of CrisLayoutTab {@link CrisLayoutTab}
-     * @throws SQLException An exception that provides information on a database errors.
-     */
-    public List<CrisLayoutTab> findByItem(Context context, UUID intemUUid) throws SQLException;
 
 }

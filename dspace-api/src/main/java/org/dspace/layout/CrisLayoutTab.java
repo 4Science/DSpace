@@ -9,9 +9,9 @@ package org.dspace.layout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,7 +24,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -37,37 +41,54 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "cris_layout_tab")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
+@NamedEntityGraph(name = CrisLayoutTab.ROWS_AND_CONTENT_GRAPH, attributeNodes = {
+    @NamedAttributeNode(value = "rows", subgraph = "CrisLayoutTab.cells_and_content"),
+    @NamedAttributeNode(value = "entity")
+    }, subgraphs = {
+    @NamedSubgraph(name = "CrisLayoutTab.cells_and_content", attributeNodes = {
+        @NamedAttributeNode(value = "cells", subgraph = "CrisLayoutTab.boxes_and_content")
+    }),
+    @NamedSubgraph(name = "CrisLayoutTab.boxes_and_content", attributeNodes = {
+        @NamedAttributeNode(value = "boxes")
+    })
+})
 public class CrisLayoutTab implements ReloadableEntity<Integer> {
+
+    public static final String ROWS_AND_CONTENT_GRAPH = "CrisLayoutTab.rows_and_content";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cris_layout_tab_seq")
     @SequenceGenerator(name = "cris_layout_tab_seq", sequenceName = "cris_layout_tab_id_seq", allocationSize = 1)
     @Column(name = "id", unique = true, nullable = false, insertable = true, updatable = false)
     private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
     private EntityType entity;
+
     @Column(name = "priority", nullable = false)
     private Integer priority;
+
     @Column(name = "shortname")
     private String shortName;
+
     @Column(name = "header")
     private String header;
+
     @Column(name = "security")
     private Integer security;
+
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cris_layout_tab2securitymetadata",
-        joinColumns = {@JoinColumn(name = "tab_id")},
-        inverseJoinColumns = {@JoinColumn(name = "metadata_field_id")}
-    )
-    private Set<MetadataField> metadataSecurityFields;
-    @OneToMany(
-        mappedBy = "tab",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
-    private List<CrisLayoutTab2Box> tab2box = new ArrayList<>();
+    @JoinTable(name = "cris_layout_tab2securitymetadata", joinColumns = {
+        @JoinColumn(name = "tab_id") }, inverseJoinColumns = { @JoinColumn(name = "metadata_field_id") })
+    private Set<MetadataField> metadataSecurityFields = new HashSet<>();
+
+    @Column(name = "is_leading")
+    private Boolean leading;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "tab", cascade = CascadeType.ALL)
+    @OrderColumn(name = "position")
+    private List<CrisLayoutRow> rows = new ArrayList<>();
 
     public Integer getID() {
         return id;
@@ -145,6 +166,10 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         this.security = security.getValue();
     }
 
+    public void setSecurity(Integer security) {
+        this.security = security;
+    }
+
     public Set<MetadataField> getMetadataSecurityFields() {
         return metadataSecurityFields;
     }
@@ -160,83 +185,28 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         this.metadataSecurityFields.addAll(metadataFields);
     }
 
-    public void addBox(CrisLayoutBox box) {
-        this.addBox(box, null);
+    public Boolean isLeading() {
+        return leading;
     }
 
-    public void addBox(CrisLayoutBox box, Integer position) {
-        if (this.tab2box.isEmpty()) {
-            position = 0;
-        } else if (position == null) {
-            position = 0;
-            for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
-                    it.hasNext(); ) {
-                CrisLayoutTab2Box t2b = it.next();
-                if (t2b.getPosition() >= position) {
-                    position = t2b.getPosition() + 1;
-                }
-            }
-        } else {
-            int currentPosition = -1;
-            for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
-                    it.hasNext(); ) {
-                CrisLayoutTab2Box b2f = it.next();
-                currentPosition = b2f.getPosition();
-                if (currentPosition >= position ) {
-                    b2f.setPosition(++currentPosition);
-                }
-            }
-            if (position > ++currentPosition) {
-                position = currentPosition;
-            }
-        }
-        CrisLayoutTab2Box tab2box = new CrisLayoutTab2Box(this, box, position);
-        this.tab2box.add(tab2box);
+    public void setLeading(Boolean leading) {
+        this.leading = leading;
     }
 
-    public void removeBox(int boxId) {
-        boolean found = false;
-        for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
-                it.hasNext();) {
-            CrisLayoutTab2Box t2b = it.next();
-            if (found) {
-                t2b.setPosition(t2b.getPosition() - 1);
-            }
-            if (t2b.getTab().equals(this) &&
-                    t2b.getId().getCrisLayoutBoxId().equals(boxId)) {
-                it.remove();
-                t2b.getBox().getTab2box().remove(t2b);
-                t2b.setBox(null);
-                t2b.setTab(null);
-                found = true;
-            }
-        }
+    public void addRow(CrisLayoutRow row) {
+        getRows().add(row);
+        row.setTab(this);
     }
 
-    public void removeBox(CrisLayoutBox box) {
-        boolean found = false;
-        for (Iterator<CrisLayoutTab2Box> it = this.tab2box.iterator();
-                it.hasNext();) {
-            CrisLayoutTab2Box t2b = it.next();
-            if (found) {
-                t2b.setPosition(t2b.getPosition() - 1);
-            }
-            if (t2b.getTab().equals(this) && t2b.getBox().equals(box)) {
-                it.remove();
-                t2b.getBox().getTab2box().remove(t2b);
-                t2b.setBox(null);
-                t2b.setTab(null);
-                found = true;
-            }
-        }
+    public List<CrisLayoutRow> getRows() {
+        return rows;
     }
 
-    public List<CrisLayoutTab2Box> getTab2Box() {
-        return tab2box;
-    }
-
-    public void setTab2Box(List<CrisLayoutTab2Box> tab2Box) {
-        this.tab2box = tab2Box;
+    public List<CrisLayoutBox> getBoxes() {
+        return this.rows.stream()
+            .flatMap(row -> row.getCells().stream())
+            .flatMap(cell -> cell.getBoxes().stream())
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -276,4 +246,5 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         }
         return true;
     }
+
 }

@@ -36,7 +36,7 @@ public interface AccountService {
     public void sendRegistrationInfo(Context context, String email, List<UUID> groups)
         throws SQLException, IOException, MessagingException, AuthorizeException;
 
-    public void sendForgotPasswordInfo(Context context, String email)
+    public void sendForgotPasswordInfo(Context context, String email, List<UUID> groups)
         throws SQLException, IOException, MessagingException, AuthorizeException;
 
     public EPerson getEPerson(Context context, String token)

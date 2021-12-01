@@ -8,7 +8,7 @@
 package org.dspace.content.integration.crosswalks.model;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.dspace.app.bulkimport.utils.WorkbookUtils.createCell;
+import static org.dspace.util.WorkbookUtils.createCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +18,8 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.dspace.app.bulkimport.utils.WorkbookUtils;
 import org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk;
+import org.dspace.util.WorkbookUtils;
 
 /**
  * Class that model one of the sheets of the workbook produced by

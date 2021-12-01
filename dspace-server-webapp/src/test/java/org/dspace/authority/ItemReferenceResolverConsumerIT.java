@@ -127,11 +127,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
     @Test
     public void testItemReferenceResolverConsumerOrcidMetadataTitleToUpdate() throws SQLException {
-        //When property cris.item-reference-resolver.override-metadata-value is true update Title
+        //When property cris.item-reference-resolution.override-metadata-value is true update Title
         context.turnOffAuthorisationSystem();
         boolean previousOverrideMetadataValue = configurationService
-            .getBooleanProperty("cris.item-reference-resolver.override-metadata-value");
-        configurationService.setProperty("cris.item-reference-resolver.override-metadata-value", true);
+            .getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
+        configurationService.setProperty("cris.item-reference-resolution.override-metadata-value", true);
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
@@ -178,11 +178,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
     @Test
     public void testItemReferenceResolverConsumerOrcidMetadataTitleNotToUpdate() throws SQLException {
-        //When property cris.item-reference-resolver.override-metadata-value is true update Title
+        //When cris.item-reference-resolution.override-metadata-value is true update Title
         context.turnOffAuthorisationSystem();
         boolean previousOverrideMetadataValue = configurationService
-            .getBooleanProperty("cris.item-reference-resolver.override-metadata-value");
-        configurationService.setProperty("cris.item-reference-resolver.override-metadata-value", false);
+            .getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
+        configurationService.setProperty("cris.item-reference-resolution.override-metadata-value", false);
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)

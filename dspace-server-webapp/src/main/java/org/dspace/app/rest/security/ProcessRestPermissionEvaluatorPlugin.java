@@ -6,9 +6,9 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.security;
-
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.ProcessRest;
@@ -18,7 +18,6 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.scripts.Process;
 import org.dspace.scripts.service.ProcessService;
-import org.dspace.services.ConfigurationService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.slf4j.Logger;
@@ -46,9 +45,6 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
     @Autowired
     private AuthorizeService authorizeService;
 
-    @Autowired
-    private ConfigurationService configurationService;
-
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
                                        DSpaceRestPermission restPermission) {
@@ -63,15 +59,14 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
         try {
             int processId = Integer.parseInt(targetId.toString());
             Process process = processService.find(context, processId);
-            if (process == null) {
-                return true;
-            }
-            if (!((context.getCurrentUser() == null) || (!context.getCurrentUser().equals(process.getEPerson())
-                && !authorizeService.isAdmin(context)))) {
+            EPerson currentUser =  context.getCurrentUser();
+
+            if (Objects.isNull(process) || Objects.isNull(process.getEPerson())) {
                 return true;
             }
 
-            if (context.getCurrentUser() == null && isDefaultUser(process.getEPerson())) {
+            if (!(Objects.isNull(currentUser) || (!context.getCurrentUser().equals(process.getEPerson())
+                    && !authorizeService.isAdmin(context)))) {
                 return true;
             }
 
@@ -81,8 +76,4 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
         return false;
     }
 
-    private boolean isDefaultUser(EPerson ePerson) {
-        return ePerson != null && ePerson.getID().toString()
-            .equals(configurationService.getProperty("process.start.default-user"));
-    }
 }

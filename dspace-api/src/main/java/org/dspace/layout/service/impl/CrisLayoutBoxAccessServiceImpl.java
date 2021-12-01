@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import org.dspace.content.Item;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.LayoutSecurity;
@@ -31,13 +32,12 @@ public class CrisLayoutBoxAccessServiceImpl implements CrisLayoutBoxAccessServic
     }
 
     @Override
-    public boolean hasAccess(Context context, EPerson user, CrisLayoutBox box, Item item)
-        throws SQLException {
-
-        return layoutSecurityService.hasAccess(LayoutSecurity.valueOf(box.getSecurity()),
-                                               context,
-                                               user,
-                                               box.getMetadataSecurityFields(),
-                                               item);
+    public boolean hasAccess(Context context, EPerson user, CrisLayoutBox box, Item item) {
+        try {
+            return layoutSecurityService.hasAccess(LayoutSecurity.valueOf(box.getSecurity()), context, user,
+                box.getMetadataSecurityFields(), item);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
     }
 }

@@ -7,12 +7,13 @@
  */
 package org.dspace.app.rest.orcid;
 
+import static org.dspace.app.rest.matcher.CrisLayoutBoxMatcher.matchBox;
+import static org.hamcrest.Matchers.contains;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.dspace.app.rest.matcher.CrisLayoutBoxMatcher;
 import org.dspace.app.rest.matcher.CrisLayoutTabMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
@@ -91,7 +92,7 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
             .withShortName("tab1")
             .withSecurity(LayoutSecurity.PUBLIC)
             .withHeader("tab person 1")
-            .addBox(boxOne)
+            .addBoxIntoNewRow(boxOne)
             .build();
 
         CrisLayoutBox boxTwo = CrisLayoutBoxBuilder.createBuilder(context, eTypePer, false, false)
@@ -120,8 +121,8 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
             .withShortName("tab2")
             .withSecurity(LayoutSecurity.PUBLIC)
             .withHeader("Tab person 2")
-            .addBox(boxTwo)
-            .addBox(boxThree)
+            .addBoxIntoNewRow(boxTwo)
+            .addBoxIntoNewRow(boxThree)
             .build();
 
         CrisLayoutBox boxFour = CrisLayoutBoxBuilder.createBuilder(context, eTypePer, false, false)
@@ -138,7 +139,7 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
             .withShortName("tab3")
             .withSecurity(LayoutSecurity.PUBLIC)
             .withHeader("Tab person 3")
-            .addBox(boxFour)
+            .addBoxIntoNewRow(boxFour)
             .build();
 
         // Create the orcid boxes and tab
@@ -164,9 +165,9 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                 .withShortName("orcid")
                 .withSecurity(LayoutSecurity.OWNER_ONLY)
                 .withHeader("ORCID")
-                .addBox(orcidsyncqueue)
-                .addBox(orcidsyncsettings)
-                .addBox(orcidauthorizations)
+                .addBoxIntoNewRow(orcidauthorizations)
+                .addBoxIntoNewRow(orcidsyncsettings)
+                .addBoxIntoNewRow(orcidsyncqueue)
                 .build();
 
         // create some people
@@ -187,7 +188,7 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                 .withPersonIdentifierFirstName("Andrea")
                 .withPersonIdentifierLastName("Bollini")
                 .withOrcidIdentifier("0000-0002-9029-1854")
-            .withOrcidAccessToken("0023a083-1844-47ee-ab12-d066e735e092")
+                .withOrcidAccessToken("0023a083-1844-47ee-ab12-d066e735e092")
                 .withBirthDate("1980-08-04")
                 .withEntityType(eTypePer.getLabel())
                 .withCrisOwner(admin.getFullName(), admin.getID().toString())
@@ -198,7 +199,7 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                 .withPersonIdentifierFirstName("Mario")
                 .withPersonIdentifierLastName("Rossi")
                 .withOrcidIdentifier("4444-3333-2222-1111")
-            .withOrcidAccessToken("0023a083-1844-47ee-ab12-d066e735e092")
+                .withOrcidAccessToken("0023a083-1844-47ee-ab12-d066e735e092")
                 .withBirthDate("1944-04-17")
                 .withEntityType(eTypePer.getLabel())
                 .build();
@@ -252,10 +253,9 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab2),
                     CrisLayoutTabMatcher.matchTab(tab3)
                     )))
-//            there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))));
 
         // Test with another user
         getClient(anotherEpersonToken).perform(get("/api/layout/tabs/search/findByItem")
@@ -269,10 +269,9 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab2),
                     CrisLayoutTabMatcher.matchTab(tab3)
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))));
 
         // Test with the admin user
         getClient(adminToken).perform(get("/api/layout/tabs/search/findByItem")
@@ -287,12 +286,10 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab3)
                     // nor the admin see the orcid tab
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo),
-//                    // the admin see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxThree))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[1].cells[0].boxes", contains(matchBox(boxThree))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))));
 
         // Test with the eperson user
         getClient(epersonToken).perform(get("/api/layout/tabs/search/findByItem")
@@ -307,28 +304,13 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab3),
                     // eperson see it own orcid tab
                     CrisLayoutTabMatcher.matchTab(orcidTab)
-                    )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    // eperson doesn't see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo))))
-//            .andExpect(jsonPath("$._embedded.tabs[3]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations),
-//                    CrisLayoutBoxMatcher.matchBox(orcidsyncsettings),
-//                    CrisLayoutBoxMatcher.matchBox(orcidsyncqueue))))
-            ;
-        // check the boxes
-        getClient(epersonToken).perform(get("/api/layout/boxes/search/findByItem")
-                .param("uuid", epersonProfile.getID().toString())
-                .param("tab", orcidTab.getID().toString())
-                .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)))
-            .andExpect(jsonPath("$._embedded.boxes", Matchers.containsInAnyOrder(
-                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations),
-                    CrisLayoutBoxMatcher.matchBox(orcidsyncsettings),
-                    CrisLayoutBoxMatcher.matchBox(orcidsyncqueue))));
+            )))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[0].cells[0].boxes", contains(matchBox(orcidauthorizations))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[1].cells[0].boxes", contains(matchBox(orcidsyncsettings))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[2].cells[0].boxes", contains(matchBox(orcidsyncqueue))));
 
         getClient(adminToken).perform(get("/api/layout/tabs/search/findByItem")
                 .param("uuid", adminProfile.getID().toString())
@@ -342,28 +324,12 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab3),
                     CrisLayoutTabMatcher.matchTab(orcidTab)
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo),
-//                    // the admin see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxThree))))
-//            .andExpect(jsonPath("$._embedded.tabs[3]._embedded.boxes", Matchers.containsInAnyOrder(
-//                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations),
-//                    CrisLayoutBoxMatcher.matchBox(orcidsyncsettings),
-//                    CrisLayoutBoxMatcher.matchBox(orcidsyncqueue))))
-            ;
-        // check the boxes
-        getClient(adminToken).perform(get("/api/layout/boxes/search/findByItem")
-                .param("uuid", adminProfile.getID().toString())
-                .param("tab", orcidTab.getID().toString())
-                .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)))
-            .andExpect(jsonPath("$._embedded.boxes", Matchers.containsInAnyOrder(
-                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations),
-                    CrisLayoutBoxMatcher.matchBox(orcidsyncsettings),
-                    CrisLayoutBoxMatcher.matchBox(orcidsyncqueue))));
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[0].cells[0].boxes", contains(matchBox(orcidauthorizations))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[1].cells[0].boxes", contains(matchBox(orcidsyncsettings))))
+            .andExpect(jsonPath("$._embedded.tabs[3].rows[2].cells[0].boxes", contains(matchBox(orcidsyncqueue))));
 
         // Test with the admin user over the not linked profile
         getClient(adminToken).perform(get("/api/layout/tabs/search/findByItem")
@@ -376,14 +342,12 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab),
                     CrisLayoutTabMatcher.matchTab(tab2),
                     CrisLayoutTabMatcher.matchTab(tab3)
-                    // nor the admin see the orcid tab
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.containsInAnyOrder(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo),
-//                    // the admin see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxThree))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[1].cells[0].boxes", contains(matchBox(boxThree))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))));
+
         // Test with the eperson user over the not linked profile
         getClient(epersonToken).perform(get("/api/layout/tabs/search/findByItem")
                 .param("uuid", anotherProfile.getID().toString())
@@ -397,12 +361,10 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     CrisLayoutTabMatcher.matchTab(tab3)
                     // nor the admin see the orcid tab
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.containsInAnyOrder(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo),
-//                    // the admin see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxThree))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(boxFour))));
+
         // Test with the admin user over the linked profile without orcid
         getClient(adminToken).perform(get("/api/layout/tabs/search/findByItem")
                 .param("uuid", anotherEPersonProfile.getID().toString())
@@ -416,12 +378,10 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     // the tab3 is empty
                     // nor the admin see the orcid tab
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo),
-//                    // the admin see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxThree))))
-            ;
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[1].cells[0].boxes", contains(matchBox(boxThree))));
+
         // test with the another eperson owner on a profile without orcid
         getClient(anotherEpersonToken).perform(get("/api/layout/tabs/search/findByItem")
                 .param("uuid", anotherEPersonProfile.getID().toString())
@@ -436,25 +396,9 @@ public class ORCIDTabIT extends AbstractControllerIntegrationTest {
                     // eperson see it own orcid tab
                     CrisLayoutTabMatcher.matchTab(orcidTab)
                     )))
-//          there is not embedding of boxes for now
-//            .andExpect(jsonPath("$._embedded.tabs[1]._embedded.boxes", Matchers.contains(
-//                    // eperson doesn't see box three
-//                    CrisLayoutBoxMatcher.matchBox(boxTwo))))
-//            .andExpect(jsonPath("$._embedded.tabs[3]._embedded.boxes", Matchers.containsInAnyOrder(
-//                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations)
-//                    // there are no settings or queue boxes as the orcid is missing
-//                    )))
-            ;
-        // check the boxes
-        getClient(anotherEpersonToken).perform(get("/api/layout/boxes/search/findByItem")
-                .param("uuid", anotherEPersonProfile.getID().toString())
-                .param("tab", orcidTab.getID().toString())
-                .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
-            .andExpect(jsonPath("$._embedded.boxes", Matchers.contains(
-                    CrisLayoutBoxMatcher.matchBox(orcidauthorizations)
-                    )));
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+            .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(boxTwo))))
+            .andExpect(jsonPath("$._embedded.tabs[2].rows[0].cells[0].boxes", contains(matchBox(orcidauthorizations))));
+
     }
 }

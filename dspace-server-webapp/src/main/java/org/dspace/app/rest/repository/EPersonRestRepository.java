@@ -343,7 +343,51 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
     public Class<EPersonRest> getDomainClass() {
         return EPersonRest.class;
     }
-
+    /**
+     * This method will perform an add into the table epersongroup2eperson
+     * for the user with id uuid and with the list o groups
+     * found on the registration data taken from token offered as query parameter
+     * It also deletes the registrationdata found with token after the creation of groups
+     * @return              The EPersonRest after the creation of groups
+     * @throws AuthorizeException   If user is not allowed
+     * @throws SQLException         If something goes wrong
+     */
+    public EPersonRest joinUserToGroups(UUID uuid, String token) throws AuthorizeException {
+        try {
+            Context context = obtainContext();
+            HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
+            RegistrationData registrationData = registrationDataService.findByToken(context, token);
+            if (registrationData == null) {
+                throw new DSpaceBadRequestException("The token given as parameter: " + token + " does not exist" +
+                        " in the database");
+            }
+            if (uuid == null) {
+                throw new DSpaceBadRequestException("The uuid of the person cannot be null");
+            }
+            EPerson ePerson = es.findByIdOrLegacyId(context, uuid.toString());
+            if (ePerson == null) {
+                throw new DSpaceBadRequestException("The token given does not contains an email address that resolves" +
+                        " to an eperson");
+            }
+            if (!ePerson.equals(context.getCurrentUser())) {
+                throw new AuthorizeException("Only the user with id: " + uuid + " can make this action.");
+            }
+            // We'll turn off authorisation system because this call isn't admin based as it's token based
+            context.turnOffAuthorisationSystem();
+            List<Group> groups = registrationData.getGroups();
+            addEPersonToGroups(context, ePerson, groups);
+            context.restoreAuthSystemState();
+            // Restoring authorisation state right after the creation call
+            accountService.deleteToken(context, token);
+            return converter.toRest(ePerson, utils.obtainProjection());
+        } catch (AuthorizeException e) {
+            log.error(e);
+            throw new AuthorizeException(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
     @Override
     public void afterPropertiesSet() throws Exception {
         discoverableEndpointsService.register(this, Arrays.asList(

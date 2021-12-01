@@ -10,6 +10,7 @@ package org.dspace.app.rest.converter;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.CrisLayoutBoxConfigurationRest;
 import org.dspace.app.rest.model.CrisLayoutBoxRelationConfigurationRest;
+import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,6 @@ public class CrisLayoutRelationBoxConfigurator implements CrisLayoutBoxConfigura
     @Override
     public CrisLayoutBoxConfigurationRest getConfiguration(CrisLayoutBox box) {
         CrisLayoutBoxRelationConfigurationRest rest = new CrisLayoutBoxRelationConfigurationRest();
-        rest.setId(box.getID());
         StringBuilder discoveryConfiguration = new StringBuilder(CrisLayoutBoxTypes.RELATION.name());
         discoveryConfiguration.append(".");
         discoveryConfiguration.append(box.getEntitytype().getLabel());
@@ -39,6 +39,11 @@ public class CrisLayoutRelationBoxConfigurator implements CrisLayoutBoxConfigura
         discoveryConfiguration.append(box.getShortname());
         rest.setDiscoveryConfiguration(discoveryConfiguration.toString());
         return rest;
+    }
+
+    @Override
+    public void configure(Context context, CrisLayoutBox box, CrisLayoutBoxConfigurationRest rest) {
+        // Nothing to do
     }
 
 }

@@ -110,4 +110,13 @@ public class FacetValueMatcher {
         );
     }
 
+    public static Matcher<? super Object> entryLanguage(String label) {
+        return allOf(
+            hasJsonPath("$.label", is(label)),
+            hasJsonPath("$.type", is("discover")),
+            hasJsonPath("$._links.search.href", containsString("api/discover/search/objects")),
+            hasJsonPath("$._links.search.href", containsString("f.language="))
+        );
+    }
+
 }

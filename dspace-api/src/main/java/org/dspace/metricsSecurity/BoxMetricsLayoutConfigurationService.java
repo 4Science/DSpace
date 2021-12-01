@@ -10,6 +10,7 @@ package org.dspace.metricsSecurity;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.authorize.service.AuthorizeService;
@@ -56,34 +57,31 @@ public class BoxMetricsLayoutConfigurationService {
             String entityType = itemService.getMetadataFirstValue(item,
                     "dspace", "entity", "type", Item.ANY);
             // Metrics boxes with entity type
-            List<CrisLayoutBox> entityBoxes = crisLayoutBoxService.findBoxesWithEntityAndType(
+            List<CrisLayoutBox> entityBoxes = crisLayoutBoxService.findByEntityAndType(
                     context, entityType, "METRICS");
-            try {
-                // if there are boxes
-                if (entityBoxes.size() > 0) {
-                    for (CrisLayoutBox crisLayoutBox : entityBoxes) {
-                        List<CrisLayoutMetric2Box> crisLayoutMetric2Boxes = crisLayoutBox.getMetric2box();
-                        if (crisLayoutMetric2Boxes != null) {
-                            for (CrisLayoutMetric2Box crisLayoutMetric2Box : crisLayoutMetric2Boxes) {
-                                if (crisLayoutMetric2Box.getType().equals(crisMetric.getMetricType())) {
-                                    if (crisLayoutBoxAccessService.hasAccess(context, context.getCurrentUser(),
-                                            crisLayoutMetric2Box.getBox(), item)) {
-                                        return true;
-                                    }
-                                }
-                            }
+            // if there are boxes
+            if (CollectionUtils.isEmpty(entityBoxes)) {
+                return true;
+            }
+
+            for (CrisLayoutBox crisLayoutBox : entityBoxes) {
+                List<CrisLayoutMetric2Box> crisLayoutMetric2Boxes = crisLayoutBox.getMetric2box();
+                if (crisLayoutMetric2Boxes == null) {
+                    continue;
+                }
+                for (CrisLayoutMetric2Box crisLayoutMetric2Box : crisLayoutMetric2Boxes) {
+                    if (crisLayoutMetric2Box.getType().equals(crisMetric.getMetricType())) {
+                        if (crisLayoutBoxAccessService.hasAccess(context, context.getCurrentUser(),
+                            crisLayoutMetric2Box.getBox(), item)) {
+                            return true;
                         }
                     }
-                } else {
-                    // if there aren't boxes than return true
-                    return true;
                 }
-            } catch (SQLException sqlException) {
-                log.error(sqlException.getMessage());
             }
             // if error or when no access then return false
             return false;
         } catch (Exception e) {
+            log.error(e);
             return false;
         }
 

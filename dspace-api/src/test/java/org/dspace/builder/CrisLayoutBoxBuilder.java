@@ -161,4 +161,9 @@ public class CrisLayoutBoxBuilder extends AbstractBuilder<CrisLayoutBox, CrisLay
         this.box.getMetadataSecurityFields().add(field);
         return this;
     }
+
+    public CrisLayoutBoxBuilder withContainer(boolean container) {
+        this.box.setContainer(container);
+        return this;
+    }
 }

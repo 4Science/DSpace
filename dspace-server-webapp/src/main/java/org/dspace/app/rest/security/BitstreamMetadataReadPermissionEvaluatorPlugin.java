@@ -72,11 +72,6 @@ public class BitstreamMetadataReadPermissionEvaluatorPlugin extends RestObjectPe
                         return true;
                     }
 
-                    if (context.getCurrentUser() == null
-                        && bitstreamService.isRelatedToAProcessStartedByDefaultUser(context, (Bitstream) dso)) {
-                        return true;
-                    }
-
                     DSpaceObject bitstreamParentObject = bitstreamService.getParentObject(context, (Bitstream) dso);
                     if (bitstreamParentObject instanceof Item && !((Bitstream) dso).getBundles().isEmpty()) {
                         // If parent is item and it is in a bundle

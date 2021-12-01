@@ -12,6 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -86,7 +87,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void findAllScriptsWithAdminTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(get("/api/system/scripts"))
+        getClient(token).perform(get("/api/system/scripts")
+                        .param("size", "100"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.scripts", containsInAnyOrder(
                             scriptConfigurations
@@ -145,11 +147,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                 Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=19"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(0)))
-                        .andExpect(jsonPath("$.page.totalPages", is(20)))
-                        .andExpect(jsonPath("$.page.totalElements", is(20)));
+                        .andExpect(jsonPath("$.page.totalPages", is(22)))
+                        .andExpect(jsonPath("$.page.totalElements", is(22)));
 
 
         getClient(token).perform(get("/api/system/scripts").param("size", "1").param("page", "1"))
@@ -176,11 +178,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                 Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=19"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(1)))
-                        .andExpect(jsonPath("$.page.totalPages", is(20)))
-                        .andExpect(jsonPath("$.page.totalElements", is(20)));
+                        .andExpect(jsonPath("$.page.totalPages", is(22)))
+                        .andExpect(jsonPath("$.page.totalElements", is(22)));
     }
 
     @Test
@@ -558,8 +560,6 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             .withNameInMetadata("Test", "User")
             .build();
 
-        configurationService.setProperty("process.start.default-user", user.getID().toString());
-
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
             .build();
@@ -603,7 +603,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
 
             Process process = processService.find(context, idRef.get());
-            assertThat(process.getEPerson(), is(user));
+            assertNull(process.getEPerson());
 
         } finally {
             if (idRef.get() != null) {

@@ -105,6 +105,16 @@
         <property name="dspaceRunnableClass" value="org.dspace.administer.ProcessCleanerCli"/>
     </bean>
 
+    <bean id="cris-layout-tool" class="org.dspace.layout.script.CrisLayoutToolScriptConfiguration">
+        <property name="description" value="Script to import CRIS layout configuration from excel file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.layout.script.CrisLayoutToolScript"/>
+    </bean>
+        
+    <bean id="update-item-references" class="org.dspace.authority.script.UpdateItemReferenceCliScriptConfiguration">
+        <property name="description" value="Perform the resolutrion of authority references"/>
+        <property name="dspaceRunnableClass" value="org.dspace.authority.script.UpdateItemReferenceCli"/>
+    </bean>
+
     <!-- Keep as last script; for test ScriptRestRepository#findOneScriptByNameTest -->
     <bean id="mock-script" class="org.dspace.scripts.MockDSpaceRunnableScriptConfiguration" scope="prototype">
         <property name="description" value="Mocking a script for testing purposes" />

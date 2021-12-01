@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
                                      final List<Group> specialGroups) {
         Context context = new Context();
         try {
-            ePersonId = ePerson.getID();
+            ePersonId = Objects.nonNull(ePerson) ? ePerson.getID() : null;
             Process process = processService.create(context, ePerson, scriptName, parameters, specialGroups);
             processId = process.getID();
             this.scriptName = process.getName();

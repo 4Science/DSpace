@@ -8,6 +8,7 @@
 package org.dspace.app.rest.converter;
 
 import org.dspace.app.rest.model.CrisLayoutBoxConfigurationRest;
+import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
 
 /**
@@ -22,5 +23,7 @@ public interface CrisLayoutBoxConfigurator {
     public boolean support(CrisLayoutBox box);
 
     public CrisLayoutBoxConfigurationRest getConfiguration(CrisLayoutBox box);
+
+    public void configure(Context context, CrisLayoutBox box, CrisLayoutBoxConfigurationRest rest);
 
 }

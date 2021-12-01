@@ -13,6 +13,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.dao.CrisLayoutMetric2BoxDAO;
@@ -60,29 +61,30 @@ public class CrisLayoutMetric2BoxServiceImpl implements CrisLayoutMetric2BoxServ
     }
 
     @Override
-    public CrisLayoutMetric2Box create(Context context, CrisLayoutMetric2Box metric) throws SQLException {
-        return dao.create(context, metric);
-    }
-
-    @Override
-    public CrisLayoutBox addMetrics(Context context, CrisLayoutBox box, List<String> metrics) throws SQLException {
-        box.getMetric2box().clear();
-        this.createMetrics(context, box, metrics, 0);
-        return box;
-    }
-
-    @Override
-    public CrisLayoutBox appendMetrics(Context context, CrisLayoutBox box, List<String> metrics) throws SQLException {
-        this.createMetrics(context, box, metrics, box.getMetric2box().size());
-        return box;
-    }
-
-    private void createMetrics(Context context, CrisLayoutBox box,
-            List<String> metrics, int initialPosition) throws SQLException {
-        for (String metric : metrics) {
-            CrisLayoutMetric2Box m2b = new CrisLayoutMetric2Box(box, metric, initialPosition++);
-            this.create(context, m2b);
+    public CrisLayoutMetric2Box create(Context context, CrisLayoutMetric2Box metric) {
+        try {
+            return dao.create(context, metric);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
+    }
+
+    @Override
+    public CrisLayoutBox addMetrics(Context context, CrisLayoutBox box, List<String> metrics) {
+        box.getMetric2box().clear();
+        return appendMetrics(context, box, metrics);
+    }
+
+    @Override
+    public CrisLayoutBox appendMetrics(Context context, CrisLayoutBox box, List<String> metrics) {
+        int initialPosition = box.getMetric2box().size();
+        for (String metric : metrics) {
+            CrisLayoutMetric2Box m2b = new CrisLayoutMetric2Box();
+            m2b.setPosition(initialPosition++);
+            m2b.setType(metric);
+            box.addMetric2box(m2b);
+        }
+        return box;
     }
 
 }

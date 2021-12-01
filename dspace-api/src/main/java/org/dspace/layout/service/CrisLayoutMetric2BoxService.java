@@ -29,7 +29,7 @@ public interface CrisLayoutMetric2BoxService extends DSpaceCRUDService<CrisLayou
      * @return the stored CrisLayoutMetric2Box instance
      * @throws SQLException An exception that provides information on a database errors.
      */
-    CrisLayoutMetric2Box create(Context context, CrisLayoutMetric2Box metric) throws SQLException;
+    CrisLayoutMetric2Box create(Context context, CrisLayoutMetric2Box metric);
 
     /**
      * This method stores add to a CrisLayoutBox metrics of type {@link CrisLayoutMetric2Box}.
@@ -38,7 +38,7 @@ public interface CrisLayoutMetric2BoxService extends DSpaceCRUDService<CrisLayou
      * @return the updated CrisLayoutBox instance
      * @throws SQLException An exception that provides information on a database errors.
      */
-    CrisLayoutBox addMetrics(Context context, CrisLayoutBox box, List<String> metrics) throws SQLException;
+    CrisLayoutBox addMetrics(Context context, CrisLayoutBox box, List<String> metrics);
 
     /**
      * This method stores append to a CrisLayoutBox metrics of type {@link CrisLayoutMetric2Box}.
@@ -47,6 +47,6 @@ public interface CrisLayoutMetric2BoxService extends DSpaceCRUDService<CrisLayou
      * @return the updated CrisLayoutBox instance
      * @throws SQLException An exception that provides information on a database errors.
      */
-    CrisLayoutBox appendMetrics(Context context, CrisLayoutBox box, List<String> metrics) throws SQLException;
+    CrisLayoutBox appendMetrics(Context context, CrisLayoutBox box, List<String> metrics);
 
 }

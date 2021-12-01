@@ -7,14 +7,13 @@
  */
 package org.dspace.layout.service.impl;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static org.apache.commons.collections4.IteratorUtils.arrayIterator;
+import static org.apache.commons.collections4.IteratorUtils.emptyIterator;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,24 +27,23 @@ import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.service.EntityTypeService;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
+import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.dao.CrisLayoutBoxDAO;
-import org.dspace.layout.service.CrisLayoutBoxAccessService;
 import org.dspace.metrics.CrisItemMetricsAuthorizationService;
 import org.dspace.metrics.CrisItemMetricsService;
 import org.dspace.metrics.embeddable.model.EmbeddableCrisMetrics;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
@@ -54,9 +52,10 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Corrado Lombardi (corrado.lombardi at 4science.it)
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class CrisLayoutBoxServiceImplTest {
 
+    @InjectMocks
     private CrisLayoutBoxServiceImpl crisLayoutBoxService;
 
     @Mock
@@ -64,334 +63,354 @@ public class CrisLayoutBoxServiceImplTest {
     @Mock
     private CrisLayoutBoxDAO dao;
     @Mock
-    private ItemService itemService;
-    @Mock
     private AuthorizeService authorizeService;
-    @Mock
-    private EntityTypeService entityTypeService;
-    @Mock
-    private CrisLayoutBoxAccessService crisLayoutBoxAccessService;
-    @Mock
-    private CrisItemMetricsService crisItemMetricsService;
     @Mock
     private CrisItemMetricsAuthorizationService crisItemMetricsAuthorizationService;
     @Mock
+    private CrisItemMetricsService crisItemMetricsService;
+    @Mock
     private DiscoveryConfigurationUtilsService searchConfigurationUtilsService;
 
+    @Test
+    public void testHasContentWithMetadataBox() {
 
-    @Before
-    public void setUp() throws Exception {
-        crisLayoutBoxService = new CrisLayoutBoxServiceImpl(dao, itemService, authorizeService, entityTypeService,
-                                                            crisLayoutBoxAccessService,
-                                                            crisItemMetricsAuthorizationService,
-                                                            crisItemMetricsService,
-                                                            searchConfigurationUtilsService);
-    }
+        MetadataField titleField = metadataField("dc", "title", null);
+        MetadataField authorField = metadataField("dc", "contributor", "author");
 
-    @Test(expected = NullPointerException.class)
-    public void nullItemThrowsException() throws Exception {
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
+        CrisLayoutBox box = crisLayoutMetadataBox("Main Box", authorField, titleField);
+        Item item = item(metadataValue(titleField, "John Smith"));
 
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(null);
-
-        crisLayoutBoxService.findByItem(context, itemUuid, tabId);
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
     }
 
     @Test
-    public void nullBoxesReturnsEmptyList() throws Exception {
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
+    public void testRelationBoxHasContent() {
 
-        Item item = Mockito.mock(Item.class);
+        CrisLayoutBox box = crisLayoutBox("authors", CrisLayoutBoxTypes.RELATION.name());
+        Item item = item();
 
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(null);
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        assertThat(boxes, is(emptyList()));
-    }
-
-    @Test
-    public void emptyBoxesReturnsEmptyList() throws Exception {
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
-
-        Item item = Mockito.mock(Item.class);
-
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(emptyList());
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        assertThat(boxes, is(emptyList()));
-    }
-
-    @Test
-    public void nullItemMetadataReturnsEmptyList() throws Exception {
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
-
-        Item item = Mockito.mock(Item.class);
-
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(singletonList(new CrisLayoutBox()));
-
-        when(item.getMetadata()).thenReturn(null);
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        assertThat(boxes, is(emptyList()));
-    }
-
-    @Test
-    public void emptyItemMetadataReturnsEmptyList() throws Exception {
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
-
-        Item item = Mockito.mock(Item.class);
-
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(singletonList(new CrisLayoutBox()));
-
-        when(item.getMetadata()).thenReturn(emptyList());
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        assertThat(boxes, is(emptyList()));
-    }
-
-    @Test
-    public void onlyMatchingMetadataAreReturned() throws Exception {
-        Item item = Mockito.mock(Item.class);
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
-
-        MetadataField fooMetadata = mock(MetadataField.class);
-        MetadataField barMetadata = mock(MetadataField.class);
-        MetadataField bazMetadata = mock(MetadataField.class);
-        MetadataField notDisplayedMetadata = mock(MetadataField.class);
-
-        List<MetadataValue> itemMetadata = Arrays.asList(
-            metadataValue(fooMetadata),
-            metadataValue(notDisplayedMetadata),
-            metadataValue(barMetadata));
-
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(Arrays.asList(
-                crisLayoutBox("box1", fooMetadata),
-                crisLayoutBox("box2", barMetadata),
-                crisLayoutBox("box3", bazMetadata)));
-
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), any(), any()))
-            .thenReturn(true);
-
-        when(item.getMetadata()).thenReturn(itemMetadata);
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        List<String> boxNames = boxes.stream().map(CrisLayoutBox::getShortname).sorted().collect(Collectors.toList());
-
-        assertThat(boxNames.size(), is(2));
-        assertThat(boxNames, is(Arrays.asList("box1", "box2")));
+        Iterator<Item> relatedItems = arrayIterator(item(), item());
+        when(searchConfigurationUtilsService.findByRelation(context, item, "authors")).thenReturn(relatedItems);
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
 
     }
 
     @Test
-    public void unauthorizedBoxNotReturned() throws Exception {
-        Item item = Mockito.mock(Item.class);
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
+    public void testRelationBoxHasNoContent() {
 
-        MetadataField fooMetadata = mock(MetadataField.class);
-        MetadataField barMetadata = mock(MetadataField.class);
-        MetadataField bazMetadata = mock(MetadataField.class);
+        CrisLayoutBox box = crisLayoutBox("authors", CrisLayoutBoxTypes.RELATION.name());
+        Item item = item();
 
-        List<MetadataValue> itemMetadata = Arrays.asList(
-            metadataValue(fooMetadata),
-            metadataValue(bazMetadata),
-            metadataValue(barMetadata));
-
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("EntityType");
-
-        CrisLayoutBox fooBox = crisLayoutBox("box1", fooMetadata);
-        CrisLayoutBox barBox = crisLayoutBox("box2", barMetadata);
-        CrisLayoutBox bazBox = crisLayoutBox("box3", bazMetadata);
-
-        when(dao.findByEntityType(any(Context.class), eq("EntityType"), eq(tabId), any(), any()))
-            .thenReturn(Arrays.asList(fooBox, barBox, bazBox));
-
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), eq(fooBox), any()))
-            .thenReturn(true);
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), eq(barBox), any()))
-            .thenReturn(true);
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), eq(bazBox), any()))
-            .thenReturn(false);
-
-        when(item.getMetadata()).thenReturn(itemMetadata);
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        List<String> boxNames = boxes.stream().map(CrisLayoutBox::getShortname).sorted().collect(Collectors.toList());
-
-        assertThat(boxNames.size(), is(2));
-        assertThat(boxNames, is(Arrays.asList("box1", "box2")));
+        when(searchConfigurationUtilsService.findByRelation(context, item, "authors")).thenReturn(emptyIterator());
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(false));
 
     }
 
     @Test
-    public void hasMetricsBoxContent() {
+    public void testHasContentWithBoxWithoutType() {
+
+        MetadataField titleField = metadataField("dc", "title", null);
+
+        CrisLayoutBox box = crisLayoutBox("Main Box", null, titleField);
+        Item item = item(metadataValue(titleField, "John Smith"));
+
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
+    }
+
+    @Test
+    public void testHasContentWithItemWithoutMetadata() {
+
+        MetadataField titleField = metadataField("dc", "title", null);
+        MetadataField authorField = metadataField("dc", "contributor", "author");
+
+        CrisLayoutBox box = crisLayoutMetadataBox("Main Box", titleField, authorField);
+        Item item = item();
+
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(false));
+    }
+
+    @Test
+    public void testHasContentWithEmptyMetadataBox() {
+
+        MetadataField titleField = metadataField("dc", "title", null);
+
+        CrisLayoutBox box = crisLayoutMetadataBox("Main Box");
+        Item item = item(metadataValue(titleField, "John Smith"));
+
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(false));
+    }
+
+    @Test
+    public void testHasMetricsBoxContent() {
 
         when(crisItemMetricsAuthorizationService.isAuthorized(any(), any(UUID.class))).thenReturn(true);
 
         // should return false when the box has no metrics associated
         CrisLayoutBox boxWithoutMetrics = crisLayoutMetricBox();
-        assertFalse(crisLayoutBoxService.hasMetricsBoxContent(context, boxWithoutMetrics, UUID.randomUUID()));
+        assertFalse(crisLayoutBoxService.hasContent(context, boxWithoutMetrics, item()));
 
         // should return true when the box has at least one embeddable associated (stored mocked to empty)
         CrisLayoutBox boxMetric1 = crisLayoutMetricBox("metric1");
-        mockStoredCrisMetrics();
-        mockEmbeddableCrisMetrics("metric1");
-        assertTrue(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
+        storedCrisMetrics();
+        embeddableCrisMetrics("metric1");
+        assertTrue(crisLayoutBoxService.hasContent(context, boxMetric1, item()));
 
         // should return true when the box has at least one stored associated (embeded mocked to empty)
-        mockStoredCrisMetrics("metric1");
-        mockEmbeddableCrisMetrics();
-        assertTrue(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
+        storedCrisMetrics("metric1");
+        embeddableCrisMetrics();
+        assertTrue(crisLayoutBoxService.hasContent(context, boxMetric1, item()));
 
         // shuld return false when the box has embedded but not associated (stored mocked to empty)
-        mockStoredCrisMetrics();
-        mockEmbeddableCrisMetrics("metric2");
-        assertFalse(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
+        storedCrisMetrics();
+        embeddableCrisMetrics("metric2");
+        assertFalse(crisLayoutBoxService.hasContent(context, boxMetric1, item()));
 
         // shuld return false when the box has stored but not associated (embedded mocked to empty)
-        mockStoredCrisMetrics("metric2");
-        mockEmbeddableCrisMetrics();
-        assertFalse(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
+        storedCrisMetrics("metric2");
+        embeddableCrisMetrics();
+        assertFalse(crisLayoutBoxService.hasContent(context, boxMetric1, item()));
 
     }
 
     @Test
-    public void hasMetricsBoxContentNotAuthorized() {
+    public void testHasMetricsBoxContentNotAuthorized() {
 
         // should return false if there is content but context has not an authenticated user
         when(crisItemMetricsAuthorizationService.isAuthorized(any(), any(UUID.class))).thenReturn(false);
         CrisLayoutBox boxMetric1 = crisLayoutMetricBox("metric1");
-        mockStoredCrisMetrics();
-        mockEmbeddableCrisMetrics("metric1");
+        storedCrisMetrics();
+        embeddableCrisMetrics("metric1");
 
-        assertFalse(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
+        assertFalse(crisLayoutBoxService.hasContent(context, boxMetric1, item()));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void checkRelationBoxTest() throws Exception {
+    public void testOrcidAuthorizationBoxHasContentWithOwner() {
 
-        // should return false if there is content but context has not an authenticated user
-        when(crisItemMetricsAuthorizationService.isAuthorized(any(), any(UUID.class))).thenReturn(false);
-        CrisLayoutBox boxMetric1 = crisLayoutMetricBox("metric1");
-        mockStoredCrisMetrics();
-        mockEmbeddableCrisMetrics("metric1");
+        UUID userUuid = UUID.randomUUID();
+        EPerson currentUser = ePerson(userUuid);
+        when(context.getCurrentUser()).thenReturn(currentUser);
 
-        Item item = Mockito.mock(Item.class);
-        UUID itemUuid = UUID.randomUUID();
-        int tabId = 1;
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", userUuid.toString()));
 
-        MetadataField fooMetadata = mock(MetadataField.class);
-        MetadataField barMetadata = mock(MetadataField.class);
-        MetadataField bazMetadata = mock(MetadataField.class);
-        MetadataField notDisplayedMetadata = mock(MetadataField.class);
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_AUTHORIZATIONS");
 
-        List<MetadataValue> itemMetadata = Arrays.asList(
-            metadataValue(fooMetadata),
-            metadataValue(notDisplayedMetadata),
-            metadataValue(barMetadata));
+        assertTrue(crisLayoutBoxService.hasContent(context, box, item));
 
-        when(itemService.find(any(Context.class), eq(itemUuid)))
-            .thenReturn(item);
-
-        when(itemService.getMetadata(item, "dspace.entity.type"))
-            .thenReturn("Person");
-
-        when(dao.findByEntityType(any(Context.class), eq("Person"), eq(tabId), any(), any()))
-            .thenReturn(Arrays.asList(
-                crisLayoutBox("researchoutputs", fooMetadata, "RELATION"),
-                crisLayoutBox("projects", barMetadata, "RELATION"),
-                crisLayoutBox("box3", bazMetadata)));
-
-        when(crisLayoutBoxAccessService.hasAccess(any(), any(), any(), any()))
-            .thenReturn(true);
-
-        when(item.getMetadata()).thenReturn(itemMetadata);
-
-        Iterator<Item> mockIterator = mock(Iterator.class);
-        when(mockIterator.hasNext()).thenReturn(true);
-
-        when(searchConfigurationUtilsService.findByRelation(any(Context.class), any(), any()))
-                                            .thenReturn(mockIterator);
-
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByItem(context, itemUuid, tabId);
-
-        List<String> boxNames = boxes.stream().map(CrisLayoutBox::getShortname).sorted().collect(Collectors.toList());
-
-        assertThat(boxNames.size(), is(2));
-        assertThat(boxNames, is(Arrays.asList("projects", "researchoutputs")));
-
-        assertFalse(crisLayoutBoxService.hasMetricsBoxContent(context, boxMetric1, UUID.randomUUID()));
     }
 
-    private CrisLayoutBox crisLayoutBox(String shortname, MetadataField metadataField) {
-        return crisLayoutBox(shortname, metadataField, null);
+    @Test
+    public void testOrcidAuthorizationBoxHasNoContentWithNoOwner() {
+
+        EPerson currentUser = ePerson(UUID.randomUUID());
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_AUTHORIZATIONS");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
     }
 
-    private CrisLayoutBox crisLayoutBox(String shortname, MetadataField metadataField, String boxType) {
-        CrisLayoutBox o = new CrisLayoutBox();
-        o.addLayoutField(crisLayoutField(metadataField));
-        o.setShortname(shortname);
-        o.setType(boxType);
-        return o;
+    @Test
+    public void testOrcidAuthorizationBoxHasNoContentWithoutLoggedUser() {
+
+        when(context.getCurrentUser()).thenReturn(null);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_AUTHORIZATIONS");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
     }
 
-    private MetadataValue metadataValue(MetadataField field) {
+    @Test
+    public void testOrcidSettingsBoxHasNoContentWithOwnerWithoutOrcidFields() {
+
+        UUID userUuid = UUID.randomUUID();
+        EPerson currentUser = ePerson(userUuid);
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", userUuid.toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_SETTINGS");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidSettingsBoxHasContent() {
+
+        UUID userUuid = UUID.randomUUID();
+        EPerson currentUser = ePerson(userUuid);
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        MetadataField orcidField = metadataField("person", "identifier", "orcid");
+        MetadataField tokenField = metadataField("cris", "orcid", "access-token");
+        Item item = item(metadataValue(ownerField, "Owner", userUuid.toString()),
+            metadataValue(orcidField, "0000-0000-1234-456X"), metadataValue(tokenField, "121321432432"));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_SETTINGS");
+
+        assertTrue(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidSettingsBoxHasNoContentWithNoOwner() {
+
+        EPerson currentUser = ePerson(UUID.randomUUID());
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_SETTINGS");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidSettingsBoxHasNoContentWithoutLoggedUser() {
+
+        when(context.getCurrentUser()).thenReturn(null);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_SETTINGS");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidQueueBoxHasNoContentWithOwnerWithoutOrcidFields() {
+
+        UUID userUuid = UUID.randomUUID();
+        EPerson currentUser = ePerson(userUuid);
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", userUuid.toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_QUEUE");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidQueueBoxHasContent() {
+
+        UUID userUuid = UUID.randomUUID();
+        EPerson currentUser = ePerson(userUuid);
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        MetadataField orcidField = metadataField("person", "identifier", "orcid");
+        MetadataField tokenField = metadataField("cris", "orcid", "access-token");
+        Item item = item(metadataValue(ownerField, "Owner", userUuid.toString()),
+            metadataValue(orcidField, "0000-0000-1234-456X"), metadataValue(tokenField, "121321432432"));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_QUEUE");
+
+        assertTrue(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidQueueBoxHasNoContentWithNoOwner() {
+
+        EPerson currentUser = ePerson(UUID.randomUUID());
+        when(context.getCurrentUser()).thenReturn(currentUser);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_QUEUE");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    @Test
+    public void testOrcidQueueBoxHasNoContentWithoutLoggedUser() {
+
+        when(context.getCurrentUser()).thenReturn(null);
+
+        MetadataField ownerField = metadataField("cris", "owner", null);
+        Item item = item(metadataValue(ownerField, "Owner", UUID.randomUUID().toString()));
+
+        CrisLayoutBox box = crisLayoutBox("Box", "ORCID_SYNC_QUEUE");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+
+    }
+
+    private CrisLayoutBox crisLayoutMetadataBox(String shortname, MetadataField... metadataFields) {
+        return crisLayoutBox(shortname, CrisLayoutBoxTypes.METADATA.name(), metadataFields);
+    }
+
+    private CrisLayoutBox crisLayoutBox(String shortname, String boxType, MetadataField... metadataFields) {
+        CrisLayoutBox box = new CrisLayoutBox();
+        for (MetadataField metadataField : metadataFields) {
+            box.addLayoutField(crisLayoutField(metadataField));
+        }
+        box.setShortname(shortname);
+        box.setType(boxType);
+        return box;
+    }
+
+    private Item item(MetadataValue... metadataValues) {
+        Item item = mock(Item.class);
+        when(item.getMetadata()).thenReturn(List.of(metadataValues));
+        when(item.getID()).thenReturn(UUID.randomUUID());
+        return item;
+    }
+
+    private MetadataField metadataField(String schema, String element, String qualifier) {
+        MetadataField metadataField = mock(MetadataField.class);
+        when(metadataField.getElement()).thenReturn(element);
+        when(metadataField.getQualifier()).thenReturn(qualifier);
+
+        MetadataSchema metadataSchema = mock(MetadataSchema.class);
+        when(metadataSchema.getName()).thenReturn(schema);
+        when(metadataField.getMetadataSchema()).thenReturn(metadataSchema);
+        if (qualifier == null) {
+            when(metadataField.toString('.')).thenReturn(schema + "." + element);
+        } else {
+            when(metadataField.toString('.')).thenReturn(schema + "." + element + "." + qualifier);
+        }
+
+        return metadataField;
+    }
+
+    private MetadataValue metadataValue(MetadataField field, String value) {
+        return metadataValue(field, value, null);
+    }
+
+    private MetadataValue metadataValue(MetadataField field, String value, String authority) {
         MetadataValue metadataValue = mock(MetadataValue.class);
         when(metadataValue.getMetadataField()).thenReturn(field);
+        when(metadataValue.getValue()).thenReturn(value);
+        when(metadataValue.getAuthority()).thenReturn(authority);
         return metadataValue;
+    }
+
+    private EPerson ePerson(UUID uuid) {
+        EPerson ePerson = mock(EPerson.class);
+        when(ePerson.getID()).thenReturn(uuid);
+        return ePerson;
     }
 
     private CrisLayoutField crisLayoutField(MetadataField metadataField) {
@@ -401,36 +420,46 @@ public class CrisLayoutBoxServiceImplTest {
     }
 
     private CrisLayoutBox crisLayoutMetricBox(String ...metricTypes) {
-        CrisLayoutBox crisLayoutMetricBox = mock(CrisLayoutBox.class);
-        List<CrisLayoutMetric2Box> metric2boxList = Arrays.stream(metricTypes).map(mt -> {
-            CrisLayoutMetric2Box metric2box = mock(CrisLayoutMetric2Box.class);
-            when(metric2box.getType()).thenReturn(mt);
-            return metric2box;
-        }).collect(Collectors.toList());
-        when(crisLayoutMetricBox.getMetric2box()).thenReturn(metric2boxList);
+        CrisLayoutBox crisLayoutMetricBox = new CrisLayoutBox();
+        crisLayoutMetricBox.setType(CrisLayoutBoxTypes.METRICS.name());
+        int position = 0;
+        for (String metricType : metricTypes) {
+            CrisLayoutMetric2Box metric2Box = new CrisLayoutMetric2Box();
+            metric2Box.setBox(crisLayoutMetricBox);
+            metric2Box.setPosition(position++);
+            metric2Box.setType(metricType);
+            crisLayoutMetricBox.getMetric2box().add(metric2Box);
+        }
         return crisLayoutMetricBox;
     }
 
-    private List<EmbeddableCrisMetrics> mockEmbeddableCrisMetrics(String ...metricTypes) {
-        List<EmbeddableCrisMetrics> metrics = Arrays.stream(metricTypes).map(mt -> {
-            EmbeddableCrisMetrics metric = mock(EmbeddableCrisMetrics.class);
-            when(metric.getMetricType()).thenReturn(mt);
-            return metric;
-        }).collect(Collectors.toList());
+    private List<EmbeddableCrisMetrics> embeddableCrisMetrics(String ...metricTypes) {
+        List<EmbeddableCrisMetrics> metrics = Arrays.stream(metricTypes)
+            .map(this::buildEmbeddableCrisMetrics)
+            .collect(Collectors.toList());
         when(crisItemMetricsService.getEmbeddableMetrics(any(), any(), any())).thenReturn(metrics);
         return metrics;
     }
 
-    private List<CrisMetrics> mockStoredCrisMetrics(String ...metricTypes) {
-        List<CrisMetrics> metrics = Arrays.stream(metricTypes).map(mt -> {
-            CrisMetrics metric = mock(CrisMetrics.class);
-            when(metric.getMetricType()).thenReturn(mt);
-            return metric;
-        }).collect(Collectors.toList());
+    private List<CrisMetrics> storedCrisMetrics(String ...metricTypes) {
+        List<CrisMetrics> metrics = Arrays.stream(metricTypes)
+            .map(this::buildCrisMetrics)
+            .collect(Collectors.toList());
         when(crisItemMetricsService.getStoredMetrics(any(), any())).thenReturn(metrics);
         return metrics;
 
     }
 
+    private CrisMetrics buildCrisMetrics(String metricType) {
+        CrisMetrics crisMetrics = new CrisMetrics();
+        crisMetrics.setMetricType(metricType);
+        return crisMetrics;
+    }
+
+    private EmbeddableCrisMetrics buildEmbeddableCrisMetrics(String metricType) {
+        EmbeddableCrisMetrics crisMetrics = new EmbeddableCrisMetrics();
+        crisMetrics.setMetricType(metricType);
+        return crisMetrics;
+    }
 
 }

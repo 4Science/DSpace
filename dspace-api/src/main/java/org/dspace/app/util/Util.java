@@ -453,9 +453,8 @@ public class Util {
 
                 for (MetadataValue value : values) {
 
-                    String pairsName = myInputs.getPairsType();
                     String stored_value = value.getValue();
-                    String displayVal = myInputs.getDisplayString(pairsName, stored_value);
+                    String displayVal = myInputs.getDisplayString(stored_value);
 
                     if (displayVal != null && !"".equals(displayVal)) {
 

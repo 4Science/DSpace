@@ -8,7 +8,6 @@
 package org.dspace.builder;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -61,25 +60,33 @@ public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, Cri
         return field;
     }
 
-    private static CrisLayoutFieldBuilder createField(
-            Context ctx, CrisLayoutField field, MetadataField mf, int row, int priority) {
-        CrisLayoutFieldBuilder builder = new CrisLayoutFieldBuilder(ctx);
-        field.setMetadataField(mf);
-        field.setRow(row);
-        field.setPriority(priority);
-        return builder.create(ctx, field);
-    }
-
 
     public static CrisLayoutFieldBuilder createMetadataField(Context context, MetadataField mf, int row, int priority) {
         CrisLayoutFieldMetadata metadata = new CrisLayoutFieldMetadata();
-        return createField(context, metadata, mf, row, priority);
+        return createField(context, metadata, mf, row, 0, priority);
+    }
+
+    public static CrisLayoutFieldBuilder createMetadataField(Context context, MetadataField mf,
+        int row, int cell, int priority) {
+        CrisLayoutFieldMetadata metadata = new CrisLayoutFieldMetadata();
+        return createField(context, metadata, mf, row, cell, priority);
     }
 
     public static CrisLayoutFieldBuilder createBistreamField(
-            Context context, MetadataField mf, String bundle, int row, int priority) {
+        Context context, MetadataField mf, String bundle, int row, int cell, int priority) {
         CrisLayoutFieldBitstream bitstream = new CrisLayoutFieldBitstream();
-        return createField(context, bitstream, mf, row, priority);
+        bitstream.setBundle(bundle);
+        return createField(context, bitstream, mf, row, cell, priority);
+    }
+
+    private static CrisLayoutFieldBuilder createField(
+        Context ctx, CrisLayoutField field, MetadataField mf, int row, int cell, int priority) {
+        CrisLayoutFieldBuilder builder = new CrisLayoutFieldBuilder(ctx);
+        field.setMetadataField(mf);
+        field.setRow(row);
+        field.setCell(cell);
+        field.setPriority(priority);
+        return builder.create(ctx, field);
     }
 
     private CrisLayoutFieldBuilder create(Context context, CrisLayoutField field) {
@@ -132,8 +139,23 @@ public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, Cri
         return this;
     }
 
-    public CrisLayoutFieldBuilder withStyle(String style) {
-        this.field.setStyle(style);
+    public CrisLayoutFieldBuilder withRowStyle(String style) {
+        this.field.setRowStyle(style);
+        return this;
+    }
+
+    public CrisLayoutFieldBuilder withCellStyle(String style) {
+        this.field.setCellStyle(style);
+        return this;
+    }
+
+    public CrisLayoutFieldBuilder withLabelAsHeading(boolean labelAsHeading) {
+        this.field.setLabelAsHeading(labelAsHeading);
+        return this;
+    }
+
+    public CrisLayoutFieldBuilder withValuesInline(boolean valuesInline) {
+        this.field.setValuesInline(valuesInline);
         return this;
     }
 
@@ -154,7 +176,6 @@ public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, Cri
 
     public CrisLayoutFieldBuilder withNestedField(List<MetadataField> metadataFieldList) {
         int priority = 0;
-        List<CrisMetadataGroup> metadataGroupList = new ArrayList<>();
         for (MetadataField metadataField : metadataFieldList) {
             CrisMetadataGroup metadatanested = new CrisMetadataGroup();
             metadatanested.setMetadataField(metadataField);
@@ -162,13 +183,12 @@ public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, Cri
             metadatanested.setPriority(priority);
             try {
                 CrisMetadataGroup nested_field = getNestedService().create(context, metadatanested);
-                metadataGroupList.add(nested_field);
+                this.field.addCrisMetadataGroupList(nested_field);
                 priority++;
             } catch (Exception e) {
                 log.error("Error in CrisLayoutTabBuilder.create(..), error: ", e);
             }
         }
-        this.field.setCrisMetadataGroupList(metadataGroupList);
         return this;
     }
 }

@@ -135,7 +135,7 @@ public class ItemConverter
 
             List<CrisLayoutBox> boxes;
             if (context != null && !preventSecurityCheck(projection)) {
-                boxes = crisLayoutBoxService.findEntityBoxes(context, entityType, 1000, 0);
+                boxes = crisLayoutBoxService.findByEntityType(context, entityType, 1000, 0);
             } else {
                 // the context could be null if the converter is used to prepare test data or in a batch script
                 boxes = new ArrayList<CrisLayoutBox>();
@@ -175,7 +175,7 @@ public class ItemConverter
     public boolean checkMetadataFieldVisibility(Context context, Item item,
             MetadataField metadataField, Projection projection) throws SQLException {
         String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
-        List<CrisLayoutBox> boxes = crisLayoutBoxService.findEntityBoxes(context, entityType, 1000, 0);
+        List<CrisLayoutBox> boxes = crisLayoutBoxService.findByEntityType(context, entityType, 1000, 0);
         return checkMetadataFieldVisibility(context, boxes, item, metadataField, projection);
     }
 

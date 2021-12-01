@@ -48,29 +48,52 @@ public class CrisLayoutField implements ReloadableEntity<Integer> {
         allocationSize = 1)
     @Column(name = "field_id", unique = true, nullable = false, insertable = true, updatable = false)
     private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "metadata_field_id", nullable = false)
     private MetadataField metadataField;
+
     @Column(name = "rendering")
     private String rendering;
+
     @Column(name = "row", nullable = false)
     private Integer row;
+
+    @Column(name = "cell", nullable = false)
+    private Integer cell;
+
     @Column(name = "priority", nullable = false)
     private Integer priority;
+
     @Column(name = "label")
     private String label;
-    @Column(name = "style")
-    private String style;
+
+    @Column(name = "row_style")
+    private String rowStyle;
+
+    @Column(name = "cell_style")
+    private String cellStyle;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "box_id")
     private CrisLayoutBox box;
+
     @Column(name = "style_label")
     private String styleLabel;
+
     @Column(name = "style_value")
     private String styleValue;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "crisLayoutField", cascade = CascadeType.ALL)
     @OrderBy(value = "priority")
     private List<CrisMetadataGroup> crisMetadataGroupList = new ArrayList<>();
+
+    @Column(name = "label_as_heading")
+    private Boolean labelAsHeading;
+
+    @Column(name = "values_inline")
+    private Boolean valuesInline;
+
     @Override
     public Integer getID() {
         return id;
@@ -120,12 +143,20 @@ public class CrisLayoutField implements ReloadableEntity<Integer> {
         this.label = label;
     }
 
-    public String getStyle() {
-        return style;
+    public String getRowStyle() {
+        return rowStyle;
     }
 
-    public void setStyle(String style) {
-        this.style = style;
+    public void setRowStyle(String rowStyle) {
+        this.rowStyle = rowStyle;
+    }
+
+    public String getCellStyle() {
+        return cellStyle;
+    }
+
+    public void setCellStyle(String cellStyle) {
+        this.cellStyle = cellStyle;
     }
 
     public CrisLayoutBox getBox() {
@@ -155,7 +186,33 @@ public class CrisLayoutField implements ReloadableEntity<Integer> {
         return crisMetadataGroupList;
     }
 
-    public void setCrisMetadataGroupList(List<CrisMetadataGroup> crisMetadataGroupList) {
-        this.crisMetadataGroupList = crisMetadataGroupList;
+    public void addCrisMetadataGroupList(CrisMetadataGroup metadataGroup) {
+        this.crisMetadataGroupList.add(metadataGroup);
+        metadataGroup.setCrisLayoutField(this);
     }
+
+    public Boolean isLabelAsHeading() {
+        return labelAsHeading;
+    }
+
+    public void setLabelAsHeading(Boolean labelAsHeading) {
+        this.labelAsHeading = labelAsHeading;
+    }
+
+    public Boolean isValuesInline() {
+        return valuesInline;
+    }
+
+    public void setValuesInline(Boolean valuesInline) {
+        this.valuesInline = valuesInline;
+    }
+
+    public Integer getCell() {
+        return cell;
+    }
+
+    public void setCell(Integer cell) {
+        this.cell = cell;
+    }
+
 }

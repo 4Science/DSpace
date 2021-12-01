@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.dspace.app.rest.model.CrisLayoutBoxConfigurationRest;
 import org.dspace.app.rest.projection.Projection;
+import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,14 @@ public class CrisLayoutBoxConfigurationConverter
             }
         }
         return null;
+    }
+
+    public void configure(Context context, CrisLayoutBox box, CrisLayoutBoxConfigurationRest rest) {
+        for (CrisLayoutBoxConfigurator configurator : configurators) {
+            if (configurator.support(box)) {
+                configurator.configure(context, box, rest);
+            }
+        }
     }
 
     /*

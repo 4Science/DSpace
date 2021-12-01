@@ -20,6 +20,8 @@ import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutCell;
+import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.service.CrisLayoutTabService;
@@ -124,15 +126,66 @@ public class CrisLayoutTabBuilder extends AbstractBuilder<CrisLayoutTab, CrisLay
         return this;
     }
 
-    public CrisLayoutTabBuilder withBoxes(List<CrisLayoutBox> boxes) {
-        for (CrisLayoutBox box: boxes) {
-            this.tab.addBox(box);
-        }
+    public CrisLayoutTabBuilder withLeading(boolean leading) {
+        this.tab.setLeading(leading);
         return this;
     }
 
-    public CrisLayoutTabBuilder addBox(CrisLayoutBox box) {
-        this.tab.addBox(box);
+    public CrisLayoutTabBuilder addBoxIntoNewRow(CrisLayoutBox box) {
+        return addBoxIntoNewRow(box, null, null);
+    }
+
+    public CrisLayoutTabBuilder addBoxIntoNewRow(CrisLayoutBox box, String rowStyle, String cellStyle) {
+
+        CrisLayoutRow newRow = new CrisLayoutRow();
+        newRow.setStyle(rowStyle);
+
+        CrisLayoutCell newCell = new CrisLayoutCell();
+        newCell.setStyle(cellStyle);
+
+        newCell.addBox(box);
+        newRow.addCell(newCell);
+        this.tab.addRow(newRow);
+
+        return this;
+    }
+
+    public CrisLayoutTabBuilder addBoxIntoLastRow(CrisLayoutBox box) {
+        return addBoxIntoLastRow(box, null);
+    }
+
+    public CrisLayoutTabBuilder addBoxIntoLastRow(CrisLayoutBox box, String cellStyle) {
+        List<CrisLayoutRow> rows = this.tab.getRows();
+        if (rows.isEmpty()) {
+            return addBoxIntoNewRow(box);
+        }
+
+        CrisLayoutRow row = rows.get(rows.size() - 1);
+        CrisLayoutCell newCell = new CrisLayoutCell();
+        newCell.setStyle(cellStyle);
+
+        newCell.addBox(box);
+        row.addCell(newCell);
+
+        return this;
+    }
+
+    public CrisLayoutTabBuilder addBoxIntoLastCell(CrisLayoutBox box) {
+        List<CrisLayoutRow> rows = this.tab.getRows();
+        if (rows.isEmpty()) {
+            return addBoxIntoNewRow(box);
+        }
+
+        CrisLayoutRow row = rows.get(rows.size() - 1);
+        List<CrisLayoutCell> cells = row.getCells();
+        if (cells.isEmpty()) {
+            CrisLayoutCell cell = new CrisLayoutCell();
+            row.addCell(cell);
+            cell.addBox(box);
+        } else {
+            cells.get(cells.size() - 1).addBox(box);
+        }
+
         return this;
     }
 

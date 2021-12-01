@@ -775,4 +775,18 @@ public interface ItemService
      */
     public String getEntityType(Item item);
 
+    /**
+     * Find all the items in the archive or not with a given authority key value in LIKE format.
+     * 
+     * @param context         DSpace context object
+     * @param likeAuthority   value that will be used with operator LIKE on field
+     *                        authority, it's possible to enter '%' to improve
+     *                        searching
+     * @param inArchive       true for archived items, null for all items (archived and not)
+     * @return
+     * @throws SQLException   if database error
+     */
+    public Iterator<Item> findByLikeAuthorityValue(Context context, String likeAuthority,
+            Boolean inArchive) throws SQLException;
+
 }
