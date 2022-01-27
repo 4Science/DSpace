@@ -76,12 +76,15 @@ public class CrisAuthorizeManager
             {
                 for (PD policy : listPolicySingle)
                 {
-                    String data = object.getMetadata(policy.getShortName());
-                    if (StringUtils.isNotBlank(data))
+                    List<String> policies = object.getMetadataValue(policy.getShortName());
+                    for(String data: policies)
                     {
-                        if (currUser.getID() == Integer.parseInt(data))
+                        if (StringUtils.isNotBlank(data))
                         {
-                            return true;
+                            if (currUser.getID() == Integer.parseInt(data))
+                            {
+                                  return true;
+                            }
                         }
                     }
                 }
