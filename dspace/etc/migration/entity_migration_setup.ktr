@@ -537,6 +537,21 @@
       <to>Set variables 3</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>0 if null (2) 2</from>
+      <to>increment 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>increment 2 2</from>
+      <to>Set variables 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>max imp_bitstream_metadatavalue id</from>
+      <to>0 if null (2) 2</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <step>
     <name>0 if null</name>
@@ -790,7 +805,7 @@
     </remotesteps>
     <GUI>
       <xloc>704</xloc>
-      <yloc>352</yloc>
+      <yloc>544</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -851,7 +866,145 @@ WHERE email = '${eperson_email}'
     </remotesteps>
     <GUI>
       <xloc>144</xloc>
-      <yloc>352</yloc>
+      <yloc>544</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>increment</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>//Scrip
+var max_imp_record_id = max_imp_record_id + 1;
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>max_imp_record_id</name>
+        <rename>max_imp_record_id</rename>
+        <type>Number</type>
+        <length>16</length>
+        <precision>2</precision>
+        <replace>Y</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>112</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>increment 2</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>//Scrip
+var max_imp_metadatavalue_id = max_imp_metadatavalue_id + 1;
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>max_imp_metadatavalue_id</name>
+        <rename>max_imp_metadatavalue_id</rename>
+        <type>Number</type>
+        <length>16</length>
+        <precision>2</precision>
+        <replace>Y</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>192</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>increment 3</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>//Scrip
+var max_imp_bitstream_id = max_imp_bitstream_id + 1;
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>max_imp_bitstream_id</name>
+        <rename>max_imp_bitstream_id</rename>
+        <type>Number</type>
+        <length>16</length>
+        <precision>2</precision>
+        <replace>Y</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>272</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1036,7 +1189,81 @@ FROM "public".imp_record
     </GUI>
   </step>
   <step>
-    <name>increment</name>
+    <name>0 if null (2) 2</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <replaceAllByValue/>
+    <replaceAllMask/>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+      </valuetypes>
+    <fields>
+      <field>
+        <name>max_imp_bitstream_metadatavalue_id</name>
+        <value>0</value>
+        <mask/>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>368</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Set variables 2 2</name>
+    <type>SetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <field_name>max_imp_bitstream_metadatavalue_id</field_name>
+        <variable_name>MAX_IMP_BITSTREAM_METADATAVALUE_ID</variable_name>
+        <variable_type>ROOT_JOB</variable_type>
+        <default_value/>
+      </field>
+    </fields>
+    <use_formatting>Y</use_formatting>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>368</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>increment 2 2</name>
     <type>ScriptValueMod</type>
     <description/>
     <distribute>Y</distribute>
@@ -1053,14 +1280,14 @@ FROM "public".imp_record
         <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>//Scrip
-var max_imp_record_id = max_imp_record_id + 1;
+var max_imp_bitstream_metadatavalue_id = max_imp_bitstream_metadatavalue_id + 1;
 </jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
       <field>
-        <name>max_imp_record_id</name>
-        <rename>max_imp_record_id</rename>
+        <name>max_imp_bitstream_metadatavalue_id</name>
+        <rename>max_imp_bitstream_metadatavalue_id</rename>
         <type>Number</type>
         <length>16</length>
         <precision>2</precision>
@@ -1077,13 +1304,13 @@ var max_imp_record_id = max_imp_record_id + 1;
     </remotesteps>
     <GUI>
       <xloc>512</xloc>
-      <yloc>112</yloc>
+      <yloc>368</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>increment 2</name>
-    <type>ScriptValueMod</type>
+    <name>max imp_bitstream_metadatavalue id</name>
+    <type>TableInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -1092,27 +1319,41 @@ var max_imp_record_id = max_imp_record_id + 1;
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <compatible>N</compatible>
-    <optimizationLevel>9</optimizationLevel>
-    <jsScripts>
-      <jsScript>
-        <jsScript_type>0</jsScript_type>
-        <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>//Scrip
-var max_imp_metadatavalue_id = max_imp_metadatavalue_id + 1;
-</jsScript_script>
-      </jsScript>
-    </jsScripts>
-    <fields>
-      <field>
+    <connection>dspace</connection>
+    <sql>SELECT max(imp_bitstream_metadatavalue_id) as max_imp_bitstream_metadatavalue_id
+FROM "public".imp_bitstream_metadatavalue
+</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
         <name>max_imp_metadatavalue_id</name>
-        <rename>max_imp_metadatavalue_id</rename>
-        <type>Number</type>
-        <length>16</length>
-        <precision>2</precision>
-        <replace>Y</replace>
-      </field>
-    </fields>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>max imp_metadatavalue id</origin>
+        <comments>max_imp_metadatavalue_id</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+    </row-meta>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -1122,54 +1363,8 @@ var max_imp_metadatavalue_id = max_imp_metadatavalue_id + 1;
       </output>
     </remotesteps>
     <GUI>
-      <xloc>512</xloc>
-      <yloc>192</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>increment 3</name>
-    <type>ScriptValueMod</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compatible>N</compatible>
-    <optimizationLevel>9</optimizationLevel>
-    <jsScripts>
-      <jsScript>
-        <jsScript_type>0</jsScript_type>
-        <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>//Scrip
-var max_imp_bitstream_id = max_imp_bitstream_id + 1;
-</jsScript_script>
-      </jsScript>
-    </jsScripts>
-    <fields>
-      <field>
-        <name>max_imp_bitstream_id</name>
-        <rename>max_imp_bitstream_id</rename>
-        <type>Number</type>
-        <length>16</length>
-        <precision>2</precision>
-        <replace>Y</replace>
-      </field>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>512</xloc>
-      <yloc>272</yloc>
+      <xloc>144</xloc>
+      <yloc>368</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

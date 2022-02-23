@@ -11,6 +11,7 @@ package org.dspace.subscriptions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,14 +51,13 @@ public class StatisticsGenerator implements SubscriptionGenerator<CrisMetrics> {
         // find statistics for all the subscribed objects
         try {
             // send the notification to the user
-            if (ePerson != null) {
-                File attachment = generateExcel(crisMetricsList, c);
+            if (Objects.nonNull(ePerson) && crisMetricsList.size() > 0) {
                 Email email = new Email();
-                email.addAttachment(attachment, "subscriptions.xlsx");
-                email.addRecipient(ePerson.getEmail());
                 String name = configurationService.getProperty("dspace.name");
-                email.setContent("intro", "This automatic email is sent by " +
-                    name + " based on the subscribed statistics updates.");
+                File attachment = generateExcel(crisMetricsList, c);
+                email.addAttachment(attachment, "subscriptions.xlsx");
+                email.setContent("intro",
+                        "This automatic email is sent by " + name + " based on the subscribed statistics updates.");
                 email.send();
             }
         } catch (Exception ex) {

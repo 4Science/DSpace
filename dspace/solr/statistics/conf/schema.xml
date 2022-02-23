@@ -116,12 +116,17 @@
     <field name="page" type="integer" indexed="true" stored="true" required="false" />
 
     <!--Workflow spefic-->
+    <field name="workflow" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
     <field name="workflowStep" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
     <field name="previousWorkflowStep" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
+    <field name="workflowAction" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
+    <field name="previousWorkflowAction" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
     <field name="owner" type="string" indexed="true" stored="true" required="false" multiValued="true" docValues="true"/>
     <field name="submitter" type="string" indexed="true" stored="true" required="false" />
     <field name="actor" type="string" indexed="true" stored="true" required="false" />
     <field name="workflowItemId" type="integer" indexed="true" stored="true" required="false" />
+    <field name="previousActionRequiresUI" type="boolean" indexed="true" stored="true" required="false" />
+    
  </fields>
 
  <uniqueKey>uid</uniqueKey>

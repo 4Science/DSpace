@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutFieldBitstream;
@@ -60,6 +61,14 @@ public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, Cri
         return field;
     }
 
+
+    public static CrisLayoutFieldBuilder createMetadataField(Context context, String field, int row, int priority) {
+        try {
+            return createMetadataField(context, metadataFieldService.findByString(context, field, '.'), row, priority);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
 
     public static CrisLayoutFieldBuilder createMetadataField(Context context, MetadataField mf, int row, int priority) {
         CrisLayoutFieldMetadata metadata = new CrisLayoutFieldMetadata();

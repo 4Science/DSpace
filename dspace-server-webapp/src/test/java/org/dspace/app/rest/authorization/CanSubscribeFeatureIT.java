@@ -116,6 +116,58 @@ public class CanSubscribeFeatureIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void anonymousCanSubscribeCommunityTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        CommunityRest comRest = communityConverter.convert(parentCommunity, DefaultProjection.DEFAULT);
+        String comUri = utils.linkToSingleResource(comRest, "self").getHref();
+        context.restoreAuthSystemState();
+        getClient().perform(get("/api/authz/authorizations/search/object")
+                       .param("uri", comUri)
+                       .param("feature", canSubscribeFeature.getName())
+                       .param("embed", "feature"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded").doesNotExist())
+                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void anonymousCanSubscribeCollectionTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection collectionWithReadPermission = CollectionBuilder.createCollection(context, communityAuthorized)
+                                                                   .build();
+        context.restoreAuthSystemState();
+        CollectionRest collectionRest = collectionConverter.convert(collectionWithReadPermission, Projection.DEFAULT);
+        String comUri = utils.linkToSingleResource(collectionRest, "self").getHref();
+        context.restoreAuthSystemState();
+        getClient().perform(get("/api/authz/authorizations/search/object")
+                      .param("uri", comUri)
+                      .param("feature", canSubscribeFeature.getName())
+                      .param("embed", "feature"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded").doesNotExist())
+                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void anonymousCanSubscribeItemTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Item item = ItemBuilder.createItem(context, collectionAuthorized)
+                               .withTitle("Test item")
+                               .build();
+        context.restoreAuthSystemState();
+        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
+        String comUri = utils.linkToSingleResource(itemRest, "self").getHref();
+        context.restoreAuthSystemState();
+        getClient().perform(get("/api/authz/authorizations/search/object")
+                      .param("uri", comUri)
+                      .param("feature", canSubscribeFeature.getName())
+                      .param("embed", "feature"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded").doesNotExist())
+                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
     public void testCanNotSubscribeItem() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)

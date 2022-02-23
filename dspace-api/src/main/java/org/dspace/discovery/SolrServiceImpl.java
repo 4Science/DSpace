@@ -8,6 +8,7 @@
 package org.dspace.discovery;
 
 import static java.util.stream.Collectors.joining;
+import static org.dspace.discovery.DiscoverResult.FacetPivotResult.fromPivotFields;
 import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_STANDARD;
 import static org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet.TYPE_PREFIX;
 
@@ -44,6 +45,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
@@ -68,6 +70,7 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration;
@@ -124,6 +127,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     protected SolrSearchCore solrSearchCore;
     @Autowired
     protected ConfigurationService configurationService;
+    @Autowired
+    protected IndexObjectFactoryFactory indexObjectFactoryFactory;
 
     protected SolrServiceImpl() {
 
@@ -345,16 +350,30 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     }
 
     /**
+     * Removes all documents from the Lucene index
+     */
+    public void deleteIndex() {
+        try {
+            final List<IndexFactory> indexableObjectServices = indexObjectServiceFactory.
+                    getIndexFactories();
+            for (IndexFactory indexableObjectService : indexableObjectServices) {
+                indexableObjectService.deleteAll();
+            }
+        } catch (IOException | SolrServerException e) {
+            log.error("Error cleaning discovery index: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Iterates over all documents in the Lucene index and verifies they are in
      * database, if not, they are removed.
      *
-     * @param force whether or not to force a clean index
      * @throws IOException            IO exception
      * @throws SQLException           sql exception
      * @throws SearchServiceException occurs when something went wrong with querying the solr server
      */
     @Override
-    public void cleanIndex(boolean force) throws IOException, SQLException, SearchServiceException {
+    public void cleanIndex() throws IOException, SQLException, SearchServiceException {
         Context context = new Context();
         context.turnOffAuthorisationSystem();
 
@@ -362,57 +381,50 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             if (solrSearchCore.getSolr() == null) {
                 return;
             }
-            if (force) {
-                final List<IndexFactory> indexableObjectServices = indexObjectServiceFactory.
-                        getIndexFactories();
-                for (IndexFactory indexableObjectService : indexableObjectServices) {
-                    indexableObjectService.deleteAll();
-                }
-            } else {
-                // First, we'll just get a count of the total results
-                SolrQuery countQuery = new SolrQuery("*:*");
-                countQuery.setRows(0);  // don't actually request any data
-                // Get the total amount of results
-                QueryResponse totalResponse = solrSearchCore.getSolr().query(countQuery,
-                        solrSearchCore.REQUEST_METHOD);
-                long total = totalResponse.getResults().getNumFound();
 
-                int start = 0;
-                int batch = 100;
+            // First, we'll just get a count of the total results
+            SolrQuery countQuery = new SolrQuery("*:*");
+            countQuery.setRows(0); // don't actually request any data
+            // Get the total amount of results
+            QueryResponse totalResponse = solrSearchCore.getSolr().query(countQuery,
+                solrSearchCore.REQUEST_METHOD);
+            long total = totalResponse.getResults().getNumFound();
 
-                // Now get actual Solr Documents in batches
-                SolrQuery query = new SolrQuery();
-                query.setFields(SearchUtils.RESOURCE_UNIQUE_ID, SearchUtils.RESOURCE_ID_FIELD,
-                        SearchUtils.RESOURCE_TYPE_FIELD);
-                query.addSort(SearchUtils.RESOURCE_UNIQUE_ID, SolrQuery.ORDER.asc);
-                query.setQuery("*:*");
-                query.setRows(batch);
-                // Keep looping until we hit the total number of Solr docs
-                while (start < total) {
-                    query.setStart(start);
-                    QueryResponse rsp = solrSearchCore.getSolr().query(query, solrSearchCore.REQUEST_METHOD);
-                    SolrDocumentList docs = rsp.getResults();
+            int start = 0;
+            int batch = 100;
 
-                    for (SolrDocument doc : docs) {
-                        String uniqueID = (String) doc.getFieldValue(SearchUtils.RESOURCE_UNIQUE_ID);
+            // Now get actual Solr Documents in batches
+            SolrQuery query = new SolrQuery();
+            query.setFields(SearchUtils.RESOURCE_UNIQUE_ID, SearchUtils.RESOURCE_ID_FIELD,
+                SearchUtils.RESOURCE_TYPE_FIELD);
+            query.addSort(SearchUtils.RESOURCE_UNIQUE_ID, SolrQuery.ORDER.asc);
+            query.setQuery("*:*");
+            query.setRows(batch);
+            // Keep looping until we hit the total number of Solr docs
+            while (start < total) {
+                query.setStart(start);
+                QueryResponse rsp = solrSearchCore.getSolr().query(query, solrSearchCore.REQUEST_METHOD);
+                SolrDocumentList docs = rsp.getResults();
 
-                        IndexableObject o = findIndexableObject(context, doc);
-                        context.uncacheEntity(o.getIndexedObject());
-                        if (o == null) {
-                            log.info("Deleting: " + uniqueID);
-                            /*
-                             * Use IndexWriter to delete, its easier to manage
-                             * write.lock
-                             */
-                            unIndexContent(context, uniqueID);
-                        } else {
-                            log.debug("Keeping: " + o.getUniqueIndexID());
-                        }
+                for (SolrDocument doc : docs) {
+                    String uniqueID = (String) doc.getFieldValue(SearchUtils.RESOURCE_UNIQUE_ID);
+
+                    IndexableObject o = findIndexableObject(context, doc);
+                    context.uncacheEntity(o.getIndexedObject());
+                    if (o == null) {
+                        log.info("Deleting: " + uniqueID);
+                        /*
+                         * Use IndexWriter to delete, its easier to manage write.lock
+                         */
+                        unIndexContent(context, uniqueID);
+                    } else {
+                        log.debug("Keeping: " + o.getUniqueIndexID());
                     }
-
-                    start += batch;
                 }
             }
+
+            start += batch;
+
         } catch (IOException | SQLException | SolrServerException e) {
             log.error("Error cleaning discovery index: " + e.getMessage(), e);
         } finally {
@@ -869,6 +881,10 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
         }
 
+        if (CollectionUtils.isNotEmpty(discoveryQuery.getFacetPivots())) {
+            solrQuery.addFacetPivotField(discoveryQuery.getFacetPivots().toArray(String[]::new));
+        }
+
         //Add any configured search plugins !
         List<SolrServiceSearchPlugin> solrServiceSearchPlugins = DSpaceServicesFactory.getInstance()
                 .getServiceManager().getServicesByType(SolrServiceSearchPlugin.class);
@@ -1113,6 +1129,14 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                     }
                 }
             }
+
+            if (solrQueryResponse.getFacetPivot() != null && !zombieFound) {
+                NamedList<List<PivotField>> facetPivotList = solrQueryResponse.getFacetPivot();
+                for (String facetPivot : query.getFacetPivots()) {
+                    result.addFacetPivotResult(facetPivot, fromPivotFields(facetPivotList.get(facetPivot)));
+                }
+            }
+
             // If any stale entries are found in the current page of results,
             // we remove those stale entries and rerun the same query again.
             // Otherwise, the query is valid and the results are returned.
@@ -1542,7 +1566,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     public void updateMetrics(Context context, CrisMetrics metric) {
         UpdateRequest req = new UpdateRequest();
         SolrClient solrClient = solrSearchCore.getSolr();
-        Optional<String> id = findUniqueId(metric);
+        Optional<String> id = findUniqueId(context, metric);
         if (id.isEmpty()) {
             log.warn("Unable to define unique id for item {}", metric.getResource().getID());
             return;
@@ -1550,7 +1574,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, itemType(metric.getResource()));
+            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, itemType(context, metric.getResource()));
             solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(metric.getResource().getID()));
             req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
             solrClient.request(req);
@@ -1597,33 +1621,33 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         }
     }
 
-    private String itemType(DSpaceObject resource) {
-        if (resource instanceof Item) {
-            return IndexableItem.TYPE;
-        }
-        if (resource instanceof Collection) {
-            return IndexableCollection.TYPE;
-        }
-        if (resource instanceof Community) {
-            return IndexableCommunity.TYPE;
-        }
-        throw new RuntimeException(
-            String.format("resource with id %s is of unsupported type: %s",
-                resource.getID(), resource.getClass().getSimpleName()));
+    private String itemType(Context context, DSpaceObject resource) {
+        return findIndexableObject(context, resource)
+            .map(indexableObject -> indexableObject.getType())
+            .orElseThrow(() -> new RuntimeException(
+                String.format("resource with id %s is of unsupported type: %s",
+                    resource.getID(), resource.getClass().getSimpleName())));
     }
 
-    private Optional<String> findUniqueId(CrisMetrics metric) {
-        StringBuilder uniqueID = new StringBuilder();
-        if (metric.getResource() instanceof Item) {
-            uniqueID.append("Item-");
-        } else if (metric.getResource() instanceof Collection) {
-            uniqueID.append("Collection-");
-        } else if (metric.getResource() instanceof Community) {
-            uniqueID.append("Community-");
-        } else {
-            return Optional.empty();
+    private Optional<String> findUniqueId(Context context, CrisMetrics metric) {
+        DSpaceObject resource = metric.getResource();
+        return findIndexableObject(context, resource)
+            .map(indexableObject -> indexableObject.getUniqueIndexID());
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Optional<IndexableObject> findIndexableObject(Context context, DSpaceObject resource) {
+        String indexableType = Constants.typeText[resource.getType()];
+        return Optional.ofNullable(indexObjectFactoryFactory.getIndexFactoryByType(indexableType))
+            .flatMap(indexableFactory -> findIndexableObject(context, indexableFactory, resource.getID().toString()));
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Optional<IndexableObject> findIndexableObject(Context context, IndexFactory factory, String id) {
+        try {
+            return factory.findIndexableObject(context, id);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
-        uniqueID.append(metric.getResource().getID());
-        return Optional.of(uniqueID.toString());
     }
 }

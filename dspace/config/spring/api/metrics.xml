@@ -57,11 +57,6 @@
           class="org.dspace.metrics.CrisItemMetricsServiceImpl"
           autowire="byType"
           scope="singleton"/>
-          
-    <bean id="org.dspace.metrics.CrisItemMetricsAuthorizationServiceImpl"
-          class="org.dspace.metrics.CrisItemMetricsAuthorizationServiceImpl"
-          autowire="byType"
-          scope="singleton"/>
 
     <bean class="org.dspace.metrics.embeddable.impl.EmbeddableGoogleScholarProvider">
         <property name="filterService">

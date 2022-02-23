@@ -7,7 +7,6 @@
  */
 package org.dspace.app.rest.security;
 
-import static java.util.Collections.emptyList;
 import static org.dspace.authenticate.OrcidAuthenticationBean.ORCID_AUTH_ATTRIBUTE;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class OrcidAuthenticationFilter extends StatelessLoginFilter {
         throws AuthenticationException {
 
         req.setAttribute(ORCID_AUTH_ATTRIBUTE, ORCID_AUTH_ATTRIBUTE);
-        return authenticationManager.authenticate(new DSpaceAuthentication(null, null, emptyList()));
+        return authenticationManager.authenticate(new DSpaceAuthentication());
 
     }
 

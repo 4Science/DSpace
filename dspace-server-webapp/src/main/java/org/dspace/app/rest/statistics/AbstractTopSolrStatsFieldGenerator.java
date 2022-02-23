@@ -13,6 +13,7 @@ import java.text.ParseException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
@@ -32,6 +33,9 @@ public abstract class AbstractTopSolrStatsFieldGenerator extends AbstractUsageRe
     protected final SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
     @Autowired
     private DiscoveryConfigurationService discoveryConfigurationService;
+
+    private Integer dsoType;
+
     /**
      * Retrieves the stats dataset of a given dso, with a given axisType (example countryCode, city), which
      * corresponds to a solr field, and a given facetMinCount limit (usually either 0 or 1, 0 if we want a data point
@@ -66,15 +70,20 @@ public abstract class AbstractTopSolrStatsFieldGenerator extends AbstractUsageRe
                             .composeQueryWithInverseRelation(dso, discoveryConfiguration.getDefaultFilterQueries());
             }
         }
+
         if (!hasValidRelation) {
-            if (dso.getType() != -1) {
-                query += "type: " + dso.getType();
+            if (getDsoType(dso) != -1) {
+                query += "type: " + getDsoType(dso);
             }
-            query += (query.equals("") ? "" : " AND ");
-            query += "id:" + dso.getID();
+
+            if (isNotSiteObject(dso)) {
+                query += (query.equals("") ? "" : " AND ") + "id:" + dso.getID();
+            }
+
         }
+
         String filter_query = statisticsDatasetDisplay
-                                  .composeFilterQuery(startDate, endDate, hasValidRelation, dso.getType());
+                                  .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso));
         ObjectCount[] topCounts = solrLoggerService.queryFacetField(query, filter_query, typeAxisString,
                 getMaxResults(), false, null, 1);
         dataset = new Dataset(1, topCounts.length);
@@ -82,12 +91,25 @@ public abstract class AbstractTopSolrStatsFieldGenerator extends AbstractUsageRe
             ObjectCount count = topCounts[i];
             dataset.setColLabel(i, statisticsDatasetDisplay
                                        .getResultName(typeAxisString, count.getValue(),
-                                                      dso, dso.getType(), -1, context));
+                                                      dso, getDsoType(dso), -1, context));
             dataset.setColLabelAttr(i, statisticsDatasetDisplay
                                            .getAttributes(count.getValue(),
-                                                          dso, dso.getType(), context));
+                                                          dso, getDsoType(dso), context));
             dataset.addValueToMatrix(0, i, count.getCount());
         }
         return dataset;
     }
+
+    private boolean isNotSiteObject(DSpaceObject dso) {
+        return dso.getType() != Constants.SITE;
+    }
+
+    private Integer getDsoType(DSpaceObject dso) {
+        return dsoType != null ? dsoType : dso.getType();
+    }
+
+    public void setDsoType(Integer dsoType) {
+        this.dsoType = dsoType;
+    }
+
 }

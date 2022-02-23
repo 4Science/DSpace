@@ -307,4 +307,9 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
         this.orcidClient = orcidClient;
     }
 
+    @Override
+    public boolean isUsed(Context context, HttpServletRequest request) {
+        return true;
+    }
+
 }

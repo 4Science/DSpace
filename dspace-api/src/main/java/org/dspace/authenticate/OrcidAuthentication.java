@@ -74,4 +74,9 @@ public class OrcidAuthentication implements AuthenticationMethod {
         return serviceManager.getServiceByName("orcidAuthentication", OrcidAuthenticationBean.class);
     }
 
+    @Override
+    public boolean isUsed(Context context, HttpServletRequest request) {
+        return getOrcidAuthentication().isUsed(context, request);
+    }
+
 }

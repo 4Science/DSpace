@@ -176,6 +176,7 @@ public class DedupUtils {
         findDuplicateBySignature.addFilterQuery(filter);
 
         findDuplicateBySignature.setFields("dedup.ids", "dedup.note", "dedup.flag");
+        findDuplicateBySignature.setRows(Integer.MAX_VALUE);
 
         if (configurationService.getBooleanProperty("deduplication.tool.duplicatechecker.ignorewithdrawn")) {
             findDuplicateBySignature.addFilterQuery("-" + SolrDedupServiceImpl.RESOURCE_WITHDRAWN_FIELD + ":true");
@@ -297,7 +298,8 @@ public class DedupUtils {
      * 
      * @param context
      * @param itemID
-     * @param signatureID
+     * @param signatureType
+     * @param resourceType
      * @return false if no potential duplicates are found
      * @throws SQLException
      * @throws AuthorizeException

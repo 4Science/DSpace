@@ -55,7 +55,7 @@ public class ScopusPersonProvider {
     public List<CrisMetricDTO> getCrisMetricDTOs(String id, String param) {
         String records = getRecords(id);
         if (StringUtils.isNotBlank(records)) {
-            return convertToCrisMetricDTOs(records, param);
+            return convertToCrisMetricDTOs(records, param, id);
         }
         log.error("The Item with scopus-author-id : " + id + " was not updated!");
         return null;
@@ -68,7 +68,7 @@ public class ScopusPersonProvider {
         return hindexRestConnector.get(id);
     }
 
-    private List<CrisMetricDTO> convertToCrisMetricDTOs(String json, String param) {
+    private List<CrisMetricDTO> convertToCrisMetricDTOs(String json, String param, String id) {
         JSONObject jsonObject = null;
         try {
             jsonObject = new JSONObject(json)
@@ -79,22 +79,26 @@ public class ScopusPersonProvider {
         List<CrisMetricDTO> dtos = new ArrayList<CrisMetricDTO>();
         if (StringUtils.isNotBlank(param)) {
             ScopusPersonMetric sm = ScopusPersonMetric.valueOf(param);
-            dtos.add(getMetric(jsonObject, sm));
+            dtos.add(getMetric(jsonObject, sm, id));
         } else {
             for (ScopusPersonMetric sm : ScopusPersonMetric.values()) {
-                dtos.add(getMetric(jsonObject, sm));
+                dtos.add(getMetric(jsonObject, sm, id));
             }
         }
         return dtos;
     }
 
-    private CrisMetricDTO getMetric(JSONObject jsonObj, ScopusPersonMetric metric) {
+    private CrisMetricDTO getMetric(JSONObject jsonObj, ScopusPersonMetric metric, String id) {
         try {
             Double metricCount = null;
-            if (metric.coredata) {
-                metricCount = jsonObj.getJSONObject("coredata").getDouble(metric.jsonPath);
-            } else {
-                metricCount = jsonObj.getDouble(metric.jsonPath);
+            try {
+                if (metric.coredata) {
+                    metricCount = jsonObj.getJSONObject("coredata").getDouble(metric.jsonPath);
+                } else {
+                    metricCount = jsonObj.getDouble(metric.jsonPath);
+                }
+            } catch (JSONException je) {
+                log.warn("Error while extracting metrics for author {} from json: {}", id, je.getMessage());
             }
             if (Objects.isNull(metricCount)) {
                 return null;

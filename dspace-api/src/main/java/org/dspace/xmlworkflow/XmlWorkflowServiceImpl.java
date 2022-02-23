@@ -31,6 +31,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
@@ -54,7 +55,7 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.services.EventService;
 import org.dspace.usage.UsageWorkflowEvent;
 import org.dspace.workflow.WorkflowException;
 import org.dspace.xmlworkflow.factory.XmlWorkflowFactory;
@@ -131,6 +132,8 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     protected ConfigurationService configurationService;
     @Autowired(required = true)
     protected XmlWorkflowCuratorService xmlWorkflowCuratorService;
+    @Autowired(required = true)
+    protected EventService eventService;
 
     protected XmlWorkflowServiceImpl() {
 
@@ -367,7 +370,8 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         recordStart(context, wfi.getItem(), firstActionConfig.getProcessingAction());
 
         //Fire an event !
-        logWorkflowEvent(context, firstStep.getWorkflow().getID(), null, null, wfi, null, firstStep, firstActionConfig);
+        logWorkflowEvent(context, firstStep.getWorkflow().getID(), null, null, true,
+            wfi, wfi.getItem().getSubmitter(), firstStep, firstActionConfig, false);
 
         //If we don't have a UI then execute the action.
         if (!firstActionConfig.requiresUI()) {
@@ -531,8 +535,11 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             } finally {
                 if ((nextStep != null && currentStep != null && nextActionConfig != null)
                         || (wfi.getItem().isArchived() && currentStep != null)) {
+
                     logWorkflowEvent(c, currentStep.getWorkflow().getID(), currentStep.getId(),
-                                     currentActionConfig.getId(), wfi, user, nextStep, nextActionConfig);
+                        currentActionConfig.getId(), currentActionConfig.requiresUI(), wfi, user, nextStep,
+                        nextActionConfig, false);
+
                 }
             }
 
@@ -542,54 +549,72 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         throw new WorkflowException("Invalid step outcome");
     }
 
-    protected void logWorkflowEvent(Context c, String workflowId, String previousStepId, String previousActionConfigId,
-                                    XmlWorkflowItem wfi, EPerson actor, Step newStep,
-                                    WorkflowActionConfig newActionConfig) throws SQLException {
-        try {
-            //Fire an event so we can log our action !
-            Item item = wfi.getItem();
-            Collection myCollection = wfi.getCollection();
-            String workflowStepString = null;
+    protected void logWorkflowEvent(Context c, String workflowId, String previousStepId, String previousActionId,
+        boolean previousActionRequiresUI, XmlWorkflowItem wfi, EPerson actor, Step newStep,
+        WorkflowActionConfig newActionConfig, boolean rejected) {
 
-            List<EPerson> currentEpersonOwners = new ArrayList<>();
-            List<Group> currentGroupOwners = new ArrayList<>();
-            //These are only null if our item is sent back to the submission
-            if (newStep != null && newActionConfig != null) {
-                workflowStepString = workflowId + "." + newStep.getId() + "." + newActionConfig.getId();
-
-                //Retrieve the current owners of the task
-                List<ClaimedTask> claimedTasks = claimedTaskService.find(c, wfi, newStep.getId());
-                List<PoolTask> pooledTasks = poolTaskService.find(c, wfi);
-                for (PoolTask poolTask : pooledTasks) {
-                    if (poolTask.getEperson() != null) {
-                        currentEpersonOwners.add(poolTask.getEperson());
-                    } else {
-                        currentGroupOwners.add(poolTask.getGroup());
-                    }
-                }
-                for (ClaimedTask claimedTask : claimedTasks) {
-                    currentEpersonOwners.add(claimedTask.getOwner());
-                }
-            }
-            String previousWorkflowStepString = null;
-            if (previousStepId != null && previousActionConfigId != null) {
-                previousWorkflowStepString = workflowId + "." + previousStepId + "." + previousActionConfigId;
-            }
-
-            //Fire our usage event !
-            UsageWorkflowEvent usageWorkflowEvent = new UsageWorkflowEvent(c, item, wfi, workflowStepString,
-                                                                           previousWorkflowStepString, myCollection,
-                                                                           actor);
-
-            usageWorkflowEvent.setEpersonOwners(currentEpersonOwners.toArray(new EPerson[currentEpersonOwners.size()]));
-            usageWorkflowEvent.setGroupOwners(currentGroupOwners.toArray(new Group[currentGroupOwners.size()]));
-
-            DSpaceServicesFactory.getInstance().getEventService().fireEvent(usageWorkflowEvent);
-        } catch (SQLException e) {
-            //Catch all errors we do not want our workflow to crash because the logging threw an exception
-            log.error(LogHelper.getHeader(c, "Error while logging workflow event", "Workflow Item: " + wfi.getID()),
-                      e);
+        if (newActionConfig == null) {
+            newStep = null;
         }
+
+        String currentStep = null;
+        if (newStep != null) {
+            currentStep = newStep.getId();
+        } else {
+            currentStep = rejected ? WORKSPACE_STEP : ITEM_STEP;
+        }
+
+        String currentAction = null;
+        if (newActionConfig != null) {
+            currentAction = newActionConfig.getId();
+        } else {
+            currentAction = rejected ? REJECT_ACTION : APPROVE_ACTION;
+        }
+
+        UsageWorkflowEvent workflowEvent = new UsageWorkflowEvent(c, wfi);
+        workflowEvent.setActor(actor);
+        workflowEvent.setWorkflow(workflowId);
+        workflowEvent.setCurrentWorkflowAction(currentAction);
+        workflowEvent.setCurrentWorkflowStep(currentStep);
+        workflowEvent.setOwners(getCurrentTaskOwners(c, wfi, newStep));
+        workflowEvent.setPreviousWorkflowStep(previousStepId != null ? previousStepId : SUBMIT_STEP);
+        workflowEvent.setPreviousWorkflowAction(previousActionId != null ? previousActionId : SUBMIT_ACTION);
+        workflowEvent.setPreviousActionRequiresUI(previousActionRequiresUI);
+
+        eventService.fireEvent(workflowEvent);
+    }
+
+    private List<DSpaceObject> getCurrentTaskOwners(Context c, XmlWorkflowItem wfi, Step newStep) {
+
+        if (newStep == null) {
+            return List.of();
+        }
+
+        List<DSpaceObject> owners = new ArrayList<>();
+
+        try {
+
+            List<ClaimedTask> claimedTasks = claimedTaskService.find(c, wfi, newStep.getId());
+            List<PoolTask> pooledTasks = poolTaskService.find(c, wfi);
+
+            for (PoolTask poolTask : pooledTasks) {
+                if (poolTask.getEperson() != null) {
+                    owners.add(poolTask.getEperson());
+                } else {
+                    owners.add(poolTask.getGroup());
+                }
+            }
+
+            for (ClaimedTask claimedTask : claimedTasks) {
+                owners.add(claimedTask.getOwner());
+            }
+
+            return owners;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     protected WorkflowActionConfig processNextStep(Context c, EPerson user, Workflow workflow,
@@ -710,7 +735,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             }
         } catch (MessagingException e) {
             log.warn(LogHelper.getHeader(context, "notifyOfArchive",
-                    "cannot email user" + " item_id=" + item.getID()));
+                    "cannot email user" + " item_id=" + item.getID()), e);
         }
     }
 
@@ -744,7 +769,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         } catch (MessagingException e) {
             log.warn(LogHelper.getHeader(c, "notifyOfCuration",
                     "cannot email users of workflow_item_id " + wi.getID()
-                            + ":  " + e.getMessage()));
+                            + ":  " + e.getMessage()), e);
         }
     }
 
@@ -1074,7 +1099,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             + "collection_id=" + wi.getCollection().getID() + "eperson_id="
             + e.getID()));
 
-        logWorkflowEvent(context, workflowID, currentStepId, currentActionConfigId, wi, e, null, null);
+        logWorkflowEvent(context, workflowID, currentStepId, currentActionConfigId, true, wi, e, null, null, true);
 
         context.restoreAuthSystemState();
         return wsi;
@@ -1230,7 +1255,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             log.warn(LogHelper.getHeader(c, "notify_of_reject",
                     "cannot email user" + " eperson_id" + e.getID()
                     + " eperson_email" + e.getEmail()
-                    + " workflow_item_id" + wi.getID()));
+                    + " workflow_item_id" + wi.getID()), ex);
         }
     }
 

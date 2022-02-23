@@ -9,7 +9,10 @@ package org.dspace.app.rest;
 
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
+import static org.dspace.app.rest.matcher.UsageReportMatcher.matchUsageReport;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CATEGORIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CITIES_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CONTINENTS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID;
@@ -32,7 +35,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.dspace.app.rest.matcher.PageMatcher;
 import org.dspace.app.rest.matcher.UsageReportMatcher;
 import org.dspace.app.rest.model.UsageReportPointCityRest;
 import org.dspace.app.rest.model.UsageReportPointCountryRest;
@@ -242,12 +244,12 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
 
     @Test
     public void usagereportsSearch_noProperCategory_Exception() throws Exception {
-        getClient().perform(get("/api/statistics/usagereports/search/object")
+        getClient(adminToken).perform(get("/api/statistics/usagereports/search/object")
                 .param("uri", getItemUri(publicationItem))
                 .param("category", "not-existing-category"))
                    .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
 
-        getClient().perform(get("/api/statistics/usagereports/search/object")
+        getClient(adminToken).perform(get("/api/statistics/usagereports/search/object")
                 .param("uri", getItemUri(publicationItem))
                 .param("category", "site-mainReports"))
                    .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
@@ -255,12 +257,10 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
 
     @Test
     public void usagereportsSearch_NonExistentUUID_Exception() throws Exception {
-        getClient().perform(get("/api/statistics/usagereports/search/object")
+        getClient(adminToken).perform(get("/api/statistics/usagereports/search/object")
                 .param("uri", "http://localhost:8080/server/api/core/items/" + UUID.randomUUID().toString())
                 .param("category", "item-mainReports"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.page",
-                           PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 0, 0)));
+                   .andExpect(status().isNotFound());
     }
 
     // project 2 is only visible by eperson
@@ -310,7 +310,7 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
                 .param("uri", getItemUri(project2Item))
                 .param("category", "project-mainReports"))
             // ** THEN **
-            .andExpect(status().isOk());
+            .andExpect(status().isForbidden());
         // We request a dso's TotalVisits usage stat report as another logged in eperson and has no read policy for
         // this user
         getClient(anotherLoggedInUserToken).perform(get("/api/statistics/usagereports/search/object")
@@ -332,9 +332,13 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
             .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
-                UsageReportMatcher
-                    .matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID,
-                            TOTAL_VISITS_REPORT_ID, sitePoints))));
+                matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOTAL_VISITS_REPORT_ID, sitePoints),
+                matchUsageReport(site.getID() + "_" + TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID),
+                matchUsageReport(site.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID),
+                matchUsageReport(site.getID() + "_" + TOP_CONTINENTS_REPORT_ID, TOP_CONTINENTS_REPORT_ID),
+                matchUsageReport(site.getID() + "_" + TOP_CATEGORIES_REPORT_ID, TOP_CATEGORIES_REPORT_ID),
+                matchUsageReport(site.getID() + "_" + TOP_COUNTRIES_REPORT_ID, TOP_COUNTRIES_REPORT_ID))));
     }
 
     @Test

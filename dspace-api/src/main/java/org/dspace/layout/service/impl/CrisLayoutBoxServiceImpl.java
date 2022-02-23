@@ -13,16 +13,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxConfiguration;
@@ -30,7 +34,6 @@ import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.dao.CrisLayoutBoxDAO;
 import org.dspace.layout.service.CrisLayoutBoxAccessService;
 import org.dspace.layout.service.CrisLayoutBoxService;
-import org.dspace.metrics.CrisItemMetricsAuthorizationService;
 import org.dspace.metrics.CrisItemMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,9 +51,6 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     private AuthorizeService authorizeService;
 
     @Autowired
-    private CrisItemMetricsAuthorizationService crisItemMetricsAuthorizationService;
-
-    @Autowired
     private CrisLayoutBoxAccessService crisLayoutBoxAccessService;
 
     @Autowired
@@ -58,6 +58,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
 
     @Autowired
     private CrisItemMetricsService crisMetricService;
+
+    @Autowired
+    private ItemService itemService;
 
     public CrisLayoutBoxServiceImpl() {
     }
@@ -148,12 +151,15 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             case "RELATION":
                 return hasRelationBoxContent(context, box, item);
             case "METRICS":
-                return hasMetricsBoxContent(context, box, item.getID());
+                return hasMetricsBoxContent(context, box, item);
             case "ORCID_SYNC_SETTINGS":
             case "ORCID_SYNC_QUEUE":
                 return hasOrcidSyncBoxContent(context, box, values);
             case "ORCID_AUTHORIZATIONS":
                 return hasOrcidAuthorizationsBoxContent(context, box, values);
+            case "IIIFVIEWER":
+                return BooleanUtils.toBoolean(itemService.getMetadataFirstValue(item,
+                        new MetadataFieldName("dspace.iiif.enabled"), Item.ANY));
             case "METADATA":
             default:
                 return hasMetadataBoxContent(box, values);
@@ -193,27 +199,34 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         return relatedItems.hasNext();
     }
 
-    protected boolean hasMetricsBoxContent(Context context, CrisLayoutBox box, UUID itemUuid) {
-        if (box.getMetric2box().isEmpty()) {
+    protected boolean hasMetricsBoxContent(Context context, CrisLayoutBox box, Item item) {
+
+        if (box.getMetric2box().isEmpty() || currentUserIsNotAllowedToReadItem(context, item)) {
             return false;
         }
-        if (!this.crisItemMetricsAuthorizationService.isAuthorized(context, itemUuid)) {
-            return false;
-        }
+
         final Set<String> boxTypes = new HashSet<>();
         box.getMetric2box().forEach(b -> {
             boxTypes.add(b.getType());
             crisMetricService.embeddableFallback(b.getType()).ifPresent(boxTypes::add);
         });
-        if (this.crisMetricService.getEmbeddableMetrics(context, itemUuid, null).stream()
+        if (this.crisMetricService.getEmbeddableMetrics(context, item.getID(), null).stream()
             .filter(m -> boxTypes.contains(m.getMetricType())).count() > 0) {
             return true;
         }
-        if (this.crisMetricService.getStoredMetrics(context, itemUuid).stream()
+        if (this.crisMetricService.getStoredMetrics(context, item.getID()).stream()
             .filter(m -> boxTypes.contains(m.getMetricType())).count() > 0) {
             return true;
         }
         return false;
+    }
+
+    private boolean currentUserIsNotAllowedToReadItem(Context context, Item item) {
+        try {
+            return !authorizeService.authorizeActionBoolean(context, item, Constants.READ);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
     }
 
     private boolean hasOrcidSyncBoxContent(Context context, CrisLayoutBox box, List<MetadataValue> values) {

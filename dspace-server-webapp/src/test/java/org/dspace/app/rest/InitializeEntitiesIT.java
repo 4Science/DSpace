@@ -84,7 +84,7 @@ public class InitializeEntitiesIT extends AbstractControllerIntegrationTest {
         }
 
         for (EntityType entityType: entityTypeList) {
-            if (!entityType.getLabel().equals(Constants.ENTITY_TYPE_NONE)) {
+            if (!Constants.ENTITY_TYPE_NONE.equals(entityType.getLabel())) {
                 entityTypeService.delete(context, entityType);
             }
         }

@@ -41,6 +41,18 @@ import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
  */
 public interface XmlWorkflowService extends WorkflowService<XmlWorkflowItem> {
 
+    String ITEM_STEP = "item";
+
+    String SUBMIT_STEP = "submit";
+
+    String WORKSPACE_STEP = "workspace";
+
+    String SUBMIT_ACTION = "submit";
+
+    String REJECT_ACTION = "reject";
+
+    String APPROVE_ACTION = "approve";
+
     /**
      * Send an email to some addresses, concerning a WorkflowItem, using a given
      * template.

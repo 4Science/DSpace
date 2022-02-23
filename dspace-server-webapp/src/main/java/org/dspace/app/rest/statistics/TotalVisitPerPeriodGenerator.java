@@ -20,6 +20,7 @@ import org.dspace.app.rest.model.UsageReportPointDateRest;
 import org.dspace.app.rest.model.UsageReportRest;
 import org.dspace.app.rest.utils.UsageReportUtils;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
@@ -39,7 +40,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     private String periodType = "month";
+
     private int increment = 1;
+
+    private Integer dsoType;
+
     protected final SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
 
     public void setPeriodType(String periodType) {
@@ -84,11 +89,13 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
             }
         }
         if (!hasValidRelation) {
-            if (dso.getType() != -1) {
-                query += "type: " + dso.getType();
+            if (getDsoType(dso) != -1) {
+                query += "type: " + getDsoType(dso);
             }
-            query += (query.equals("") ? "" : " AND ");
-            query += "id:" + dso.getID();
+
+            if (isNotSiteObject(dso)) {
+                query += (query.equals("") ? "" : " AND ") + "id:" + dso.getID();
+            }
         }
         //add date facets to filter query
         String filter_query = "";
@@ -102,7 +109,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
             filter_query += " AND ";
         }
         filter_query += statisticsDatasetDisplay
-                            .composeFilterQuery(startDate, endDate, hasValidRelation, dso.getType());
+                            .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso));
         // execute query
         ObjectCount[] topCounts1 = solrLoggerService.queryFacetField(query, filter_query, "id",
                 getMaxResults(), false, null, 1);
@@ -152,7 +159,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
                 }
             }
         }
-        if (hasValidRelation && topCounts1.length > 1) {
+        if (topCounts1.length > 1) {
             for (int pos = 0; pos < usageReportRest.getPoints().size(); pos++) {
                 Map<String, Integer> values = new HashMap<>();
                 values.put("views", total_views[pos]);
@@ -179,5 +186,17 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
             cal.add(Calendar.MONTH, -1);
         }
         return usageReportRest;
+    }
+
+    private boolean isNotSiteObject(DSpaceObject dso) {
+        return dso.getType() != Constants.SITE;
+    }
+
+    private Integer getDsoType(DSpaceObject dso) {
+        return dsoType != null ? dsoType : dso.getType();
+    }
+
+    public void setDsoType(Integer dsoType) {
+        this.dsoType = dsoType;
     }
 }

@@ -553,6 +553,7 @@
                 <ref bean="searchFilterContentInOriginalBundle"/>
                 <ref bean="searchFilterEntityType"/>
                 <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterTypes" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -579,6 +580,7 @@
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
                 <ref bean="searchFilterIsJournalOfPublicationRelation"/>
                 <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterTypes" />
             </list>
         </property>
         <!--The sort filters for the discovery search (same as defaultConfiguration above)-->
@@ -1019,7 +1021,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>'{'!join from=search.resourceid to=investigators_authority fromIndex=crissearch'}'person.affiliation.name_authority:{0}</value>
+                <value>'{'!join from=search.resourceid to=projectinvestigators_authority fromIndex=${solr.multicorePrefix}search'}'person.affiliation.name_authority:{0}</value>
             </list>
         </property>
     </bean>
@@ -1069,7 +1071,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>'{'!join from=search.resourceid to=author_authority fromIndex=crissearch'}'person.affiliation.name_authority:{0}</value>
+                <value>'{'!join from=search.resourceid to=author_authority fromIndex=${solr.multicorePrefix}search'}'person.affiliation.name_authority:{0}</value>
             </list>
         </property>
     </bean>
@@ -2510,6 +2512,15 @@
             <list>
                 <value>dc.language.iso</value>
                 <value>person.knowsLanguage</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="searchFilterTypes" class="org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet">
+        <property name="indexFieldName" value="types" />
+        <property name="metadataFields">
+            <list>
+                <value>dc.type</value>
             </list>
         </property>
     </bean>

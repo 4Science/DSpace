@@ -81,6 +81,8 @@ public class DiscoverQuery {
 
     private String discoveryConfigurationName;
 
+    private List<String> facetPivots;
+
     public DiscoverQuery() {
         //Initialize all our lists
         this.filterQueries = new ArrayList<>();
@@ -89,6 +91,7 @@ public class DiscoverQuery {
         this.facetFields = new ArrayList<>();
         this.facetQueries = new ArrayList<>();
         this.searchFields = new ArrayList<>();
+        this.facetPivots = new ArrayList<>();
         this.hitHighlighting = new HashMap<>();
         //Use a linked hashmap since sometimes insertion order might matter
         this.properties = new LinkedHashMap<>();
@@ -240,6 +243,24 @@ public class DiscoverQuery {
      */
     public List<DiscoverFacetField> getFacetFields() {
         return facetFields;
+    }
+
+    /**
+     * Adds a new facet pivot
+     *
+     * @param pivot the new facet pivot to be added
+     */
+    public void addFacetPivot(String pivot) {
+        facetPivots.add(pivot);
+    }
+
+    /**
+     * Gets the facet pivots configured
+     *
+     * @return the facet pivots for this query
+     */
+    public List<String> getFacetPivots() {
+        return facetPivots;
     }
 
     /**

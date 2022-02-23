@@ -924,6 +924,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<ResourcePolicy> defaultCollectionPolicies = authorizeService
                 .getPoliciesActionFilter(context, collection, Constants.DEFAULT_BITSTREAM_READ);
 
+        List<ResourcePolicy> defaultItemPolicies = authorizeService.findPoliciesByDSOAndType(context, item,
+                ResourcePolicy.TYPE_CUSTOM);
         if (defaultCollectionPolicies.size() < 1) {
             throw new SQLException("Collection " + collection.getID()
                     + " (" + collection.getHandle() + ")"
@@ -938,12 +940,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             // if come from InstallItem: remove all submission/workflow policies
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
+            addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
             addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionPolicies);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // if come from InstallItem: remove all submission/workflow policies
                 authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
                 authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
+                addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
                 addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
             }
         }
@@ -1136,6 +1140,15 @@ prevent the generation of resource policy entry values with null dspace_object a
                 newPolicy.setRpType(ResourcePolicy.TYPE_INHERITED);
                 resourcePolicyService.update(context, newPolicy);
             }
+        }
+    }
+
+    private void addCustomPoliciesNotInPlace(Context context, DSpaceObject dso, List<ResourcePolicy> customPolicies)
+            throws SQLException, AuthorizeException {
+        boolean customPoliciesAlreadyInPlace = authorizeService
+                .findPoliciesByDSOAndType(context, dso, ResourcePolicy.TYPE_CUSTOM).size() > 0;
+        if (!customPoliciesAlreadyInPlace) {
+            authorizeService.addPolicies(context, customPolicies, dso);
         }
     }
 
@@ -1399,6 +1412,12 @@ prevent the generation of resource policy entry values with null dspace_object a
             log.error(e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public Iterator<Item> findByIds(Context context, List<String> ids) throws SQLException {
+        return itemDAO.findByIds(context,
+                ids.stream().map(uuid -> UUID.fromString(uuid)).collect(Collectors.toList()));
     }
 
     @Override

@@ -52,7 +52,7 @@
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.LicenseAddPatchOperation"/>
                         </entry>
-                        <entry key="accessConditions">
+                        <entry key="upload.accessConditions">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.BitstreamResourcePolicyAddPatchOperation"/>
                         </entry>
@@ -63,6 +63,9 @@
                         <entry key="cclicense/uri">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.CCLicenseAddPatchOperation"/>
+                        </entry>
+                        <entry key="accessConditions">
+                            <bean class="org.dspace.app.rest.submit.factory.impl.AccessConditionAddPatchOperation"/>
                         </entry>
                     </map>
                 </entry>
@@ -87,13 +90,16 @@
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.BitstreamRemovePatchOperation" />
                         </entry>
-                        <entry key="accessConditions">
+                        <entry key="upload.accessConditions">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.BitstreamResourcePolicyRemovePatchOperation"/>
                         </entry>
                         <entry key="cclicense/uri">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.CCLicenseRemovePatchOperation"/>
+                        </entry>
+                        <entry key="accessConditions">
+                            <bean class="org.dspace.app.rest.submit.factory.impl.AccessConditionRemovePatchOperation"/>
                         </entry>
                     </map>
                 </entry>
@@ -114,13 +120,19 @@
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.LicenseReplacePatchOperation"/>
                         </entry>
-                        <entry key="accessConditions">
+                        <entry key="upload.accessConditions">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.BitstreamResourcePolicyReplacePatchOperation"/>
                         </entry>
                         <entry key="collection">
                             <bean
                                     class="org.dspace.app.rest.submit.factory.impl.CollectionReplacePatchOperation"/>
+                        </entry>
+                        <entry key="discoverable">
+                            <bean class="org.dspace.app.rest.submit.factory.impl.AccessConditionDiscoverableReplacePatchOperation"/>
+                        </entry>
+                        <entry key="accessConditions">
+                            <bean class="org.dspace.app.rest.submit.factory.impl.AccessConditionReplacePatchOperation"/>
                         </entry>
                     </map>
                 </entry>

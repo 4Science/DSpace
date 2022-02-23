@@ -18,6 +18,7 @@ public enum HarvestStatusEnum {
     BUSY(1),
     QUEUED(2),
     OAI_ERROR(3),
+    RETRY(4),
     UNKNOWN_ERROR(-1);
 
     private int harvestStatus;
@@ -41,6 +42,7 @@ public enum HarvestStatusEnum {
             case 1: return HarvestStatusEnum.BUSY;
             case 2: return HarvestStatusEnum.QUEUED;
             case 3: return HarvestStatusEnum.OAI_ERROR;
+            case 4: return HarvestStatusEnum.RETRY;
             default: throw new IllegalArgumentException("No corresponding enum value for integer");
         }
     }

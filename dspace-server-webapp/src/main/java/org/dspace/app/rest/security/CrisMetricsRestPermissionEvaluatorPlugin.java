@@ -19,8 +19,9 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.metrics.CrisItemMetricsAuthorizationService;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.metrics.CrisItemMetricsService;
 import org.dspace.metrics.embeddable.impl.AbstractEmbeddableMetricProvider;
 import org.dspace.metricsSecurity.BoxMetricsLayoutConfigurationService;
@@ -54,9 +55,6 @@ public class CrisMetricsRestPermissionEvaluatorPlugin extends RestObjectPermissi
     private CrisItemMetricsService crisItemMetricsService;
 
     @Autowired
-    private CrisItemMetricsAuthorizationService crisItemMetricsAuthorizationService;
-
-    @Autowired
     private ItemService itemService;
     @Autowired
     private BoxMetricsLayoutConfigurationService boxMetricsLayoutConfigurationService;
@@ -83,8 +81,9 @@ public class CrisMetricsRestPermissionEvaluatorPlugin extends RestObjectPermissi
             }
 
             CrisMetrics metric = crisItemMetricsService.find(context, targetId.toString());
-            return crisItemMetricsAuthorizationService.isAuthorized(context, item)
-                    && boxMetricsLayoutConfigurationService.checkPermissionOfMetricByBox(context,item, metric ) ;
+
+            return currentUserIsAllowedToReadItem(context, item)
+                && boxMetricsLayoutConfigurationService.checkPermissionOfMetricByBox(context, item, metric);
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -121,6 +120,14 @@ public class CrisMetricsRestPermissionEvaluatorPlugin extends RestObjectPermissi
                 return null;
             }
 
+        }
+    }
+
+    private boolean currentUserIsAllowedToReadItem(Context context, Item item) {
+        try {
+            return authorizeService.authorizeActionBoolean(context, item, Constants.READ);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 

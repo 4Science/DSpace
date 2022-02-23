@@ -90,6 +90,18 @@
                     <required></required>
                 </field>
             </row>
+            <row>
+		        <field>
+		          <dc-schema>dc</dc-schema>
+		          <dc-element>type</dc-element>
+		          <label>Type</label>
+		          <input-type>onebox</input-type>
+		          <repeatable>false</repeatable>
+		          <required>Ви повинні вибрати тип публікації</required>
+		          <hint>Виберіть тип вмісту публікації.</hint>
+		          <vocabulary>srsc_uk</vocabulary>
+		        </field>
+            </row>
         </form>
     </form-definitions>
 

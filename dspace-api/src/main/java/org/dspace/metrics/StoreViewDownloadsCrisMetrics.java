@@ -92,11 +92,11 @@ public class StoreViewDownloadsCrisMetrics extends
     private void performUpdateAndStorage(Context context) {
         try {
             storeMetricsForDso(context, findItems(context),
-                    Item.class.getSimpleName() + "s", Constants.ITEM);
+                    Item.class.getSimpleName().toLowerCase() + "s", Constants.ITEM);
             storeMetricsForDso(context, findDSO(context, IndexableCollection.TYPE),
-                    Collection.class.getSimpleName() + "s", Constants.COLLECTION);
+                    Collection.class.getSimpleName().toLowerCase() + "s", Constants.COLLECTION);
             storeMetricsForDso(context, findDSO(context, IndexableCommunity.TYPE),
-                    "Communities", Constants.COMMUNITY);
+                    "communities", Constants.COMMUNITY);
         } catch (SearchServiceException | SolrServerException | SQLException | IOException exception) {
             log.error(exception.getMessage());
         }
@@ -175,7 +175,7 @@ public class StoreViewDownloadsCrisMetrics extends
     }
 
     private void storeMetricsForDso(Context context, Iterator<DSpaceObject>
-            dSpaceObjectIterator, String title, int type) throws SQLException, SolrServerException, IOException {
+            dSpaceObjectIterator, String path, int type) throws SQLException, SolrServerException, IOException {
         int count = 0;
         int countFoundItems = 0;
         int countAddedItems = 0;
@@ -192,7 +192,7 @@ public class StoreViewDownloadsCrisMetrics extends
             if (views_downloads.get("views") > 0) {
                 try {
                     //add edit cris metrics for views
-                    if (createMetricObject("view", views_downloads.get("views"), dSpaceObject, title)) {
+                    if (createMetricObject("view", views_downloads.get("views"), dSpaceObject, path)) {
                         //if the method returns true it means that found previous metrics
                         countUpdatedItems++;
                     }
@@ -200,7 +200,7 @@ public class StoreViewDownloadsCrisMetrics extends
                     // crismetrics savage if there are downloads
                     if (views_downloads.get("downloads") > 0) {
                         //add edit cris metrics for downloads
-                        if (createMetricObject("download", views_downloads.get("downloads"), dSpaceObject, title)) {
+                        if (createMetricObject("download", views_downloads.get("downloads"), dSpaceObject, path)) {
                             //if the method returns true it means that found previous metrics
                             countUpdatedItems++;
                         }

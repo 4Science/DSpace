@@ -410,7 +410,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     public Iterator<Item> findByLastModifiedSince(Context context, Date since)
         throws SQLException {
         Query query = createQuery(context,
-                "SELECT i FROM item i WHERE last_modified > :last_modified ORDER BY id");
+                "SELECT i FROM Item i WHERE last_modified > :last_modified ORDER BY id");
         query.setParameter("last_modified", since, TemporalType.TIMESTAMP);
         return iterate(query);
     }
@@ -455,6 +455,14 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
             query.setParameter("in_archive", inArchive);
         }
         query.setParameter("authority", likeAuthority);
+        return iterate(query);
+    }
+
+    @Override
+    public Iterator<Item> findByIds(Context context, List<UUID> ids) throws SQLException {
+        Query query = createQuery(context,
+                "SELECT item " + "FROM Item as item WHERE item.id IN (:ids)");
+        query.setParameter("ids", ids);
         return iterate(query);
     }
 

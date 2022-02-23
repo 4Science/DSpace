@@ -14,5 +14,7 @@
 		<constructor-arg name="ePersonField" value="eperson.orcid" />
 		<constructor-arg name="profileField" value="person.identifier.orcid" />
 	</bean>
+
+    <bean id="loginEventFireAction" class="org.dspace.app.rest.login.impl.LoginEventFireAction"/>
            
 </beans>

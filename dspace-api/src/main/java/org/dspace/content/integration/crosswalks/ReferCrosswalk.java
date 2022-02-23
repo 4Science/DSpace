@@ -52,11 +52,11 @@ import org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMa
 import org.dspace.content.integration.crosswalks.model.TemplateLine;
 import org.dspace.content.integration.crosswalks.virtualfields.VirtualField;
 import org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper;
+import org.dspace.content.security.service.MetadataSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
-import org.dspace.metadataSecurity.MetadataSecurityService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -310,17 +310,17 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     }
 
     private List<String> getMetadataValuesForLine(Context context, TemplateLine line, Item item) {
+
         if (line.isVirtualField()) {
             VirtualField virtualField = virtualFieldMapper.getVirtualField(line.getVirtualFieldName());
             String[] values = virtualField.getMetadata(context, item, line.getField());
             return values != null ? Arrays.asList(values) : Collections.emptyList();
-        } else {
-            List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(item, line.getField());
-            return metadataSecurityService.getPermissionFilteredMetadata(context, item, metadataValues)
-                                          .stream()
-                                          .map(MetadataValue::getValue)
-                                          .collect(Collectors.toList());
         }
+
+        return metadataSecurityService.getPermissionFilteredMetadataValues(context, item, line.getField()).stream()
+            .map(MetadataValue::getValue)
+            .collect(Collectors.toList());
+
     }
 
     private void handleMetadataGroup(Context context, Item item, Iterator<TemplateLine> iterator, String groupName,

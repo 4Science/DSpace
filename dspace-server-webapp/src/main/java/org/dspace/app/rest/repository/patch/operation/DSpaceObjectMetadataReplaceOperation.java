@@ -86,15 +86,11 @@ public class DSpaceObjectMetadataReplaceOperation<R extends DSpaceObject> extend
      */
     private void replace(Context context, DSpaceObject dso, DSpaceObjectService dsoService, MetadataField metadataField,
                          MetadataValueRest metadataValue, String index, String propertyOfMd, String valueMdProperty) {
-        try {
-            if (dso instanceof Item) {
-                if (!itemConverter.checkMetadataFieldVisibility(context, (Item) dso, metadataField)) {
-                    throw new UnprocessableEntityException(
-                            "Current user has not permession to esecute patch peration on " + metadataField);
-                }
+        if (dso instanceof Item) {
+            if (!itemConverter.checkMetadataFieldVisibility(context, (Item) dso, metadataField)) {
+                throw new UnprocessableEntityException(
+                    "Current user has not permession to esecute patch peration on " + metadataField);
             }
-        } catch (SQLException e) {
-            log.error("Error filtering item metadata based on permissions", e);
         }
         // replace entire set of metadata
         if (metadataField == null) {

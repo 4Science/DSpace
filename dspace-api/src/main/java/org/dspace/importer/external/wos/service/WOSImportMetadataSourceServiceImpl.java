@@ -41,6 +41,7 @@ import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
+import org.dspace.importer.external.service.DoiCheck;
 import org.dspace.importer.external.service.components.QuerySource;
 import org.dspace.services.ConfigurationService;
 import org.jaxen.JaxenException;
@@ -59,6 +60,7 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     private static final String ENDPOINT_SEARCH_WOS = "https://wos-api.clarivate.com/api/wos/?databaseId=WOS&lang=en&usrQuery=";
     private static final String ENDPOINT_SEARCH_BY_ID_WOS = "https://wos-api.clarivate.com/api/wos/id/";
     private static final String AI_PATTERN  = "^AI=(.*)";
+    private static final Pattern ISI_PATTERN = Pattern.compile("^\\d{15}$");
 
     private int timeout = 1000;
 
@@ -275,7 +277,7 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             Integer count = query.getParameterAsClass("count", Integer.class);
             String proxyHost = configurationService.getProperty("http.proxy.host");
             String proxyPort = configurationService.getProperty("http.proxy.port");
-            String apiKey = configurationService.getProperty("wos.apikey");
+            String apiKey = configurationService.getProperty("wos.apiKey");
             if (apiKey != null && !apiKey.equals("")) {
                 HttpGet method = null;
                 try {
@@ -320,9 +322,26 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         if (risMatcher.matches()) {
             return query;
         }
+        if (DoiCheck.isDoi(query)) {
+            // FIXME: workaround to be removed once fixed by the community the double post of query param
+            if (query.startsWith(",")) {
+                query = query.substring(1);
+            }
+            return "DO=(" + query + ")";
+        } else if (isIsi(query)) {
+            return "UT=(" + query + ")";
+        }
         StringBuilder queryBuilder =  new StringBuilder("TS=(");
         queryBuilder.append(query).append(")");
         return queryBuilder.toString();
+    }
+
+    private boolean isIsi(String query) {
+        if (query.startsWith("WOS:")) {
+            return true;
+        }
+        Matcher matcher = ISI_PATTERN.matcher(query.trim());
+        return matcher.matches();
     }
 
     private List<OMElement> splitToRecords(String recordsSrc) {

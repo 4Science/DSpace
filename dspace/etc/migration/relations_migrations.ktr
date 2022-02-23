@@ -1321,7 +1321,12 @@ WHERE label = ?</sql>
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name/>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>

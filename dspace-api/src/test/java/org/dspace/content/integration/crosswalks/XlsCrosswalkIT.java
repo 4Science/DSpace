@@ -34,11 +34,19 @@ import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.builder.CrisLayoutBoxBuilder;
+import org.dspace.builder.CrisLayoutFieldBuilder;
+import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.EntityTypeBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.core.CrisConstants;
+import org.dspace.eperson.EPerson;
+import org.dspace.layout.CrisLayoutField;
+import org.dspace.layout.LayoutSecurity;
 import org.dspace.utils.DSpace;
 import org.junit.After;
 import org.junit.Before;
@@ -75,31 +83,31 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         dcInputsReader = mock(DCInputsReader.class);
 
-        when(dcInputsReader.hasFormWithName("traditional-oairecerif-identifier-url")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-oairecerif-identifier-url"))
+        when(dcInputsReader.hasFormWithName("traditionalpageone-oairecerif-identifier-url")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpageone-oairecerif-identifier-url"))
             .thenReturn(Arrays.asList("oairecerif.identifier.url", "crisrp.site.title"));
 
-        when(dcInputsReader.hasFormWithName("traditional-oairecerif-person-affiliation")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-oairecerif-person-affiliation"))
+        when(dcInputsReader.hasFormWithName("traditionalpageone-oairecerif-person-affiliation")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpageone-oairecerif-person-affiliation"))
             .thenReturn(Arrays.asList("oairecerif.person.affiliation", "oairecerif.affiliation.startDate",
                 "oairecerif.affiliation.endDate", "oairecerif.affiliation.role"));
 
-        when(dcInputsReader.hasFormWithName("traditional-crisrp-education")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-crisrp-education"))
+        when(dcInputsReader.hasFormWithName("traditionalpageone-crisrp-education")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpageone-crisrp-education"))
             .thenReturn(Arrays.asList("crisrp.education", "crisrp.education.start",
                 "crisrp.education.end", "crisrp.education.role"));
 
-        when(dcInputsReader.hasFormWithName("traditional-crisrp-qualification")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-crisrp-qualification"))
+        when(dcInputsReader.hasFormWithName("traditionalpagetwo-crisrp-qualification")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpagetwo-crisrp-qualification"))
             .thenReturn(Arrays.asList("crisrp.qualification", "crisrp.qualification.start",
                 "crisrp.qualification.end"));
 
-        when(dcInputsReader.hasFormWithName("traditional-dc-contributor-author")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-dc-contributor-author"))
+        when(dcInputsReader.hasFormWithName("traditionalpageone-dc-contributor-author")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpageone-dc-contributor-author"))
             .thenReturn(Arrays.asList("dc.contributor.author", "oairecerif.author.affiliation"));
 
-        when(dcInputsReader.hasFormWithName("traditional-dc-contributor-editor")).thenReturn(true);
-        when(dcInputsReader.getAllFieldNamesByFormName("traditional-dc-contributor-editor"))
+        when(dcInputsReader.hasFormWithName("traditionalpagetwo-dc-contributor-editor")).thenReturn(true);
+        when(dcInputsReader.getAllFieldNamesByFormName("traditionalpagetwo-dc-contributor-editor"))
             .thenReturn(Arrays.asList("dc.contributor.editor", "oairecerif.editor.affiliation"));
 
     }
@@ -687,6 +695,107 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             "Patent description"));
     }
 
+    @Test
+    public void testDisseminateWithNotPublicMetadataFields() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson owner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner@email.com")
+            .withNameInMetadata("Walter", "White")
+            .build();
+
+        Item item = createItem(context, collection)
+            .withEntityType("Person")
+            .withTitle("Walter White")
+            .withCrisOwner(owner)
+            .withVariantName("Heisenberg")
+            .withVariantName("W.W.")
+            .withGivenName("Walter")
+            .withFamilyName("White")
+            .withBirthDate("1962-03-23")
+            .withGender("M")
+            .withJobTitle("Professor")
+            .withPersonMainAffiliation("High School")
+            .withPersonKnowsLanguages("English")
+            .withPersonEducation("School")
+            .withPersonEducationStartDate("1968-09-01")
+            .withPersonEducationEndDate("1973-06-10")
+            .withPersonEducationRole("Student")
+            .withPersonEducation("University")
+            .withPersonEducationStartDate("1980-09-01")
+            .withPersonEducationEndDate("1985-06-10")
+            .withPersonEducationRole("Student")
+            .withOrcidIdentifier("0000-0002-9079-5932")
+            .withPersonQualification("Qualification")
+            .withPersonQualificationStartDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+            .withPersonQualificationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        context.setCurrentUser(eperson);
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("person-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, out);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(out.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Walter White", "", "", "Heisenberg||W.W.",
+            "Walter", "White", "1962-03-23", "M", "Professor", "High School", "", "", "", "", "0000-0002-9079-5932",
+            "", "", "", "", "School/1968-09-01/1973-06-10/Student||University/1980-09-01/1985-06-10/Student", "",
+            "Qualification", "English"));
+
+        context.turnOffAuthorisationSystem();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        CrisLayoutBoxBuilder.createBuilder(context, personType, false, false)
+            .addField(createCrisLayoutField("oairecerif.person.gender"))
+            .addField(createCrisLayoutField("person.birthDate"))
+            .withSecurity(LayoutSecurity.OWNER_ONLY)
+            .build();
+        context.restoreAuthSystemState();
+
+        out = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, out);
+
+        workbook = WorkbookFactory.create(new ByteArrayInputStream(out.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Walter White", "", "", "Heisenberg||W.W.",
+            "Walter", "White", "", "", "Professor", "High School", "", "", "", "", "0000-0002-9079-5932",
+            "", "", "", "", "School/1968-09-01/1973-06-10/Student||University/1980-09-01/1985-06-10/Student", "",
+            "Qualification", "English"));
+
+        context.setCurrentUser(owner);
+
+        out = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, out);
+
+        workbook = WorkbookFactory.create(new ByteArrayInputStream(out.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Walter White", "", "", "Heisenberg||W.W.",
+            "Walter", "White", "1962-03-23", "M", "Professor", "High School", "", "", "", "", "0000-0002-9079-5932",
+            "", "", "", "", "School/1968-09-01/1973-06-10/Student||University/1980-09-01/1985-06-10/Student", "",
+            "Qualification", "English"));
+
+    }
+
     private Item createFullPersonItem() {
         Item item = createItem(context, collection)
             .withTitle("John Smith")
@@ -800,5 +909,9 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         return StreamSupport.stream(row.spliterator(), false)
             .map(cell -> cell.getStringCellValue() == null ? "" : cell.getStringCellValue())
             .collect(Collectors.toList());
+    }
+
+    private CrisLayoutField createCrisLayoutField(String metadataField) throws SQLException, AuthorizeException {
+        return CrisLayoutFieldBuilder.createMetadataField(context, metadataField, 0, 0).build();
     }
 }

@@ -435,6 +435,13 @@ public class DCInput {
     }
 
     /**
+     * Returns true if the DC input is controlled vocabulary, false otherwise.
+     */
+    public boolean isControlledVocabulary() {
+        return StringUtils.isNotBlank(getVocabulary());
+    }
+
+    /**
      * Gets the display string that corresponds to the passed storage string in
      * a particular display-storage pair set.
      *

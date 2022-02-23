@@ -51,6 +51,16 @@ public class SearchFilterMatcher {
         );
     }
 
+    public static Matcher<? super Object> typesFilter() {
+        return allOf(
+                hasJsonPath("$.filter", is("types")),
+                hasJsonPath("$.hasFacets", is(true)),
+                hasJsonPath("$.type", is("text")),
+                hasJsonPath("$.openByDefault", is(false)),
+                checkOperators()
+        );
+    }
+
     public static Matcher<? super Object> subjectFilter() {
         return allOf(
                 hasJsonPath("$.filter", is("subject")),

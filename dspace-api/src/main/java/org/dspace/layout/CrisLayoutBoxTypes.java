@@ -8,6 +8,7 @@
 package org.dspace.layout;
 
 public enum CrisLayoutBoxTypes {
+        IIIFVIEWER,
         METADATA,
         RELATION,
         METRICS,

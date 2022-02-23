@@ -139,7 +139,8 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
     }
 
     public FacetResultsRest getFacetObjects(String facetName, String prefix, String query, List<String> dsoTypes,
-            String dsoScope, final String configuration, List<SearchFilter> searchFilters, Pageable page) {
+            String dsoScope, final String configuration, List<SearchFilter> searchFilters, Pageable page)
+                    throws SearchServiceException {
 
         Context context = obtainContext();
 

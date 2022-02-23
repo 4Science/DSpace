@@ -51,8 +51,8 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
     @Autowired
     private ChoiceAuthorityService cas;
 
-    private final static int PAGE_TOTAL_ELEMENTS = 28;
-    private final static int PAGE_TOTAL_PAGES = 14;
+    private final static int PAGE_TOTAL_ELEMENTS = 29;
+    private final static int PAGE_TOTAL_PAGES = 15;
 
     @Test
     public void findAll() throws Exception {

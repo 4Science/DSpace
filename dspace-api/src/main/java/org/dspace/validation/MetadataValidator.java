@@ -76,36 +76,38 @@ public class MetadataValidator implements SubmissionStepValidator {
 
                 List<String> fieldsName = new ArrayList<String>();
                 if (input.isQualdropValue()) {
-                    for (Object qualifier : input.getPairs()) {
-                        fieldsName.add(input.getFieldName() + "." + (String) qualifier);
+                    boolean foundResult = false;
+                    List<Object> inputPairs = input.getPairs();
+                    //starting from the second element of the list and skipping one every time because the display
+                    // values are also in the list and before the stored values.
+                    for (int i = 1; i < inputPairs.size(); i += 2) {
+                        String fullFieldname = input.getFieldName() + "." + (String) inputPairs.get(i);
+                        List<MetadataValue> mdv = itemService.getMetadataByMetadataString(obj.getItem(), fullFieldname);
+                        validateMetadataValues(mdv, input, config, isAuthorityControlled, fieldKey, errors);
+                        if (mdv.size() > 0 && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
+                            foundResult = true;
+                        }
                     }
+                    if (input.isRequired() && ! foundResult) {
+                        // for this required qualdrop no value was found, add to the list of error fields
+                        addError(errors, ERROR_VALIDATION_REQUIRED,
+                            "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
+                                input.getFieldName());
+                    }
+
                 } else {
                     fieldsName.add(input.getFieldName());
                 }
 
                 for (String fieldName : fieldsName) {
                     List<MetadataValue> mdv = itemService.getMetadataByMetadataString(obj.getItem(), fieldName);
-                    for (MetadataValue md : mdv) {
-                        if (!(input.validate(md.getValue()))) {
-                            addError(errors, ERROR_VALIDATION_REGEX,
-                                "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
-                                input.getFieldName() + "/" + md.getPlace());
-                        }
-                        if (isAuthorityControlled) {
-                            String authKey = md.getAuthority();
-                            if (metadataAuthorityService.isAuthorityRequired(fieldKey) &&
-                                StringUtils.isNotBlank(authKey)) {
-                                addError(errors, ERROR_VALIDATION_AUTHORITY_REQUIRED,
-                                    "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() +
-                                    "/" + input.getFieldName() + "/" + md.getPlace());
-                            }
-                        }
-                    }
+                    validateMetadataValues(mdv, input, config, isAuthorityControlled, fieldKey, errors);
                     if ((input.isRequired() && mdv.size() == 0) && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
                         // since this field is missing add to list of error
                         // fields
                         addError(errors, ERROR_VALIDATION_REQUIRED,
-                            "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" + input.getFieldName());
+                            "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
+                                input.getFieldName());
                     }
                 }
             }
@@ -118,6 +120,26 @@ public class MetadataValidator implements SubmissionStepValidator {
             return getInputReader().getInputsByFormName(config.getId());
         } catch (DCInputsReaderException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void validateMetadataValues(List<MetadataValue> mdv, DCInput input, SubmissionStepConfig config,
+        boolean isAuthorityControlled, String fieldKey, List<ValidationError> errors) {
+        for (MetadataValue md : mdv) {
+            if (! (input.validate(md.getValue()))) {
+                addError(errors, ERROR_VALIDATION_REGEX,
+                    "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
+                        input.getFieldName() + "/" + md.getPlace());
+            }
+            if (isAuthorityControlled) {
+                String authKey = md.getAuthority();
+                if (metadataAuthorityService.isAuthorityRequired(fieldKey) &&
+                    StringUtils.isBlank(authKey)) {
+                    addError(errors, ERROR_VALIDATION_AUTHORITY_REQUIRED,
+                        "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() +
+                            "/" + input.getFieldName() + "/" + md.getPlace());
+                }
+            }
         }
     }
 

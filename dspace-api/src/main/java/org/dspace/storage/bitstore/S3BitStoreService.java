@@ -14,11 +14,13 @@ import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -34,6 +36,8 @@ import org.dspace.content.Bitstream;
 import org.dspace.core.Utils;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.storage.bitstore.factory.StorageServiceFactory;
+import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -54,10 +58,13 @@ public class S3BitStoreService implements BitStoreService {
      * Checksum algorithm
      */
     private static final String CSA = "MD5";
+    protected static final int digitsPerLevel = 2;
+    protected static final int directoryLevels = 3;
 
     private String awsAccessKey;
     private String awsSecretKey;
     private String awsRegionName;
+    private boolean useRelativePath;
 
     /**
      * container for all the assets
@@ -76,8 +83,8 @@ public class S3BitStoreService implements BitStoreService {
 
     private static final ConfigurationService configurationService
             = DSpaceServicesFactory.getInstance().getConfigurationService();
-    public S3BitStoreService() {
-    }
+
+    public S3BitStoreService() {}
 
     /**
      * Initialize the asset store
@@ -88,13 +95,28 @@ public class S3BitStoreService implements BitStoreService {
      */
     @Override
     public void init() throws IOException {
-        if (StringUtils.isBlank(getAwsAccessKey()) || StringUtils.isBlank(getAwsSecretKey())) {
-            log.warn("Empty S3 access or secret");
+        if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
+            log.warn("Use local defined S3 credentials");
+            // region
+            Regions regions = Regions.DEFAULT_REGION;
+            if (StringUtils.isNotBlank(awsRegionName)) {
+                try {
+                    regions = Regions.fromName(awsRegionName);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid aws_region: " + awsRegionName);
+                }
+            }
+            // init client
+            AWSCredentials awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
+            s3Service = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(regions)
+                    .build();
+            log.warn("S3 Region set to: " + regions.getName());
+        } else {
+            log.info("Using a IAM role or aws environment credentials");
+            s3Service = AmazonS3ClientBuilder.defaultClient();
         }
-
-        // init client
-        AWSCredentials awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
-        s3Service = new AmazonS3Client(awsCredentials);
 
         // bucket name
         if (StringUtils.isEmpty(bucketName)) {
@@ -112,18 +134,6 @@ public class S3BitStoreService implements BitStoreService {
         } catch (AmazonClientException e) {
             log.error(e);
             throw new IOException(e);
-        }
-
-        // region
-        if (StringUtils.isNotBlank(awsRegionName)) {
-            try {
-                Regions regions = Regions.fromName(awsRegionName);
-                Region region = Region.getRegion(regions);
-                s3Service.setRegion(region);
-                log.info("S3 Region set to: " + region.getName());
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid aws_region: " + awsRegionName);
-            }
         }
 
         log.info("AWS S3 Assetstore ready to go! bucket:" + bucketName);
@@ -266,11 +276,63 @@ public class S3BitStoreService implements BitStoreService {
      * @return full key prefixed with a subfolder, if applicable
      */
     public String getFullKey(String id) {
+        StringBuilder bufFilename = new StringBuilder();
         if (StringUtils.isNotEmpty(subfolder)) {
-            return subfolder + "/" + id;
-        } else {
-            return id;
+            bufFilename.append(subfolder);
+            bufFilename.append(File.separator);
         }
+
+        if (this.useRelativePath) {
+            bufFilename.append(getRelativePath(id));
+        } else {
+            bufFilename.append(id);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("S3 filepath for " + id + " is "
+                    + bufFilename.toString());
+        }
+
+        return bufFilename.toString();
+    }
+
+    private String getRelativePath(String sInternalId) {
+        BitstreamStorageService bitstreamStorageService = StorageServiceFactory.getInstance()
+                .getBitstreamStorageService();
+        // there are 2 cases:
+        // -conventional bitstream, conventional storage
+        // -registered bitstream, conventional storage
+        // conventional bitstream - dspace ingested, dspace random name/path
+        // registered bitstream - registered to dspace, any name/path
+        String sIntermediatePath = StringUtils.EMPTY;
+        if (bitstreamStorageService.isRegisteredBitstream(sInternalId)) {
+            sInternalId = sInternalId.substring(2);
+        } else {
+            // Sanity Check: If the internal ID contains a
+            // pathname separator, it's probably an attempt to
+            // make a path traversal attack, so ignore the path
+            // prefix.  The internal-ID is supposed to be just a
+            // filename, so this will not affect normal operation.
+            if (sInternalId.contains(File.separator)) {
+                sInternalId = sInternalId.substring(sInternalId.lastIndexOf(File.separator) + 1);
+            }
+            sIntermediatePath = intermediatePath(sInternalId);
+        }
+
+        return sIntermediatePath + sInternalId;
+    }
+
+    public String intermediatePath(String internalId) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < directoryLevels; i++) {
+            int digits = i * digitsPerLevel;
+            if (i > 0) {
+                buf.append(File.separator);
+            }
+            buf.append(internalId.substring(digits, digits + digitsPerLevel));
+        }
+        buf.append(File.separator);
+        return buf.toString();
     }
 
     public String getAwsAccessKey() {
@@ -314,6 +376,14 @@ public class S3BitStoreService implements BitStoreService {
 
     public void setSubfolder(String subfolder) {
         this.subfolder = subfolder;
+    }
+
+    public boolean isUseRelativePath() {
+        return useRelativePath;
+    }
+
+    public void setUseRelativePath(boolean useRelativePath) {
+        this.useRelativePath = useRelativePath;
     }
 
     /**

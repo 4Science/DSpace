@@ -71,15 +71,11 @@ public class DSpaceObjectMetadataAddOperation<R extends DSpaceObject> extends Pa
     private void add(Context context, DSpaceObject dso, DSpaceObjectService dsoService, MetadataField metadataField,
                      MetadataValueRest metadataValue, String index) {
         metadataPatchUtils.checkMetadataFieldNotNull(metadataField);
-        try {
-            if (dso instanceof Item) {
-                if (!itemConverter.checkMetadataFieldVisibility(context, (Item) dso, metadataField)) {
-                    throw new UnprocessableEntityException(
-                            "Current user has not permession to esecute patch peration on " + metadataField);
-                }
+        if (dso instanceof Item) {
+            if (!itemConverter.checkMetadataFieldVisibility(context, (Item) dso, metadataField)) {
+                throw new UnprocessableEntityException(
+                    "Current user has not permession to esecute patch peration on " + metadataField);
             }
-        } catch (SQLException e) {
-            log.error("Error filtering item metadata based on permissions", e);
         }
         int indexInt = 0;
         if (index != null && index.equals("-")) {

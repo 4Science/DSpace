@@ -65,10 +65,10 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration<Harvest>>
     private String oaiSetID = null;
     private String metadataKey = null;
     private int harvestType = 0;
-    private boolean forceSynch;
-    private boolean itemValidation;
-    private boolean recordValidation;
-    private boolean submitEnabled;
+    private Boolean forceSynch;
+    private Boolean itemValidation;
+    private Boolean recordValidation;
+    private Boolean submitEnabled;
 
     private HarvestedCollectionService harvestedCollectionService;
     protected EPersonService ePersonService;
@@ -133,7 +133,7 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration<Harvest>>
         }
 
         if (commandLine.hasOption('f')) {
-            forceSynch = toBoolean(commandLine.getOptionValue("iv", "true"));
+            forceSynch = toBoolean(commandLine.getOptionValue("f", "true"));
         }
         if (commandLine.hasOption("iv")) {
             itemValidation = toBoolean(commandLine.getOptionValue("iv", "true"));

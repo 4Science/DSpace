@@ -7,6 +7,8 @@
  */
 package org.dspace.statistics;
 
+import static org.dspace.discovery.DiscoverResult.FacetPivotResult.fromPivotFields;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -91,8 +93,8 @@ import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.DSpaceObjectLegacySupportService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.DiscoverResult.FacetPivotResult;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.service.ClientInfoService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.service.SolrLoggerService;
@@ -153,7 +155,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         VIEW("view"),
         SEARCH("search"),
         SEARCH_RESULT("search_result"),
-        WORKFLOW("workflow");
+        WORKFLOW("workflow"),
+        LOGIN("login");
 
         private final String text;
 
@@ -287,6 +290,40 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             log.error("Error saving VIEW event to Solr for DSpaceObject {} by EPerson {}",
                       dspaceObject.getID(), currentUser.getEmail(), e);
         }
+    }
+
+    @Override
+    public void postLogin(DSpaceObject dspaceObject, HttpServletRequest request, EPerson currentUser) {
+
+        if (solr == null || locationService == null) {
+            return;
+        }
+
+        try {
+
+            SolrInputDocument document = getCommonSolrDoc(dspaceObject, request, currentUser);
+
+            if (document == null) {
+                return;
+            }
+
+            document.addField("statistics_type", StatisticsType.LOGIN.text());
+
+            solr.add(document);
+
+            // commits are executed automatically using the solr autocommit
+            boolean useAutoCommit = configurationService.getBooleanProperty("solr-statistics.autoCommit", true);
+            if (!useAutoCommit) {
+                solr.commit(false, false);
+            }
+
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception e) {
+            log.error("Error saving LOGIN event to Solr for DSpaceObject {} by EPerson {}",
+                dspaceObject.getID(), currentUser.getEmail(), e);
+        }
+
     }
 
     /**
@@ -538,24 +575,31 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             solrDoc.addField("owningColl", usageWorkflowEvent.getScope().getID().toString());
             storeParents(solrDoc, usageWorkflowEvent.getScope());
 
-            if (usageWorkflowEvent.getWorkflowStep() != null) {
-                solrDoc.addField("workflowStep", usageWorkflowEvent.getWorkflowStep());
+            if (usageWorkflowEvent.getWorkflow() != null) {
+                solrDoc.addField("workflow", usageWorkflowEvent.getWorkflow());
             }
-            if (usageWorkflowEvent.getOldState() != null) {
-                solrDoc.addField("previousWorkflowStep", usageWorkflowEvent.getOldState());
+
+            if (usageWorkflowEvent.getCurrentWorkflowStep() != null) {
+                solrDoc.addField("workflowStep", usageWorkflowEvent.getCurrentWorkflowStep());
             }
-            if (usageWorkflowEvent.getGroupOwners() != null) {
-                for (int i = 0; i < usageWorkflowEvent.getGroupOwners().length; i++) {
-                    Group group = usageWorkflowEvent.getGroupOwners()[i];
-                    solrDoc.addField("owner", "g" + group.getID().toString());
-                }
+
+            if (usageWorkflowEvent.getPreviousWorkflowStep() != null) {
+                solrDoc.addField("previousWorkflowStep", usageWorkflowEvent.getPreviousWorkflowStep());
             }
-            if (usageWorkflowEvent.getEpersonOwners() != null) {
-                for (int i = 0; i < usageWorkflowEvent.getEpersonOwners().length; i++) {
-                    EPerson ePerson = usageWorkflowEvent.getEpersonOwners()[i];
-                    solrDoc.addField("owner", "e" + ePerson.getID().toString());
-                }
+
+            if (usageWorkflowEvent.getCurrentWorkflowAction() != null) {
+                solrDoc.addField("workflowAction", usageWorkflowEvent.getCurrentWorkflowAction());
             }
+
+            if (usageWorkflowEvent.getPreviousWorkflowAction() != null) {
+                solrDoc.addField("previousWorkflowAction", usageWorkflowEvent.getPreviousWorkflowAction());
+            }
+
+            usageWorkflowEvent.getGroupOwners()
+                .forEach(group -> solrDoc.addField("owner", "g" + group.getID().toString()));
+
+            usageWorkflowEvent.getEPersonOwners()
+                .forEach(ePerson -> solrDoc.addField("owner", "e" + ePerson.getID().toString()));
 
             solrDoc.addField("workflowItemId", usageWorkflowEvent.getWorkflowItem().getID().toString());
 
@@ -563,12 +607,23 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             if (submitter != null) {
                 solrDoc.addField("submitter", submitter.getID().toString());
             }
+
             solrDoc.addField("statistics_type", StatisticsType.WORKFLOW.text());
+
             if (usageWorkflowEvent.getActor() != null) {
                 solrDoc.addField("actor", usageWorkflowEvent.getActor().getID().toString());
             }
 
+            solrDoc.addField("previousActionRequiresUI", usageWorkflowEvent.isPreviousActionRequiresUI());
+
             solr.add(solrDoc);
+
+            // commits are executed automatically using the solr autocommit
+            boolean useAutoCommit = configurationService.getBooleanProperty("solr-statistics.autoCommit", true);
+            if (!useAutoCommit) {
+                solr.commit(false, false);
+            }
+
         } catch (Exception e) {
             //Log the exception, no need to send it through, the workflow shouldn't crash because of this !
             log.error("Error saving WORKFLOW event to Solr", e);
@@ -884,10 +939,9 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     }
 
     @Override
-    public ObjectCount[] queryFacetField(String query,
-                                         String filterQuery, String facetField, int max, boolean showTotal,
-                                         List<String> facetQueries, int facetMinCount)
-            throws SolrServerException, IOException {
+    public ObjectCount[] queryFacetField(String query, String filterQuery, String facetField,
+        int max, boolean showTotal, List<String> facetQueries, int facetMinCount)
+        throws SolrServerException, IOException {
         QueryResponse queryResponse = query(query, filterQuery, facetField,
                                             0, max, null, null, null, facetQueries, null, false, facetMinCount);
         if (queryResponse == null) {
@@ -920,6 +974,20 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         }
     }
 
+    @Override
+    public FacetPivotResult[] queryFacetPivotField(String query, String filterQuery, String pivotField, int max,
+        boolean showTotal, List<String> facetQueries, int facetMinCount) throws SolrServerException, IOException {
+
+        QueryResponse queryResponse = query(query, filterQuery, null,
+            0, max, null, null, null, facetQueries, null, false, facetMinCount, true, pivotField);
+
+        if (queryResponse == null) {
+            return new FacetPivotResult[0];
+        }
+
+        return fromPivotFields(queryResponse.getFacetPivot().get(pivotField));
+
+    }
     @Override
     public ObjectCount[] queryFacetDate(String query,
                                         String filterQuery, int max, String dateType, String dateStart,
@@ -1025,19 +1093,25 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
     @Override
     public QueryResponse query(String query, String filterQuery, String facetField, int rows, int max, String dateType,
-                               String dateStart, String dateEnd, List<String> facetQueries, String sort,
-                               boolean ascending, int facetMinCount)
-            throws SolrServerException, IOException {
-
+        String dateStart, String dateEnd, List<String> facetQueries, String sort, boolean ascending, int facetMinCount)
+        throws SolrServerException, IOException {
         return query(query, filterQuery, facetField, rows, max, dateType, dateStart, dateEnd, facetQueries, sort,
-                ascending, facetMinCount, true);
+            ascending, facetMinCount, false, null);
     }
 
     @Override
     public QueryResponse query(String query, String filterQuery, String facetField, int rows, int max, String dateType,
-                               String dateStart, String dateEnd, List<String> facetQueries, String sort,
-                               boolean ascending, int facetMinCount, boolean defaultFilterQueries)
-            throws SolrServerException, IOException {
+        String dateStart, String dateEnd, List<String> facetQueries, String sort, boolean ascending, int facetMinCount,
+        boolean defaultFilterQueries) throws SolrServerException, IOException {
+        return query(query, filterQuery, facetField, rows, max, dateType, dateStart, dateEnd, facetQueries, sort,
+            ascending, facetMinCount, defaultFilterQueries, null);
+    }
+
+    @Override
+    public QueryResponse query(String query, String filterQuery, String facetField, int rows,
+        int max, String dateType, String dateStart, String dateEnd, List<String> facetQueries, String sort,
+        boolean ascending, int facetMinCount, boolean defaultFilterQueries, String pivotField)
+        throws SolrServerException, IOException {
 
         if (solr == null) {
             return null;
@@ -1076,9 +1150,17 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             solrQuery.addFacetField(facetField);
         }
 
+        if (pivotField != null) {
+            solrQuery.addFacetPivotField(pivotField);
+        }
+
         // Set the top x of if present
         if (max != -1) {
-            solrQuery.setFacetLimit(max);
+            if (pivotField == null) {
+                solrQuery.setFacetLimit(max);
+            } else {
+                solrQuery.set("f." + pivotField.split(",")[0].trim() + "." + FacetParams.FACET_LIMIT, max);
+            }
         }
 
         // A filter is used instead of a regular query to improve
@@ -1677,4 +1759,5 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
         throw new UnknownHostException("unknown ip format");
     }
+
 }

@@ -579,7 +579,10 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 }
                                 String facetValue = value;
                                 if (graphFacet.isDate()) {
-                                    facetValue = DateFormatUtils.formatUTC(MultiFormatDateParser.parse(value), "yyyy");
+                                    Date parsedValue = MultiFormatDateParser.parse(value);
+                                    if (parsedValue != null) {
+                                        facetValue = DateFormatUtils.formatUTC(parsedValue, "yyyy");
+                                    }
                                 } else if (StringUtils.isNotBlank(graphFacet.getSplitter())) {
                                     String[] split = value.split(graphFacet.getSplitter());
                                     facetValue = split[0];

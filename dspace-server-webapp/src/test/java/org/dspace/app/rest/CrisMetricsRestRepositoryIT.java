@@ -172,7 +172,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/cris/metrics/" + CrisMetricsBuilder.getRestStoredMetricId(metric.getID())))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -384,11 +384,19 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
 
         context.restoreAuthSystemState();
 
+        String embeddedView = "<a title=\"\" href=\"\">View</a>";
+        String embeddedDownload = "<a title=\"\" href=\"\">Downloads</a>";
+
         getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(0)))
-                .andExpect(jsonPath("$.page.totalElements", is(0)));
+            .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
+            .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
+                CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload))))
+            .andExpect(jsonPath("$._links.self.href",
+                Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
+            .andExpect(jsonPath("$.page.totalElements", is(2)));
     }
 
     @Test
@@ -416,13 +424,21 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withMetricCount(43)
                 .isLast(true).build();
 
+        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(0)))
-                .andExpect(jsonPath("$.page.totalElements", is(0)));
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.hasSize(2)))
+                .andExpect(jsonPath("$._embedded.metrics").value(Matchers.containsInAnyOrder(
+                    CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
+                    CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download", embeddedDownload))))
+                .andExpect(jsonPath("$._links.self.href",
+                    Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
+                .andExpect(jsonPath("$.page.totalElements", is(2)));
     }
 
     @Test
@@ -736,6 +752,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                                                 .isLast(true).build();
 
         context.restoreAuthSystemState();
+        context.commit();
 
         String[] args = new String[]{"update-metrics-in-solr"};
 

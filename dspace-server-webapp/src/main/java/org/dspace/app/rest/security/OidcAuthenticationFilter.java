@@ -10,7 +10,6 @@ package org.dspace.app.rest.security;
 import static org.dspace.authenticate.OidcAuthenticationBean.OIDC_AUTH_ATTRIBUTE;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +36,7 @@ public class OidcAuthenticationFilter extends StatelessLoginFilter {
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
         throws AuthenticationException {
         req.setAttribute(OIDC_AUTH_ATTRIBUTE, OIDC_AUTH_ATTRIBUTE);
-        return authenticationManager.authenticate(new DSpaceAuthentication(null, null, new ArrayList<>()));
+        return authenticationManager.authenticate(new DSpaceAuthentication());
     }
 
     @Override

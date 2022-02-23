@@ -11,10 +11,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.UUID;
 
 import org.dspace.app.metrics.CrisMetrics;
@@ -55,11 +51,5 @@ public class CrisMetricsMatcher {
                 hasJsonPath("$.type", is(CrisMetricsRest.NAME)),
                 hasJsonPath("$.remark", containsString(remark))
                 );
-    }
-
-    private static String formatDate(Date date) {
-        ZonedDateTime utc = ZonedDateTime.from(date.toInstant().atZone(ZoneId.of("UTC")));
-        String format = utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
-        return format;
     }
 }

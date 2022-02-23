@@ -75,17 +75,10 @@ public class CrisItemMetricsServiceImpl implements CrisItemMetricsService {
             List<CrisMetrics> retrivedStoredMetrics) {
         try {
             Item item = itemService.find(context, itemUuid);
-            List<EmbeddableCrisMetrics> metrics = new ArrayList<>();
-            this.providers.stream().forEach(provider -> {
-                final Optional<EmbeddableCrisMetrics> metric = provider.provide(context, item, retrivedStoredMetrics);
-                if (metric.isPresent()) {
-                    if (checkPermissionsOfMetricsByBox(context, item, metric.get())) {
-                        metrics.add(metric.get());
-                    }
-                }
-            });
-            return metrics.stream().filter(metric ->
-                    checkPermissionsOfMetricsByBox(context, item, metric)).collect(Collectors.toList());
+            return this.providers.stream()
+                .flatMap(provider -> provider.provide(context, item, retrivedStoredMetrics).stream())
+                .filter(metric -> checkPermissionsOfMetricsByBox(context, item, metric))
+                .collect(Collectors.toList());
         } catch (SQLException ex) {
             log.warn("Item with uuid " + itemUuid + "not found");
         }
@@ -145,7 +138,6 @@ public class CrisItemMetricsServiceImpl implements CrisItemMetricsService {
     }
 
     private SolrDocument findMetricsDocumentInSolr(Context context, UUID itemUuid) {
-        indexingService.retriveSolrDocByUniqueID(itemUuid.toString());
         QueryResponse queryResponse = indexingService.retriveSolrDocByUniqueID(itemUuid.toString());
         List<SolrDocument> solrDocuments = queryResponse.getResults();
         if (solrDocuments.size() == 0) {

@@ -8,8 +8,8 @@
 package org.dspace.app.rest.authorization.impl;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
-import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.authorization.AuthorizationFeature;
 import org.dspace.app.rest.authorization.AuthorizationFeatureDocumentation;
 import org.dspace.app.rest.model.BaseObjectRest;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @AuthorizationFeatureDocumentation(name = CanSubscribeFeature.NAME,
         description = "Used to verify if the given user can subscribe to a dataspace object")
 public class CanSubscribeFeature implements AuthorizationFeature {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(CanSubscribeFeature.class);
+
     public static final String NAME = "canSubscribeDso";
     @Autowired
     private AuthorizeService authorizeService;
@@ -43,10 +43,12 @@ public class CanSubscribeFeature implements AuthorizationFeature {
     @Override
     @SuppressWarnings("rawtypes")
     public boolean isAuthorized(Context context, BaseObjectRest object) throws SQLException {
+        if (Objects.isNull(context.getCurrentUser())) {
+            return false;
+        }
         DSpaceObject dSpaceObject = (DSpaceObject) utils.getDSpaceAPIObjectFromRest(context, object);
         return authorizeService.authorizeActionBoolean(context, context.getCurrentUser(),
                 dSpaceObject, Constants.READ, true);
-
     }
 
     @Override

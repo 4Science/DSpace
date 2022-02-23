@@ -363,6 +363,72 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void findAllByIdTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        // Create one Collection.
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                                           .withName("Collection 1")
+                                           .build();
+
+        //2. Three public items that are readable by Anonymous with different subjects
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Public item 1")
+                                      .withIssueDate("2017-10-17")
+                                      .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                      .withSubject("ExtraEntry")
+                                      .build();
+
+        Item publicItem2 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Public item 2")
+                                      .withIssueDate("2016-02-13")
+                                      .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                      .withSubject("TestingForMore").withSubject("ExtraEntry")
+                                      .build();
+
+        Item publicItem3 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Public item 3")
+                                      .withIssueDate("2016-02-13")
+                                      .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                      .withSubject("AnotherTest").withSubject("TestingForMore")
+                                      .withSubject("ExtraEntry")
+                                      .build();
+
+        context.restoreAuthSystemState();
+        String token = getAuthToken(admin.getEmail(), password);
+
+        // We want to test that only and exclusively existing items are returned.
+        getClient(token).perform(get("/api/core/items/search/findAllById")
+                   .param("id",
+                           publicItem1.getID().toString(),
+                           publicItem2.getID().toString(),
+                           UUID.randomUUID().toString()
+                           ))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.items", Matchers.hasItems(
+                       ItemMatcher.matchItemProperties(publicItem1),
+                       ItemMatcher.matchItemProperties(publicItem2)
+                   )))
+                   .andExpect(jsonPath("$._embedded.items", Matchers.not(
+                           Matchers.contains(
+                               ItemMatcher.matchItemProperties(publicItem3)
+                           )
+                       )))
+                   .andExpect(jsonPath("$.page.totalElements", is(2)))
+        ;
+
+
+    }
+
+    @Test
     public void findOneTest() throws Exception {
         context.turnOffAuthorisationSystem();
 

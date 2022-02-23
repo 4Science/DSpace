@@ -99,6 +99,11 @@ public class Context implements AutoCloseable {
     private List<UUID> specialGroupsPreviousState;
 
     /**
+     * The currently used authentication method
+     */
+    private String authenticationMethod;
+
+    /**
      * Content events
      */
     private LinkedList<Event> events = null;
@@ -800,6 +805,15 @@ public class Context implements AutoCloseable {
     }
 
     /**
+     * The current database mode of this context.
+     *
+     * @return The current mode
+     */
+    public Mode getCurrentMode() {
+        return mode != null ? mode : Mode.READ_WRITE;
+    }
+
+    /**
      * Enable or disable "batch processing mode" for this context.
      *
      * Enabling batch processing mode means that the database connection is configured so that it is optimized to
@@ -932,4 +946,11 @@ public class Context implements AutoCloseable {
         currentUser = reloadEntity(currentUser);
     }
 
+    public String getAuthenticationMethod() {
+        return authenticationMethod;
+    }
+
+    public void setAuthenticationMethod(final String authenticationMethod) {
+        this.authenticationMethod = authenticationMethod;
+    }
 }

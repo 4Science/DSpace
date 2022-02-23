@@ -198,4 +198,14 @@ public interface ItemDAO extends DSpaceObjectLegacySupportDAO<Item> {
     public int countItems(Context context, EPerson submitter, boolean includeArchived, boolean includeWithdrawn)
         throws SQLException;
 
+    /**
+     * Get all Items matching the given ids.
+     * @param context          context
+     * @param ids              the list of ids
+     * @return result list of items
+     * @throws SQLException
+     */
+    Iterator<Item> findByIds(Context context, List<UUID> ids) throws SQLException;
+
+
 }

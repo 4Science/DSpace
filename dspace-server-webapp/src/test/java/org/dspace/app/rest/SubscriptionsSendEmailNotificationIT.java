@@ -15,11 +15,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -46,7 +49,10 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Subscription;
 import org.dspace.eperson.SubscriptionParameter;
 import org.dspace.eperson.service.SubscribeService;
+import org.dspace.event.factory.EventServiceFactory;
+import org.dspace.event.service.EventService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.subscriptions.ContentGenerator;
 import org.dspace.subscriptions.StatisticsGenerator;
 import org.dspace.subscriptions.SubscriptionEmailNotification;
@@ -57,7 +63,9 @@ import org.dspace.subscriptions.dSpaceObjectsUpdates.ItemsUpdates;
 import org.dspace.subscriptions.service.DSpaceObjectUpdates;
 import org.dspace.subscriptions.service.SubscriptionGenerator;
 import org.hamcrest.Matchers;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -69,6 +77,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 
 public class SubscriptionsSendEmailNotificationIT extends AbstractControllerIntegrationTest {
+
+    private static String[] consumers;
+
     private SubscriptionEmailNotificationService subscriptionEmailNotificationService;
     @Autowired
     ConfigurationService configurationService;
@@ -95,6 +106,33 @@ public class SubscriptionsSendEmailNotificationIT extends AbstractControllerInte
 
     @Captor
     private ArgumentCaptor<EPerson> personArgumentCaptor;
+
+    /**
+     * This method will be run before the first test as per @BeforeClass. It will
+     * configure the event.dispatcher.default.consumers property to add the
+     * CrisConsumer.
+     */
+    @BeforeClass
+    public static void initConsumers() {
+        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        consumers = configService.getArrayProperty("event.dispatcher.default.consumers");
+        Set<String> consumersSet = new HashSet<String>(Arrays.asList(consumers));
+        consumersSet.remove("itemenhancer");
+        configService.setProperty("event.dispatcher.default.consumers", consumersSet.toArray());
+        EventService eventService = EventServiceFactory.getInstance().getEventService();
+        eventService.reloadConfiguration();
+    }
+
+    /**
+     * Reset the event.dispatcher.default.consumers property value.
+     */
+    @AfterClass
+    public static void resetDefaultConsumers() {
+        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        configService.setProperty("event.dispatcher.default.consumers", consumers);
+        EventService eventService = EventServiceFactory.getInstance().getEventService();
+        eventService.reloadConfiguration();
+    }
 
     @Before
     @Override

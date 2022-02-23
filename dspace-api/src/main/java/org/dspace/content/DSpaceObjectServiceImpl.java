@@ -99,20 +99,6 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             }
         }
 
-        if (log.isDebugEnabled()) {
-            StringBuilder dbgMsg = new StringBuilder();
-            for (String id : identifiers) {
-                if (dbgMsg.capacity() == 0) {
-                    dbgMsg.append("This DSO's Identifiers are: ");
-                } else {
-                    dbgMsg.append(", ");
-                }
-                dbgMsg.append(id);
-            }
-            dbgMsg.append(".");
-            log.debug(dbgMsg.toString());
-        }
-
         return identifiers;
     }
 
@@ -829,7 +815,9 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                 public int compare(MetadataValue o1, MetadataValue o2) {
                     int compare = o1.getPlace() - o2.getPlace();
                     if (compare == 0) {
-                        if (o1 instanceof RelationshipMetadataValue) {
+                        if (o1 instanceof RelationshipMetadataValue && o2 instanceof RelationshipMetadataValue) {
+                            return compare;
+                        } else if (o1 instanceof RelationshipMetadataValue) {
                             return 1;
                         } else if (o2 instanceof RelationshipMetadataValue) {
                             return -1;

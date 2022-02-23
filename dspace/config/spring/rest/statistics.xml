@@ -13,6 +13,30 @@
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="10"/>
     </bean>
+    
+    <bean id="topSiteCitiesGenerator" class="org.dspace.app.rest.statistics.TopCitiesGenerator">
+        <property name="viewMode" value="table" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="2" />
+    </bean>
+    
+    <bean id="topSiteContinentsGenerator" class="org.dspace.app.rest.statistics.TopContinentsGenerator">
+        <property name="viewMode" value="table" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="2" />
+    </bean>
+    
+    <bean id="topSiteDownloadCitiesGenerator" class="org.dspace.app.rest.statistics.TopCitiesGenerator">
+        <property name="viewMode" value="table" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="0" />
+    </bean>
+    
+    <bean id="topSiteDownloadContinentsGenerator" class="org.dspace.app.rest.statistics.TopContinentsGenerator">
+        <property name="viewMode" value="table" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="0" />
+    </bean>
 
     <!--new generator supporting relation between person and researchoutputs-->
     <bean id="topCitiesGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TopCitiesGenerator">
@@ -62,6 +86,18 @@
         <property name="maxResults" value="10" />
     </bean>
 
+    <bean id="topSiteCountriesGenerator" class="org.dspace.app.rest.statistics.TopCountriesGenerator">
+        <property name="viewMode" value="map" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="2" />
+    </bean>
+
+    <bean id="topSiteDownloadCountriesGenerator" class="org.dspace.app.rest.statistics.TopCountriesGenerator">
+        <property name="viewMode" value="map" />
+        <property name="maxResults" value="10" />
+        <property name="dsoType" value="0" />
+    </bean>
+
     <!--generator  supporting relation between person and research outputs-->
     <bean id="topCountriesGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TopCountriesGenerator">
         <property name="viewMode" value="table"/>
@@ -106,34 +142,40 @@
 
     <bean id="topItemsGenerator" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
-        <property name="maxResults" value="50"/>
+        <property name="maxResults" value="20"/>
+    </bean>
+
+    <bean id="topItemsDownloadGenerator" class="org.dspace.app.rest.statistics.TopItemsGenerator">
+        <property name="viewMode" value="table"/>
+        <property name="maxResults" value="20"/>
+        <property name="dsoType" value="0"/>
     </bean>
 
     <!--generator supporting relation between orgunit and rppublications-->
     <bean id="topItemsGeneratorRelationOrgUnitRppublications" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
-        <property name="maxResults" value="50"/>
+        <property name="maxResults" value="20"/>
         <property name="relation" value="RELATION.OrgUnit.rppublications" />
     </bean>
 
     <!--generator supporting relation between orgunit and rpprojects-->
     <bean id="topItemsGeneratorRelationOrgUnitRpprojects" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
-        <property name="maxResults" value="50"/>
+        <property name="maxResults" value="20"/>
         <property name="relation" value="RELATION.OrgUnit.rpprojects" />
     </bean>
 
     <!--generator supporting relation between orgunit and publications-->
     <bean id="topItemsGeneratorRelationOrgUnitPublications" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
-        <property name="maxResults" value="50"/>
+        <property name="maxResults" value="20"/>
         <property name="relation" value="RELATION.OrgUnit.publications" />
     </bean>
 
     <!--generator supporting relation between orgunit and projects-->
     <bean id="topItemsGeneratorRelationOrgUnitProjects" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
-        <property name="maxResults" value="50"/>
+        <property name="maxResults" value="20"/>
         <property name="relation" value="RELATION.OrgUnit.projects" />
     </bean>
 
@@ -303,6 +345,37 @@
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="10"/>
         <property name="relation" value="RELATION.OrgUnit.projects" />
+    </bean>
+    
+    <bean id="totalSiteVisitPerPeriod" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
+        <property name="viewMode" value="chart.line"/>
+        <property name="maxResults" value="12"/>
+        <property name="periodType" value="month"/>
+        <property name="increment" value="1"/>
+        <property name="dsoType" value="2" />
+    </bean>
+    
+    <bean id="totalSiteDownloadPerPeriod" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
+        <property name="viewMode" value="chart.line"/>
+        <property name="maxResults" value="12"/>
+        <property name="periodType" value="month"/>
+        <property name="increment" value="1"/>
+        <property name="dsoType" value="0" />
+    </bean>
+    
+    <bean id="topSiteCategoriesGenerator" class="org.dspace.app.rest.statistics.TopCategoriesGenerator" >
+        <property name="viewMode" value="chart.pie"/>
+        <property name="maxResults" value="10"/>
+        <property name="categoryQueries">
+            <map>
+                <entry key="article" value="itemtype_keyword: ( 'research article' OR 'journal article' )"/>
+                <entry key="book" value="itemtype_keyword: 'book'"/>
+                <entry key="bookChapter" value="itemtype_keyword: 'book part'"/>
+                <entry key="dataset" value="itemtype_keyword: ( 'dataset' OR 'interview' ) "/>
+                <entry key="thesis" value="itemtype_keyword: ( 'thesis' OR 'bachelor thesis' OR 'doctoral thesis' OR 'master thesis' )"/>
+                <entry key="other" value="OTHER"/>
+            </map>
+        </property>
     </bean>
 
     <bean id="person-mainReports" class="org.dspace.app.rest.model.UsageReportCategoryRest">
@@ -500,7 +573,25 @@
         <property name="categoryType" value="mainReports"/>
         <property name="reports">
             <map>
+                <entry key="TopContinents" value-ref="topSiteContinentsGenerator"/>
+                <entry key="TopCountries" value-ref="topSiteCountriesGenerator"/>
+                <entry key="TopCities" value-ref="topSiteCitiesGenerator"/>
                 <entry key="TotalVisits" value-ref="topItemsGenerator"/>
+                <entry key="TopCategories" value-ref="topSiteCategoriesGenerator"/>
+                <entry key="TotalVisitsPerMonth" value-ref="totalSiteVisitPerPeriod"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="site-downloadReports" class="org.dspace.app.rest.model.UsageReportCategoryRest">
+        <property name="categoryType" value="downloadReports"/>
+        <property name="reports">
+            <map>
+                <entry key="TopDownloadsContinents" value-ref="topSiteDownloadContinentsGenerator"/>
+                <entry key="TopDownloadsCountries" value-ref="topSiteDownloadCountriesGenerator"/>
+                <entry key="TopDownloadsCities" value-ref="topSiteDownloadCitiesGenerator"/>
+                <entry key="TotalDownloads" value-ref="topItemsDownloadGenerator"/>
+                <entry key="TotalDownloadsPerMonth" value-ref="totalSiteDownloadPerPeriod"/>
             </map>
         </property>
     </bean>
@@ -511,6 +602,7 @@
                 <entry key="site">
                     <list>
                         <ref bean="site-mainReports"/>
+                        <ref bean="site-downloadReports"/>
                     </list>
                 </entry>
                 <entry key="community">

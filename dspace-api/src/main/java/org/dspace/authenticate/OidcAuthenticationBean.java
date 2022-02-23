@@ -9,6 +9,7 @@ package org.dspace.authenticate;
 
 
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.net.URLEncoder.encode;
 import static org.apache.commons.lang.BooleanUtils.toBoolean;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
@@ -16,8 +17,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,6 +53,8 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
     private final static String LOGIN_PAGE_URL_FORMAT = "%s?client_id=%s&response_type=code&scope=%s&redirect_uri=%s";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OidcAuthenticationBean.class);
+
+    private static final String OIDC_AUTHENTICATED = "oidc.authenticated";
 
     @Autowired
     private ConfigurationService configurationService;
@@ -129,7 +134,14 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
 
         EPerson ePerson = ePersonService.findByEmail(context, email);
         if (ePerson != null) {
+            request.setAttribute(OIDC_AUTHENTICATED, true);
             return ePerson.canLogIn() ? logInEPerson(context, ePerson) : BAD_ARGS;
+        }
+
+        // if self registration is disabled, warn about this failure to find a matching eperson
+        if (! canSelfRegister()) {
+            LOGGER.warn("Self registration is currently disabled for OIDC, and no ePerson could be found for email: {}",
+                email);
         }
 
         return canSelfRegister() ? registerNewEPerson(context, userInfo, email) : NO_SUCH_USER;
@@ -144,11 +156,25 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
         String redirectUri = configurationService.getProperty("authentication-oidc.redirect-url");
         String tokenUrl = configurationService.getProperty("authentication-oidc.token-endpoint");
         String userInfoUrl = configurationService.getProperty("authentication-oidc.user-info-endpoint");
-        String scopes = String.join(" ", configurationService.getArrayProperty("authentication-oidc.scopes"));
-        String email = getEmailAttribute();
 
-        if (isAnyBlank(authorizeUrl, clientId, redirectUri, scopes, clientSecret, tokenUrl, userInfoUrl, email)) {
+        String[] defaultScopes = {  "openid", "email", "profile" };
+        String scopes = join(" ", configurationService.getArrayProperty("authentication-oidc.scopes", defaultScopes));
+
+        if (isAnyBlank(authorizeUrl, clientId, redirectUri, clientSecret, tokenUrl, userInfoUrl)) {
             LOGGER.error("Missing mandatory configuration properties for OidcAuthenticationBean");
+
+            // prepare a Map of the properties which can not have sane defaults, but are still required
+            final Map<String, String> map = Map.of("authorizeUrl", authorizeUrl, "clientId", clientId, "redirectUri",
+                redirectUri, "clientSecret", clientSecret, "tokenUrl", tokenUrl, "userInfoUrl", userInfoUrl);
+            final Iterator<Entry<String, String>> iterator = map.entrySet().iterator();
+
+            while (iterator.hasNext()) {
+                final Entry<String, String> entry = iterator.next();
+
+                if (isBlank(entry.getValue())) {
+                    LOGGER.error(" * {} is missing", entry.getKey());
+                }
+            }
             return "";
         }
 
@@ -230,15 +256,15 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
     }
 
     private String getEmailAttribute() {
-        return configurationService.getProperty("authentication-oidc.user-info.email");
+        return configurationService.getProperty("authentication-oidc.user-info.email", "email");
     }
 
     private String getFirstNameAttribute() {
-        return configurationService.getProperty("authentication-oidc.user-info.first-name");
+        return configurationService.getProperty("authentication-oidc.user-info.first-name", "given_name");
     }
 
     private String getLastNameAttribute() {
-        return configurationService.getProperty("authentication-oidc.user-info.last-name");
+        return configurationService.getProperty("authentication-oidc.user-info.last-name", "family_name");
     }
 
     private boolean canSelfRegister() {
@@ -255,6 +281,16 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
 
     public void setOidcClient(OidcClient oidcClient) {
         this.oidcClient = oidcClient;
+    }
+
+    @Override
+    public boolean isUsed(final Context context, final HttpServletRequest request) {
+        if (request != null &&
+                context.getCurrentUser() != null &&
+                request.getAttribute(OIDC_AUTHENTICATED) != null) {
+            return true;
+        }
+        return false;
     }
 
 }

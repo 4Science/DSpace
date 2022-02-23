@@ -124,4 +124,13 @@
         <property name="dspaceRunnableClass" value="org.dspace.authority.script.UpdateItemReferenceCli"/>
     </bean>
 
+    <bean id="item-enhancer" class="org.dspace.content.enhancer.script.ItemEnhancerScriptConfiguration" >
+        <property name="description" value="Script that allows to enhance all items"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerScript"/>
+    </bean>
+
+    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
+        <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
+    </bean>
 </beans>

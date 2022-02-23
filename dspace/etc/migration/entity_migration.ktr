@@ -553,7 +553,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>is date or text or boolean</from>
+      <from>is date or text or boolean or link</from>
       <to>is pointer</to>
       <enabled>Y</enabled>
     </hop>
@@ -643,7 +643,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>is date or text or boolean</from>
+      <from>is date or text or boolean or link</from>
       <to>calculate metadata value</to>
       <enabled>Y</enabled>
     </hop>
@@ -703,7 +703,7 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Calculate file path</from>
+      <from>Calculate file path and name</from>
       <to>Get variables 3</to>
       <enabled>Y</enabled>
     </hop>
@@ -849,7 +849,7 @@
     </hop>
     <hop>
       <from>Get ENTITY_TYPE from variables 4</from>
-      <to>Calculate file path</to>
+      <to>Calculate file path and name</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -859,7 +859,7 @@
     </hop>
     <hop>
       <from>Sort rows</from>
-      <to>is date or text or boolean</to>
+      <to>is date or text or boolean or link</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -967,6 +967,31 @@
       <to>select metadata attributes</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>Get variables 3 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get variables 3 2</from>
+      <to>Add imp_bitstream_metadatavalue_id</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add imp_bitstream_metadatavalue_id</from>
+      <to>add metadata order</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add metadata order</from>
+      <to>insert into imp_bitstream_metadatavalue</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>insert into imp_bitstream</from>
+      <to>Filter rows</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <step>
     <name>Add imp_bitstream_id</name>
@@ -1000,6 +1025,41 @@
     <GUI>
       <xloc>496</xloc>
       <yloc>1840</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Add imp_bitstream_metadatavalue_id</name>
+    <type>Sequence</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <valuename>imp_bitstream_metadatavalue_id</valuename>
+    <use_database>N</use_database>
+    <connection>dspace</connection>
+    <schema/>
+    <seqname>SEQ_</seqname>
+    <use_counter>Y</use_counter>
+    <counter_name>imp_bitstream_metadatavalue_id_seq</counter_name>
+    <start_at>${MAX_IMP_BITSTREAM_METADATAVALUE_ID}</start_at>
+    <increment_by>1</increment_by>
+    <max_value>999999999</max_value>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1040</xloc>
+      <yloc>1968</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1260,7 +1320,7 @@
     </GUI>
   </step>
   <step>
-    <name>Calculate file path</name>
+    <name>Calculate file path and name</name>
     <type>ScriptValueMod</type>
     <description/>
     <distribute>Y</distribute>
@@ -1286,13 +1346,22 @@ if(entity_type_var == 'OrgUnit'){
    file_main_dir = 'rp-files';
 }
 
-var file_path = getVariable('file_root','') + '/' + file_main_dir + '/' + filefolder + '/' + filename + '.' + fileextension;</jsScript_script>
+var file_path = getVariable('file_root','') + '/' + file_main_dir + '/' + filefolder + '/' + filename + '.' + fileextension;
+var file_name = filename + '.' + fileextension;</jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
       <field>
         <name>file_path</name>
         <rename>file_path</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>file_name</name>
+        <rename>file_name</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -1421,6 +1490,65 @@ var metadata_authority = 'will be referenced::LEGACY-ID::' + pointer_crisid;
     <GUI>
       <xloc>768</xloc>
       <yloc>1744</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Get variables 3 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>schema</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <conditions>
+              <condition>
+                <negated>N</negated>
+                <leftvalue>element</leftvalue>
+                <function>IS NOT NULL</function>
+                <rightvalue/>
+              </condition>
+              <condition>
+                <negated>N</negated>
+                <operator>AND</operator>
+                <leftvalue>value</leftvalue>
+                <function>IS NOT NULL</function>
+                <rightvalue/>
+              </condition>
+            </conditions>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>1968</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1875,6 +2003,45 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>224</xloc>
       <yloc>1840</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Get variables 3 2</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>max_imp_bitstream_metadatavalue_id</name>
+        <variable>${MAX_IMP_BITSTREAM_METADATAVALUE_ID}</variable>
+        <type>Number</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>1968</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2541,6 +2708,9 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>language</name>
       </field>
+      <field>
+        <name>value</name>
+      </field>
       <select_unspecified>Y</select_unspecified>
     </fields>
     <attributes/>
@@ -2664,6 +2834,9 @@ WHERE property_def.id = properties.typo_id
       </field>
       <field>
         <name>language</name>
+      </field>
+      <field>
+        <name>value</name>
       </field>
       <select_unspecified>Y</select_unspecified>
     </fields>
@@ -3072,6 +3245,45 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>add metadata order</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>metadata_order</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>0</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1312</xloc>
+      <yloc>1968</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>add order</name>
     <type>FieldsChangeSequence</type>
     <description/>
@@ -3110,6 +3322,48 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>624</xloc>
       <yloc>1200</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>add order 2</name>
+    <type>FieldsChangeSequence</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <start>0</start>
+    <increment>1</increment>
+    <resultfieldName>metadata_order</resultfieldName>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>parent_id</name>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1744</xloc>
+      <yloc>1248</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -3186,7 +3440,7 @@ WHERE property_def.id = properties.typo_id
     <name>calculate imp bitstream id</name>
     <type>ScriptValueMod</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
@@ -3250,6 +3504,12 @@ WHERE property_def.id = properties.typo_id
 	var metadata_value = datevalue;
 } else if(dtype == 'boolean'){
 	var metadata_value = booleanvalue;
+} else if(dtype == 'link'){
+    if (linkvalue == null) {
+		metadata_value = linkdescription; 
+	} else {
+		var metadata_value = linkvalue;
+	}
 }</jsScript_script>
       </jsScript>
     </jsScripts>
@@ -3425,7 +3685,7 @@ and parent_id = ?</sql>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -3681,6 +3941,29 @@ WHERE property_def.id = properties.typo_id
         <precision>0</precision>
         <origin>entities metadata</origin>
         <comments>parent_id</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>visibility</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>entities metadata</origin>
+        <comments>visibility</comments>
         <conversion_Mask>####0;-####0</conversion_Mask>
         <decimal_symbol>,</decimal_symbol>
         <grouping_symbol>.</grouping_symbol>
@@ -4933,7 +5216,7 @@ WHERE property_def.id = properties.typo_id
     <connection>dspace</connection>
     <schema>public</schema>
     <table>imp_bitstream</table>
-    <commit>1000</commit>
+    <commit>1</commit>
     <truncate>N</truncate>
     <ignore_errors>N</ignore_errors>
     <use_batch>N</use_batch>
@@ -4962,7 +5245,7 @@ WHERE property_def.id = properties.typo_id
       </field>
       <field>
         <column_name>name</column_name>
-        <stream_name>filename</stream_name>
+        <stream_name>file_name</stream_name>
       </field>
     </fields>
     <attributes/>
@@ -4976,6 +5259,82 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>1216</xloc>
       <yloc>1840</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>insert into imp_bitstream_metadatavalue</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <schema>public</schema>
+    <table>imp_bitstream_metadatavalue</table>
+    <commit>1000</commit>
+    <truncate>N</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>N</use_batch>
+    <specify_fields>Y</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field/>
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field/>
+    <fields>
+      <field>
+        <column_name>imp_bitstream_metadatavalue_id</column_name>
+        <stream_name>imp_bitstream_metadatavalue_id</stream_name>
+      </field>
+      <field>
+        <column_name>imp_bitstream_id</column_name>
+        <stream_name>imp_bitstream_id</stream_name>
+      </field>
+      <field>
+        <column_name>imp_schema</column_name>
+        <stream_name>schema</stream_name>
+      </field>
+      <field>
+        <column_name>imp_element</column_name>
+        <stream_name>element</stream_name>
+      </field>
+      <field>
+        <column_name>imp_qualifier</column_name>
+        <stream_name>qualifier</stream_name>
+      </field>
+      <field>
+        <column_name>imp_value</column_name>
+        <stream_name>value</stream_name>
+      </field>
+      <field>
+        <column_name>metadata_order</column_name>
+        <stream_name>metadata_order</stream_name>
+      </field>
+      <field>
+        <column_name>text_lang</column_name>
+        <stream_name>language</stream_name>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1584</xloc>
+      <yloc>1968</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5268,7 +5627,7 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
-    <name>is date or text or boolean</name>
+    <name>is date or text or boolean or link</name>
     <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -5328,6 +5687,22 @@ WHERE property_def.id = properties.typo_id
                   <name>constant</name>
                   <type>String</type>
                   <text>boolean</text>
+                  <length>-1</length>
+                  <precision>-1</precision>
+                  <isnull>N</isnull>
+                  <mask/>
+                </value>
+              </condition>
+              <condition>
+                <negated>N</negated>
+                <operator>OR</operator>
+                <leftvalue>dtype</leftvalue>
+                <function>=</function>
+                <rightvalue/>
+                <value>
+                  <name>constant</name>
+                  <type>String</type>
+                  <text>link</text>
                   <length>-1</length>
                   <precision>-1</precision>
                   <isnull>N</isnull>
@@ -5478,7 +5853,7 @@ WHERE property_def.id = properties.typo_id
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -5557,6 +5932,18 @@ WHERE property_def.id = properties.typo_id
         <decimal/>
         <group/>
       </field>
+      <field>
+        <name>value</name>
+        <type>None</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
     </fields>
     <sheets>
       <sheet>
@@ -5625,7 +6012,12 @@ WHERE property_def.id = properties.typo_id
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name/>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -5724,7 +6116,7 @@ WHERE property_def.id = properties.typo_id
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -5803,6 +6195,18 @@ WHERE property_def.id = properties.typo_id
         <decimal/>
         <group/>
       </field>
+      <field>
+        <name>value</name>
+        <type>None</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
     </fields>
     <sheets>
       <sheet>
@@ -5871,7 +6275,7 @@ WHERE property_def.id = properties.typo_id
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -5982,7 +6386,7 @@ WHERE property_def.id = properties.typo_id
     <accept_field/>
     <accept_stepname/>
     <file>
-      <name>/home/luca/git/dspace-cris/dspace/etc/conftool/migration_configuration.xls</name>
+      <name>${Internal.Entry.Current.Directory}/migration_configuration.xls</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -6580,48 +6984,6 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>976</xloc>
       <yloc>1840</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>add order 2</name>
-    <type>FieldsChangeSequence</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <start>0</start>
-    <increment>1</increment>
-    <resultfieldName>metadata_order</resultfieldName>
-    <fields>
-      <field>
-        <name>schema</name>
-      </field>
-      <field>
-        <name>element</name>
-      </field>
-      <field>
-        <name>qualifier</name>
-      </field>
-      <field>
-        <name>parent_id</name>
-      </field>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1744</xloc>
-      <yloc>1248</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

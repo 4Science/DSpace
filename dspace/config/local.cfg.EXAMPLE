@@ -146,19 +146,19 @@ db.schema = public
 # Items in DSpace receive a unique URL, stored in dc.identifier.uri
 # after it is generated during the submission process.
 #
-# If you register with CNRI's handle service at http://www.handle.net/,
-# these links can be generated as permalinks using http://hdl.handle.net/
+# If you register with CNRI's handle service at https://www.handle.net/,
+# these links can be generated as permalinks using https://hdl.handle.net/
 # as canonical prefix. Please make sure to change handle.canonical.prefix
 # after registering with handle.net by uncommenting one of the following
-# lines, depending if you prefer to use http or https:
-# handle.canonical.prefix = http://hdl.handle.net/
+# lines, depending if you prefer to use https or http:
 # handle.canonical.prefix = https://hdl.handle.net/
+# handle.canonical.prefix = http://hdl.handle.net/
 #
 # Note that this will not alter dc.identifier.uri metadata for existing
 # items (only for subsequent submissions).
 
 # CNRI Handle prefix
-# (Defaults to a dummy/fake prefix of 123456789)
+# (Defaults to the reserved dummy/fake prefix of 123456789)
 #handle.prefix = 123456789
 
 #######################
@@ -191,6 +191,9 @@ db.schema = public
 
 # LDAP authentication/authorization. See authentication-ldap.cfg for default configuration.
 #plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.LDAPAuthentication
+
+# OIDC authentication/authorization. See authenication-oidc.cfg for default configuration.
+#plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.OidcAuthentication
 
 # Shibboleth authentication/authorization. See authentication-shibboleth.cfg for default configuration.
 # Check also the cors settings below
@@ -278,3 +281,33 @@ orcid.webhook-url = https://api.sandbox.orcid.org/
 orcid.application-client-id =
 orcid.application-client-secret =
 orcid.webhook.registration-token =
+
+#---------------------------------------------------------------#
+#-----------------STORAGE CONFIGURATIONS------------------------#
+#---------------------------------------------------------------#
+# Use the localStore or the s3Store implementation
+assetstore.storename.0 = localStore
+
+## Assetstore S3 configuration, only used if the above configuration
+## is set to s3Store
+
+# For using a relative path (xx/xx/xx/xxx...) set to true
+assetstore.s3.useRelativePath =
+
+# S3 bucket name to store assets in, default would generate a bucket
+# based on the dspace host name
+assetstore.s3.bucketName =
+# Subfolder to organize assets within the bucket, in case this bucket
+# is shared. Optional, default is root level of bucket
+assetstore.s3.subfolder =
+
+# please do not use that in production but rely on the aws credentials
+# discovery mechanism to configure them (ENV VAR, EC2 Iam role, etc.)
+assetstore.s3.awsAccessKey =
+assetstore.s3.awsSecretKey =
+
+# to force the use of a specific region
+assetstore.s3.awsRegionName =
+
+#GeoIP dbfile configuration for usage statistics
+usage-statistics.dbfile=/var/lib/GeoIP/GeoLite2-City.mmdb
