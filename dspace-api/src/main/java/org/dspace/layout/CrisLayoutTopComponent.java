@@ -25,6 +25,8 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private String titleKey;
 
+    private Integer numberOfItems;
+
     /**
      * @return the discoveryConfigurationName
      */
@@ -94,5 +96,17 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
      */
     public void setTitleKey(String titleKey) {
         this.titleKey = titleKey;
+    }
+
+    /**
+     *
+     * @return Number of items to be contained in layout section
+     */
+    public Integer getNumberOfItems() {
+        return numberOfItems;
+    }
+
+    public void setNumberOfItems(Integer numberOfItems) {
+        this.numberOfItems = numberOfItems;
     }
 }

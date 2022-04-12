@@ -8,9 +8,10 @@
 package org.dspace.content.integration.crosswalks.service;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.content.integration.crosswalks.ItemExportCrosswalk;
@@ -36,7 +37,7 @@ public class ItemExportFormatServiceImpl implements ItemExportFormatService {
     public ItemExportFormat get(Context context, String id) {
 
         StreamDisseminationCrosswalk sdc = this.streamDissiminatorCrosswalkMapper.getByType((String)id);
-        return sdc instanceof ItemExportCrosswalk ? create(id, (ItemExportCrosswalk) sdc) : null;
+        return sdc instanceof ItemExportCrosswalk ? buildItemExportFormat(id, (ItemExportCrosswalk) sdc) : null;
 
     }
 
@@ -44,47 +45,46 @@ public class ItemExportFormatServiceImpl implements ItemExportFormatService {
     public List<ItemExportFormat> getAll(Context context) {
 
         return this.streamDissiminatorCrosswalkMapper.getAllItemExportCrosswalks().entrySet().stream()
-            .map(entry -> create(entry.getKey(), entry.getValue()))
+            .map(entry -> buildItemExportFormat(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
 
     }
 
     @Override
-    public List<ItemExportFormat> byEntityTypeAndMolteplicity(Context context, String entityTypeId,
+    public List<ItemExportFormat> byEntityTypeAndMolteplicity(Context context, String entityType,
             CrosswalkMode molteplicity) {
 
-        Map<String, ItemExportCrosswalk> map = this.streamDissiminatorCrosswalkMapper.getAllItemExportCrosswalks()
-                .entrySet().stream()
-                // filter molteplicity
-                .filter(entry -> {
-                    if (entry.getValue().getCrosswalkMode().equals(CrosswalkMode.SINGLE_AND_MULTIPLE)) {
-                        return true;
-                    }
-                    return entry.getValue().getCrosswalkMode().equals(molteplicity);
-                })
-                // filter entityType
-                .filter(entry -> {
-                    if (entityTypeId == null) {
-                        return true;
-                    }
-                    return entry.getValue().getEntityType().isPresent()
-                            && entry.getValue().getEntityType().get().equals(entityTypeId);
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        List<ItemExportFormat> formats = map.entrySet().stream()
-            .map(entry -> create(entry.getKey(), entry.getValue()))
+        return this.streamDissiminatorCrosswalkMapper.getAllItemExportCrosswalks()
+            .entrySet().stream()
+            .filter(entry -> hasSameMolteplicity(entry.getValue(), molteplicity))
+            .filter(entry -> hasSameEntityType(entry.getValue(), entityType))
+            .map(entry -> buildItemExportFormat(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
-
-        return formats;
 
     }
 
-    private ItemExportFormat create(String id, ItemExportCrosswalk sdc) {
+    private boolean hasSameMolteplicity(ItemExportCrosswalk exportCrosswalk, CrosswalkMode molteplicity) {
+        CrosswalkMode crosswalkMode = exportCrosswalk.getCrosswalkMode();
+        if (crosswalkMode == CrosswalkMode.SINGLE_AND_MULTIPLE) {
+            return true;
+        }
+
+        return crosswalkMode == molteplicity;
+    }
+
+    private boolean hasSameEntityType(ItemExportCrosswalk exportCrosswalk, String entityType) {
+        Optional<String> crosswalkEntityType = exportCrosswalk.getEntityType();
+        if (!crosswalkEntityType.isPresent() || StringUtils.isBlank(entityType)) {
+            return true;
+        }
+        return crosswalkEntityType.get().equals(entityType);
+    }
+
+    private ItemExportFormat buildItemExportFormat(String id, ItemExportCrosswalk sdc) {
         ItemExportFormat itemExportFormatRest = new ItemExportFormat();
         itemExportFormatRest.setId(id);
         itemExportFormatRest.setMolteplicity(sdc.getCrosswalkMode().name());
-        itemExportFormatRest.setEntityType(sdc.getEntityType().get());
+        sdc.getEntityType().ifPresent(itemExportFormatRest::setEntityType);
         itemExportFormatRest.setMimeType(sdc.getMIMEType());
         return itemExportFormatRest;
     }

@@ -7,6 +7,8 @@
  */
 package org.dspace.content.integration.crosswalks;
 
+import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
+import static org.apache.commons.collections4.IteratorUtils.singletonListIterator;
 import static org.dspace.app.bulkedit.BulkImport.AUTHORITY_SEPARATOR;
 import static org.dspace.app.bulkedit.BulkImport.ID_CELL;
 import static org.dspace.app.bulkedit.BulkImport.LANGUAGE_SEPARATOR_PREFIX;
@@ -27,13 +29,14 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dspace.app.bulkedit.BulkImport;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
@@ -43,9 +46,11 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.crosswalk.CrosswalkException;
+import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
 import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.content.integration.crosswalks.model.XlsCollectionSheet;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -60,12 +65,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
+public class XlsCollectionCrosswalk implements ItemExportCrosswalk {
 
     private static Logger log = Logger.getLogger(XlsCollectionCrosswalk.class);
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private CollectionService collectionService;
 
     private DCInputsReader reader;
 
@@ -89,6 +97,15 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
     }
 
     @Override
+    public String getFileName() {
+        return "items.xls";
+    }
+
+    public CrosswalkMode getCrosswalkMode() {
+        return CrosswalkMode.MULTIPLE;
+    }
+
+    @Override
     public void disseminate(Context context, DSpaceObject dso, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException {
 
@@ -98,12 +115,38 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
 
         Collection collection = (Collection) dso;
 
-        try (Workbook workbook = new HSSFWorkbook()) {
+        Iterator<Item> itemIterator = itemService.findByCollection(context, collection);
+
+        writeWorkbook(context, collection, itemIterator, out);
+
+    }
+
+    @Override
+    public void disseminate(Context context, Iterator<? extends DSpaceObject> dsoIterator, OutputStream out)
+        throws CrosswalkException, IOException, SQLException, AuthorizeException {
+
+        if (!dsoIterator.hasNext()) {
+            throw new IllegalArgumentException("At least one object must be provided to perform xsl export");
+        }
+
+        Item firstItem = convertToItem(dsoIterator.next());
+        Collection collection = findCollection(context, firstItem);
+        Iterator<Item> itemIterator = convertToItemIterator(dsoIterator);
+
+        Iterator<Item> newItemIterator = chainedIterator(singletonListIterator(firstItem), itemIterator);
+        writeWorkbook(context, collection, newItemIterator, out);
+
+    }
+
+    private void writeWorkbook(Context context, Collection collection, Iterator<Item> itemIterator, OutputStream out)
+        throws CrosswalkException, IOException, SQLException, AuthorizeException {
+
+        try (Workbook workbook = new XSSFWorkbook()) {
 
             XlsCollectionSheet mainSheet = writeMainSheetHeader(context, collection, workbook);
             List<XlsCollectionSheet> nestedMetadataSheets = writeNestedMetadataSheetsHeader(collection, workbook);
 
-            writeWorkbookContent(context, collection, mainSheet, nestedMetadataSheets);
+            writeWorkbookContent(context, itemIterator, mainSheet, nestedMetadataSheets);
 
             List<XlsCollectionSheet> sheets = new ArrayList<XlsCollectionSheet>(nestedMetadataSheets);
             sheets.add(mainSheet);
@@ -111,8 +154,6 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
 
             workbook.write(out);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
 
     }
@@ -124,7 +165,7 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
     }
 
     private XlsCollectionSheet writeMainSheetHeader(Context context, Collection collection, Workbook workbook) {
-        XlsCollectionSheet mainSheet = new XlsCollectionSheet(workbook, "items");
+        XlsCollectionSheet mainSheet = new XlsCollectionSheet(workbook, "items", false, collection);
         mainSheet.appendHeader(ID_CELL);
         List<String> metadataFields = getSubmissionFormMetadata(collection);
         for (String metadataField : metadataFields) {
@@ -134,7 +175,7 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
     }
 
     private XlsCollectionSheet writeNestedMetadataSheetHeader(Collection collection, Workbook workbook, String field) {
-        XlsCollectionSheet nestedMetadataSheet = new XlsCollectionSheet(workbook, field);
+        XlsCollectionSheet nestedMetadataSheet = new XlsCollectionSheet(workbook, field, true, collection);
         List<String> nestedMetadataFields = getSubmissionFormMetadataGroup(collection, field);
         nestedMetadataSheet.appendHeader(PARENT_ID_CELL);
         for (String metadataField : nestedMetadataFields) {
@@ -143,14 +184,22 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
         return nestedMetadataSheet;
     }
 
-    private void writeWorkbookContent(Context context, Collection collection, XlsCollectionSheet mainSheet,
-        List<XlsCollectionSheet> nestedMetadataSheets) throws SQLException {
+    private void writeWorkbookContent(Context context, Iterator<Item> itemIterator,
+        XlsCollectionSheet mainSheet, List<XlsCollectionSheet> nestedMetadataSheets) throws SQLException {
 
-        Iterator<Item> itemIterator = itemService.findByCollection(context, collection);
         while (itemIterator.hasNext()) {
+
             Item item = itemIterator.next();
+
+            if (isNotInCollection(context, item, mainSheet.getCollection())) {
+                throw new IllegalArgumentException("It is not possible to export items from two different collections: "
+                    + "item " + item.getID() + " is not in collection " + mainSheet.getCollection().getID());
+            }
+
             writeMainSheet(context, item, mainSheet);
-            nestedMetadataSheets.forEach(sheet -> writeNestedMetadataSheet(context, item, sheet));
+
+            nestedMetadataSheets.forEach(sheet -> writeNestedMetadataSheet(item, sheet));
+
             context.uncacheEntity(item);
         }
 
@@ -173,7 +222,7 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
 
     }
 
-    private void writeNestedMetadataSheet(Context context, Item item, XlsCollectionSheet nestedMetadataSheet) {
+    private void writeNestedMetadataSheet(Item item, XlsCollectionSheet nestedMetadataSheet) {
 
         String groupName = nestedMetadataSheet.getSheet().getSheetName();
         int groupSize = getMetadataGroupSize(item, groupName);
@@ -215,6 +264,7 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
             writeMetadataValue(item, nestedMetadataSheet, header, metadata.get(groupIndex));
 
         }
+
     }
 
     private void writeMetadataValue(Item item, XlsCollectionSheet sheet, String header, MetadataValue metadataValue) {
@@ -225,7 +275,7 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
             return;
         }
 
-        if (isLanguageSupported(item.getOwningCollection(), language, header)) {
+        if (isLanguageSupported(sheet.getCollection(), language, header, sheet.isNestedMetadata())) {
             String headerWithLanguage = header + LANGUAGE_SEPARATOR_PREFIX + language + LANGUAGE_SEPARATOR_SUFFIX;
             sheet.appendHeaderIfNotPresent(headerWithLanguage);
             sheet.appendValueOnLastRow(headerWithLanguage, formatMetadataValue(metadataValue), METADATA_SEPARATOR);
@@ -246,6 +296,30 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
         }
 
         return value + AUTHORITY_SEPARATOR + authority + AUTHORITY_SEPARATOR + confidence;
+    }
+
+    private Iterator<Item> convertToItemIterator(Iterator<? extends DSpaceObject> dsoIterator) {
+        return IteratorUtils.transformedIterator(dsoIterator, this::convertToItem);
+    }
+
+    private Item convertToItem(DSpaceObject dso) {
+        if (dso.getType() != Constants.ITEM) {
+            throw new IllegalArgumentException("The xsl export supports only items. "
+                + "Found object with type " + dso.getType() + " and id " + dso.getID());
+        }
+        return (Item) dso;
+    }
+
+    private boolean isNotInCollection(Context context, Item item, Collection collection) throws SQLException {
+        return !collection.equals(findCollection(context, item));
+    }
+
+    private Collection findCollection(Context context, Item item) throws SQLException {
+        Collection collection = collectionService.findByItem(context, item);
+        if (collection == null) {
+            throw new IllegalArgumentException("No collection found for item with id: " + item.getID());
+        }
+        return collection;
     }
 
     private List<String> getSubmissionFormMetadataGroup(Collection collection, String groupName) {
@@ -273,9 +347,9 @@ public class XlsCollectionCrosswalk implements StreamDisseminationCrosswalk {
         }
     }
 
-    private boolean isLanguageSupported(Collection collection, String language, String metadataField) {
+    private boolean isLanguageSupported(Collection collection, String language, String metadataField, boolean group) {
         try {
-            List<String> languages = this.reader.getLanguagesForMetadata(collection, metadataField);
+            List<String> languages = this.reader.getLanguagesForMetadata(collection, metadataField, group);
             return CollectionUtils.isNotEmpty(languages) ? languages.contains(language) : false;
         } catch (DCInputsReaderException e) {
             throw new RuntimeException("An error occurs reading the input configuration by collection", e);

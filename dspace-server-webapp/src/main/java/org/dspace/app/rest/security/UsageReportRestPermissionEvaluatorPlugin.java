@@ -63,8 +63,7 @@ public class UsageReportRestPermissionEvaluatorPlugin extends RestObjectPermissi
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
         DSpaceRestPermission restPermission) {
-        if (StringUtils.equalsIgnoreCase(UsageReportRest.NAME, targetType)
-            || StringUtils.equalsIgnoreCase(UsageReportRest.NAME + "search", targetType)) {
+        if (StringUtils.equalsIgnoreCase(UsageReportRest.NAME, targetType)) {
             Request request = requestService.getCurrentRequest();
             Context context = ContextUtil.obtainContext(request.getHttpServletRequest());
             UUID uuidObject = null;
@@ -80,7 +79,8 @@ public class UsageReportRestPermissionEvaluatorPlugin extends RestObjectPermissi
                         }
                         // Get uuid from uuidDSO_reportId pathParam
                         uuidObject = UUID.fromString(StringUtils.substringBefore(targetId.toString(), "_"));
-                    } else if (StringUtils.equalsIgnoreCase(UsageReportRest.NAME + "search", targetType)) {
+                    } else if (StringUtils.equalsIgnoreCase(UsageReportRest.NAME + "search", targetType)
+                        || StringUtils.equalsIgnoreCase(UsageReportRest.NAME + "categorysearch", targetType)) {
                         // Get uuid from url (selfLink of dso) queryParam
                         uuidObject = UUID.fromString(StringUtils.substringAfterLast(targetId.toString(), "/"));
                     } else {

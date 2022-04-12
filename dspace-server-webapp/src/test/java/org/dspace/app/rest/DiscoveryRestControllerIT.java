@@ -1040,7 +1040,13 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                        SortOptionMatcher.sortOptionMatcher(
                                          "dc.title", DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
                        SortOptionMatcher.sortOptionMatcher(
+                                         "dc.title", DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
+                       SortOptionMatcher.sortOptionMatcher(
+                                         "dc.date.issued", DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
+                       SortOptionMatcher.sortOptionMatcher(
                                          "dc.date.issued", DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
+                       SortOptionMatcher.sortOptionMatcher(
+                                         "dc.date.accessioned", DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
                        SortOptionMatcher.sortOptionMatcher(
                                          "dc.date.accessioned", DiscoverySortFieldConfiguration.SORT_ORDER.desc.name())
                    )));
@@ -6914,7 +6920,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._links.missing.href",
                     containsString("discover/facets/graphitemtype?query=Bollini%20Andrea"
                         + "&configuration=defaultConfiguration&f.graphitemtype=journal%20article,equals"
-                        + "&f.graphitemtype=journal%20article,notequals&f.graphitemtype=%5B*%20TO%20*%5D,notequals")))
+                        + "&f.graphitemtype=%5B*%20TO%20*%5D,notequals")))
                 .andExpect(jsonPath("$._links.more.href",
                     containsString("discover/facets/graphitemtype?query=Bollini%20Andrea"
                         + "&configuration=defaultConfiguration&f.graphitemtype=journal%20article,equals"

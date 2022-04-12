@@ -529,8 +529,10 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         assertEquals(0, status);
         String remarkGoogleScholar = "scholar.google.com/scholar?q=Title+item+A";
         String remarkAltmetric = "10.1016/j.gene.2009.04.019";
+        String remarkPlumX = "10.1016/j.gene.2009.04.019";
         String remarkEmbeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        String remarkDimensions = "10.1016/j.gene.2009.04.019";
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
@@ -541,11 +543,13 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", remarkAltmetric),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
                                                                                    remarkEmbeddedDownload),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", remarkPlumX),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "dimensions",
+                            remarkDimensions)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                         Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(7)));
+                .andExpect(jsonPath("$.page.totalElements", is(8)));
     }
 
     @Test
@@ -582,8 +586,9 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                 .withEntityType("Publication")
                 .withName("Collection 1").build();
+        String itemDoi = "10.1016/j.gene.2009.04.019";
         Item itemA = ItemBuilder.createItem(context, col1)
-                .withDoiIdentifier("10.1016/j.gene.2009.04.019")
+                .withDoiIdentifier(itemDoi)
                 .withTitle("Title item A").build();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2019);
@@ -614,10 +619,9 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
 
-        String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
-        String embeddedView = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
-        String altmetric = "10.1016/j.gene.2009.04.019";
-        String embeddedDownload = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String googleScholarRemark = "https://scholar.google.com/scholar?q=Title+item+A";
+        String embeddedViewRemark = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
+        String embeddedDownloadRemark = "http://localhost:4000/statistics/items/" + itemA.getID().toString();
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
@@ -625,15 +629,22 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .andExpect(jsonPath("$._embedded.metrics", Matchers.containsInAnyOrder(
                         CrisMetricsMatcher.matchCrisMetrics(metric),
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view", embeddedView),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",embeddedDownload),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar",
+                            googleScholarRemark),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-view",
+                            embeddedViewRemark),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "embedded-download",
+                            embeddedDownloadRemark),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric",
+                            itemDoi),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX",
+                            itemDoi),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "dimensions",
+                            itemDoi)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(7)));
+                .andExpect(jsonPath("$.page.totalElements", is(8)));
     }
     @Test
     public void findLinkedEntitiesMetricsWithViewAndDownloadsMetricsTest() throws Exception {
@@ -642,8 +653,9 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
                 .withEntityType("Publication")
                 .withName("Collection 1").build();
+        String itemDoi = "10.1016/j.gene.2009.04.019";
         Item itemA = ItemBuilder.createItem(context, col1)
-                .withDoiIdentifier("10.1016/j.gene.2009.04.019")
+                .withDoiIdentifier(itemDoi)
                 .withTitle("Title item A").build();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2019);
@@ -697,7 +709,6 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         assertEquals(0, status);
 
         String googleScholar = "https://scholar.google.com/scholar?q=Title+item+A";
-        String altmetric = "10.1016/j.gene.2009.04.019";
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID() + "/metrics"))
@@ -708,12 +719,13 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                         CrisMetricsMatcher.matchCrisMetrics(metric3),
                         CrisMetricsMatcher.matchCrisMetrics(metric_download),
                         CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "google-scholar", googleScholar),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", altmetric),
-                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", "10.1016/j.gene.2009.04.019")
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "altmetric", itemDoi),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "plumX", itemDoi),
+                        CrisMetricsMatcher.matchCrisDynamicMetrics(itemA.getID(), "dimensions", itemDoi)
                 )))
                 .andExpect(jsonPath("$._links.self.href",
                                     Matchers.containsString("api/core/items/" + itemA.getID() + "/metrics")))
-                .andExpect(jsonPath("$.page.totalElements", is(7)));
+                .andExpect(jsonPath("$.page.totalElements", is(8)));
     }
 
     @Test

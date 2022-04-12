@@ -50,7 +50,7 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
 
             options.addOption("t", "type", true, "the entity type");
             options.getOption("t").setType(String.class);
-            options.getOption("t").setRequired(true);
+            options.getOption("t").setRequired(false);
 
             options.addOption("so", "sort", true, "the sort field and order");
             options.getOption("so").setType(String.class);

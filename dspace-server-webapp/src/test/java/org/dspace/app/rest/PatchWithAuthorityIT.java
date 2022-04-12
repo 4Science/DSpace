@@ -81,7 +81,7 @@ public class PatchWithAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void addValueWithoutControlledVocabularyHasNotAuthorityStored() throws Exception {
+    public void addValueWithoutControlledVocabularyButAuthorityFails() throws Exception {
 
         String authToken = getAuthToken(admin.getEmail(), password);
 
@@ -95,12 +95,7 @@ public class PatchWithAuthorityIT extends AbstractControllerIntegrationTest {
         getClient(authToken).perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
             .contentType(MediaType.APPLICATION_JSON)
             .content(getPatchContent(operations)))
-            .andExpect(status().isOk());
-
-        Item item = context.reloadEntity(workspaceItem).getItem();
-
-        assertThat(item.getMetadata(), hasItem(with("dc.title", "title test", null,
-            null, 0, -1)));
+            .andExpect(status().isInternalServerError());
     }
 
 }

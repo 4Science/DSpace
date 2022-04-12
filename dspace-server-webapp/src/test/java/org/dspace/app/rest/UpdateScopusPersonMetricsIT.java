@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.dspace.app.launcher.ScriptLauncher;
@@ -66,6 +67,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexMetrics").toString())) {
@@ -73,7 +75,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("ENHANCED");
 
             CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
 
@@ -147,7 +149,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -157,6 +159,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexMetrics").toString())) {
@@ -164,7 +167,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("ENHANCED");
 
             CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
 
@@ -238,7 +241,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -248,6 +251,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexMetrics").toString())) {
@@ -255,7 +259,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("ENHANCED");
 
 
             CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
@@ -299,7 +303,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -309,6 +313,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexMetrics").toString())) {
@@ -316,11 +321,11 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("ENHANCED");
 
             CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
 
-            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+            when(httpClient.execute(matchUri("www.testurl.org/7406754790?view=ENHANCED"))).thenReturn(response);
 
             parentCommunity = CommunityBuilder.createCommunity(context)
                                               .withName("Parent Community").build();
@@ -359,7 +364,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -369,6 +374,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexMetrics").toString())) {
@@ -376,11 +382,11 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("");
 
             CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
 
-            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+            when(httpClient.execute(matchUri("www.testurl.org/7406754790"))).thenReturn(response);
 
             parentCommunity = CommunityBuilder.createCommunity(context)
                                               .withName("Parent Community").build();
@@ -419,7 +425,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -429,6 +435,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexResouceNotFound").toString())) {
@@ -436,10 +443,10 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode(null);
 
             CloseableHttpResponse response = mockResponse(jsonExample, 404, "Not Found");
-            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+            when(httpClient.execute(matchUri("www.testurl.org/7406754790"))).thenReturn(response);
 
             parentCommunity = CommunityBuilder.createCommunity(context)
                                               .withName("Parent Community").build();
@@ -473,7 +480,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
@@ -483,6 +490,7 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         context.turnOffAuthorisationSystem();
 
         CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
+        String originalViewMode = scopusPersonRestConnector.getViewMode();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Item itemA = null;
         try (FileInputStream file = new FileInputStream(testProps.get("test.hindexApiKeyInvalid").toString())) {
@@ -490,11 +498,11 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
             String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
             scopusPersonRestConnector.setHttpClient(httpClient);
             scopusPersonRestConnector.setUrl("www.testurl.org/");
-            scopusPersonRestConnector.setEnhanced(true);
+            scopusPersonRestConnector.setViewMode("TEST");
 
             CloseableHttpResponse response = mockResponse(jsonExample, 401, "Unauthorized");
 
-            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+            when(httpClient.execute(matchUri("www.testurl.org/7406754790?view=TEST"))).thenReturn(response);
 
             parentCommunity = CommunityBuilder.createCommunity(context)
                                               .withName("Parent Community").build();
@@ -528,63 +536,13 @@ public class UpdateScopusPersonMetricsIT extends AbstractControllerIntegrationTe
         } finally {
             CrisMetricsBuilder.deleteCrisMetrics(itemA);
             scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
+            scopusPersonRestConnector.setViewMode(originalViewMode);
             scopusPersonRestConnector.setUrl("");
         }
     }
 
-    @Test
-    public void updateHIndexCrisMetricMissinToSetEnhancedMockitoTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        CloseableHttpClient originalHttpClient = scopusPersonRestConnector.getHttpClient();
-        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
-        Item itemA = null;
-        try (FileInputStream file = new FileInputStream(testProps.get("test.hindexApiKeyInvalid").toString())) {
-
-            String jsonExample = IOUtils.toString(file, Charset.defaultCharset());
-            scopusPersonRestConnector.setHttpClient(httpClient);
-            scopusPersonRestConnector.setUrl("www.testurl.org/");
-
-            CloseableHttpResponse response = mockResponse(jsonExample, 200, "OK");
-
-            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
-
-            parentCommunity = CommunityBuilder.createCommunity(context)
-                                              .withName("Parent Community").build();
-
-            Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                                               .withEntityType("Person")
-                                               .withName("Collection 1").build();
-
-            itemA = ItemBuilder.createItem(context, col1)
-                               .withTitle("Title item A")
-                               .withScopusAuthorIdentifier("7406754790").build();
-
-            CrisMetrics metric1 = CrisMetricsBuilder.createCrisMetrics(context, itemA)
-                                                    .withMetricType(ScopusPersonMetric.H_INDEX.metricType())
-                                                    .withMetricCount(12000)
-                                                    .isLast(true).build();
-
-            context.restoreAuthSystemState();
-
-            String[] args = new String[] { "update-metrics", "-s", "scopus-person"};
-            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-
-            assertEquals(0, handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin));
-
-            CrisMetrics hindexMetric = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(context,
-                    ScopusPersonMetric.H_INDEX.metricType(), itemA.getID());
-
-            assertEquals(hindexMetric.getID(), metric1.getID());
-            assertEquals(hindexMetric.getMetricCount(), metric1.getMetricCount(), 0);
-
-        } finally {
-            CrisMetricsBuilder.deleteCrisMetrics(itemA);
-            scopusPersonRestConnector.setHttpClient(originalHttpClient);
-            scopusPersonRestConnector.setEnhanced(null);
-            scopusPersonRestConnector.setUrl("");
-        }
+    private HttpUriRequest matchUri(String uri) {
+        return ArgumentMatchers.argThat(uriRequest -> uriRequest.getURI().toString().equals(uri));
     }
 
     private CloseableHttpResponse mockResponse(String jsonExample, int statusCode, String reason)

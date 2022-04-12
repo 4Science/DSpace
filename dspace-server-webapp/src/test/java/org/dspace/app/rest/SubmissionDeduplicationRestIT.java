@@ -1495,7 +1495,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         // 3. create an item with title "Sample submission" using the first submitter
         context.setCurrentUser(itemSubmitter);
         Item item = ItemBuilder.createItem(context, colItem).withTitle("Sample submission").withIssueDate("2020-01-31")
-                .withAuthor("Cadili, Francesco").withAuthor("Perelli, Matteo").withSubject("Sample").build();
+                .withAuthor("Cadili, Francesco").withAuthor("Perelli, Matteo").withSubject("Sample")
+                .grantLicense().build();
 
         // 4a. create workflow items with the second submitter
         context.setCurrentUser(workspaceItemSubmitter);
@@ -1505,7 +1506,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
         WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, colWorkspace).withTitle("Test")
                 .withIssueDate("2020-02-01").withSubject("Test")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf).build();
+                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf).grantLicense().build();
         pdf.close();
         context.restoreAuthSystemState();
 

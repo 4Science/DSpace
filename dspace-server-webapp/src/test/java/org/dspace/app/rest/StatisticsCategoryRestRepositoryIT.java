@@ -21,9 +21,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
 import org.dspace.content.service.SiteService;
-import org.dspace.eperson.Group;
-import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,56 +34,14 @@ public class StatisticsCategoryRestRepositoryIT extends AbstractControllerIntegr
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     @Test
     public void findAllTest() throws Exception {
         getClient().perform(get("/api/statistics/categories")).andExpect(status().isMethodNotAllowed());
         String authToken = getAuthToken(admin.getEmail(), password);
         getClient(authToken).perform(get("/api/statistics/categories")).andExpect(status().isMethodNotAllowed());
-    }
-
-    @Test
-    public void searchObjectUnauthorizedTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
-        //create collection
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
-        Group adminGroup = groupService.findByName(context, Group.ADMIN);
-        Item itemReserved = ItemBuilder.createItem(context, col).withTitle("Test item").withReaderGroup(adminGroup)
-                .build();
-        Item itemWithdrawn = ItemBuilder.createItem(context, col).withTitle("Test withdrawn item").withdrawn().build();
-        context.restoreAuthSystemState();
-        getClient()
-                .perform(get("/api/statistics/categories/search/object")
-                .param("uri", "http://localhost:8080/server/api/items/" + itemReserved.getID().toString())
-                ).andExpect(status().isUnauthorized());
-        getClient().perform(get("/api/statistics/categories/search/object")
-                .param("uri", "http://localhost:8080/server/api/items/" + itemWithdrawn.getID().toString())
-                ).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void searchObjectForbiddenTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
-        //create collection
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
-        GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
-        Group adminGroup = groupService.findByName(context, Group.ADMIN);
-        Item itemReserved = ItemBuilder.createItem(context, col).withTitle("Test item").withReaderGroup(adminGroup)
-                .build();
-        Item itemWithdrawn = ItemBuilder.createItem(context, col).withTitle("Test withdrawn item").withdrawn().build();
-        context.restoreAuthSystemState();
-        String authToken = getAuthToken(eperson.getEmail(), password);
-        getClient(authToken).perform(get("/api/statistics/categories/search/object")
-                .param("uri", "http://localhost:8080/server/api/items/" + itemReserved.getID().toString())
-                ).andExpect(status().isForbidden());
-        getClient(authToken).perform(get("/api/statistics/categories/search/object")
-                .param("uri", "http://localhost:8080/server/api/items/" + itemWithdrawn.getID().toString())
-                ).andExpect(status().isForbidden());
     }
 
     @Test
@@ -173,6 +130,35 @@ public class StatisticsCategoryRestRepositoryIT extends AbstractControllerIntegr
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", Matchers.is("item-mainReports")))
                 .andExpect(jsonPath("$.category-type", Matchers.is("mainReports")));
+    }
+
+    @Test
+    public void searchObjectNotWithoutAdminRestrictionTest() throws Exception {
+        configurationService.setProperty("usage-statistics.authorization.admin.usage", false);
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        //create collection
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        //create collections
+        Collection colPeople = CollectionBuilder.createCollection(context, parentCommunity).withName("People")
+            .withEntityType("Person").build();
+        Item itemPers = ItemBuilder.createItem(context, colPeople).withTitle("Test Person item").build();
+        context.restoreAuthSystemState();
+        getClient().perform(get("/api/statistics/categories/search/object")
+            .param("uri", "http://localhost:8080/server/api/items/" + itemPers.getID().toString())
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 3)))
+            .andExpect(jsonPath("$._embedded.categories", Matchers.contains(
+                StatisticsCategoryMatcher.match("person-mainReports", "mainReports"),
+                StatisticsCategoryMatcher.match("person-publicationsReports", "publicationsReports"),
+                StatisticsCategoryMatcher.match("person-projectsReports", "projectsReports")
+            )));
+        configurationService.setProperty("usage-statistics.authorization.admin.usage", true);
     }
 
     @Test

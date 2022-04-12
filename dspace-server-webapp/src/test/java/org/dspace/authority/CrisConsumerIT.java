@@ -315,6 +315,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withAuthor("Mario Rossi")
                 .withAuthorAffilitation("4Science")
                 .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
@@ -328,6 +329,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withAuthor("Mario Rossi")
                 .withAuthorAffilitation("My Org")
                 .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());
@@ -398,6 +400,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withIssueDate("2017-10-17")
                 .withProject("Same Name")
                 .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
@@ -409,6 +412,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withIssueDate("2017-10-18")
                 .withAuthor("Same Name")
                 .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());
@@ -512,6 +516,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withIssueDate("2017-10-17")
                 .withProject("My project")
                 .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
@@ -523,6 +528,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                 .withIssueDate("2017-10-18")
                 .withProject("My project")
                 .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
+                .grantLicense()
                 .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());

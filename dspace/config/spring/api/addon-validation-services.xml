@@ -27,6 +27,14 @@
         <property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
         <property name="uploadConfigurationService" ref="uploadConfigurationService"/>
     </bean>
+
+    <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
+        <property name="name" value="license"/>
+    </bean>
+    
+    <bean name="customUrlValidation" class="org.dspace.validation.CustomUrlValidator">
+        <property name="name" value="custom-url"/>
+    </bean>
     
     <bean name="fundingHasAtLeastOneInvestigatorOrOneLeadOrganization" class="org.dspace.validation.LogicalStatementValidator">
         <property name="errorKey" value="error.validation.fundingInvestigatorOrLeadOrganizationRequired"/>

@@ -863,16 +863,28 @@ public class DCInputsReader {
         throws DCInputsReaderException {
         return getAllInputsByCollection(collection)
             .filter(dcInput -> group ? isGroupType(dcInput) : !isGroupType(dcInput))
-            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput))
+            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput).stream())
             .collect(Collectors.toList());
     }
 
-    public List<String> getLanguagesForMetadata(Collection collection, String metadata) throws DCInputsReaderException {
+    public List<String> getLanguagesForMetadata(Collection collection, String metadata, boolean group)
+        throws DCInputsReaderException {
+
         return getAllInputsByCollection(collection)
-            .filter(dcInput -> dcInput.getFieldName().equals(metadata) && !isGroupType(dcInput))
+            .filter(dcInput -> group ? isGroupType(dcInput) : !isGroupType(dcInput))
+            .filter(dcInput -> {
+                try {
+                    return group
+                        ? getAllNestedMetadataByGroupName(collection, dcInput.getFieldName()).contains(metadata)
+                        : getMetadataFieldsFromDcInput(dcInput).contains(metadata);
+                } catch (DCInputsReaderException e) {
+                    throw new RuntimeException(e);
+                }
+            })
             .findFirst()
             .orElseThrow(() -> new DCInputsReaderException("No DCInput found for the metadata field " + metadata))
             .getAllLanguageValues();
+
     }
 
     public List<String> getAllNestedMetadataByGroupName(Collection collection, String groupName)
@@ -882,7 +894,7 @@ public class DCInputsReader {
 
         return Arrays.stream(groupInputSet.getFields())
             .flatMap(dcInputs -> Arrays.stream(dcInputs))
-            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput))
+            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput).stream())
             .collect(Collectors.toList());
 
     }
@@ -894,7 +906,7 @@ public class DCInputsReader {
 
         return Arrays.stream(inputSet.getFields())
             .flatMap(dcInputs -> Arrays.stream(dcInputs))
-            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput))
+            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput).stream())
             .collect(Collectors.toList());
 
     }
@@ -925,13 +937,14 @@ public class DCInputsReader {
             .flatMap(dcInputs -> Arrays.stream(dcInputs));
     }
 
-    private Stream<String> getMetadataFieldsFromDcInput(DCInput dcInput) {
+    private List<String> getMetadataFieldsFromDcInput(DCInput dcInput) {
         if (!"qualdrop_value".equals(dcInput.getInputType())) {
-            return Stream.of(dcInput.getFieldName());
+            return List.of(dcInput.getFieldName());
         }
 
         return dcInput.getAllStoredValues().stream()
-            .map(value -> isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName());
+            .map(value -> isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName())
+            .collect(Collectors.toList());
     }
 
     private boolean isGroupType(DCInput dcInput) {

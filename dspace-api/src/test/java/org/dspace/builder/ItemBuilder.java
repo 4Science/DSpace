@@ -100,6 +100,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "author", authorName);
     }
 
+    public ItemBuilder withAuthorForLanguage(String authorName, String language) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "author", language, authorName);
+    }
+
     public ItemBuilder withAuthor(final String authorName, final String authority, final int confidence) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "author",
                 null, authorName, authority, confidence);
@@ -111,6 +115,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withAuthorAffiliation(String affiliation) {
         return addMetadataValue(item, "oairecerif", "author", "affiliation", affiliation);
+    }
+
+    public ItemBuilder withAuthorAffiliationForLanguage(String affiliation, String language) {
+        return addMetadataValue(item, "oairecerif", "author", "affiliation", language, affiliation);
     }
 
     public ItemBuilder withAuthorAffiliationPlaceholder() {
@@ -231,6 +239,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withDoiIdentifier(String doi) {
         return addMetadataValue(item, "dc", "identifier", "doi", doi);
+    }
+
+    public ItemBuilder withDoiIdentifierForLanguage(String doi, String language) {
+        return addMetadataValue(item, "dc", "identifier", "doi", language, doi);
     }
 
     public ItemBuilder withIsbnIdentifier(String isbn) {
@@ -752,6 +764,14 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dcterms", "dateAccepted", null, dateAccepted);
     }
 
+    public ItemBuilder withCustomUrl(String url) {
+        return setMetadataSingleValue(item, "cris", "customurl", null, url);
+    }
+
+    public ItemBuilder withOldCustomUrl(String url) {
+        return addMetadataValue(item, "cris", "customurl", "old", url);
+    }
+
     public ItemBuilder withHandle(String handle) {
         this.handle = handle;
         return this;
@@ -868,7 +888,8 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
     @Override
     public void cleanup() throws Exception {
-        try (Context c = new Context()) {
+       try (Context c = new Context()) {
+            c.setDispatcher("noindex");
             c.turnOffAuthorisationSystem();
             // Ensure object and any related objects are reloaded before checking to see what needs cleanup
             item = c.reloadEntity(item);

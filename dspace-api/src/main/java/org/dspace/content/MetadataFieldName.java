@@ -9,7 +9,6 @@ package org.dspace.content;
 
 import java.util.Arrays;
 import java.util.Objects;
-
 import javax.annotation.Nonnull;
 
 /**

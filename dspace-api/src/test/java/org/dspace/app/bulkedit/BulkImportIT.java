@@ -1002,6 +1002,7 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             .withIsniIdentifier("54321")
             .withPatentNo("888-444-333")
             .withFulltext("test.txt", null, "test.txt".getBytes())
+            .grantLicense()
             .build();
 
         context.commit();

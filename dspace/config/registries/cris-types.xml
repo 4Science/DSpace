@@ -240,4 +240,17 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>cris</schema>
+        <element>customurl</element>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>customurl</element>
+        <qualifier>old</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>

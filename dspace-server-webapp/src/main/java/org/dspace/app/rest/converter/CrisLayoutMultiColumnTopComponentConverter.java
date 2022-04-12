@@ -43,6 +43,7 @@ public class CrisLayoutMultiColumnTopComponentConverter implements CrisLayoutSec
         rest.setSortField(topComponent.getSortField());
         rest.setStyle(component.getStyle());
         rest.setTitleKey(topComponent.getTitleKey());
+        rest.setNumberOfItems(topComponent.getNumberOfItems());
 
         List<Column> columnList =  topComponent.getColumns().stream().map(Column::from)
             .collect(Collectors.toList());

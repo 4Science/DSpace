@@ -10,23 +10,30 @@ package org.dspace.app.rest.repository;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.converter.CrisLayoutTabConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
+import org.dspace.app.rest.model.CrisLayoutBoxRest;
+import org.dspace.app.rest.model.CrisLayoutMetricsConfigurationRest;
 import org.dspace.app.rest.model.CrisLayoutTabRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.patch.ResourcePatch;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
+import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.service.CrisLayoutTabService;
+import org.dspace.metrics.CrisItemMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +61,9 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
     @Autowired
     private ResourcePatch<CrisLayoutTab> resourcePatch;
 
+    @Autowired
+    private CrisItemMetricsService metricsService;
+
     @Override
     @PreAuthorize("permitAll")
     public CrisLayoutTabRest findOne(Context context, Integer id) {
@@ -80,7 +90,8 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
         List<CrisLayoutTab> tabList = service.findByItem(obtainContext(), itemUuid);
         getRequestService().getCurrentRequest().setAttribute(SCOPE_ITEM_ATTRIBUTE, itemUuid);
         Page<CrisLayoutTabRest> restTabs = converter.toRestPage(tabList, pageable, utils.obtainProjection());
-        return filterTabWithoutRows(pageable, restTabs);
+        restTabs = filterTabWithoutRows(pageable, restTabs);
+        return filterBoxesWithMetricsType(restTabs, itemUuid);
     }
 
     @SearchRestMethod(name = "findByEntityType")
@@ -188,6 +199,47 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
     }
 
     private Page<CrisLayoutTabRest> filterTabWithoutRows(Pageable pageable, Page<CrisLayoutTabRest> restTabs) {
-        return utils.getPage(restTabs.filter(tab -> CollectionUtils.isNotEmpty(tab.getRows())).toList(), pageable);
+        List<CrisLayoutTabRest> listOfTabs = restTabs.filter(tab -> CollectionUtils.isNotEmpty(tab.getRows())).toList();
+        return utils.getPage(listOfTabs, pageable);
+    }
+
+    private Page<CrisLayoutTabRest> filterBoxesWithMetricsType(Page<CrisLayoutTabRest> restTabs, String itemUuid) {
+        List<CrisLayoutTabRest> listOfTabs = restTabs.toList();
+
+        // Get CrisLayoutBoxRest with boxType=METRICS
+        List<CrisLayoutBoxRest> boxes = listOfTabs
+            .stream()
+            .flatMap(t -> t.getRows()
+                .stream()
+                .flatMap(r -> r.getCells()
+                    .stream()
+                    .flatMap(c -> c.getBoxes()
+                        .stream()
+                        .filter(b -> b.getBoxType()
+                            .equals(CrisLayoutBoxTypes.METRICS.name())))))
+            .collect(Collectors.toList());
+
+        // Set new metrics for each box
+        boxes.forEach(box -> {
+            CrisLayoutMetricsConfigurationRest boxConfiguration =
+                ((CrisLayoutMetricsConfigurationRest) box.getConfiguration());
+
+            List<String> boxMetrics = boxConfiguration.getMetrics();
+            List<String> itemMetrics = metricsService.getMetrics(obtainContext(), UUID.fromString(itemUuid))
+                .stream()
+                .map(CrisMetrics::getMetricType)
+                .collect(Collectors.toList());
+
+            // Inner join metrics of box and item and distinct the results
+            boxConfiguration.setMetrics(boxMetrics
+                                            .stream()
+                                            .filter(b -> itemMetrics
+                                                .stream()
+                                                .anyMatch(i -> i.equals(b)))
+                                            .distinct()
+                                            .collect(Collectors.toList()));
+        });
+
+        return utils.getPage(listOfTabs, restTabs.getPageable());
     }
 }

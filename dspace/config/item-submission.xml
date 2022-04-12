@@ -192,6 +192,11 @@
       <type>extract</type>
       <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
     </step-definition>
+    <step-definition id="custom-url"> 
+        <heading>submit.progressbar.CustomUrlStep</heading>
+        <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
+        <type>custom-url</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="product">
@@ -269,17 +274,20 @@
     <submission-process name="person">
       <step id="collection" />
       <step id="person" />
+      <step id="custom-url" />
       <step id="detect-duplicate" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="person-edit">
       <step id="person" />
+      <step id="custom-url" />
       <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="admin-person-edit">
       <step id="person" />
+      <step id="custom-url" />
       <step id="owner" />
       <step id="detect-duplicate" />
       <step id="upload" />

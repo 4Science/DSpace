@@ -183,7 +183,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         if (metadataColumn == -1) {
             result.addError("The sheet " + BOX2METADATA_SHEET + " has no " + METADATA_COLUMN + " column");
         } else {
-            validateMetadataFields(allMetadataFields, box2metadataSheet, metadataColumn, result);
+            validateMetadataFields(allMetadataFields, box2metadataSheet, metadataColumn, fieldTypeColumn, result);
         }
 
         int entityTypeColumn = getCellIndexFromHeaderName(box2metadataSheet, ENTITY_COLUMN);
@@ -213,18 +213,20 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
 
         validateColumnsPresence(metadataGroupsSheet, result, ENTITY_COLUMN);
 
+        int fieldTypeColumn = getCellIndexFromHeaderName(metadataGroupsSheet, FIELD_TYPE_COLUMN);
+
         int metadataColumn = getCellIndexFromHeaderName(metadataGroupsSheet, METADATA_COLUMN);
         if (metadataColumn == -1) {
             result.addError("The sheet " + METADATAGROUPS_SHEET + " has no " + METADATA_COLUMN + " column");
         } else {
-            validateMetadataFields(allMetadataFields, metadataGroupsSheet, metadataColumn, result);
+            validateMetadataFields(allMetadataFields, metadataGroupsSheet, metadataColumn, fieldTypeColumn, result);
         }
 
         int parentColumn = getCellIndexFromHeaderName(metadataGroupsSheet, PARENT_COLUMN);
         if (parentColumn == -1) {
             result.addError("The sheet " + METADATAGROUPS_SHEET + " has no " + PARENT_COLUMN + " column");
         } else {
-            validateMetadataFields(allMetadataFields, metadataGroupsSheet, parentColumn, result);
+            validateMetadataFields(allMetadataFields, metadataGroupsSheet, parentColumn, fieldTypeColumn, result);
         }
 
     }
@@ -264,7 +266,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         if (metadataColumn == -1) {
             result.addError("The sheet " + policySheetName + " has no " + METADATA_COLUMN + " column");
         } else {
-            validateMetadataFields(allMetadataFields, policySheet, metadataColumn, result);
+            validateMetadataFields(allMetadataFields, policySheet, metadataColumn, -1, result);
         }
 
         validateColumnsPresence(policySheet, result, ENTITY_COLUMN, SHORTNAME_COLUMN);
@@ -318,16 +320,31 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
     }
 
     private void validateMetadataFields(List<String> allMetadataFields, Sheet sheet,
-        int metadataColumn, CrisLayoutToolValidationResult result) {
+        int metadataColumn, int fieldTypeColumn, CrisLayoutToolValidationResult result) {
 
         for (Cell cell : getColumnWithoutHeader(sheet, metadataColumn)) {
+
             String metadataField = WorkbookUtils.getCellValue(cell);
+
+            if (StringUtils.isBlank(metadataField) && isNotBitstreamType(cell.getRow(), fieldTypeColumn)) {
+                result.addError("The " + sheet.getSheetName() + " contains an empty metadata "
+                    + "field at row " + cell.getRowIndex());
+            }
+
             if (StringUtils.isNotBlank(metadataField) && !allMetadataFields.contains(metadataField)) {
                 result.addError("The " + sheet.getSheetName() + " contains an unknown metadata field " + metadataField
                     + " at row " + cell.getRowIndex());
             }
         }
 
+    }
+
+    private boolean isNotBitstreamType(Row row, int fieldTypeColumn) {
+        if (fieldTypeColumn == -1) {
+            return true;
+        }
+
+        return !BITSTREAM_TYPE.equals(getCellValue(row, fieldTypeColumn));
     }
 
     private void validatePresenceInBoxSheet(CrisLayoutToolValidationResult result, Sheet sheet,

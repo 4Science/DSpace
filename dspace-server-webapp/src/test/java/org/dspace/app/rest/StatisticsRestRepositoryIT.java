@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasNoJsonPath;
 import static java.io.InputStream.nullInputStream;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
@@ -14,14 +15,17 @@ import static org.dspace.app.rest.matcher.UsageReportMatcher.matchUsageReport;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CATEGORIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CITIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CITIES_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CITIES_REPORT_ID_RELATION_PERSON_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CITIES_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_CONTINENTS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID_RELATION_PERSON_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_CITIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_CONTINENTS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_COUNTRIES_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_REPORT_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
@@ -29,6 +33,7 @@ import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOAD_PER_MONT
 //import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID;
 //import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID_RELATION_ORGUNIT_PROJECTS;
@@ -50,6 +55,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -1137,7 +1143,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         getClient().perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                 "/items/" + itemNotVisitedWithBitstreams.getID()))
                 // ** THEN **
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasNoJsonPath("$.points")));
         // We request a dso's TotalVisits usage stat report as admin
         getClient(adminToken)
                 .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api" +
@@ -1155,7 +1162,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
             .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                          "/items/" + itemNotVisitedWithBitstreams.getID()))
             // ** THEN **
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasNoJsonPath("$.points")));
     }
 
     @Test
@@ -1179,20 +1187,23 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                         "/items/" + itemNotVisitedWithBitstreams.getID()))
                 // ** THEN **
-                .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasNoJsonPath("$.points")));
         // We request a dso's TotalVisits usage stat report as logged in eperson and has read policy for this user
         getClient(loggedInToken)
             .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                          "/items/" + itemNotVisitedWithBitstreams.getID()))
             // ** THEN **
-            .andExpect(status().isForbidden());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasNoJsonPath("$.points")));
         // We request a dso's TotalVisits usage stat report as another logged in eperson and has no read policy for
         // this user
         getClient(anotherLoggedInUserToken)
                 .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                         "/items/" + itemNotVisitedWithBitstreams.getID()))
                 // ** THEN **
-                .andExpect(status().isForbidden());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasNoJsonPath("$.points")));
     }
 
     @Test
@@ -1331,7 +1342,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
             .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
-                matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOTAL_VISITS_REPORT_ID, points),
+                matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
                 matchUsageReport(site.getID() + "_" + TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID, List.of(pointCity)),
                 matchUsageReport(site.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID, getListOfVisitsPerMonthsPoints(5, 12)),
@@ -1429,7 +1440,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
             .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
-                matchUsageReport(site.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID, TOTAL_VISITS_REPORT_ID, points),
+                matchUsageReport(site.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
                 matchUsageReport(site.getID() + "_" + TOP_DOWNLOAD_CITIES_REPORT_ID,
                     TOP_CITIES_REPORT_ID, List.of(pointCity)),
                 matchUsageReport(site.getID() + "_" + TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID,
@@ -1586,8 +1597,6 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                     TOP_CITIES_REPORT_ID, Arrays.asList(expectedPointCity)),
                 UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOP_COUNTRIES_REPORT_ID,
                     TOP_COUNTRIES_REPORT_ID, Arrays.asList(expectedPointCountry)),
-                UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOTAL_VISITS_TOTAL_DOWNLOADS,
-                    TOTAL_VISITS_TOTAL_DOWNLOADS, totalDownloadsPoints),
                 UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID,
                     TOTAL_DOWNLOADS_REPORT_ID, new ArrayList<>()))));
     }
@@ -1701,8 +1710,6 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                     TOP_CITIES_REPORT_ID, Arrays.asList(expectedPointCity)),
                 UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOP_COUNTRIES_REPORT_ID,
                     TOP_COUNTRIES_REPORT_ID, Arrays.asList(expectedPointCountry)),
-                UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOTAL_VISITS_TOTAL_DOWNLOADS,
-                    TOTAL_VISITS_TOTAL_DOWNLOADS, usageReportPointRestsVisitsAndDownloads),
                 UsageReportMatcher.matchUsageReport(itemVisited.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID,
                     TOTAL_DOWNLOADS_REPORT_ID, totalDownloadsPoints))));
     }
@@ -1843,7 +1850,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
                 .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
-                    matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOTAL_VISITS_REPORT_ID, points),
+                    matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
                     matchUsageReport(site.getID() + "_" + TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID, List.of()),
                     matchUsageReport(site.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                         TOTAL_VISITS_PER_MONTH_REPORT_ID, getListOfVisitsPerMonthsPoints(0, 12)),
@@ -2104,12 +2111,20 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
                                     this.getListOfVisitsPerMonthsPoints(3)),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
+                                    TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_PROJECTS,
+                                    TOTAL_VISITS_PER_MONTH_REPORT_ID,
+                                    this.getListOfVisitsPerMonthsPoints(0)),
+                        UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID,
                                     Arrays.asList(expectedPointCity)),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOP_CITIES_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS,
                                     TOP_CITIES_REPORT_ID,
                                     Arrays.asList(expectedPointCityWithRelation)),
+                        UsageReportMatcher.matchUsageReport(person.getID() + "_" +
+                                    TOP_CITIES_REPORT_ID_RELATION_PERSON_PROJECTS,
+                                    TOP_CITIES_REPORT_ID,
+                                    Collections.emptyList()),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOP_COUNTRIES_REPORT_ID,
                                     TOP_COUNTRIES_REPORT_ID,
@@ -2118,6 +2133,10 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                                     TOP_COUNTRIES_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS,
                                     TOP_COUNTRIES_REPORT_ID,
                                     Arrays.asList(expectedPointCountryWithRelation)),
+                        UsageReportMatcher.matchUsageReport(person.getID() + "_" +
+                                    TOP_COUNTRIES_REPORT_ID_RELATION_PERSON_PROJECTS,
+                                    TOP_COUNTRIES_REPORT_ID,
+                                    Collections.emptyList()),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOTAL_VISITS_REPORT_ID_RELATION_PERSON_PROJECTS,
                                     TOTAL_VISITS_REPORT_ID,
@@ -2275,7 +2294,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                                         Arrays.asList(expectedPointCountryWithRelation)),
                         UsageReportMatcher.matchUsageReport(orgUnit.getID() + "_" +
                                         TOP_ITEMS_REPORT_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS,
-                                        TOTAL_VISITS_REPORT_ID, points),
+                                        TOP_ITEMS_REPORT_ID, points),
                         UsageReportMatcher.matchUsageReport(orgUnit.getID() + "_" +
                                         TOTAL_DOWNLOADS_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS,
                                         TOTAL_DOWNLOADS_REPORT_ID, totalDownloadsPoints),

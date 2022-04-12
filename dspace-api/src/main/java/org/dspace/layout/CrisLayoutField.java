@@ -7,6 +7,9 @@
  */
 package org.dspace.layout;
 
+import static org.dspace.layout.CrisLayoutFieldBitstream.BITSTREAM_FIELD_TYPE;
+import static org.dspace.layout.CrisLayoutFieldMetadata.METADATA_FIELD_TYPE;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Cacheable;
@@ -213,6 +216,18 @@ public class CrisLayoutField implements ReloadableEntity<Integer> {
 
     public void setCell(Integer cell) {
         this.cell = cell;
+    }
+
+    public String getType() {
+        return METADATA_FIELD_TYPE;
+    }
+
+    public boolean isMetadataField() {
+        return METADATA_FIELD_TYPE.equals(getType());
+    }
+
+    public boolean isBitstreamField() {
+        return BITSTREAM_FIELD_TYPE.equals(getType());
     }
 
 }

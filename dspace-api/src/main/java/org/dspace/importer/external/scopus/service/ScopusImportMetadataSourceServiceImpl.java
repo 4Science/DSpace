@@ -9,8 +9,9 @@ package org.dspace.importer.external.scopus.service;
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +24,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -33,6 +33,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
@@ -70,6 +71,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
     private static final String ENDPOINT_SEARCH_SCOPUS = "https://api.elsevier.com/content/search/scopus";
     private String apiKey;
     private String instKey;
+    private String viewMode;
 
     /**
      * Initialize the class
@@ -230,10 +232,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
                     HttpClient client = hcBuilder.build();
                     // open session
-                    method = new HttpGet(
-                        ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey=" + apiKey +
-                        (instKey != null ? "&insttoken=" + instKey : "") +
-                            "&query=" + URLEncoder.encode(query, Charset.defaultCharset()));
+                    method = new HttpGet(getSearchUrl(query));
                     method.setConfig(requestConfigBuilder.build());
                         // Execute the method.
                     HttpResponse httpResponse = client.execute(method);
@@ -243,7 +242,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                                                            + statusCode);
                     }
                     InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, Charsets.UTF_8);
+                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
                     OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(response));
                     OMElement element = records.getDocumentElement();
                     AXIOMXPath xpath = null;
@@ -299,11 +298,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
                     HttpClient client = hcBuilder.build();
                     // open session
-                    method = new HttpGet(
-                        ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey=" + apiKey +
-                            (instKey != null ? "&insttoken=" + instKey : "") +
-                            "&view=COMPLETE&query=" + URLEncoder
-                            .encode(queryString));
+                    method = new HttpGet(getSearchUrl(queryString, viewMode));
                     method.setConfig(requestConfigBuilder.build());
                         // Execute the method.
                     HttpResponse httpResponse = client.execute(method);
@@ -313,7 +308,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                                                            + statusCode);
                     }
                     InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, Charsets.UTF_8);
+                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
                     List<OMElement> omElements = splitToRecords(response);
                     for (OMElement record : omElements) {
                         results.add(transformSourceRecords(record));
@@ -398,11 +393,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
                     HttpClient client = hcBuilder.build();
                     // open session
-                    method = new HttpGet(
-                        ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey=" + apiKey +
-                            (instKey != null ? "&insttoken=" + instKey : "") +
-                            "&view=COMPLETE&start=" + start + "&count=" + count + "&query=" + URLEncoder
-                            .encode(queryString));
+                    method = new HttpGet(getSearchUrl(queryString, viewMode, start, count));
                     method.setConfig(requestConfigBuilder.build());
                         // Execute the method.
                     HttpResponse httpResponse = client.execute(method);
@@ -412,7 +403,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                                                            + statusCode);
                     }
                     InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, Charsets.UTF_8);
+                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
                     List<OMElement> omElements = splitToRecords(response);
                     for (OMElement record : omElements) {
                         results.add(transformSourceRecords(record));
@@ -474,11 +465,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
                     HttpClient client = hcBuilder.build();
                     // open session
-                    method = new HttpGet(ENDPOINT_SEARCH_SCOPUS + "?httpAccept=application/xml&apiKey=" +
-                             apiKey + (instKey != null ? "&insttoken=" + instKey : "") +
-                            "&view=COMPLETE&start=" + (start != null ? start : 0) +
-                            "&count=" + (count != null ? count : 20) +
-                            "&query=" + URLEncoder.encode(queryString));
+                    method = new HttpGet(getSearchUrl(queryString, viewMode, start, count));
                     method.setConfig(requestConfigBuilder.build());
                         // Execute the method.
                     HttpResponse httpResponse = client.execute(method);
@@ -505,7 +492,41 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
         }
     }
 
+    private String getSearchUrl(String query, String viewMode, Integer start, Integer count) throws URISyntaxException {
 
+        String baseUri = getSearchUrl(query, viewMode);
+
+        URIBuilder uriBuilder = new URIBuilder(baseUri);
+        uriBuilder.setParameter("start", (start != null ? start + "" : "0"));
+        uriBuilder.setParameter("count", (count != null ? count + "" : "20"));
+
+        return uriBuilder.toString();
+    }
+
+    private String getSearchUrl(String query) throws URISyntaxException {
+        return getSearchUrl(query, null);
+    }
+
+    private String getSearchUrl(String query, String viewMode) throws URISyntaxException {
+
+        URIBuilder uriBuilder = new URIBuilder(ENDPOINT_SEARCH_SCOPUS);
+        uriBuilder.setParameter("httpAccept", "application/xml");
+        uriBuilder.setParameter("apiKey", apiKey);
+
+        if (StringUtils.isNotBlank(instKey)) {
+            uriBuilder.setParameter("insttoken", instKey);
+        }
+
+        if (StringUtils.isNotBlank(viewMode)) {
+            uriBuilder.setParameter("view", viewMode);
+        }
+
+        uriBuilder.setParameter("query", query);
+
+        return uriBuilder.toString();
+    }
+
+    @SuppressWarnings("unchecked")
     private List<OMElement> splitToRecords(String recordsSrc) {
         OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(recordsSrc));
         OMElement element = records.getDocumentElement();
@@ -518,6 +539,14 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
         } catch (JaxenException e) {
             return null;
         }
+    }
+
+    public String getViewMode() {
+        return viewMode;
+    }
+
+    public void setViewMode(String viewMode) {
+        this.viewMode = viewMode;
     }
 
 }

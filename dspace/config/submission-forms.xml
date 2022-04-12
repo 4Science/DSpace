@@ -528,8 +528,8 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required>You must select a publication type</required>
-          <hint>Select the type(s) of content of the item. To select more than one value in the list, you may have to hold down the "CTRL" or "Shift" key.</hint>
-          <vocabulary>types</vocabulary>
+          <hint>Select the type(s) of content of the item.</hint>
+          <vocabulary>publication-coar-types</vocabulary>
         </field>
       </row>
     </form>
@@ -921,10 +921,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Type</label>
-          <input-type value-pairs-name="dataset_types">dropdown</input-type>
+          <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Nothing to do here. Note for administrators, this metadata could be completely hide using template item</hint>
+          <vocabulary>product-coar-types</vocabulary>
         </field>
       </row>
     </form>
@@ -1194,10 +1195,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Type</label>
-          <input-type value-pairs-name="patent_types">dropdown</input-type>
+          <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required>You must select a patent type</required>
           <hint>Select the type of content of the patent.</hint>
+          <vocabulary>patent-coar-types</vocabulary>
         </field>
       </row>
     </form>

@@ -59,14 +59,16 @@ public final class CrisLayoutSectionMatcher {
      * @param discoveryConfig the discovery configuration name of the top component
      * @param sortField       the sort field of the top component to match
      * @param order           the order of the top component to match
+     * @param numberOfItems
      * @return the Matcher instance
      */
     public static Matcher<? super Object> withIdAndTopComponent(String id, int row, int pos, String style,
-        String discoveryConfig, String sortField, String order) {
+                                                                String discoveryConfig, String sortField, String order,
+                                                                Integer numberOfItems) {
 
         return allOf(
             hasJsonPath("$.id", is(id)),
-            withTopComponent(row, pos, style, discoveryConfig, sortField, order)
+            withTopComponent(row, pos, style, discoveryConfig, sortField, order, numberOfItems)
         );
     }
 
@@ -137,17 +139,20 @@ public final class CrisLayoutSectionMatcher {
      * @param discoveryConfig the discovery configuration name of the top component
      * @param sortField       the sort field of the top component to match
      * @param order           the order of the top component to match
+     * @param numberOfItems
      * @return the Matcher instance
      */
     public static Matcher<? super Object> withTopComponent(int row, int pos, String style,
-        String discoveryConfig, String sortField, String order) {
+                                                           String discoveryConfig, String sortField, String order,
+                                                           Integer numberOfItems) {
 
         return allOf(
             hasJsonPath("$.componentRows[" + row + "][" + pos + "].componentType", is("top")),
             hasJsonPath("$.componentRows[" + row + "][" + pos + "].style", is(style)),
             hasJsonPath("$.componentRows[" + row + "][" + pos + "].discoveryConfigurationName", is(discoveryConfig)),
             hasJsonPath("$.componentRows[" + row + "][" + pos + "].sortField", is(sortField)),
-            hasJsonPath("$.componentRows[" + row + "][" + pos + "].order", is(order)));
+            hasJsonPath("$.componentRows[" + row + "][" + pos + "].order", is(order)),
+            hasJsonPath("$.componentRows[" + row + "][" + pos + "].numberOfItems", is(numberOfItems)));
     }
 
     /**

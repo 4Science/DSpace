@@ -121,6 +121,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String style;
 
         private String titleKey;
+        private Integer numberOfItems;
 
         public String getDiscoveryConfigurationName() {
             return discoveryConfigurationName;
@@ -169,6 +170,18 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         public void setTitleKey(String titleKey) {
             this.titleKey = titleKey;
+        }
+
+        public void setNumberOfItems(Integer numberOfItems) {
+            this.numberOfItems = numberOfItems;
+        }
+
+        /**
+         *
+         * @return Number of items to be contained in layout section
+         */
+        public Integer getNumberOfItems() {
+            return numberOfItems;
         }
     }
 
@@ -429,6 +442,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String titleKey;
 
         private List<Column> columnList = new ArrayList<>();
+        private Integer numberOfItems;
 
         public void setColumnList(
             List<Column> columnList) {
@@ -483,6 +497,18 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         public void setTitleKey(String titleKey) {
             this.titleKey = titleKey;
+        }
+
+        public void setNumberOfItems(Integer numberOfItems) {
+            this.numberOfItems = numberOfItems;
+        }
+
+        /**
+         *
+         * @return Number of items to be contained in layout section
+         */
+        public Integer getNumberOfItems() {
+            return numberOfItems;
         }
 
         public static class Column {

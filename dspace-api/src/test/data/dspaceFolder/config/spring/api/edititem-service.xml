@@ -71,6 +71,15 @@
                             <property name="submissionDefinition" value="modeA" />
                             <property name="items" ref="itemsMetadata" />
                         </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-CUSTOM-URL" />
+                            <property name="security">
+                              <value type="org.dspace.content.security.CrisSecurity">
+                                ADMIN
+                              </value>
+                            </property>
+                            <property name="submissionDefinition" value="traditional-with-custom-url" />
+                        </bean>
                     </list>
                 </entry>
             </map>

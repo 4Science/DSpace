@@ -19,6 +19,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -41,6 +43,7 @@ import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
+import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Constants;
@@ -586,9 +589,8 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         String qualifier = "issued";
         String lang = Item.ANY;
         List<String> values = Arrays.asList("value0", "value1");
-        List<String> authorities = Arrays.asList("auth0", "auth2");
         List<Integer> confidences = Arrays.asList(0, 0);
-        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, null, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_1 0", dc, notNullValue());
@@ -682,9 +684,8 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         String qualifier = "issued";
         String lang = Item.ANY;
         String values = "value0";
-        String authorities = "auth0";
         int confidences = 0;
-        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, null, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_2 0", dc, notNullValue());
@@ -1408,6 +1409,27 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         context.restoreAuthSystemState();
         assertThat("testMove 0", it.getOwningCollection(), notNullValue());
         assertThat("testMove 1", it.getOwningCollection(), equalTo(to));
+    }
+
+    /**
+     * Test of move method, of class Item, where both Collections are the same.
+     */
+    @Test
+    public void testMoveSameCollection() throws Exception {
+        context.turnOffAuthorisationSystem();
+        while (it.getCollections().size() > 1) {
+            it.removeCollection(it.getCollections().get(0));
+        }
+
+        Collection collection = it.getCollections().get(0);
+        it.setOwningCollection(collection);
+        ItemService itemServiceSpy = spy(itemService);
+
+        itemService.move(context, it, collection, collection);
+        context.restoreAuthSystemState();
+        assertThat("testMoveSameCollection 0", it.getOwningCollection(), notNullValue());
+        assertThat("testMoveSameCollection 1", it.getOwningCollection(), equalTo(collection));
+        verify(itemServiceSpy, times(0)).delete(context, it);
     }
 
     /**

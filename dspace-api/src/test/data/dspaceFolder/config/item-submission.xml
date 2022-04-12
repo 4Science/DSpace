@@ -215,6 +215,13 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
+        
+        <step-definition id="custom-url" mandatory="false"> 
+            <heading>submit.progressbar.CustomUrlStep</heading>
+            <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
+            <type>custom-url</type>
+        </step-definition>
+        
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -256,6 +263,14 @@
             <!--Step will be to Sign off on the License -->
             <step id="license"/>
             <step id="cclicense"/>
+        </submission-process>
+        
+        <submission-process name="traditional-with-custom-url">
+            <step id="collection"/>
+            <step id="extraction" />
+            <step id="traditionalpageone"/>"
+            <step id="traditionalpagetwo"/>
+            <step id="custom-url"/>
         </submission-process>
 
         <!--This "traditional" process defines the DEFAULT item submission process -->

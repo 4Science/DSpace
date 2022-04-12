@@ -8,7 +8,6 @@
 package org.dspace.validation.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 
@@ -16,7 +15,6 @@ import org.dspace.app.util.SubmissionConfig;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
-import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.core.Context;
 import org.dspace.validation.GlobalSubmissionValidator;
@@ -55,14 +53,10 @@ public class ValidationServiceImpl implements ValidationService {
 
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj) {
-        Collection collection = obj.getCollection();
-        if (collection == null) {
-            return Collections.emptyList();
-        }
 
         List<ValidationError> errors = new ArrayList<ValidationError>();
 
-        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByCollection(collection);
+        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByInProgressSubmission(obj);
 
         for (SubmissionStepConfig stepConfig : submissionConfig) {
             stepValidators.stream()

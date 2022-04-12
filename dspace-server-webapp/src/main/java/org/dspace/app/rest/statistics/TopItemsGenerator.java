@@ -177,7 +177,7 @@ public class TopItemsGenerator extends AbstractUsageReportGenerator {
 
     @Override
     public String getReportType() {
-        return UsageReportUtils.TOTAL_VISITS_REPORT_ID;
+        return UsageReportUtils.TOP_ITEMS_REPORT_ID;
     }
 
 

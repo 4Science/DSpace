@@ -7,11 +7,11 @@
  */
 package org.dspace.app.rest.repository;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import static org.apache.commons.lang3.EnumUtils.isValidEnum;
 
-import com.google.common.base.Strings;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -76,22 +76,23 @@ public class ItemExportFormatRestRepository extends DSpaceRestRepository<ItemExp
             @Parameter(value = "molteplicity") String molteplicity,
             Pageable pageable) {
 
-        // molteplicity validation and conversion to enum
-        Optional<CrosswalkMode> molteplicityEnum;
-        if (Strings.isNullOrEmpty(molteplicity)) {
-            molteplicityEnum = Optional.of(CrosswalkMode.SINGLE_AND_MULTIPLE);
-        } else {
-            molteplicityEnum = Arrays.stream(CrosswalkMode.values())
-                    .filter(e -> molteplicity.equals(e.name())).findFirst();
-            if (molteplicityEnum.isEmpty()) {
-                throw new DSpaceBadRequestException("Thie given molteplicity is unknown.");
-            }
-        }
-
         List<ItemExportFormat> formats = this.itemExportFormatService
-                .byEntityTypeAndMolteplicity(obtainContext(), entityTypeId, molteplicityEnum.get());
+            .byEntityTypeAndMolteplicity(obtainContext(), entityTypeId, getCrosswalkMode(molteplicity));
 
         return converter.toRestPage(formats, pageable, utils.obtainProjection());
+    }
+
+    private CrosswalkMode getCrosswalkMode(String molteplicity) {
+        if (StringUtils.isBlank(molteplicity)) {
+            return CrosswalkMode.SINGLE_AND_MULTIPLE;
+        }
+
+        if (!isValidEnum(CrosswalkMode.class, molteplicity.toUpperCase())) {
+            throw new DSpaceBadRequestException("The given molteplicity is unknown.");
+        }
+
+        return CrosswalkMode.valueOf(molteplicity.toUpperCase());
+
     }
 
 }

@@ -29,7 +29,6 @@ import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutFieldBitstream;
-import org.dspace.layout.CrisLayoutFieldMetadata;
 import org.dspace.layout.CrisMetadataGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -139,12 +138,12 @@ public class CrisLayoutMetadataBoxConfigurator implements CrisLayoutBoxConfigura
 
     private void setAdditionalAttributesByType(CrisLayoutField layoutField, Field field) {
 
-        if (layoutField instanceof CrisLayoutFieldMetadata) {
+        if (layoutField.isMetadataField()) {
             field.setMetadata(composeMetadataFieldIdentifier(layoutField.getMetadataField()));
-            field.setFieldType("METADATA");
-        } else if (layoutField instanceof CrisLayoutFieldBitstream) {
+            field.setFieldType(layoutField.getType());
+        } else if (layoutField.isBitstreamField()) {
             CrisLayoutFieldBitstream bitstream = (CrisLayoutFieldBitstream) layoutField;
-            field.setFieldType("BITSTREAM");
+            field.setFieldType(layoutField.getType());
             Bitstream bits = new Bitstream();
             bits.setBundle(bitstream.getBundle());
             bits.setMetadataValue(bitstream.getMetadataValue());

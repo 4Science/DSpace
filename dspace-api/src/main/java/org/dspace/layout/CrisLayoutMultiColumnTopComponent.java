@@ -29,6 +29,8 @@ public class CrisLayoutMultiColumnTopComponent implements CrisLayoutSectionCompo
 
     private String titleKey;
 
+    private Integer numberOfItems;
+
     private List<Column> columns = new ArrayList<>();
 
     public String getDiscoveryConfigurationName() {
@@ -78,6 +80,19 @@ public class CrisLayoutMultiColumnTopComponent implements CrisLayoutSectionCompo
 
     public void setStyle(String style) {
         this.style = style;
+    }
+
+
+    public void setNumberOfItems(Integer numberOfItems) {
+        this.numberOfItems = numberOfItems;
+    }
+
+    /**
+     *
+     * @return Number of items to be contained in layout section
+     */
+    public Integer getNumberOfItems() {
+        return numberOfItems;
     }
 
     public static class Column {

@@ -217,16 +217,19 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public String getLabel(String key, String locale) {
+        init();
         return getNodeLabel(key, this.suggestHierarchy, locale);
     }
 
     @Override
     public String getValue(String key, String locale) {
+        init();
         return getNodeLabel(key, this.storeHierarchy, locale);
     }
 
     @Override
     public Choice getChoice(String authKey, String locale) {
+        init();
         Node node;
         try {
             node = getNode(authKey, locale);
@@ -270,6 +273,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public Integer getPreloadLevel() {
+        init();
         return preloadLevel;
     }
 

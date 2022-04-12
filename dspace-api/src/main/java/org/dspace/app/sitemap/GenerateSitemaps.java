@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -32,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -48,6 +50,7 @@ import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.utils.DSpace;
 
 /**
  * Command-line utility for generating HTML and Sitemaps.org protocol Sitemaps.
@@ -68,6 +71,8 @@ public class GenerateSitemaps {
     private static final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private static final SearchService searchService = SearchUtils.getSearchService();
+
+    private static final CustomUrlService customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
 
     /**
      * Default constructor
@@ -244,6 +249,20 @@ public class GenerateSitemaps {
 
         while (allItems.hasNext()) {
             Item i = allItems.next();
+
+            Optional<String> customUrl = customUrlService.getCustomUrl(i);
+            if (customUrl.isPresent()) {
+
+                String url = uiURLStem + "/entities/" + itemService.getEntityType(i) + "/" + customUrl.get();
+
+                if (makeHTMLMap) {
+                    html.addURL(url, null);
+                }
+                if (makeSitemapOrg) {
+                    sitemapsOrg.addURL(url, null);
+                }
+
+            }
 
             DiscoverQuery entityQuery = new DiscoverQuery();
             entityQuery.setQuery("search.uniqueid:\"Item-" + i.getID() + "\" and entityType:*");

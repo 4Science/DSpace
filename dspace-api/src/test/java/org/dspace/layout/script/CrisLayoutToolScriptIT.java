@@ -412,6 +412,32 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
     }
 
+    @Test
+    public void testWithMissingMandatoryMetadataFields() throws InstantiationException, IllegalAccessException {
+
+        context.turnOffAuthorisationSystem();
+        createEntityType("Person");
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("missing-mandatory-metadata-fields.xls");
+        String[] args = new String[] { "cris-layout-tool", "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        assertThat(handler.getInfoMessages(), empty());
+        assertThat(handler.getWarningMessages(), empty());
+
+        List<String> errorMessages = handler.getErrorMessages();
+        assertThat(errorMessages, hasSize(6));
+        assertThat(errorMessages, containsInAnyOrder(
+            "The box2metadata contains an empty metadata field at row 3",
+            "The box2metadata contains an empty metadata field at row 6",
+            "The metadatagroups contains an empty metadata field at row 2",
+            "The tabpolicy contains an empty metadata field at row 1",
+            "The boxpolicy contains an empty metadata field at row 2",
+            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+    }
+
     private void assertThatBitstreamFieldHas(CrisLayoutField field, String label, String rowStyle, String cellStyle,
         int row, int cell, int priority, String rendering, int metadataGroupSize, String metadataField,
         String labelStyle, String valueStyle, boolean labelAsHeading, boolean valuesInline, String bundle,

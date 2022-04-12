@@ -11,6 +11,7 @@ import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
@@ -429,9 +430,9 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
-        List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(1));
-        assertThat(errorMessages.get(0), containsString("The entity type must be provided"));
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), contains("Found 0 items to export",
+            "Items exported successfully into file named person.xml"));
     }
 
     @Test

@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.dspace.content.Collection;
 import org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk;
 import org.dspace.util.WorkbookUtils;
 
@@ -29,24 +30,39 @@ import org.dspace.util.WorkbookUtils;
  */
 public final class XlsCollectionSheet {
 
+    private final Collection collection;
+
     private final Sheet sheet;
 
     private final Row headerRow;
 
     private final Map<String, Integer> headers;
 
-    public XlsCollectionSheet(Workbook workbook, String sheetname) {
+    private final boolean nestedMetadata;
+
+    public XlsCollectionSheet(Workbook workbook, String sheetname, boolean nestedMetadata,
+                              Collection collection) {
         this.sheet = workbook.createSheet(sheetname);
+        this.collection = collection;
         this.headerRow = sheet.createRow(0);
         this.headers = new HashMap<String, Integer>();
+        this.nestedMetadata = nestedMetadata;
     }
 
     public Sheet getSheet() {
         return sheet;
     }
 
+    public Collection getCollection() {
+        return collection;
+    }
+
     public List<String> getHeaders() {
         return new ArrayList<>(headers.keySet());
+    }
+
+    public boolean isNestedMetadata() {
+        return nestedMetadata;
     }
 
     public boolean hasHeader(String header) {

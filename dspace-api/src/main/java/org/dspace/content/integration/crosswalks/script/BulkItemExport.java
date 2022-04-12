@@ -134,10 +134,6 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
             throw new IllegalArgumentException("The export format must be provided");
         }
 
-        if (entityType == null) {
-            throw new IllegalArgumentException("The entity type must be provided");
-        }
-
         filters = parseSearchFilters();
 
         StreamDisseminationCrosswalk streamDisseminationCrosswalk = getCrosswalkByType(exportFormat);
@@ -231,7 +227,9 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
         discoverQuery.setQuery(query);
         discoverQuery.setMaxResults(QUERY_PAGINATION_SIZE);
         discoverQuery.addFilterQueries(getFilterQueries(discoveryConfiguration));
-        discoverQuery.addFilterQueries("search.entitytype:" + entityType);
+        if (entityType != null) {
+            discoverQuery.addFilterQueries("search.entitytype:" + entityType);
+        }
         configureSorting(discoverQuery, discoveryConfiguration, scope);
 
         return discoverQuery;

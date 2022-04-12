@@ -8,10 +8,10 @@
 package org.dspace.metrics.scopus;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -36,7 +36,7 @@ public class ScopusPersonRestConnector {
     private String url;
     private String apiKey;
     private String insttoken;
-    private Boolean enhanced;
+    private String viewMode;
 
     private CloseableHttpClient httpClient;
 
@@ -54,11 +54,8 @@ public class ScopusPersonRestConnector {
             throws IOException {
         StringBuilder requestUrl = new StringBuilder(url);
         requestUrl.append(id);
-        if (!Objects.isNull(enhanced) && enhanced == true) {
-            requestUrl.append("?view=ENHANCED");
-        } else {
-            System.out.println("The ENHANCED param must be valued with true");
-            return null;
+        if (StringUtils.isNotBlank(viewMode)) {
+            requestUrl.append("?view=" + viewMode);
         }
         try (CloseableHttpClient httpClient = Optional.ofNullable(this.httpClient)
             .orElseGet(HttpClients::createDefault)) {
@@ -71,12 +68,23 @@ public class ScopusPersonRestConnector {
             httpGet.setHeader("Accept", "application/json");
 
             HttpResponse response = httpClient.execute(httpGet);
+
+            String content = getResponseContent(response);
             int statusCode = response.getStatusLine().getStatusCode();
+
             if (statusCode != HttpStatus.SC_OK) {
+                log.warn("The response to the request " + requestUrl.toString() + " has status " + statusCode
+                    + ". Content:" + content);
                 return null;
             }
-            return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+
+            return content;
+
         }
+    }
+
+    private String getResponseContent(HttpResponse response) throws UnsupportedOperationException, IOException {
+        return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
     }
 
     public String getUrl() {
@@ -103,12 +111,12 @@ public class ScopusPersonRestConnector {
         this.insttoken = insttoken;
     }
 
-    public boolean isEnhanced() {
-        return enhanced;
+    public String getViewMode() {
+        return viewMode;
     }
 
-    public void setEnhanced(Boolean enhanced) {
-        this.enhanced = enhanced;
+    public void setViewMode(String viewMode) {
+        this.viewMode = viewMode;
     }
 
     public CloseableHttpClient getHttpClient() {

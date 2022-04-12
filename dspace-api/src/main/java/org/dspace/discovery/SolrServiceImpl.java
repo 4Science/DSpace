@@ -410,7 +410,6 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                     String uniqueID = (String) doc.getFieldValue(SearchUtils.RESOURCE_UNIQUE_ID);
 
                     IndexableObject o = findIndexableObject(context, doc);
-                    context.uncacheEntity(o.getIndexedObject());
                     if (o == null) {
                         log.info("Deleting: " + uniqueID);
                         /*
@@ -418,6 +417,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                          */
                         unIndexContent(context, uniqueID);
                     } else {
+                        context.uncacheEntity(o.getIndexedObject());
                         log.debug("Keeping: " + o.getUniqueIndexID());
                     }
                 }
@@ -1000,19 +1000,24 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                                 List<FacetField.Count> resultValues = new ArrayList<FacetField.Count>();
                                 int prevYear = Integer.MIN_VALUE;
                                 for (FacetField.Count facetValue : facetValues) {
-                                    if (StringUtils.isBlank(facetValue.getName())) {
+                                    try {
+                                        if (StringUtils.isBlank(facetValue.getName())) {
+                                            resultValues.add(facetValue);
+                                            continue;
+                                        }
+                                        int currYear = Integer.parseInt(facetValue.getName().split(separatorSplit)[0]);
+                                        if (prevYear != Integer.MIN_VALUE && currYear != prevYear - 1) {
+                                            for (int idx = prevYear + 1; idx < currYear; idx++) {
+                                                resultValues.add(new FacetField.Count(facetValue.getFacetField(),
+                                                        String.valueOf(idx) + separator + String.valueOf(idx), 0));
+                                            }
+                                        }
+                                        prevYear = currYear;
                                         resultValues.add(facetValue);
+                                    } catch (Exception e) {
+                                        log.error(e.getMessage());
                                         continue;
                                     }
-                                    int currYear = Integer.parseInt(facetValue.getName().split(separatorSplit)[0]);
-                                    if (prevYear != Integer.MIN_VALUE && currYear != prevYear - 1) {
-                                        for (int idx = prevYear + 1; idx < currYear; idx++) {
-                                            resultValues.add(new FacetField.Count(facetValue.getFacetField(),
-                                                    String.valueOf(idx) + separator + String.valueOf(idx), 0));
-                                        }
-                                    }
-                                    prevYear = currYear;
-                                    resultValues.add(facetValue);
                                 }
                                 facetValues = resultValues;
                             }

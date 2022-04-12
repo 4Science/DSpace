@@ -17,9 +17,8 @@ import org.dspace.app.bulkimport.exception.BulkImportException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Collection;
-import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.integration.crosswalks.StreamDisseminationCrosswalkMapper;
+import org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk;
 import org.dspace.content.service.CollectionService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -36,13 +35,11 @@ import org.dspace.utils.DSpace;
  */
 public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfiguration<CollectionExport>> {
 
-    private static final String FILE_NAME = "items.xls";
-
     private CollectionService collectionService;
 
     private AuthorizeService authorizeService;
 
-    private StreamDisseminationCrosswalkMapper crosswalkMapper;
+    private XlsCollectionCrosswalk xlsCollectionCrosswalk;
 
     private String collectionId;
 
@@ -52,7 +49,8 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
     public void setup() throws ParseException {
         this.collectionService = ContentServiceFactory.getInstance().getCollectionService();
         this.authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
-        this.crosswalkMapper = new DSpace().getSingletonService(StreamDisseminationCrosswalkMapper.class);
+        this.xlsCollectionCrosswalk = new DSpace().getServiceManager().getServiceByName("xlsCrosswalkCollection",
+            XlsCollectionCrosswalk.class);
         collectionId = commandLine.getOptionValue('c');
 
     }
@@ -87,12 +85,17 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
     }
 
     private void performExport(Collection collection) throws Exception {
-        StreamDisseminationCrosswalk crosswalk = crosswalkMapper.getByType("collection-xls");
+
+        String fileName = xlsCollectionCrosswalk.getFileName();
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        crosswalk.disseminate(context, collection, out);
+        xlsCollectionCrosswalk.disseminate(context, collection, out);
+
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        handler.writeFilestream(context, FILE_NAME, in, crosswalk.getMIMEType());
-        handler.logInfo("Items exported successfully into file named " + FILE_NAME);
+        handler.writeFilestream(context, fileName, in, xlsCollectionCrosswalk.getMIMEType());
+
+        handler.logInfo("Items exported successfully into file named " + fileName);
+
     }
 
     private void assignCurrentUserInContext() throws SQLException {

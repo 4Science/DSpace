@@ -194,6 +194,7 @@
         <property name="metadataFieldMapping" ref="scopusMetadataFieldMapping"/>
         <property name="apiKey" value="${scopus.apiKey}"/>
         <property name="instKey" value="${scopus.instToken}"/>
+        <property name="viewMode" value="${scopus.search-api.viewMode}"/>
     </bean>
 
     <bean id="OpenAIREService"

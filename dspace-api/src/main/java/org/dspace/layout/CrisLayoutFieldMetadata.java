@@ -15,7 +15,9 @@ import javax.persistence.Entity;
  *
  */
 @Entity(name = "CrisLayoutFieldMetadata")
-@DiscriminatorValue("METADATA")
+@DiscriminatorValue(CrisLayoutFieldMetadata.METADATA_FIELD_TYPE)
 public class CrisLayoutFieldMetadata extends CrisLayoutField {
+
+    public static final String METADATA_FIELD_TYPE = "METADATA";
 
 }

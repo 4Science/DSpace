@@ -25,9 +25,9 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
 
     protected String pmidDataAttr;
 
-    protected String badgeType = "medium-donut";
+    protected String badgeType;
 
-    protected String popover = "bottom";
+    protected String popover;
 
     private String details;
 
@@ -37,15 +37,27 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
 
     private String linkTarget;
 
+    protected String listBadgeType;
+
+    protected String listPopOver;
+
     @Override
     public String innerHtml(Context context, Item item) {
         String doiAttr = this.calculateAttribute(item, doiField, doiDataAttr);
         String pmidAtt = this.calculateAttribute(item, pmidField, pmidDataAttr);
+
         JsonObject jsonObject = new JsonObject();
+
         jsonObject.addProperty("popover", this.popover);
         jsonObject.addProperty("badgeType", this.badgeType);
         jsonObject.addProperty("doiAttr", doiAttr);
         jsonObject.addProperty("pmidAttr", pmidAtt);
+
+        jsonObject.addProperty("list-popover", this.listPopOver);
+        jsonObject.addProperty("list-badgeType", this.listBadgeType);
+        jsonObject.addProperty("list-doiAttr", doiAttr);
+        jsonObject.addProperty("list-pmidAttr", pmidAtt);
+
         return jsonObject.toString();
     }
 
@@ -65,84 +77,51 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
         return "altmetric";
     }
 
-    public String getBadgeType() {
-        return badgeType;
-    }
-
     public void setBadgeType(String badgeType) {
         this.badgeType = badgeType;
-    }
-
-    public String getPopover() {
-        return popover;
     }
 
     public void setPopover(String popover) {
         this.popover = popover;
     }
 
-    public String getDetails() {
-        return details;
-    }
-
     public void setDetails(String details) {
         this.details = details;
-    }
-
-    public Boolean getNoScore() {
-        return noScore;
     }
 
     public void setNoScore(Boolean noScore) {
         this.noScore = noScore;
     }
 
-    public Boolean getHideNoMentions() {
-        return hideNoMentions;
-    }
-
     public void setHideNoMentions(Boolean hideNoMentions) {
         this.hideNoMentions = hideNoMentions;
-    }
-
-    public String getLinkTarget() {
-        return linkTarget;
     }
 
     public void setLinkTarget(String linkTarget) {
         this.linkTarget = linkTarget;
     }
 
-    public String getDoiField() {
-        return doiField;
-    }
-
     public void setDoiField(String doiField) {
         this.doiField = doiField;
-    }
-
-    public String getDoiDataAttr() {
-        return doiDataAttr;
     }
 
     public void setDoiDataAttr(String doiDataAttr) {
         this.doiDataAttr = doiDataAttr;
     }
 
-    public String getPmidField() {
-        return pmidField;
-    }
-
     public void setPmidField(String pmidField) {
         this.pmidField = pmidField;
-    }
-
-    public String getPmidDataAttr() {
-        return pmidDataAttr;
     }
 
     public void setPmidDataAttr(String pmidDataAttr) {
         this.pmidDataAttr = pmidDataAttr;
     }
 
+    public void setListBadgeType(String listBadgeType) {
+        this.listBadgeType = listBadgeType;
+    }
+
+    public void setListPopOver(String listPopOver) {
+        this.listPopOver = listPopOver;
+    }
 }

@@ -790,6 +790,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
                     .withTitle("Submission Item")
                     .withIssueDate("2017-10-17")
+                    .grantLicense()
                     .build();
 
             context.restoreAuthSystemState();
@@ -892,11 +893,13 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         XmlWorkflowItem witem = WorkflowItemBuilder.createWorkflowItem(context, col1)
                 .withTitle("Workflow Item 1")
                 .withIssueDate("2017-10-17")
+                .grantLicense()
                 .build();
 
         //4. a workflow item without the dateissued required field
         XmlWorkflowItem witemMissingFields = WorkflowItemBuilder.createWorkflowItem(context, col1)
                 .withTitle("Workflow Item 1")
+                .grantLicense()
                 .build();
 
         context.restoreAuthSystemState();
@@ -948,12 +951,14 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Test publication with mandatory DOI 1")
             .withIssueDate("2017-10-17")
             .withDoiIdentifier("10.1000/182")
+            .grantLicense()
             .build();
 
         // 4. a workflow item without the dateissued required field
         XmlWorkflowItem witemMissingFields = WorkflowItemBuilder.createWorkflowItem(context, col1)
             .withTitle("Test publication with mandatory DOI 2")
             .withIssueDate("2017-10-17")
+            .grantLicense()
             .build();
 
         context.restoreAuthSystemState();
@@ -1001,11 +1006,13 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Test publication with mandatory DOI 1")
             .withIssueDate("2017-10-17")
             .withDoiIdentifier("10.1000/182")
+            .grantLicense()
             .build();
 
         // 4. a workflow item without the dateissued required field
         XmlWorkflowItem witemMissingFields = WorkflowItemBuilder.createWorkflowItem(context, col1)
             .withTitle("Test publication with mandatory DOI 2")
+            .grantLicense()
             .build();
 
         context.restoreAuthSystemState();
@@ -1056,6 +1063,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withIssueDate("2017-10-17")
             .withAuthor("Smith, Donald").withAuthor("Doe, John")
             .withSubject("ExtraEntry")
+            .grantLicense()
             .build();
         claimedTask.setStepID("editstep");
         claimedTask.setActionID("editaction");
@@ -1183,6 +1191,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Workflow Item 1")
             .withIssueDate("2017-10-17")
             .withSubject("ExtraEntry")
+            .grantLicense()
             .build();
         claimedTask.setStepID("editstep");
         claimedTask.setActionID("editaction");
@@ -1252,6 +1261,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withIssueDate("2017-10-17")
             .withAuthor("Smith, Donald").withAuthor("Doe, John")
             .withSubject("ExtraEntry")
+            .grantLicense()
             .build();
         claimedTask.setStepID("editstep");
         claimedTask.setActionID("editaction");
@@ -1264,6 +1274,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withSubject("Subject2")
             .withSubject("Subject3")
             .withSubject("Subject4")
+            .grantLicense()
             .build();
         claimedTask2.setStepID("editstep");
         claimedTask2.setActionID("editaction");
@@ -1276,6 +1287,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withSubject("Subject2")
             .withSubject("Subject3")
             .withSubject("Subject4")
+            .grantLicense()
             .build();
         claimedTask3.setStepID("editstep");
         claimedTask3.setActionID("editaction");
@@ -1450,6 +1462,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         ClaimedTask claimedTask = ClaimedTaskBuilder.createClaimedTask(context, col1, eperson)
             .withIssueDate("2017-10-17")
             .withSubject("ExtraEntry")
+            .grantLicense()
             .build();
         claimedTask.setStepID("editstep");
         claimedTask.setActionID("editaction");
@@ -1520,6 +1533,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withIssueDate("2017-10-17")
             .withAuthor("Smith, Donald").withAuthor("Doe, John")
             .withSubject("ExtraEntry")
+            .grantLicense()
             .build();
         claimedTask.setStepID("editstep");
         claimedTask.setActionID("editaction");
@@ -2013,6 +2027,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Submission Item")
             .withIssueDate("2017-10-17")
             .withType("other")
+            .grantLicense()
             .build();
 
         Item item = wsitem.getItem();
@@ -2106,6 +2121,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Submission Item")
             .withIssueDate("2017-10-17")
             .withType("other")
+            .grantLicense()
             .build();
 
         Item item = wsitem.getItem();
@@ -2189,6 +2205,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Submission Item")
             .withIssueDate("2017-10-17")
             .withType("other")
+            .grantLicense()
             .build();
 
         Item item = wsitem.getItem();
@@ -2282,6 +2299,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .withTitle("Submission Item")
             .withIssueDate("2017-10-17")
             .withType("other")
+            .grantLicense()
             .build();
 
         Item item = wsitem.getItem();
@@ -2412,6 +2430,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection1)
                                         .withTitle("Test WorkspaceItem")
                                         .withIssueDate("2019-10-01")
+                                        .grantLicense()
                                         .build();
 
             bitstream = BitstreamBuilder.createBitstream(context, witem.getItem(), is)
@@ -2538,6 +2557,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection1)
                                     .withTitle("Test WorkspaceItem")
                                     .withIssueDate("2019-10-01")
+                                    .grantLicense()
                                     .build();
 
         UUID itemUuid = witem.getItem().getID();

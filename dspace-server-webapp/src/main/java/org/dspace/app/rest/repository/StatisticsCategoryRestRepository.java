@@ -58,7 +58,7 @@ public class StatisticsCategoryRestRepository extends DSpaceRestRepository<Usage
         }
     }
 
-    @PreAuthorize("hasPermission(#uri, 'usagereportcategorysearch', 'READ')")
+    @PreAuthorize("permitAll()")
     @SearchRestMethod(name = "object")
     public Page<UsageReportCategoryRest> findByObject(@Parameter(value = "uri", required = true) String uri,
                                               Pageable pageable) {

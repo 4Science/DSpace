@@ -16,8 +16,10 @@ import javax.persistence.Entity;
  *
  */
 @Entity(name = "CrisLayoutFieldBitstream")
-@DiscriminatorValue("BITSTREAM")
+@DiscriminatorValue(CrisLayoutFieldBitstream.BITSTREAM_FIELD_TYPE)
 public class CrisLayoutFieldBitstream extends CrisLayoutField {
+
+    public static final String BITSTREAM_FIELD_TYPE = "BITSTREAM";
 
     @Column(name = "bundle")
     private String bundle;
@@ -38,5 +40,10 @@ public class CrisLayoutFieldBitstream extends CrisLayoutField {
 
     public void setMetadataValue(String metadataValue) {
         this.metadataValue = metadataValue;
+    }
+
+    @Override
+    public String getType() {
+        return BITSTREAM_FIELD_TYPE;
     }
 }

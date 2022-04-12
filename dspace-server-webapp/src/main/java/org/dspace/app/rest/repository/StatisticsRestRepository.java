@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
+import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.model.StatisticsSupportRest;
 import org.dspace.app.rest.model.UsageReportRest;
@@ -39,6 +40,9 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
 
     @Autowired
     private UsageReportUtils usageReportUtils;
+
+    @Autowired
+    private ConverterService converterService;
 
     public StatisticsSupportRest getStatisticsSupport() {
         return new StatisticsSupportRest();
@@ -64,7 +68,7 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
         return converter.toRest(usageReportRest, utils.obtainProjection());
     }
 
-    @PreAuthorize("hasPermission(#uri, 'usagereportsearch', 'READ')")
+    @PreAuthorize("permitAll()")
     @SearchRestMethod(name = "object")
     public Page<UsageReportRest> findByObject(@Parameter(value = "uri", required = true) String uri,
             @Parameter(value = "category") String category, Pageable pageable,
