@@ -31,36 +31,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>Funding</leftType>
-        <rightType>Funding</rightType>
-        <leftwardType>isCorrectionOfItem</leftwardType>
-        <rightwardType>isCorrectedByItem</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </rightCardinality>
-    </type>
-    <type>
         <leftType>OrgUnit</leftType>
         <rightType>OrgUnit</rightType>
-        <leftwardType>isCorrectionOfItem</leftwardType>
-        <rightwardType>isCorrectedByItem</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </rightCardinality>
-    </type>
-    <type>
-        <leftType>Journal</leftType>
-        <rightType>Journal</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
@@ -87,34 +59,6 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>Patent</leftType>
-        <rightType>Patent</rightType>
-        <leftwardType>isCorrectionOfItem</leftwardType>
-        <rightwardType>isCorrectedByItem</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </rightCardinality>
-    </type>
-    <type>
-        <leftType>Dataset</leftType>
-        <rightType>Dataset</rightType>
-        <leftwardType>isCorrectionOfItem</leftwardType>
-        <rightwardType>isCorrectedByItem</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-	    <max>1</max>
-        </rightCardinality>
-    </type>
-    <type>
         <leftType>Event</leftType>
         <rightType>Event</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
@@ -129,8 +73,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>Equipment</leftType>
-        <rightType>Equipment</rightType>
+        <leftType>ArchivalMaterials</leftType>
+        <rightType>ArchivalMaterials</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
@@ -142,5 +86,46 @@
 	    <max>1</max>
         </rightCardinality>
     </type>
-    
+    <type>
+        <leftType>Fond</leftType>
+        <rightType>Fond</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </rightCardinality>
+    </type>
+    <type>
+        <leftType>Family</leftType>
+        <rightType>Family</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </rightCardinality>
+    </type>
+    <type>
+        <leftType>Place</leftType>
+        <rightType>Place</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </rightCardinality>
+    </type>
 </relationships>
