@@ -2,59 +2,10 @@
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 
 <item-submission>
-
-    <!-- The process-map maps collection handles to a particular Item -->
-    <!-- Submission Process. This requires that a collection's name be -->
-    <!-- unique, even within a community. DSpace does however ensure that each -->
-    <!-- collection's handle is unique. Process-map provides the means to -->
-    <!-- associate a unique collection name with an Item Submission process. -->
-    <!-- The process-map also provides the special handle "default" (which is -->
-    <!-- never a collection), here mapped to "traditional". Any collection -->
-    <!-- which does not appear in this map will be associated with the mapping -->
-    <!-- for handle "default". -->
-    <submission-map>
-        <!-- Default submission process -->
-        <name-map collection-handle="default" submission-name="publication"/>
-
-        <!-- Sample Entities Collection configuration based on the demo Entities dataset available at:
-             https://github.com/DSpace-Labs/AIP-Files/releases/tag/demo-entities-data
-             This sets up the following Entity-based Collections in that dataset:
-                "Publication" Collections = "Publications" -> "Articles", "Books", "Publications 2", & "Theses"
-                "OrgUnit" Collection = "Related Objects" -> "OrgUnits"
-                "Person" Collections = "Related Objects" -> "People" & "People 2"
-                "Project" Collections = "Related Objects" -> "Projects" & "Projects 2"
-                "Journal" Collection = "Compound Journals" -> "Journals"
-                "Journal Volume" Collection = "Compound Journals" -> "Journal Volumes"
-                "Journal Issue" Collection = "Compound Journals" ->  "Journal Issues"
-             If you are using that demo dataset, you can simply uncomment the below configuration to enable Entity
-             submission into all of the above Collections.
-        -->
-    </submission-map>
-
-    <!-- The 'step-definitions' allows you to define steps which you may wish -->
-    <!-- to "share" amongst multiple submission-item definitions. In order to -->
-    <!-- share the same step definition, you can refer to it by its unique id -->
-    <!-- defined in this section. EVERY 'step' in this section MUST have a -->
-    <!-- unique identifier in the 'id' attribute! -->
-    <!-- -->
-    <!-- Each <step-definition> REQUIRES the following attributes (@) and properties: -->
-    <!-- @id - The unique identifier for this step -->
-    <!-- -->
-    <!-- <processing-class> - The class which will process all information for -->
-    <!-- this step. The class must implement -->
-    <!-- 'org.dspace.app.rest.submit.RestProcessingStep' -->
-    <!-- (or one of the org.dspace.rest.submit.step.* classes) -->
-    <!-- This property should reference the full path of the class -->
-    <!-- (e.g. org.dspace.app.rest.submit.step.MyCustomStep) -->
-    <!-- -->
-    <!-- The following properties are OPTIONAL for each <step-definition>: -->
-    <!-- <heading> - References the message key, from the -->
-    <!-- Messages.properties -->
-    <!-- -->
+  <submission-map>
+    <name-map collection-handle="default" submission-name="publication" />
+  </submission-map>
   <step-definitions>
-    <!-- The "collection" step is a "special step" which is *REQUIRED* -->
-    <!-- In DSpace, all submitted items must be immediately assigned -->
-    <!-- to a collection. This step ensures that a collection is always selected. -->
     <step-definition id="collection" mandatory="true">
       <heading>submit.progressbar.collection</heading>
       <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
@@ -71,38 +22,18 @@
       <processing-class>org.dspace.app.rest.submit.step.LicenseStep</processing-class>
       <type>license</type>
     </step-definition>
-    <step-definition id="product" mandatory="true">
-      <heading>submit.progressbar.describe.product</heading>
+    <step-definition id="archival_materials" mandatory="true">
+      <heading>submit.progressbar.describe.archival_materials</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="product_indexing" mandatory="true">
-      <heading>submit.progressbar.describe.product_indexing</heading>
+    <step-definition id="archival_materials_indexing" mandatory="true">
+      <heading>submit.progressbar.describe.archival_materials_indexing</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="product_references" mandatory="true">
-      <heading>submit.progressbar.describe.product_references</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="orgunit" mandatory="true">
-      <heading>submit.progressbar.describe.orgunit</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="patent" mandatory="true">
-      <heading>submit.progressbar.describe.patent</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="patent_indexing" mandatory="true">
-      <heading>submit.progressbar.describe.patent_indexing</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="patent_references" mandatory="true">
-      <heading>submit.progressbar.describe.patent_references</heading>
+    <step-definition id="archival_materials_references" mandatory="true">
+      <heading>submit.progressbar.describe.archival_materials_references</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -111,13 +42,18 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="journal" mandatory="true">
-      <heading>submit.progressbar.describe.journal</heading>
+    <step-definition id="publication" mandatory="true">
+      <heading>submit.progressbar.describe.publication</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="publication" mandatory="true">
-      <heading>submit.progressbar.describe.publication</heading>
+    <step-definition id="publication-dc-contributor-author" mandatory="true">
+      <heading>submit.progressbar.describe.publication-dc-contributor-author</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication-dc-contributor-contributor" mandatory="true">
+      <heading>submit.progressbar.describe.publication-dc-contributor-contributor</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -126,18 +62,8 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="publication_bibliographic_details" mandatory="true">
-      <heading>submit.progressbar.describe.publication_bibliographic_details</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
     <step-definition id="publication_references" mandatory="false">
       <heading>submit.progressbar.describe.publication_references</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="equipment" mandatory="true">
-      <heading>submit.progressbar.describe.equipment</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -146,204 +72,160 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="funding" mandatory="true">
-      <heading>submit.progressbar.describe.funding</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
     <step-definition id="person" mandatory="true">
       <heading>submit.progressbar.describe.person</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="owner" mandatory="true">
-      <heading>submit.progressbar.describe.owner</heading>
+    <step-definition id="orgunit" mandatory="true">
+      <heading>submit.progressbar.describe.orgunit</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="detect-duplicate" mandatory="true">
-      <heading>submit.progressbar.detect-duplicate</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DetectPotentialDuplicateStep</processing-class>
-      <type>detect-duplicate</type>
+    <step-definition id="fond" mandatory="true">
+      <heading>submit.progressbar.describe.fond</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
     </step-definition>
-        <!-- This optional step may allow the user to select a Creative Commons license -->
-    <step-definition id="cclicense" mandatory="false">
-      <heading>submit.progressbar.CClicense</heading>
-      <processing-class>org.dspace.app.rest.submit.step.CCLicenseStep</processing-class>
-      <type>cclicense</type>
+    <step-definition id="fond-glamfond-editor" mandatory="true">
+      <heading>submit.progressbar.describe.fond-glamfond-editor</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
     </step-definition>
-    <!-- This optional step may allow the user to select access conditions on the item -->
-    <step-definition id="itemAccessConditions">
-        <heading>submit.progressbar.accessCondition</heading>
-        <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
-        <type>accessCondition</type>
+    <step-definition id="fond-glamfond-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.fond-glamfond-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
     </step-definition>
-    <!-- This optional step may enrich the current submission using information extracted
-             from uploaded files or metadata.  -->
-    <!-- Please note that this step will be triggered only when a request is performed,
-           e.g. when a file is uploaded or the form is saved. The Angular UI also supports an
-           autosave feature based on a timer, or the input of specific metadata such as identifiers,
-           see the 'submission.autosave' settings in the 'environment.common.ts'.
-           See also 'config/spring/api/step-processing-listener.xml' for further server side configuration
-           -->
+    <step-definition id="place" mandatory="true">
+      <heading>submit.progressbar.describe.place</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="family" mandatory="true">
+      <heading>submit.progressbar.describe.family</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="family-glamfamily-editor" mandatory="true">
+      <heading>submit.progressbar.describe.family-glamfamily-editor</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
     <step-definition id="extractionstep" mandatory="true">
       <heading>submit.progressbar.ExtractMetadataStep</heading>
       <processing-class>org.dspace.app.rest.submit.step.ExtractMetadataStep</processing-class>
       <type>extract</type>
       <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
     </step-definition>
-    <step-definition id="custom-url"> 
-        <heading>submit.progressbar.CustomUrlStep</heading>
-        <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
-        <type>custom-url</type>
-    </step-definition>
   </step-definitions>
   <submission-definitions>
-    <submission-process name="product">
+    <submission-process name="archival_materials">
       <step id="collection" />
-      <step id="product" />
-      <step id="product_indexing" />
-      <step id="product_references" />
-      <step id="detect-duplicate" />
+      <step id="archival_materials" />
+      <step id="archival_materials_indexing" />
+      <step id="archival_materials_references" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="product-edit">
-      <step id="product" />
-      <step id="product_indexing" />
-      <step id="product_references" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-    </submission-process>
-    <submission-process name="orgunit">
-      <step id="collection" />
-      <step id="orgunit" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-      <step id="license" />
-    </submission-process>
-    <submission-process name="orgunit-edit">
-      <step id="orgunit" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-    </submission-process>
-    <submission-process name="project">
-      <step id="collection" />
-      <step id="project" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-      <step id="license" />
-    </submission-process>
-    <submission-process name="project-edit">
-      <step id="project" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-    </submission-process>
-    <submission-process name="journal">
-      <step id="collection" />
-      <step id="journal" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-      <step id="license" />
-    </submission-process>
-    <submission-process name="journal-edit">
-      <step id="journal" />
-      <step id="detect-duplicate" />
+    <submission-process name="archival_materials-edit">
+      <step id="archival_materials" />
+      <step id="archival_materials_indexing" />
+      <step id="archival_materials_references" />
       <step id="upload" />
     </submission-process>
     <submission-process name="publication">
       <step id="collection" />
       <step id="extractionstep" />
       <step id="publication" />
+      <step id="publication-dc-contributor-author" />
+      <step id="publication-dc-contributor-contributor" />
       <step id="publication_indexing" />
-      <step id="publication_bibliographic_details" />
       <step id="publication_references" />
-      <step id="detect-duplicate" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="publication-edit">
       <step id="extractionstep" />
       <step id="publication" />
+      <step id="publication-dc-contributor-author" />
+      <step id="publication-dc-contributor-contributor" />
       <step id="publication_indexing" />
-      <step id="publication_bibliographic_details" />
       <step id="publication_references" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="person">
       <step id="collection" />
       <step id="person" />
-      <step id="custom-url" />
-      <step id="detect-duplicate" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="person-edit">
       <step id="person" />
-      <step id="custom-url" />
-      <step id="detect-duplicate" />
-      <step id="upload" />
-    </submission-process>
-    <submission-process name="admin-person-edit">
-      <step id="person" />
-      <step id="custom-url" />
-      <step id="owner" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="event">
       <step id="collection" />
       <step id="event" />
-      <step id="detect-duplicate" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="event-edit">
       <step id="event" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
-    <submission-process name="equipment">
+    <submission-process name="orgunit">
       <step id="collection" />
-      <step id="equipment" />
-      <step id="detect-duplicate" />
+      <step id="orgunit" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="equipment-edit">
-      <step id="equipment" />
-      <step id="detect-duplicate" />
+    <submission-process name="orgunit-edit">
+      <step id="orgunit" />
       <step id="upload" />
     </submission-process>
-    <submission-process name="patent">
+    <submission-process name="project">
       <step id="collection" />
-      <step id="extractionstep" />
-      <step id="patent" />
-      <step id="patent_indexing" />
-      <step id="patent_references" />
-      <step id="detect-duplicate" />
+      <step id="project" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="patent-edit">
-      <step id="extractionstep" />
-      <step id="patent" />
-      <step id="patent_indexing" />
-      <step id="patent_references" />
-      <step id="detect-duplicate" />
+    <submission-process name="project-edit">
+      <step id="project" />
       <step id="upload" />
     </submission-process>
-    <submission-process name="funding">
+    <submission-process name="fond">
       <step id="collection" />
-      <step id="funding" />
-      <step id="detect-duplicate" />
+      <step id="fond" />
+      <step id="fond-glamfond-editor" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="funding-edit">
-      <step id="funding" />
-      <step id="detect-duplicate" />
+    <submission-process name="fond-edit">
+      <step id="fond" />
+      <step id="fond-glamfond-editor" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="place">
+      <step id="collection" />
+      <step id="place" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="place-edit">
+      <step id="place" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="family">
+      <step id="collection" />
+      <step id="family" />
+      <step id="family-glamfamily-editor" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="family-edit">
+      <step id="place" />
+      <step id="family-glamfamily-editor" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>
