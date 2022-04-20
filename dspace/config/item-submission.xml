@@ -138,8 +138,6 @@
       <step id="collection" />
       <step id="extractionstep" />
       <step id="publication" />
-      <step id="publication-dc-contributor-author" />
-      <step id="publication-dc-contributor-contributor" />
       <step id="publication_indexing" />
       <step id="publication_references" />
       <step id="upload" />
@@ -148,8 +146,6 @@
     <submission-process name="publication-edit">
       <step id="extractionstep" />
       <step id="publication" />
-      <step id="publication-dc-contributor-author" />
-      <step id="publication-dc-contributor-contributor" />
       <step id="publication_indexing" />
       <step id="publication_references" />
       <step id="upload" />
@@ -197,13 +193,11 @@
     <submission-process name="fond">
       <step id="collection" />
       <step id="fond" />
-      <step id="fond-glamfond-editor" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="fond-edit">
       <step id="fond" />
-      <step id="fond-glamfond-editor" />
       <step id="upload" />
     </submission-process>
     <submission-process name="place">
@@ -219,13 +213,11 @@
     <submission-process name="family">
       <step id="collection" />
       <step id="family" />
-      <step id="family-glamfamily-editor" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="family-edit">
       <step id="place" />
-      <step id="family-glamfamily-editor" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>

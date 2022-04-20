@@ -129,7 +129,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>identifier</dc-element>
-          <dc-qualifier>archvalunit</dc-qualifier>
+          <dc-qualifier>archivalunit</dc-qualifier>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -523,7 +523,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>identifier</dc-element>
-          <dc-qualifier>archvalunit</dc-qualifier>
+          <dc-qualifier>archivalunit</dc-qualifier>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -1285,7 +1285,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>event</dc-schema>
+          <dc-schema>glamevent</dc-schema>
           <dc-element>variants</dc-element>
           <label>Varianti dell'evento</label>
           <input-type>onebox</input-type>
