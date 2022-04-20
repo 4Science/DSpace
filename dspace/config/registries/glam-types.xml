@@ -3,6 +3,16 @@
     <dspace-header>
         <title>DSpace GLAM Types</title>
     </dspace-header>
+    
+    <dc-schema>
+        <name>glam</name>
+        <namespace>https://www.4science.it/dspace-glam/glam</namespace>
+    </dc-schema>
+
+    <dc-schema>
+        <name>glamaggregation</name>
+        <namespace>https://www.4science.it/dspace-glam/aggregation</namespace>
+    </dc-schema>
 
     <dc-schema>
         <name>glamfamily</name>
@@ -483,7 +493,7 @@
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glam</schema>
         <element>leaf</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
@@ -507,6 +517,13 @@
         <schema>glamfond</schema>
         <element>usecondition</element>
         <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamaggregation</schema>
+        <element>parent</element>
+        <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 

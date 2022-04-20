@@ -12,11 +12,12 @@
 		<property name="supportedAuthorities">
 			<util:list>
 				<value>FondLeafAuthority</value>
+				<value>AggregationLeafAuthority</value>
 			</util:list>
 		</property>
 		<constructor-arg name="customQueries">
 			<util:list>
-				<value>glamfond.leaf:true</value>
+				<value>glam.leaf:true</value>
 			</util:list>
 		</constructor-arg>
 	</bean>

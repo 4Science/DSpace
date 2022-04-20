@@ -1763,7 +1763,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>leaf</dc-element>
           <label>Foglia</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
@@ -2213,6 +2213,41 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Specificare la data della modifica</hint>
+        </field>
+      </row>
+    </form>
+    <form name="aggregation">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <label>Nome</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il nome della fonte archivistica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <label>Descrizione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Descrivere il contenuto del fondo</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamaggregation</dc-schema>
+          <dc-element>parent</dc-element>
+          <label>Livello gerarchico superiore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il nome del nodo superiore all'iterno della gerarchia</hint>
         </field>
       </row>
     </form>

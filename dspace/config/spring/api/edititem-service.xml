@@ -126,6 +126,32 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="aggregation">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="aggregation-edit" />
+                        </bean>
+                    </list>
+                </entry>
+				<entry key="journalfond">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="journalfond-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>
