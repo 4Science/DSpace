@@ -1,0 +1,513 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace GLAM Types</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>glamfamily</name>
+        <namespace>https://www.4science.it/dspace-glam/family</namespace>
+    </dc-schema>
+
+    <dc-schema>
+        <name>glamfond</name>
+        <namespace>https://www.4science.it/dspace-glam/fond</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>glamou</name>
+        <namespace>https://www.4science.it/dspace-glam/ou</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>glamperson</name>
+        <namespace>https://www.4science.it/dspace-glam/person</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>glamplace</name>
+        <namespace>https://www.4science.it/dspace-glam/place</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>glamproject</name>
+        <namespace>https://www.4science.it/dspace-glam/project</namespace>
+    </dc-schema>
+
+    <dc-schema>
+        <name>glamevent</name>
+        <namespace>https://www.4science.it/dspace-glam/event</namespace>
+    </dc-schema>
+    
+    <dc-type>
+        <schema>glamevent</schema>
+        <element>variants</element>
+        <qualifier></qualifier>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>acronym</element>
+        <qualifier></qualifier>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>lat</element>
+        <qualifier></qualifier>
+    </dc-type>
+    
+    <dc-type>
+		<schema>glamplace</schema>
+		<element>link</element>
+		<qualifier>wikipedia</qualifier>
+	</dc-type>
+
+    <dc-type>
+		<schema>glamplace</schema>
+		<element>link</element>
+		<qualifier>tgn</qualifier>
+	</dc-type>
+
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>link</element>
+        <qualifier>geonames</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>link</element>
+        <qualifier>dbpedia</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>long</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>partecipatedIn</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>activityPeriod</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>gender</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>role</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>biography</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>nationality</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>deathDate</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>birthPlace</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>deathPlace</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamou</schema>
+        <element>services</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamou</schema>
+        <element>collectingPolicies</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamou</schema>
+        <element>address</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamou</schema>
+        <element>address</element>
+        <qualifier>postcode</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamou</schema>
+        <element>accessibility</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>preservation</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>preservation</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>note</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>accesscondition</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>relation</element>
+        <qualifier>materials</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>arrangement</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>editing</element>
+        <qualifier>date</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>editing</element>
+        <qualifier>type</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>editor</element>
+        <qualifier>qualifier</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>editor</element>
+        <qualifier>name</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+   
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>index</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>startdate</element>
+        <qualifier>valid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>startdate</element>
+        <qualifier>to</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>startdate</element>
+        <qualifier>format</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>startdate</element>
+        <qualifier>spec</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>startdate</element>
+        <qualifier>from</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>enddate</element>
+        <qualifier>valid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>enddate</element>
+        <qualifier>to</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>enddate</element>
+        <qualifier>format</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>enddate</element>
+        <qualifier>spec</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>enddate</element>
+        <qualifier>from</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>editor</element>
+        <qualifier>name</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>editor</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>editor</element>
+        <qualifier>qualifier</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>editing</element>
+        <qualifier>type</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>editing</element>
+        <qualifier>date</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfamily</schema>
+        <element>nationality</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>quantity</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>abbreviation</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>title</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>editor</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>publisher</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>place</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>year</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier>author</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>custodian</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>parent</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>length</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>typology</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>shelfmark</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>history</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>bibliography</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>leaf</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>editor</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>usecondition</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamfond</schema>
+        <element>usecondition</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+</dspace-dc-types>
