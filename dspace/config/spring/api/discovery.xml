@@ -83,6 +83,9 @@
                 <entry key="journal" value-ref="journal"/>
                 <entry key="project_funding" value-ref="project_funding"/>
                 <entry key="project" value-ref="project"/>
+                <entry key="documents" value-ref="documents"/>
+                <entry key="fonds" value-ref="fonds"/>
+                <entry key="journalfonds" value-ref="journalfonds"/>
                 <entry key="homePageTopItems" value-ref="homePageTopItemsConfiguration"/>
                 <!-- search for an entity that can be a Person or an OrgUnit -->
                 <entry key="personOrOrgunit" value-ref="personOrOrgunit"/>
@@ -1295,6 +1298,222 @@
             </bean>
         </property>
 
+        <!-- When true a "did you mean" example will be displayed, value can be true or false -->
+        <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="documents" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+	    <property name="id" value="documents"/>
+	    <property name="indexAlways" value="true"/>
+	    <!--Which sidebar facets are to be displayed-->
+	    <property name="sidebarFacets">
+	        <list>
+	            <ref bean="searchFilterAuthor" />
+	            <ref bean="searchFilterEditor" />
+	            <ref bean="searchFilterOrgUnit" />
+	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterContentInOriginalBundle"/>
+	            <ref bean="searchFilterEntityType"/>
+	        </list>
+	    </property>
+	    <!-- Set TagCloud configuration per discovery configuration -->
+	    <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+	    <!--The search filters which can be used on the discovery search page-->
+	    <property name="searchFilters">
+	        <list>
+	            <ref bean="searchFilterTitle" />
+	            <ref bean="searchFilterAuthor" />
+	            <ref bean="searchFilterEditor" />
+	            <ref bean="searchFilterOrgUnit" />
+	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterContentInOriginalBundle"/>
+	            <ref bean="searchFilterFileNameInOriginalBundle" />
+	            <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+	            <ref bean="searchFilterEntityType"/>
+	        </list>
+	    </property>
+	    <!--The sort filters for the discovery search-->
+	    <property name="searchSortConfiguration">
+	        <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+	            <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+	            <property name="sortFields">
+	                <list>
+	                    <ref bean="sortScore" />
+	                    <ref bean="sortTitleAsc" />
+	                    <ref bean="sortTitleDesc" />
+	                    <ref bean="sortDateIssuedDesc" />
+	                    <ref bean="sortDateIssuedAsc" />
+	                    <ref bean="sortDateAccessionedDesc"/>
+	                    <ref bean="sortDateAccessionedAsc"/>
+	                    <ref bean="sortViews"/>
+	                    <ref bean="sortDownloads"/>
+	                </list>
+	            </property>
+	        </bean>
+	    </property>
+	    <!--Any default filter queries, these filter queries will be used for all
+	        queries done by discovery for this configuration -->
+	    <property name="defaultFilterQueries">
+	        <list>
+	            <!--Only find items, communities and collections-->
+	            <value>search.resourcetype:Item AND (entityType_keyword:Publication OR entityType_keyword:JournalIssue OR entityType_keyword:FondMaterials)</value>
+	        </list>
+	    </property>
+	    <!--The configuration for the recent submissions-->
+	    <property name="recentSubmissionConfiguration">
+	        <bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+	            <property name="metadataSortField" value="dc.date.accessioned" />
+	            <property name="type" value="date"/>
+	            <property name="max" value="20"/>
+	            <!-- If enabled the collection home page will not display metadata but show a pageable list of recent submissions -->
+	            <property name="useAsHomePage" value="false"/>
+	        </bean>
+	    </property>
+	
+	    <!-- When true a "did you mean" example will be displayed, value can be true or false -->
+	    <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="fonds" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <property name="id" value="fonds"/>
+        <property name="indexAlways" value="true"/>
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterEditor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterEditor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortScore" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                        <ref bean="sortViews"/>
+                        <ref bean="sortDownloads"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+            queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Fond</value>
+            </list>
+        </property>
+        <!--The configuration for the recent submissions-->
+        <property name="recentSubmissionConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+                <property name="metadataSortField" value="dc.date.accessioned" />
+                <property name="type" value="date"/>
+                <property name="max" value="20"/>
+                <!-- If enabled the collection home page will not display metadata but show a pageable list of recent submissions -->
+                <property name="useAsHomePage" value="false"/>
+            </bean>
+        </property>
+    
+        <!-- When true a "did you mean" example will be displayed, value can be true or false -->
+        <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="journalfonds" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <property name="id" value="journalfonds"/>
+        <property name="indexAlways" value="true"/>
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterEditor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterEditor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortScore" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                        <ref bean="sortViews"/>
+                        <ref bean="sortDownloads"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+            queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:JournalFond</value>
+            </list>
+        </property>
+        <!--The configuration for the recent submissions-->
+        <property name="recentSubmissionConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+                <property name="metadataSortField" value="dc.date.accessioned" />
+                <property name="type" value="date"/>
+                <property name="max" value="20"/>
+                <!-- If enabled the collection home page will not display metadata but show a pageable list of recent submissions -->
+                <property name="useAsHomePage" value="false"/>
+            </bean>
+        </property>
+    
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
     </bean>
