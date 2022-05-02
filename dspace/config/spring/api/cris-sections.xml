@@ -9,6 +9,7 @@
             <list>
                 <ref bean="sectionfonds" />
                 <ref bean="sectionjournalfonds" />
+                <ref bean="sectionaggregations" />
                 <ref bean="sectiondocuments" />
                 <ref bean="sectionsite" />
             </list>
@@ -24,6 +25,7 @@
                  <bean class="org.dspace.layout.CrisLayoutBrowseComponent">
                      <property name="browseNames">
                          <list>
+                             <value>titleF</value>
                              <value>typeF</value>
                              <value>dateissuedF</value>
                              <value>subjectF</value>
@@ -55,6 +57,7 @@
                  <bean class="org.dspace.layout.CrisLayoutBrowseComponent">
                      <property name="browseNames">
                          <list>
+                             <value>titleJF</value>
                              <value>typeJF</value>
                              <value>dateissuedJF</value>
                              <value>subjectJF</value>
@@ -70,6 +73,38 @@
              <list>
                  <bean class="org.dspace.layout.CrisLayoutFacetComponent">
                      <property name="discoveryConfigurationName" value="journalfonds" />
+                     <property name="style" value="col-md-12"/>
+                 </bean>
+             </list>
+          </list>
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.dspace.layout.CrisLayoutSection" id="sectionaggregations">
+        <constructor-arg name="id" value="sectionaggregations"/>
+        <constructor-arg name="visible" value="true"/>
+        <constructor-arg name="sectionComponents">
+          <list>
+             <list>
+                 <bean class="org.dspace.layout.CrisLayoutBrowseComponent">
+                     <property name="browseNames">
+                         <list>
+                             <value>titleA</value>
+                             <value>typeA</value>
+                             <value>dateissuedA</value>
+                             <value>subjectA</value>
+                         </list>
+                     </property>
+                     <property name="style" value="col-md-4"/>
+                 </bean>
+                 <bean class="org.dspace.layout.CrisLayoutSearchComponent">
+                     <property name="discoveryConfigurationName" value="aggregations" />
+                     <property name="style" value="col-md-8"/>
+                 </bean>
+             </list>
+             <list>
+                 <bean class="org.dspace.layout.CrisLayoutFacetComponent">
+                     <property name="discoveryConfigurationName" value="aggregations" />
                      <property name="style" value="col-md-12"/>
                  </bean>
              </list>

@@ -23,6 +23,11 @@
         <name>glamfond</name>
         <namespace>https://www.4science.it/dspace-glam/fond</namespace>
     </dc-schema>
+
+    <dc-schema>
+        <name>glamjournalfond</name>
+        <namespace>https://www.4science.it/dspace-glam/journalfond</namespace>
+    </dc-schema>
     
     <dc-schema>
         <name>glamou</name>
@@ -527,4 +532,10 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glamjournalfond</schema>
+        <element>parent</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 </dspace-dc-types>

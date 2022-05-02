@@ -12,6 +12,7 @@
 		<property name="supportedAuthorities">
 			<util:list>
 				<value>FondLeafAuthority</value>
+				<value>JournalFondLeafAuthority</value>
 				<value>AggregationLeafAuthority</value>
 			</util:list>
 		</property>
