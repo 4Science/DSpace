@@ -186,22 +186,24 @@
                     <property name="counterSettingsList">
                         <list>
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="researchoutputs"/>
-                                <property name="label" value="publications"/>
-                                <property name="icon" value="fas fa-file-alt fa-3x"/>
-                                <property name="link" value="/explore/researchoutputs"/>
+                                <property name="discoveryConfigurationName" value="fonds"/>
+                                <property name="label" value="fonds"/>
+                                <property name="icon" value="fas fa-archive fa-3x"/>
                             </bean>
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="project_funding"/>
-                                <property name="label" value="project_funding"/>
-                                <property name="icon" value="fas fa-cogs fa-3x"/>
-                                <property name="link" value="/explore/fundings_and_projects"/>
+                                <property name="discoveryConfigurationName" value="journalfonds"/>
+                                <property name="label" value="journalfonds"/>
+                                <property name="icon" value="fas fa-newspaper-o fa-3x"/>
                             </bean>
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="person"/>
-                                <property name="label" value="rprofiles"/>
-                                <property name="icon" value="fas fa-users fa-3x"/>
-                                <property name="link" value="/explore/researcherprofiles"/>
+                                <property name="discoveryConfigurationName" value="aggregations"/>
+                                <property name="label" value="aggregations"/>
+                                <property name="icon" value="fas fa-folder-open fa-3x"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
+                                <property name="discoveryConfigurationName" value="documents"/>
+                                <property name="label" value="documents"/>
+                                <property name="icon" value="fas fa-search fa-3x"/>
                             </bean>
                         </list>
                     </property>
