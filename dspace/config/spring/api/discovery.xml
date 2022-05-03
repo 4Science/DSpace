@@ -1520,7 +1520,7 @@
     </bean>
 
     <bean id="aggregations" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
-        <property name="id" value=""aggregations""/>
+        <property name="id" value="aggregations"/>
         <property name="indexAlways" value="true"/>
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
