@@ -193,7 +193,7 @@
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
                                 <property name="discoveryConfigurationName" value="journalfonds"/>
                                 <property name="label" value="journalfonds"/>
-                                <property name="icon" value="fas fa-newspaper-o fa-3x"/>
+                                <property name="icon" value="fas fa-newspaper fa-3x"/>
                             </bean>
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
                                 <property name="discoveryConfigurationName" value="aggregations"/>
