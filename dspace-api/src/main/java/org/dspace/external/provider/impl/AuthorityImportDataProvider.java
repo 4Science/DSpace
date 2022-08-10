@@ -24,6 +24,7 @@ import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.CrisConstants;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.AbstractExternalDataProvider;
 import org.dspace.util.UUIDUtils;
@@ -148,7 +149,10 @@ public class AuthorityImportDataProvider extends AbstractExternalDataProvider {
                     metadataValueDTO.getQualifier() == null) {
                 title = metadataValueDTO.getValue();
             }
-            externalDataObject.addMetadata(metadataValueDTO);
+            if (StringUtils.isNotBlank(metadataValueDTO.getValue())
+                    && !metadataValueDTO.getValue().equals(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE )) {
+                externalDataObject.addMetadata(metadataValueDTO);
+            }
         }
         externalDataObject.setValue(title);
         externalDataObject.setDisplayValue(title);

@@ -10,7 +10,8 @@ package org.dspace.content;
 import java.io.ByteArrayOutputStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
@@ -22,7 +23,7 @@ import org.dspace.core.service.PluginService;
 public class CitationMetadataUpdateProcessPlugin implements AdditionalMetadataUpdateProcessPlugin {
 
     /** Logger */
-    private static Logger log = Logger.getLogger(CitationMetadataUpdateProcessPlugin.class);
+    private static Logger log = LogManager.getLogger(CitationMetadataUpdateProcessPlugin.class);
 
     private String schemaOutputMetadata;
 

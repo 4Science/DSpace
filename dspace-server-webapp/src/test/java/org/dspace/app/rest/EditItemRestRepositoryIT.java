@@ -11,8 +11,10 @@ import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static java.util.List.of;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,6 +45,7 @@ import org.dspace.eperson.Group;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 
 /**
  * Test suite for the EditItem endpoint
@@ -1229,6 +1232,195 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
             .content(getPatchContent(operations))
             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUpload() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+            .withTitle("My Item")
+            .withIssueDate("2022")
+            .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        InputStream bibtex = getClass().getResourceAsStream("bibtex-test.bib");
+        final MockMultipartFile bibtexFile = new MockMultipartFile("file", "/local/path/bibtex-test.bib",
+            "application/x-bibtex", bibtex);
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(multipart("/api/core/edititems/" + editItem.getID() + ":MODE1")
+            .file(bibtexFile))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.source'][0].value",
+                is("/local/path/bibtex-test.bib")))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.title'][0].value", is("bibtex-test.bib")));
+    }
+
+    @Test
+    public void testUploadWithOwner() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        EPerson user = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("First", "User")
+            .withEmail("user1@example.com")
+            .withPassword(password)
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+            .withTitle("My Item")
+            .withIssueDate("2022")
+            .withCrisOwner(user)
+            .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        InputStream bibtex = getClass().getResourceAsStream("bibtex-test.bib");
+        final MockMultipartFile bibtexFile = new MockMultipartFile("file", "/local/path/bibtex-test.bib",
+            "application/x-bibtex", bibtex);
+
+        String userToken = getAuthToken(user.getEmail(), password);
+        getClient(userToken).perform(multipart("/api/core/edititems/" + editItem.getID() + ":TRADITIONAL-OWNER")
+            .file(bibtexFile))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.source'][0].value",
+                is("/local/path/bibtex-test.bib")))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.title'][0].value", is("bibtex-test.bib")));
+    }
+
+    @Test
+    public void testUploadWithoutUploadableStepDefined() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+            .withTitle("My Item")
+            .withIssueDate("2022")
+            .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        InputStream bibtex = getClass().getResourceAsStream("bibtex-test.bib");
+        final MockMultipartFile bibtexFile = new MockMultipartFile("file", "/local/path/bibtex-test.bib",
+            "application/x-bibtex", bibtex);
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(multipart("/api/core/edititems/" + editItem.getID() + ":FIRST")
+            .file(bibtexFile))
+            .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    public void testForbiddenUpload() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+            .withTitle("My Item")
+            .withIssueDate("2022")
+            .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        InputStream bibtex = getClass().getResourceAsStream("bibtex-test.bib");
+        final MockMultipartFile bibtexFile = new MockMultipartFile("file", "/local/path/bibtex-test.bib",
+            "application/x-bibtex", bibtex);
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(multipart("/api/core/edititems/" + editItem.getID() + ":FIRST-OWNER")
+            .file(bibtexFile))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testFindModesById() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withName("Collection 1")
+                                           .build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withTitle("Title item A")
+                                .withIssueDate("2015-06-25")
+                                .withAuthor("Smith, Maria")
+                                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        getClient(tokenAdmin).perform(get("/api/core/edititems/search/findModesById")
+                                          .param("uuid" , editItem.getID()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded").exists())
+                             .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)))
+                             .andExpect(jsonPath("$._embedded.edititemmodes[0].id" , is("MODE1")));
+    }
+
+    @Test
+    public void testFindModesForNotExistingId() throws Exception {
+
+        String id = "bef23ba3-9aeb-4f7b-b153-77b0f1fc3612";
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        getClient(tokenAdmin).perform(get("/api/core/edititems/search/findModesById")
+                                          .param("uuid" , id))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded").doesNotExist())
+                             .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
 }

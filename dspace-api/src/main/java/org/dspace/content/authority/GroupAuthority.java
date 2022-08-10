@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -24,7 +25,7 @@ import org.dspace.util.UUIDUtils;
  * @author Mykhaylo Boychuk (4science.it)
  */
 public class GroupAuthority implements ChoiceAuthority {
-    private static final Logger log = Logger.getLogger(GroupAuthority.class);
+    private static Logger log = LogManager.getLogger(GroupAuthority.class);
 
     /**
      * the name assigned to the specific instance by the PluginService, @see

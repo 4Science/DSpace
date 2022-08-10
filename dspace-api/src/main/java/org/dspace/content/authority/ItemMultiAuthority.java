@@ -15,7 +15,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -37,7 +38,7 @@ import org.dspace.utils.DSpace;
  * @author Mykhaylo Boychuk (4Science.it)
  */
 public class ItemMultiAuthority implements LinkableEntityAuthority {
-    private static final Logger log = Logger.getLogger(ItemAuthority.class);
+    private static Logger log = LogManager.getLogger(ItemAuthority.class);
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 

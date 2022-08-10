@@ -951,4 +951,13 @@ public class DCInputsReader {
         return "group".equals(dcInput.getInputType()) || "inline-group".equals(dcInput.getInputType());
     }
 
+    public List<String> getUploadMetadataFieldsFromCollection(Collection collection) throws DCInputsReaderException {
+        return getInputsUploadByCollection(collection)
+            .stream()
+            .flatMap(dcInputSet -> Arrays.stream(dcInputSet.getFields()))
+            .flatMap(dcInputs -> Arrays.stream(dcInputs))
+            .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput).stream())
+            .collect(Collectors.toList());
+    }
+
 }

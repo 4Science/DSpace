@@ -9,7 +9,8 @@ package org.dspace.builder;
 
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBox;
@@ -22,7 +23,7 @@ import org.dspace.layout.service.CrisLayoutMetric2BoxService;
  */
 public class CrisLayoutMetric2BoxBuilder extends AbstractBuilder<CrisLayoutMetric2Box, CrisLayoutMetric2BoxService> {
 
-    private static final Logger log = Logger.getLogger(CrisLayoutMetric2BoxBuilder.class);
+    private static Logger log = LogManager.getLogger(CrisLayoutMetric2BoxBuilder.class);
 
     private CrisLayoutMetric2Box metric;
 

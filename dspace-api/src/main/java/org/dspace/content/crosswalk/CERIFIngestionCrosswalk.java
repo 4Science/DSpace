@@ -36,10 +36,10 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.MapConverters;
 import org.dspace.utils.DSpace;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.transform.JDOMResult;
-import org.jdom.transform.JDOMSource;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.transform.JDOMResult;
+import org.jdom2.transform.JDOMSource;
 
 /**
  * Implementation of {@link IngestionCrosswalk} to add metadata to the given

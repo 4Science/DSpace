@@ -15,12 +15,15 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
+import org.dspace.app.rest.exception.MethodNotAllowedException;
 import org.dspace.app.rest.exception.UnprocessableEditException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
+import org.dspace.app.rest.model.EditItemModeRest;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.model.ErrorRest;
 import org.dspace.app.rest.model.WorkspaceItemRest;
@@ -37,6 +40,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Item;
 import org.dspace.content.edit.EditItem;
+import org.dspace.content.edit.EditItemMode;
+import org.dspace.content.edit.service.EditItemModeService;
 import org.dspace.content.edit.service.EditItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -62,7 +67,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME)
 public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, String> {
 
-    private static final Logger log = Logger.getLogger(EditItemRestRepository.class);
+    private static Logger log = LogManager.getLogger(EditItemRestRepository.class);
 
     public static final String OPERATION_PATH_SECTIONS = "sections";
 
@@ -85,6 +90,9 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
 
     @Autowired
     private ValidationService validationService;
+
+    @Autowired
+    private EditItemModeService editItemModeService;
 
     public EditItemRestRepository() throws SubmissionConfigReaderException {
         submissionConfigReader = new SubmissionConfigReader();
@@ -159,30 +167,6 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
     }
 
     @Override
-    protected void delete(Context context, String data) {
-        EditItem source = null;
-        try {
-            String uuid = null;
-            String[] values = data.split(":");
-            if (values != null && values.length > 0) {
-                uuid = values[0];
-            } else {
-                throw new DSpaceBadRequestException(
-                        "Data: " + data);
-            }
-            source = eis.find(context, UUID.fromString(uuid));
-            if (!authorizeService.isAdmin(context) && !eis.getItemService().canEdit(context, source.getItem())) {
-                throw new AuthorizeException("Unauthorized attempt to edit ItemID " + source.getItem().getID());
-            }
-            context.turnOffAuthorisationSystem();
-            eis.deleteWrapper(context, source);
-        } catch (SQLException | AuthorizeException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @PreAuthorize("hasPermission(#id, 'WORKSPACEITEM', 'WRITE')")
-    @Override
     public EditItemRest upload(HttpServletRequest request, String apiCategory, String model, String data,
                                     MultipartFile file) throws SQLException {
 
@@ -222,6 +206,7 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         SubmissionConfig submissionConfig =
             submissionConfigReader.getSubmissionConfigByName(source.getMode().getSubmissionDefinition());
         context.turnOffAuthorisationSystem();
+        boolean hasUploadableStep = false;
         for (int i = 0; i < submissionConfig.getNumberOfSteps(); i++) {
             SubmissionStepConfig stepConfig = submissionConfig.getStep(i);
 
@@ -236,6 +221,7 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
 
                 Object stepInstance = stepClass.newInstance();
                 if (UploadableStep.class.isAssignableFrom(stepClass)) {
+                    hasUploadableStep = true;
                     UploadableStep uploadableStep = (UploadableStep) stepInstance;
                     ErrorRest err = uploadableStep.upload(context, submissionService, stepConfig, source, file);
                     if (err != null) {
@@ -248,6 +234,11 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
             }
 
         }
+
+        if (!hasUploadableStep) {
+            throw new MethodNotAllowedException("No uploadable step defined for the given edit item mode");
+        }
+
         context.commit();
         context.reloadEntity(source.getItem());
         eir = converter.toRest(source, utils.obtainProjection());
@@ -373,4 +364,23 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
+    @PreAuthorize("permitAll")
+    @SearchRestMethod(name = "findModesById")
+    public Page<EditItemModeRest> findModesById(@Parameter(value = "uuid", required = true) UUID id,
+                                                Pageable pageable) {
+
+        Context context = obtainContext();
+        List<EditItemMode> modes = null;
+        try {
+            modes = editItemModeService.findModes(context, id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        if (modes == null) {
+            return null;
+        }
+        return converter.toRestPage(modes, pageable, modes.size(), utils.obtainProjection());
+    }
+
 }

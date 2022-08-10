@@ -99,10 +99,10 @@ import org.dspace.validation.model.ValidationError;
 import org.dspace.validation.service.ValidationService;
 import org.dspace.workflow.WorkflowService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.output.XMLOutputter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
@@ -651,7 +651,6 @@ public class OAIHarvester {
 
     }
 
-    @SuppressWarnings("unchecked")
     private List<Element> getAllRecords(Document document) {
         if (document == null) {
             return Collections.emptyList();
@@ -793,7 +792,6 @@ public class OAIHarvester {
         return header.getAttribute("status") != null && header.getAttribute("status").getValue().equals("deleted");
     }
 
-    @SuppressWarnings("unchecked")
     private List<Element> getMetadataElements(Element record) {
         Element metadata = record.getChild("metadata", OAI_NS);
         return metadata != null ? metadata.getChildren() : Collections.emptyList();
@@ -971,7 +969,6 @@ public class OAIHarvester {
 
     }
 
-    @SuppressWarnings("unchecked")
     private Optional<Element> getOaiIdentifierElement(Element identifyElement) {
         return identifyElement.getChildren("description", OAI_NS).stream()
             .map(description -> ((Element) description).getChild("oai-identifier", OAI_IDENTIFIER_NS))
@@ -1075,7 +1072,6 @@ public class OAIHarvester {
      * @throws TransformerException         if XML transformer error
      * @throws HarvestingException          if harvesting error
      */
-    @SuppressWarnings("unchecked")
     private List<Element> getMetadataRecord(String oaiSource, String itemOaiId, String metadataPrefix)
         throws IOException, ParserConfigurationException, SAXException, TransformerException, HarvestingException {
         OAIHarvesterResponseDTO responseDTO = oaiHarvesterClient.getRecord(oaiSource, itemOaiId, metadataPrefix);

@@ -19,6 +19,7 @@ import javax.persistence.Table;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ReloadableEntity;
+import org.hibernate.annotations.Type;
 
 /**
  * 
@@ -50,6 +51,7 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
     private boolean last;
 
     @Lob
+    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
     private String remark;
 
     private Double deltaPeriod1;

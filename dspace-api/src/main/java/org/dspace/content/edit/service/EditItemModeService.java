@@ -23,7 +23,6 @@ import org.dspace.core.Context;
 public interface EditItemModeService {
 
     static final String EDITMODECONF_PREFIX = "edititem.mode.";
-    static final String ETYPE_METADATA = "dspace.entity.type";
 
     /**
      * Finds all edit mode for the given item filtered by logged user privileges
@@ -50,6 +49,17 @@ public interface EditItemModeService {
      * @throws SQLException
      */
     EditItemMode findMode(Context context, Item item, String name) throws SQLException;
+
+    /**
+     * Check if the current user can edit the given item, based on the all the
+     * configured edit modes (verifying if there is at least one edit mode enabled
+     * for him).
+     * 
+     * @param  context the DSpace context
+     * @param  item    the item
+     * @return         true if the given item is editable, false otherwise
+     */
+    boolean canEdit(Context context, Item item);
 
     public List<EditItemMode> findModes(Context context, Item item, boolean checkSecurity)
         throws SQLException, AuthorizeException;

@@ -83,6 +83,7 @@ public class LayoutSecurityServiceImplTest {
                                       mock(Context.class),
                                       ePerson(UUID.randomUUID()),
                                       emptySet(),
+                                      emptySet(),
                                       mock(Item.class));
 
         assertThat(granted, is(true));
@@ -109,6 +110,7 @@ public class LayoutSecurityServiceImplTest {
                            mock(Context.class),
                            ownerEperson,
                            emptySet(),
+                           emptySet(),
                            item);
 
         assertThat(granted, is(true));
@@ -134,6 +136,7 @@ public class LayoutSecurityServiceImplTest {
                 .hasAccess(LayoutSecurity.OWNER_ONLY,
                            mock(Context.class), userEperson,
                            emptySet(),
+                           emptySet(),
                            item);
 
         assertThat(granted, is(false));
@@ -155,7 +158,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted =
             securityService
                 .hasAccess(LayoutSecurity.OWNER_AND_ADMINISTRATOR,
-                           context, mock(EPerson.class), emptySet(),
+                           context, mock(EPerson.class), emptySet(), emptySet(),
                            item);
 
         assertThat(granted, is(true));
@@ -181,7 +184,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted =
             securityService
                 .hasAccess(LayoutSecurity.OWNER_AND_ADMINISTRATOR,
-                           context, ownerEperson, emptySet(), item);
+                           context, ownerEperson, emptySet(), emptySet(), item);
 
         assertThat(granted, is(true));
     }
@@ -206,7 +209,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted =
             securityService
                 .hasAccess(LayoutSecurity.OWNER_AND_ADMINISTRATOR,
-                           context, userEperson, emptySet(), item);
+                           context, userEperson, emptySet(), emptySet(), item);
 
         assertThat(granted, is(false));
     }
@@ -226,7 +229,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted =
             securityService
                 .hasAccess(LayoutSecurity.ADMINISTRATOR,
-                           context, mock(EPerson.class), emptySet(),
+                           context, mock(EPerson.class), emptySet(), emptySet(),
                            mock(Item.class));
 
         assertThat(granted, is(true));
@@ -245,7 +248,8 @@ public class LayoutSecurityServiceImplTest {
         when(authorizeService.isAdmin(context)).thenReturn(false);
 
         boolean granted = securityService.hasAccess(LayoutSecurity.ADMINISTRATOR,
-                                                    context, mock(EPerson.class), emptySet(), mock(Item.class));
+                                                    context, mock(EPerson.class), emptySet(),
+                                                    emptySet(), mock(Item.class));
 
         assertThat(granted, is(false));
     }
@@ -281,7 +285,7 @@ public class LayoutSecurityServiceImplTest {
 
         boolean granted =
             securityService.hasAccess(LayoutSecurity.CUSTOM_DATA, mock(Context.class), ePerson(userUuid),
-                Set.of(securityMetadataField), item);
+                Set.of(securityMetadataField), emptySet(), item);
 
         assertThat(granted, is(true));
     }
@@ -310,7 +314,7 @@ public class LayoutSecurityServiceImplTest {
 
         boolean granted =
             securityService.hasAccess(LayoutSecurity.CUSTOM_DATA, mock(Context.class), ePerson(userUuid),
-                                      securityMetadataFieldSet, item);
+                                      securityMetadataFieldSet, emptySet(), item);
 
         assertThat(granted, is(false));
     }
@@ -339,9 +343,69 @@ public class LayoutSecurityServiceImplTest {
 
         boolean granted =
             securityService.hasAccess(LayoutSecurity.CUSTOM_DATA, mock(Context.class), ePerson(userUuid),
-                Set.of(securityMetadataField), item);
+                Set.of(securityMetadataField), emptySet(), item);
 
         assertThat(granted, is(false));
+    }
+
+    @Test
+    public void customSecurityTestWithGroupNoAccess() throws SQLException {
+        UUID userUuid = UUID.randomUUID();
+        Item item = mock(Item.class);
+        Context context = mock(Context.class);
+
+        boolean granted = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA, context, ePerson(userUuid),
+                                      emptySet(), emptySet(), item);
+
+        assertThat(granted, is(false));
+    }
+
+    @Test
+    public void customSecurityTestWithGroupAccess() throws SQLException {
+        UUID userUuid = UUID.randomUUID();
+        Item item = mock(Item.class);
+        Context context = mock(Context.class);
+        Group group = mock(Group.class);
+
+        when(groupService.isMember(context, group)).thenReturn(true);
+        Set<Group> groupSet = new HashSet<>();
+        groupSet.add(group);
+
+        boolean granted = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA, context, ePerson(userUuid),
+                                                    emptySet(), groupSet, item);
+
+        assertThat(granted, is(true));
+    }
+
+    @Test
+    public void customAdminSecurityTestWithGroupNoAccess() throws SQLException {
+        UUID userUuid = UUID.randomUUID();
+        Item item = mock(Item.class);
+        Context context = mock(Context.class);
+
+        boolean granted = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA_AND_ADMINISTRATOR,
+                                                    context, ePerson(userUuid),
+                                                    emptySet(), emptySet(), item);
+
+        assertThat(granted, is(false));
+    }
+
+    @Test
+    public void customAdminSecurityTestWithGroupAccess() throws SQLException {
+        UUID userUuid = UUID.randomUUID();
+        Item item = mock(Item.class);
+        Context context = mock(Context.class);
+        Group group = mock(Group.class);
+
+        when(groupService.isMember(context, group)).thenReturn(true);
+        Set<Group> groupSet = new HashSet<>();
+        groupSet.add(group);
+
+        boolean granted = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA_AND_ADMINISTRATOR,
+                                                    context, ePerson(userUuid),
+                                                    emptySet(), groupSet, item);
+
+        assertThat(granted, is(true));
     }
 
 
@@ -389,6 +453,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA,
                                                     context, user,
                                                     securityMetadataFieldSet,
+                                                    emptySet(),
                                                     item);
 
         assertThat(granted, is(true));
@@ -427,7 +492,7 @@ public class LayoutSecurityServiceImplTest {
         boolean granted = securityService.hasAccess(
             LayoutSecurity.CUSTOM_DATA,
             context, user,
-            securityMetadataFieldSet, item);
+            securityMetadataFieldSet, emptySet(), item);
 
         assertThat(granted, is(false));
     }
@@ -457,16 +522,19 @@ public class LayoutSecurityServiceImplTest {
             .thenReturn(metadataValueList);
 
         final boolean publicAccess = securityService.hasAccess(LayoutSecurity.PUBLIC,
-                                                                   context, user, securityMetadataFieldSet, item);
+                                                               context, user, securityMetadataFieldSet,
+                                                               emptySet(), item);
 
         final boolean customDataAccess = securityService.hasAccess(LayoutSecurity.CUSTOM_DATA,
-                                                    context, user, securityMetadataFieldSet, item);
+                                                    context, user, securityMetadataFieldSet, emptySet(), item);
 
         final boolean adminAccess = securityService.hasAccess(LayoutSecurity.ADMINISTRATOR,
-                                                              context, user, securityMetadataFieldSet, item);
+                                                              context, user, securityMetadataFieldSet,
+                                                              emptySet(), item);
 
         final boolean adminOwnerAccess = securityService.hasAccess(LayoutSecurity.OWNER_AND_ADMINISTRATOR,
-                                                                   context, user, securityMetadataFieldSet, item);
+                                                                   context, user, securityMetadataFieldSet,
+                                                                   emptySet(), item);
 
         assertThat(publicAccess, is(true));
         assertThat(customDataAccess, is(false));

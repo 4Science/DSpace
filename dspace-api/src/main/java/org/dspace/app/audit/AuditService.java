@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -63,7 +63,7 @@ public class AuditService {
     @Autowired
     private ConfigurationService configurationService;
 
-    private Logger log = LogManager.getLogger(AuditService.class);
+    private static Logger log = LogManager.getLogger(AuditService.class);
 
     protected SolrClient solr = null;
 

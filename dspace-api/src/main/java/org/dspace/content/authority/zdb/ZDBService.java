@@ -25,7 +25,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.XMLUtils;
 import org.dspace.authority.AuthorityValue;
 import org.dspace.services.ConfigurationService;
@@ -40,7 +41,7 @@ import org.xml.sax.SAXException;
  */
 public class ZDBService {
 
-    private static Logger log = Logger.getLogger(ZDBService.class);
+    private static Logger log = LogManager.getLogger(ZDBService.class);
 
     @Autowired
     private ConfigurationService configurationService;

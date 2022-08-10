@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.eperson.Group;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
@@ -82,6 +83,15 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
     @JoinTable(name = "cris_layout_tab2securitymetadata", joinColumns = {
         @JoinColumn(name = "tab_id") }, inverseJoinColumns = { @JoinColumn(name = "metadata_field_id") })
     private Set<MetadataField> metadataSecurityFields = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "cris_layout_tab2securitygroup",
+        joinColumns = {@JoinColumn(name = "tab_id")},
+        inverseJoinColumns = {@JoinColumn(name = "group_id")}
+    )
+    private Set<Group> groupSecurityFields = new HashSet<>();
+
 
     @Column(name = "is_leading")
     private Boolean leading;
@@ -207,6 +217,22 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
             .flatMap(row -> row.getCells().stream())
             .flatMap(cell -> cell.getBoxes().stream())
             .collect(Collectors.toList());
+    }
+
+    public void setGroupSecurityFields(Set<Group> groupSecurityFields) {
+        this.groupSecurityFields = groupSecurityFields;
+    }
+
+    public void addGroupSecurityFields(Set<Group> groupSecurityFields) {
+        this.groupSecurityFields.addAll(groupSecurityFields);
+    }
+
+    public void addGroupSecurityFields(Group group) {
+        this.groupSecurityFields.add(group);
+    }
+
+    public Set<Group> getGroupSecurityFields() {
+        return groupSecurityFields;
     }
 
     @Override

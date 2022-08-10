@@ -16,8 +16,8 @@ import javax.xml.transform.TransformerException;
 import ORG.oclc.oai.harvester2.verb.HarvesterVerb;
 import ORG.oclc.oai.harvester2.verb.ListRecords;
 import org.dspace.harvest.HarvestingException;
-import org.jdom.Document;
-import org.jdom.input.DOMBuilder;
+import org.jdom2.Document;
+import org.jdom2.input.DOMBuilder;
 import org.w3c.dom.NodeList;
 
 /**

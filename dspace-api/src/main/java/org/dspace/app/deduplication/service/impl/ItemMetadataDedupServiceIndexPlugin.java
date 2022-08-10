@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.deduplication.service.SolrDedupServiceIndexPlugin;
 import org.dspace.content.EntityType;
@@ -31,7 +32,7 @@ import org.dspace.core.Context;
  */
 public class ItemMetadataDedupServiceIndexPlugin implements SolrDedupServiceIndexPlugin {
 
-    private static final Logger log = Logger.getLogger(ItemMetadataDedupServiceIndexPlugin.class);
+    private static Logger log = LogManager.getLogger(ItemMetadataDedupServiceIndexPlugin.class);
 
     private List<String> metadata;
 

@@ -14,13 +14,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.jaxen.JaxenException;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 
 public class SimpleXpathDateFormatMetadataContributor extends SimpleXpathMetadatumContributor {
@@ -38,32 +35,15 @@ public class SimpleXpathDateFormatMetadataContributor extends SimpleXpathMetadat
     }
 
     @Override
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element el) {
         List<MetadatumDTO> values = new LinkedList<>();
-        try {
-            AXIOMXPath xpath = new AXIOMXPath(query);
-            for (String ns : prefixToNamespaceMapping.keySet()) {
-                xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            List<Element> nodes = el.getChildren(query, Namespace.getNamespace(ns));
+            for (Element element : nodes) {
+                values.add(getMetadatum(field, element.getValue()));
             }
-            List<Object> nodes = xpath.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    values.add(getMetadatum(field, ((OMElement) el).getText()));
-                } else if (el instanceof OMAttribute) {
-                    values.add(getMetadatum(field, ((OMAttribute) el).getAttributeValue()));
-                } else if (el instanceof String) {
-                    values.add(getMetadatum(field, (String) el));
-                } else if (el instanceof OMText) {
-                    values.add(metadataFieldMapping.toDCValue(field, ((OMText) el).getText()));
-                } else {
-                    System.err.println("node of type: " + el.getClass());
-                }
-            }
-            return values;
-        } catch (JaxenException e) {
-            System.err.println(query);
-            throw new RuntimeException(e);
         }
+        return values;
     }
 
     private MetadatumDTO getMetadatum(MetadataFieldConfig field, String value) {

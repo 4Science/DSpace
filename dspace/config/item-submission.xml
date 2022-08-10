@@ -123,6 +123,12 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="correction" mandatory="true">
+      <heading>submit.progressbar.correction-step</heading>
+      <processing-class>org.dspace.app.rest.submit.step.CorrectionStep</processing-class>
+      <type>correction</type>
+      <scope visibilityOutside="hidden">workflow</scope>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_materials">

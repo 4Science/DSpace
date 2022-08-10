@@ -7,6 +7,8 @@
  */
 package org.dspace.app.util;
 
+import static org.dspace.content.Item.ANY;
+
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -195,6 +197,23 @@ public class SubmissionConfigReader {
 
     public int countSubmissionConfigs() {
         return submitDefns.size();
+    }
+
+
+    public SubmissionConfig getCorrectionSubmissionConfigByCollection(Collection collection) {
+        CollectionService collService = ContentServiceFactory.getInstance().getCollectionService();
+
+        String submitName = collService.getMetadataFirstValue(collection,
+            "cris", "submission", "definition-correction", ANY);
+
+        if (submitName != null) {
+            SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
+            if (subConfig != null) {
+                return subConfig;
+            }
+        }
+
+        return getSubmissionConfigByCollection(collection);
     }
 
     /**

@@ -99,7 +99,12 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         }
         EPerson user = context.getCurrentUser();
         RestDSpaceRunnableHandler restDSpaceRunnableHandler = new RestDSpaceRunnableHandler(
-            user, scriptToExecute.getName(), dSpaceCommandLineParameters, context.getSpecialGroups());
+            user,
+            scriptToExecute.getName(),
+            dSpaceCommandLineParameters,
+            context.getSpecialGroups(),
+            context.getCurrentLocale()
+        );
         List<String> args = constructArgs(dSpaceCommandLineParameters);
         runDSpaceScript(files, context, user, scriptToExecute, restDSpaceRunnableHandler, args);
         return converter.toRest(restDSpaceRunnableHandler.getProcess(context), utils.obtainProjection());
@@ -137,8 +142,10 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         DSpaceRunnable dSpaceRunnable = scriptService.createDSpaceRunnableForScriptConfiguration(scriptToExecute);
         try {
             dSpaceRunnable.initialize(args.toArray(new String[0]), restDSpaceRunnableHandler, user);
-            checkFileNames(dSpaceRunnable, files);
-            processFiles(context, restDSpaceRunnableHandler, files);
+            if (files != null && !files.isEmpty()) {
+                checkFileNames(dSpaceRunnable, files);
+                processFiles(context, restDSpaceRunnableHandler, files);
+            }
             restDSpaceRunnableHandler.schedule(dSpaceRunnable);
         } catch (ParseException e) {
             dSpaceRunnable.printHelp();

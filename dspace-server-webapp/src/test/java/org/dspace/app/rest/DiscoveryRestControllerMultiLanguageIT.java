@@ -287,6 +287,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
                    .header("Accept-Language", Locale.ITALIAN.getLanguage())
+                   .param("configuration", "multilanguage-types")
                    .param("prefix", "matem"))
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$.name", is("types")))
@@ -297,6 +298,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
                    .header("Accept-Language", "uk")
+                   .param("configuration", "multilanguage-types")
                    .param("prefix", "мат"))
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$.name", is("types")))
@@ -337,6 +339,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", Locale.ITALIAN.getLanguage())
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -347,6 +350,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", "uk")
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -386,6 +390,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", Locale.ITALIAN.getLanguage())
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -396,6 +401,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", "uk")
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -435,6 +441,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", Locale.ITALIAN.getLanguage())
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -445,6 +452,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", "uk")
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -484,6 +492,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", Locale.ITALIAN.getLanguage())
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))
@@ -494,6 +503,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/types")
             .header("Accept-Language", "uk")
+            .param("configuration", "multilanguage-types")
             .param("prefix", "research"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("types")))

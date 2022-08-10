@@ -73,14 +73,6 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
 
         if (BooleanUtils.toBoolean(exact)) {
             choices = ca.getBestMatch(filter, context.getCurrentLocale().toString());
-            if (choices.values.length == 0) {
-                Choice choice = ca.getChoice(filter, context.getCurrentLocale().toString());
-                if (choice != null) {
-                    choices = new Choices(new Choice[] {choice}, 0, 1, Choices.CF_ACCEPTED, false);
-                } else {
-                    choices = new Choices(false);
-                }
-            }
         } else if (StringUtils.isNotBlank(entryID)) {
             Choice choice = ca.getChoice(entryID,
                     context.getCurrentLocale().toString());

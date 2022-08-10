@@ -25,6 +25,7 @@ import javax.persistence.TemporalType;
 
 import org.dspace.content.Item;
 import org.dspace.core.ReloadableEntity;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "orcid_history")
@@ -54,6 +55,7 @@ public class OrcidHistory implements ReloadableEntity<Integer> {
 
     @Lob
     @Column(name = "metadata")
+    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
     private String metadata;
 
     @Enumerated(EnumType.STRING)
@@ -62,6 +64,7 @@ public class OrcidHistory implements ReloadableEntity<Integer> {
 
     @Lob
     @Column(name = "response_message")
+    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
     private String responseMessage;
 
     @Temporal(TemporalType.TIMESTAMP)

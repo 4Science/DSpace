@@ -253,7 +253,8 @@ public class GenerateSitemaps {
             Optional<String> customUrl = customUrlService.getCustomUrl(i);
             if (customUrl.isPresent()) {
 
-                String url = uiURLStem + "/entities/" + itemService.getEntityType(i) + "/" + customUrl.get();
+                String url = uiURLStem + "/entities/" + StringUtils.lowerCase(itemService.getEntityType(i))
+                    + "/" + customUrl.get();
 
                 if (makeHTMLMap) {
                     html.addURL(url, null);

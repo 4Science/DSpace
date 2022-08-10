@@ -109,7 +109,7 @@ public class CollectionExportIT extends AbstractIntegrationTestWithDatabase {
         try (FileInputStream fis = new FileInputStream(file)) {
 
             Workbook workbook = WorkbookFactory.create(fis);
-            assertThat(workbook.getNumberOfSheets(), equalTo(1));
+            assertThat(workbook.getNumberOfSheets(), equalTo(2));
 
             Sheet sheet = workbook.getSheetAt(0);
             assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));

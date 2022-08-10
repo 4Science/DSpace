@@ -18,7 +18,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -53,8 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DedupUtils {
 
-    /** log4j logger */
-    private static Logger log = Logger.getLogger(DedupUtils.class);
+    private static Logger log = LogManager.getLogger(DedupUtils.class);
 
     private DedupService dedupService;
 

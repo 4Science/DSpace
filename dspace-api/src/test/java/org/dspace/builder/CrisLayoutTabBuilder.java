@@ -13,7 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
@@ -28,7 +29,7 @@ import org.dspace.layout.service.CrisLayoutTabService;
 
 public class CrisLayoutTabBuilder extends AbstractBuilder<CrisLayoutTab, CrisLayoutTabService> {
 
-    private static final Logger log = Logger.getLogger(CrisLayoutTabBuilder.class);
+    private static Logger log = LogManager.getLogger(CrisLayoutTabBuilder.class);
 
     private CrisLayoutTab tab;
 

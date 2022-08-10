@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -50,7 +51,7 @@ import org.dspace.utils.DSpace;
  * @version $Revision $
  */
 public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
-    private static final Logger log = Logger.getLogger(ItemAuthority.class);
+    private static Logger log = LogManager.getLogger(ItemAuthority.class);
     final static String CHOICES_EXTERNALSOURCE_PREFIX = "choises.externalsource.";
 
     /** the name assigned to the specific instance by the PluginService, @see {@link NameAwarePlugin} **/

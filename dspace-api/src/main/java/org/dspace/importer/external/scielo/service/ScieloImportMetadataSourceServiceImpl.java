@@ -34,7 +34,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -53,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ScieloImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Map<String,List<String>>>
                                                    implements QuerySource {
 
-    private static final Logger log = Logger.getLogger(ScieloImportMetadataSourceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(ScieloImportMetadataSourceServiceImpl.class);
 
     private static final String ENDPOINT_SEARCH_SCIELO = "https://search.scielo.org/?output=ris&q=";
 

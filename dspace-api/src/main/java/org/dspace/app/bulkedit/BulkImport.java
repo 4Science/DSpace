@@ -14,14 +14,17 @@ import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.dspace.util.WorkbookUtils.getCellValue;
+import static org.dspace.util.WorkbookUtils.getRows;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -36,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -45,6 +47,8 @@ import org.dspace.app.bulkimport.exception.BulkImportException;
 import org.dspace.app.bulkimport.model.EntityRow;
 import org.dspace.app.bulkimport.model.ImportAction;
 import org.dspace.app.bulkimport.model.MetadataGroup;
+import org.dspace.app.bulkimport.model.UploadDetails;
+import org.dspace.app.bulkimport.util.BulkImportFileUtil;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.authority.service.ItemSearchService;
@@ -52,6 +56,8 @@ import org.dspace.authority.service.ItemSearcherMapper;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
@@ -59,6 +65,9 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.packager.PackageUtils;
+import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.BundleService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
@@ -117,6 +126,13 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private static final String ACTION_CELL = "ACTION";
 
+    private static final String BITSTREAM_METADATA = "bitstream-metadata";
+
+    private static final int FILE_PATH_INDEX = 1;
+
+    private static final String FILE_PATH_CELL = "FILE-PATH";
+
+    private static final String ORIGINAL_BUNDLE = "ORIGINAL";
 
     private CollectionService collectionService;
 
@@ -152,6 +168,11 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private Context context;
 
+    private BulkImportFileUtil bulkImportFileUtil;
+
+    private BundleService bundleService;
+
+    private BitstreamService bitstreamService;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -170,6 +191,9 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         this.workflowItemService = WorkflowServiceFactory.getInstance().getWorkflowItemService();
         this.bulkImportTransformerService = new DSpace().getServiceManager().getServiceByName(
                BulkImportTransformerService.class.getName(), BulkImportTransformerService.class);
+        this.bulkImportFileUtil = new BulkImportFileUtil(this.handler);
+        this.bundleService = ContentServiceFactory.getInstance().getBundleService();
+        this.bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
 
         try {
             this.reader = new DCInputsReader();
@@ -226,7 +250,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     private Workbook createWorkbook(InputStream is) {
         try {
             return WorkbookFactory.create(is);
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (EncryptedDocumentException | IOException e) {
             throw new BulkImportException("An error occurs during the workbook creation", e);
         }
     }
@@ -241,6 +265,11 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         for (Sheet sheet : workbook) {
             String name = sheet.getSheetName();
 
+            if (isEntityUploadSheet(sheet)) {
+                validateUploadSheet(sheet);
+                continue;
+            }
+
             if (WorkbookUtils.isSheetEmpty(sheet)) {
                 throw new BulkImportException("The sheet " + name + " of the Workbook is empty");
             }
@@ -254,6 +283,57 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             }
 
             validateHeaders(sheet);
+        }
+    }
+
+    private void validateUploadSheet(Sheet sheet) {
+        String sheetName = sheet.getSheetName();
+        List<String> headers = WorkbookUtils.getAllHeaders(sheet);
+
+        if (headers.size() < 2) {
+            throw new BulkImportException("At least the parent ID and file path are required for the upload sheet.");
+        }
+
+        String id = headers.get(ID_CELL_INDEX);
+        if (!PARENT_ID_CELL.equals(id)) {
+            throw new BulkImportException("Wrong " + PARENT_ID_CELL + " header on sheet " + sheetName + ": " + id);
+        }
+
+        String filePath = headers.get(FILE_PATH_INDEX);
+        if (!FILE_PATH_CELL.equals(filePath)) {
+            throw new BulkImportException("Wrong " + FILE_PATH_CELL + " header on sheet " + sheetName + ": " + id);
+        }
+
+        List<String> invalidMetadataMessages = new ArrayList<>();
+
+        try {
+            List<String> uploadMetadata = this.reader.getUploadMetadataFieldsFromCollection(getCollection());
+            List<String> metadataFields = headers.subList(3, headers.size()); // Upload sheet metadata starts at index 3
+
+            for (String metadataField : metadataFields) {
+                String metadata = getMetadataField(metadataField);
+
+                if (StringUtils.isBlank(metadata)) {
+                    invalidMetadataMessages.add("Empty metadata");
+                    continue;
+                }
+
+                if (!uploadMetadata.contains(metadata)) {
+                    invalidMetadataMessages.add(metadata + " is not valid for the given collection");
+                    continue;
+                }
+
+                if (metadataFieldService.findByString(context, metadata, '.') == null) {
+                    invalidMetadataMessages.add(metadata + " not found");
+                }
+            }
+        } catch (Exception e) {
+            handler.logError(ExceptionUtils.getRootCauseMessage(e));
+        }
+
+        if (CollectionUtils.isNotEmpty(invalidMetadataMessages)) {
+            throw new BulkImportException("The following metadata fields of the sheet named '" + sheetName
+                                              + "' are invalid:" + invalidMetadataMessages);
         }
     }
 
@@ -362,14 +442,43 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         handler.logInfo("Start reading all the metadata group rows");
         List<MetadataGroup> metadataGroups = getValidMetadataGroups(metadataGroupSheets);
+        List<UploadDetails> uploadDetails = getUploadDetails(workbook);
         handler.logInfo("Found " + metadataGroups.size() + " metadata groups to process");
 
         return WorkbookUtils.getRows(entityRowSheet)
             .filter(WorkbookUtils::isNotFirstRow)
             .filter(WorkbookUtils::isNotEmptyRow)
             .filter(this::isEntityRowRowValid)
-            .map(row -> buildEntityRow(row, headers, metadataGroups))
+            .map(row -> buildEntityRow(row, headers, metadataGroups, uploadDetails))
             .collect(Collectors.toList());
+    }
+
+    private List<UploadDetails> getUploadDetails(Workbook workbook) {
+        Sheet uploadSheet = workbook.getSheet(BITSTREAM_METADATA);
+
+        if (uploadSheet == null) {
+            return Collections.emptyList();
+        }
+
+        final List<MetadataGroup> metadataGroups = getValidMetadataGroup(uploadSheet, false)
+            .collect(Collectors.toList());
+
+        return getRows(uploadSheet)
+            .filter(WorkbookUtils::isNotFirstRow)
+            .filter(WorkbookUtils::isNotEmptyRow)
+            .filter(this::isUploadRowValid)
+            .map(row -> buildUploadDetails(row, metadataGroups))
+            .collect(Collectors.toList());
+    }
+
+    private boolean isUploadRowValid(Row row) {
+        return !(StringUtils.isEmpty(getCellValue(row.getCell(0))) ||
+        StringUtils.isEmpty(getCellValue(row.getCell(1))));
+    }
+
+    private UploadDetails buildUploadDetails(Row row, List<MetadataGroup> metadataGroups) {
+        return new UploadDetails(getCellValue(row.getCell(0)), getCellValue(row.getCell(1)),
+                                 getCellValue(row.getCell(2)), metadataGroups.get(row.getRowNum() - 1));
     }
 
     private List<Sheet> getAllMetadataGroupSheets(Workbook workbook) {
@@ -396,12 +505,25 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
      * @return a stream of MetadataGroup
      */
     private Stream<MetadataGroup> getValidMetadataGroups(Sheet metadataGroupSheet) {
+        return getValidMetadataGroup(metadataGroupSheet, true);
+    }
+
+    private Stream<MetadataGroup> getValidMetadataGroup(Sheet metadataGroupSheet,
+                                                        boolean filterUploadMtdGroup) {
         Map<String, Integer> headers = getHeaderMap(metadataGroupSheet);
-        return WorkbookUtils.getRows(metadataGroupSheet)
+
+        Stream<MetadataGroup> metadataGroupStream = WorkbookUtils.getRows(metadataGroupSheet)
             .filter(WorkbookUtils::isNotFirstRow)
             .filter(WorkbookUtils::isNotEmptyRow)
             .filter(this::isMetadataGroupRowValid)
             .map(row -> buildMetadataGroup(row, headers));
+
+        if (filterUploadMtdGroup) {
+            return metadataGroupStream
+                .filter(metadataGroup -> !isUploadMetadataGroup(metadataGroup.getName()));
+        }
+
+        return metadataGroupStream;
     }
 
     private Map<String, Integer> getHeaderMap(Sheet sheet) {
@@ -423,12 +545,15 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         return new MetadataGroup(parentId, row.getSheet().getSheetName(), metadata);
     }
 
-    private EntityRow buildEntityRow(Row row, Map<String, Integer> headers, List<MetadataGroup> metadataGroups) {
+    private EntityRow buildEntityRow(Row row, Map<String, Integer> headers, List<MetadataGroup> metadataGroups,
+                                     List<UploadDetails> uploadDetails) {
         String id = getIdFromRow(row);
         String action = getActionFromRow(row);
         MultiValuedMap<String, MetadataValueVO> metadata = getMetadataFromRow(row, headers);
         List<MetadataGroup> ownMetadataGroup = getOwnMetadataGroups(row, metadataGroups);
-        return new EntityRow(id, action, row.getRowNum(), metadata, ownMetadataGroup);
+        List<UploadDetails> ownUploadDetails = getOwnUploadDetails(row, uploadDetails);
+
+        return new EntityRow(id, action, row.getRowNum(), metadata, ownMetadataGroup, ownUploadDetails);
     }
 
     private void performImport(List<EntityRow> entityRows) {
@@ -483,7 +608,11 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         WorkspaceItem workspaceItem = workspaceItemService.create(context, getCollection(), false);
 
         Item item = workspaceItem.getItem();
+
+        PackageUtils.addDepositLicense(context, null, item, workspaceItem.getCollection());
+
         addMetadata(item, entityRow, false);
+        addUploadsToItem(item, entityRow);
 
         String itemId = item.getID().toString();
         int row = entityRow.getRow();
@@ -504,6 +633,89 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         return item;
 
+    }
+
+    private void addUploadsToItem(Item item, EntityRow entityRow) {
+        boolean hasFilesForUpload = entityRow.getUploadDetails().size() != 0;
+        if (hasFilesForUpload) {
+            List<UploadDetails> uploadDetails = entityRow.getUploadDetails();
+            uploadDetails.forEach(u -> {
+                Optional<Bundle> optionalBundle = getBundleOfUpload(item, u);
+                Optional<InputStream> optionalInputStream = bulkImportFileUtil.getInputStream(u.getFilePath());
+                if (optionalBundle.isPresent() && optionalInputStream.isPresent()) {
+                    Optional<Bitstream> bitstream =
+                        createBitstream(optionalBundle.get(), optionalInputStream.get());
+                    bitstream.ifPresent(value -> addMetadataToBitstream(value, u.getMetadataGroup()));
+                } else {
+                    handler.logError("Cannot create bundle or input stream for " +
+                                         "bundle: " + u.getBundleName() + " with path: " + u.getFilePath() +
+                                         " and parent id: " + u.getParentId());
+                }
+            });
+        }
+    }
+
+    private void addMetadataToBitstream(Bitstream bitstream, MetadataGroup metadataGroup) {
+        for (Map.Entry<String, MetadataValueVO> entry : metadataGroup.getMetadata().entries()) {
+            Optional<MetadataField> metadataField = getMetadataFieldByString(entry.getKey());
+            metadataField.ifPresent(field -> addMetadataToBitstream(bitstream, field, entry.getValue()));
+        }
+    }
+
+    private Optional<MetadataField> getMetadataFieldByString(String metadata) {
+        try {
+            return Optional.of(metadataFieldService.findByString(context, metadata, '.'));
+        } catch (Exception e) {
+            handler.logError(e.getMessage());
+        }
+
+        return Optional.ofNullable(null);
+    }
+
+    private void addMetadataToBitstream(Bitstream bitstream, MetadataField metadataField, MetadataValueVO metadata) {
+        try {
+            bitstreamService.addMetadata(context, bitstream, metadataField, "", metadata.getValue(),
+                                         metadata.getAuthority(), metadata.getConfidence());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Optional<Bundle> getBundleOfUpload(Item item, UploadDetails uploadDetails) {
+        String bundleName = uploadDetails.getBundleName();
+        // If Bundle is not specified
+        if (StringUtils.isEmpty(bundleName)) {
+            return createBundle(item, ORIGINAL_BUNDLE);
+        } else {
+            // If item already has the bundle specified
+            if (item.getBundles(bundleName).size() > 0) {
+                return Optional.of(item.getBundles(bundleName).get(0));
+            } else {
+                // Create new bundle as specified in file
+                return createBundle(item, bundleName);
+            }
+        }
+    }
+
+    private Optional<Bundle> createBundle(Item item, String bundleName) {
+        try {
+            return Optional.of(bundleService.create(context, item, bundleName));
+        } catch (Exception e) {
+            handler.logError("Cannot create bundle: [" + bundleName + "]" +
+                                 "\n" + e.getMessage());
+        }
+
+        return Optional.ofNullable(null);
+    }
+
+    private Optional<Bitstream> createBitstream(Bundle bundle, InputStream inputStream) {
+        try {
+            return Optional.of(bitstreamService.create(context, bundle, inputStream));
+        } catch (Exception e) {
+            handler.logError("Cannot create bitstream.\n" + e.getMessage());
+        }
+
+        return Optional.ofNullable(null);
     }
 
     private void installItem(EntityRow entityRow, InProgressSubmission<?> inProgressItem)
@@ -556,6 +768,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         }
 
         addMetadata(item, entityRow, true);
+        addUploadsToItem(item, entityRow);
 
         handler.logInfo("Row " + entityRow.getRow() + " - Item updated successfully - ID: " + item.getID());
 
@@ -764,6 +977,12 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     }
 
     private int getFirstMetadataIndex(Sheet sheet) {
+        String sheetName = sheet.getSheetName();
+
+        if (BITSTREAM_METADATA.equalsIgnoreCase(sheetName)) {
+            return 3; // In Bitstream sheet metadata row starts at third index
+        }
+
         return isEntityRowSheet(sheet) ? 2 : 1;
     }
 
@@ -772,6 +991,14 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         int rowIndex = row.getRowNum() + 1;
         return metadataGroups.stream()
             .filter(g -> g.getParentId().equals(id) || g.getParentId().equals(ROW_ID + ID_SEPARATOR + rowIndex))
+            .collect(Collectors.toList());
+    }
+
+    private List<UploadDetails> getOwnUploadDetails(Row row, List<UploadDetails> uploadDetails) {
+        String id = getIdFromRow(row);
+        int rowIndex = row.getRowNum();
+        return uploadDetails.stream()
+            .filter(ud -> ud.getParentId().equals(id) || ud.getParentId().equals(ROW_ID + ID_SEPARATOR + rowIndex))
             .collect(Collectors.toList());
     }
 
@@ -952,4 +1179,11 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         return new DSpace().getServiceManager().getServiceByName("bulk-import", BulkImportScriptConfiguration.class);
     }
 
+    public boolean isEntityUploadSheet(Sheet sheet) {
+        return sheet.getSheetName().equalsIgnoreCase(BITSTREAM_METADATA);
+    }
+
+    public boolean isUploadMetadataGroup(String metadataGroupName) {
+        return BITSTREAM_METADATA.equalsIgnoreCase(metadataGroupName);
+    }
 }

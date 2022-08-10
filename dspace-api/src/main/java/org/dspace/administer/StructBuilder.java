@@ -56,9 +56,9 @@ import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -315,7 +315,7 @@ public class StructBuilder {
         }
 
         // finally write the string into the output file.
-        final org.jdom.Document xmlOutput = new org.jdom.Document(root);
+        final org.jdom2.Document xmlOutput = new org.jdom2.Document(root);
         try {
             new XMLOutputter().output(xmlOutput, output);
         } catch (IOException e) {
@@ -441,7 +441,7 @@ public class StructBuilder {
         }
 
         // Now write the structure out.
-        org.jdom.Document xmlOutput = new org.jdom.Document(rootElement);
+        org.jdom2.Document xmlOutput = new org.jdom2.Document(rootElement);
         try {
             XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
             outputter.output(xmlOutput, output);

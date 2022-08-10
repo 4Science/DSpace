@@ -36,6 +36,7 @@ public class CrisLayoutTabAccessServiceImpl implements CrisLayoutTabAccessServic
                                                context,
                                                user,
                                                tab.getMetadataSecurityFields(),
+                                               tab.getGroupSecurityFields(),
                                                item);
     }
 }

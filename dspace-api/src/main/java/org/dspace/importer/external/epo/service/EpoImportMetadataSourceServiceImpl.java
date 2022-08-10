@@ -11,25 +11,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.OMXMLParserWrapper;
-import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +39,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
@@ -55,6 +51,16 @@ import org.dspace.importer.external.metadatamapping.contributor.EpoIdMetadataCon
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.components.QuerySource;
 import org.jaxen.JaxenException;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.Text;
+import org.jdom2.filter.Filters;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 
 /**
@@ -63,7 +69,7 @@ import org.jaxen.JaxenException;
  * @author Pasquale Cavallo (pasquale.cavallo at 4Science dot it)
  *
  */
-public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<OMElement>
+public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
     implements QuerySource {
 
     private String consumerKey;
@@ -71,7 +77,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     private MetadataFieldConfig dateFiled;
     private MetadataFieldConfig applicationNumber;
 
-    private static final Logger log = Logger.getLogger(EpoImportMetadataSourceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(EpoImportMetadataSourceServiceImpl.class);
 
     private static final String endPointAuthService =
             "https://ops.epo.org/3.2/auth/accesstoken";
@@ -390,18 +396,21 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             InputStream is = httpResponse.getEntity().getContent();
             String response = IOUtils.toString(is, Charsets.UTF_8);
             log.debug(response);
-            Map<String, String> epoNamespaces = new HashMap<>();
-            epoNamespaces.put("xlink", "http://www.w3.org/1999/xlink");
-            epoNamespaces.put("ops", "http://ops.epo.org");
-            epoNamespaces.put("ns", "http://www.epo.org/exchange");
-            OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(response));
-            OMElement element = records.getDocumentElement();
-            String totalRes = getElement(element, epoNamespaces, "//ops:biblio-search/@total-result-count");
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(response));
+            Element root = document.getRootElement();
+
+            List<Namespace> namespaces = Arrays.asList(
+                Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
+                Namespace.getNamespace("ops", "http://ops.epo.org"),
+                Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+
+            String totalRes = getElement(root, namespaces, "//ops:biblio-search/@total-result-count");
             return Integer.parseInt(totalRes);
-        } catch (Exception e) {
+        } catch (JDOMException | IOException | URISyntaxException | JaxenException e) {
             log.error(e.getMessage(), e);
+            return null;
         }
-        return null;
     }
     private List<EpoDocumentId> searchDocumentIds(String bearer, String query, int start, int count) {
         List<EpoDocumentId> results = new ArrayList<EpoDocumentId>();
@@ -427,17 +436,20 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             InputStream is = httpResponse.getEntity().getContent();
             String response = IOUtils.toString(is, Charsets.UTF_8);
             log.debug(response);
-            Map<String, String> epoNamespaces = new HashMap<>();
-            epoNamespaces.put("xlink", "http://www.w3.org/1999/xlink");
-            epoNamespaces.put("ops", "http://ops.epo.org");
-            epoNamespaces.put("ns", "http://www.epo.org/exchange");
-            OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(response));
-            OMElement element = records.getDocumentElement();
-            //    <ops:biblio-search total-result-count="10000">
-            String totalRes = getElement(element, epoNamespaces, "//ops:biblio-search/@total-result-count");
-            List<OMElement> documentIds = splitToRecords(element, epoNamespaces, "//ns:document-id");
-            for (OMElement documentId : documentIds) {
-                results.add(new EpoDocumentId(documentId, epoNamespaces));
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(response));
+            Element root = document.getRootElement();
+
+            List<Namespace> namespaces = Arrays.asList(
+                Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
+                Namespace.getNamespace("ops", "http://ops.epo.org"),
+                Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+            XPathExpression<Element> xpath = XPathFactory.instance()
+                .compile("//ns:document-id", Filters.element(), null, namespaces);
+
+            List<Element> documentIds = xpath.evaluate(root);
+            for (Element documentId : documentIds) {
+                results.add(new EpoDocumentId(documentId, namespaces));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -471,9 +483,9 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             InputStream is = httpResponse.getEntity().getContent();
             String response = IOUtils.toString(is, Charsets.UTF_8);
             log.debug(response);
-            List<OMElement> omElements = splitToRecords(response);
-            for (OMElement record : omElements) {
-                results.add(transformSourceRecords(record));
+            List<Element> elements = splitToRecords(response);
+            for (Element element : elements) {
+                results.add(transformSourceRecords(element));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -481,63 +493,44 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         return results;
     }
 
-    private List<OMElement> splitToRecords(OMElement document, Map<String, String> namespaces, String axiomPath) {
-        AXIOMXPath xpath = null;
+    private List<Element> splitToRecords(String recordsSrc) {
         try {
-            xpath = new AXIOMXPath(axiomPath);
-            if (namespaces != null) {
-                for (Entry<String, String> entry : namespaces.entrySet()) {
-                    xpath.addNamespace(entry.getKey(), entry.getValue());
-                }
-            }
-            List<OMElement> recordsList = xpath.selectNodes(document);
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(recordsSrc));
+            Element root = document.getRootElement();
+            List<Namespace> namespaces = Arrays.asList(Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+            XPathExpression<Element> xpath = XPathFactory.instance().compile("//ns:exchange-document",
+                Filters.element(), null, namespaces);
+
+            List<Element> recordsList = xpath.evaluate(root);
             return recordsList;
-        } catch (JaxenException e) {
-            return null;
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            return new LinkedList<Element>();
         }
     }
 
-
-    private List<OMElement> splitToRecords(String recordsSrc) {
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(recordsSrc));
-        OMElement element = records.getDocumentElement();
-        AXIOMXPath xpath = null;
-        try {
-            xpath = new AXIOMXPath("//ns:exchange-document");
-            xpath.addNamespace("ns", "http://www.epo.org/exchange");
-            List<OMElement> recordsList = xpath.selectNodes(element);
-            return recordsList;
-        } catch (JaxenException e) {
-            return null;
-        }
-    }
-
-    private String getElement(OMElement document, Map<String, String> namespaces,
-        String axiomPath) throws JaxenException {
-        AXIOMXPath xpath = new AXIOMXPath(axiomPath);
-        if (namespaces != null) {
-            for (Entry<String, String> entry : namespaces.entrySet()) {
-                xpath.addNamespace(entry.getKey(), entry.getValue());
-            }
-        }
-        List<Object> nodes = xpath.selectNodes(document);
+    private String getElement(Element document, List<Namespace> namespaces, String path) throws JaxenException {
+        XPathExpression<Object> xpath = XPathFactory.instance().compile(path, Filters.fpassthrough(), null, namespaces);
+        List<Object> nodes = xpath.evaluate(document);
         //exactly one element expected for any field
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodes)) {
             return "";
         } else {
             return getValue(nodes.get(0));
         }
     }
 
+
     private String getValue(Object el) {
-        if (el instanceof OMElement) {
-            return ((OMElement) el).getText();
-        } else if (el instanceof OMAttribute) {
-            return ((OMAttribute) el).getAttributeValue();
+        if (el instanceof Element) {
+            return ((Element) el).getText();
+        } else if (el instanceof Attribute) {
+            return ((Attribute) el).getValue();
         } else if (el instanceof String) {
             return (String)el;
-        } else if (el instanceof OMText) {
-            return ((OMText) el).getText();
+        } else if (el instanceof Text) {
+            return ((Text) el).getText();
         } else {
             log.error("node of type: " + el.getClass());
             return "";

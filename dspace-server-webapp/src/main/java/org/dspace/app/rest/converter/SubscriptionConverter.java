@@ -27,10 +27,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SubscriptionConverter implements DSpaceConverter<Subscription, SubscriptionRest> {
+
     @Autowired
     protected Utils utils;
-    @Autowired
-    private ConverterService converter;
 
     @Override
     public SubscriptionRest convert(Subscription subscription, Projection projection) {

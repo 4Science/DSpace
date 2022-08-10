@@ -221,7 +221,13 @@
             <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
             <type>custom-url</type>
         </step-definition>
-        
+
+	    <step-definition id="correction" mandatory="true">
+			<heading>submit.progressbar.correction-step</heading>
+			<processing-class>org.dspace.app.rest.submit.step.CorrectionStep</processing-class>
+			<type>correction</type>
+			<scope visibilityOutside="hidden">workflow</scope>
+	    </step-definition>
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -271,6 +277,15 @@
             <step id="traditionalpageone"/>"
             <step id="traditionalpagetwo"/>
             <step id="custom-url"/>
+        </submission-process>
+        
+        <submission-process name="traditional-with-correction">
+            <step id="collection"/>
+            <step id="extraction" />
+            <step id="traditionalpageone"/>"
+            <step id="traditionalpagetwo"/>
+            <step id="correction"/>
+            <step id="license"/>
         </submission-process>
 
         <!--This "traditional" process defines the DEFAULT item submission process -->

@@ -51,6 +51,15 @@
                             <property name="submissionDefinition" value="modeA" />
                         </bean>
                         <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="TRADITIONAL-OWNER" />
+                            <property name="security">
+                              <value type="org.dspace.content.security.CrisSecurity">
+                                OWNER
+                              </value>
+                            </property>
+                            <property name="submissionDefinition" value="traditional-cris" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FIRST-CUSTOM" />
                             <property name="security">
                               <value type="org.dspace.content.security.CrisSecurity">

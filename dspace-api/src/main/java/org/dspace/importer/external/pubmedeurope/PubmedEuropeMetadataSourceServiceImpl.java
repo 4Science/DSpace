@@ -13,13 +13,10 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.el.MethodNotFoundException;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.OMXMLParserWrapper;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
@@ -34,7 +31,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -43,13 +41,20 @@ import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.components.QuerySource;
 import org.dspace.services.ConfigurationService;
 import org.jaxen.JaxenException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.filter.Filters;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class PubmedEuropeMetadataSourceServiceImpl
-    extends AbstractImportMetadataSourceService<OMElement> implements QuerySource {
+    extends AbstractImportMetadataSourceService<Element> implements QuerySource {
 
-    private static final Logger log = Logger.getLogger(PubmedEuropeMetadataSourceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(PubmedEuropeMetadataSourceServiceImpl.class);
 
     @Autowired
     private ConfigurationService configurationService;
@@ -193,39 +198,43 @@ public class PubmedEuropeMetadataSourceServiceImpl
     }
 
     public Integer count(String query) throws URISyntaxException, ClientProtocolException, IOException, JaxenException {
-        String proxyHost = configurationService.getProperty("http.proxy.host");
-        String proxyPort = configurationService.getProperty("http.proxy.port");
-        HttpGet method = null;
-        HttpHost proxy = null;
-        HttpClient client = new DefaultHttpClient();
-        client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000);
-        URIBuilder uriBuilder = new URIBuilder(
-            "https://www.ebi.ac.uk/europepmc/webservices/rest/search");
-        uriBuilder.addParameter("format", "xml");
-        uriBuilder.addParameter("resulttype", "core");
-        uriBuilder.addParameter("pageSize", "1");
-        uriBuilder.addParameter("query", query);
-        method = new HttpGet(uriBuilder.build());
-        if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-            proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-            client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        try {
+            String proxyHost = configurationService.getProperty("http.proxy.host");
+            String proxyPort = configurationService.getProperty("http.proxy.port");
+            HttpGet method = null;
+            HttpHost proxy = null;
+            HttpClient client = new DefaultHttpClient();
+            client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000);
+            URIBuilder uriBuilder = new URIBuilder(
+                "https://www.ebi.ac.uk/europepmc/webservices/rest/search");
+            uriBuilder.addParameter("format", "xml");
+            uriBuilder.addParameter("resulttype", "core");
+            uriBuilder.addParameter("pageSize", "1");
+            uriBuilder.addParameter("query", query);
+            method = new HttpGet(uriBuilder.build());
+            if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
+                proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
+                client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+            }
+            // Execute the method.
+            HttpResponse response = client.execute(method);
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                throw new RuntimeException("WS call failed: "
+                    + statusLine);
+            }
+            String input = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+            System.out.println("Value: " + input);
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(input));
+            Element root = document.getRootElement();
+            Element element = root.getChild("hitCount");
+            return Integer.parseInt(element.getValue());
+        } catch (JDOMException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
-        // Execute the method.
-        HttpResponse response = client.execute(method);
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-        if (statusCode != HttpStatus.SC_OK) {
-            throw new RuntimeException("WS call failed: "
-                + statusLine);
-        }
-        String input = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-        System.out.println("Value: " + input);
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(input));
-        OMElement element = records.getDocumentElement();
-        AXIOMXPath xpath = null;
-        xpath = new AXIOMXPath("//responseWrapper/hitCount");
-        OMElement recordsList = (OMElement)xpath.selectSingleNode(element);
-        return Integer.parseInt(recordsList.getText());
     }
 
     public List<ImportRecord> search(String title, String author, int year, int count, int start)
@@ -297,43 +306,34 @@ public class PubmedEuropeMetadataSourceServiceImpl
                      + statusLine);
                 }
                 String input = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-                OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(input));
-                OMElement element = records.getDocumentElement();
-                AXIOMXPath xpath = null;
-                try {
-                    xpath = new AXIOMXPath("//responseWrapper/resultList/result");
-                    List<OMElement> recordsList = xpath.selectNodes(element);
-                    if (recordsList != null && recordsList.size() > 0) {
-                        for (OMElement item : recordsList) {
-                            if (start > skipped) {
-                                skipped++;
-                            } else {
-                                results.add(transformSourceRecords(item));
-                            }
-                            if (results.size() == count) {
-                                break;
-                            }
+                SAXBuilder saxBuilder = new SAXBuilder();
+                Document document = saxBuilder.build(new StringReader(input));
+                XPathFactory xpfac = XPathFactory.instance();
+                XPathExpression<Element> xPath = xpfac.compile("//responseWrapper/resultList/result",
+                    Filters.element());
+                List<Element> records = xPath.evaluate(document);
+                if (records.size() > 0) {
+                    for (Element item : records) {
+                        if (start > skipped) {
+                            skipped++;
+                        } else {
+                            results.add(transformSourceRecords(item));
                         }
-                    } else {
-                        lastPage = true;
-                        break;
+                        if (results.size() == count) {
+                            break;
+                        }
                     }
-                } catch (JaxenException e) {
-                    return null;
+                } else {
+                    lastPage = true;
+                    break;
                 }
-                try {
-                    AXIOMXPath xpathCursor = null;
-                    xpathCursor = new AXIOMXPath("//responseWrapper/nextCursorMark");
-                    OMElement recordsList = (OMElement)xpath.selectSingleNode(element);
-                    String cursorMark = recordsList.getText();
-                    if (cursorMark != null && !"*".equals(cursorMark)) {
-                        uriBuilder.setParameter("cursorMar", cursorMark);
-                    } else {
-                        lastPage = true;
-                    }
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                    throw new RuntimeException();
+                Element root = document.getRootElement();
+                Element nextCursorMark = root.getChild("nextCursorMark");
+                String cursorMark = Objects.nonNull(nextCursorMark) ? nextCursorMark.getValue() : StringUtils.EMPTY;
+                if (!"*".equals(cursorMark)) {
+                    uriBuilder.setParameter("cursorMar", cursorMark);
+                } else {
+                    lastPage = true;
                 }
             }
         } catch (Exception e) {

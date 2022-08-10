@@ -10,7 +10,8 @@ package org.dspace.builder;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
@@ -29,7 +30,7 @@ import org.dspace.layout.service.CrisLayoutMetadataGroupService;
  */
 public class CrisLayoutFieldBuilder extends AbstractBuilder<CrisLayoutField, CrisLayoutFieldService> {
 
-    private static final Logger log = Logger.getLogger(CrisLayoutFieldBuilder.class);
+    private static Logger log = LogManager.getLogger(CrisLayoutFieldBuilder.class);
 
     private CrisLayoutField field;
 

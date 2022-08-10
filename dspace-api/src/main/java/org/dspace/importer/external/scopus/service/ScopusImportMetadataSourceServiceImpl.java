@@ -7,12 +7,14 @@
  */
 package org.dspace.importer.external.scopus.service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -20,10 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.el.MethodNotFoundException;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.OMXMLParserWrapper;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -37,7 +35,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -46,7 +45,14 @@ import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.DoiCheck;
 import org.dspace.importer.external.service.components.QuerySource;
 import org.dspace.services.ConfigurationService;
-import org.jaxen.JaxenException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -56,7 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  */
 
-public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<OMElement>
+public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
     implements QuerySource {
 
     @Autowired
@@ -64,7 +70,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     private int timeout = 1000;
 
-    private static final Logger log = Logger.getLogger(ScopusImportMetadataSourceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(ScopusImportMetadataSourceServiceImpl.class);
 
     int itemPerPage = 25;
 
@@ -243,17 +249,22 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                     }
                     InputStream is = httpResponse.getEntity().getContent();
                     String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(response));
-                    OMElement element = records.getDocumentElement();
-                    AXIOMXPath xpath = null;
+                    SAXBuilder saxBuilder = new SAXBuilder();
+                    Document document = saxBuilder.build(new StringReader(response));
+                    Element root = document.getRootElement();
+
+                    List<Namespace> namespaces = Arrays.asList(
+                        Namespace.getNamespace("opensearch", "http://a9.com/-/spec/opensearch/1.1/"));
+                    XPathExpression<Element> xpath = XPathFactory.instance()
+                        .compile("opensearch:totalResults", Filters.element(), null, namespaces);
+
+                    Element count = xpath.evaluateFirst(root);
                     try {
-                        xpath = new AXIOMXPath("opensearch:totalResults");
-                        xpath.addNamespace("opensearch", "http://a9.com/-/spec/opensearch/1.1/");
-                        OMElement count = (OMElement) xpath.selectSingleNode(element);
                         return Integer.parseInt(count.getText());
-                    } catch (JaxenException e) {
+                    } catch (NumberFormatException e) {
                         return null;
                     }
+
                 } catch (Exception e1) {
                     log.error(e1.getMessage(), e1);
                 } finally {
@@ -309,8 +320,8 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                     }
                     InputStream is = httpResponse.getEntity().getContent();
                     String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    List<OMElement> omElements = splitToRecords(response);
-                    for (OMElement record : omElements) {
+                    List<Element> omElements = splitToRecords(response);
+                    for (Element record : omElements) {
                         results.add(transformSourceRecords(record));
                     }
                 } catch (Exception e1) {
@@ -404,8 +415,8 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                     }
                     InputStream is = httpResponse.getEntity().getContent();
                     String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    List<OMElement> omElements = splitToRecords(response);
-                    for (OMElement record : omElements) {
+                    List<Element> omElements = splitToRecords(response);
+                    for (Element record : omElements) {
                         results.add(transformSourceRecords(record));
                     }
                 } catch (Exception e1) {
@@ -476,8 +487,8 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                     }
                     InputStream is = httpResponse.getEntity().getContent();
                     String response = IOUtils.toString(is, Charset.defaultCharset());
-                    List<OMElement> omElements = splitToRecords(response);
-                    for (OMElement record : omElements) {
+                    List<Element> omElements = splitToRecords(response);
+                    for (Element record : omElements) {
                         results.add(transformSourceRecords(record));
                     }
                 } catch (Exception e1) {
@@ -526,18 +537,15 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
         return uriBuilder.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    private List<OMElement> splitToRecords(String recordsSrc) {
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(recordsSrc));
-        OMElement element = records.getDocumentElement();
-        AXIOMXPath xpath = null;
+    private List<Element> splitToRecords(String recordsSrc) {
         try {
-            xpath = new AXIOMXPath("ns:entry");
-            xpath.addNamespace("ns", "http://www.w3.org/2005/Atom");
-            List<OMElement> recordsList = xpath.selectNodes(element);
-            return recordsList;
-        } catch (JaxenException e) {
-            return null;
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(recordsSrc));
+            Element root = document.getRootElement();
+            List<Element> records = root.getChildren("entry", Namespace.getNamespace("http://www.w3.org/2005/Atom"));
+            return records;
+        } catch (JDOMException | IOException e) {
+            return new ArrayList<Element>();
         }
     }
 

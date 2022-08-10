@@ -16,7 +16,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.content.MetadataField;
@@ -42,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/layout/tabs" + REGEX_REQUESTMAPPING_IDENTIFIER_AS_DIGIT + "/securitymetadata")
 public class CrisLayoutTabMetadatasecurityRestController {
 
-    private static final Logger log = Logger.getLogger(CrisLayoutTabMetadatasecurityRestController.class);
+    private static Logger log = LogManager.getLogger(CrisLayoutTabMetadatasecurityRestController.class);
 
     @Autowired
     private Utils utils;

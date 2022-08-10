@@ -6,22 +6,25 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import javax.xml.namespace.QName;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.jaxen.JaxenException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 /**
  * This contributor checks for each node returned for the given path if the node contains "this.attribute"
@@ -31,9 +34,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4Science dot it)
  */
-public class WosAttribute2ValueContributor implements MetadataContributor<OMElement> {
+public class WosAttribute2ValueContributor implements MetadataContributor<Element> {
 
-    private static final Logger log = LoggerFactory.getLogger(WosAttribute2ValueContributor.class);
+    private final static Logger log = LogManager.getLogger();
 
     private String query;
 
@@ -47,7 +50,7 @@ public class WosAttribute2ValueContributor implements MetadataContributor<OMElem
 
     private Map<String, MetadataFieldConfig> attributeValue2metadata;
 
-    private MetadataFieldMapping<OMElement, MetadataContributor<OMElement>> metadataFieldMapping;
+    private MetadataFieldMapping<Element, MetadataContributor<Element>> metadataFieldMapping;
 
     public WosAttribute2ValueContributor() {}
 
@@ -60,36 +63,33 @@ public class WosAttribute2ValueContributor implements MetadataContributor<OMElem
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element t) {
         List<MetadatumDTO> values = new LinkedList<>();
-        try {
-            AXIOMXPath xpath = new AXIOMXPath(query);
-            for (String ns : prefixToNamespaceMapping.keySet()) {
-                xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
-            }
-            List<Object> nodes = xpath.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    OMElement element = (OMElement) el;
-                    String attributeValue = element.getAttributeValue(new QName(this.attribute));
-                    setField(attributeValue, element, values);
-                } else {
-                    log.warn("node of type: " + el.getClass());
-                }
-            }
-            return values;
-        } catch (JaxenException e) {
-            log.warn(query, e);
-            throw new RuntimeException(e);
+        List<Namespace> namespaces = new ArrayList<Namespace>();
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
         }
+        XPathExpression<Object> xpath = XPathFactory.instance().compile(query, Filters.fpassthrough(), null,
+            namespaces);
+        List<Object> nodes = xpath.evaluate(t);
+        for (Object el : nodes) {
+            if (el instanceof Element) {
+                Element element = (Element) el;
+                String attributeValue = element.getAttributeValue(this.attribute);
+                setField(attributeValue, element, values);
+            } else {
+                log.warn("node of type: " + el.getClass());
+            }
+        }
+        return values;
     }
 
-    private void setField(String attributeValue, OMElement el, List<MetadatumDTO> values) throws JaxenException {
+    private void setField(String attributeValue, Element el, List<MetadatumDTO> values) {
         for (String id : attributeValue2metadata.keySet()) {
             if (StringUtils.equals(id, attributeValue)) {
                 if (this.firstChild) {
-                    String value = el.getFirstChildWithName(new QName(this.childName)).getText();
+                    String value = "";
+                    // el.getFirstChildWithName(new QName(this.childName)).getText();
                     values.add(metadataFieldMapping.toDCValue(attributeValue2metadata.get(id), value));
                 } else {
                     values.add(metadataFieldMapping.toDCValue(attributeValue2metadata.get(id), el.getText()));
@@ -98,12 +98,12 @@ public class WosAttribute2ValueContributor implements MetadataContributor<OMElem
         }
     }
 
-    public MetadataFieldMapping<OMElement, MetadataContributor<OMElement>> getMetadataFieldMapping() {
+    public MetadataFieldMapping<Element, MetadataContributor<Element>> getMetadataFieldMapping() {
         return metadataFieldMapping;
     }
 
     public void setMetadataFieldMapping(
-        MetadataFieldMapping<OMElement, MetadataContributor<OMElement>> metadataFieldMapping) {
+        MetadataFieldMapping<Element, MetadataContributor<Element>> metadataFieldMapping) {
         this.metadataFieldMapping = metadataFieldMapping;
     }
 

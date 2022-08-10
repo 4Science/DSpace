@@ -9,7 +9,7 @@ package org.dspace.harvest.service;
 
 import org.dspace.harvest.HarvestedCollection;
 import org.dspace.harvest.model.OAIHarvesterValidationResult;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Service to validate a given record during the harvesting process.

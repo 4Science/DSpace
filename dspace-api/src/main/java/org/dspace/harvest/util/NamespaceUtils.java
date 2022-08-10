@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 
 public final class NamespaceUtils {
 

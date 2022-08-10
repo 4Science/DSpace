@@ -29,6 +29,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.services.model.Request;
 import org.dspace.validation.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,11 +43,12 @@ public class EditItemConverter
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(EditItemConverter.class);
 
     @Autowired
+    @Lazy
     private ConverterService converter;
+
     @Autowired
     private SubmissionSectionConverter submissionSectionConverter;
-    @Autowired
-    private EditItemModeConverter modeConverter;
+
     @Autowired
     private ValidationService validationService;
 

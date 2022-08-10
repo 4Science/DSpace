@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.authorize.AuthorizeException;
@@ -111,7 +110,7 @@ public class CrisLayoutToolScript extends DSpaceRunnable<CrisLayoutToolScriptCon
     private Workbook createWorkbook(InputStream is) {
         try {
             return WorkbookFactory.create(is);
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (EncryptedDocumentException | IOException e) {
             throw new IllegalArgumentException("An error occurs during the workbook creation", e);
         }
     }

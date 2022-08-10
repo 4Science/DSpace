@@ -22,8 +22,8 @@ import java.io.InputStream;
 
 import org.dspace.harvest.model.OAIHarvesterValidationResult;
 import org.dspace.services.ConfigurationService;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

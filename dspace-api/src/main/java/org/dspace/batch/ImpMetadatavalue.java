@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 
 /***
  * Contains all the metadata associated with an item that need to be created or
@@ -50,6 +51,7 @@ public class ImpMetadatavalue {
 
     @Lob
     @Column(name = "imp_value")
+    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
     private String impValue;
 
     @Column(name = "imp_authority", length = 256)

@@ -18,6 +18,9 @@ import org.dspace.authorize.ResourcePolicyOwnerVO;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
+import org.dspace.content.Relationship;
+import org.dspace.content.RelationshipType;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
@@ -609,4 +612,28 @@ public interface AuthorizeService {
     long countAdminAuthorizedCollection(Context context, String query)
         throws SearchServiceException, SQLException;
     public boolean isPartOfTheGroup(Context c, String egroup) throws SQLException;
+
+    /**
+     * Check if the current user is authorized to create/edit/delete a relationship
+     * of the given type between the leftItem and the rigthItem.
+     *
+     * @param  context          The DSpace context
+     * @param  relationshipType the type of the relationship to be checked
+     * @param  leftItem         the left item of the relationship
+     * @param  rightItem        the right item of the relationship
+     * @return                  true if the current user can create/edit or delete
+     *                          the relationship, false otherwise
+     */
+    boolean canHandleRelationship(Context context, RelationshipType relationshipType, Item leftItem, Item rightItem);
+
+    /**
+     * Check if the current user is authorized to create/edit/delete the given
+     * relationship.
+     *
+     * @param  context      The DSpace context
+     * @param  relationship the type of the relationship to be created
+     * @return              true if the current user can create/edit or delete the
+     *                      relationship, false otherwise
+     */
+    boolean canHandleRelationship(Context context, Relationship relationship);
 }

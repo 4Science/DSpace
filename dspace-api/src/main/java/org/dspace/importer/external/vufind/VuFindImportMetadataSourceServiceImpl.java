@@ -20,7 +20,8 @@ import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -35,7 +36,7 @@ import org.dspace.importer.external.vufind.callable.SearchByQueryCallable;
 public class VuFindImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<String>
     implements QuerySource {
 
-    private static final Logger log = Logger.getLogger(VuFindImportMetadataSourceServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(VuFindImportMetadataSourceServiceImpl.class);
 
     private String fields;
 

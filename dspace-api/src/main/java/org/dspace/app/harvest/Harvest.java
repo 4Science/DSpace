@@ -68,7 +68,7 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration<Harvest>>
     private Boolean forceSynch;
     private Boolean itemValidation;
     private Boolean recordValidation;
-    private Boolean submitEnabled;
+    private Boolean submitEnabled = true;
 
     private HarvestedCollectionService harvestedCollectionService;
     protected EPersonService ePersonService;

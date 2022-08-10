@@ -10,6 +10,7 @@ package org.dspace.importer.external.cinii;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,12 +22,9 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.OMXMLParserWrapper;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.http.HttpException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -35,11 +33,21 @@ import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.components.QuerySource;
 import org.dspace.services.ConfigurationService;
-import org.jaxen.JaxenException;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CiniiImportMetadataSourceServiceImpl
-    extends AbstractImportMetadataSourceService<OMElement> implements QuerySource {
+    extends AbstractImportMetadataSourceService<Element> implements QuerySource {
+
+    private final static Logger log = LogManager.getLogger();
 
     Client client;
 
@@ -252,126 +260,138 @@ public class CiniiImportMetadataSourceServiceImpl
         if (response.getStatus() != 200) {
             return null;
         }
-        List<OMElement> omElements = splitToRecords(responseString);
-        for (OMElement record : omElements) {
+        List<Element> omElements = splitToRecords(responseString);
+        for (Element record : omElements) {
             records.add(transformSourceRecords(record));
         }
         return records;
     }
 
-    private List<OMElement> splitToRecords(String recordsSrc) {
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(recordsSrc));
-        OMElement element = records.getDocumentElement();
-        AXIOMXPath xpath = null;
+    private List<Element> splitToRecords(String recordsSrc) {
         try {
-            xpath = new AXIOMXPath("//rdf:Description");
-            xpath.addNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            List<OMElement> recordsList = xpath.selectNodes(element);
-            return recordsList;
-        } catch (JaxenException e) {
-            return null;
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(recordsSrc));
+            Element root = document.getRootElement();
+            List<Namespace> namespaces = Arrays
+                .asList(Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+            XPathExpression<Element> xpath = XPathFactory.instance().compile("rdf:Description", Filters.element(),
+                null, namespaces);
+            Element record = xpath.evaluateFirst(root);
+            return Arrays.asList(record);
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     private List<String> getCiniiIds(String appId, Integer maxResult, String author, String title,
         Integer year, Integer start, String query) {
-        List<String> ids = new ArrayList<>();
-        WebTarget webTarget = client.target("https://ci.nii.ac.jp/opensearch/search");
-        webTarget = webTarget.queryParam("format", "rss");
-        webTarget = webTarget.queryParam("appid", appId);
-        if (maxResult != null && maxResult != 0) {
-            webTarget = webTarget.queryParam("count", maxResult);
-        }
-        if (start != null) {
-            webTarget = webTarget.queryParam("start", start);
-        }
-        if (title != null) {
-            webTarget = webTarget.queryParam("title", title);
-        }
-        if (author != null) {
-            webTarget = webTarget.queryParam("author", author);
-        }
-        if (query != null) {
-            webTarget = webTarget.queryParam("q", query);
-        }
-        if (year != null && year != -1 && year != 0) {
-            webTarget = webTarget.queryParam("year_from", String.valueOf(year));
-            webTarget = webTarget.queryParam("year_to", String.valueOf(year));
-        }
-        Invocation.Builder invocationBuilder = webTarget.request();
-        Response response = invocationBuilder.get();
-        String responseString = response.readEntity(String.class);
-        System.out.println(responseString);
-        if (response.getStatus() != 200) {
-            return null;
-        }
 
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(responseString));
-        OMElement element = records.getDocumentElement();
-        AXIOMXPath xpath = null;
-        int url_len = "http://ci.nii.ac.jp/naid/".length();
         try {
-            xpath = new AXIOMXPath("//ns:item/@rdf:about");
-            xpath.addNamespace("ns", "http://purl.org/rss/1.0/");
-            xpath.addNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            List<OMAttribute> recordsList = xpath.selectNodes(element);
-            for (OMAttribute item : recordsList) {
-                String value = item.getAttributeValue();
+            List<String> ids = new ArrayList<>();
+            WebTarget webTarget = client.target("https://ci.nii.ac.jp/opensearch/search");
+            webTarget = webTarget.queryParam("format", "rss");
+            webTarget = webTarget.queryParam("appid", appId);
+            if (maxResult != null && maxResult != 0) {
+                webTarget = webTarget.queryParam("count", maxResult);
+            }
+            if (start != null) {
+                webTarget = webTarget.queryParam("start", start);
+            }
+            if (title != null) {
+                webTarget = webTarget.queryParam("title", title);
+            }
+            if (author != null) {
+                webTarget = webTarget.queryParam("author", author);
+            }
+            if (query != null) {
+                webTarget = webTarget.queryParam("q", query);
+            }
+            if (year != null && year != -1 && year != 0) {
+                webTarget = webTarget.queryParam("year_from", String.valueOf(year));
+                webTarget = webTarget.queryParam("year_to", String.valueOf(year));
+            }
+            Invocation.Builder invocationBuilder = webTarget.request();
+            Response response = invocationBuilder.get();
+            String responseString = response.readEntity(String.class);
+            System.out.println(responseString);
+            if (response.getStatus() != 200) {
+                return null;
+            }
+
+            int url_len = "http://ci.nii.ac.jp/naid/".length();
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(responseString));
+            Element root = document.getRootElement();
+            List<Namespace> namespaces = Arrays.asList(
+                Namespace.getNamespace("ns", "http://purl.org/rss/1.0/"),
+                Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+            XPathExpression<Attribute> xpath = XPathFactory.instance().compile("//ns:item/@rdf:about",
+                Filters.attribute(), null, namespaces);
+            List<Attribute> recordsList = xpath.evaluate(root);
+            for (Attribute item : recordsList) {
+                String value = item.getValue();
                 if (value.length() > url_len) {
                     ids.add(value.substring(url_len + 1));
                 }
             }
-        } catch (JaxenException e) {
-            return null;
+            return ids;
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
-        return ids;
+
     }
 
     private Integer countCiniiElement(String appId, Integer maxResult, String author, String title,
             Integer year, Integer start, String query) {
-        List<String> ids = new ArrayList<>();
-        WebTarget webTarget = client.target("https://ci.nii.ac.jp/opensearch/search");
-        webTarget = webTarget.queryParam("format", "rss");
-        webTarget = webTarget.queryParam("appid", appId);
-        if (maxResult != null && maxResult != 0) {
-            webTarget = webTarget.queryParam("count", maxResult);
-        }
-        if (start != null) {
-            webTarget = webTarget.queryParam("start", start);
-        }
-        if (title != null) {
-            webTarget = webTarget.queryParam("title", title);
-        }
-        if (author != null) {
-            webTarget = webTarget.queryParam("author", author);
-        }
-        if (query != null) {
-            webTarget = webTarget.queryParam("q", query);
-        }
-        if (year != null && year != -1 && year != 0) {
-            webTarget = webTarget.queryParam("year_from", String.valueOf(year));
-            webTarget = webTarget.queryParam("year_to", String.valueOf(year));
-        }
-        Invocation.Builder invocationBuilder = webTarget.request();
-        Response response = invocationBuilder.get();
-        String responseString = response.readEntity(String.class);
-        System.out.println(responseString);
-        if (response.getStatus() != 200) {
-            return null;
-        }
-        OMXMLParserWrapper records = OMXMLBuilderFactory.createOMBuilder(new StringReader(responseString));
-        OMElement element = records.getDocumentElement();
         try {
-            AXIOMXPath xpath = new AXIOMXPath("//opensearch:totalResults");
-            xpath.addNamespace("opensearch", "http://a9.com/-/spec/opensearch/1.1/");
-            List<Object> nodes = xpath.selectNodes(element);
+            List<String> ids = new ArrayList<>();
+            WebTarget webTarget = client.target("https://ci.nii.ac.jp/opensearch/search");
+            webTarget = webTarget.queryParam("format", "rss");
+            webTarget = webTarget.queryParam("appid", appId);
+            if (maxResult != null && maxResult != 0) {
+                webTarget = webTarget.queryParam("count", maxResult);
+            }
+            if (start != null) {
+                webTarget = webTarget.queryParam("start", start);
+            }
+            if (title != null) {
+                webTarget = webTarget.queryParam("title", title);
+            }
+            if (author != null) {
+                webTarget = webTarget.queryParam("author", author);
+            }
+            if (query != null) {
+                webTarget = webTarget.queryParam("q", query);
+            }
+            if (year != null && year != -1 && year != 0) {
+                webTarget = webTarget.queryParam("year_from", String.valueOf(year));
+                webTarget = webTarget.queryParam("year_to", String.valueOf(year));
+            }
+            Invocation.Builder invocationBuilder = webTarget.request();
+            Response response = invocationBuilder.get();
+            String responseString = response.readEntity(String.class);
+            System.out.println(responseString);
+            if (response.getStatus() != 200) {
+                return null;
+            }
+
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(responseString));
+            Element root = document.getRootElement();
+            List<Namespace> namespaces = Arrays
+                .asList(Namespace.getNamespace("opensearch", "http://a9.com/-/spec/opensearch/1.1/"));
+            XPathExpression<Element> xpath = XPathFactory.instance().compile("//opensearch:totalResults",
+                Filters.element(), null, namespaces);
+            List<Element> nodes = xpath.evaluate(root);
             if (nodes != null && !nodes.isEmpty()) {
-                return Integer.parseInt(((OMElement)nodes.get(0)).getText());
+                return Integer.parseInt(((Element) nodes.get(0)).getText());
             }
             return 0;
-        } catch (JaxenException e) {
-            System.err.println(query);
-            throw new RuntimeException(e);
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
 
     }

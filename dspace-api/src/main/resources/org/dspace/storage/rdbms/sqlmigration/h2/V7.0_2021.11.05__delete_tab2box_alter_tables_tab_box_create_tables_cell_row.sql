@@ -31,11 +31,11 @@ CREATE TABLE  cris_layout_cell
 (
   id         INTEGER NOT NULL,
   style      CHARACTER VARYING(255),
-  row        INTEGER NOT NULL,
+  row       INTEGER NOT NULL,
   position   INTEGER,
 
   CONSTRAINT cris_layout_cell_pkey PRIMARY KEY (id),
-  CONSTRAINT cris_layout_row_fkey  FOREIGN KEY  (row) REFERENCES cris_layout_row (id),
+  CONSTRAINT cris_layout_row_fkey  FOREIGN KEY  (row) REFERENCES cris_layout_row (id)
 );
 
 -------------------------------------------------------------------------------------

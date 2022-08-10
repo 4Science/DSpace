@@ -7,19 +7,31 @@
  */
 package org.dspace.app.rest;
 
+import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.dspace.app.rest.authorization.TrueForUsersInGroupTestFeature.GROUP_NAME;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import com.jayway.jsonpath.matchers.JsonPathMatchers;
@@ -44,16 +56,23 @@ import org.dspace.app.rest.model.CommunityRest;
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.model.SiteRest;
+import org.dspace.app.rest.model.patch.AddOperation;
+import org.dspace.app.rest.model.patch.Operation;
+import org.dspace.app.rest.model.patch.RemoveOperation;
+import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.EntityTypeBuilder;
 import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.RelationshipTypeBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -61,10 +80,13 @@ import org.dspace.content.service.SiteService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
@@ -132,6 +154,9 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
      * this hold a reference to the test feature {@link TrueForUsersInGroupTestFeature}
      */
     private AuthorizationFeature trueForUsersInGroupTest;
+
+    @Value("classpath:org/dspace/app/rest/simple-article.pdf")
+    private Resource simpleArticle;
 
     @Override
     @Before
@@ -2514,6 +2539,109 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
                 .param("feature", trueForUsersInGroupTest.getName())
                 .param("eperson", memberOfTestGroup.getID().toString()))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void verifySpecialGroupForNonAdministrativeUsersTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        AtomicReference<Integer> workspaceItemIdRef = new AtomicReference<Integer>();
+
+        // define special group
+        GroupBuilder.createGroup(context).withName(GROUP_NAME).build();
+        configurationService.setProperty("authentication-password.login.specialgroup", GROUP_NAME);
+
+        EntityType publicationType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                 .withName("Collection")
+                                                 .withEntityType("Publication")
+                                                 .withSubmitterGroup(eperson)
+                                                 .withSubmissionDefinition("traditional-with-correction")
+                                                 .build();
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,
+                                                              "isCorrectionOfItem", "isCorrectedByItem", 0, 1, 0, 1);
+        String title = "Title " + (new Date().getTime());
+        Item itemToBeCorrected = ItemBuilder.createItem(context, collection)
+                                            .withTitle(title)
+                                            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                           simpleArticle.getInputStream())
+                                            .withIssueDate("2022-07-15")
+                                            .withSubject("Entry")
+                                            .withEntityType("Publication")
+                                            .grantLicense()
+                                            .build();
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(epersonToken).perform(post("/api/submission/workspaceitems")
+                               .param("owningCollection", collection.getID().toString())
+                               .param("relationship", "isCorrectionOfItem")
+                               .param("item", itemToBeCorrected.getID().toString())
+                               .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                               .andExpect(status().isCreated())
+                               .andDo(result ->
+                                workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "New Title");
+        List<Operation> replaceTitle = new ArrayList<Operation>();
+        replaceTitle.add(new ReplaceOperation("/sections/traditionalpageone/dc.title/0", value));
+        String patchBody = getPatchContent(replaceTitle);
+
+        getClient(epersonToken).perform(patch("/api/submission/workspaceitems/" + workspaceItemIdRef.get())
+                               .content(patchBody)
+                               .contentType("application/json-patch+json"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$.errors").doesNotExist());
+
+        List<Operation> removeSubject = new ArrayList<Operation>();
+        removeSubject.add(new RemoveOperation("/sections/traditionalpagetwo/dc.subject/0"));
+        patchBody = getPatchContent(removeSubject);
+        getClient(epersonToken).perform(patch("/api/submission/workspaceitems/" + workspaceItemIdRef.get())
+                               .content(patchBody)
+                               .contentType("application/json-patch+json"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$.errors").doesNotExist());
+
+        Map<String, String> addValue = new HashMap<String, String>();
+        addValue.put("value", "Description Test");
+        List<Operation> addDescription = new ArrayList<Operation>();
+        addDescription.add(new AddOperation("/sections/traditionalpagetwo/dc.description.abstract", List.of(addValue)));
+        patchBody = getPatchContent(addDescription);
+
+        getClient(epersonToken).perform(patch("/api/submission/workspaceitems/" + workspaceItemIdRef.get())
+                               .content(patchBody)
+                               .contentType("application/json-patch+json"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$.errors").doesNotExist());
+
+        getClient(epersonToken).perform(get("/api/submission/workspaceitems/" + workspaceItemIdRef.get()))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$.sections.correction.metadata", hasSize(equalTo(3))))
+                               .andExpect(jsonPath("$.sections.correction.empty", is(false)))
+                               .andExpect(jsonPath("$.sections.correction.metadata[0]",
+                                          matchMetadataCorrection("dc.description.abstract", "Description Test", "")))
+                               .andExpect(jsonPath("$.sections.correction.metadata[1]",
+                                          matchMetadataCorrection("dc.title", "New Title", title)))
+                               .andExpect(jsonPath("$.sections.correction.metadata[2]",
+                                          matchMetadataCorrection("dc.subject", "", "Entry")));
+    }
+
+    private Matcher<? super Object> matchMetadataCorrection(String metadata, String newValue, String oldValue) {
+        return Matchers.anyOf(
+                // Check workspaceitem properties
+                hasJsonPath("$.metadata", is(metadata)),
+                hasJsonPath("$.newValues[0]", is(newValue)),
+                hasJsonPath("$.oldValues[0]", is(oldValue))
+                );
     }
 
     @Test

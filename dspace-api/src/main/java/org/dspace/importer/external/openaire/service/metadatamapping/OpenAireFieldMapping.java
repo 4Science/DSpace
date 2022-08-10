@@ -10,10 +10,10 @@ package org.dspace.importer.external.openaire.service.metadatamapping;
 import java.util.Map;
 import javax.annotation.Resource;
 
-import org.apache.axiom.om.OMElement;
 import org.dspace.importer.external.metadatamapping.AbstractMetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.contributor.MetadataContributor;
+import org.jdom2.Element;
 
 /**
  * An implementation of {@link AbstractMetadataFieldMapping}
@@ -21,7 +21,7 @@ import org.dspace.importer.external.metadatamapping.contributor.MetadataContribu
  *
  * @author Pasquale Cavallo - (pasquale.cavallo at 4science dot it)
  */
-public class OpenAireFieldMapping extends AbstractMetadataFieldMapping<OMElement> {
+public class OpenAireFieldMapping extends AbstractMetadataFieldMapping<Element> {
 
     /**
      * Defines which metadatum is mapped on which metadatum. Note that while the key must be unique it
@@ -33,7 +33,7 @@ public class OpenAireFieldMapping extends AbstractMetadataFieldMapping<OMElement
      */
     @Override
     @Resource(name = "openaireMetadataFieldMap")
-    public void setMetadataFieldMap(Map<MetadataFieldConfig, MetadataContributor<OMElement>> metadataFieldMap) {
+    public void setMetadataFieldMap(Map<MetadataFieldConfig, MetadataContributor<Element>> metadataFieldMap) {
         super.setMetadataFieldMap(metadataFieldMap);
     }
 

@@ -10,7 +10,8 @@ package org.dspace.app.deduplication.service.impl;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.deduplication.service.SolrDedupServiceIndexPlugin;
 import org.dspace.content.Item;
@@ -26,7 +27,7 @@ import org.dspace.util.ItemUtils;
  */
 public class ItemWithdrawnDedupServiceIndexPlugin implements SolrDedupServiceIndexPlugin {
 
-    private static final Logger log = Logger.getLogger(ItemWithdrawnDedupServiceIndexPlugin.class);
+    private static Logger log = LogManager.getLogger(ItemWithdrawnDedupServiceIndexPlugin.class);
 
     @Override
     public void additionalIndex(Context context, UUID firstId, UUID secondId, SolrInputDocument document) {

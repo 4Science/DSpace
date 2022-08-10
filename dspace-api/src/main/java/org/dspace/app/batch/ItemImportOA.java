@@ -32,7 +32,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
@@ -122,7 +123,7 @@ public class ItemImportOA {
     private DSpace dspace = new DSpace();
 
     /** logger */
-    private static Logger log = Logger.getLogger(ItemImportOA.class);
+    private static Logger log = LogManager.getLogger(ItemImportOA.class);
 
     private boolean workflow = false;
 

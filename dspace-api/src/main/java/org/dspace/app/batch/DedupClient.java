@@ -22,7 +22,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.content.Item;
@@ -37,7 +38,7 @@ import org.dspace.utils.DSpace;
  * Usage: ./dspace index-deduplication [-chfueto[r <item handle/uuid>]]
  */
 public class DedupClient {
-    private static final Logger log = Logger.getLogger(DedupClient.class);
+    private static Logger log = LogManager.getLogger(DedupClient.class);
 
     private DedupClient() {
     }

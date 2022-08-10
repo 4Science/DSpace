@@ -41,6 +41,11 @@ public class Choice {
      */
     public boolean selectable = true;
 
+    /**
+     * AuthorityName used as prefix for identifier, when is populated
+     */
+    public String authorityName = null;
+
     public Map<String, String> extras = new HashMap<String, String>();
 
     public Choice() {
@@ -86,6 +91,25 @@ public class Choice {
      *                   accurate choice should be preferred
      */
     public Choice(String authority, String label, String value, boolean selectable) {
+        this.authority = authority;
+        this.label = label;
+        this.value = value;
+        this.selectable = selectable;
+    }
+
+    /**
+     * Constructor for common need of Hierarchical authorities that want to
+     * explicitely set the selectable flag
+     * 
+     * @param authorityName the authority name that can be used to fully-qualify the authority
+     * @param authority     the authority key
+     * @param value         the text value to store in the metadata
+     * @param label         the value to display to the user
+     * @param selectable    true if the choice can be selected, false if the a more
+     *                      accurate choice should be preferred
+     */
+    public Choice(String authorityName, String authority, String label, String value, boolean selectable) {
+        this.authorityName = authorityName;
         this.authority = authority;
         this.label = label;
         this.value = value;

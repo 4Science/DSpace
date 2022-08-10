@@ -8,14 +8,18 @@
 package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -32,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
+import net.minidev.json.JSONArray;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.matcher.BitstreamMatcher;
@@ -53,6 +59,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.ProcessStatus;
+import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.discovery.SolrServiceValuePairsIndexPlugin;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.scripts.DSpaceCommandLineParameter;
@@ -83,6 +91,172 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
 
+    @Autowired
+    private SolrServiceValuePairsIndexPlugin solrServiceValuePairsIndexPlugin;
+
+    @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
+
+    @After
+    public void after() {
+        metadataAuthorityService.clearCache();
+    }
+
+    @Test
+    public void givenMultilanguageItemsWhenSchedulingExportThenUseRequestLanguageWhileSearching() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        String italianLanguage = "it";
+        String ukranianLanguage = "uk";
+        String[] supportedLanguage = { italianLanguage, ukranianLanguage };
+        configurationService.setProperty("webui.supported.locales", supportedLanguage);
+        solrServiceValuePairsIndexPlugin.setup();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-t", "Publication"));
+        parameters.add(new DSpaceCommandLineParameter("-f", "publication-json"));
+        parameters.add(new DSpaceCommandLineParameter("-sf", "language=Iталiйська,equals"));
+
+        List<ParameterValueRest> list = parameters.stream()
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
+
+        String token = getAuthToken(admin.getEmail(), password);
+        List<ProcessStatus> acceptableProcessStatuses = new LinkedList<>();
+        acceptableProcessStatuses.addAll(Arrays.asList(ProcessStatus.SCHEDULED,
+                                                       ProcessStatus.RUNNING,
+                                                       ProcessStatus.COMPLETED));
+
+        List<AtomicReference<Integer>> processes = new ArrayList<>();
+        AtomicReference<Integer> idRef1 = new AtomicReference<>();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/language-test-1")
+                .withName("Collection 1")
+                .withEntityType("Publication")
+                .build();
+
+            String italianTitle = "Item Italiano";
+            ItemBuilder.createItem(context, col1)
+                .withTitle(italianTitle)
+                .withIssueDate("2022-07-12")
+                .withAuthor("Italiano, Multilanguage")
+                .withLanguage(italianLanguage)
+                .build();
+
+            String ukranianTitle = "Item Yкраїнська";
+            ItemBuilder.createItem(context, col1)
+                .withTitle(ukranianTitle)
+                .withIssueDate("2022-07-12")
+                .withAuthor("Yкраїнська, Multilanguage")
+                .withLanguage(ukranianLanguage)
+                .build();
+
+        context.restoreAuthSystemState();
+
+        try {
+
+            getClient(token)
+                    .perform(
+                            multipart("/api/system/scripts/bulk-item-export/processes")
+                             .param("properties", new Gson().toJson(list))
+                             .header("Accept-Language", ukranianLanguage)
+                     )
+                    .andExpect(status().isAccepted())
+                    .andExpect(jsonPath("$", is(
+                            ProcessMatcher.matchProcess("bulk-item-export",
+                                                        String.valueOf(admin.getID()),
+                                                        parameters,
+                                                        acceptableProcessStatuses))))
+                    .andDo(result -> idRef1
+                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+            MvcResult mvcResult = getClient(token)
+                    .perform(get("/api/system/processes/" + idRef1.get() + "/files"))
+                    .andReturn();
+
+            processes.add(idRef1);
+
+            JSONArray publicationsJsonId = read(mvcResult.getResponse().getContentAsString(),
+                    "$._embedded.files[?(@.name=='publications.json')].id");
+            getClient(token)
+                    .perform(get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content"))
+                    .andExpect(
+                            jsonPath(
+                                "$.items",
+                                allOf(
+                                    hasJsonPath("[*].language", contains(italianLanguage)),
+                                    hasJsonPath("[*].title", contains(italianTitle)),
+                                    not(hasJsonPath("[*].language", contains(ukranianLanguage))),
+                                    not(hasJsonPath("[*].title", contains(ukranianTitle)))
+                                )
+                            )
+                    );
+
+            AtomicReference<Integer> idRef2 = new AtomicReference<>();
+            parameters.clear();
+
+            parameters.add(new DSpaceCommandLineParameter("-t", "Publication"));
+            parameters.add(new DSpaceCommandLineParameter("-f", "publication-json"));
+            parameters.add(new DSpaceCommandLineParameter("-sf", "language=Italiano,equals"));
+
+            list = parameters
+                    .stream()
+                    .map(
+                            dSpaceCommandLineParameter ->
+                                dSpaceRunnableParameterConverter
+                                    .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
+                    )
+                    .collect(Collectors.toList());
+
+            getClient(token)
+            .perform(
+                    multipart("/api/system/scripts/bulk-item-export/processes")
+                     .param("properties", new Gson().toJson(list))
+                     .header("Accept-Language", italianLanguage)
+             )
+            .andExpect(status().isAccepted())
+            .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("bulk-item-export",
+                                                String.valueOf(admin.getID()),
+                                                parameters,
+                                                acceptableProcessStatuses))))
+            .andDo(result -> idRef2
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
+
+            processes.add(idRef2);
+
+            mvcResult = getClient(token)
+                    .perform(get("/api/system/processes/" + idRef2.get() + "/files"))
+                    .andReturn();
+            publicationsJsonId = read(mvcResult.getResponse().getContentAsString(),
+                    "$._embedded.files[?(@.name=='publications.json')].id");
+            getClient(token)
+                    .perform(
+                            get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content")
+                    )
+                    .andExpect(
+                            jsonPath(
+                                "$.items",
+                                allOf(
+                                    hasJsonPath("[*].language", contains(italianLanguage)),
+                                    hasJsonPath("[*].title", contains(italianTitle)),
+                                    not(hasJsonPath("[*].language", contains(ukranianLanguage))),
+                                    not(hasJsonPath("[*].title", contains(ukranianTitle)))
+                                )
+                            )
+                    );
+        } finally {
+            for (AtomicReference<Integer> atomicReference : processes) {
+                ProcessBuilder.deleteProcess(atomicReference .get());
+            }
+        }
+
+    }
+
     @Test
     public void findAllScriptsWithAdminTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
@@ -101,7 +275,6 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                         )));
     }
 
-
     @Test
     public void findAllScriptsWithNoAdminTest() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
@@ -109,7 +282,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         getClient(token).perform(get("/api/system/scripts"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.page",
-                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 2))));
+                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 3))));
 
     }
 
@@ -147,11 +320,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                 Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=23"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=24"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(0)))
-                        .andExpect(jsonPath("$.page.totalPages", is(24)))
-                        .andExpect(jsonPath("$.page.totalElements", is(24)));
+                        .andExpect(jsonPath("$.page.totalPages", is(25)))
+                        .andExpect(jsonPath("$.page.totalElements", is(25)));
 
 
         getClient(token).perform(get("/api/system/scripts").param("size", "1").param("page", "1"))
@@ -178,11 +351,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                 Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=23"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=24"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(1)))
-                        .andExpect(jsonPath("$.page.totalPages", is(24)))
-                        .andExpect(jsonPath("$.page.totalElements", is(24)));
+                        .andExpect(jsonPath("$.page.totalPages", is(25)))
+                        .andExpect(jsonPath("$.page.totalElements", is(25)));
     }
 
     @Test
@@ -220,29 +393,26 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postProcessNonAdminAuthorizeException() throws Exception {
-
         String token = getAuthToken(eperson.getEmail(), password);
 
-        getClient(token).perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data"))
+        getClient(token).perform(multipart("/api/system/scripts/mock-script/processes"))
                         .andExpect(status().isForbidden());
     }
 
     @Test
     public void postProcessAnonymousAuthorizeException() throws Exception {
-        getClient().perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data"))
+        getClient().perform(multipart("/api/system/scripts/mock-script/processes"))
                    .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void postProcessAdminWrongOptionsException() throws Exception {
-
-
         String token = getAuthToken(admin.getEmail(), password);
         AtomicReference<Integer> idRef = new AtomicReference<>();
 
         try {
             getClient(token)
-                    .perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data"))
+                    .perform(multipart("/api/system/scripts/mock-script/processes"))
                     .andExpect(status().isAccepted())
                     .andExpect(jsonPath("$", is(
                             ProcessMatcher.matchProcess("mock-script",
@@ -286,9 +456,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data")
-                                                                              .param("properties",
-                                                                                     new Gson().toJson(list)))
+                    .perform(multipart("/api/system/scripts/mock-script/processes")
+                                 .param("properties", new Gson().toJson(list)))
                     .andExpect(status().isAccepted())
                     .andExpect(jsonPath("$", is(
                             ProcessMatcher.matchProcess("mock-script",
@@ -305,8 +474,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void postProcessNonExistingScriptNameException() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(post("/api/system/scripts/mock-script-invalid/processes")
-                                         .contentType("multipart/form-data"))
+        getClient(token).perform(multipart("/api/system/scripts/mock-script-invalid/processes"))
                         .andExpect(status().isBadRequest());
     }
 
@@ -332,9 +500,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data")
-                                                                              .param("properties",
-                                                                                     new Gson().toJson(list)))
+                    .perform(multipart("/api/system/scripts/mock-script/processes")
+                                 .param("properties", new Gson().toJson(list)))
                     .andExpect(status().isAccepted())
                     .andExpect(jsonPath("$", is(
                             ProcessMatcher.matchProcess("mock-script",
@@ -370,9 +537,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(post("/api/system/scripts/mock-script/processes").contentType("multipart/form-data")
-                                                                              .param("properties",
-                                                                                     new Gson().toJson(list)))
+                    .perform(multipart("/api/system/scripts/mock-script/processes")
+                                 .param("properties", new Gson().toJson(list)))
                     .andExpect(status().isAccepted())
                     .andExpect(jsonPath("$", is(
                             ProcessMatcher.matchProcess("mock-script",
@@ -477,9 +643,10 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(fileUpload("/api/system/scripts/mock-script/processes").file(bitstreamFile)
-                                                                                    .param("properties",
-                                                                                           new Gson().toJson(list)))
+                    .perform(multipart("/api/system/scripts/mock-script/processes")
+                                 .file(bitstreamFile)
+                                 .characterEncoding("UTF-8")
+                                 .param("properties", new Gson().toJson(list)))
                     .andExpect(status().isAccepted())
                     .andExpect(jsonPath("$", is(
                             ProcessMatcher.matchProcess("mock-script",
@@ -610,6 +777,47 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                 ProcessBuilder.deleteProcess(idRef.get());
             }
         }
+    }
+
+    @Test
+    public void scriptTypeConversionTest() throws Exception {
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(get("/api/system/scripts/type-conversion-test"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", ScriptMatcher
+                                .matchScript("type-conversion-test",
+                                             "Test the type conversion different option types")))
+                        .andExpect(jsonPath("$.parameters", containsInAnyOrder(
+                                allOf(
+                                        hasJsonPath("$.name", is("-b")),
+                                        hasJsonPath("$.description", is("option set to the boolean class")),
+                                        hasJsonPath("$.type", is("boolean")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--boolean"))
+                                ),
+                                allOf(
+                                        hasJsonPath("$.name", is("-s")),
+                                        hasJsonPath("$.description", is("string option with an argument")),
+                                        hasJsonPath("$.type", is("String")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--string"))
+                                ),
+                                allOf(
+                                        hasJsonPath("$.name", is("-n")),
+                                        hasJsonPath("$.description", is("string option without an argument")),
+                                        hasJsonPath("$.type", is("boolean")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--noargument"))
+                                ),
+                                allOf(
+                                        hasJsonPath("$.name", is("-f")),
+                                        hasJsonPath("$.description", is("file option with an argument")),
+                                        hasJsonPath("$.type", is("InputStream")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--file"))
+                                )
+                        ) ));
     }
 
 

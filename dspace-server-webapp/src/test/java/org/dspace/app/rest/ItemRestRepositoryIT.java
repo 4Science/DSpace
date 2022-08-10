@@ -157,9 +157,11 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         Collection col2 = CollectionBuilder.createCollection(context, child1).withName("Collection 2").build();
 
         List<Item> items = new ArrayList();
-        // This comparator is used to sort our test Items by java.util.UUID (which sorts them based on the RFC
-        // and not based on String comparison, see also https://stackoverflow.com/a/51031298/3750035 )
-        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID());
+        // Hibernate 5.x's org.hibernate.dialect.H2Dialect sorts UUIDs as if they are Strings.
+        // So, we must compare UUIDs as if they are strings.
+        // In Hibernate 6, the H2Dialect has been updated with native UUID type support, at which point
+        // we'd need to update the below comparator to compare them as java.util.UUID (which sorts based on RFC 4412).
+        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID().toString());
 
         //2. Three public items that are readable by Anonymous with different subjects
         Item publicItem1 = ItemBuilder.createItem(context, col1)
@@ -238,9 +240,11 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         List<Item> items = new ArrayList();
-        // This comparator is used to sort our test Items by java.util.UUID (which sorts them based on the RFC
-        // and not based on String comparison, see also https://stackoverflow.com/a/51031298/3750035 )
-        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID());
+        // Hibernate 5.x's org.hibernate.dialect.H2Dialect sorts UUIDs as if they are Strings.
+        // So, we must compare UUIDs as if they are strings.
+        // In Hibernate 6, the H2Dialect has been updated with native UUID type support, at which point
+        // we'd need to update the below comparator to compare them as java.util.UUID (which sorts based on RFC 4412).
+        Comparator<Item> compareByUUID = Comparator.comparing(i -> i.getID().toString());
 
         //2. Three public items that are readable by Anonymous with different subjects
         Item publicItem1 = ItemBuilder.createItem(context, col1)
@@ -3313,16 +3317,23 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Item item = ItemBuilder.createItem(context, collection).withTitle("Item").build();
 
-        Bundle bundle0 = BundleBuilder.createBundle(context, item).withName("Bundle 0").build();
-        Bundle bundle1 = BundleBuilder.createBundle(context, item).withName("Bundle 1").build();
-        Bundle bundle2 = BundleBuilder.createBundle(context, item).withName("Bundle 2").build();
-        Bundle bundle3 = BundleBuilder.createBundle(context, item).withName("Bundle 3").build();
-        Bundle bundle4 = BundleBuilder.createBundle(context, item).withName("Bundle 4").build();
-        Bundle bundle5 = BundleBuilder.createBundle(context, item).withName("Bundle 5").build();
-        Bundle bundle6 = BundleBuilder.createBundle(context, item).withName("Bundle 6").build();
-        Bundle bundle7 = BundleBuilder.createBundle(context, item).withName("Bundle 7").build();
-        Bundle bundle8 = BundleBuilder.createBundle(context, item).withName("Bundle 8").build();
-        Bundle bundle9 = BundleBuilder.createBundle(context, item).withName("Bundle 9").build();
+        List<Bundle> bundles = new ArrayList();
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 0").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 1").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 2").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 3").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 4").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 5").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 6").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 7").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 8").build());
+        bundles.add(BundleBuilder.createBundle(context, item).withName("Bundle 9").build());
+
+        // While in DSpace code, Bundles are *unordered*, in Hibernate v5 + H2 v2.x, they are returned sorted by UUID.
+        // So, we reorder this list of created Bundles by UUID to get their expected pagination ordering.
+        // NOTE: Once on Hibernate v6, this might need "toString()" removed as it may sort UUIDs based on RFC 4412.
+        Comparator<Bundle> compareByUUID = Comparator.comparing(b -> b.getID().toString());
+        bundles.sort(compareByUUID);
 
         context.restoreAuthSystemState();
 
@@ -3332,11 +3343,16 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", ItemMatcher.matchItemProperties(item)))
         .andExpect(jsonPath("$._embedded.bundles._embedded.bundles",Matchers.containsInAnyOrder(
-            BundleMatcher.matchProperties(bundle0.getName(), bundle0.getID(), bundle0.getHandle(), bundle0.getType()),
-            BundleMatcher.matchProperties(bundle1.getName(), bundle1.getID(), bundle1.getHandle(), bundle1.getType()),
-            BundleMatcher.matchProperties(bundle2.getName(), bundle2.getID(), bundle2.getHandle(), bundle2.getType()),
-            BundleMatcher.matchProperties(bundle3.getName(), bundle3.getID(), bundle3.getHandle(), bundle3.getType()),
-            BundleMatcher.matchProperties(bundle4.getName(), bundle4.getID(), bundle4.getHandle(), bundle4.getType())
+            BundleMatcher.matchProperties(bundles.get(0).getName(), bundles.get(0).getID(), bundles.get(0).getHandle(),
+                                          bundles.get(0).getType()),
+            BundleMatcher.matchProperties(bundles.get(1).getName(), bundles.get(1).getID(), bundles.get(1).getHandle(),
+                                          bundles.get(1).getType()),
+            BundleMatcher.matchProperties(bundles.get(2).getName(), bundles.get(2).getID(), bundles.get(2).getHandle(),
+                                          bundles.get(2).getType()),
+            BundleMatcher.matchProperties(bundles.get(3).getName(), bundles.get(3).getID(), bundles.get(3).getHandle(),
+                                          bundles.get(3).getType()),
+            BundleMatcher.matchProperties(bundles.get(4).getName(), bundles.get(4).getID(), bundles.get(4).getHandle(),
+                                          bundles.get(4).getType())
         )))
         .andExpect(jsonPath("$._links.self.href", Matchers.containsString("/api/core/items/" + item.getID())))
         .andExpect(jsonPath("$._embedded.bundles.page.size", is(5)))
@@ -4996,4 +5012,102 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             .andExpect(status().isInternalServerError());
 
     }
+
+    @Test
+    public void testSearchItemByCustomUrlWithSimilarUrls() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1").build();
+
+        Item firstItem = ItemBuilder.createItem(context, col1)
+            .withTitle("Item 1")
+            .withCustomUrl("ThomasAlexander_Zimmermann")
+            .withOldCustomUrl("Zimmermann")
+            .build();
+
+        Item secondItem = ItemBuilder.createItem(context, col1)
+            .withTitle("Item 2")
+            .withCustomUrl("Alexander_Zimmermann")
+            .build();
+
+        Item thirdItem = ItemBuilder.createItem(context, col1)
+            .withTitle("Item 3")
+            .withCustomUrl("Alexander")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
+            .param("q", "Alexander_Zimmermann"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.uuid", is(secondItem.getID().toString())));
+
+    }
+
+    @Test
+    public void testSearchNotDiscoverableItemByCustomUrl() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+            .withTitle("Item 1")
+            .withCustomUrl("my-custom-url")
+            .makeUnDiscoverable()
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
+            .param("q", "my-custom-url"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.uuid", is(item.getID().toString())));
+
+    }
+
+    @Test
+    public void testSearchWithdrawnItemByCustomUrl() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+            .withTitle("Item 1")
+            .withCustomUrl("my-custom-url")
+            .withdrawn()
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
+            .param("q", "my-custom-url"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.uuid", is(item.getID().toString())));
+
+    }
+
 }

@@ -21,8 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.dspace.harvest.model.OAIHarvesterResponseDTO;
 import org.dspace.harvest.service.OAIHarvesterClient;
 import org.dspace.util.ThrowingSupplier;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,6 +6,7 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,41 +15,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.core.CrisConstants;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.jaxen.JaxenException;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 /**
  * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4science dot it)
  */
 public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
 
-    private MetadataFieldConfig authname;
+    private static final Namespace NAMESPACE = Namespace.getNamespace("http://www.w3.org/2005/Atom");
+
     private MetadataFieldConfig orcid;
     private MetadataFieldConfig scopusId;
+    private MetadataFieldConfig authname;
     private MetadataFieldConfig affiliation;
 
     private Map<String, String> affId2affName = new HashMap<String, String>();
 
     @Override
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element element) {
         List<MetadatumDTO> values = new LinkedList<>();
         List<MetadatumDTO> metadatums = null;
-        fillAffillation(t);
+        fillAffillation(element);
         try {
-            AXIOMXPath xpath2author = new AXIOMXPath("ns:author");
-            addNameSpace(xpath2author);
-            List<Object> nodes = xpath2author.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    metadatums = getMetadataOfAuthors((OMElement) el);
-                } else {
-                    System.err.println("node of type: " + el.getClass());
-                }
+            List<Element> nodes = element.getChildren("author", NAMESPACE);
+            for (Element el : nodes) {
+                metadatums = getMetadataOfAuthors(el);
                 if (Objects.nonNull(metadatums)) {
                     for (MetadatumDTO metadatum : metadatums) {
                         values.add(metadatum);
@@ -61,23 +58,27 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
         return values;
     }
 
-    private List<MetadatumDTO> getMetadataOfAuthors(OMElement el) throws JaxenException {
+    private List<MetadatumDTO> getMetadataOfAuthors(Element element) throws JaxenException {
         List<MetadatumDTO> metadatums = new ArrayList<MetadatumDTO>();
-        AXIOMXPath authnameXPath = new AXIOMXPath("ns:authname");
-        AXIOMXPath scopusIdXPath = new AXIOMXPath("ns:authid");
-        AXIOMXPath orcidXPath = new AXIOMXPath("ns:orcid");
-        AXIOMXPath afidXPath = new AXIOMXPath("ns:afid");
-        addNameSpace(authnameXPath);
-        addNameSpace(scopusIdXPath);
-        addNameSpace(orcidXPath);
-        addNameSpace(afidXPath);
-        String afid = getValue(el, afidXPath);
-        metadatums.add(getMetadata(getValue(el, authnameXPath), this.authname));
-        metadatums.add(getMetadata(getValue(el, scopusIdXPath), this.scopusId));
-        metadatums.add(getMetadata(getValue(el, orcidXPath), this.orcid));
-        metadatums.add(getMetadata(StringUtils.isNotBlank(afid)
-                                   ? this.affId2affName.get(afid) : null, this.affiliation));
+        Element authname = element.getChild("authname", NAMESPACE);
+        Element scopusId = element.getChild("authid", NAMESPACE);
+        Element orcid = element.getChild("orcid", NAMESPACE);
+        Element afid = element.getChild("afid", NAMESPACE);
+
+        metadatums.add(getMetadata(getElementValue(authname), this.authname));
+        metadatums.add(getMetadata(getElementValue(scopusId), this.scopusId));
+        metadatums.add(getMetadata(getElementValue(orcid), this.orcid));
+        metadatums.add(getMetadata(StringUtils.isNotBlank(afid.getValue())
+                                   ? this.affId2affName.get(afid.getValue())
+                                   : null, this.affiliation));
         return metadatums;
+    }
+
+    private String getElementValue(Element element) {
+        if (Objects.nonNull(element)) {
+            return element.getValue();
+        }
+        return StringUtils.EMPTY;
     }
 
     private MetadatumDTO getMetadata(String value, MetadataFieldConfig metadaConfig) {
@@ -93,43 +94,22 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
         return metadata;
     }
 
-    private String getValue(OMElement el, AXIOMXPath xPath) throws JaxenException {
-        List<OMElement> elements = (List<OMElement>) xPath.selectNodes(el);
-        return elements.size() > 0 ? elements.get(0).getText() : null;
-    }
-
-    private void fillAffillation(OMElement t) {
+    private void fillAffillation(Element element) {
         try {
-            AXIOMXPath xpath2affilation = new AXIOMXPath("ns:affiliation");
-            addNameSpace(xpath2affilation);
-            List<Object> nodes = xpath2affilation.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    fillAffiliation2Name((OMElement) el);
-                } else {
-                    System.err.println("node of type: " + el.getClass());
-                }
+            List<Element> nodes = element.getChildren("affiliation", NAMESPACE);
+            for (Element el : nodes) {
+                fillAffiliation2Name(el);
             }
         } catch (JaxenException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void addNameSpace(AXIOMXPath xpath) throws JaxenException {
-        for (String ns : prefixToNamespaceMapping.keySet()) {
-            xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
-        }
-    }
-
-    private void fillAffiliation2Name(OMElement value) throws JaxenException {
-        AXIOMXPath xpath2affilationName = new AXIOMXPath("ns:affilname");
-        AXIOMXPath xpath2affilationId = new AXIOMXPath("ns:afid");
-        addNameSpace(xpath2affilationName);
-        addNameSpace(xpath2affilationId);
-        String affilname = getValue(value, xpath2affilationName);
-        String afid = getValue(value, xpath2affilationId);
-        if (StringUtils.isNotBlank(afid) | StringUtils.isNotBlank(affilname)) {
-            affId2affName.put(afid, affilname);
+    private void fillAffiliation2Name(Element element) throws JaxenException {
+        Element affilationName = element.getChild("affilname", NAMESPACE);
+        Element affilationId = element.getChild("afid", NAMESPACE);
+        if (StringUtils.isNotBlank(affilationId.getValue()) | StringUtils.isNotBlank(affilationName.getValue())) {
+            affId2affName.put(affilationId.getValue(), affilationName.getValue());
         }
     }
 

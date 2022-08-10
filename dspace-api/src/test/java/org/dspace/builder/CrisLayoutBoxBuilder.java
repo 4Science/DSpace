@@ -12,7 +12,8 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
@@ -26,7 +27,7 @@ import org.dspace.layout.service.CrisLayoutBoxService;
 
 public class CrisLayoutBoxBuilder extends AbstractBuilder<CrisLayoutBox, CrisLayoutBoxService> {
 
-    private static final Logger log = Logger.getLogger(CrisLayoutBoxBuilder.class);
+    private static Logger log = LogManager.getLogger(CrisLayoutBoxBuilder.class);
 
     private CrisLayoutBox box;
 

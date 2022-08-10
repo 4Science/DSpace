@@ -13,7 +13,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.exception.FileSourceException;
 import org.dspace.importer.external.service.components.AbstractPlainMetadataSource;
 import org.dspace.importer.external.service.components.dto.PlainMetadataSourceDto;
@@ -50,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class GrobidImportMetadataSourceServiceImpl extends AbstractPlainMetadataSource {
 
-    private static final Logger LOGGER = Logger.getLogger(GrobidImportMetadataSourceServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(GrobidImportMetadataSourceServiceImpl.class);
 
     @Autowired
     private GrobidClient grobidClient;

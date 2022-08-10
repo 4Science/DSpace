@@ -10,11 +10,10 @@ package org.dspace.content.security;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
@@ -25,6 +24,7 @@ import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,9 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
 
     @Autowired
     private AuthorizeService authorizeService;
+
+    @Autowired
+    private EPersonService ePersonService;
 
     @Override
     public boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode)
@@ -76,12 +79,7 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
 
     @Override
     public boolean isOwner(EPerson eperson, Item item) {
-        if (eperson == null) {
-            return false;
-        }
-        List<MetadataValue> owners = itemService.getMetadataByMetadataString(item, "cris.owner");
-        Predicate<MetadataValue> checkOwner = v -> StringUtils.equals(v.getAuthority(), eperson.getID().toString());
-        return owners.stream().anyMatch(checkOwner);
+        return ePersonService.isOwnerOfItem(eperson, item);
     }
 
     private boolean hasAccessByCustomPolicy(Context context, Item item, EPerson user, AccessItemMode accessMode)
@@ -170,15 +168,25 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
             return false;
         }
 
+        try {
+            for (Group group : context.getSpecialGroups()) {
+                if (groupService.isMember(context, user, group)) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e.getMessage(), e);
+        }
+
         List<Group> userGroups = user.getGroups();
         if (CollectionUtils.isEmpty(userGroups)) {
             return false;
         }
 
         return groups.stream()
-            .map(group -> findGroupByNameOrUUID(context, group))
-            .filter(group -> group != null)
-            .anyMatch(group -> userGroups.contains(group));
+                     .map(group -> findGroupByNameOrUUID(context, group))
+                     .filter(group -> Objects.nonNull(group))
+                     .anyMatch(group -> userGroups.contains(group));
     }
 
     private Group findGroupByNameOrUUID(Context context, String group) {

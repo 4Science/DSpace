@@ -15,7 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.MediaType;
 
 import org.dspace.app.rest.model.patch.AddOperation;
@@ -447,6 +449,188 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         getClient().perform(get("/api/core/items/" + itemA.getID()))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.metadata['dc.description.abstract']").doesNotExist());
+    }
+
+
+    @Test
+    public void customDataTestWithOneGroup() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+
+        EPerson userA = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("Mykhaylo", "Boychuk")
+            .withEmail("user.a@example.com")
+            .withPassword(password)
+            .build();
+        EPerson userB = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("Volodyner", "Chornenkiy")
+            .withEmail("user.b@example.com")
+            .withPassword(password)
+            .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+            .withTitle("Public item A")
+            .withIssueDate("2015-06-25")
+            .withAuthor("Smith, Maria")
+            .build();
+
+        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
+
+        MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
+
+        CrisLayoutBox box1 = CrisLayoutBoxBuilder.createBuilder(context, eType, true, true)
+            .withShortname("box-shortname-one")
+            .withSecurity(LayoutSecurity.CUSTOM_DATA)
+            .build();
+
+        // Create Group with member userA
+        Set<Group> groups = new HashSet<>();
+        Group testGroup = GroupBuilder.createGroup(context)
+                .withName("testGroup")
+                .addMember(userA)
+                .build();
+
+        groups.add(testGroup);
+        box1.setGroupSecurityFields(groups);
+
+        CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
+            .withLabel("LABEL ABS")
+            .withRendering("RENDERIGN ABS")
+            .withRowStyle("STYLE")
+            .withBox(box1)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String tokenUserA = getAuthToken(userA.getEmail(), password);
+        String tokenUserB = getAuthToken(userB.getEmail(), password);
+
+        // userA and box1 are both part of the same Group, abstract is present
+        getClient(tokenUserA).perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract'].[0].value",
+                                is ("A secured abstract")))
+            .andExpect(jsonPath("$.metadata['dc.title'].[0].value", is ("Public item A")));
+
+        // userB is not part of the same group as box1, abstract is not present
+        getClient(tokenUserB).perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.title'].[0].value", is ("Public item A")))
+            .andExpect(jsonPath("$.metadata['dc.description.abstract']").doesNotExist());
+
+        getClient().perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract']").doesNotExist());
+    }
+
+    @Test
+    public void customDataTestWithMultipleGroup() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+
+        EPerson userA = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("Mykhaylo", "Boychuk")
+            .withEmail("user.a@example.com")
+            .withPassword(password)
+            .build();
+        EPerson userB = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("Volodyner", "Chornenkiy")
+            .withEmail("user.b@example.com")
+            .withPassword(password)
+            .build();
+
+        EPerson userC = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("Simone", "Proni")
+            .withEmail("user.c@example.com")
+            .withPassword(password)
+            .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+            .withTitle("Public item A")
+            .withIssueDate("2015-06-25")
+            .withAuthor("Smith, Maria")
+            .build();
+
+        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
+
+        MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
+
+        CrisLayoutBox box1 = CrisLayoutBoxBuilder.createBuilder(context, eType, true, true)
+            .withShortname("box-shortname-one")
+            .withSecurity(LayoutSecurity.CUSTOM_DATA)
+            .build();
+
+        // Create Group with member userA
+        Set<Group> boxGroups = new HashSet<>();
+
+        Group testGroup = GroupBuilder.createGroup(context)
+            .withName("testGroup")
+            .addMember(userA)
+            .build();
+
+        Group testGroup1 = GroupBuilder.createGroup(context)
+            .withName("testGroup1")
+            .addMember(userB)
+            .build();
+
+        boxGroups.add(testGroup);
+        boxGroups.add(testGroup1);
+        box1.setGroupSecurityFields(boxGroups);
+
+        CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
+            .withLabel("LABEL ABS")
+            .withRendering("RENDERIGN ABS")
+            .withRowStyle("STYLE")
+            .withBox(box1)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String tokenUserA = getAuthToken(userA.getEmail(), password);
+        String tokenUserB = getAuthToken(userB.getEmail(), password);
+        String tokenUserC = getAuthToken(userC.getEmail(), password);
+
+        // userA and box1 share one Group together, abstract is present
+        getClient(tokenUserA).perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract'].[0].value",
+                                is ("A secured abstract")))
+            .andExpect(jsonPath("$.metadata['dc.title'].[0].value", is ("Public item A")));
+
+        // userB and box1 share one Group together, abstract is present
+        getClient(tokenUserB).perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract'].[0].value",
+                                is ("A secured abstract")))
+            .andExpect(jsonPath("$.metadata['dc.title'].[0].value", is ("Public item A")));
+
+        // userC and box1 do not share any groups, abstract is not present
+        getClient(tokenUserC).perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract']").doesNotExist())
+            .andExpect(jsonPath("$.metadata['dc.title'].[0].value", is ("Public item A")));
+
+        getClient().perform(get("/api/core/items/" + itemA.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata['dc.description.abstract']").doesNotExist());
     }
 
     @Test

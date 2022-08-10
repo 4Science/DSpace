@@ -40,7 +40,7 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
     private final String storedSeparatorSplit = java.util.regex.Pattern.quote(ItemIndexFactoryImpl.STORE_SEPARATOR);
 
-    private String relatedInputformMetadata;
+    private String keyId;
 
     private String schema;
 
@@ -53,6 +53,10 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
     // limit the generator to a specific authority
     private String authorityName;
+
+    private boolean useForDisplay = true;
+
+    private boolean useAsData = true;
 
     @Autowired
     ItemService itemService;
@@ -95,7 +99,7 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
                     }
                 } else {
                     Map<String, String> extras = new HashMap<String, String>();
-                    extras.put("data-" + getRelatedInputformMetadata(), "");
+                    putValueInExtras(extras, "");
                     choiceList.add(new Choice((String) document.getFieldValue("search.resourceid"),
                             title, title, extras));
                 }
@@ -106,13 +110,12 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
     protected void buildSingleExtraByMetadata(MetadataValueDTO metadataValue, Map<String, String> extras) {
         if (metadataValue == null) {
-            extras.put("data-" + getRelatedInputformMetadata(), "");
+            putValueInExtras(extras, "");
         } else {
             if (StringUtils.isNotBlank(metadataValue.getAuthority())) {
-                extras.put("data-" + getRelatedInputformMetadata(),
-                        metadataValue.getValue() + "::" + metadataValue.getAuthority());
+                putValueInExtras(extras, metadataValue.getValue() + "::" + metadataValue.getAuthority());
             } else {
-                extras.put("data-" + getRelatedInputformMetadata(), metadataValue.getValue());
+                putValueInExtras(extras, metadataValue.getValue());
             }
         }
     }
@@ -123,6 +126,15 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
             buildSingleExtraByMetadata(null, extras);
         } else {
             buildSingleExtraByMetadata(metadataValues.get(0), extras);
+        }
+    }
+
+    private void putValueInExtras(Map<String, String> extras, String value) {
+        if (useAsData) {
+            extras.put("data-" + keyId, value);
+        }
+        if (useForDisplay) {
+            extras.put(keyId, value);
         }
     }
 
@@ -176,12 +188,10 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
                 ArrayUtils.contains(projectionFields, getMetadata(schema, element, Item.ANY));
     }
 
-    public String getRelatedInputformMetadata() {
-        return relatedInputformMetadata;
-    }
-
-    public void setRelatedInputformMetadata(String relatedInputformMetadata) {
-        this.relatedInputformMetadata = relatedInputformMetadata;
+    public void setRelatedInputformMetadata(String keyId) {
+        log.warn("Used deprecated setRelatedInputformMetadata to set keyId on "
+            + "ItemSimpleAuthorityMetadataGenerator, setKeyId should be preferred");
+        this.keyId = keyId;
     }
 
     public String getElement() {
@@ -222,6 +232,30 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
     public String getAuthorityName() {
         return authorityName;
+    }
+
+    public boolean isUseForDisplay() {
+        return useForDisplay;
+    }
+
+    public void setUseForDisplay(boolean useForDisplay) {
+        this.useForDisplay = useForDisplay;
+    }
+
+    public boolean isUseAsData() {
+        return useAsData;
+    }
+
+    public void setUseAsData(boolean useAsData) {
+        this.useAsData = useAsData;
+    }
+
+    public String getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(String keyId) {
+        this.keyId = keyId;
     }
 
 }

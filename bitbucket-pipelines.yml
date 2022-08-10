@@ -1,18 +1,42 @@
 image: maven:3.6.1
 
-pipelines:
-  custom:
-    manual:
-       - step:
-           size: 2x
-           caches:
-             - gradle
-             - gradlewrapper
-             - maven
-           script:
-             - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-             - mvn clean install license:check -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -P !assembly -B -V -Dsurefire.rerunFailingTestsCount=2
-
 definitions:
   caches:
     gradlewrapper: ~/.gradle/wrapper
+  steps:
+    - step: &unit-test-code-checks
+        name: unit-test-code-checks
+        size: 2x
+        caches:
+          - maven
+        script:
+          - export MAVEN_OPTS="-Xmx4096M"
+          - mvn install -B -V -P-assembly -Dtest.argLine=-Xmx4096M -Pcoverage-report -DskipUnitTests=false -Pdspace-rest
+    - step: &integration-tests
+        name: integration-tests
+        size: 2x
+        caches:
+          - gradle
+          - gradlewrapper
+          - maven
+        script:
+          - export MAVEN_OPTS="-Xmx4096M"
+          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
+          - mvn clean install license:check -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -P !assembly -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M
+
+pipelines:
+  branches:
+    'dspace-cris-7':
+      - parallel:
+        - step: *unit-test-code-checks
+        - step: *integration-tests
+
+  pull-requests:
+    '**':
+      - parallel:
+          - step: *unit-test-code-checks
+          - step: *integration-tests
+  custom:
+    manual:
+       - step: *integration-tests
+

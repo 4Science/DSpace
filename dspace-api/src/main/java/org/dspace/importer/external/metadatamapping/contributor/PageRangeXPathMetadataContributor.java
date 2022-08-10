@@ -6,23 +6,21 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.jaxen.JaxenException;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 /**
- * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4science dot it)
+ * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4science.com)
  */
 public class PageRangeXPathMetadataContributor extends SimpleXpathMetadatumContributor {
 
@@ -31,39 +29,21 @@ public class PageRangeXPathMetadataContributor extends SimpleXpathMetadatumContr
     private MetadataFieldConfig endPageMetadata;
 
     @Override
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element el) {
         List<MetadatumDTO> values = new LinkedList<>();
         List<MetadatumDTO> metadatums = null;
-        try {
-            AXIOMXPath xpath = new AXIOMXPath(query);
-            for (String ns : prefixToNamespaceMapping.keySet()) {
-                xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
-            }
-            List<Object> nodes = xpath.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    metadatums = getMetadatum(((OMElement) el).getText());
-                } else if (el instanceof OMAttribute) {
-                    metadatums = getMetadatum(((OMAttribute) el).getAttributeValue());
-                } else if (el instanceof String) {
-                    metadatums =  getMetadatum((String) el);
-                } else if (el instanceof OMText) {
-                    metadatums = getMetadatum(((OMText) el).getText());
-                } else {
-                    System.err.println("node of type: " + el.getClass());
-                }
-
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            List<Element> nodes = el.getChildren(query, Namespace.getNamespace(ns));
+            for (Element element : nodes) {
+                metadatums = getMetadatum(element.getValue());
                 if (Objects.nonNull(metadatums)) {
                     for (MetadatumDTO metadatum : metadatums) {
                         values.add(metadatum);
                     }
                 }
             }
-            return values;
-        } catch (JaxenException e) {
-            System.err.println(query);
-            throw new RuntimeException(e);
         }
+        return values;
     }
 
     private  List<MetadatumDTO> getMetadatum(String value) {

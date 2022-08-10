@@ -7,8 +7,6 @@
  */
 package org.dspace.eperson;
 
-import static org.dspace.content.Item.ANY;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -579,10 +577,26 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
     @Override
     public EPerson findByProfileItem(Context context, Item profile) throws SQLException {
-        List<MetadataValue> crisOwners = itemService.getMetadata(profile, "cris", "owner", null, ANY);
+        List<MetadataValue> crisOwners = getCrisOwnerMetadataValues(profile);
         if (CollectionUtils.isEmpty(crisOwners)) {
             return null;
         }
         return find(context, UUIDUtils.fromString(crisOwners.get(0).getAuthority()));
+    }
+
+    @Override
+    public boolean isOwnerOfItem(EPerson user, Item item) {
+
+        if (user == null) {
+            return false;
+        }
+
+        return getCrisOwnerMetadataValues(item).stream()
+            .anyMatch(metadataValue -> user.getID().toString().equals(metadataValue.getAuthority()));
+
+    }
+
+    private List<MetadataValue> getCrisOwnerMetadataValues(Item item) {
+        return itemService.getMetadata(item, "cris", "owner", null, Item.ANY);
     }
 }

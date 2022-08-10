@@ -35,7 +35,7 @@ public class CrisLayoutBoxAccessServiceImpl implements CrisLayoutBoxAccessServic
     public boolean hasAccess(Context context, EPerson user, CrisLayoutBox box, Item item) {
         try {
             return layoutSecurityService.hasAccess(LayoutSecurity.valueOf(box.getSecurity()), context, user,
-                box.getMetadataSecurityFields(), item);
+                box.getMetadataSecurityFields(), box.getGroupSecurityFields(), item);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

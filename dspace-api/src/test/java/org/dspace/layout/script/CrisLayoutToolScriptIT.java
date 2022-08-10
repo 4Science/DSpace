@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -33,6 +34,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CrisLayoutBoxBuilder;
 import org.dspace.builder.CrisLayoutTabBuilder;
 import org.dspace.builder.EntityTypeBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.content.EntityType;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutCell;
@@ -127,7 +129,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(41));
+        assertThat(errorMessages, hasSize(43));
         assertThat(errorMessages, containsInAnyOrder(
             "The sheet tab has no ENTITY column",
             "The sheet tab has no LEADING column",
@@ -169,8 +171,9 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The sheet tabpolicy has no METADATA column",
             "The sheet tabpolicy has no ENTITY column",
             "The sheet tabpolicy has no SHORTNAME column",
+            "The sheet tabpolicy has no GROUP column",
+            "The sheet boxpolicy has no GROUP column",
             "IllegalArgumentException: The given workbook is not valid. Import canceled"));
-
     }
 
     @Test
@@ -189,7 +192,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(30));
+        assertThat(errorMessages, hasSize(32));
         assertThat(errorMessages, containsInAnyOrder(
             "The tab contains an unknown entity type 'Publication' at row 3",
             "The LEADING value specified on the row 2 of sheet tab is not valid: u. Allowed values: [yes, y, no, n]",
@@ -231,16 +234,20 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The box2metadata contains an unknown metadata field invalid.metadata.field at row 7",
             "The box with name unknown and entity type Publication in the row 10 of sheet box2metadata"
                 + " is not present in the box sheet",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "IllegalArgumentException: The given workbook is not valid. Import canceled",
+            "The sheet boxpolicy has no GROUP column",
+            "The sheet tabpolicy has no GROUP column"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testWithValidLayout() throws InstantiationException, IllegalAccessException, SQLException {
-
         context.turnOffAuthorisationSystem();
         createEntityType("Publication");
         createEntityType("Person");
+        GroupBuilder.createGroup(context)
+            .withName("Researchers")
+            .build();
         context.restoreAuthSystemState();
 
         String fileLocation = getXlsFilePath("valid-layout-with-3-tabs.xls");
@@ -356,8 +363,8 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         CrisLayoutBox profileResearchoutputsBox = secondPersonTabSecondRowCell.getBoxes().get(0);
         assertThatBoxHas(profileResearchoutputsBox, "researchoutputs", "RELATION", "Person", "Publications", 0,
             1, 0, false, false, true, "researchoutputs-style", LayoutSecurity.PUBLIC);
-        assertThat(profileResearchoutputsBox.getMetadataSecurityFields(),
-            contains(matches(metadataField -> metadataField.toString('.').equals("cris.owner"))));
+        assertThat(profileResearchoutputsBox.getGroupSecurityFields(),
+                   contains(matches(groupField -> groupField.getName().equals("Researchers"))));
 
         List<CrisLayoutTab> publicationTabs = tabService.findByEntityType(context, "Publication");
         assertThat(publicationTabs, hasSize(1));
@@ -365,8 +372,8 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         CrisLayoutTab publicationTab = publicationTabs.get(0);
         assertThatTabHas(publicationTab, "details", "Publication", "Details", 1, 1, true, 0,
             LayoutSecurity.CUSTOM_DATA_AND_ADMINISTRATOR);
-        assertThat(publicationTab.getMetadataSecurityFields(),
-            contains(matches(metadataField -> metadataField.toString('.').equals("cris.policy.group"))));
+        assertThat(publicationTab.getGroupSecurityFields(),
+                   contains(matches(groupField -> groupField.getName().equals("Researchers"))));
 
         CrisLayoutRow publicationTabRow = publicationTab.getRows().get(0);
         assertThat(publicationTabRow.getStyle(), is("test-style"));
@@ -409,7 +416,6 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(publicationMetricsBox.getMetric2box(),containsInAnyOrder(
             matches(metric -> metric.getType().equals("scopusCitation")),
             matches(metric -> metric.getType().equals("wosCitation"))));
-
     }
 
     @Test
@@ -433,8 +439,70 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The box2metadata contains an empty metadata field at row 3",
             "The box2metadata contains an empty metadata field at row 6",
             "The metadatagroups contains an empty metadata field at row 2",
-            "The tabpolicy contains an empty metadata field at row 1",
-            "The boxpolicy contains an empty metadata field at row 2",
+            "The boxpolicy at row 1 contains invalid values for METADATA/GROUP column.",
+            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column.",
+            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+    }
+
+    @Test
+    public void testWithMissingGroupColumn() throws InstantiationException, IllegalAccessException {
+        String fileLocation = getXlsFilePath("missing-group-column.xls");
+        String[] args = new String[] { "cris-layout-tool", "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        List<String> errorMessages = handler.getErrorMessages();
+        assertThat(errorMessages, hasItems(
+            "The sheet boxpolicy has no GROUP column",
+            "The sheet tabpolicy has no GROUP column"));
+    }
+
+    /*
+     * Each row must contain ONE value for METADATA column OR GROUP column.
+     * Both values missing or both values present is considered invalid.
+     */
+    @Test
+    public void testWithIllegalMetadataAndGroupValues() throws InstantiationException, IllegalAccessException {
+        context.turnOffAuthorisationSystem();
+        createEntityType("Publication");
+        createEntityType("Person");
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("invalid-metadata-and-group-column.xls");
+        String[] args = new String[] { "cris-layout-tool", "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        List<String> errorMessages = handler.getErrorMessages();
+        assertThat(errorMessages, containsInAnyOrder(
+            "The boxpolicy at row 2 contains invalid values for METADATA/GROUP column.",
+            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column.",
+            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+    }
+
+    /*
+     * Test for group validation, the 'xls' file contains a group value
+     * that does not exist.
+     */
+    @Test
+    public void testWithInvalidGroupValue() throws InstantiationException, IllegalAccessException {
+        context.turnOffAuthorisationSystem();
+        createEntityType("Publication");
+        createEntityType("Person");
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("invalid-group-value.xls");
+        String[] args = new String[] { "cris-layout-tool", "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        List<String> errorMessages = handler.getErrorMessages();
+        assertThat(errorMessages, containsInAnyOrder(
+            "The boxpolicy contains an unknown group field: 'Researchers' at row 2",
+            "The tabpolicy contains an unknown group field: 'Researchers' at row 0",
             "IllegalArgumentException: The given workbook is not valid. Import canceled"));
     }
 
@@ -472,6 +540,10 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             .withHeader("New Tab header")
             .withLeading(true)
             .addBoxIntoNewRow(box)
+            .build();
+
+        GroupBuilder.createGroup(context)
+            .withName("Researchers")
             .build();
 
         context.restoreAuthSystemState();
@@ -572,13 +644,13 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(tab.getEntity().getLabel(), is(entityType));
         assertThat(tab.getHeader(), is(header));
-        assertThat(tab.getMetadataSecurityFields(), hasSize(securityFieldsSize));
         assertThat(tab.getPriority(), is(priority));
         assertThat(tab.getRows(), hasSize(rowsSize));
         assertThat(tab.getSecurity(), is(security.getValue()));
         assertThat(tab.getShortName(), is(shortname));
         assertThat(tab.isLeading(), is(isLeading));
-
+        assertThat(tab.getMetadataSecurityFields().size() +
+                       tab.getGroupSecurityFields().size(), is(securityFieldsSize));
     }
 
     private void assertThatBoxHas(CrisLayoutBox box, String shortname, String type, String entityType,
@@ -591,14 +663,14 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(box.getHeader(), is(header));
         assertThat(box.getLayoutFields(), hasSize(fieldsSize));
         assertThat(box.getMaxColumns(), nullValue());
-        assertThat(box.getMetadataSecurityFields(), hasSize(securityFieldsSize));
         assertThat(box.getMetric2box(), hasSize(metricsSize));
         assertThat(box.getMinor(), is(minor));
         assertThat(box.getSecurity(), is(security.getValue()));
         assertThat(box.getStyle(), is(style));
         assertThat(box.getShortname(), is(shortname));
         assertThat(box.getType(), is(type));
-
+        assertThat(box.getMetadataSecurityFields().size() + box.getGroupSecurityFields().size(),
+                   is(securityFieldsSize));
     }
 
     private EntityType createEntityType(String entityType) {

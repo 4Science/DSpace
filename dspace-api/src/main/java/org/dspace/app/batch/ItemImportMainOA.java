@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,9 +32,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authority.service.ItemSearchService;
 import org.dspace.authorize.AuthorizeException;
@@ -59,7 +57,7 @@ import org.dspace.utils.DSpace;
 public class ItemImportMainOA {
 
     /** logger */
-    private static Logger log = Logger.getLogger(ItemImportMainOA.class);
+    private static Logger log = LogManager.getLogger(ItemImportMainOA.class);
 
     /** Email buffer **/
     private static final String BATCH_USER = "batchjob@%";
@@ -86,8 +84,6 @@ public class ItemImportMainOA {
             }
         }
     }
-
-    private Level currentLevel = Level.INFO;
 
     public void doAll(Context context, String[] args) {
         String header = "";
@@ -210,10 +206,6 @@ public class ItemImportMainOA {
 
             System.out.println(configurationService.getProperty("dspace.name"));
 
-            if (commandOptions.getSilent()) {
-                powerOffLog();
-            }
-
             AtomicInteger count = new AtomicInteger(0);
             AtomicInteger row_discarded = new AtomicInteger(0);
 
@@ -231,10 +223,6 @@ public class ItemImportMainOA {
                     multithreadedMain(commandOptions, sb, line, metadataClean, batchJob, count, row_data, row_discarded,
                             ctxHolder);
                 }
-            }
-
-            if (commandOptions.getSilent()) {
-                powerOnLog();
             }
 
             String countDone = "Rows done " + count.intValue() + " on a total of " + impRecords.size();
@@ -497,24 +485,6 @@ public class ItemImportMainOA {
 
         if (!commandOptions.getSilent()) {
             System.out.println(Thread.currentThread().getName() + "==> " + textString);
-        }
-    }
-
-    private void powerOffLog() {
-        currentLevel = Logger.getRootLogger().getLevel();
-        List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
-        loggers.add(LogManager.getRootLogger());
-        for (Logger logger : loggers) {
-            logger.setLevel(Level.OFF);
-        }
-    }
-
-    private void powerOnLog() {
-
-        List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
-        loggers.add(LogManager.getRootLogger());
-        for (Logger logger : loggers) {
-            logger.setLevel(currentLevel);
         }
     }
 

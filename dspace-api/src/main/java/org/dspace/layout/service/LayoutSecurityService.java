@@ -14,6 +14,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.layout.LayoutSecurity;
 
 /**
@@ -31,9 +32,11 @@ public interface LayoutSecurityService {
      * @param context                current context
      * @param user                   user whom access right has to be checked
      * @param metadataSecurityFields set of {@link MetadataField} driving security policy
+     * @param groupSecurityFields    set of {@link Group} driving security policy
      * @param item                   Item to check whether or not access has to be granted
      * @return {@code true} if access has to be granted, {@code false} otherwise.
      */
     boolean hasAccess(LayoutSecurity layoutSecurity, Context context, EPerson user,
-                      Set<MetadataField> metadataSecurityFields, Item item) throws SQLException;
+                      Set<MetadataField> metadataSecurityFields, Set<Group> groupSecurityFields,
+                      Item item) throws SQLException;
 }

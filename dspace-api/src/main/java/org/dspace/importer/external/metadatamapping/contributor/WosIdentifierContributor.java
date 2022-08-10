@@ -6,20 +6,20 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.xml.namespace.QName;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.jaxen.JaxenException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 /**
  * This contributor can retrieve the identifiers
@@ -29,40 +29,30 @@ import org.slf4j.LoggerFactory;
  */
 public class WosIdentifierContributor extends SimpleXpathMetadatumContributor {
 
-    private static final Logger log = LoggerFactory.getLogger(WosIdentifierContributor.class);
-
     protected Map<String, MetadataFieldConfig> identifire2field;
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element element) {
         List<MetadatumDTO> values = new LinkedList<>();
-        try {
-            AXIOMXPath xpath = new AXIOMXPath(query);
-            for (String ns : prefixToNamespaceMapping.keySet()) {
-                xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
-            }
-            List<Object> nodes = xpath.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    OMElement element = (OMElement) el;
-                    String type = element.getAttributeValue(new QName("type"));
-                    setIdentyfire(type, element, values);
-                } else {
-                    log.warn("node of type: " + el.getClass());
-                }
-            }
-            return values;
-        } catch (JaxenException e) {
-            log.error(query, e);
-            throw new RuntimeException(e);
+        List<Namespace> namespaces = new ArrayList<>();
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
         }
+        XPathExpression<Element> xpath =
+                XPathFactory.instance().compile(query, Filters.element(), null, namespaces);
+
+        List<Element> nodes = xpath.evaluate(element);
+        for (Element el : nodes) {
+            String type = el.getAttributeValue("type");
+            setIdentyfire(type, el, values);
+        }
+        return values;
     }
 
-    private void setIdentyfire(String type, OMElement el, List<MetadatumDTO> values) throws JaxenException {
+    private void setIdentyfire(String type, Element el, List<MetadatumDTO> values) {
         for (String id : identifire2field.keySet()) {
             if (StringUtils.equals(id, type)) {
-                String value = el.getAttributeValue(new QName("value"));
+                String value = el.getAttributeValue("value");
                 values.add(metadataFieldMapping.toDCValue(identifire2field.get(id), value));
             }
         }

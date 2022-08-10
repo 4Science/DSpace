@@ -6,20 +6,23 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import javax.xml.namespace.QName;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.core.CrisConstants;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.jaxen.JaxenException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 /**
  * 
@@ -27,39 +30,35 @@ import org.slf4j.LoggerFactory;
  */
 public class WosIdentifierRidContributor extends SimpleXpathMetadatumContributor {
 
-    private static final Logger log = LoggerFactory.getLogger(WosIdentifierRidContributor.class);
+    private final static Logger log = LogManager.getLogger();
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Collection<MetadatumDTO> contributeMetadata(OMElement t) {
+    public Collection<MetadatumDTO> contributeMetadata(Element t) {
         List<MetadatumDTO> values = new LinkedList<>();
-        try {
-            AXIOMXPath xpath = new AXIOMXPath(query);
-            for (String ns : prefixToNamespaceMapping.keySet()) {
-                xpath.addNamespace(prefixToNamespaceMapping.get(ns), ns);
-            }
-            List<Object> nodes = xpath.selectNodes(t);
-            for (Object el : nodes) {
-                if (el instanceof OMElement) {
-                    OMElement element = ((OMElement) el).getFirstChildWithName(new QName("name"));
-                    if (Objects.nonNull(element)) {
-                        String type = element.getAttributeValue(new QName("role"));
-                        setIdentyfire(type, element, values);
-                    }
-                } else {
-                    log.warn("node of type: " + el.getClass());
-                }
-            }
-            return values;
-        } catch (JaxenException e) {
-            log.error(query, e);
-            throw new RuntimeException(e);
+        List<Namespace> namespaces = new ArrayList<Namespace>();
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
         }
+        XPathExpression<Object> xpath = XPathFactory.instance().compile(query, Filters.fpassthrough(), null,
+                namespaces);
+        List<Object> nodes = xpath.evaluate(t);
+        for (Object el : nodes) {
+            if (el instanceof Element) {
+                Element element = ((Element) el).getChild("name");
+                if (Objects.nonNull(element)) {
+                    String type = element.getAttributeValue("role");
+                    setIdentyfire(type, element, values);
+                }
+            } else {
+                log.warn("node of type: " + el.getClass());
+            }
+        }
+        return values;
     }
 
-    private void setIdentyfire(String type, OMElement el, List<MetadatumDTO> values) throws JaxenException {
+    private void setIdentyfire(String type, Element el, List<MetadatumDTO> values) {
         if (StringUtils.equals("researcher_id", type)) {
-            String value = el.getAttributeValue(new QName("r_id"));
+            String value = el.getAttributeValue("r_id");
             if (StringUtils.isNotBlank(value)) {
                 values.add(metadataFieldMapping.toDCValue(this.field, value));
             } else {

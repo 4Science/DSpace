@@ -96,6 +96,7 @@ public interface CrisLayoutToolValidator {
 
     String PARENT_COLUMN = "PARENT";
 
+    String GROUP_COLUMN = "GROUP";
 
     String METADATA_TYPE = "METADATA";
 

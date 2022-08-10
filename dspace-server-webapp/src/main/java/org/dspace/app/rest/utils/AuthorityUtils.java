@@ -17,6 +17,7 @@ import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,6 +41,9 @@ public class AuthorityUtils {
     @Autowired
     private ChoiceAuthorityService cas;
 
+    // Lazy load required so that AuthorityUtils can be used from DSpaceConverter components
+    // (because ConverterService autowires all DSpaceConverter components)
+    @Lazy
     @Autowired
     private ConverterService converter;
 

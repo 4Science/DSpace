@@ -21,6 +21,7 @@ import static org.dspace.layout.script.service.CrisLayoutToolValidator.COLLAPSED
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.CONTAINER_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.ENTITY_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.FIELD_TYPE_COLUMN;
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.GROUP_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.LABEL_AS_HEADING_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.LABEL_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.LEADING_COLUMN;
@@ -72,6 +73,8 @@ import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutCell;
@@ -101,6 +104,9 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
     @Autowired
     private MetadataFieldService metadataFieldService;
 
+    @Autowired
+    private GroupService groupService;
+
     @Override
     public List<CrisLayoutTab> parse(Context context, Workbook workbook) {
         Sheet tabSheet = getSheetByName(workbook, TAB_SHEET);
@@ -125,6 +131,8 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
         buildTabRows(context, workbook, entityType, name).forEach(tab::addRow);
         tab.setMetadataSecurityFields(buildMetadataSecurityField(context, workbook,
             TAB_POLICY_SHEET, entityType, name));
+        tab.setGroupSecurityFields(buildGroupSecurityField(context, workbook,
+                                                           TAB_POLICY_SHEET, entityType, name));
 
         return tab;
     }
@@ -205,6 +213,8 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
         box.setStyle(getCellValue(boxRow, STYLE_COLUMN));
         box.setMetadataSecurityFields(buildMetadataSecurityField(context, workbook,
             BOX_POLICY_SHEET, entityType, boxName));
+        box.setGroupSecurityFields(buildGroupSecurityField(context, workbook,
+                                                           BOX_POLICY_SHEET, entityType, boxName));
 
         if (boxType.equals(CrisLayoutBoxTypes.METADATA.name())) {
             buildCrisLayoutFields(context, workbook, entityType, boxName).forEach(box::addLayoutField);
@@ -344,9 +354,21 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
 
         return getRowsByEntityAndColumnValue(sheet, entity, SHORTNAME_COLUMN, name)
             .map(row -> getCellValue(row, METADATA_COLUMN))
+            .filter(StringUtils::isNotBlank)
             .map(metadataField -> getMetadataField(context, metadataField))
             .collect(Collectors.toSet());
 
+    }
+
+    private Set<Group> buildGroupSecurityField(Context context, Workbook workbook,
+                                               String sheetName, String entity, String name) {
+        Sheet sheet = getSheetByName(workbook, sheetName);
+
+        return getRowsByEntityAndColumnValue(sheet, entity, SHORTNAME_COLUMN, name)
+            .map(row -> getCellValue(row, GROUP_COLUMN))
+            .filter(StringUtils::isNotBlank)
+            .map(groupField -> getGroupField(context, groupField))
+            .collect(Collectors.toSet());
     }
 
     private Stream<Row> getRowsByEntityAndColumnValue(Sheet sheet, String entity, String columnName, String value) {
@@ -391,6 +413,14 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
     private MetadataField getMetadataField(Context context, String metadataSecurityField) {
         try {
             return metadataFieldService.findByString(context, metadataSecurityField, '.');
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
+
+    private Group getGroupField(Context context, String groupName) {
+        try {
+            return groupService.findByName(context, groupName);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

@@ -12,6 +12,8 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Map;
+
 import org.hamcrest.Matcher;
 
 /**
@@ -42,6 +44,17 @@ public class ItemAuthorityMatcher {
                 hasJsonPath("$.type", is(type)),
                 hasJsonPath("$.otherInformation", aMapWithSize(1)),
                 hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue))
+        );
+    }
+
+    public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(String authority, String display,
+            String value, String type, Map<String, String> otherInformation) {
+        return allOf(
+                hasJsonPath("$.authority", is(authority)),
+                hasJsonPath("$.display", is(display)),
+                hasJsonPath("$.value", is(value)),
+                hasJsonPath("$.type", is(type)),
+                hasJsonPath("$.otherInformation", is(otherInformation))
         );
     }
 

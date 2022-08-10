@@ -18,7 +18,8 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.ibm.icu.text.Normalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -36,7 +37,7 @@ public class MD5ValueSignature implements Signature {
         'f' };
 
     /** log4j logger */
-    protected static Logger log = Logger.getLogger(MD5ValueSignature.class);
+    protected static Logger log = LogManager.getLogger(MD5ValueSignature.class);
 
     private String metadata;
 

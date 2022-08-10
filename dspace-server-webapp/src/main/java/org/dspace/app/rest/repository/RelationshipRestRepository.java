@@ -37,7 +37,6 @@ import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
 import org.dspace.services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -122,12 +121,19 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
             String leftwardValue = req.getParameter("leftwardValue");
             String rightwardValue = req.getParameter("rightwardValue");
 
-            EPerson ePerson = context.getCurrentUser();
-            if (authorizeService.authorizeActionBoolean(context, leftItem, Constants.WRITE) ||
-                authorizeService.authorizeActionBoolean(context, rightItem, Constants.WRITE)) {
-                Relationship relationship = relationshipService.create(context, leftItem, rightItem,
-                                                                       relationshipType, -1, -1,
-                                                                       leftwardValue, rightwardValue);
+            if (authorizeService.canHandleRelationship(context, relationshipType, leftItem, rightItem)) {
+
+                context.turnOffAuthorisationSystem();
+
+                Relationship relationship = null;
+                try {
+                    relationship = relationshipService.create(context, leftItem, rightItem,
+                        relationshipType, -1, -1,
+                        leftwardValue, rightwardValue);
+                } finally {
+                    context.restoreAuthSystemState();
+                }
+
                 return converter.toRest(relationship, utils.obtainProjection());
             } else {
                 throw new AccessDeniedException("You do not have write rights on this relationship's items");
@@ -183,7 +189,7 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
             if (isAllowedToModifyRelationship(context, relationship, leftItem, rightItem)) {
                 relationship.setLeftItem(leftItem);
                 relationship.setRightItem(rightItem);
-
+                context.turnOffAuthorisationSystem();
                 try {
                     relationshipService.updatePlaceInRelationship(context, relationship);
                     relationshipService.update(context, relationship);
@@ -191,6 +197,8 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
                     context.reloadEntity(relationship);
                 } catch (AuthorizeException e) {
                     throw new AccessDeniedException("You do not have write rights on this relationship's items");
+                } finally {
+                    context.restoreAuthSystemState();
                 }
 
                 return converter.toRest(relationship, utils.obtainProjection());
@@ -232,26 +240,31 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
             throw new ResourceNotFoundException("Relationship" + " with id: " + id + " not found");
         }
 
+        RelationshipRest relationshipRest;
+
         try {
+            relationshipRest = new ObjectMapper().readValue(jsonNode.toString(), RelationshipRest.class);
+        } catch (IOException e) {
+            throw new UnprocessableEntityException("Error parsing request body: " + e.toString());
+        }
 
-            RelationshipRest relationshipRest;
+        relationship.setLeftwardValue(relationshipRest.getLeftwardValue());
+        relationship.setRightwardValue(relationshipRest.getRightwardValue());
 
-            try {
-                relationshipRest = new ObjectMapper().readValue(jsonNode.toString(), RelationshipRest.class);
-            } catch (IOException e) {
-                throw new UnprocessableEntityException("Error parsing request body: " + e.toString());
-            }
+        if (jsonNode.hasNonNull("rightPlace")) {
+            relationship.setRightPlace(relationshipRest.getRightPlace());
+        }
 
-            relationship.setLeftwardValue(relationshipRest.getLeftwardValue());
-            relationship.setRightwardValue(relationshipRest.getRightwardValue());
+        if (jsonNode.hasNonNull("leftPlace")) {
+            relationship.setLeftPlace(relationshipRest.getLeftPlace());
+        }
 
-            if (jsonNode.hasNonNull("rightPlace")) {
-                relationship.setRightPlace(relationshipRest.getRightPlace());
-            }
+        if (!authorizeService.canHandleRelationship(context, relationship)) {
+            throw new AccessDeniedException("You do not have write rights on this relationship's metadata");
+        }
 
-            if (jsonNode.hasNonNull("leftPlace")) {
-                relationship.setLeftPlace(relationshipRest.getLeftPlace());
-            }
+        context.turnOffAuthorisationSystem();
+        try {
             // places are updated only if relationship sorting has to be kept. This happens in case
             // relationshipType is set to handle single-side places (only leftPlace or rightPlace
             // value should be considered
@@ -261,11 +274,13 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
             relationshipService.update(context, relationship);
             context.commit();
             context.reloadEntity(relationship);
-
-            return converter.toRest(relationship, utils.obtainProjection());
         } catch (AuthorizeException e) {
             throw new AccessDeniedException("You do not have write rights on this relationship's metadata");
+        } finally {
+            context.restoreAuthSystemState();
         }
+
+        return converter.toRest(relationship, utils.obtainProjection());
     }
 
     /**
@@ -273,18 +288,20 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
      * new items for the relationship.
      * @param context       The relevant DSpace context
      * @param relationship  The relationship to be checked on
-     * @param leftItem      The new left Item
-     * @param rightItem     The new right Item
+     * @param newLeftItem   The new left Item
+     * @param newRightItem  The new right Item
      * @return A boolean indicating whether the user is allowed or not
      * @throws SQLException If something goes wrong
      */
-    private boolean isAllowedToModifyRelationship(Context context, Relationship relationship, Item leftItem,
-                                                  Item rightItem) throws SQLException {
-        return (authorizeService.authorizeActionBoolean(context, leftItem, Constants.WRITE) ||
-            authorizeService.authorizeActionBoolean(context, rightItem, Constants.WRITE)) &&
-            (authorizeService.authorizeActionBoolean(context, relationship.getLeftItem(), Constants.WRITE) ||
-                authorizeService.authorizeActionBoolean(context, relationship.getRightItem(), Constants.WRITE)
-            );
+    private boolean isAllowedToModifyRelationship(Context context, Relationship relationship, Item newLeftItem,
+        Item newRightItem) throws SQLException {
+
+        RelationshipType relationshipType = relationship.getRelationshipType();
+        Item oldLeftItem = relationship.getLeftItem();
+        Item oldRightItem = relationship.getRightItem();
+
+        return authorizeService.canHandleRelationship(context, relationshipType, newLeftItem, newRightItem) &&
+            authorizeService.canHandleRelationship(context, relationshipType, oldLeftItem, oldRightItem);
     }
 
     @Override
@@ -299,6 +316,12 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
         try {
             relationship = relationshipService.find(context, id);
             if (relationship != null) {
+
+                if (!authorizeService.canHandleRelationship(context, relationship)) {
+                    throw new AccessDeniedException("You do not have write rights on this relationship");
+                }
+
+                context.turnOffAuthorisationSystem();
                 try {
                     switch (copyVirtual) {
                         case ALL:
@@ -319,6 +342,8 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
                     }
                 } catch (AuthorizeException e) {
                     throw new AccessDeniedException("You do not have write rights on this relationship's items");
+                } finally {
+                    context.restoreAuthSystemState();
                 }
             }
         } catch (SQLException e) {

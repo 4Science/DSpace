@@ -34,14 +34,17 @@ public final class EntityRow {
 
     private final List<MetadataGroup> metadataGroups;
 
+    private final List<UploadDetails> uploadDetails;
+
     public EntityRow(String id, String action, int row, MultiValuedMap<String, MetadataValueVO> metadata,
-        List<MetadataGroup> metadataGroups) {
+        List<MetadataGroup> metadataGroups, List<UploadDetails> uploadDetails) {
         super();
         this.id = id;
         this.row = row + 1;
         this.action = isBlank(action) ? ImportAction.NOT_SPECIFIED : ImportAction.valueOf(action.toUpperCase());
         this.metadata = metadata;
         this.metadataGroups = metadataGroups;
+        this.uploadDetails = uploadDetails;
     }
 
     public MultiValuedMap<String, MetadataValueVO> getMetadata() {
@@ -62,6 +65,10 @@ public final class EntityRow {
 
     public int getRow() {
         return row;
+    }
+
+    public List<UploadDetails> getUploadDetails() {
+        return uploadDetails;
     }
 
 }

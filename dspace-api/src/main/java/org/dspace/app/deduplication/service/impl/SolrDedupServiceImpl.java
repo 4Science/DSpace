@@ -23,7 +23,8 @@ import java.util.UUID;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -58,7 +59,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SolrDedupServiceImpl implements DedupService {
 
-    private static final Logger log = Logger.getLogger(SolrDedupServiceImpl.class);
+    private static Logger log = LogManager.getLogger(SolrDedupServiceImpl.class);
 
     public static final String COLUMN_ADMIN_NOTE = "note";
 

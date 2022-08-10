@@ -8,7 +8,7 @@
 package org.dspace.harvest.service;
 
 import org.dspace.harvest.model.OAIHarvesterResponseDTO;
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 
 /**
  * OAI-PMH client.

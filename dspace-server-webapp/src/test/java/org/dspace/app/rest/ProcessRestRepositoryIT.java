@@ -31,9 +31,11 @@ import org.dspace.app.rest.matcher.PageMatcher;
 import org.dspace.app.rest.matcher.ProcessFileTypesMatcher;
 import org.dspace.app.rest.matcher.ProcessMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ProcessBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.ProcessStatus;
+import org.dspace.eperson.EPerson;
 import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.Process;
 import org.dspace.scripts.ProcessLogLevel;
@@ -804,6 +806,9 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Test get process output by admin created by himself
+     */
     @Test
     public void getProcessOutput() throws Exception {
         try (InputStream is = IOUtils.toInputStream("Test File For Process", CharEncoding.UTF_8)) {
@@ -826,6 +831,79 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
                                             is("script_output")));
 
 
+    }
+
+    @Test
+    public void getProcessOutputOfOthersByAdminTest() throws Exception {
+
+        Process process = ProcessBuilder.createProcess(context, eperson, "mock-script", parameters).build();
+        try (InputStream is = IOUtils.toInputStream("Test File For Process", CharEncoding.UTF_8)) {
+            processService.appendLog(process.getID(), process.getName(), "testlog", ProcessLogLevel.INFO);
+        }
+        processService.createLogBitstream(context, process);
+        List<String> fileTypesToCheck = new LinkedList<>();
+        fileTypesToCheck.add("inputfile");
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(get("/api/system/processes/" + process.getID() + "/output"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.name",
+                            is(process.getName() + process.getID() + ".log")))
+                        .andExpect(jsonPath("$.type", is("bitstream")))
+                        .andExpect(jsonPath("$.metadata['dc.title'][0].value",
+                            is(process.getName() + process.getID() + ".log")))
+                        .andExpect(jsonPath("$.metadata['dspace.process.filetype'][0].value",
+                            is("script_output")));
+
+
+    }
+
+    @Test
+    public void getProcessOutputByNotAdminTest() throws Exception {
+        Process process = ProcessBuilder.createProcess(context, eperson, "mock-script", parameters).build();
+        try (InputStream is = IOUtils.toInputStream("Test File For Process", CharEncoding.UTF_8)) {
+            processService.appendLog(process.getID(), process.getName(), "testlog", ProcessLogLevel.INFO);
+        }
+        processService.createLogBitstream(context, process);
+        List<String> fileTypesToCheck = new LinkedList<>();
+        fileTypesToCheck.add("inputfile");
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/system/processes/" + process.getID() + "/output"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.name",
+                            is(process.getName() + process.getID() + ".log")))
+                        .andExpect(jsonPath("$.type", is("bitstream")))
+                        .andExpect(jsonPath("$.metadata['dc.title'][0].value",
+                            is(process.getName() + process.getID() + ".log")))
+                        .andExpect(jsonPath("$.metadata['dspace.process.filetype'][0].value",
+                            is("script_output")));
+
+
+    }
+
+    @Test
+    public void getProcessOutputOfOthersByNotAdminTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        EPerson ePerson1 = EPersonBuilder.createEPerson(context)
+                                         .withEmail("test1@email.com")
+                                         .withPassword("qwerty01")
+                                         .build();
+        context.restoreAuthSystemState();
+
+        Process process = ProcessBuilder.createProcess(context, ePerson1, "mock-script", parameters).build();
+        try (InputStream is = IOUtils.toInputStream("Test File For Process", CharEncoding.UTF_8)) {
+            processService.appendLog(process.getID(), process.getName(), "testlog", ProcessLogLevel.INFO);
+        }
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/system/processes/" + process.getID() + "/output"))
+                        .andExpect(status().isForbidden());
+        processService.delete(context, process);
     }
 
     @Test
