@@ -71,6 +71,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         validateBox2MetadataSheet(allMetadataFields, workbook, result);
         validateMetadataGroupsSheet(allMetadataFields, workbook, result);
         validateBox2MetricsSheet(workbook, result);
+        validateBox2HierarchicalVocabularySheet(workbook, result);
         validateBoxPolicySheet(context, allMetadataFields, workbook, result);
         validateTabPolicySheet(context, allMetadataFields, workbook, result);
 
@@ -245,6 +246,17 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
 
         validateColumnsPresence(box2MetricsSheet, result, ENTITY_COLUMN, BOX_COLUMN, METRIC_TYPE_COLUMN);
 
+    }
+
+    private void validateBox2HierarchicalVocabularySheet(Workbook workbook, CrisLayoutToolValidationResult result) {
+        Sheet box2HierarchicalVocabularySheet = workbook.getSheet(BOX2HIERARCHICAL_SHEET);
+        if (box2HierarchicalVocabularySheet == null) {
+            result.addError("The " + BOX2HIERARCHICAL_SHEET + " sheet is missing");
+            return;
+        }
+
+        validateColumnsPresence(box2HierarchicalVocabularySheet, result, ENTITY_COLUMN, BOX_COLUMN,
+                                VOCABULARY_COLUMN, METADATA_COLUMN);
     }
 
     private void validateBoxPolicySheet(Context context, List<String> allMetadataFields, Workbook workbook,

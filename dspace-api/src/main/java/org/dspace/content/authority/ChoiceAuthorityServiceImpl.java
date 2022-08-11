@@ -468,7 +468,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public ChoiceAuthority getChoiceAuthorityByAuthorityName(String authorityName) {
+    public ChoiceAuthority getChoiceAuthorityByAuthorityName(String authorityName) throws IllegalArgumentException {
         ChoiceAuthority ma = (ChoiceAuthority)
             pluginService.getNamedPlugin(ChoiceAuthority.class, authorityName);
         if (ma == null) {

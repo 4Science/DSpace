@@ -222,6 +222,12 @@
             <type>custom-url</type>
         </step-definition>
 
+        <step-definition id="orgunit" mandatory="true">
+            <heading>submit.progressbar.describe.orgunit</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        
 	    <step-definition id="correction" mandatory="true">
 			<heading>submit.progressbar.correction-step</heading>
 			<processing-class>org.dspace.app.rest.submit.step.CorrectionStep</processing-class>
@@ -373,6 +379,14 @@
             <step id="collection"/>
             <step id="traditionalpageone"/>
             <step id="notDiscoverable"/>
+        </submission-process>
+
+        <submission-process name="orgunit">
+            <step id="collection" />
+            <step id="orgunit" />
+            <step id="detect-duplicate" />
+            <step id="upload" />
+            <step id="license" />
         </submission-process>
 
     </submission-definitions>

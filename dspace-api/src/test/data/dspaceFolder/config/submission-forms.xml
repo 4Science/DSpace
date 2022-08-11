@@ -1851,6 +1851,143 @@ You can leave out the day and/or month if they aren't applicable.</hint>
 			</field>
      	</row>
 	</form>
+
+   <form name="orgunit">
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>title</dc-element>
+         <label>Organization name</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required>You must enter the oganization name.</required>
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>acronym</dc-element>
+         <label>Acronym or short form of title</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>organization</dc-schema>
+         <dc-element>parentOrganization</dc-element>
+         <label>Parent Organisation</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>crisou</dc-schema>
+         <dc-element>director</dc-element>
+         <label>Director</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>organization</dc-schema>
+         <dc-element>foundingDate</dc-element>
+         <label>Established</label>
+         <input-type>date</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>crisou</dc-schema>
+         <dc-element>boards</dc-element>
+         <label>Scientifics Board</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>organization</dc-schema>
+         <dc-element>identifier</dc-element>
+         <label>Identifiers</label>
+         <input-type value-pairs-name="orgunit_identifiers">qualdrop_value</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>identifier</dc-element>
+         <dc-qualifier>url</dc-qualifier>
+         <label>Website(s)</label>
+         <input-type>onebox</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>abstract</dc-qualifier>
+         <label>Description for OrgUnit</label>
+         <input-type>textarea</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>organization</dc-schema>
+         <dc-element>address</dc-element>
+         <dc-qualifier>addressLocality</dc-qualifier>
+         <label>City</label>
+         <input-type>onebox</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+       <field>
+         <dc-schema>organization</dc-schema>
+         <dc-element>address</dc-element>
+         <dc-qualifier>addressCountry</dc-qualifier>
+         <label>Country</label>
+         <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint />
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <label>Type</label>
+         <input-type value-pairs-name="orgunit_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>You must specify the organisation type</required>
+         <hint />
+       </field>
+     </row>
+   </form>
 	
 	
  </form-definitions>
@@ -2295,6 +2432,92 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         <stored-value>n/a</stored-value>
       </pair>
     </value-pairs>
+
+   <value-pairs value-pairs-name="orgunit_identifiers" dc-term="orgunit_identifiers">
+     <pair>
+       <displayed-value>CrossRef Funder ID</displayed-value>
+       <stored-value>crossrefid</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Research Organization Registry</displayed-value>
+       <stored-value>ror</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>International Standard Name Identifier</displayed-value>
+       <stored-value>isni</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Ringgold identifier</displayed-value>
+       <stored-value>rin</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Legal Entity Identifier</displayed-value>
+       <stored-value>lei</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Generic ID</displayed-value>
+       <stored-value />
+     </pair>
+   </value-pairs>
+
+   <value-pairs value-pairs-name="orgunit_types" dc-term="orgunit_types">
+     <pair>
+       <displayed-value>Unspecified</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>Academic Institute</displayed-value>
+       <stored-value>Academic Institute</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>University</displayed-value>
+       <stored-value>University</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>University College</displayed-value>
+       <stored-value>University College</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Research Institute</displayed-value>
+       <stored-value>Research Institute</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Strategic Research Institute</displayed-value>
+       <stored-value>Strategic Research Insitute</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Company</displayed-value>
+       <stored-value>Company</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>SME</displayed-value>
+       <stored-value>SME</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Government</displayed-value>
+       <stored-value>Government</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Higher Education</displayed-value>
+       <stored-value>Higher Education</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Private non-profit</displayed-value>
+       <stored-value>Private non-profit</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Intergovernmental</displayed-value>
+       <stored-value>Intergovernmental</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Charity</displayed-value>
+       <stored-value>Charity</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>National Health Service</displayed-value>
+       <stored-value>National Health Service</stored-value>
+     </pair>
+   </value-pairs>
 
  </form-value-pairs>
 

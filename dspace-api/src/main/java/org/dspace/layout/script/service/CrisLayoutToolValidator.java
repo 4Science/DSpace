@@ -33,6 +33,8 @@ public interface CrisLayoutToolValidator {
 
     String BOX2METRICS_SHEET = "box2metrics";
 
+    String BOX2HIERARCHICAL_SHEET = "box2hierarchicalvocabulary";
+
     String TAB_POLICY_SHEET = "tabpolicy";
 
     String BOX_POLICY_SHEET = "boxpolicy";
@@ -95,6 +97,8 @@ public interface CrisLayoutToolValidator {
     String METRIC_TYPE_COLUMN = "METRIC_TYPE";
 
     String PARENT_COLUMN = "PARENT";
+
+    String VOCABULARY_COLUMN = "VOCABULARY";
 
     String GROUP_COLUMN = "GROUP";
 

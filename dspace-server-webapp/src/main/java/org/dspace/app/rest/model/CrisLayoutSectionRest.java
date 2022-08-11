@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import org.dspace.app.rest.RestResourceController;
+import org.dspace.layout.CrisLayoutCarouselComponent;
 import org.dspace.layout.CrisLayoutCountersComponent;
 import org.dspace.layout.CrisLayoutMultiColumnTopComponent;
 
@@ -121,7 +122,22 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String style;
 
         private String titleKey;
+
         private Integer numberOfItems;
+
+        private boolean showAsCard;
+
+        private boolean showLayoutSwitch;
+
+        private String defaultLayoutMode;
+
+        private String cardStyle;
+
+        private String cardColumnStyle;
+
+        private String itemListStyle;
+
+        private boolean showAllResults;
 
         public String getDiscoveryConfigurationName() {
             return discoveryConfigurationName;
@@ -183,6 +199,105 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         public Integer getNumberOfItems() {
             return numberOfItems;
         }
+
+        /**
+         * @return the showAsCard
+         */
+        public boolean isShowAsCard() {
+            return showAsCard;
+        }
+
+        /**
+         * @param showAsCard the showAsCard to set
+         */
+        public void setShowAsCard(boolean showAsCard) {
+            this.showAsCard = showAsCard;
+        }
+
+        /**
+         * @return the showLayoutSwitch
+         */
+        public boolean isShowLayoutSwitch() {
+            return showLayoutSwitch;
+        }
+
+        /**
+         * @param showLayoutSwitch the showLayoutSwitch to set
+         */
+        public void setShowLayoutSwitch(boolean showLayoutSwitch) {
+            this.showLayoutSwitch = showLayoutSwitch;
+        }
+
+        /**
+         * @return the defaultLayoutMode
+         */
+        public String getDefaultLayoutMode() {
+            return defaultLayoutMode;
+        }
+
+        /**
+         * @param defaultLayoutMode the defaultLayoutMode to set
+         */
+        public void setDefaultLayoutMode(String defaultLayoutMode) {
+            this.defaultLayoutMode = defaultLayoutMode;
+        }
+
+        /**
+         * @return the cardStyle
+         */
+        public String getCardStyle() {
+            return cardStyle;
+        }
+
+        /**
+         * @param cardStyle the cardStyle to set
+         */
+        public void setCardStyle(String cardStyle) {
+            this.cardStyle = cardStyle;
+        }
+
+        /**
+         * @return the cardColumnStyle
+         */
+        public String getCardColumnStyle() {
+            return cardColumnStyle;
+        }
+
+        /**
+         * @param cardColumnStyle the cardColumnStyle to set
+         */
+        public void setCardColumnStyle(String cardColumnStyle) {
+            this.cardColumnStyle = cardColumnStyle;
+        }
+
+        /**
+         * @return the itemListStyle
+         */
+        public String getItemListStyle() {
+            return itemListStyle;
+        }
+
+        /**
+         * @param itemListStyle the itemListStyle to set
+         */
+        public void setItemListStyle(String itemListStyle) {
+            this.itemListStyle = itemListStyle;
+        }
+
+        /**
+         * @return the showAllResults
+         */
+        public boolean isShowAllResults() {
+            return showAllResults;
+        }
+
+        /**
+         * @param showAllResults the showAllResults to set
+         */
+        public void setShowAllResults(boolean showAllResults) {
+            this.showAllResults = showAllResults;
+        }
+
     }
 
     public static class CrisLayoutFacetComponentRest implements CrisLayoutSectionComponentRest {
@@ -539,6 +654,182 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
                 return titleKey;
             }
         }
+    }
+
+    public static class CrisLayoutCarouselComponentRest implements CrisLayoutSectionComponentRest {
+
+        private String discoveryConfigurationName;
+
+        private String title;
+
+        private String link;
+
+        private String description;
+
+        private String style;
+
+        private String order;
+
+        private String sortField;
+
+        private int numberOfItems;
+
+        private boolean targetBlank;
+
+        private boolean fitWidth;
+
+        private boolean fitHeight;
+
+        private boolean keepAspectRatio;
+
+        private double aspectRatio;
+
+        private int carouselHeightPx;
+
+        private String captionStyle;
+
+        private String titleStyle;
+
+        /**
+         * Initializes the rest component using the
+         * CrisLayoutCarouselComponent component
+         * 
+         * @param component
+         */
+        public CrisLayoutCarouselComponentRest(CrisLayoutCarouselComponent component) {
+            discoveryConfigurationName = component.getDiscoveryConfigurationName();
+            title = component.getTitle();
+            link = component.getLink();
+            description = component.getDescription();
+            style = component.getStyle();
+            order = component.getOrder();
+            sortField = component.getSortField();
+            numberOfItems = component.getNumberOfItems();
+            targetBlank = component.isTargetBlank();
+            fitWidth = component.isFitWidth();
+            fitHeight = component.isFitHeight();
+            keepAspectRatio = component.isKeepAspectRatio();
+            aspectRatio = component.getAspectRatio();
+            carouselHeightPx = component.getCarouselHeightPx();
+            captionStyle = component.getCaptionStyle();
+            titleStyle = component.getTitleStyle();
+        }
+
+        /**
+         * @return the discoveryConfigurationName
+         */
+        public String getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+        /**
+         * @return the title
+         */
+        public String getTitle() {
+            return title;
+        }
+
+        /**
+         * @return the link
+         */
+        public String getLink() {
+            return link;
+        }
+
+        /**
+         * @return the description
+         */
+        public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public String getComponentType() {
+            return "carousel";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        /**
+         * @return the order
+         */
+        public String getOrder() {
+            return order;
+        }
+
+        /**
+         * @return the sortField
+         */
+        public String getSortField() {
+            return sortField;
+        }
+
+        /**
+         * @return the numberOfItems
+         */
+        public int getNumberOfItems() {
+            return numberOfItems;
+        }
+
+        /**
+         * @return the targetBlank
+         */
+        public boolean isTargetBlank() {
+            return targetBlank;
+        }
+
+        /**
+         * @return the fitWidth
+         */
+        public boolean isFitWidth() {
+            return fitWidth;
+        }
+
+        /**
+         * @return the fitHeight
+         */
+        public boolean isFitHeight() {
+            return fitHeight;
+        }
+
+        /**
+         * @return the keepAspectRatio
+         */
+        public boolean isKeepAspectRatio() {
+            return keepAspectRatio;
+        }
+
+        /**
+         * @return the aspectRatio
+         */
+        public double getAspectRatio() {
+            return aspectRatio;
+        }
+
+        /**
+         * @return the carouselHeightPx
+         */
+        public int getCarouselHeightPx() {
+            return carouselHeightPx;
+        }
+
+        /**
+         * @return the captionStyle
+         */
+        public String getCaptionStyle() {
+            return captionStyle;
+        }
+
+        /**
+         * @return the titleStyle
+         */
+        public String getTitleStyle() {
+            return titleStyle;
+        }
+
     }
 
 }

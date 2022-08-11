@@ -41,4 +41,24 @@ public class VocabularyMatcher {
                 hasJsonPath("$.type", is(type))
         );
     }
+
+    public static Matcher<? super Object> matchVocabularyEntry(String id, String display, String value, String type) {
+        return allOf(
+                hasJsonPath("$.id", is(id)),
+                hasJsonPath("$.display", is(display)),
+                hasJsonPath("$.value", is(value)),
+                hasJsonPath("$.type", is(type))
+        );
+    }
+
+    public static Matcher<? super Object> matchOtherInformations(String id, String display, String hasChildren) {
+        return hasJsonPath(
+                "$.otherInformation",
+                allOf(
+                    hasJsonPath("$.id", is(id)),
+                    hasJsonPath("$.display", is(display)),
+                    hasJsonPath("$.hasChildren", is(hasChildren))
+                )
+        );
+    }
 }

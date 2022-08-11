@@ -27,6 +27,20 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private Integer numberOfItems;
 
+    private boolean showAsCard;
+
+    private boolean showLayoutSwitch;
+
+    private LayoutMode defaultLayoutMode;
+
+    private String cardStyle;
+
+    private String cardColumnStyle;
+
+    private String itemListStyle;
+
+    private boolean showAllResults;
+
     /**
      * @return the discoveryConfigurationName
      */
@@ -108,5 +122,117 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     public void setNumberOfItems(Integer numberOfItems) {
         this.numberOfItems = numberOfItems;
+    }
+
+    /**
+     * @return the showAsCard
+     */
+    public boolean isShowAsCard() {
+        return showAsCard;
+    }
+
+    /**
+     * @param showAsCard the showAsCard to set
+     */
+    public void setShowAsCard(boolean showAsCard) {
+        this.showAsCard = showAsCard;
+    }
+
+    /**
+     * @return the showLayoutSwitch
+     */
+    public boolean isShowLayoutSwitch() {
+        return showLayoutSwitch;
+    }
+
+    /**
+     * @param showLayoutSwitch the showLayoutSwitch to set
+     */
+    public void setShowLayoutSwitch(boolean showLayoutSwitch) {
+        this.showLayoutSwitch = showLayoutSwitch;
+    }
+
+    /**
+     * @return the defaultLayoutMode
+     */
+    public LayoutMode getDefaultLayoutMode() {
+        return defaultLayoutMode;
+    }
+
+    /**
+     * @param defaultLayoutMode the defaultLayoutMode to set
+     */
+    public void setDefaultLayoutMode(LayoutMode defaultLayoutMode) {
+        this.defaultLayoutMode = defaultLayoutMode;
+    }
+
+    /**
+     * @return the cardStyle
+     */
+    public String getCardStyle() {
+        return cardStyle;
+    }
+
+    /**
+     * @param cardStyle the cardStyle to set
+     */
+    public void setCardStyle(String cardStyle) {
+        this.cardStyle = cardStyle;
+    }
+
+    /**
+     * @return the cardColumnStyle
+     */
+    public String getCardColumnStyle() {
+        return cardColumnStyle;
+    }
+
+    /**
+     * @param cardColumnStyle the cardColumnStyle to set
+     */
+    public void setCardColumnStyle(String cardColumnStyle) {
+        this.cardColumnStyle = cardColumnStyle;
+    }
+
+    /**
+     * @return the itemListStyle
+     */
+    public String getItemListStyle() {
+        return itemListStyle;
+    }
+
+    /**
+     * @param itemListStyle the itemListStyle to set
+     */
+    public void setItemListStyle(String itemListStyle) {
+        this.itemListStyle = itemListStyle;
+    }
+
+    /**
+     * @return the showAllResults
+     */
+    public boolean isShowAllResults() {
+        return showAllResults;
+    }
+
+    /**
+     * @param showAllResults the showAllResults to set
+     */
+    public void setShowAllResults(boolean showAllResults) {
+        this.showAllResults = showAllResults;
+    }
+
+    /**
+     * @author Stefano Maffei (steph-ieffam @ 4Science)
+     *  Defines the layout mode used in the CrisLayoutTopComponent
+     */
+    public static enum LayoutMode {
+
+        LIST, CARD;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 }

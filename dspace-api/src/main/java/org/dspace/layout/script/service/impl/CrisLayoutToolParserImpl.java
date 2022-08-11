@@ -8,6 +8,7 @@
 package org.dspace.layout.script.service.impl;
 
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BITSTREAM_TYPE;
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2HIERARCHICAL_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METADATA_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METRICS_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOXES_COLUMN;
@@ -48,6 +49,7 @@ import static org.dspace.layout.script.service.CrisLayoutToolValidator.TAB_SHEET
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.TYPE_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.VALUES_INLINE_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.VALUE_COLUMN;
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.VOCABULARY_COLUMN;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -81,6 +83,7 @@ import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutFieldBitstream;
 import org.dspace.layout.CrisLayoutFieldMetadata;
+import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
@@ -220,6 +223,10 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
             buildCrisLayoutFields(context, workbook, entityType, boxName).forEach(box::addLayoutField);
         } else if (boxType.equals(CrisLayoutBoxTypes.METRICS.name())) {
             buildBoxMetrics(workbook, entityType, boxName).forEach(box::addMetric2box);
+        } else if (boxType.equals(CrisLayoutBoxTypes.HIERARCHY.name())) {
+            CrisLayoutHierarchicalVocabulary2Box hierarchicalVocabulary2Box =
+                buildBoxHierarchical(context, workbook, entityType, boxName);
+            box.setHierarchicalVocabulary2Box(hierarchicalVocabulary2Box);
         }
 
         return box;
@@ -319,6 +326,22 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
             .filter(metrics -> StringUtils.isNotBlank(metrics))
             .flatMap(metrics -> buildBoxMetrics(metrics.split(",")))
             .collect(Collectors.toList());
+    }
+
+    private CrisLayoutHierarchicalVocabulary2Box buildBoxHierarchical(Context context, Workbook workbook,
+                                                                      String entityType, String boxName) {
+        Sheet hierarchicalSheet = getSheetByName(workbook, BOX2HIERARCHICAL_SHEET);
+        Row row = getRowsByEntityAndColumnValue(hierarchicalSheet, entityType, BOX_COLUMN, boxName)
+            .findFirst().orElse(null);
+
+        return buildBoxHierarchical(context, row);
+    }
+
+    private CrisLayoutHierarchicalVocabulary2Box buildBoxHierarchical(Context context, Row row) {
+        CrisLayoutHierarchicalVocabulary2Box box = new CrisLayoutHierarchicalVocabulary2Box();
+        box.setVocabulary(getCellValue(row, VOCABULARY_COLUMN));
+        box.setMetadataField(getMetadataField(context, getCellValue(row, METADATA_COLUMN)));
+        return box;
     }
 
     private Stream<CrisLayoutMetric2Box> buildBoxMetrics(String[] metrics) {

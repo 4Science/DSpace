@@ -61,6 +61,7 @@ import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutCell;
+import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.LayoutSecurity;
@@ -169,6 +170,20 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                 .addMetadataSecurityField(uri)
                 .build();
 
+        // Create CrisLayoutHierarchicalVocabulary2Box and add it to box
+        CrisLayoutBox boxSeven = CrisLayoutBoxBuilder.createBuilder(context, eType, false, false)
+            .withHeader("Seventh New Box Header - priority 1")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .withShortname("Shortname 7")
+            .withStyle("STYLE")
+            .withType(CrisLayoutBoxTypes.HIERARCHY.name())
+            .build();
+        CrisLayoutHierarchicalVocabulary2Box crisLayoutHierarchicalVocabulary2Box =
+                                                        new CrisLayoutHierarchicalVocabulary2Box();
+        crisLayoutHierarchicalVocabulary2Box.setVocabulary("publication-coar-types");
+        crisLayoutHierarchicalVocabulary2Box.setMetadataField(mfss.findByString(context, "dc.type", '.'));
+        boxSeven.setHierarchicalVocabulary2Box(crisLayoutHierarchicalVocabulary2Box);
+
         CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, eType, 0)
                                                 .withShortName("Another New Tab shortname")
                                                 .withSecurity(LayoutSecurity.PUBLIC)
@@ -180,6 +195,7 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                                                 .addBoxIntoLastCell(boxFour)
                                                 .addBoxIntoNewRow(boxFive)
                                                 .addBoxIntoLastCell(boxSix)
+                                                .addBoxIntoNewRow(boxSeven)
                                                 .build();
 
         context.restoreAuthSystemState();
@@ -192,7 +208,7 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.header", is("New Tab header")))
             .andExpect(jsonPath("$.leading", is(true)))
             .andExpect(jsonPath("$.security", is(LayoutSecurity.PUBLIC.getValue())))
-            .andExpect(jsonPath("$.rows", hasSize(3)))
+            .andExpect(jsonPath("$.rows", hasSize(4)))
             .andExpect(jsonPath("$.rows[0].style").doesNotExist())
             .andExpect(jsonPath("$.rows[0].cells", hasSize(1)))
             .andExpect(jsonPath("$.rows[0].cells[0].style").doesNotExist())
@@ -206,7 +222,8 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.rows[2].style").doesNotExist())
             .andExpect(jsonPath("$.rows[2].cells", hasSize(1)))
             .andExpect(jsonPath("$.rows[2].cells[0].style").doesNotExist())
-            .andExpect(jsonPath("$.rows[2].cells[0].boxes", contains(matchBox(boxFive), matchBox(boxSix))));
+            .andExpect(jsonPath("$.rows[2].cells[0].boxes", contains(matchBox(boxFive), matchBox(boxSix))))
+            .andExpect(jsonPath("$.rows[3].cells[0].boxes", contains(matchBox(boxSeven))));
     }
 
     /**
@@ -695,6 +712,187 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                                                         Matchers.is("embedded-view")))
                 .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics[1]",
                                                         Matchers.is("embedded-download")));
+    }
+
+    @Test
+    public void findByItemWithHierarchicBox() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // Create new community
+        Community community = CommunityBuilder.createCommunity(context)
+            .withName("Test Community")
+            .withTitle("Title test community")
+            .build();
+
+        // Create new collection
+        Collection collection = CollectionBuilder.createCollection(context, community)
+            .withName("Test Collection")
+            .build();
+
+        // Create entity type Publication
+        EntityTypeBuilder.createEntityTypeBuilder(context, "Publication")
+            .build();
+
+        // Create entity Type
+        EntityType eTypePer = EntityTypeBuilder.createEntityTypeBuilder(context, "Person")
+            .build();
+
+        // Create new person item
+        Item item = ItemBuilder.createItem(context, collection)
+            .withPersonIdentifierFirstName("Danilo")
+            .withPersonIdentifierLastName("Di Nuzzo")
+            .withEntityType(eTypePer.getLabel())
+            .build();
+
+        // Create box
+        CrisLayoutBox box = CrisLayoutBoxBuilder.createBuilder(context, eTypePer,
+                                                               CrisLayoutBoxTypes.METRICS.name(), true, true)
+            .withShortname("box-shortname-two")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .build();
+
+        // Add metrics to box
+        CrisLayoutMetric2BoxBuilder.create(context, box, "embedded-view", 0).build();
+        CrisLayoutMetric2BoxBuilder.create(context, box, "embedded-download", 1).build();
+
+        // Add metrics to item
+        CrisMetricsBuilder.createCrisMetrics(context, item)
+            .withMetricType("embedded-view").build();
+        CrisMetricsBuilder.createCrisMetrics(context, item)
+            .withMetricType("embedded-download").build();
+
+        // Create Hierarchic box
+        CrisLayoutBox box2 = CrisLayoutBoxBuilder.createBuilder(context, eTypePer, false, false)
+            .withShortname("box-shortname-three")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .withType(CrisLayoutBoxTypes.HIERARCHY.name())
+            .build();
+
+        CrisLayoutHierarchicalVocabulary2Box crisLayoutHierarchicalVocabulary2Box =
+                                                new CrisLayoutHierarchicalVocabulary2Box();
+        crisLayoutHierarchicalVocabulary2Box.setVocabulary("publication-coar-types");
+        crisLayoutHierarchicalVocabulary2Box.setMetadataField(mfss.findByString(context, "dc.type", '.'));
+        box2.setHierarchicalVocabulary2Box(crisLayoutHierarchicalVocabulary2Box);
+
+        CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, eTypePer, 0)
+            .withShortName("TabOne For Person - priority 0")
+            .withHeader("New Tab header")
+            .addBoxIntoNewRow(box)
+            .addBoxIntoNewRow(box2)
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // Test
+        getClient().perform(get("/api/layout/tabs/search/findByItem").param("uuid", item.getID().toString()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box))))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics", hasSize(2)))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics[0]",
+                                Matchers.is("embedded-view")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics[1]",
+                                Matchers.is("embedded-download")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes", contains(matchBox(box2))))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes[0].boxType",
+                                Matchers.is("HIERARCHY")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes[0].configuration.type",
+                                Matchers.is("boxhierarchyconfiguration")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes[0].configuration.vocabulary",
+                                Matchers.is("publication-coar-types")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes[0].configuration.metadata",
+                                Matchers.is("dc.type")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes[0].configuration.maxColumns",
+                                Matchers.nullValue()));
+    }
+
+    @Test
+    public void findByItemWithHierarchicBoxInvalidVocabulary() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // Create new community
+        Community community = CommunityBuilder.createCommunity(context)
+            .withName("Test Community")
+            .withTitle("Title test community")
+            .build();
+
+        // Create new collection
+        Collection collection = CollectionBuilder.createCollection(context, community)
+            .withName("Test Collection")
+            .build();
+
+        // Create entity type Publication
+        EntityTypeBuilder.createEntityTypeBuilder(context, "Publication")
+            .build();
+
+        // Create entity Type
+        EntityType eTypePer = EntityTypeBuilder.createEntityTypeBuilder(context, "Person")
+            .build();
+
+        // Create new person item
+        Item item = ItemBuilder.createItem(context, collection)
+            .withPersonIdentifierFirstName("Danilo")
+            .withPersonIdentifierLastName("Di Nuzzo")
+            .withEntityType(eTypePer.getLabel())
+            .build();
+
+        // Create box
+        CrisLayoutBox box = CrisLayoutBoxBuilder.createBuilder(context, eTypePer,
+                                                               CrisLayoutBoxTypes.METRICS.name(), true, true)
+            .withShortname("box-shortname-two")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .build();
+
+        // Add metrics to box
+        CrisLayoutMetric2BoxBuilder.create(context, box, "embedded-view", 0).build();
+        CrisLayoutMetric2BoxBuilder.create(context, box, "embedded-download", 1).build();
+
+        // Add metrics to item
+        CrisMetricsBuilder.createCrisMetrics(context, item)
+            .withMetricType("embedded-view").build();
+        CrisMetricsBuilder.createCrisMetrics(context, item)
+            .withMetricType("embedded-download").build();
+
+        // Create Hierarchic box
+        CrisLayoutBox box2 = CrisLayoutBoxBuilder.createBuilder(context, eTypePer, false, false)
+            .withShortname("box-shortname-three")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .withType(CrisLayoutBoxTypes.HIERARCHY.name())
+            .build();
+
+        CrisLayoutHierarchicalVocabulary2Box crisLayoutHierarchicalVocabulary2Box =
+                                                    new CrisLayoutHierarchicalVocabulary2Box();
+        crisLayoutHierarchicalVocabulary2Box.setVocabulary("invalid-vocab"); // Invalid Vocabulary value
+        crisLayoutHierarchicalVocabulary2Box.setMetadataField(mfss.findByString(context, "dc.type", '.'));
+        box2.setHierarchicalVocabulary2Box(crisLayoutHierarchicalVocabulary2Box);
+
+        CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, eTypePer, 0)
+            .withShortName("TabOne For Person - priority 0")
+            .withHeader("New Tab header")
+            .addBoxIntoNewRow(box)
+            .addBoxIntoNewRow(box2)
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // Test
+        getClient().perform(get("/api/layout/tabs/search/findByItem").param("uuid", item.getID().toString()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+            // Only METRICS box is returned
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box))))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics", hasSize(2)))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics[0]",
+                                Matchers.is("embedded-view")))
+            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.metrics[1]",
+                                Matchers.is("embedded-download")));
     }
 
     /**

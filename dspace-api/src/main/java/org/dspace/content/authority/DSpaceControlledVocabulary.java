@@ -236,7 +236,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         } catch (XPathExpressionException e) {
             return null;
         }
-        return createChoiceFromNode(node);
+        return createChoiceFromNode(node, this.vocabularyName);
     }
 
     @Override
@@ -248,14 +248,14 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     public Choices getTopChoices(String authorityName, int start, int limit, String locale) {
         init();
         String xpathExpression = rootTemplate;
-        return getChoicesByXpath(xpathExpression, start, limit, locale);
+        return getChoicesByXpath(authorityName, xpathExpression, start, limit, locale);
     }
 
     @Override
     public Choices getChoicesByParent(String authorityName, String parentId, int start, int limit, String locale) {
         init();
         String xpathExpression = String.format(idTemplate, parentId);
-        return getChoicesByXpath(xpathExpression, start, limit, locale);
+        return getChoicesByXpath(authorityName, xpathExpression, start, limit, locale);
     }
 
     @Override
@@ -263,7 +263,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         init();
         try {
             String xpathExpression = String.format(idParentTemplate, childId);
-            Choice choice = createChoiceFromNode(getNodeFromXPath(xpathExpression, locale));
+            Choice choice = createChoiceFromNode(getNodeFromXPath(xpathExpression, locale), authorityName);
             return choice;
         } catch (XPathExpressionException e) {
             log.error(e.getMessage(), e);
@@ -431,7 +431,13 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         }
     }
 
-    private Choices getChoicesByXpath(String xpathExpression, int start, int limit, String locale) {
+    private Choices getChoicesByXpath(
+            String authorityName,
+            String xpathExpression,
+            int start,
+            int limit,
+            String locale
+    ) {
         List<Choice> choices = new ArrayList<Choice>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
@@ -449,7 +455,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                                 continue;
                             }
                             count++;
-                            choices.add(createChoiceFromNode(childNode));
+                            choices.add(createChoiceFromNode(childNode, authorityName));
                         }
                     }
                 }
@@ -463,10 +469,15 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         return new Choices(false);
     }
 
-    private Choice createChoiceFromNode(Node node) {
+    private Choice createChoiceFromNode(Node node, String authorityName) {
         if (node != null && !isRootElement(node)) {
-            Choice choice = new Choice(getAuthority(node), getLabel(node), getValue(node),
-                    isSelectable(node));
+            Choice choice = new Choice(
+                    authorityName,
+                    getAuthority(node),
+                    getLabel(node),
+                    getValue(node),
+                    isSelectable(node)
+            );
             choice.extras = addOtherInformation(getParent(node), getNote(node),getChildren(node), getAuthority(node));
             return choice;
         }

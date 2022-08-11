@@ -24,5 +24,37 @@
 	<bean name="personItemAuthorityService" class="org.dspace.content.authority.PersonItemAuthorityService" />
 	<bean name="itemAuthorityService" class="org.dspace.content.authority.ItemAuthorityServiceImpl" />
 
+	<bean id="itemControlledVocabularyFactory"
+		  class="org.dspace.content.authority.factory.ItemControlledVocabularyFactory">
+
+		<property name="entityMapping">
+			<map>
+				<!-- Specify here any services to use with the relative entity type -->
+				<entry key="orgunits" value-ref="orgunitsControlledVocabulary" />
+			</map>
+		</property>
+	</bean>
+
+	<bean name="orgunitsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="parentQuery" value="entityType:OrgUnit AND -organization.parentOrganization:*"/>
+		<property name="childrenQuery" value="organization.parentOrganization_authority:{0}"/>
+		<!-- Value mapping -->
+		<property name="parentMetadata" value="organization.parentOrganization"/>
+		<property name="selectableMetadata" value=""/>
+		<property name="labelMetadata" value="dc.title"/>
+		<property name="authorityMetadata" value=""/>
+		<property name="extraValuesMapper" ref="orgunitsExtraValuesMapper"/>
+		<!-- <field_name> <order> - If empty no sorting is made -->
+		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
+	</bean>
+
+	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
+		<property name="extraValues">
+			<map>
+				<entry key="display" value="dc.title" />
+				<entry key="note" value="dc.description.abstract" />
+			</map>
+		</property>
+	</bean>
 
 </beans>

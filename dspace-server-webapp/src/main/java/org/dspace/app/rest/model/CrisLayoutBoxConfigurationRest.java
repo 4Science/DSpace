@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @Type(value = CrisLayoutBoxRelationConfigurationRest.class, name = CrisLayoutBoxRelationConfigurationRest.NAME),
     @Type(value = CrisLayoutMetadataConfigurationRest.class, name = CrisLayoutMetadataConfigurationRest.NAME),
     @Type(value = CrisLayoutMetricsConfigurationRest.class, name = CrisLayoutMetricsConfigurationRest.NAME),
+    @Type(value = CrisLayoutHierarchicalConfigurationRest.class, name = CrisLayoutHierarchicalConfigurationRest.NAME)
 })
 public interface CrisLayoutBoxConfigurationRest {
 }

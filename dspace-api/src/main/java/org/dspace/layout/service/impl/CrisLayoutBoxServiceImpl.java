@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
@@ -27,6 +28,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -66,6 +68,11 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
+
+    private final Logger log = org.apache.logging.log4j.LogManager.getLogger(CrisLayoutBoxServiceImpl.class);
 
     public CrisLayoutBoxServiceImpl() {
     }
@@ -163,7 +170,10 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             case "ORCID_AUTHORIZATIONS":
                 return hasOrcidAuthorizationsBoxContent(context, box, values);
             case "IIIFVIEWER":
+            case "IIIFTOOLBAR":
                 return isIiifEnabled(item);
+            case "HIERARCHY":
+                return hasHierarchicBoxContent(context, box, item);
             case "METADATA":
             default:
                 return hasMetadataBoxContent(box, item);
@@ -244,6 +254,21 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             .filter(m -> boxTypes.contains(m.getMetricType())).count() > 0) {
             return true;
         }
+        return false;
+    }
+
+    private boolean hasHierarchicBoxContent(Context context, CrisLayoutBox box, Item item) {
+        if (box.getHierarchicalVocabulary2Box() != null && !currentUserIsNotAllowedToReadItem(context, item)) {
+            try {
+                return choiceAuthorityService
+                    .getChoiceAuthorityByAuthorityName(box.getHierarchicalVocabulary2Box()
+                                                           .getVocabulary()).isHierarchical();
+            } catch (Exception e) {
+                log.warn(e.getMessage());
+                return false;
+            }
+        }
+
         return false;
     }
 
