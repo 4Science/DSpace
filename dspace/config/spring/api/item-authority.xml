@@ -31,6 +31,7 @@
 			<map>
 				<!-- Specify here any services to use with the relative entity type -->
 				<entry key="orgunits" value-ref="orgunitsControlledVocabulary" />
+				<entry key="fonds" value-ref="fondsControlledVocabulary" />
 			</map>
 		</property>
 	</bean>
@@ -48,7 +49,29 @@
 		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
 	</bean>
 
+	<bean name="fondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="parentQuery" value="entityType:Fond AND -glamfond.parent:*"/>
+		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
+		<!-- Value mapping -->
+		<property name="parentMetadata" value="glamfond.parent"/>
+		<property name="selectableMetadata" value=""/>
+		<property name="labelMetadata" value="dc.title"/>
+		<property name="authorityMetadata" value=""/>
+		<property name="extraValuesMapper" ref="fondsExtraValuesMapper"/>
+		<!-- <field_name> <order> - If empty no sorting is made -->
+		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
+	</bean>
+
 	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
+		<property name="extraValues">
+			<map>
+				<entry key="display" value="dc.title" />
+				<entry key="note" value="dc.description.abstract" />
+			</map>
+		</property>
+	</bean>
+
+	<bean name="fondsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
 		<property name="extraValues">
 			<map>
 				<entry key="display" value="dc.title" />
