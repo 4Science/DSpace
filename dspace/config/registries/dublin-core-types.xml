@@ -1038,4 +1038,12 @@
     <qualifier>path</qualifier>
     <scope_note></scope_note>
   </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>contributor</element>
+    <qualifier>corporatebody</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 </dspace-dc-types>
