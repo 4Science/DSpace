@@ -29,7 +29,8 @@
 
 		<property name="entityMapping">
 			<map>
-				<!-- Specify here any services to use with the relative entity type -->
+				<!-- Specify here any Item based controlled vocabulary configuration,
+				  vocabulary names are defined in item.controlled.vocabularies key-->
 				<entry key="orgunits" value-ref="orgunitsControlledVocabulary" />
 				<entry key="fonds" value-ref="fondsControlledVocabulary" />
 			</map>
