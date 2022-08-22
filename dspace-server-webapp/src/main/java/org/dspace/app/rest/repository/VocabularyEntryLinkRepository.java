@@ -71,10 +71,7 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
         }
         Choices choices = null;
 
-        if (BooleanUtils.toBoolean(exact)) {
-            choices = cas.getTopChoices(name, (int)pageable.getOffset(), pageable.getPageSize(),
-                    context.getCurrentLocale().toString());
-        } else if (StringUtils.isNotBlank(entryID)) {
+        if (StringUtils.isNotBlank(entryID)) {
             Choice choice = ca.getChoice(entryID,
                     context.getCurrentLocale().toString());
             if (choice != null) {
@@ -82,6 +79,8 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
             } else {
                 choices = new Choices(false);
             }
+        } else if (BooleanUtils.toBoolean(exact)) {
+            choices = ca.getBestMatch(filter, context.getCurrentLocale().toString());
         } else {
             choices = ca.getMatches(filter, Math.toIntExact(pageable.getOffset()),
                           pageable.getPageSize(), context.getCurrentLocale().toString());
