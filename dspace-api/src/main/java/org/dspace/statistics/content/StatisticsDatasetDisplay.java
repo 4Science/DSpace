@@ -66,6 +66,9 @@ public class StatisticsDatasetDisplay {
         }
 
         if (dsoId != null && dsoType != -1) {
+            // Store the UUID of the DSO as an attribute. Needed in particular for Bitstream download usage reports,
+            // as the Bitstream itself won't be available when converting points to their REST representation
+            attrs.put("id", dsoId);
             switch (dsoType) {
                 case Constants.BITSTREAM:
                     Bitstream bit = bitstreamService.findByIdOrLegacyId(context, dsoId);

@@ -58,6 +58,21 @@ public interface MetadataSecurityService {
         boolean preventBoxSecurityCheck);
 
     /**
+     * Returns all the metadata values of the given item filtered by permission
+     * evaluations. If the provided preventBoxSecurityCheck parameter is true then
+     * the security checks using boxes are not performed,
+     * and filtered also by the current locale language of the given context.
+     *
+     * @param  context                 the DSpace Context
+     * @param  item                    the item
+     * @param  preventBoxSecurityCheck true if the box security check must be
+     *                                 skipped, false otherwise
+     * @return                         the metadata values
+     */
+    List<MetadataValue> getPermissionAndLangFilteredMetadataFields(Context context, Item item,
+                                                            boolean preventBoxSecurityCheck);
+
+    /**
      * Returns all the metadata values of the given item related to the given
      * metadataField filtered by permission evaluations.
      *

@@ -65,6 +65,11 @@ import org.dspace.harvest.HarvestedItem;
 import org.dspace.harvest.service.HarvestedItemService;
 import org.dspace.identifier.IdentifierException;
 import org.dspace.identifier.service.IdentifierService;
+import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutField;
+import org.dspace.layout.CrisLayoutFieldBitstream;
+import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.service.CrisLayoutTabService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.versioning.service.VersioningService;
 import org.dspace.workflow.WorkflowItemService;
@@ -138,16 +143,27 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Autowired(required = true)
     private OrcidSynchronizationService orcidSynchronizationService;
 
+    @Autowired
+    private CrisLayoutTabService crisLayoutTabService;
+
     @Autowired(required = true)
     protected SubscribeService subscribeService;
     @Autowired(required = true)
     protected CrisMetricsService crisMetricsService;
+
     protected ItemServiceImpl() {
         super();
     }
 
     @Override
     public Thumbnail getThumbnail(Context context, Item item, boolean requireOriginal) throws SQLException {
+        // Search the thumbnail using the configuration
+        Thumbnail thumbnail = thumbnailLayoutTabConfigurationStrategy(context, item, requireOriginal);
+        if (thumbnail != null) {
+            return thumbnail;
+        }
+        // If no thumbnail is retrieved by the first strategy
+        // then use the fallback strategy
         Bitstream thumbBitstream;
         List<Bundle> originalBundles = getBundles(item, "ORIGINAL");
         Bitstream primaryBitstream = null;
@@ -174,6 +190,112 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             return new Thumbnail(thumbBitstream, primaryBitstream);
         }
 
+        return null;
+    }
+
+    /**
+     * @param context
+     * @param item
+     * @param requireOriginal
+     * @throws SQLException
+     */
+    private Thumbnail thumbnailLayoutTabConfigurationStrategy(Context context, Item item, boolean requireOriginal)
+        throws SQLException {
+        List<CrisLayoutTab> crisLayoutTabs = crisLayoutTabService.findByItem(context, String.valueOf(item.getID()));
+
+        List<CrisLayoutField> thumbFields = getThumbnailFields(crisLayoutTabs);
+        if (CollectionUtils.isEmpty(thumbFields)) {
+            return null;
+        }
+        return retrieveThumbnailFromFields(context, item, thumbFields, requireOriginal);
+    }
+
+    /**
+     * @param context
+     * @param item
+     * @param thumbFields
+     * @param requireOriginal
+     * @return Thumbnail
+     * @throws SQLException
+     */
+    private Thumbnail retrieveThumbnailFromFields(Context context, Item item, List<CrisLayoutField> thumbFields,
+        boolean requireOriginal) throws SQLException {
+        for (CrisLayoutField thumbField : thumbFields) {
+            if (!(thumbField instanceof CrisLayoutFieldBitstream)) {
+                continue;
+            }
+            CrisLayoutFieldBitstream thumbFieldBitstream = (CrisLayoutFieldBitstream)thumbField;
+            String bundle = thumbFieldBitstream.getBundle();
+            MetadataField metadata = thumbFieldBitstream.getMetadataField();
+            String value = thumbFieldBitstream.getMetadataValue();
+            Thumbnail thumbnail = retrieveThumbnail(context, item, bundle, metadata, value,
+                requireOriginal);
+            if (thumbnail != null) {
+                return thumbnail;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param crisLayoutTabs
+     * @return List<CrisLayoutField>
+     */
+    private List<CrisLayoutField> getThumbnailFields(List<CrisLayoutTab> crisLayoutTabs) {
+        List<CrisLayoutField> thumbFields = new LinkedList<>();
+        for (CrisLayoutTab tab : crisLayoutTabs) {
+            for (CrisLayoutBox box : tab.getBoxes()) {
+                thumbFields.addAll(box.getLayoutFields().stream()
+                    .filter(field -> field.getRendering() != null && field.getRendering().equals("thumbnail"))
+                    .collect(Collectors.toList()));
+            }
+        }
+        return thumbFields;
+    }
+
+    /**
+     * @param context
+     * @param item
+     * @param bundle
+     * @param metadata
+     * @param value
+     * @param requireOriginal
+     * @throws SQLException
+     * @return Bitstream
+     */
+    private Thumbnail retrieveThumbnail(Context context, Item item, String bundle,
+        MetadataField metadataField,
+        String value, boolean requireOriginal) throws SQLException {
+        List<Bundle> bundles = getBundles(item, bundle);
+        if (CollectionUtils.isNotEmpty(bundles)) {
+            List<Bitstream> bitstreamList = bundles.get(0).getBitstreams();
+            bitstreamList = bitstreamList.stream().filter(bitstream -> {
+                return bitstream.getMetadata().stream().anyMatch(metadataValue -> {
+                    return metadataValue.getMetadataField().getID() == metadataField.getID()
+                        && metadataValue.getValue() != null
+                        && metadataValue.getValue().equalsIgnoreCase(value);
+                });
+            }).collect(Collectors.toList());
+            if (requireOriginal) {
+                if (CollectionUtils.isEmpty(bitstreamList)) {
+                    return null;
+                }
+                return new Thumbnail(bitstreamList.get(0), bitstreamList.get(0));
+            } else {
+                if (CollectionUtils.isEmpty(bitstreamList)) {
+                    return null;
+                }
+                Bitstream thumbBitstream = bitstreamService
+                    .getBitstreamByName(item, "THUMBNAIL", bitstreamList.get(0).getName() + ".jpg");
+                // If the thumbnail is not available return the non thumbnail bitstream
+                // retrieved in the previous steps
+                if (thumbBitstream != null) {
+                    return new Thumbnail(thumbBitstream, bitstreamList.get(0));
+                } else {
+                    return new Thumbnail(bitstreamList.get(0), bitstreamList.get(0));
+                }
+            }
+        }
         return null;
     }
 
@@ -1577,10 +1699,12 @@ prevent the generation of resource policy entry values with null dspace_object a
         // Build up list of matching values based on the cache
         List<MetadataValue> values = new ArrayList<>();
         for (MetadataValue dcv : item.getCachedMetadata()) {
-            if (match(schema, element, qualifier, lang, dcv)) {
+            if (match(schema, element, qualifier, dcv)) {
                 values.add(dcv);
             }
         }
+
+        values = getFilteredMetadataValuesByLanguage(values, lang);
 
         // Create an array of matching values
         return values;

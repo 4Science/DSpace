@@ -17,6 +17,7 @@
                 <!-- <ref bean="networkAdministration"/> -->
             </list>
         </property>
+        <property name="singleAccessCondition" value="true"/>
     </bean>
   
     <bean id="openAccess" class="org.dspace.submit.model.AccessConditionOption">
@@ -85,6 +86,19 @@
                 <ref bean="administrator"/>
             </list>
         </property>
+    </bean>
+
+    <bean id="itemAccessConditionConfiguration" class="org.dspace.submit.model.AccessConditionConfiguration">
+        <!-- This name must match the id of the step as defined in the item-submission.xml -->
+        <property name="name" value="itemAccessConditions"></property>
+        <property name="canChangeDiscoverable" value="true"></property>
+        <property name="options">
+            <list>
+                <ref bean="embargoed" />
+                <ref bean="administrator"/>
+            </list>
+        </property>
+        <property name="singleAccessCondition" value="true"/>
     </bean>
 
 </beans>

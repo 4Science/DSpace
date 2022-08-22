@@ -151,4 +151,8 @@ public interface Projection {
     default boolean preventMetadataLevelSecurity() {
         return false;
     }
+
+    default boolean isAllLanguages() {
+        return false;
+    }
 }

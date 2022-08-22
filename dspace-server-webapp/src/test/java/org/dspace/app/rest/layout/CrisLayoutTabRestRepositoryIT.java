@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,6 +43,8 @@ import org.dspace.app.rest.model.CrisLayoutTabRest;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.builder.BitstreamBuilder;
+import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.CrisLayoutBoxBuilder;
@@ -50,6 +54,7 @@ import org.dspace.builder.CrisLayoutTabBuilder;
 import org.dspace.builder.CrisMetricsBuilder;
 import org.dspace.builder.EntityTypeBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
@@ -62,6 +67,8 @@ import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
+import org.dspace.layout.CrisLayoutField;
+import org.dspace.layout.CrisLayoutFieldBitstream;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.LayoutSecurity;
@@ -1800,6 +1807,62 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.rows[0].cells[0].boxes", hasSize(1)))
             .andExpect(jsonPath("$.rows[0].cells[0].boxes[0].configuration.discovery-configuration",
                 is("RELATION.Publication.authors")));
+    }
+
+    @Test
+    public void findThumbnailUsingLayoutTabBoxConfiguration() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+        // Setting up configuration for dc.type = logo with rendering thumbnail
+        MetadataField metadataField = mfss.findByElement(context, "dc", "type", null);
+
+        CrisLayoutBox box = CrisLayoutBoxBuilder.createBuilder(context, eType,
+            CrisLayoutBoxTypes.RELATION.name(), true, true)
+            .withShortname("description-test")
+            .build();
+        CrisLayoutField field = CrisLayoutFieldBuilder.createBistreamField(context, metadataField, "ORIGINAL", 0, 0, 0)
+            .withRendering("thumbnail")
+            .withBox(box)
+            .build();
+        ((CrisLayoutFieldBitstream)field).setMetadataValue("logo");
+        CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, eType, 0)
+            .withShortName("TabOne")
+            .withSecurity(LayoutSecurity.PUBLIC)
+            .withHeader("New Tab header")
+            .addBoxIntoNewRow(box)
+            .build();
+
+        Community testCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection testCollection = CollectionBuilder.createCollection(context, testCommunity).build();
+        Item item = ItemBuilder.createItem(context, testCollection).withEntityType("Publication").build();
+
+        Bundle original = BundleBuilder.createBundle(context, item).withName("ORIGINAL").build();
+
+        org.dspace.content.Bitstream bitstream0 = BitstreamBuilder
+            .createBitstream(context, original, InputStream.nullInputStream()).withType("other").build();
+        org.dspace.content.Bitstream bitstream1 = BitstreamBuilder
+            .createBitstream(context, original, InputStream.nullInputStream()).withType("other").build();
+        org.dspace.content.Bitstream bitstream2 = BitstreamBuilder
+            .createBitstream(context, original, InputStream.nullInputStream()).withType("Logo").build();
+
+        original.setPrimaryBitstreamID(bitstream0);
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/items/" + item.getID() + "/thumbnail"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$.id", is(bitstream2.getID().toString())))
+            .andExpect(jsonPath("$.id", not(bitstream0.getID().toString())))
+            .andExpect(jsonPath("$.id", not(bitstream1.getID().toString())))
+            .andExpect(jsonPath("$.uuid", is(bitstream2.getID().toString())))
+            .andExpect(jsonPath("$.uuid", not(bitstream0.getID().toString())))
+            .andExpect(jsonPath("$.uuid", not(bitstream1.getID().toString())))
+            .andExpect(jsonPath("$.metadata.['dc.type'][0].value", is("Logo")))
+            .andExpect(jsonPath("$.bundleName", is("ORIGINAL")))
+            .andExpect(jsonPath("$.type", is("bitstream")))
+            .andExpect(jsonPath("$.name", is(bitstream2.getName())));
+
     }
 
     private CrisLayoutTabRest parseJson(String name) throws Exception {

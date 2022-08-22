@@ -1960,7 +1960,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         context.restoreAuthSystemState();
 
 
-        getClient().perform(get("/api/core/collections/" + col1.getID()))
+        getClient().perform(get("/api/core/collections/" + col1.getID())
+                       .param("projection", "allLanguages"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", CollectionMatcher.matchProperties(col1.getName(),
                                                                                    col1.getID(),
@@ -1991,7 +1992,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
 
         String token = getAuthToken(admin.getEmail(), password);
 
-        getClient(token).perform(get("/api/core/collections/" + col1.getID()))
+        getClient(token).perform(get("/api/core/collections/" + col1.getID())
+                            .param("projection", "allLanguages"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", CollectionMatcher.matchProperties(col1.getName(),
                                                                               col1.getID(),
@@ -2026,7 +2028,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
 
         String token = getAuthToken(eperson.getEmail(), password);
 
-        getClient(token).perform(get("/api/core/collections/" + col1.getID()))
+        getClient(token).perform(get("/api/core/collections/" + col1.getID())
+                            .param("projection", "allLanguages"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", CollectionMatcher.matchProperties(col1.getName(),
                                                                               col1.getID(),
@@ -2060,7 +2063,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         String tokenEPerson = getAuthToken(eperson.getEmail(), password);
 
         getClient().perform(get("/api/core/collections")
-                   .param("embed", CollectionMatcher.getEmbedsParameter()))
+                       .param("embed", CollectionMatcher.getEmbedsParameter())
+                   .param("projection", "allLanguages"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
@@ -2072,7 +2076,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
                    .andExpect(jsonPath("$.metadata.['dc.description.provenance']").doesNotExist());
 
         getClient(tokenEPerson).perform(get("/api/core/collections")
-                .param("embed", CollectionMatcher.getEmbedsParameter()))
+                                   .param("embed", CollectionMatcher.getEmbedsParameter())
+                                   .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(

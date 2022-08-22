@@ -87,4 +87,10 @@ public class CompositeProjection extends AbstractProjection {
         return projections.stream()
             .anyMatch(prj -> prj.preventMetadataLevelSecurity());
     }
+
+    @Override
+    public boolean isAllLanguages() {
+        return projections.stream()
+                          .anyMatch(prj -> prj.isAllLanguages());
+    }
 }

@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.dspace.app.rest.matcher.AccessConditionOptionMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -69,4 +70,25 @@ public class SubmissionUploadsControllerIT extends AbstractControllerIntegration
                                        Matchers.startsWith(REST_SERVER_URL + "config/submissionuploads")))
                    .andExpect(jsonPath("$._embedded.submissionuploads", hasSize(greaterThanOrEqualTo(1))));
     }
+
+    @Test
+    public void findOneHasSingleAccessConditionTest() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/config/submissionuploads/upload"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.id", is("upload")))
+                             .andExpect(jsonPath("$.singleAccessCondition", is(true)))
+                             .andExpect(jsonPath("$.accessConditionOptions", Matchers.containsInAnyOrder(
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "embargo", true , false, "+36MONTHS", null),
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "openaccess", false , false, null, null),
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "lease", false , true, null, "+6MONTHS"),
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "administrator", false , false, null, null))
+                             ))
+                             .andExpect(jsonPath("$.type", is("submissionupload")));
+    }
+
 }

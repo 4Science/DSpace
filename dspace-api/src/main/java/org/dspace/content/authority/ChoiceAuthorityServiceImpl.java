@@ -32,6 +32,8 @@ import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.submit.model.UploadConfiguration;
+import org.dspace.submit.model.UploadConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -88,6 +90,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected ConfigurationService configurationService;
     @Autowired(required = true)
     protected PluginService pluginService;
+    @Autowired(required = true)
+    protected UploadConfigurationService uploadConfigurationService;
 
     final static String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
     final static String CHOICES_PRESENTATION_PREFIX = "choices.presentation.";
@@ -320,48 +324,59 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             for (SubmissionConfig subCfg : submissionConfigs) {
                 String submissionName = subCfg.getSubmissionName();
                 List<DCInputSet> inputsBySubmissionName = dcInputsReader.getInputsBySubmissionName(submissionName);
-                // loop over the submission forms configuration eventually associated with the submission panel
-                for (DCInputSet dcinputSet : inputsBySubmissionName) {
-                    DCInput[][] dcinputs = dcinputSet.getFields();
-                    for (DCInput[] dcrows : dcinputs) {
-                        for (DCInput dcinput : dcrows) {
-                            // for each input in the form check if it is associated with a real value pairs
-                            // or an xml vocabulary
-                            String authorityName = null;
-                            if (StringUtils.isNotBlank(dcinput.getPairsType())
-                                    && !StringUtils.equals(dcinput.getInputType(), "qualdrop_value")) {
-                                authorityName = dcinput.getPairsType();
-                            } else if (StringUtils.isNotBlank(dcinput.getVocabulary())) {
-                                authorityName = dcinput.getVocabulary();
-                            }
-
-                            // do we have an authority?
-                            if (StringUtils.isNotBlank(authorityName)) {
-                                String fieldKey = makeFieldKey(dcinput.getSchema(), dcinput.getElement(),
-                                                               dcinput.getQualifier());
-                                ChoiceAuthority ca = controller.get(authorityName);
-                                if (ca == null) {
-                                    ca = (ChoiceAuthority) pluginService
-                                        .getNamedPlugin(ChoiceAuthority.class, authorityName);
-                                    if (ca == null) {
-                                        throw new IllegalStateException("Invalid configuration for " + fieldKey
-                                                + " in submission definition " + submissionName
-                                                + ", form definition " + dcinputSet.getFormName()
-                                                + " no named plugin found: " + authorityName);
-                                    }
-                                }
-
-                                addAuthorityToFormCacheMap(submissionName, fieldKey, ca);
-                                addFormDetailsToAuthorityCacheMap(submissionName, authorityName, fieldKey);
-                            }
-                        }
-                    }
-                }
+                autoRegisterChoiceAuthorityFromSubmissionForms(submissionName, inputsBySubmissionName);
+            }
+            // loop over all the defined bitstream metadata submission configuration
+            for (UploadConfiguration uploadCfg : uploadConfigurationService.getMap().values()) {
+                String formName = uploadCfg.getMetadata();
+                DCInputSet inputByFormName = dcInputsReader.getInputsByFormName(formName);
+                autoRegisterChoiceAuthorityFromSubmissionForms(formName, List.of(inputByFormName));
             }
         } catch (DCInputsReaderException e) {
             // the system is in an illegal state as the submission definition is not valid
             throw new IllegalStateException("Error reading the item submission configuration: " + e.getMessage(),
                     e);
+        }
+    }
+
+    private void autoRegisterChoiceAuthorityFromSubmissionForms(String submissionName,
+                                                                List<DCInputSet> inputsBySubmissionName) {
+        // loop over the submission forms configuration eventually associated with the submission panel
+        for (DCInputSet dcinputSet : inputsBySubmissionName) {
+            DCInput[][] dcinputs = dcinputSet.getFields();
+            for (DCInput[] dcrows : dcinputs) {
+                for (DCInput dcinput : dcrows) {
+                    // for each input in the form check if it is associated with a real value pairs
+                    // or an xml vocabulary
+                    String authorityName = null;
+                    if (StringUtils.isNotBlank(dcinput.getPairsType())
+                        && !StringUtils.equals(dcinput.getInputType(), "qualdrop_value")) {
+                        authorityName = dcinput.getPairsType();
+                    } else if (StringUtils.isNotBlank(dcinput.getVocabulary())) {
+                        authorityName = dcinput.getVocabulary();
+                    }
+
+                    // do we have an authority?
+                    if (StringUtils.isNotBlank(authorityName)) {
+                        String fieldKey = makeFieldKey(dcinput.getSchema(), dcinput.getElement(),
+                                                       dcinput.getQualifier());
+                        ChoiceAuthority ca = controller.get(authorityName);
+                        if (ca == null) {
+                            ca = (ChoiceAuthority) pluginService
+                                .getNamedPlugin(ChoiceAuthority.class, authorityName);
+                            if (ca == null) {
+                                throw new IllegalStateException("Invalid configuration for " + fieldKey
+                                                                    + " in submission definition " + submissionName
+                                                                    + ", form definition " + dcinputSet.getFormName()
+                                                                    + " no named plugin found: " + authorityName);
+                            }
+                        }
+
+                        addAuthorityToFormCacheMap(submissionName, fieldKey, ca);
+                        addFormDetailsToAuthorityCacheMap(submissionName, authorityName, fieldKey);
+                    }
+                }
+            }
         }
     }
 

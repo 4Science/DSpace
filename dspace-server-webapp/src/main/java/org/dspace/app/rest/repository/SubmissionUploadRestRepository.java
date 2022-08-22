@@ -123,6 +123,7 @@ public class SubmissionUploadRestRepository extends DSpaceRestRepository<Submiss
         result.setMaxSize(config.getMaxSize());
         result.setRequired(config.isRequired());
         result.setName(config.getName());
+        result.setSingleAccessCondition(config.getSingleAccessCondition());
         return result;
     }
 }

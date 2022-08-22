@@ -2456,21 +2456,24 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         String tokenEperson = getAuthToken(eperson.getEmail(), password);
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         // An admin can see the dc.description.provenance metadata
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID())
+                                 .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value", is ("Metadata Secured")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].securityLevel", is (0)));
 
         // An user who is not admin can not see the dc.description.provenance metadata
-        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID()))
+        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID())
+                                   .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value", is ("Metadata Secured")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].securityLevel", is (0)));
 
         // An anonymous user can not see the dc.description.provenance metadata
-        getClient().perform(get("/api/core/items/" + itemA.getID()))
+        getClient().perform(get("/api/core/items/" + itemA.getID())
+                       .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value", is ("Metadata Secured")))
@@ -2519,21 +2522,24 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         String tokenEperson = getAuthToken(ePersonService.find(context, eperson.getID()).getEmail(), password);
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         // An admin can see the dc.description.provenance metadata
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID())
+                                 .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value", is ("Metadata Secured")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].securityLevel", is (1)));
 
         // An user that belongs to 'Trusted' group can see the dc.description.provenance metadata
-        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID()))
+        getClient(tokenEperson).perform(get("/api/core/items/" + itemA.getID())
+                                   .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value", is ("Metadata Secured")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].securityLevel", is (1)));
 
         // An anonymous user can not see the dc.description.provenance metadata
-        getClient().perform(get("/api/core/items/" + itemA.getID()))
+        getClient().perform(get("/api/core/items/" + itemA.getID())
+                       .param("projection", "allLanguages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata['dspace.entity.type'].[0].value", is ("Person")))
                 .andExpect(jsonPath("$.metadata['dc.description.provenance'].[1].value").doesNotExist())

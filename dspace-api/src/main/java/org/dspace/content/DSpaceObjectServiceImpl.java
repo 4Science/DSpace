@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -35,6 +36,7 @@ import org.dspace.content.service.MetadataValueService;
 import org.dspace.content.service.RelationshipService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.service.IdentifierService;
 import org.dspace.services.RequestService;
@@ -125,10 +127,12 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
         // Build up list of matching values
         List<MetadataValue> values = new ArrayList<>();
         for (MetadataValue dcv : dso.getMetadata()) {
-            if (match(schema, element, qualifier, lang, dcv)) {
+            if (match(schema, element, qualifier, dcv)) {
                 values.add(dcv);
             }
         }
+
+        values = getFilteredMetadataValuesByLanguage(values, lang);
 
         // Create an array of matching values
         return values;
@@ -732,6 +736,55 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
         return true;
     }
 
+    /**
+     * Utility method for pattern-matching metadata elements.  This
+     * method will return <code>true</code> if the given schema,
+     * element and qualifier match the schema, element,
+     * and qualifier of the <code>DCValue</code> object passed
+     * in.  Any or all of the element and qualifier passed
+     * in can be the <code>Item.ANY</code> wildcard.
+     *
+     * @param schema        the schema for the metadata field. <em>Must</em> match
+     *                      the <code>name</code> of an existing metadata schema.
+     * @param element       the element to match, or <code>Item.ANY</code>
+     * @param qualifier     the qualifier to match, or <code>Item.ANY</code>
+     * @param metadataValue the Dublin Core value
+     * @return <code>true</code> if there is a match
+     */
+    protected boolean match(String schema, String element, String qualifier, MetadataValue metadataValue) {
+
+        MetadataField metadataField = metadataValue.getMetadataField();
+        MetadataSchema metadataSchema = metadataField.getMetadataSchema();
+        // We will attempt to disprove a match - if we can't we have a match
+        if (!element.equals(Item.ANY) && !element.equals(metadataField.getElement())) {
+            // Elements do not match, no wildcard
+            return false;
+        }
+
+        if (StringUtils.isBlank(qualifier)) {
+            // Value must be unqualified
+            if (metadataField.getQualifier() != null) {
+                // Value is qualified, so no match
+                return false;
+            }
+        } else if (!qualifier.equals(Item.ANY)) {
+            // Not a wildcard, so qualifier must match exactly
+            if (!qualifier.equals(metadataField.getQualifier())) {
+                return false;
+            }
+        }
+
+        if (!schema.equals(Item.ANY)) {
+            if (metadataSchema != null && !metadataSchema.getName().equals(schema)) {
+                // The namespace doesn't match
+                return false;
+            }
+        }
+
+        // If we get this far, we have a match
+        return true;
+    }
+
     protected void getAuthoritiesAndConfidences(String fieldKey, Collection collection, List<String> values,
                                                 List<String> authorities, List<Integer> confidences, int i) {
         Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), collection, null);
@@ -1053,6 +1106,104 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
 
     private boolean isNonValidAuthority(boolean authorityControlled, List<String> authorities) {
         return !authorityControlled && authorities != null && authorities.size() > 0 && authorities.get(0) != null;
+    }
+
+    /**
+     * Returns all the metadata values filtered by the input language.
+     *
+     * @param metadataValues list of metadata values.
+     * @param language the language that must metadataValues filtered by.
+     *
+     * @return the metadata values
+     */
+    protected List<MetadataValue> getFilteredMetadataValuesByLanguage(List<MetadataValue> metadataValues,
+                                                                   String language) {
+        List<MetadataValue> matchedValues = new ArrayList<>();
+
+        if (language == null) {
+            for (MetadataValue value : metadataValues) {
+                if (value.getLanguage() == null) {
+                    matchedValues.add(value);
+                }
+            }
+        } else if (!language.equals(Item.ANY)) {
+            Locale[] locales = I18nUtil.getSupportedLocales();
+            Map<String, List<MetadataValue>> metadataMap =
+                metadataValues.stream().collect(Collectors.groupingBy(v -> v.getMetadataField().toString()));
+
+            for (Map.Entry<String, List<MetadataValue>> metadata : metadataMap.entrySet()) {
+                matchedValues.addAll(filterMetadataValuesByLanguage(language, locales, metadata.getValue()));
+            }
+        } else if (language.equals(Item.ANY)) {
+            matchedValues = metadataValues;
+        }
+        return matchedValues;
+    }
+
+    private List<MetadataValue> filterMetadataValuesByLanguage(String language, Locale [] locales,
+                                                               List<MetadataValue> metadataValues) {
+
+        List<MetadataValue> matchedValues;
+
+//        search for input language in supported locales
+//        then get metadata values contains language equal to input language
+        matchedValues = filterByLanguageInSupportedLocales(metadataValues, locales, language);
+
+        if (matchedValues.isEmpty()) {
+//            here input language not found in supported locales.
+//            so, check that input language contains '_' like 'en_US' , and search for first part 'en'
+            matchedValues = filterByLanguageInSupportedLocales(metadataValues, locales, language.split("_")[0]);
+        }
+
+        if (matchedValues.isEmpty()) {
+//            here input language not found in supported locales.
+//            so, search for metadata value has language equal to any supported locales language
+            for (Locale locale : locales) {
+                matchedValues = filterByLanguage(metadataValues, locale.getLanguage());
+                if (!matchedValues.isEmpty()) {
+                    break;
+                }
+            }
+        }
+
+        if (matchedValues.isEmpty()) {
+//            here input language not found in supported locales.
+//            and no metadata value has language equal to any supported locales language was found
+//            so, will search for metadata value with language equal to input language
+            matchedValues = filterByLanguage(metadataValues, language);
+        }
+
+        if (matchedValues.isEmpty()) {
+//            here no matching found so, will return all metadata values
+            return metadataValues;
+        }
+
+        return matchedValues;
+    }
+
+    private List<MetadataValue> filterByLanguageInSupportedLocales(List<MetadataValue> metadataValues,
+                                                                   Locale[] locales, String language) {
+
+        List<MetadataValue> matchedValues = new ArrayList<>();
+
+        for (Locale locale : locales) {
+            if (locale.getLanguage().equals(language)) {
+                matchedValues = filterByLanguage(metadataValues, language);
+            }
+        }
+        return matchedValues;
+    }
+
+    private List<MetadataValue> filterByLanguage(List<MetadataValue> metadataValues, String language) {
+
+        List<MetadataValue> matchedValues = new ArrayList<>();
+
+        for (MetadataValue value : metadataValues) {
+            if (value.getLanguage() != null && value.getLanguage().equals(language)) {
+                matchedValues.add(value);
+            }
+        }
+        return matchedValues;
     }
 
 }

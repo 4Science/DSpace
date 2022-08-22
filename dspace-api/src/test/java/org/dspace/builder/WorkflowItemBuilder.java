@@ -151,6 +151,17 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
         return this;
     }
 
+    protected WorkflowItemBuilder addMetadataValue(final String schema,
+                                                   final String element, final String qualifier,
+                                                   final String language, final String value) {
+        try {
+            itemService.addMetadata(context, workspaceItem.getItem(), schema, element, qualifier, language, value);
+        } catch (Exception e) {
+            return handleException(e);
+        }
+        return this;
+    }
+
     protected WorkflowItemBuilder setMetadataSingleValue(final String schema,
             final String element, final String qualifier, final String value) {
         try {
@@ -182,6 +193,10 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
      */
     public WorkflowItemBuilder withTitle(final String title) {
         return setMetadataSingleValue(MetadataSchemaEnum.DC.getName(), "title", null, title);
+    }
+
+    public WorkflowItemBuilder withTitleForLanguage(final String title, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "title", null, language, title);
     }
 
     /**
@@ -216,6 +231,10 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
      */
     public WorkflowItemBuilder withSubject(final String subject) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, subject);
+    }
+
+    public WorkflowItemBuilder withSubjectForLanguage(final String subject, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, language, subject);
     }
 
     public WorkflowItemBuilder withDoiIdentifier(final String doi) {

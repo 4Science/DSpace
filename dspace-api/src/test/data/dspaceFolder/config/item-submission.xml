@@ -117,7 +117,13 @@
             <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
             <type>accessCondition</type>
         </step-definition>
-        
+
+        <step-definition id="itemAccessConditions">
+            <heading>submit.progressbar.accessCondition</heading>
+            <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
+            <type>accessCondition</type>
+        </step-definition>
+
         <!-- Step Upload Item with Embargo Features to enable this step, please
             make sure to comment-out the previous step "UploadStep" <step-definition id="upload-with-embargo">
             <heading>submit.progressbar.upload</heading> <processing-class>org.dspace.submit.step.UploadWithEmbargoStep</processing-class>

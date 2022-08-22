@@ -35,6 +35,8 @@ public class SubmissionUploadRest extends BaseObjectRest<String> {
 
     private Long maxSize;
 
+    private Boolean singleAccessCondition;
+
     @Override
     public String getId() {
         return name;
@@ -96,5 +98,13 @@ public class SubmissionUploadRest extends BaseObjectRest<String> {
 
     public void setMetadata(SubmissionFormRest metadata) {
         this.metadata = metadata;
+    }
+
+    public Boolean getSingleAccessCondition() {
+        return singleAccessCondition;
+    }
+
+    public void setSingleAccessCondition(Boolean singleAccessCondition) {
+        this.singleAccessCondition = singleAccessCondition;
     }
 }

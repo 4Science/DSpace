@@ -102,6 +102,15 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
     }
 
     @Override
+    public List<MetadataValue> getPermissionAndLangFilteredMetadataFields(Context context, Item item,
+                                                                              boolean preventBoxSecurityCheck) {
+        String language = context != null ? context.getCurrentLocale().getLanguage() : Item.ANY;
+
+        List<MetadataValue> values = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, language, true);
+        return getPermissionFilteredMetadata(context, item, values, preventBoxSecurityCheck);
+    }
+
+    @Override
     public List<MetadataValue> getPermissionFilteredMetadataValues(Context context, Item item, String metadataField,
         boolean preventBoxSecurityCheck) {
         List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(item, metadataField);
@@ -113,6 +122,7 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         List<CrisLayoutBox> boxes = findBoxes(context, item, false);
         return isMetadataFieldVisible(context, boxes, item, metadataField, false);
     }
+
 
     private List<MetadataValue> getPermissionFilteredMetadata(Context context, Item item,
         List<MetadataValue> metadataValues, boolean preventBoxSecurityCheck) {
@@ -306,5 +316,4 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
     public MetadataSecurityEvaluation getMetadataSecurityEvaluator(int securityValue) {
         return securityLevelsMap.get(securityValue + "");
     }
-
 }

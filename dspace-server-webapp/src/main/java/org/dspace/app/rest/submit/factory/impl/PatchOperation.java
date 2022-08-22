@@ -51,6 +51,15 @@ public abstract class PatchOperation<T extends Object> {
         return single;
     }
 
+    public String getStepId(String fullpath) {
+        String[] path = fullpath.substring(1).split("/", 3);
+        String stepId = "";
+        if (path.length > 1) {
+            stepId = path[1];
+        }
+        return stepId;
+    }
+
     public String getAbsolutePath(String fullpath) {
         String[] path = fullpath.substring(1).split("/", 3);
         String absolutePath = "";

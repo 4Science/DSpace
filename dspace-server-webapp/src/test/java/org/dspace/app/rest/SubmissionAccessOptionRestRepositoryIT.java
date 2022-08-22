@@ -94,4 +94,21 @@ public class SubmissionAccessOptionRestRepositoryIT extends AbstractControllerIn
                             .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void findOneHasSingleAccessConditionTest() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/config/submissionaccessoptions/itemAccessConditions"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.id", is("itemAccessConditions")))
+                             .andExpect(jsonPath("$.canChangeDiscoverable", is(true)))
+                             .andExpect(jsonPath("$.singleAccessCondition", is(true)))
+                             .andExpect(jsonPath("$.accessConditionOptions", Matchers.containsInAnyOrder(
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "embargo", true , false, "+36MONTHS", null),
+                                 AccessConditionOptionMatcher.matchAccessConditionOption(
+                                     "administrator", false , false, null, null))
+                             ))
+                             .andExpect(jsonPath("$.type", is("submissionaccessoption")));
+    }
+
 }
