@@ -2040,7 +2040,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>startdate</dc-element>
           <dc-qualifier>format</dc-qualifier>
           <label>Formato della data dell'estremo remoto</label>
-          <input-type value-pairs-name="start_date_valid">dropdown</input-type>
+          <input-type value-pairs-name="start_date_format">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il formato della data dell'estremo remoto</hint>
@@ -5176,6 +5176,24 @@ it, please enter the types and the actual numbers or codes.</hint>
       </pair>
       <pair>
         <displayed-value>YM</displayed-value>
+        <stored-value>2</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>YMD</displayed-value>
+        <stored-value>3</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="start_date_format" dc-term="start_date_format">
+      <pair>
+        <displayed-value>Incerta</displayed-value>
+        <stored-value>0</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Attribuita</displayed-value>
+        <stored-value>1</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Incerta e Attribuita</displayed-value>
         <stored-value>2</stored-value>
       </pair>
       <pair>
