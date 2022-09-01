@@ -32,8 +32,8 @@
 				<!-- Specify here any Item based controlled vocabulary configuration,
 				  vocabulary names are defined in item.controlled.vocabularies key-->
 				<!-- <entry key="orgunits" value-ref="orgunitsControlledVocabulary" /> -->
-				<entry key="fonds" value-ref="publicationFondsControlledVocabulary" />
-				<entry key="fonds" value-ref="publicationJournalFondsControlledVocabulary" />
+				<entry key="publicationfonds" value-ref="publicationFondsControlledVocabulary" />
+				<entry key="publicationjournalfonds" value-ref="publicationJournalFondsControlledVocabulary" />
 				<entry key="fonds" value-ref="fondsControlledVocabulary" />
 				<entry key="journalfonds" value-ref="journalfondsControlledVocabulary" />
 				<entry key="aggregations" value-ref="aggregationsControlledVocabulary" />
