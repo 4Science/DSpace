@@ -73,10 +73,38 @@
     </dc-type>
     
     <dc-type>
-		<schema>glamplace</schema>
+		<schema>glam</schema>
 		<element>link</element>
 		<qualifier>wikipedia</qualifier>
 	</dc-type>
+	
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>otherbibliographic</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>dbi</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>ei</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>ulan</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
     <dc-type>
 		<schema>glamplace</schema>
@@ -92,22 +120,29 @@
     </dc-type>
 
     <dc-type>
-        <schema>glamplace</schema>
+        <schema>glam</schema>
         <element>link</element>
         <qualifier>dbpedia</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamplace</schema>
-        <element>long</element>
-        <qualifier></qualifier>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>viaf</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamperson</schema>
-        <element>partecipatedIn</element>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>eb</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>long</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -150,6 +185,20 @@
     <dc-type>
         <schema>glamperson</schema>
         <element>deathDate</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>birthYear</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>deathYear</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -274,7 +323,7 @@
     </dc-type>
    
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glam</schema>
         <element>index</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
@@ -471,7 +520,7 @@
     
     <dc-type>
         <schema>glamfond</schema>
-        <element>typology</element>
+        <element>photographictype</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -541,20 +590,8 @@
 
     <dc-type>
         <schema>glamjournalfond</schema>
-        <element>relation</element>
-        <qualifier>journalfond</qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-    <dc-type>
-        <schema>glamjournalfond</schema>
         <element>ownedyears</element>
         <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-    <dc-type>
-        <schema>glamjournalfond</schema>
-        <element>relation</element>
-        <qualifier>person</qualifier>
         <scope_note></scope_note>
     </dc-type>
     <dc-type>

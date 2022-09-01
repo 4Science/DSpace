@@ -244,5 +244,38 @@
             <min>0</min>
         </rightCardinality>
     </type>
+    <type>
+        <rightType>Fond</rightType>
+        <leftwardType>isFondsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>JournalFond</rightType>
+        <leftwardType>isJournalFondsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedJournalFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isEventsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
 
 </relationships>

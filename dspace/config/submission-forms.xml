@@ -828,6 +828,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Inserire l'URL</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il nome del luogo cui è connessa la risorsa</hint>
+        </field>
+      </row>
     </form>
     <form name="person">
       <row>
@@ -912,12 +924,34 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>glamperson</dc-schema>
+          <dc-element>birthYear</dc-element>
+          <label>Anno di nascita</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'anno di nascita della Persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
           <dc-element>deathDate</dc-element>
           <label>Data di morte</label>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la data di morte della Persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
+          <dc-element>deathYear</dc-element>
+          <label>Anno di morte</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'anno di morte della Persona</hint>
         </field>
       </row>
       <row>
@@ -997,6 +1031,126 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>opac</dc-qualifier>
+          <label>Link all'OPAC</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'URL per l'attivazione del collegamento con il catalogo on line.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>otherbibliographic</dc-qualifier>
+          <label>Altra fonte bibliografica</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'URL di altre eventuali fonti bibliografiche.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>dbi</dc-qualifier>
+          <label>Dizionario Biografico degli Italiani link</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'URL del Dizionario Biografico degli Italiani.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>ei</dc-qualifier>
+          <label>Enciclopedia Italiana link</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'URL dell'Enciclopedia Italiana.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>wikipedia</dc-qualifier>
+          <label>Link a Wikipedia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a Wikipedia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>dbpedia</dc-qualifier>
+          <label>Link a DBpedia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a DBPedia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>viaf</dc-qualifier>
+          <label>Link a VIAF</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a VIAF</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>eb</dc-qualifier>
+          <label>Link a Encyclopedia Britannica</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a Encyclopedia Britannica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>ulan</dc-qualifier>
+          <label>Link a Getty ULAN</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a Getty ULAN</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>otherlinks</dc-qualifier>
+          <label>Altri link</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire link a risorse esterne correlate alla testata</hint>
         </field>
       </row>
     </form>
@@ -1543,6 +1697,30 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>wikipedia</dc-qualifier>
+          <label>Link a Wikipedia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a Wikipedia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>dbpedia</dc-qualifier>
+          <label>Link a DBpedia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il link a DBPedia</hint>
+        </field>
+      </row>
     </form>
     <form name="fond-glamfond-bibliography">
       <row>
@@ -1737,9 +1915,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>glamfond</dc-schema>
-          <dc-element>typology</dc-element>
+          <dc-element>photographictype</dc-element>
           <label>Tipologia fondo fotografico</label>
-          <input-type value-pairs-name="fond_typology">dropdown</input-type>
+          <input-type value-pairs-name="fond_photographictype">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la tipologia del fondo fotografico</hint>
@@ -2096,7 +2274,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>onebox</input-type>
@@ -2223,12 +2401,12 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Eventuali altri luogho collegati</hint>
+          <hint>Eventuali altri luoghi collegati</hint>
         </field>
       </row>
       <row>
         <field>
-          <dc-schema>glamplace</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>link</dc-element>
           <dc-qualifier>dbpedia</dc-qualifier>
           <label>Link a DBpedia</label>
@@ -2264,7 +2442,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamplace</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>link</dc-element>
           <dc-qualifier>wikipedia</dc-qualifier>
           <label>Link a Wikipedia</label>
@@ -2488,6 +2666,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Indicare se si tratta del livello inferiore delle gerarchia archivistica</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>index</dc-element>
+          <label>Numero di corda</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il numero di corda</hint>
+        </field>
+      </row>
     </form>
     <form name="news">
       <row>
@@ -2627,6 +2816,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>index</dc-element>
+          <label>Numero di corda</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il numero di corda</hint>
         </field>
       </row>
     </form>
@@ -2951,7 +3151,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>journalfond</dc-qualifier>
           <label>Testate correlate</label>
@@ -3051,6 +3251,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare i diversi periodi che hanno caratterizzato la storia della testata</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>index</dc-element>
+          <label>Numero di corda</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il numero di corda</hint>
         </field>
       </row>
     </form>
@@ -5237,7 +5448,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>3</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="fond_typology" dc-term="fond_typology">
+    <value-pairs value-pairs-name="fond_photographictype" dc-term="fond_photographictype">
       <pair>
         <displayed-value>Scegli un valore</displayed-value>
         <stored-value />
