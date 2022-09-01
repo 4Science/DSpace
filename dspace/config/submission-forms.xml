@@ -245,10 +245,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -675,10 +675,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1014,10 +1014,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1307,10 +1307,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1537,10 +1537,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1678,10 +1678,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -2457,10 +2457,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -2551,10 +2551,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -3048,10 +3048,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Colllezione</label>
+          <label>Collezione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required>Inserire la collezione cui appartiene l'item</required>
+          <required></required>
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
