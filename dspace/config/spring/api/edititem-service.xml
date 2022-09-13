@@ -152,6 +152,32 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="news">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="news-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="path">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="path-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>
