@@ -45,7 +45,7 @@ public class ItemThumbnailLinkRepository extends AbstractDSpaceRestRepository im
             if (item == null) {
                 throw new ResourceNotFoundException("No such item: " + itemId);
             }
-            Thumbnail thumbnail = itemService.getThumbnail(context, item, false);
+            Thumbnail thumbnail = itemService.getThumbnail(context, item);
             if (thumbnail == null) {
                 return null;
             }

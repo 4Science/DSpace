@@ -125,7 +125,7 @@ public class DefaultWorkflowIT extends AbstractControllerIntegrationTest {
         Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Collection")
             .withEntityType("Publication")
-            .withWorkflowGroup(2, eperson)
+            .withWorkflowGroup("editor", eperson)
             .withSubmitterGroup(eperson)
             .build();
 
@@ -192,7 +192,7 @@ public class DefaultWorkflowIT extends AbstractControllerIntegrationTest {
         Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Collection")
             .withEntityType("Publication")
-            .withWorkflowGroup(2, eperson)
+            .withWorkflowGroup("editor", eperson)
             .withSubmitterGroup(eperson)
             .build();
 
@@ -275,43 +275,13 @@ public class DefaultWorkflowIT extends AbstractControllerIntegrationTest {
 
         String authToken = getAuthToken(admin.getEmail(), password);
 
+        // correction is not allowed in a collection without an active workflow
         getClient(authToken).perform(post("/api/submission/workspaceitems")
             .param("owningCollection", collection.getID().toString())
             .param("relationship", "isCorrectionOfItem")
             .param("item", itemToBeCorrected.getID().toString())
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
-            .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
-
-        Integer workspaceItemId = workspaceItemIdRef.get();
-
-        List<Relationship> relationships = relationshipService.findByItem(context, itemToBeCorrected);
-        assertThat(relationships, hasSize(1));
-
-        Relationship relationship = relationships.get(0);
-        assertThat(relationship.getRelationshipType().getLeftwardType(), equalTo("isCorrectionOfItem"));
-        assertThat(relationship.getRightItem(), equalTo(itemToBeCorrected));
-
-        Item correctionItem = relationship.getLeftItem();
-        assertThat(workspaceItemService.findByItem(context, correctionItem).getID(), equalTo(workspaceItemId));
-
-        MetadataValueRest value = new MetadataValueRest("Test item correction");
-        List<Operation> operations = asList(new ReplaceOperation("/sections/publication/dc.title/0", value));
-
-        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + workspaceItemId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(getPatchContent(operations)))
-            .andExpect(status().isOk());
-
-        getClient(authToken).perform(post("/api/workflow/workflowitems")
-            .content("/api/submission/workspaceitems/" + workspaceItemId).contentType(textUriContentType))
-            .andExpect(status().isCreated());
-
-        itemToBeCorrected = context.reloadEntity(itemToBeCorrected);
-        assertThat(itemService.getName(itemToBeCorrected), equalTo("Test item correction"));
-
-        assertThat(context.reloadEntity(correctionItem), nullValue());
-        assertThat(workspaceItemService.findByItem(context, correctionItem), nullValue());
+            .andExpect(status().isForbidden());
     }
 
     private void claimTaskAndPerformAction(EPerson user, MultiValueMap<String, String> params) throws Exception {

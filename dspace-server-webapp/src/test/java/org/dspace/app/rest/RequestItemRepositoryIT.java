@@ -397,8 +397,9 @@ public class RequestItemRepositoryIT
         token = token.replace("Bearer ", "");
 
         // Save token to an Authorization cookie
-        Cookie[] cookies = new Cookie[1];
+        Cookie[] cookies = new Cookie[2];
         cookies[0] = new Cookie(AUTHORIZATION_COOKIE, token);
+        cookies[1] = new Cookie("DSPACE-XSRF-COOKIE", "e35a7170-3409-4bcf-9283-d63a4a8707dd");
 
         // Fake up a request in REST form.
         RequestItemRest rir = new RequestItemRest();

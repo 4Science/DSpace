@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -233,12 +234,9 @@ public class LuckySearchIT  extends AbstractControllerIntegrationTest {
                 .andExpect(jsonPath("$.appliedFilters[0].operator", is("equals")))
                 // the total elements need to be three
                 .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]" +
-                        "._embedded.indexableObject.id", is(publicItem1.getID().toString())))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[1]" +
-                        "._embedded.indexableObject.id", is(publicItem2.getID().toString())))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[2]" +
-                        "._embedded.indexableObject.id", is(publicItem3.getID().toString())))
+                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[*]._embedded" +
+                    ".indexableObject.id", containsInAnyOrder(publicItem1.getID().toString(),
+                        publicItem2.getID().toString(), publicItem3.getID().toString())))
                 // the entity type must be person
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]" +
                         "._embedded.indexableObject.entityType", is("Person")))
@@ -311,12 +309,9 @@ public class LuckySearchIT  extends AbstractControllerIntegrationTest {
                 .andExpect(jsonPath("$.appliedFilters[0].operator", is("equals")))
                 // the size of total elements needs to be three as there are three items found from search
                 .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]._embedded" +
-                        ".indexableObject.id", is(publicItem1.getID().toString())))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[1]._embedded" +
-                        ".indexableObject.id", is(publicItem2.getID().toString())))
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[2]._embedded" +
-                        ".indexableObject.id", is(publicItem3.getID().toString())))
+                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[*]._embedded" +
+                        ".indexableObject.id", containsInAnyOrder(publicItem1.getID().toString(),
+                            publicItem2.getID().toString(), publicItem3.getID().toString())))
                 // the entity type must be person
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]._embedded" +
                         ".indexableObject.entityType", is("Person")))

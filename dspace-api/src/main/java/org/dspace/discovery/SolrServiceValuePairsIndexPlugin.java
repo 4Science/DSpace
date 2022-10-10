@@ -8,33 +8,25 @@
 package org.dspace.discovery;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 import static org.dspace.discovery.SearchUtils.AUTHORITY_SEPARATOR;
 import static org.dspace.discovery.SearchUtils.FILTER_SEPARATOR;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
-import org.dspace.app.util.DCInput;
-import org.dspace.app.util.DCInputSet;
-import org.dspace.app.util.DCInputsReader;
-import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.DSpaceControlledVocabulary;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.exception.SQLRuntimeException;
@@ -58,10 +50,6 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServiceValuePairsIndexPlugin.class);
 
-    private Map<String, DCInputsReader> dcInputsReaders = new HashMap<>();
-
-    private String separator;
-
     @Autowired
     private ItemService itemService;
 
@@ -71,92 +59,68 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
     @Autowired
     private ConfigurationService configurationService;
 
-    @PostConstruct
-    public void setup() throws DCInputsReaderException {
-        separator = configurationService.getProperty("discovery.solr.facets.split.char", FILTER_SEPARATOR);
-        for (Locale locale : I18nUtil.getSupportedLocales()) {
-            dcInputsReaders.put(locale.getLanguage(), new DCInputsReader(I18nUtil.getInputFormsFileName(locale)));
-        }
-    }
-
     @Override
     @SuppressWarnings("rawtypes")
     public void additionalIndex(Context context, IndexableObject object, SolrInputDocument document) {
-
         if (isNotIndexableItem(object)) {
             return;
         }
 
         Item item = ((IndexableItem)object).getIndexedObject();
-
         try {
-
-            for (String language : dcInputsReaders.keySet()) {
-                List<DCInput> valueListInputs = getAllValueListInputs(context, language, item);
-                for (DCInput valueListInput : valueListInputs) {
-                    additionalIndex(valueListInput, item, language, document);
+            Collection collection = (Collection) itemService.getParentObject(context, item);
+            for (MetadataValue metadata : item.getItemService().getMetadata(item, Item.ANY, Item.ANY, Item.ANY,
+                    Item.ANY)) {
+                for (Locale locale : I18nUtil.getSupportedLocales()) {
+                    String language = locale.getLanguage();
+                    if (cas.isChoicesConfigured(metadata.getMetadataField().toString(), item.getType(), collection)) {
+                        additionalIndex(collection, item, metadata, language, document);
+                    }
                 }
             }
 
         } catch (Exception ex) {
             LOGGER.error("An error occurs indexing value pairs for item " + item.getID(), ex);
         }
-
     }
 
-    private void additionalIndex(DCInput valueListInput, Item item, String language, SolrInputDocument document) {
-
-        String metadataField = valueListInput.getFieldName();
+    private void additionalIndex(Collection collection, Item item, MetadataValue metadataValue, String language,
+            SolrInputDocument document) {
+        String metadataField = metadataValue.getMetadataField().toString('.');
         List<DiscoverySearchFilter> searchFilters = findSearchFiltersByMetadataField(item, metadataField);
-        List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(item, metadataField);
-
-        for (MetadataValue metadataValue : metadataValues) {
-
-            String authority = metadataValue.getAuthority();
-            String value = getMetadataValue(metadataValue, valueListInput, language);
-
+        String authority = metadataValue.getAuthority();
+        String value = getMetadataValue(collection, metadataValue, language);
+        if (StringUtils.isNotBlank(value)) {
             for (DiscoverySearchFilter searchFilter : searchFilters) {
                 addDiscoveryFieldFields(language, document, value, authority, searchFilter);
             }
-
-        }
-
-    }
-
-    private String getMetadataValue(MetadataValue metadataValue, DCInput valueListInput, String language) {
-        if (valueListInput.isControlledVocabulary() && isNotBlank(metadataValue.getAuthority())) {
-            return getControlledVocabularyValue(metadataValue, language);
-        } else {
-            return getDisplayValue(valueListInput, metadataValue);
         }
     }
 
-    private String getControlledVocabularyValue(MetadataValue metadataValue, String language) {
-        String value = metadataValue.getValue();
+    private String getMetadataValue(Collection collection, MetadataValue metadataValue, String language) {
+        String fieldKey = metadataValue.getMetadataField().toString();
+        ChoiceAuthority choiceAuthority = cas.getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, collection);
         String authority = metadataValue.getAuthority();
-
-        if (StringUtils.isBlank(authority)) {
-            return value;
+        if (choiceAuthority instanceof DSpaceControlledVocabulary) {
+            String label = StringUtils.isNotBlank(authority) ? choiceAuthority.getLabel(authority, language)
+                    : metadataValue.getValue();
+            if (StringUtils.isBlank(label)) {
+                label = metadataValue.getValue();
+            }
+            return label;
+        } else if (choiceAuthority instanceof DCInputAuthority) {
+            String label = choiceAuthority.getLabel(metadataValue.getValue(), language);
+            if (StringUtils.isBlank(label)) {
+                label = metadataValue.getValue();
+            }
+            return label;
         }
-
-        String [] authorityValue = metadataValue.getAuthority().split(":");
-        if (authorityValue.length != 2) {
-            return value;
-        }
-
-        try {
-            ChoiceAuthority choiceAuthority = cas.getChoiceAuthorityByAuthorityName(authorityValue[0]);
-            Choice choice = choiceAuthority.getChoice(authorityValue[1], language);
-            return choice != null ? choice.label : value;
-        } catch (IllegalArgumentException ex) {
-            LOGGER.warn("An error occurs getting controlled vocabulary value: " + getRootCauseMessage(ex));
-            return value;
-        }
+        return null;
     }
 
     private void addDiscoveryFieldFields(String language, SolrInputDocument document, String value, String authority,
         DiscoverySearchFilter searchFilter) {
-
+        String separator = configurationService.getProperty("discovery.solr.facets.split.char", FILTER_SEPARATOR);
         String fieldNameWithLanguage = language + "_" + searchFilter.getIndexFieldName();
         String valueLowerCase = value.toLowerCase();
 
@@ -197,37 +161,6 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
-    }
-
-    private String getDisplayValue(DCInput valueListInput, MetadataValue metadataValue) {
-        String displayValue = valueListInput.getDisplayString(metadataValue.getValue());
-        if (StringUtils.isEmpty(displayValue)) {
-            displayValue = metadataValue.getValue();
-        }
-        return displayValue;
-    }
-
-    private List<DCInput> getAllValueListInputs(Context context, String language, Item item) {
-        return getInputs(context, language, item).stream()
-            .flatMap(this::getAllDCInput)
-            .filter(dcInput -> dcInput.isDropDown()
-                            || dcInput.isList()
-                            || StringUtils.isNotBlank(dcInput.getVocabulary()))
-            .collect(Collectors.toList());
-    }
-
-    private List<DCInputSet> getInputs(Context context, String language, Item item) {
-        try {
-            Collection collection = (Collection) itemService.getParentObject(context, item);
-            return dcInputsReaders.get(language).getInputsByCollection(collection);
-        } catch (DCInputsReaderException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Stream<DCInput> getAllDCInput(DCInputSet dcInputSet) {
-        return Arrays.stream(dcInputSet.getFields())
-            .flatMap(dcInputs -> Arrays.stream(dcInputs));
     }
 
     @SuppressWarnings("rawtypes")

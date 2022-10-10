@@ -24,6 +24,7 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +69,7 @@ public class ItemCorrectionFeatureRestIT extends AbstractControllerIntegrationTe
         collection = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Test collection")
             .withEntityType("Publication")
+            .withWorkflowGroup("reviewer", eperson)
             .build();
 
         context.restoreAuthSystemState();
@@ -101,7 +103,6 @@ public class ItemCorrectionFeatureRestIT extends AbstractControllerIntegrationTe
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testFeatureWithAdmin() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -180,6 +181,69 @@ public class ItemCorrectionFeatureRestIT extends AbstractControllerIntegrationTe
                 .param("feature", ItemCorrectionFeature.NAME))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.authorizations", hasItem(matchAuthorization(expectedAuthorization))));
+
+    }
+
+    @Test
+    public void testFeatureWithoutWorkflow() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection collectionWithoutWorkflow = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test collection")
+            .withEntityType("Publication")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collectionWithoutWorkflow)
+            .withTitle("Test publication")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
+
+        configurationService.setProperty("item-correction.permit-all", false);
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+            .param("uri", getItemUri(itemRest))
+            .param("eperson", String.valueOf(admin.getID()))
+            .param("feature", ItemCorrectionFeature.NAME))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.authorizations").doesNotExist());
+
+    }
+
+    @Test
+    public void testFeatureWithWorkflowWithoutReviewers() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection collectionWithoutReviewers = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test collection")
+            .withEntityType("Publication")
+            .withWorkflowGroup("reviewer", new EPerson[0])
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collectionWithoutReviewers)
+            .withTitle("Test publication")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
+
+        configurationService.setProperty("item-correction.permit-all", false);
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+            .param("uri", getItemUri(itemRest))
+            .param("eperson", String.valueOf(admin.getID()))
+            .param("feature", ItemCorrectionFeature.NAME))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.authorizations").doesNotExist());
 
     }
 

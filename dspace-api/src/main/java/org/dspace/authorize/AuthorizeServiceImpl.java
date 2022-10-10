@@ -7,6 +7,9 @@
  */
 package org.dspace.authorize;
 
+import static org.dspace.app.util.AuthorizeUtil.canCollectionAdminManageAccounts;
+import static org.dspace.app.util.AuthorizeUtil.canCommunityAdminManageAccounts;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -922,6 +925,16 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         return discoverResult.getTotalSearchResults();
     }
 
+    @Override
+    public boolean isAccountManager(Context context) {
+        try {
+            return (canCommunityAdminManageAccounts() && isCommunityAdmin(context)
+                || canCollectionAdminManageAccounts() && isCollectionAdmin(context));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean performCheck(Context context, String query) throws SQLException {
         if (context.getCurrentUser() == null) {
             return false;
@@ -980,15 +993,6 @@ public class AuthorizeServiceImpl implements AuthorizeService {
             return "";
         } else {
             return query + " AND ";
-        }
-    }
-    @Override
-    public boolean isPartOfTheGroup(Context c, String egroup) throws SQLException {
-        EPerson e = c.getCurrentUser();
-        if (e == null) {
-            return false; // anonymous users can't be part of group
-        } else {
-            return groupService.isMember(c, egroup);
         }
     }
 

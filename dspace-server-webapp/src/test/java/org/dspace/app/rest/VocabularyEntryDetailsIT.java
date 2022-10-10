@@ -611,7 +611,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                 "$._embedded.vocabularyEntryDetails",
                                 hasItems(
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit1.getID().toString(),
                                                 orgUnit1.getName(),
                                                 orgUnit1.getName(),
@@ -624,7 +624,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                         )
                                     ),
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit3.getID().toString(),
                                                 orgUnit3.getName(),
                                                 orgUnit3.getName(),
@@ -637,7 +637,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                         )
                                     ),
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit5.getID().toString(),
                                                 orgUnit5.getName(),
                                                 orgUnit5.getName(),
@@ -687,7 +687,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                         "$._embedded.vocabularyEntryDetails",
                         hasItems(
                             allOf(
-                                    VocabularyMatcher.matchVocabularyEntry(
+                                    VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                             "orgunits:" + orgUnit1.getID().toString(),
                                             orgUnit1.getName(),
                                             orgUnit1.getName(),
@@ -712,7 +712,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                         jsonPath(
                                 "$._embedded.children",
                                 hasItems(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit2.getID().toString(),
                                                 orgUnit2.getName(),
                                                 orgUnit2.getName(),
@@ -777,7 +777,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                 "$._embedded.vocabularyEntryDetails",
                                 hasItems(
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit1.getID().toString(),
                                                 orgUnit1.getName(),
                                                 orgUnit1.getName(),
@@ -790,7 +790,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                         )
                                     ),
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit3.getID().toString(),
                                                 orgUnit3.getName(),
                                                 orgUnit3.getName(),
@@ -803,7 +803,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                                         )
                                     ),
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit5.getID().toString(),
                                                 orgUnit5.getName(),
                                                 orgUnit5.getName(),
@@ -827,7 +827,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                     jsonPath(
                             "$._embedded.children",
                             hasItems(
-                                    VocabularyMatcher.matchVocabularyEntry(
+                                    VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                             "orgunits:" + orgUnit2.getID().toString(),
                                             orgUnit2.getName(),
                                             orgUnit2.getName(),
@@ -846,7 +846,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                 jsonPath(
                         "$._embedded.children",
                         hasItems(
-                                VocabularyMatcher.matchVocabularyEntry(
+                                VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                         "orgunits:" + orgUnit4.getID().toString(),
                                         orgUnit4.getName(),
                                         orgUnit4.getName(),
@@ -886,7 +886,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                             jsonPath(
                                     "$",
                                     allOf(
-                                        VocabularyMatcher.matchVocabularyEntry(
+                                        VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                                 "orgunits:" + orgUnit1.getID().toString(),
                                                 orgUnit1.getName(),
                                                 orgUnit1.getName(),
@@ -932,7 +932,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                         jsonPath(
                                 "$",
                                 allOf(
-                                    VocabularyMatcher.matchVocabularyEntry(
+                                    VocabularyMatcher.matchVocabularyEntryWithAuthority(
                                             "orgunits:" + orgUnit1.getID().toString(),
                                             orgUnit1.getName(),
                                             orgUnit1.getName(),

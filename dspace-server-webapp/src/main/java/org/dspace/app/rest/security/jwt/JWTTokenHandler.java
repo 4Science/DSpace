@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.security.jwt;
 
+import static org.apache.commons.lang.BooleanUtils.isTrue;
+
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
@@ -75,6 +77,9 @@ public abstract class JWTTokenHandler {
 
     @Autowired
     private ClientInfoService clientInfoService;
+
+    @Autowired
+    private MachineClaimProvider machineClaimProvider;
 
     private String generatedJwtKey;
     private String generatedEncryptionKey;
@@ -165,11 +170,12 @@ public abstract class JWTTokenHandler {
             throw new AccessDeniedException("Short lived tokens can't be used to generate other tokens");
         }
 
-        // Update the saved session salt for the currently logged in user, returning the user object
-        EPerson ePerson = updateSessionSalt(context, previousLoginDate);
-
         // Create a claims set based on currently logged in user
         JWTClaimsSet claimsSet = buildJwtClaimsSet(context, request);
+
+        // Update the saved salt for the currently logged in user, returning the user object
+        EPerson ePerson = isMachineToken(claimsSet) ? updateMachineSessionSalt(context, previousLoginDate)
+            : updateSessionSalt(context, previousLoginDate);
 
         // Create a signed JWT from those two things
         SignedJWT signedJWT = createSignedJWT(request, ePerson, claimsSet);
@@ -203,6 +209,22 @@ public abstract class JWTTokenHandler {
     }
 
     /**
+     * Invalidate the current machine JWT in the current request
+     * @param  token     current token
+     * @param  request   current request
+     * @param  context   current Context
+     * @throws Exception
+     */
+    public void invalidateMachineToken(Context context, HttpServletRequest request, String token) throws Exception {
+        if (StringUtils.isNotBlank(token)) {
+            EPerson ePerson = parseEPersonFromToken(token, request, context);
+            if (ePerson != null) {
+                ePerson.setMachineSessionSalt("");
+            }
+        }
+    }
+
+    /**
      * Retrieve the token secret key from configuration. If not specified, generate and cache a random 32 byte key
      * @return configuration value or random 32 byte key
      */
@@ -217,6 +239,10 @@ public abstract class JWTTokenHandler {
         }
 
         return secret;
+    }
+
+    private long getMachineTokenExpirationPeriod() {
+        return configurationService.getLongProperty("jwt.login.machine-token.expiration", 631138520000L);
     }
 
     public long getExpirationPeriod() {
@@ -273,10 +299,13 @@ public abstract class JWTTokenHandler {
      */
     protected boolean isValidToken(HttpServletRequest request, SignedJWT signedJWT, JWTClaimsSet jwtClaimsSet,
                                  EPerson ePerson) throws JOSEException {
-        if (ePerson == null || StringUtils.isBlank(ePerson.getSessionSalt())) {
+
+        String salt = getSalt(jwtClaimsSet, ePerson);
+
+        if (ePerson == null || StringUtils.isBlank(salt)) {
             return false;
         } else {
-            JWSVerifier verifier = new MACVerifier(buildSigningKey(ePerson));
+            JWSVerifier verifier = new MACVerifier(buildSigningKey(ePerson, salt));
 
             //If token is valid and not expired return eperson in token
             Date expirationTime = jwtClaimsSet.getExpirationTime();
@@ -335,7 +364,8 @@ public abstract class JWTTokenHandler {
         SignedJWT signedJWT = new SignedJWT(
             new JWSHeader(JWSAlgorithm.HS256), claimsSet);
 
-        JWSSigner signer = new MACSigner(buildSigningKey(ePerson));
+        String salt = getSalt(claimsSet, ePerson);
+        JWSSigner signer = new MACSigner(buildSigningKey(ePerson, salt));
         signedJWT.sign(signer);
         return signedJWT;
     }
@@ -354,8 +384,11 @@ public abstract class JWTTokenHandler {
             builder = builder.claim(jwtClaimProvider.getKey(), jwtClaimProvider.getValue(context, request));
         }
 
+        boolean isMachineTokenRequest = machineClaimProvider.isMachineTokenRequest(request);
+        long expirationPeriod = isMachineTokenRequest ? getMachineTokenExpirationPeriod() : getExpirationPeriod();
+
         return builder
-            .expirationTime(new Date(System.currentTimeMillis() + getExpirationPeriod()))
+            .expirationTime(new Date(System.currentTimeMillis() + expirationPeriod))
             .build();
     }
 
@@ -375,9 +408,11 @@ public abstract class JWTTokenHandler {
      *
      * @param ePerson currently authenticated EPerson
      * @return signing key for token
+     * @param  salt    the salt to concat with the jwt key
+     * @return         signing key for token
      */
-    protected String buildSigningKey(EPerson ePerson) {
-        return getJwtKey() + ePerson.getSessionSalt();
+    protected String buildSigningKey(EPerson ePerson, String salt) {
+        return getJwtKey() + salt;
     }
 
     /**
@@ -420,6 +455,38 @@ public abstract class JWTTokenHandler {
         }
 
         return ePerson;
+    }
+
+    private EPerson updateMachineSessionSalt(Context context, final Date previousLoginDate) throws SQLException {
+        EPerson ePerson;
+
+        try {
+            ePerson = context.getCurrentUser();
+            ePerson.setMachineSessionSalt(generateRandomKey());
+            ePersonService.update(context, ePerson);
+        } catch (AuthorizeException e) {
+            ePerson = null;
+        }
+
+        return ePerson;
+    }
+
+    private String getSalt(JWTClaimsSet jwtClaimsSet, EPerson ePerson) {
+        if (ePerson == null) {
+            return null;
+        }
+
+        return isMachineToken(jwtClaimsSet) ? ePerson.getMachineSessionSalt() : ePerson.getSessionSalt();
+    }
+
+    private boolean isMachineToken(JWTClaimsSet jwtClaimsSet) {
+
+        try {
+            return isTrue(jwtClaimsSet.getBooleanClaim(MachineClaimProvider.MACHINE_TOKEN));
+        } catch (ParseException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     /**

@@ -45,7 +45,7 @@ public class ProcessIT extends AbstractIntegrationTestWithDatabase {
 
         Process processA = ProcessBuilder.createProcess(context, admin, "mock-script",
                                                         new LinkedList<>(),
-                                                        Collections.singletonList(groupA)).build();
+                                                        Collections.singleton(groupA)).build();
 
         context.restoreAuthSystemState();
         Process process = processService.find(context, processA.getID());
@@ -70,7 +70,7 @@ public class ProcessIT extends AbstractIntegrationTestWithDatabase {
         UUID groupUuid = groupA.getID();
 //        context.setSpecialGroup(groupA.getID());
         Process processA = ProcessBuilder.createProcess(context, admin, "mock-script", new LinkedList<>(),
-                                                        Collections.singletonList(groupA)).build();
+                                                        Collections.singleton(groupA)).build();
 
         context.restoreAuthSystemState();
 

@@ -11,24 +11,6 @@
     <context:annotation-config/>
     <!-- allows us to use spring annotations in beans -->
 
-<!-- 
-                <entry key="pmid" value="pubmedID"/>
-                <entry key="pmcid" value="pubmedcentralID"/>
-
-                <entry key="doi" value="dc.identifier"/>
-                <entry key="ISSN" value="dc.identifier.issn"/>
-                <entry key="jTitle" value="dc.source"/>
-                <entry key="title" value="dc.title"/>
-                <entry key="pubDate" value="dc.date.issued"/>
-                <entry key="language" value="dc.language.iso"/>
-                <entry key="pubType" value="dc.type"/>
-                <entry key="keyword" value="dc.subject"/>
-                <entry key="abstractText" value="dc.description.abstract"/>
-                <entry key="author" value="dc.contributor.author"/>
-                <entry key="publisher" value="dc.publisher"/>
-                <entry key="isbn" value="dc.identifier.isbn"/>
-                <entry key="sISSN" value="dc.identifier.issn"/>
- -->
     <util:map id="pubmedEuropeMetadataFieldMap" key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
               value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
         <description>Defines which metadatum is mapped on which metadatum. Note that while the key must be unique it
@@ -50,20 +32,18 @@
         <entry key-ref="pubeu.other" value-ref="pubEuOtherContrib"/>
     </util:map>
 
-
     <bean id="pubEuOtherContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.other"/>
-        <property name="query" value="//id"/>
+        <property name="query" value="id"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>
     <bean id="pubeu.other" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.pmid"/>
+        <constructor-arg value="dc.identifier.other"/>
     </bean>
-
 
     <bean id="pubEuISSNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.sissn"/>
-        <property name="query" value="//journalInfo/journal/ISSN"/>
+        <property name="query" value="journalInfo/journal/ISSN"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
     <bean id="pubeu.sissn" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -72,7 +52,7 @@
     
     <bean id="pubEuISBNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.isbn"/>
-        <property name="query" value="//seriesISSN"/>
+        <property name="query" value="seriesISSN"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
     <bean id="pubeu.isbn" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -81,17 +61,16 @@
 
     <bean id="pubEuPublisherContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.publisher"/>
-        <property name="query" value="//publisher"/>
+        <property name="query" value="publisher"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
     <bean id="pubeu.publisher" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.publisher"/>
     </bean>
-    
-    
+        
     <bean id="pubEuAbstractContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.abstract"/>
-        <property name="query" value="//abstractText"/>
+        <property name="query" value="abstractText"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
     <bean id="pubeu.abstract" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -100,7 +79,7 @@
 
     <bean id="pubEuKeywordContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.type"/>
-        <property name="query" value="//keywordList/keyword"/>
+        <property name="query" value="keywordList/keyword"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>        
     <bean id="pubeu.keyword" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -109,7 +88,7 @@
     
     <bean id="pubEuTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.type"/>
-        <property name="query" value="//pubTypeList/pubType"/>
+        <property name="query" value="pubTypeList/pubType"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
      <bean id="pubeu.type" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -118,7 +97,7 @@
 
     <bean id="pubEuLangContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.lang"/>
-        <property name="query" value="//language"/>
+        <property name="query" value="language"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
      <bean id="pubeu.lang" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -127,7 +106,7 @@
 
     <bean id="pubEuDateContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.date"/>
-        <property name="query" value="//journalInfo/yearOfPublication"/>
+        <property name="query" value="journalInfo/yearOfPublication"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
      <bean id="pubeu.date" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -136,7 +115,7 @@
     
     <bean id="pubEuJournalContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.journal"/>
-        <property name="query" value="//journalInfo/journal/title"/>
+        <property name="query" value="journalInfo/journal/title"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>    
     <bean id="pubeu.journal" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -145,7 +124,7 @@
 
     <bean id="pubEuAuthorContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.author"/>
-        <property name="query" value="//authorList/author/fullName"/>
+        <property name="query" value="authorList/author/fullName"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>
     <bean id="pubeu.author" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -154,7 +133,7 @@
 
     <bean id="pubEuTitleContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.title"/>
-        <property name="query" value="//title"/>
+        <property name="query" value="title"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>
      <bean id="pubeu.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -163,11 +142,11 @@
 
     <bean id="pubEuDoiContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="pubeu.doi"/>
-        <property name="query" value="//doi"/>
+        <property name="query" value="doi"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>
      <bean id="pubeu.doi" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.doi"/>
+        <constructor-arg value="dc.identifier"/>
     </bean>
 	
 

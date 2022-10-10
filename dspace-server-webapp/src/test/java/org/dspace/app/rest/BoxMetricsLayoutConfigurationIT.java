@@ -138,7 +138,7 @@ public class BoxMetricsLayoutConfigurationIT extends AbstractControllerIntegrati
         context.turnOffAuthorisationSystem();
         try {
             Item item = ItemBuilder.createItem(context, collection).withFullName("TestItem")
-                    .withEntityType("Publication").withCrisOwner(context.getCurrentUser()).build();
+                    .withEntityType("Publication").withDspaceObjectOwner(context.getCurrentUser()).build();
             EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
             CrisLayoutBox crisLayoutBox = CrisLayoutBoxBuilder.createBuilder(context, entityType, false, false)
                     .withType("METRICS").withSecurity(LayoutSecurity.OWNER_ONLY).build();
@@ -180,7 +180,7 @@ public class BoxMetricsLayoutConfigurationIT extends AbstractControllerIntegrati
         context.turnOffAuthorisationSystem();
         try {
             Item item = ItemBuilder.createItem(context, collection).withFullName("TestItem")
-                    .withEntityType("Publication").withCrisOwner(admin).build();
+                    .withEntityType("Publication").withDspaceObjectOwner(admin).build();
             EntityType entityType = EntityTypeBuilder
                     .createEntityTypeBuilder(context, "Publication")
                     .build();

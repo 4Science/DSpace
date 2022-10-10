@@ -190,4 +190,14 @@ public interface HandleService {
      * @return
      */
     String parseHandle(String identifier);
+
+    /**
+     * Checks whether the given handle matches an existing dso or not
+     * 
+     * @param context DSpace context
+     * @param handle  The given handle
+     * @return
+     * @throws SQLException
+     */
+    public boolean isGone(Context context, String handle) throws SQLException;
 }

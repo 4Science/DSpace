@@ -12,6 +12,7 @@ import static org.dspace.builder.CommunityBuilder.createCommunity;
 import static org.dspace.builder.ItemBuilder.createItem;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -812,7 +813,9 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(content, containsString("Parent Organization: Parent OrgUnit"));
         assertThat(content, containsString("Identifier(s): ID-01, ID-02"));
         assertThat(content, containsString("URL(s): www.orgUnit.com, www.orgUnit.it"));
-        assertThat(content, containsString("People: Walter White, Jesse Pinkman"));
+        assertThat(content, anyOf(
+            containsString("People: Walter White, Jesse Pinkman"),
+            containsString("People: Jesse Pinkman, Walter White")));
     }
 
     private void assertThatEquipmentDocumentHasContent(String content) {

@@ -7,38 +7,28 @@
  */
 package org.dspace.importer.external.epo.service;
 
+import static org.dspace.importer.external.liveimportclient.service.LiveImportClientImpl.HEADER_PARAMETERS;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xerces.impl.dv.util.Base64;
@@ -46,6 +36,7 @@ import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.contributor.EpoIdMetadataContributor.EpoDocumentId;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
@@ -61,42 +52,36 @@ import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a data source for querying EPO
  * 
  * @author Pasquale Cavallo (pasquale.cavallo at 4Science dot it)
- *
  */
 public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
-    implements QuerySource {
+        implements QuerySource {
+
+    private final static Logger log = LogManager.getLogger();
+
+    private String url;
+    private String authUrl;
+    private String searchUrl;
 
     private String consumerKey;
     private String consumerSecret;
+
     private MetadataFieldConfig dateFiled;
     private MetadataFieldConfig applicationNumber;
-
-    private static final Logger log = LogManager.getLogger(EpoImportMetadataSourceServiceImpl.class);
-
-    private static final String endPointAuthService =
-            "https://ops.epo.org/3.2/auth/accesstoken";
-    private static final String endPointPublisherDataSearchService =
-            "http://ops.epo.org/rest-services/published-data/search";
-    private static final String endPointPublisherDataRetriveService =
-            "http://ops.epo.org/rest-services/published-data/publication/$(doctype)/$(id)/biblio";
 
     public static final String APP_NO_DATE_SEPARATOR = "$$$";
     private static final String APP_NO_DATE_SEPARATOR_REGEX = "\\$\\$\\$";
 
-/**
-     * Initialize the class
-     *
-     * @throws Exception on generic exception
-     */
+    @Autowired
+    private LiveImportClient liveImportClient;
+
     @Override
-    public void init() throws Exception {
-    }
+    public void init() throws Exception {}
 
     /**
      * The string that identifies this import implementation. Preferable a URI
@@ -116,12 +101,20 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         this.consumerKey = consumerKey;
     }
 
+    public String getConsumerKey() {
+        return consumerKey;
+    }
+
     /**
      * Set the costumer epo secret
      * @param consumerSecret the customer epo secret
      */
     public void setConsumerSecret(String consumerSecret) {
         this.consumerSecret = consumerSecret;
+    }
+
+    public String getConsumerSecret() {
+        return consumerSecret;
     }
 
     public void setDateFiled(MetadataFieldConfig dateFiled) {
@@ -150,38 +143,29 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
      * @throws HttpException
      */
     protected String login() throws IOException, HttpException {
-        HttpPost method = null;
-        String accessToken = null;
-        try {
-            HttpClient client = HttpClientBuilder.create().build();
-            method = new HttpPost(endPointAuthService);
-            String authString = consumerKey + ":" + consumerSecret;
-            method.setHeader("Authorization", "Basic " + Base64.encode(authString.getBytes()));
-            method.setHeader("Content-type", "application/x-www-form-urlencoded");
-            StringEntity entity = new StringEntity("grant_type=client_credentials");
-            method.setEntity(entity);
-            HttpResponse httpResponse = client.execute(method);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new RuntimeException(
-                        "Call to " + endPointAuthService + " fails: " + httpResponse.getStatusLine());
-            }
-            String json = EntityUtils.toString(httpResponse.getEntity());
-            JsonFactory factory = new JsonFactory();
-            ObjectMapper mapper = new ObjectMapper(factory);
-            JsonNode rootNode = mapper.readTree(json);
-            JsonNode accessTokenNode = rootNode.get("access_token");
-            accessToken = accessTokenNode.asText();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            if (method != null) {
-                method.releaseConnection();
-            }
-        }
-        return accessToken;
+        Map<String, Map<String, String>> params = getLoginParams();
+        String entity = "grant_type=client_credentials";
+        String json = liveImportClient.executeHttpPostRequest(this.authUrl, params, entity);
+        ObjectMapper mapper = new ObjectMapper(new JsonFactory());
+        JsonNode rootNode = mapper.readTree(json);
+        JsonNode accessTokenNode = rootNode.get("access_token");
+        return accessTokenNode.asText();
     }
 
+    private Map<String, Map<String, String>> getLoginParams() {
+        Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+        Map<String, String> headerParams = getLoginHeaderParams();
+        params.put(HEADER_PARAMETERS, headerParams);
+        return params;
+    }
+
+    private Map<String, String> getLoginHeaderParams() {
+        Map<String, String> params = new HashMap<String, String>();
+        String authString = consumerKey + ":" + consumerSecret;
+        params.put("Authorization", "Basic " + Base64.encode(authString.getBytes()));
+        params.put("Content-type", "application/x-www-form-urlencoded");
+        return params;
+    }
 
     @Override
     public int getRecordsCount(String query) throws MetadataSourceException {
@@ -190,7 +174,8 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
                 String bearer = login();
                 return retry(new CountRecordsCallable(query, bearer));
             } catch (IOException | HttpException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         return 0;
@@ -218,10 +203,11 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
                 String bearer = login();
                 return retry(new SearchByQueryCallable(query, bearer, start, count));
             } catch (IOException | HttpException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<ImportRecord>();
     }
 
     @Override
@@ -232,10 +218,11 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
                 String bearer = login();
                 return retry(new SearchByQueryCallable(query, bearer));
             } catch (IOException | HttpException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<ImportRecord>();
     }
 
     @Override
@@ -244,13 +231,10 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             try {
                 String bearer = login();
                 List<ImportRecord> list = retry(new SearchByIdCallable(id, bearer));
-                if (list == null || list.isEmpty()) {
-                    return null;
-                } else {
-                    return list.get(0);
-                }
+                return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
             } catch (IOException | HttpException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         return null;
@@ -273,10 +257,18 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         return null;
     }
 
+    /**
+     * This class is a Callable implementation to count the number of entries for an EPO query.
+     * This Callable use as query value to EPO the string queryString passed to constructor.
+     * If the object will be construct through Query.class instance, the value of the Query's
+     * map with the key "query" will be used.
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class CountRecordsCallable implements Callable<Integer> {
 
-        String bearer;
-        String query;
+        private String bearer;
+        private String query;
 
         private CountRecordsCallable(Query query, String bearer) {
             this.query = query.getParameterAsClass("query", String.class);
@@ -293,10 +285,16 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         }
     }
 
-
+    /**
+     * This class is a Callable implementation to get an EPO entry using epodocID (epodoc:AB1234567T)
+     * The epodocID to use can be passed through the constructor as a String or as Query's map entry, with the key "id".
+     *
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class SearchByIdCallable implements Callable<List<ImportRecord>> {
-        String bearer;
-        String id;
+
+        private String id;
+        private String bearer;
 
         private SearchByIdCallable(String id, String bearer) {
             this.id = id;
@@ -332,18 +330,25 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         }
     }
 
-
+    /**
+     * This class is a Callable implementation to get EPO entries based on query object.
+     * This Callable use as query value the string queryString passed to constructor.
+     * If the object will be construct through Query.class instance, a Query's map entry with key "query" will be used.
+     * Pagination is supported too, using the value of the Query's map with keys "start" and "count".
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class SearchByQueryCallable implements Callable<List<ImportRecord>> {
+
         private Query query;
-        private String bearer;
         private Integer start;
         private Integer count;
+        private String bearer;
 
         private SearchByQueryCallable(Query query, String bearer) {
             this.query = query;
             this.bearer = bearer;
         }
-
 
         public SearchByQueryCallable(String queryValue, String bearer, int start, int count) {
             this.query = new Query();
@@ -381,29 +386,25 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             return null;
         }
         try {
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpGet method = new HttpGet(endPointPublisherDataSearchService);
-            method.setHeader("Authorization", "Bearer " + bearer);
-            method.setHeader("X-OPS-Range", "1-1");
-            URI uri = new URIBuilder(method.getURI()).addParameter("q", query).build();
-            ((HttpRequestBase) method).setURI(uri);
-            HttpResponse httpResponse = client.execute(method);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new RuntimeException(
-                        "Call to " + endPointPublisherDataSearchService + " fails: " + httpResponse.getStatusLine());
-            }
-            InputStream is = httpResponse.getEntity().getContent();
-            String response = IOUtils.toString(is, Charsets.UTF_8);
-            log.debug(response);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            Map<String, String> headerParameters = new HashMap<String, String>();
+            headerParameters.put("Authorization", "Bearer " + bearer);
+            headerParameters.put("X-OPS-Range", "1-1");
+            params.put(HEADER_PARAMETERS, headerParameters);
+
+            URIBuilder uriBuilder = new URIBuilder(this.searchUrl);
+            uriBuilder.addParameter("q", query);
+
+            String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
 
             List<Namespace> namespaces = Arrays.asList(
-                Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
-                Namespace.getNamespace("ops", "http://ops.epo.org"),
-                Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+                 Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
+                 Namespace.getNamespace("ops", "http://ops.epo.org"),
+                 Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
 
             String totalRes = getElement(root, namespaces, "//ops:biblio-search/@total-result-count");
             return Integer.parseInt(totalRes);
@@ -412,6 +413,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             return null;
         }
     }
+
     private List<EpoDocumentId> searchDocumentIds(String bearer, String query, int start, int count) {
         List<EpoDocumentId> results = new ArrayList<EpoDocumentId>();
         int end = start + count;
@@ -419,33 +421,29 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             return results;
         }
         try {
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpGet method = new HttpGet(endPointPublisherDataSearchService);
-            method.setHeader("Authorization", "Bearer " + bearer);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            Map<String, String> headerParameters = new HashMap<String, String>();
+            headerParameters.put("Authorization", "Bearer " + bearer);
             if (start >= 1 && end > start) {
-                method.setHeader("X-OPS-Range", start + "-" + end);
+                headerParameters.put("X-OPS-Range", start + "-" + end);
             }
-            URI uri = new URIBuilder(method.getURI()).addParameter("q", query).build();
-            ((HttpRequestBase) method).setURI(uri);
-            HttpResponse httpResponse = client.execute(method);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new RuntimeException(
-                        "Call to " + endPointPublisherDataSearchService + " fails: " + httpResponse.getStatusLine());
-            }
-            InputStream is = httpResponse.getEntity().getContent();
-            String response = IOUtils.toString(is, Charsets.UTF_8);
-            log.debug(response);
+            params.put(HEADER_PARAMETERS, headerParameters);
+
+            URIBuilder uriBuilder = new URIBuilder(this.searchUrl);
+            uriBuilder.addParameter("q", query);
+
+            String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
 
             List<Namespace> namespaces = Arrays.asList(
-                Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
-                Namespace.getNamespace("ops", "http://ops.epo.org"),
-                Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+                 Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
+                 Namespace.getNamespace("ops", "http://ops.epo.org"),
+                 Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
             XPathExpression<Element> xpath = XPathFactory.instance()
-                .compile("//ns:document-id", Filters.element(), null, namespaces);
+                    .compile("//ns:document-id", Filters.element(), null, namespaces);
 
             List<Element> documentIds = xpath.evaluate(root);
             for (Element documentId : documentIds) {
@@ -467,22 +465,14 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             return results;
         }
         try {
-            String endPointPublisherDataRetriveService = this.endPointPublisherDataRetriveService;
-            endPointPublisherDataRetriveService = endPointPublisherDataRetriveService
-                    .replace("$(doctype)", docType).replace("$(id)", id);
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpGet method = new HttpGet(endPointPublisherDataRetriveService);
-            method.setHeader("Authorization", "Bearer " + bearer);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            Map<String, String> headerParameters = new HashMap<String, String>();
+            headerParameters.put("Authorization", "Bearer " + bearer);
+            params.put(HEADER_PARAMETERS, headerParameters);
 
-            HttpResponse httpResponse = client.execute(method);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new RuntimeException(
-                        "Call to " + endPointPublisherDataRetriveService + " fails: " + httpResponse.getStatusLine());
-            }
-            InputStream is = httpResponse.getEntity().getContent();
-            String response = IOUtils.toString(is, Charsets.UTF_8);
-            log.debug(response);
+            String url = this.url.replace("$(doctype)", docType).replace("$(id)", id);
+
+            String response = liveImportClient.executeHttpGetRequest(1000, url, params);
             List<Element> elements = splitToRecords(response);
             for (Element element : elements) {
                 results.add(transformSourceRecords(element));
@@ -500,7 +490,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             Element root = document.getRootElement();
             List<Namespace> namespaces = Arrays.asList(Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
             XPathExpression<Element> xpath = XPathFactory.instance().compile("//ns:exchange-document",
-                Filters.element(), null, namespaces);
+                    Filters.element(), null, namespaces);
 
             List<Element> recordsList = xpath.evaluate(root);
             return recordsList;
@@ -515,12 +505,11 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         List<Object> nodes = xpath.evaluate(document);
         //exactly one element expected for any field
         if (CollectionUtils.isEmpty(nodes)) {
-            return "";
+            return StringUtils.EMPTY;
         } else {
             return getValue(nodes.get(0));
         }
     }
-
 
     private String getValue(Object el) {
         if (el instanceof Element) {
@@ -535,6 +524,18 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             log.error("node of type: " + el.getClass());
             return "";
         }
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setAuthUrl(String authUrl) {
+        this.authUrl = authUrl;
+    }
+
+    public void setSearchUrl(String searchUrl) {
+        this.searchUrl = searchUrl;
     }
 
 }

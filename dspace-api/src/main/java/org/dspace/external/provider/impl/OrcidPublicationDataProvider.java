@@ -13,7 +13,6 @@ import static java.util.Comparator.reverseOrder;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.collections4.ListUtils.partition;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.dspace.content.Item.ANY;
 import static org.orcid.jaxb.model.common.CitationType.FORMATTED_UNSPECIFIED;
 
 import java.io.File;
@@ -23,21 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.dspace.app.orcid.client.OrcidClient;
-import org.dspace.app.orcid.client.OrcidConfiguration;
-import org.dspace.app.orcid.model.OrcidTokenResponseDTO;
-import org.dspace.app.orcid.model.OrcidWorkFieldMapping;
-import org.dspace.app.orcid.service.OrcidSynchronizationService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.dto.MetadataValueDTO;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.AbstractExternalDataProvider;
@@ -45,6 +39,14 @@ import org.dspace.external.provider.ExternalDataProvider;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.service.ImportService;
+import org.dspace.orcid.OrcidToken;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.client.OrcidConfiguration;
+import org.dspace.orcid.model.OrcidTokenResponseDTO;
+import org.dspace.orcid.model.OrcidWorkFieldMapping;
+import org.dspace.orcid.service.OrcidSynchronizationService;
+import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.web.ContextUtil;
 import org.orcid.jaxb.model.common.ContributorRole;
 import org.orcid.jaxb.model.common.WorkType;
 import org.orcid.jaxb.model.v3.release.common.Contributor;
@@ -68,10 +70,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementation of {@link ExternalDataProvider} that search for all the works
- * of the profile with the given orcid id that hava a source other than
- * DSpaceCris. The id of the external data objects returned by the methods of
- * this class is the concatenation of the orcid id and the put code associated
- * with the publication, separated by ::
+ * of the profile with the given orcid id that hava a source other than DSpace.
+ * The id of the external data objects returned by the methods of this class is
+ * the concatenation of the orcid id and the put code associated with the
+ * publication, separated by :: (example 0000-0000-0123-4567::123456)
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
@@ -79,6 +81,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OrcidPublicationDataProvider.class);
+
+    /**
+     * Examples of valid ORCID IDs:
+     * <ul>
+     * <li>0000-0002-1825-0097</li>
+     * <li>0000-0001-5109-3700</li>
+     * <li>0000-0002-1694-233X</li>
+     * </ul>
+     */
+    private final static Pattern ORCID_ID_PATTERN = Pattern.compile("(\\d{4}-){3}\\d{3}(\\d|X)");
 
     private final static int MAX_PUT_CODES_SIZE = 100;
 
@@ -89,13 +101,13 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
     private OrcidConfiguration orcidConfiguration;
 
     @Autowired
-    private ItemService itemService;
-
-    @Autowired
     private OrcidSynchronizationService orcidSynchronizationService;
 
     @Autowired
     private ImportService importService;
+
+    @Autowired
+    private OrcidTokenService orcidTokenService;
 
     private OrcidWorkFieldMapping fieldMapping;
 
@@ -114,6 +126,8 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
         String orcid = idSections[0];
         String putCode = idSections[1];
 
+        validateOrcidId(orcid);
+
         return getWork(orcid, putCode)
             .filter(work -> hasDifferentSourceClientId(work))
             .filter(work -> work.getPutCode() != null)
@@ -122,6 +136,9 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
 
     @Override
     public List<ExternalDataObject> searchExternalDataObjects(String orcid, int start, int limit) {
+
+        validateOrcidId(orcid);
+
         return findWorks(orcid, start, limit).stream()
             .map(work -> convertToExternalDataObject(orcid, work))
             .collect(Collectors.toList());
@@ -131,11 +148,35 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
         return StringUtils.isBlank(id) || id.split("::").length != 2;
     }
 
+    private void validateOrcidId(String orcid) {
+        if (!ORCID_ID_PATTERN.matcher(orcid).matches()) {
+            throw new IllegalArgumentException("The given ORCID ID is not valid: " + orcid);
+        }
+    }
+
+    /**
+     * Returns all the works related to the given ORCID in the range from start and
+     * limit.
+     *
+     * @param  orcid the ORCID ID of the author to search for works
+     * @param  start the start index
+     * @param  limit the limit index
+     * @return       the list of the works
+     */
     private List<Work> findWorks(String orcid, int start, int limit) {
         List<WorkSummary> workSummaries = findWorkSummaries(orcid, start, limit);
         return findWorks(orcid, workSummaries);
     }
 
+    /**
+     * Returns all the works summaries related to the given ORCID in the range from
+     * start and limit.
+     *
+     * @param  orcid the ORCID ID of the author to search for works summaries
+     * @param  start the start index
+     * @param  limit the limit index
+     * @return       the list of the works summaries
+     */
     private List<WorkSummary> findWorkSummaries(String orcid, int start, int limit) {
         return getWorks(orcid).getWorkGroup().stream()
             .filter(workGroup -> allWorkSummariesHaveDifferentSourceClientId(workGroup))
@@ -146,6 +187,14 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Returns all the works related to the given ORCID ID and work summaries (a
+     * work has more details than a work summary).
+     *
+     * @param  orcid         the ORCID id of the author to search for works
+     * @param  workSummaries the work summaries used to search the related works
+     * @return               the list of the works
+     */
     private List<Work> findWorks(String orcid, List<WorkSummary> workSummaries) {
 
         List<String> workPutCodes = getPutCodes(workSummaries);
@@ -164,6 +213,14 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Search a work by ORCID id and putcode, using API or PUBLIC urls based on
+     * whether the ORCID API keys are configured or not.
+     *
+     * @param  orcid   the ORCID ID
+     * @param  putCode the work's identifier on ORCID
+     * @return         the work, if any
+     */
     private Optional<Work> getWork(String orcid, String putCode) {
         if (orcidConfiguration.isApiConfigured()) {
             String accessToken = getAccessToken(orcid);
@@ -173,6 +230,12 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
         }
     }
 
+    /**
+     * Returns all the works related to the given ORCID.
+     *
+     * @param  orcid the ORCID ID of the author to search for works
+     * @return       the list of the works
+     */
     private Works getWorks(String orcid) {
         if (orcidConfiguration.isApiConfigured()) {
             String accessToken = getAccessToken(orcid);
@@ -182,6 +245,13 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
         }
     }
 
+    /**
+     * Returns all the works related to the given ORCID by the given putCodes.
+     *
+     * @param  orcid    the ORCID ID of the author to search for works
+     * @param  putCodes the work's put codes to search
+     * @return          the list of the works
+     */
     private WorkBulk getWorkBulk(String orcid, List<String> putCodes) {
         if (orcidConfiguration.isApiConfigured()) {
             String accessToken = getAccessToken(orcid);
@@ -199,7 +269,8 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
     }
 
     private Optional<String> getAccessToken(Item item) {
-        return ofNullable(itemService.getMetadataFirstValue(item, "cris", "orcid", "access-token", ANY));
+        return ofNullable(orcidTokenService.findByProfileItem(getContext(), item))
+            .map(OrcidToken::getAccessToken);
     }
 
     private String getReadPublicAccessToken() {
@@ -400,7 +471,8 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
     }
 
     private void addMetadata(ExternalDataObject externalDataObject, MetadatumDTO metadata) {
-        externalDataObject.addMetadata(new MetadataValueDTO(metadata));
+        externalDataObject.addMetadata(new MetadataValueDTO(metadata.getSchema(), metadata.getElement(),
+            metadata.getQualifier(), null, metadata.getValue()));
     }
 
     private boolean doesNotContains(ExternalDataObject externalDataObject, MetadatumDTO metadata) {
@@ -431,6 +503,11 @@ public class OrcidPublicationDataProvider extends AbstractExternalDataProvider {
             .filter(externalId -> type.equals(externalId.getType()))
             .map(externalId -> externalId.getValue())
             .collect(Collectors.toList());
+    }
+
+    private Context getContext() {
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return context != null ? context : new Context();
     }
 
     @Override

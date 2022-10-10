@@ -70,6 +70,7 @@ import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.core.CrisConstants;
@@ -101,8 +102,12 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     @Autowired
     private DiscoveryConfigurationService discoveryConfigurationService;
+
     @Autowired
     private EntityTypeService entityTypeService;
+
+    @Autowired
+    ChoiceAuthorityService choiceAuthorityService;
 
     @Test
     public void rootDiscoverTest() throws Exception {
@@ -238,6 +243,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         configurationService.setProperty("discovery.index.authority.ignore-variants.dc.contributor.author", true);
 
         metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         //Turn off the authorization system, otherwise we can't make the objects
         context.turnOffAuthorisationSystem();
@@ -320,6 +326,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         DSpaceServicesFactory.getInstance().getConfigurationService().reloadConfig();
 
         metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
     }
 
@@ -6380,7 +6387,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             .withNameInMetadata("John", "Doe").build();
 
         Item author = ItemBuilder.createItem(context, people)
-                                  .withCrisOwner(owner.getFullName(), UUIDUtils.toString(owner.getID()))
+                                  .withDspaceObjectOwner(owner.getFullName(), UUIDUtils.toString(owner.getID()))
                                   .withTitle("Doe, John").build();
 
         Item publication1 = ItemBuilder.createItem(context, publications).withTitle("Publication 1")

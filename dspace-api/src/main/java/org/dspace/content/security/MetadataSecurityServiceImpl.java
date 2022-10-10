@@ -151,7 +151,7 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
             return new ArrayList<CrisLayoutBox>();
         }
 
-        String entityType = itemService.getEntityType(item);
+        String entityType = itemService.getEntityTypeLabel(item);
         try {
             return crisLayoutBoxService.findByEntityType(context, entityType, 1000, 0);
         } catch (SQLException e) {

@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,7 +56,6 @@ public class IdentifierRestControllerIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-
     public void testValidIdentifierItemHandlePrefix() throws Exception {
         //We turn off the authorization system in order to create the structure as defined below
         context.turnOffAuthorisationSystem();
@@ -78,6 +78,31 @@ public class IdentifierRestControllerIT extends AbstractControllerIntegrationTes
                    .andExpect(status().isFound())
                    // We expect a Location header to redirect to the item's page
                    .andExpect(header().string("Location", itemLocation));
+    }
+
+    @Test
+    public void testIdentifierGoneItem() throws Exception {
+        // We turn off the authorization system in order to create the structure as
+        // defined below
+        context.turnOffAuthorisationSystem();
+
+        // Create an item with a handle identifier
+        parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();
+        Collection owningCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Owning Collection").build();
+        String token = getAuthToken(admin.getEmail(), password);
+
+        Item item = ItemBuilder.createItem(context, owningCollection).withTitle("Test item").build();
+
+        context.restoreAuthSystemState();
+
+        // Check that the item has been actually created
+        getClient(token).perform(get("/api/pid/find?id={handle}", item.getHandle())).andExpect(status().isFound());
+
+        getClient(token).perform(delete("/api/core/items/" + item.getID()));
+
+        // The item has been deleted but the record is found in the DB (with a null dso)
+        getClient(token).perform(get("/api/pid/find?id={handle}", item.getHandle())).andExpect(status().isGone());
     }
 
     @Test

@@ -45,7 +45,9 @@ public class ShortLivedJWTTokenHandler extends JWTTokenHandler {
         if (ePerson == null || StringUtils.isBlank(ePerson.getSessionSalt())) {
             return false;
         } else {
-            JWSVerifier verifier = new MACVerifier(buildSigningKey(ePerson));
+
+            String salt = ePerson.getSessionSalt();
+            JWSVerifier verifier = new MACVerifier(buildSigningKey(ePerson, salt));
 
             //If token is valid and not expired return eperson in token
             Date expirationTime = jwtClaimsSet.getExpirationTime();

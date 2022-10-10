@@ -10,7 +10,6 @@ package org.dspace.statistics;
 import static org.dspace.discovery.DiscoverResult.FacetPivotResult.fromPivotFields;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
@@ -101,6 +101,7 @@ import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.statistics.util.LocationUtils;
 import org.dspace.statistics.util.SpiderDetector;
 import org.dspace.usage.UsageWorkflowEvent;
+import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -144,6 +145,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     private ClientInfoService clientInfoService;
     @Autowired
     private SolrStatisticsCore solrStatisticsCore;
+    @Autowired
+    private GeoIpService geoIpService;
 
     /** URL to the current-year statistics core.  Prior-year shards will have a year suffixed. */
     private String statisticsCoreURL;
@@ -182,26 +185,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         //spiderIps = SpiderDetector.getSpiderIpAddresses();
 
         DatabaseReader service = null;
-        // Get the db file for the location
-        String dbPath = configurationService.getProperty("usage-statistics.dbfile");
-        if (dbPath != null) {
-            try {
-                File dbFile = new File(dbPath);
-                service = new DatabaseReader.Builder(dbFile).build();
-            } catch (FileNotFoundException fe) {
-                log.error(
-                    "The GeoLite Database file is missing (" + dbPath + ")! Solr Statistics cannot generate location " +
-                        "based reports! Please see the DSpace installation instructions for instructions to install " +
-                        "this file.",
-                    fe);
-            } catch (IOException e) {
-                log.error(
-                    "Unable to load GeoLite Database file (" + dbPath + ")! You may need to reinstall it. See the " +
-                        "DSpace installation instructions for more details.",
-                    e);
-            }
-        } else {
-            log.error("The required 'dbfile' configuration is missing in solr-statistics.cfg!");
+        try {
+            service = geoIpService.getDatabaseReader();
+        } catch (IllegalStateException ex) {
+            log.error(ex);
         }
         locationService = service;
     }
@@ -979,7 +966,7 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         boolean showTotal, List<String> facetQueries, int facetMinCount) throws SolrServerException, IOException {
 
         QueryResponse queryResponse = query(query, filterQuery, null,
-            0, max, null, null, null, facetQueries, null, false, facetMinCount, true, pivotField);
+            0, max, null, null, null, facetQueries, null, false, facetMinCount, true, pivotField, null);
 
         if (queryResponse == null) {
             return new FacetPivotResult[0];
@@ -988,6 +975,72 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         return fromPivotFields(queryResponse.getFacetPivot().get(pivotField));
 
     }
+
+    @Override
+    public ObjectCount[] queryFacetDateField(
+            Context context,
+            String fieldList,
+            String facetField,
+            String query,
+            String filterQuery,
+            String dateType,
+            String dateStart,
+            String dateEnd,
+            boolean showTotal,
+            int facetMinCount,
+            int max
+    ) throws SolrServerException, IOException  {
+
+        QueryResponse queryResponse = query(query, filterQuery, facetField, 0, max, dateType, dateStart, dateEnd, null,
+                null, false, facetMinCount, false, null, fieldList);
+
+        ObjectCount[] found = Optional.ofNullable(queryResponse)
+            .map(QueryResponse::getFacetRanges)
+            .filter(list -> !list.isEmpty())
+            .flatMap(
+                list ->
+                    list
+                        .stream()
+                        .filter(
+                            rangeFacet ->
+                                "time".equalsIgnoreCase(rangeFacet.getName())
+                        )
+                        .findFirst()
+            )
+            .map(timeFacet -> this.mapTimeFacet(context, dateType, showTotal, queryResponse, timeFacet))
+            .orElse(new ObjectCount[0]);
+
+        return found;
+    }
+
+
+    protected ObjectCount[] mapTimeFacet(
+            Context context,
+            String dateType,
+            boolean showTotal,
+            QueryResponse queryResponse,
+            RangeFacet<?,?> timeFacet
+    ) {
+        // Create an array for our result
+        int resultSize = timeFacet.getCounts().size() + (showTotal ? 1 : 0);
+        ObjectCount[] result = new ObjectCount[resultSize];
+        // Run over our datefacet & store all the values
+        for (int i = 0; i < timeFacet.getCounts().size(); i++) {
+            RangeFacet.Count dateCount = (RangeFacet.Count) timeFacet.getCounts().get(i);
+            result[i] = new ObjectCount();
+            result[i].setCount(dateCount.getCount());
+            result[i].setValue(getDateView(dateCount.getValue(), dateType, context));
+        }
+        if (showTotal) {
+            result[result.length - 1] = new ObjectCount();
+            result[result.length - 1].setCount(queryResponse.getResults()
+                                                            .getNumFound());
+            // TODO: Make sure that this total is gotten out of the msgs.xml
+            result[result.length - 1].setValue("total");
+        }
+        return result;
+    }
+
     @Override
     public ObjectCount[] queryFacetDate(String query,
                                         String filterQuery, int max, String dateType, String dateStart,
@@ -1002,25 +1055,7 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         List<RangeFacet> rangeFacets = queryResponse.getFacetRanges();
         for (RangeFacet rangeFacet: rangeFacets) {
             if (rangeFacet.getName().equalsIgnoreCase("time")) {
-                RangeFacet timeFacet = rangeFacet;
-                // Create an array for our result
-                ObjectCount[] result = new ObjectCount[timeFacet.getCounts().size()
-                                                       + (showTotal ? 1 : 0)];
-                // Run over our datefacet & store all the values
-                for (int i = 0; i < timeFacet.getCounts().size(); i++) {
-                    RangeFacet.Count dateCount = (RangeFacet.Count) timeFacet.getCounts().get(i);
-                    result[i] = new ObjectCount();
-                    result[i].setCount(dateCount.getCount());
-                    result[i].setValue(getDateView(dateCount.getValue(), dateType, context));
-                }
-                if (showTotal) {
-                    result[result.length - 1] = new ObjectCount();
-                    result[result.length - 1].setCount(queryResponse.getResults()
-                                                                    .getNumFound());
-                    // TODO: Make sure that this total is gotten out of the msgs.xml
-                    result[result.length - 1].setValue("total");
-                }
-                return result;
+                return mapTimeFacet(context, dateType, showTotal, queryResponse, rangeFacet);
             }
         }
         return new ObjectCount[0];
@@ -1056,33 +1091,12 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
              * return name.substring(11, 13);
              */
             // Get our date
-            Date date = null;
-            try {
-                SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT_8601, context.getCurrentLocale());
-                date = format.parse(name);
-            } catch (ParseException e) {
-                try {
-                    // We should use the dcdate (the dcdate is used when
-                    // generating random data)
-                    SimpleDateFormat format = new SimpleDateFormat(
-                        DATE_FORMAT_DCDATE, context.getCurrentLocale());
-                    date = format.parse(name);
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
-                // e.printStackTrace();
-            }
-            String dateformatString = "dd-MM-yyyy";
-            if ("DAY".equals(type)) {
-                dateformatString = "dd-MM-yyyy";
-            } else if ("MONTH".equals(type)) {
-                dateformatString = "MMMM yyyy";
-
-            } else if ("YEAR".equals(type)) {
-                dateformatString = "yyyy";
-            }
-            SimpleDateFormat simpleFormat = new SimpleDateFormat(
-                dateformatString, context.getCurrentLocale());
+            Date date = SolrUtils.parseSolrDate(context, name);
+            SimpleDateFormat simpleFormat =
+                    new SimpleDateFormat(
+                            SolrUtils.getDateformatFrom(type),
+                            context.getCurrentLocale()
+                    );
             if (date != null) {
                 name = simpleFormat.format(date);
             }
@@ -1091,12 +1105,13 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         return name;
     }
 
+
     @Override
     public QueryResponse query(String query, String filterQuery, String facetField, int rows, int max, String dateType,
         String dateStart, String dateEnd, List<String> facetQueries, String sort, boolean ascending, int facetMinCount)
         throws SolrServerException, IOException {
         return query(query, filterQuery, facetField, rows, max, dateType, dateStart, dateEnd, facetQueries, sort,
-            ascending, facetMinCount, false, null);
+            ascending, facetMinCount, false, null, null);
     }
 
     @Override
@@ -1104,13 +1119,13 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         String dateStart, String dateEnd, List<String> facetQueries, String sort, boolean ascending, int facetMinCount,
         boolean defaultFilterQueries) throws SolrServerException, IOException {
         return query(query, filterQuery, facetField, rows, max, dateType, dateStart, dateEnd, facetQueries, sort,
-            ascending, facetMinCount, defaultFilterQueries, null);
+            ascending, facetMinCount, defaultFilterQueries, null, null);
     }
 
     @Override
     public QueryResponse query(String query, String filterQuery, String facetField, int rows,
         int max, String dateType, String dateStart, String dateEnd, List<String> facetQueries, String sort,
-        boolean ascending, int facetMinCount, boolean defaultFilterQueries, String pivotField)
+        boolean ascending, int facetMinCount, boolean defaultFilterQueries, String pivotField, String fieldList)
         throws SolrServerException, IOException {
 
         if (solr == null) {
@@ -1209,6 +1224,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
         if (filterQuery != null) {
             solrQuery.addFilterQuery(filterQuery);
+        }
+
+        if (StringUtils.isNotBlank(fieldList)) {
+            solrQuery.add(CommonParams.FL, fieldList);
         }
 
         QueryResponse response;

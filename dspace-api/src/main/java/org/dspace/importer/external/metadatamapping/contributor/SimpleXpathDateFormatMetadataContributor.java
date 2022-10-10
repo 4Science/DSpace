@@ -10,18 +10,30 @@ package org.dspace.importer.external.metadatamapping.contributor;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
+import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.jdom2.Text;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
-
+/**
+ * This contributor can be used when parsing an XML file,
+ * particularly to extract a date and convert it to a specific format.
+ * In the variable dateFormatFrom the read format should be configured,
+ * instead in the variable dateFormatTo the format you want to obtain.
+ *
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+ */
 public class SimpleXpathDateFormatMetadataContributor extends SimpleXpathMetadatumContributor {
-
 
     private DateFormat dateFormatFrom;
     private DateFormat dateFormatTo;
@@ -35,12 +47,26 @@ public class SimpleXpathDateFormatMetadataContributor extends SimpleXpathMetadat
     }
 
     @Override
-    public Collection<MetadatumDTO> contributeMetadata(Element el) {
+    public Collection<MetadatumDTO> contributeMetadata(Element element) {
         List<MetadatumDTO> values = new LinkedList<>();
+        List<Namespace> namespaces = new ArrayList<Namespace>();
         for (String ns : prefixToNamespaceMapping.keySet()) {
-            List<Element> nodes = el.getChildren(query, Namespace.getNamespace(ns));
-            for (Element element : nodes) {
-                values.add(getMetadatum(field, element.getValue()));
+            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
+        }
+        XPathExpression<Object> xpath = XPathFactory.instance()
+                          .compile(query,Filters.fpassthrough(), null, namespaces);
+        List<Object> nodes = xpath.evaluate(element);
+        for (Object el : nodes) {
+            if (el instanceof Element) {
+                values.add(getMetadatum(field, ((Element) el).getText()));
+            } else if (el instanceof Attribute) {
+                values.add(getMetadatum(field, ((Attribute) el).getValue()));
+            } else if (el instanceof String) {
+                values.add(getMetadatum(field, (String) el));
+            } else if (el instanceof Text) {
+                values.add(metadataFieldMapping.toDCValue(field, ((Text) el).getText()));
+            } else {
+                System.err.println("node of type: " + el.getClass());
             }
         }
         return values;
@@ -61,4 +87,5 @@ public class SimpleXpathDateFormatMetadataContributor extends SimpleXpathMetadat
         dcValue.setSchema(field.getSchema());
         return dcValue;
     }
+
 }

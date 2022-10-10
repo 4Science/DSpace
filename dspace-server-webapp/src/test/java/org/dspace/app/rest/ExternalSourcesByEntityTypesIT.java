@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.dspace.app.rest.matcher.EntityTypeMatcher;
 import org.dspace.app.rest.matcher.ExternalSourceMatcher;
@@ -38,27 +39,27 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                 .perform(get("/api/integration/externalsources/search/findByEntityType").param("entityType",
                         "Publication"))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$._embedded.externalsources", Matchers.contains(
+                            .andExpect(jsonPath("$._embedded.externalsources", Matchers.containsInAnyOrder(
                                 ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
                                 ExternalSourceMatcher.matchExternalSource("mock2", "mock2", false),
                                 ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
                                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
                                 ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
-                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
+                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
+                                ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false)
                                 )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(7)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(8)));
         // mock and ORCID are configured without any entity type
         getClient()
                 .perform(get("/api/integration/externalsources/search/findByEntityType").param("entityType", "Funding"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.externalsources", Matchers.contains(
+            .andExpect(jsonPath("$._embedded.externalsources", Matchers.containsInAnyOrder(
                 ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
-                ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
                 ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false)
             )))
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
     }
 
     @Test
@@ -67,11 +68,11 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                 .perform(get("/api/integration/externalsources/search/findByEntityType")
                         .param("entityType", "Publication").param("size", "2").param("page", "1"))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$._embedded.externalsources", Matchers.contains(
+                            .andExpect(jsonPath("$._embedded.externalsources", Matchers.containsInAnyOrder(
                                 ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false)
                             )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(7)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(8)));
     }
     @Test
     public void findAllByAuthorizedExternalSource() throws Exception {
@@ -121,8 +122,19 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.entitytypes", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
+
+        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("mock")).getSupportedEntityTypes();
+
+        List<String> suggestionSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("suggestion")).getSupportedEntityTypes();
+
+        List<String> pubmedSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("pubmed")).getSupportedEntityTypes();
+
         // temporary alter the mock, orcid, suggestion data providers to restrict them to Publication
         try {
+
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
                     .setSupportedEntityTypes(Arrays.asList("Publication"));
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("suggestion"))
@@ -151,11 +163,11 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
 
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                    .setSupportedEntityTypes(null);
+                .setSupportedEntityTypes(mockSupportedEntityTypes);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("suggestion"))
-                    .setSupportedEntityTypes(null);
+                .setSupportedEntityTypes(suggestionSupportedEntityTypes);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("pubmed"))
-                .setSupportedEntityTypes(null);
+                .setSupportedEntityTypes(pubmedSupportedEntityTypes);
         }
     }
 

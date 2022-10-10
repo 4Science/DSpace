@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.dspace.app.profile.service.ResearcherProfileService;
 import org.dspace.app.rest.authorization.AuthorizationFeature;
 import org.dspace.app.rest.authorization.AuthorizationFeatureDocumentation;
 import org.dspace.app.rest.model.BaseObjectRest;
@@ -21,6 +20,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class ShowClaimItemFeature implements AuthorizationFeature {
 
     private boolean claimableEntityType(Item item) {
         String[] claimableEntityTypes = configurationService.getArrayProperty("claimable.entityType");
-        String entityType = itemService.getEntityType(item);
+        String entityType = itemService.getEntityTypeLabel(item);
         return ArrayUtils.contains(claimableEntityTypes, entityType);
     }
 

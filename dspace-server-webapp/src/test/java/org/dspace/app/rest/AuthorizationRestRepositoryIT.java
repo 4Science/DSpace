@@ -2562,6 +2562,7 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
                                                  .withEntityType("Publication")
                                                  .withSubmitterGroup(eperson)
                                                  .withSubmissionDefinition("traditional-with-correction")
+                                                 .withWorkflowGroup("editor", admin)
                                                  .build();
 
         RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,

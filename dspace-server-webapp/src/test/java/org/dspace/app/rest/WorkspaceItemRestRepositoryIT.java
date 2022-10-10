@@ -11,6 +11,7 @@ import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.matcher.ResourcePolicyMatcher.matches;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
+import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
 import static org.dspace.authorize.ResourcePolicy.TYPE_CUSTOM;
 import static org.dspace.authorize.ResourcePolicy.TYPE_SUBMISSION;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,6 +24,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -370,16 +372,16 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                 WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem2, "Workspace Item 2",
                                         "2016-02-13"))))
                 .andExpect(jsonPath("$._embedded.workspaceitems",
-                        Matchers.not(Matchers.contains(WorkspaceItemMatcher
+                        Matchers.not(contains(WorkspaceItemMatcher
                                 .matchItemWithTitleAndDateIssued(workspaceItem3, "Workspace Item 3", "2016-02-13")))));
 
         getClient(token).perform(get("/api/submission/workspaceitems").param("size", "2").param("page", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems",
-                        Matchers.contains(WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem3,
+                        contains(WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem3,
                                 "Workspace Item 3", "2016-02-13"))))
                 .andExpect(jsonPath("$._embedded.workspaceitems",
-                        Matchers.not(Matchers.contains(
+                        Matchers.not(contains(
                                 WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem1, "Workspace Item 1",
                                         "2017-10-17"),
                                 WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem2, "Workspace Item 2",
@@ -410,7 +412,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
                 .withTitle("Workspace Item 1")
                 .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                .withAuthor("Smith, Donald")
+                .withIssn("222731-0582")
+                .withAuthor("Doe, John")
                 .withSubject("ExtraEntry")
                 .build();
 
@@ -764,7 +768,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                             WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem2, "Workspace Item 2",
                                     "2016-02-13"))))
             .andExpect(jsonPath("$._embedded.workspaceitems",
-                    Matchers.not(Matchers.contains(WorkspaceItemMatcher
+                    Matchers.not(contains(WorkspaceItemMatcher
                             .matchItemWithTitleAndDateIssued(workspaceItem3, "Workspace Item 3", "2016-02-13")))))
             .andExpect(jsonPath("$.page.size", is(20)))
             .andExpect(jsonPath("$.page.totalElements", is(2)));
@@ -777,10 +781,10 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .param("uuid", submitter1.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workspaceitems",
-                    Matchers.contains(WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem2,
+                    contains(WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem2,
                             "Workspace Item 2", "2016-02-13"))))
             .andExpect(jsonPath("$._embedded.workspaceitems",
-                    Matchers.not(Matchers.contains(
+                    Matchers.not(contains(
                             WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem1, "Workspace Item 1",
                                     "2017-10-17"),
                             WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem3, "Workspace Item 3",
@@ -795,7 +799,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .param("uuid", submitter2.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workspaceitems",
-                    Matchers.contains(
+                    contains(
                             WorkspaceItemMatcher.matchItemWithTitleAndDateIssued(workspaceItem3, "Workspace Item 3",
                                     "2016-02-13"))))
             .andExpect(jsonPath("$.page.size", is(20)))
@@ -1997,8 +2001,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + workspaceItem2.getID()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
-                        Matchers.contains(
-                                hasJsonPath("$.paths", Matchers.contains(
+                        contains(
+                                hasJsonPath("$.paths", contains(
                                         hasJsonPath("$", Matchers.is("/sections/traditionalpageone/dc.date.issued"))
                                 )))))
         ;
@@ -2011,7 +2015,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 // title and dateissued are required in the first panel
                 // the json path with a @ selector always return an array
                 .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
-                        Matchers.contains(
+                        contains(
                                 hasJsonPath("$.paths", Matchers.containsInAnyOrder(
                                         hasJsonPath("$", Matchers.is("/sections/traditionalpageone/dc.title")),
                                         hasJsonPath("$", Matchers.is("/sections/traditionalpageone/dc.date.issued"))
@@ -2049,11 +2053,11 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         String authToken = getAuthToken(eperson.getEmail(), password);
 
         WorkspaceItem workspaceItem1 = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
-            .withTitle("Test publication with mandatory DOI 1")
-            .withIssueDate("2017-10-17")
-            .withDoiIdentifier("10.1000/182")
-            .grantLicense()
-            .build();
+                .withTitle("Workspace Item 1")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
 
         WorkspaceItem workspaceItem2 = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
             .withTitle("Test publication with mandatory DOI 2")
@@ -2075,6 +2079,303 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.test')]", allOf(
                 contains(hasJsonPath("$.paths[0]", is("/sections/traditionalpageone/dc.title"))),
                 contains(hasJsonPath("$.paths[1]", is("/sections/traditionalpageone/dc.identifier.doi"))))));
+    }
+
+    /**
+     * Test the update of metadata for fields configured with type-bind
+     *
+     * @throws Exception
+     */
+    @Test
+    public void patchUpdateMetadataWithBindTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withSubmitter(eperson)
+                .withTitle("Workspace Item 1")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
+        context.restoreAuthSystemState();
+
+        // Try to add isPartOfSeries (type bound to technical report) - this should not work and instead we'll get
+        // no JSON path for that field
+        List<Operation> updateSeries = new ArrayList<Operation>();
+        List<Map<String, String>> seriesValues = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "New Series");
+        seriesValues.add(value);
+        updateSeries.add(new AddOperation("/sections/traditionalpageone/dc.relation.ispartofseries", seriesValues));
+
+        String patchBody = getPatchContent(updateSeries);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should match an item with no series or type
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, null, null))));
+
+        // Verify that the metadata isn't in the workspace item
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should match an item with no series or type
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, null, null))));
+
+        // Set the type to Technical Report confirm it worked
+        List<Operation> updateType = new ArrayList<>();
+        List<Map<String, String>> typeValues = new ArrayList<>();
+        value = new HashMap<String, String>();
+        value.put("value", "Technical Report");
+        typeValues.add(value);
+        updateType.add(new AddOperation("/sections/traditionalpageone/dc.type", typeValues));
+        patchBody = getPatchContent(updateType);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should now match an item with the expected type and series
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, "Technical Report",
+                                null))));
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, "Technical Report",
+                                null))));
+
+        // Another test, this time adding the series value should be successful and we'll see the value
+        patchBody = getPatchContent(updateSeries);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should match an item with the expected series and type
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem,
+                                "Technical Report", "New Series"))));
+
+        // Verify that the metadata isn't in the workspace item
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should match an item with the expected series and type
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem,
+                                "Technical Report", "New Series"))));
+
+        // One final update, to a different type, this should lose the series as we're back to a non-matching type
+        updateType = new ArrayList<>();
+        typeValues = new ArrayList<>();
+        value = new HashMap<String, String>();
+        value.put("value", "Article");
+        typeValues.add(value);
+        updateType.add(new AddOperation("/sections/traditionalpageone/dc.type", typeValues));
+        patchBody = getPatchContent(updateType);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should NOT match an item with the series "New Series"
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, "Article",
+                                null))));
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeAndSeries(witem, "Article",
+                                null))));
+
+        // Submit the workspace item to complete the deposit (as there is no workflow configured) and ensure a
+        // successful result with no validation errors
+        getClient(authToken)
+                .perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                        .content("/api/submission/workspaceitems/" + witem.getID())
+                        .contentType(textUriContentType))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    /**
+     * Test the update of metadata for fields configured with type-bind in the specific case where
+     * a field is configured more than once and could be bound to one type in a certain case, and another type
+     * later on (perhaps with a different label or validation rules)
+     *
+     * @throws Exception
+     */
+    public void patchUpdateMetadataWithBindForRepeatedFieldConfigurationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        String testIsbnString = "978-3-16-148410-0";
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1, "123456789/typebind-test")
+                .withName("Collection 1").build();
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withSubmitter(eperson)
+                .withTitle("Workspace Item 1")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
+        context.restoreAuthSystemState();
+
+        // Try to add ISBN (type bound to book and book chapter) - this should not work and instead we'll get
+        // no JSON path for that field, because this item has no type yet
+        List<Operation> updateOperations = new ArrayList<Operation>();
+        List<Map<String, String>> updateValues = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "978-3-16-148410-0");
+        updateValues.add(value);
+        updateOperations.add(new AddOperation("/sections/typebindtest/dc.identifier.isbn", updateValues));
+
+        String patchBody = getPatchContent(updateOperations);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should match an item with no series or ISBN
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue
+                                (witem, "typebindtest",null, "dc.identifier.isbn", null))));
+
+        // Verify that the metadata isn't in the workspace item
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue
+                                (witem, "typebindtest", null, "dc.identifier.isbn", null))));
+
+        // Set the type to Book (which ISBN is bound to, in one of the two configurations)
+        List<Operation> updateType = new ArrayList<>();
+        List<Map<String, String>> typeValues = new ArrayList<>();
+        value = new HashMap<String, String>();
+        value.put("value", "Book");
+        typeValues.add(value);
+        updateType.add(new AddOperation("/sections/typebindtest/dc.type", typeValues));
+        patchBody = getPatchContent(updateType);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should now match an item with the expected type and no ISBN
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem,
+                                "typebindtest","Book", "dc.identifier.isbn", null))));
+
+        // Fetch workspace item and confirm type has persisted
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem,
+                                "typebindtest", "Book", "dc.identifier.isbn", null))));
+
+        // Now we test that the validate process does NOT strip out ISBN metadata while it's analysing the
+        // Book Chapter input config, even though that <type-bind> won't match the current item type (Book)
+        patchBody = getPatchContent(updateOperations);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should now match an item with the expected type and the test ISBN
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem, "typebindtest",
+                                "Book", "dc.identifier.isbn", testIsbnString))));
+
+        // Verify that the metadata is persisted
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem, "typebindtest",
+                                "Book","dc.identifier.isbn", testIsbnString))));
+
+        // Switch type to "Book chapter" - this is also bound to ISBN in a second configuration of the field
+        // And should allow us to preserve the ISBN that was set while the type was Book
+        updateType = new ArrayList<>();
+        typeValues = new ArrayList<>();
+        value = new HashMap<String, String>();
+        value.put("value", "Book chapter");
+        typeValues.add(value);
+        updateType.add(new AddOperation("/sections/typebindtest/dc.type", typeValues));
+        patchBody = getPatchContent(updateType);
+
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        // Check this - we should now match an item with the expected type and no ISBN
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem,"typebindtest",
+                                "Book chapter", "dc.identifier.isbn", testIsbnString))));
+
+        // Fetch workspace item and confirm type has persisted
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$",
+                        Matchers.is(WorkspaceItemMatcher.matchItemWithTypeFieldAndValue(witem,
+                                "typebindtest", "Book chapter", "dc.identifier.isbn", testIsbnString))));
+
+        // Submit the workspace item to complete the deposit (as there is no workflow configured) and ensure a
+        // successful result with no validation errors
+        getClient(authToken)
+                .perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                        .content("/api/submission/workspaceitems/" + witem.getID())
+                        .contentType(textUriContentType))
+                .andExpect(status().isCreated());
     }
 
     /**
@@ -2627,6 +2928,27 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
                 .withTitle("Workspace")
                 .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+
+        WorkspaceItem witemMultipleSubjects = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withTitle("Workspace Item 1")
+                .withIssueDate("2017-10-17")
+                .withSubject("Subject1")
+                .withSubject("Subject2")
+                .withSubject("Subject3")
+                .withSubject("Subject4")
+                .grantLicense()
+                .build();
+
+        WorkspaceItem witemWithTitleDateAndSubjects = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withTitle("Workspace Item 1")
+                .withIssueDate("2017-10-17")
+                .withSubject("Subject1")
+                .withSubject("Subject2")
+                .withSubject("Subject3")
+                .withSubject("Subject4")
+                .grantLicense()
                 .build();
 
         context.restoreAuthSystemState();
@@ -2804,8 +3126,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
-                                Matchers.contains(hasJsonPath("$.paths",
-                                        Matchers.contains(
+                                contains(hasJsonPath("$.paths",
+                                        contains(
                                                 hasJsonPath("$",
                                                         Matchers.is("/sections/traditionalpageone/dc.title")))))))
                             .andExpect(jsonPath("$",
@@ -2817,8 +3139,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
-                    Matchers.contains(
-                            hasJsonPath("$.paths", Matchers.contains(
+                    contains(
+                            hasJsonPath("$.paths", contains(
                                     hasJsonPath("$", Matchers.is("/sections/traditionalpageone/dc.title"))
                             )))))
             .andExpect(jsonPath("$",
@@ -4217,6 +4539,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
                 .withTitle("WorkspaceItem")
                 .withIssueDate("2019-10-27")
+                .grantLicense()
                 .build();
 
         InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
@@ -4307,8 +4630,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.errors").isNotEmpty())
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.filerequired')]",
-                Matchers.contains(
-                    hasJsonPath("$.paths", Matchers.contains(
+                contains(
+                    hasJsonPath("$.paths", contains(
                         hasJsonPath("$", Matchers.is("/sections/upload"))
                     )))));
     }
@@ -7208,8 +7531,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(authToken).perform(get(workspaceItemsUri + workspaceItem3.getID()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
-                Matchers.contains(
-                    hasJsonPath("$.paths", Matchers.contains(
+                contains(
+                    hasJsonPath("$.paths", contains(
                         hasJsonPath("$", Matchers.is("/sections/qualdroptest/dc.identifier"))
                     )))));
     }
@@ -8415,7 +8738,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(tokenAdmin).perform(get("/api/authz/resourcepolicies/search/resource")
                              .param("uuid", bitstream2.getID().toString()))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$._embedded.resourcepolicies", Matchers.contains(
+                             .andExpect(jsonPath("$._embedded.resourcepolicies", contains(
                                      ResourcePolicyMatcher.matchResourcePolicyProperties(anonymousGroup, null,
                                              bitstream2, ResourcePolicy.TYPE_CUSTOM, Constants.READ, "embargo")
                               )))
@@ -8444,6 +8767,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .withCorrectionSubmissionDefinition("traditional-cris")
             .withEntityType("Publication")
             .withSubmitterGroup(user)
+            .withWorkflowGroup("editor", user)
             .build();
 
         Item item = ItemBuilder.createItem(context, collection)
@@ -8473,6 +8797,397 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.sections.traditionalpagetwo").exists())
             .andExpect(jsonPath("$.sections.traditionalpagethree-cris-open").exists())
             .andExpect(jsonPath("$.sections.traditionalpagethree-cris-collapsed").exists());
+    }
+
+    @Test
+    public void createItemWithoutEntityTypeIfCollectionHasBlankEntityType() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+            .withName("community")
+            .build();
+
+        Collection collection1 = CollectionBuilder.createCollection(context, community)
+            .withName("Collection 1")
+            // NOTE: has non-empty entity type
+            .withEntityType("Person")
+            .build();
+
+        Collection collection2 = CollectionBuilder.createCollection(context, community)
+            .withName("Collection 2")
+            // NOTE: has empty entity type, this is by default the case when a collection is created in the GUI
+            .withEntityType("")
+            .build();
+
+        // expect that this item has dspace.entity.type = Person
+        Item item1 = ItemBuilder.createItem(context, collection1)
+            .withTitle("item 1")
+            .build();
+
+        // expect that this item does not have dspace.entity.type at all
+        Item item2 = ItemBuilder.createItem(context, collection2)
+            .withTitle("item 2")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // test item 1
+        getClient().perform(get("/api/core/items/" + item1.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata", allOf(
+                matchMetadata("dc.title", "item 1"),
+                matchMetadata("dspace.entity.type", "Person")
+            )));
+
+        // test item 2
+        getClient().perform(get("/api/core/items/" + item2.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata", allOf(
+                matchMetadata("dc.title", "item 2"),
+                matchMetadataDoesNotExist("dspace.entity.type")
+            )));
+    }
+
+    public void verifyBitstreamPolicyNotDuplicatedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).withName("Com").build();
+        Collection collection = CollectionBuilder.createCollection(context, community).withName("Col").build();
+
+        // Create item
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                .withTitle("Workspace Item")
+                .withIssueDate("2019-01-01")
+                .grantLicense()
+                .build();
+
+        // Add a bitstream to the item
+        String bitstreamContent = "ThisIsSomeDummyText";
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, StandardCharsets.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, witem.getItem(), is)
+                    .withName("Bitstream")
+                    .withMimeType("text/plain").build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+
+        // Create access condition
+        Map<String, String> accessCondition = new HashMap<>();
+        accessCondition.put("name", "openaccess");
+
+        // Add access condition
+        List<Operation> addAccessCondition = new ArrayList<>();
+        addAccessCondition.add(new AddOperation("/sections/upload/files/0/accessConditions/-", accessCondition));
+
+        String patchBody = getPatchContent(addAccessCondition);
+        getClient(adminToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                .content(patchBody)
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk());
+
+        // Deposit the item
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + witem.getID())
+                .contentType(textUriContentType))
+                .andExpect(status().isCreated());
+
+        // Bistream access policies are as expected and there are no duplicates
+        getClient(adminToken)
+                .perform(get("/api/authz/resourcepolicies/search/resource")
+                .param("uuid", bitstream.getID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.resourcepolicies",
+                        Matchers.hasItems(ResourcePolicyMatcher.matchResourcePolicyProperties(anonymousGroup, null,
+                                bitstream, ResourcePolicy.TYPE_CUSTOM, Constants.READ, "openaccess"))))
+                .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void verifyUnexistingBitstreamPolicyIsDeniedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).withName("Com").build();
+        Collection collection = CollectionBuilder.createCollection(context, community).withName("Col").build();
+
+        // Create item
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                .withTitle("Workspace Item")
+                .withIssueDate("2019-01-01")
+                .grantLicense()
+                .build();
+
+        // Add a bitstream to the item
+        String bitstreamContent = "ThisIsSomeDummyText";
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, StandardCharsets.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, witem.getItem(), is)
+                    .withName("Bitstream")
+                    .withMimeType("text/plain").build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+
+        // Create unexisting access condition
+        Map<String, String> accessCondition = new HashMap<>();
+        accessCondition.put("name", "t3st");
+
+        // Add access condition
+        List<Operation> addAccessCondition = new ArrayList<>();
+        addAccessCondition.add(new AddOperation("/sections/upload/files/0/accessConditions/-", accessCondition));
+
+        // Entity is unprocessable
+        String patchBody = getPatchContent(addAccessCondition);
+        getClient(adminToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                .content(patchBody)
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void verifyUnconfiguredBitstreamPolicyIsDeniedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).withName("Com").build();
+        Collection collection = CollectionBuilder.createCollection(context, community).withName("Col").build();
+
+        // Create item
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                .withTitle("Workspace Item")
+                .withIssueDate("2019-01-01")
+                .grantLicense()
+                .build();
+
+        // Add a bitstream to the item
+        String bitstreamContent = "ThisIsSomeDummyText";
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, StandardCharsets.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, witem.getItem(), is)
+                    .withName("Bitstream")
+                    .withMimeType("text/plain").build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+
+        // Access condition exists but it is not configured in access-conditions.xml
+        Map<String, String> accessCondition = new HashMap<>();
+        accessCondition.put("name", "networkAdministration");
+
+        // Add access condition
+        List<Operation> addAccessCondition = new ArrayList<>();
+        addAccessCondition.add(new AddOperation("/sections/upload/files/0/accessConditions/-", accessCondition));
+
+        // Entity is unprocessable
+        String patchBody = getPatchContent(addAccessCondition);
+        getClient(adminToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                .content(patchBody)
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void sherpaPolicySectionCacheTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        String dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .build();
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                                                  .withTitle("Workspace Item 1")
+                                                  .withIssueDate("2021-11-21")
+                                                  .withAuthor("Smith, Donald")
+                                                  .withIssn("2731-0582")
+                                                  .withSubject("ExtraEntry")
+                                                  .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<String> retrievalTime = new AtomicReference<String>();
+        AtomicReference<String> retrievalTime2 = new AtomicReference<String>();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                         is("Nature Synthesis")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                         is("2731-0582")))))
+                        .andDo(result -> retrievalTime.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        Date date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
+
+        // reload page, to verify that the retrievalTime is not changed
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                         is("Nature Synthesis")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                         is("2731-0582")))))
+                        .andDo(result -> retrievalTime2.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        Date date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
+
+        assertTrue(date.equals(date2));
+
+        // create a list of values to use in add operation
+        List<Operation> operations = new ArrayList<>();
+        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+
+        // empty the cache and verify the retrivatTime
+        String patchBody = getPatchContent(operations);
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                         is("Nature Synthesis")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                         is("2731-0582")))))
+                        .andDo(result -> retrievalTime.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
+
+        assertTrue(date.after(date2));
+
+        // reload page, to verify that the retrievalTime is not changed
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                         is("Nature Synthesis")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                         is("2731-0582")))))
+                        .andDo(result -> retrievalTime2.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
+        assertTrue(date.equals(date2));
+    }
+
+    @Test
+    public void sherpaPolicySectionWithWrongIssnCacheTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        String dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .build();
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                                                  .withTitle("Workspace Item 1")
+                                                  .withIssueDate("2021-11-21")
+                                                  .withAuthor("Smith, Donald")
+                                                  .withIssn("0000-0000")
+                                                  .withSubject("ExtraEntry")
+                                                  .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<String> retrievalTime = new AtomicReference<String>();
+        AtomicReference<String> retrievalTime2 = new AtomicReference<String>();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                        .andDo(result -> retrievalTime.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        Date date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
+
+        // reload page, to verify that the retrievalTime is not changed
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                        .andDo(result -> retrievalTime2.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        Date date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
+
+        assertTrue(date.equals(date2));
+
+        // create a list of values to use in add operation
+        List<Operation> operations = new ArrayList<>();
+        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+
+        // empty the cache and verify the retrivatTime
+        String patchBody = getPatchContent(operations);
+        getClient(token).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                        .andDo(result -> retrievalTime.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
+
+        assertTrue(date.after(date2));
+
+        // reload page, to verify that the retrievalTime is not changed
+        getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                        .andExpect(jsonPath("$", Matchers.allOf(
+                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                        .andDo(result -> retrievalTime2.set(read(
+                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+
+        date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
+        assertTrue(date.equals(date2));
     }
 
 }

@@ -34,11 +34,13 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
 import org.dspace.event.Consumer;
@@ -76,6 +78,8 @@ public class CrisConsumer implements Consumer {
 
     private ChoiceAuthorityService choiceAuthorityService;
 
+    private MetadataAuthorityService metadataAuthorityService;
+
     private ItemService itemService;
 
     private WorkspaceItemService workspaceItemService;
@@ -96,6 +100,7 @@ public class CrisConsumer implements Consumer {
     @SuppressWarnings("unchecked")
     public void initialize() throws Exception {
         choiceAuthorityService = ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
+        metadataAuthorityService = ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
         itemService = ContentServiceFactory.getInstance().getItemService();
         workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
@@ -149,7 +154,7 @@ public class CrisConsumer implements Consumer {
 
             String fieldKey = getFieldKey(metadata);
 
-            if (!choiceAuthorityService.isChoicesConfigured(fieldKey, null)) {
+            if (!metadataAuthorityService.isAuthorityAllowed(fieldKey, Constants.ITEM, null)) {
                 continue;
             }
 

@@ -22,6 +22,7 @@ import org.dspace.content.security.service.CrisSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
+import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,9 @@ public class ItemCorrectionFeature implements AuthorizationFeature {
     private ItemService itemService;
 
     @Autowired
+    private XmlWorkflowItemService workflowItemService;
+
+    @Autowired
     private CrisSecurityService crisSecurityService;
 
     @Autowired
@@ -64,10 +68,6 @@ public class ItemCorrectionFeature implements AuthorizationFeature {
             return false;
         }
 
-        if (configurationService.getBooleanProperty("item-correction.permit-all", false)) {
-            return true;
-        }
-
         return isAuthorizedToCorrectItem(context, (ItemRest) object);
     }
 
@@ -81,6 +81,14 @@ public class ItemCorrectionFeature implements AuthorizationFeature {
         Item item = itemService.find(context, UUID.fromString(itemRest.getUuid()));
         if (item == null) {
             throw new IllegalArgumentException("No item found with the given id: " + itemRest.getUuid());
+        }
+
+        if (!workflowItemService.isWorkflowConfigured(context, item.getOwningCollection())) {
+            return false;
+        }
+
+        if (configurationService.getBooleanProperty("item-correction.permit-all", false)) {
+            return true;
         }
 
         String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);

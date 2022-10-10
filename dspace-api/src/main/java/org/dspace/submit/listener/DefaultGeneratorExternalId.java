@@ -41,7 +41,7 @@ public class DefaultGeneratorExternalId implements ExternalIdGenerator {
     }
 
     private String checkValue(String value, String regex) {
-        if (StringUtils.isNotBlank(value) || StringUtils.isNotBlank(regex)) {
+        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(regex)) {
             Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(value);
             return matcher.find() ? value : StringUtils.EMPTY;

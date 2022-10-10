@@ -21,6 +21,13 @@ import org.dspace.core.Context;
  */
 public interface MetadataSecurityEvaluation {
 
+    /**
+     * @param  context       The context of the app
+     * @param  item          The Item for which the user wants to see the metadata
+     * @param  metadataField The metadata field related with a metadata value
+     *
+     * @return               true/false if the user can/'t see the metadata
+     */
     public boolean allowMetadataFieldReturn(Context context, Item item, MetadataField metadataField)
         throws SQLException;
 

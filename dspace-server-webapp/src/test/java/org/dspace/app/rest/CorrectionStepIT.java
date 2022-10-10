@@ -131,7 +131,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
         collection = CollectionBuilder.createCollection(context, parentCommunity)
                 .withName("Collection")
                 .withEntityType("Publication")
-                .withWorkflowGroup(2, admin)
+                .withWorkflowGroup("editor", admin)
                 .withSubmitterGroup(eperson)
                 .withSubmissionDefinition("traditional-with-correction")
                 .build();

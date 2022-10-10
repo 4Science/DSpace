@@ -14,6 +14,8 @@ import org.dspace.content.authority.mapper.ItemControlledVocabularyMapper;
  */
 public class  ItemControlledVocabulary {
 
+    private String entityType;
+
     private String parentQuery;
 
     private String childrenQuery;
@@ -31,6 +33,14 @@ public class  ItemControlledVocabulary {
     private ItemControlledVocabularyMapper extraValuesMapper;
 
     // Getters and setters
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
 
     public String getParentQuery() {
         return parentQuery;

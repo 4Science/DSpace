@@ -19,6 +19,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dspace.authenticate.service.AuthenticationService;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,12 @@ public class SpecialGroupClaimProvider implements JWTClaimProvider {
     }
 
     public Object getValue(Context context, HttpServletRequest request) {
+
+        List<String> specialGroups = getSpecialGroupsFromContext(context);
+        if (CollectionUtils.isNotEmpty(specialGroups)) {
+            return specialGroups;
+        }
+
         List<Group> groups = new ArrayList<>();
         try {
             groups = authenticationService.getSpecialGroups(context, request);
@@ -53,8 +60,8 @@ public class SpecialGroupClaimProvider implements JWTClaimProvider {
             log.error("SQLException while retrieving special groups", e);
             return null;
         }
-        List<String> groupIds = groups.stream().map(group -> group.getID().toString()).collect(Collectors.toList());
-        return groupIds;
+
+        return getGroupsIds(groups);
     }
 
     public void parseClaim(Context context, HttpServletRequest request, JWTClaimsSet jwtClaimsSet) {
@@ -67,6 +74,20 @@ public class SpecialGroupClaimProvider implements JWTClaimProvider {
         } catch (ParseException e) {
             log.error("Error while trying to access specialgroups from ClaimSet", e);
         }
+    }
+
+    private List<String> getSpecialGroupsFromContext(Context context) {
+        try {
+            return getGroupsIds(context.getSpecialGroups());
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
+
+    private List<String> getGroupsIds(List<Group> groups) {
+        return groups.stream()
+            .map(group -> group.getID().toString())
+            .collect(Collectors.toList());
     }
 
 }

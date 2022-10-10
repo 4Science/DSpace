@@ -298,8 +298,14 @@
     <field name="lastModified" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" />
     <field name="lastModified_dt" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" docValues="true"/>
 
-    <!-- Dynamic field used to store the relation metadata as a keywordFilter -->
-    <dynamicField name="relation.*" type="keywordFilter" indexed="true" stored="true" omitNorms="true" multiValued="true"/>
+    <!-- used to filter out items that are older versions of another item -->
+    <field name="latestVersion" type="boolean" indexed="true" stored="true" default="true" multiValued="false" omitNorms="true"/>
+
+     <!-- The database status of the current item -->
+     <field name="database_status" type="string" indexed="true" stored="true" omitNorms="true" docValues="true" />
+
+     <!-- Dynamic field used to store the relation metadata as a keywordFilter -->
+     <dynamicField name="relation.*" type="keywordFilter" indexed="true" stored="true" omitNorms="true" multiValued="true"/>
 
  	<!--Dynamic field used to store metadata for projection-->
     <dynamicField name="*_stored" type="dspaceMetadataProjection" indexed="false" stored="true" multiValued="true"/>

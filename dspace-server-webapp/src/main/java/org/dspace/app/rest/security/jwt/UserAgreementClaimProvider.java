@@ -53,6 +53,7 @@ public class UserAgreementClaimProvider implements JWTClaimProvider {
             // will be solved.
             context.uncacheEntity(user);
             user = ePersonService.find(context, user.getID());
+            context.setCurrentUser(user);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

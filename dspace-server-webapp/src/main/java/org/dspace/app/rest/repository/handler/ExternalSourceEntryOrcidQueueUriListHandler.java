@@ -13,10 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
-import org.dspace.app.orcid.OrcidQueue;
-import org.dspace.app.orcid.service.OrcidQueueService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
+import org.dspace.orcid.OrcidQueue;
+import org.dspace.orcid.service.OrcidQueueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -59,12 +59,12 @@ public class ExternalSourceEntryOrcidQueueUriListHandler
     private OrcidQueue getObjectFromUriList(Context context, List<String> uriList) {
         OrcidQueue orcidQueue = null;
         String url = uriList.get(0);
-        Pattern pattern = Pattern.compile("\\/api\\/cris\\/orcidqueues\\/(.*)");
+        Pattern pattern = Pattern.compile("\\/api\\/eperson\\/orcidqueues\\/(.*)");
         Matcher matcher = pattern.matcher(url);
 
         matcher.find();
         String id = matcher.group(1);
-        Integer queueId = Integer.parseInt(id);
+        int queueId = Integer.parseInt(id);
         try {
             orcidQueue = orcidQueueService.find(context, queueId);
         } catch (SQLException e) {

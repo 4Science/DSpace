@@ -10,6 +10,7 @@ package org.dspace.core;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -91,12 +92,12 @@ public class Context implements AutoCloseable {
     /**
      * Group IDs of special groups user is a member of
      */
-    private List<UUID> specialGroups;
+    private Set<UUID> specialGroups;
 
     /**
      * Temporary store for the specialGroups when the current user is temporary switched
      */
-    private List<UUID> specialGroupsPreviousState;
+    private Set<UUID> specialGroupsPreviousState;
 
     /**
      * The currently used authentication method
@@ -183,7 +184,7 @@ public class Context implements AutoCloseable {
         extraLogInfo = "";
         ignoreAuth = false;
 
-        specialGroups = new ArrayList<>();
+        specialGroups = new HashSet<>();
 
         authStateChangeHistory = new ConcurrentLinkedDeque<>();
         authStateClassCallHistory = new ConcurrentLinkedDeque<>();
@@ -552,7 +553,7 @@ public class Context implements AutoCloseable {
     public void rollback() throws SQLException {
         // If Context is no longer open/valid, just note that it has already been closed
         if (!isValid()) {
-            log.info("abort() was called on a closed Context object. No changes to abort.");
+            log.info("rollback() was called on a closed Context object. No changes to abort.");
             return;
         }
 
@@ -687,6 +688,15 @@ public class Context implements AutoCloseable {
     }
 
     /**
+     * Get a set of all of the special groups uuids that current user is a member of.
+     *
+     * @return list of special groups uuids
+     */
+    public Set<UUID> getSpecialGroupUuids() {
+        return CollectionUtils.isEmpty(specialGroups) ? Set.of() : specialGroups;
+    }
+
+    /**
      * Temporary change the user bound to the context, empty the special groups that
      * are retained to allow subsequent restore
      *
@@ -703,7 +713,7 @@ public class Context implements AutoCloseable {
 
         currentUserPreviousState = currentUser;
         specialGroupsPreviousState = specialGroups;
-        specialGroups = new ArrayList<>();
+        specialGroups = new HashSet<>();
         currentUser = newUser;
     }
 

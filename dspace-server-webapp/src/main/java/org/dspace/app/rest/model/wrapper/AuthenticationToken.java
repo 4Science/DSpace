@@ -12,10 +12,26 @@ package org.dspace.app.rest.model.wrapper;
  * actual Strings and AuthenticationToken
  */
 public class AuthenticationToken {
+
+    public static final String MACHINETOKEN_TYPE = "machinetoken";
+
+    public static final String SHORTLIVEDTOKEN_TYPE = "shortlivedtoken";
+
     private String token;
 
-    public AuthenticationToken(String token) {
+    private String type;
+
+    public static AuthenticationToken shortLivedToken(String token) {
+        return new AuthenticationToken(token, SHORTLIVEDTOKEN_TYPE);
+    }
+
+    public static AuthenticationToken machineToken(String token) {
+        return new AuthenticationToken(token, MACHINETOKEN_TYPE);
+    }
+
+    private AuthenticationToken(String token, String type) {
         this.token = token;
+        this.type = type;
     }
 
     public String getToken() {
@@ -25,4 +41,13 @@ public class AuthenticationToken {
     public void setToken(String token) {
         this.token = token;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }

@@ -422,6 +422,19 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
                         }
                     }
                 }
+
+                for (Bundle thumbnails : itemService.getBundles(item, "PREVIEW")) {
+                    for (Bitstream thumbnail : thumbnails.getBitstreams()) {
+                        if (pattern.matcher(thumbnail.getName()).matches()) {
+                            return thumbnail;
+                        }
+                    }
+                }
+                String mimetype = bitstream.getFormat(context).getMIMEType();
+                if (configurationService.getIntProperty("cris.layout.thumbnail.maxsize", 250000) >=
+                        bitstream.getSizeBytes() && StringUtils.containsIgnoreCase(mimetype, "image/")) {
+                    return bitstream;
+                }
             }
         }
 

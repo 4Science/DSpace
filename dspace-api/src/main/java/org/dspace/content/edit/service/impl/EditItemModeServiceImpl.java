@@ -104,7 +104,7 @@ public class EditItemModeServiceImpl implements EditItemModeService {
             return defaultModes;
         }
 
-        String entityType = itemService.getEntityType(item);
+        String entityType = itemService.getEntityTypeLabel(item);
         if (isBlank(entityType)) {
             return defaultModes;
         }

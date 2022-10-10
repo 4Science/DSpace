@@ -25,6 +25,7 @@ import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.security.service.CrisSecurityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
@@ -137,11 +138,15 @@ public class LayoutSecurityServiceImpl implements LayoutSecurityService {
         String element = metadataValue.getMetadataField().getElement();
         String qualifier = metadataValue.getMetadataField().getQualifier();
         Collection collection = item.getOwningCollection();
-        String authorityName = choiceAuthorityService.getChoiceAuthorityName(schema, element, qualifier, collection);
+        String authorityName = choiceAuthorityService.getChoiceAuthorityName(schema, element, qualifier, Constants.ITEM,
+                collection);
         return authorityName != null ? choiceAuthorityService.getChoiceAuthorityByAuthorityName(authorityName) : null;
     }
 
     private boolean isAuthorityEqualsTo(MetadataValue metadataValue, EPerson user) {
+        if (Objects.isNull(metadataValue) || Objects.isNull(user)) {
+            return false;
+        }
         return StringUtils.equals(metadataValue.getAuthority(), user.getID().toString());
     }
 

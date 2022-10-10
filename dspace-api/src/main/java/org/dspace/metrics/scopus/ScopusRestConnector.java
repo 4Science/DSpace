@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,6 +28,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  * @author Corrado Lombardi (corrado.lombardi at 4science.it)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  */
 public class ScopusRestConnector {
 
@@ -48,27 +50,64 @@ public class ScopusRestConnector {
         }
     }
 
+    /**
+     * Fetches items using a url that is used for
+     * linked entities
+     * 
+     * @param nextItemUrl
+     * @return fetched response
+     */
+    public String getNextItem(String nextItemUrl) {
+        try {
+            return sendNextItemRequestToScopus(nextItemUrl);
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            return null;
+        }
+    }
+
     private String sendRequestToScopus(String id)
             throws IOException {
         try (CloseableHttpClient httpClient = Optional.ofNullable(this.httpClient)
             .orElseGet(HttpClients::createDefault)) {
 
             HttpGet httpGet = new HttpGet(scopusUrl + URLEncoder.encode(id, Charset.defaultCharset()));
-            httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
-            httpGet.setHeader("Connection", "keep-alive");
+            mapCommonHeaders(httpGet);
             httpGet.setHeader("X-ELS-APIKey", apiKey);
             httpGet.setHeader("X-ELS-Insttoken", insttoken);
-            httpGet.setHeader("Accept", "application/xml");
 
-            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                int statusCode = response.getStatusLine().getStatusCode();
-                if (statusCode != HttpStatus.SC_OK) {
-                    log.error("Error connecting to server! The Server answered with: " + statusCode);
-                    throw new RuntimeException();
-                }
-                return IOUtils.toString(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8);
+            return sendRequest(httpClient, httpGet);
+        }
+    }
+
+    private void mapCommonHeaders(HttpGet httpGet) {
+        httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
+        httpGet.setHeader("Connection", "keep-alive");
+        httpGet.setHeader("Accept", "application/xml");
+    }
+
+    private String sendRequest(CloseableHttpClient httpClient, HttpGet httpGet)
+            throws IOException, ClientProtocolException {
+        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                log.error("Error connecting to server! The Server answered with: " + statusCode);
+                throw new RuntimeException();
             }
+            return IOUtils.toString(response.getEntity().getContent(),
+                StandardCharsets.UTF_8);
+        }
+    }
+
+    private String sendNextItemRequestToScopus(String nextItemUrl)
+            throws IOException {
+        try (CloseableHttpClient httpClient = Optional.ofNullable(this.httpClient)
+                .orElseGet(HttpClients::createDefault)) {
+
+            HttpGet httpGet = new HttpGet(nextItemUrl);
+            mapCommonHeaders(httpGet);
+
+            return sendRequest(httpClient, httpGet);
         }
     }
 

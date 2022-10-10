@@ -174,13 +174,12 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(userA)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
+                                .withDescriptionAbstract("A secured abstract")
                                 .build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, userA.getID().toString());
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField title = mfss.findByElement(context, "dc", "title", null);
@@ -266,13 +265,12 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(userA)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
+                                .withDescriptionAbstract("A secured abstract")
                                 .build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, userA.getID().toString());
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField title = mfss.findByElement(context, "dc", "title", null);
@@ -669,17 +667,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(userB)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
+                                .withDescriptionAbstract("A secured abstract")
+                                .withCrisPolicyEPerson(userA.getFullName(), userA.getID().toString())
+                                .withCrisPolicyGroup(groupA.getName(), groupA.getID().toString())
                                 .build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, itemA, "cris", "policy", "eperson", null, userA.getFullName(),
-                                userA.getID().toString(), 600);
-        itemService.addMetadata(context, itemA, "cris", "policy", "group", null, groupA.getName(),
-                                groupA.getID().toString(), 600);
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, userB.getID().toString());
 
         MetadataField policyEperson = mfss.findByElement(context, "cris", "policy", "eperson");
         MetadataField policyGroup = mfss.findByElement(context, "cris", "policy", "group");
@@ -1109,9 +1104,11 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(eperson)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
+                                .withDescriptionAbstract("A secured abstract")
                                 .build();
 
         ResourcePolicyBuilder.createResourcePolicy(context)
@@ -1119,9 +1116,6 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                              .withAction(Constants.WRITE)
                              .withUser(eperson)
                              .build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, eperson.getID().toString());
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField title = mfss.findByElement(context, "dc", "title", null);
@@ -1576,9 +1570,11 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(userA)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
+                                .withDescriptionAbstract("A secured abstract")
                                 .build();
 
         ResourcePolicyBuilder.createResourcePolicy(context)
@@ -1590,9 +1586,6 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                              .withDspaceObject(itemA)
                              .withAction(Constants.WRITE)
                              .withUser(userA).build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, userA.getID().toString());
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField title = mfss.findByElement(context, "dc", "title", null);
@@ -1800,10 +1793,13 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                                            .build();
 
         Item itemA = ItemBuilder.createItem(context, col1)
+                                .withDspaceObjectOwner(eperson)
                                 .withTitle("Public item A")
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Smith, Maria")
                                 .withAuthor("Doe, John")
+                                .withDescriptionAbstract("First Abstract description")
+                                .withDescriptionAbstract("Second Abstract description")
                                 .build();
 
         ResourcePolicyBuilder.createResourcePolicy(context)
@@ -1811,11 +1807,6 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                              .withAction(Constants.WRITE)
                              .withUser(eperson)
                              .build();
-
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "First Abstract description");
-        itemService.addMetadata(context, itemA, "dc", "description", "abstract", null, "Second Abstract description");
-        itemService.addMetadata(context, itemA, "cris", "owner", null, null, eperson.getID().toString());
-
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField author = mfss.findByElement(context, "dc", "contributor", "author");
@@ -2384,7 +2375,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         Item itemA = ItemBuilder.createItem(context, col1).build();
         itemService.addSecuredMetadata(context, itemA, "dc", "description", "abstract", null, "Metadata Secured",
             null, 0, 2);
-        itemService.addMetadata(context, itemA, "cris", "owner", "", null, "Owner of the item",
+        itemService.addMetadata(context, itemA, "dspace", "object", "owner", null, "Owner of the item",
             admin.getID().toString(), 0, 1);
         MetadataField description = mfss.findByElement(context, "dc", "description", "abstract");
 
@@ -2437,7 +2428,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         Item itemA = ItemBuilder.createItem(context, col1).build();
         itemService.addSecuredMetadata(context, itemA, "dc", "description", "provenance", null, "Metadata Secured",
             null, 0, 0);
-        itemService.addMetadata(context, itemA, "cris", "owner", "", null, "Owner of the item",
+        itemService.addMetadata(context, itemA, "dspace", "object", "owner", null, "Owner of the item",
             admin.getID().toString(), 0, 1);
         MetadataField description = mfss.findByElement(context, "dc", "description", "provenance");
 
@@ -2501,7 +2492,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
         Item itemA = ItemBuilder.createItem(context, col1).build();
         itemService.addSecuredMetadata(context, itemA, "dc", "description", "provenance", null, "Metadata Secured",
             null, 0, 1);
-        itemService.addMetadata(context, itemA, "cris", "owner", "", null, "Owner of the item",
+        itemService.addMetadata(context, itemA, "dspace", "object", "owner", null, "Owner of the item",
             admin.getID().toString(), 0, 1);
         MetadataField description = mfss.findByElement(context, "dc", "description", "provenance");
 

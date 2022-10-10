@@ -97,7 +97,7 @@ public class RelationshipItemCanEditAuthorizerIT extends AbstractIntegrationTest
 
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Test item")
-            .withCrisOwner(eperson)
+            .withDspaceObjectOwner(eperson)
             .build();
 
         context.restoreAuthSystemState();

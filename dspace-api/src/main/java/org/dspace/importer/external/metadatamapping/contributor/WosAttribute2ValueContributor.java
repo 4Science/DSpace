@@ -27,10 +27,12 @@ import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
 /**
+ * Web Of Science specific implementation of {@link MetadataContributor}
  * This contributor checks for each node returned for the given path if the node contains "this.attribute"
  * and then checks if the attribute value is one of the values configured
  * in the "this.attributeValue2metadata" map, if the value of the current known is taken.
  * If "this.firstChild" is true, it takes the value of the child of the known.
+ * The mapping and configuration of this class can be found in the following wos-integration.xml file.
  *
  * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4Science dot it)
  */
@@ -70,7 +72,7 @@ public class WosAttribute2ValueContributor implements MetadataContributor<Elemen
             namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
         }
         XPathExpression<Object> xpath = XPathFactory.instance().compile(query, Filters.fpassthrough(), null,
-            namespaces);
+                namespaces);
         List<Object> nodes = xpath.evaluate(t);
         for (Object el : nodes) {
             if (el instanceof Element) {
@@ -88,8 +90,7 @@ public class WosAttribute2ValueContributor implements MetadataContributor<Elemen
         for (String id : attributeValue2metadata.keySet()) {
             if (StringUtils.equals(id, attributeValue)) {
                 if (this.firstChild) {
-                    String value = "";
-                    // el.getFirstChildWithName(new QName(this.childName)).getText();
+                    String value = el.getChild(this.childName).getValue();
                     values.add(metadataFieldMapping.toDCValue(attributeValue2metadata.get(id), value));
                 } else {
                     values.add(metadataFieldMapping.toDCValue(attributeValue2metadata.get(id), el.getText()));

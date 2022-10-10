@@ -43,6 +43,12 @@
                 </Delete>
             </DefaultRolloverStrategy>
             -->
+            <DefaultRolloverStrategy>
+                <Delete basePath='${log.dir}'>
+                    <IfFileName glob='dspace.log-*'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </Appender>
 
         <!-- A2 is for the checksum checker -->
@@ -63,6 +69,12 @@
                 </Delete>
             </DefaultRolloverStrategy>
             -->
+            <DefaultRolloverStrategy>
+                <Delete basePath='${log.dir}'>
+                    <IfFileName glob='checker.log-*'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </Appender>
 
         <!-- A3 is for the embedded solr (during test) -->
@@ -81,6 +93,12 @@
                 </Delete>
                 -->
             </policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath='${log.dir}'>
+                    <IfFileName glob='solr.log-*'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </Appender>
 
         <!-- A4 is for OAI Harvester -->
@@ -99,6 +117,12 @@
                 </Delete>
                 -->
             </policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath='${log.dir}'>
+                    <IfFileName glob='harvester_details.log-*'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </Appender>
 
         <!-- A5 is for Harvest -->
@@ -117,6 +141,12 @@
                 </Delete>
                 -->
             </policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath='${log.dir}'>
+                    <IfFileName glob='harvester.log-*'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </Appender>
 
     </Appenders>

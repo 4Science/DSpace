@@ -12,6 +12,13 @@ import javax.annotation.Resource;
 
 import org.dspace.importer.external.metadatamapping.AbstractMetadataFieldMapping;
 
+/**
+ * An implementation of {@link AbstractMetadataFieldMapping}
+ * Responsible for defining the mapping of the VuFind metadatum fields on the DSpace metadatum fields
+ * 
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+ */
+@SuppressWarnings("rawtypes")
 public class VuFindFieldMapping extends AbstractMetadataFieldMapping {
 
     /**
@@ -22,8 +29,8 @@ public class VuFindFieldMapping extends AbstractMetadataFieldMapping {
      * @param metadataFieldMap The map containing the link between retrieve metadata and metadata that will be set to
      *                         the item.
      */
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     @Resource(name = "vufindMetadataFieldMap")
     public void setMetadataFieldMap(Map metadataFieldMap) {
         super.setMetadataFieldMap(metadataFieldMap);

@@ -263,4 +263,19 @@ public class IdentifierServiceImpl implements IdentifierService {
             }
         }
     }
+
+    @Override
+    public boolean isGone(Context context, String identifier)
+            throws SQLException {
+        for (IdentifierProvider provider : providers) {
+            try {
+                if (provider.supports(identifier)) {
+                    return provider.isGone(context, identifier);
+                }
+            } catch (IdentifierException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
 }

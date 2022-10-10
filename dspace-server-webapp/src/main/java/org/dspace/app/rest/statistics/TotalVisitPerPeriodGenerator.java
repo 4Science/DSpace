@@ -8,14 +8,16 @@
 package org.dspace.app.rest.statistics;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.app.rest.model.UsageReportPointDateRest;
 import org.dspace.app.rest.model.UsageReportRest;
 import org.dspace.app.rest.utils.UsageReportUtils;
@@ -27,11 +29,12 @@ import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.statistics.ObjectCount;
 import org.dspace.statistics.content.DatasetTimeGenerator;
 import org.dspace.statistics.content.StatisticsDatasetDisplay;
-import org.dspace.statistics.content.filter.StatisticsFilter;
 import org.dspace.statistics.content.filter.StatisticsSolrDateFilter;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
+import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 
 /**
  * This report generator provides usage data aggregated over a specific period
@@ -39,6 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
+    private static final String POINT_VIEWS_KEY = "views";
+
     private String periodType = "month";
 
     private int increment = 1;
@@ -71,11 +76,11 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
      */
     public UsageReportRest createUsageReport(Context context, DSpaceObject dso, String startDate, String endDate)
         throws IOException, SolrServerException {
-        DatasetTimeGenerator timeAxis = new DatasetTimeGenerator();
-        boolean showTotal = timeAxis.isIncludeTotal();
-        StatisticsDatasetDisplay statisticsDatasetDisplay = new StatisticsDatasetDisplay();
-        String query = "";
+        boolean showTotal = new DatasetTimeGenerator().isIncludeTotal();
         boolean hasValidRelation = false;
+        StatisticsDatasetDisplay statisticsDatasetDisplay = new StatisticsDatasetDisplay();
+        StringBuilder query = new StringBuilder();
+
         if (getRelation() != null) {
             DiscoveryConfiguration discoveryConfiguration = discoveryConfigurationService
                                                                 .getDiscoveryConfigurationByName(getRelation());
@@ -84,89 +89,108 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
                 hasValidRelation = false;
             } else {
                 hasValidRelation = true;
-                query = statisticsDatasetDisplay.composeQueryWithInverseRelation(
-                    dso, discoveryConfiguration.getDefaultFilterQueries());
+                query.append(
+                    statisticsDatasetDisplay
+                        .composeQueryWithInverseRelation(
+                                dso,
+                                discoveryConfiguration.getDefaultFilterQueries()
+                        )
+                );
             }
         }
+
         if (!hasValidRelation) {
             if (getDsoType(dso) != -1) {
-                query += "type: " + getDsoType(dso);
+                query.append("type: ").append(getDsoType(dso));
             }
 
             if (isNotSiteObject(dso)) {
-                query += (query.equals("") ? "" : " AND ") + "id:" + dso.getID();
+                query.append((query.length() == 0 ? "" : " AND "))
+                     .append("id:").append(dso.getID());
             }
         }
+
         //add date facets to filter query
-        String filter_query = "";
-        StatisticsSolrDateFilter dateFilter = new StatisticsSolrDateFilter();
-        dateFilter.setStartStr("-" + (increment * getMaxResults()));
-        dateFilter.setEndStr("+" + increment);
-        dateFilter.setTypeStr(periodType);
-        StatisticsFilter filter = dateFilter;
-        filter_query += "(" + filter.toQuery() + ")";
-        if (StringUtils.isNotBlank(filter_query)) {
-            filter_query += " AND ";
-        }
-        filter_query += statisticsDatasetDisplay
-                            .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso));
+        StringBuilder filterQuery = new StringBuilder("");
+        String startStr = "-" + (increment * getMaxResults());
+        String endStr = "+" + increment;
+        StatisticsSolrDateFilter solrDateFilter = new StatisticsSolrDateFilter(startStr, endStr, periodType);
+        String dateQueryFilter = solrDateFilter.toQuery();
+
+        filterQuery
+            .append("(")
+            .append(dateQueryFilter)
+            .append(")")
+            .append(" AND ")
+            .append(
+                statisticsDatasetDisplay
+                    .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso))
+            );
+
+        Consumer<Calendar> mapper = createConsumerFrom(periodType.toUpperCase());
+        String dateformatString = SolrUtils.getDateformatFrom(periodType.toUpperCase());
+
+        Map<String, Pair<Integer, UsageReportPointDateRest>> reportValues =
+                generateStatisticsRange(context, solrDateFilter.getStartDate(), mapper, dateformatString);
+
         // execute query
-        ObjectCount[] topCounts1 = solrLoggerService.queryFacetField(query, filter_query, "id",
-                getMaxResults(), false, null, 1);
-        //if no data
-        if (topCounts1.length == 0) {
-            return returnEmptyDataReport();
+        ObjectCount[] dateFacetResult = solrLoggerService.queryFacetDateField(context, "id", null, query.toString(),
+                filterQuery.toString(), periodType.toUpperCase(), startStr, endStr, showTotal, 1, getMaxResults());
+
+        for (ObjectCount maxDateFacetCount : dateFacetResult) {
+            Pair<Integer, UsageReportPointDateRest> pair =
+                    Optional.ofNullable(reportValues.get(maxDateFacetCount.getValue()))
+                            .orElse(Pair.of(reportValues.size(), new UsageReportPointDateRest()));
+            UsageReportPointDateRest monthPoint = pair.getSecond();
+            monthPoint.setId(maxDateFacetCount.getValue());
+            monthPoint.addValue(POINT_VIEWS_KEY, (int) maxDateFacetCount.getCount());
+            reportValues.put(maxDateFacetCount.getValue(), pair);
         }
+
         UsageReportRest usageReportRest = new UsageReportRest();
-        //in case of inverse relation hold total of views based on each month
-        // foreach object that has relationship with dso
-        int[] total_views = new int[increment + getMaxResults()];
-        for (int j = 0; j < topCounts1.length; j++) {
-            String newQuery = "";
-            if (!hasValidRelation) {
-                newQuery = "id" + ": " + ClientUtils
-                        .escapeQueryChars(topCounts1[j].getValue()) + " AND " + query;
-            } else {
-                newQuery = "id" + ": " + ClientUtils
-                        .escapeQueryChars(topCounts1[j].getValue());
-            }
-            // execute second query foreach result of first query
-            ObjectCount[] maxDateFacetCounts = solrLoggerService
-                                                   .queryFacetDate(newQuery, filter_query,
-                                                                   getMaxResults(), periodType.toUpperCase(),
-                    "-" + (increment * getMaxResults()), "+" + increment, showTotal, context,
-                    0);
-            if (topCounts1.length == 1) {
-                for (ObjectCount maxDateFacetCount : maxDateFacetCounts) {
-                    UsageReportPointDateRest monthPoint = new UsageReportPointDateRest();
-                    monthPoint.setId(maxDateFacetCount.getValue());
-                    monthPoint.addValue("views", (int) maxDateFacetCount.getCount());
-                    usageReportRest.addPoint(monthPoint);
-                }
-            } else {
-                //it means that have more than one data returned from first query
-                //here is managed the case when dso has inverse relationship
-                //for each value returned add views foreach object thas has relation with dso
-                for (int i = 0; i < maxDateFacetCounts.length; i++) {
-                    UsageReportPointDateRest monthPoint = new UsageReportPointDateRest();
-                    //to not repeat month setting foreach object
-                    if (j == 0) {
-                        monthPoint.setId(maxDateFacetCounts[i].getValue());
-                        usageReportRest.addPoint(monthPoint);
-                    }
-                    //add views of item related in month ->  i
-                    total_views[i] += maxDateFacetCounts[i].getCount();
-                }
-            }
-        }
-        if (topCounts1.length > 1) {
-            for (int pos = 0; pos < usageReportRest.getPoints().size(); pos++) {
-                Map<String, Integer> values = new HashMap<>();
-                values.put("views", total_views[pos]);
-                usageReportRest.getPoints().get(pos).setValues(values);
-            }
-        }
+        ArrayList<Pair<Integer, UsageReportPointDateRest>> pairs = new ArrayList<>(reportValues.values());
+        pairs
+            .stream()
+            .sorted((a, b) -> Integer.compare(a.getFirst(), b.getFirst()))
+            .map(Pair::getSecond)
+            .forEach(usageReportRest::addPoint);
+
         return usageReportRest;
+    }
+
+    protected Consumer<Calendar> createConsumerFrom(String periodType) {
+        Consumer<Calendar> mapper = null;
+        if ("DAY".equalsIgnoreCase(periodType)) {
+            mapper = (cal) -> cal.add(Calendar.DAY_OF_YEAR, 1);
+        } else if ("MONTH".equalsIgnoreCase(periodType)) {
+            mapper = (cal) -> cal.add(Calendar.MONTH, 1);
+        } else if ("YEAR".equalsIgnoreCase(periodType)) {
+            mapper = (cal) -> cal.add(Calendar.YEAR, 1);
+        }
+        return mapper;
+    }
+
+    protected Map<String, Pair<Integer, UsageReportPointDateRest>> generateStatisticsRange(Context context,
+            Date startDate, Consumer<Calendar> mapper, String dateformatString) {
+        Calendar calendar = Calendar.getInstance(context.getCurrentLocale());
+        calendar.setTime(startDate);
+        Map<String, Pair<Integer, UsageReportPointDateRest>> reportValues = new HashMap<>();
+        SimpleDateFormat simpleFormat = new SimpleDateFormat(dateformatString, context.getCurrentLocale());
+        String id = simpleFormat.format(calendar.getTime());
+        UsageReportPointDateRest usageReportPointDateRest = new UsageReportPointDateRest();
+        usageReportPointDateRest.setId(id);
+        usageReportPointDateRest.setLabel(id);
+        usageReportPointDateRest.addValue(POINT_VIEWS_KEY, 0);
+        reportValues.put(id, Pair.of(0, usageReportPointDateRest));
+        for (int i = 1; i <= increment * getMaxResults(); i++) {
+            mapper.accept(calendar);
+            usageReportPointDateRest = new UsageReportPointDateRest();
+            id = simpleFormat.format(calendar.getTime());
+            usageReportPointDateRest.setId(id);
+            usageReportPointDateRest.addValue(POINT_VIEWS_KEY, 0);
+            reportValues.put(id, Pair.of(i, usageReportPointDateRest));
+        }
+        return reportValues;
     }
 
     @Override
@@ -174,13 +198,13 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
         return UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID;
     }
 
-    public UsageReportRest returnEmptyDataReport() {
+    public UsageReportRest returnEmptyDataReport(Context context) {
         UsageReportRest usageReportRest = new UsageReportRest();
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(context.getCurrentLocale());
         for (int k = 0; k <= increment * getMaxResults(); k++) {
             UsageReportPointDateRest monthPoint = new UsageReportPointDateRest();
-            monthPoint.addValue("views", 0);
-            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            monthPoint.addValue(POINT_VIEWS_KEY, 0);
+            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, context.getCurrentLocale());
             monthPoint.setId(month + " " + cal.get(Calendar.YEAR));
             usageReportRest.addPoint(monthPoint);
             cal.add(Calendar.MONTH, -1);

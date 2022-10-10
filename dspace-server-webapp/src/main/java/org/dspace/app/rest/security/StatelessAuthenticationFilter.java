@@ -49,7 +49,7 @@ public class StatelessAuthenticationFilter extends BasicAuthenticationFilter {
 
     private static final Logger log = LoggerFactory.getLogger(StatelessAuthenticationFilter.class);
 
-    private static final String ON_BEHALF_OF_REQUEST_PARAM = "X-On-Behalf-Of";
+    public static final String ON_BEHALF_OF_REQUEST_PARAM = "X-On-Behalf-Of";
 
     private RestAuthenticationService restAuthenticationService;
 

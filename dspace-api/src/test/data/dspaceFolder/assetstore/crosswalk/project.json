@@ -52,19 +52,6 @@
 					"name": "Test funding"
 				}
 			}
-		},
-		{
-			"by": {
-				"orgUnit": {
-					"name": "Another OrgUnit Funder"
-				}
-			},
-			"as": {
-				"funding": {
-					"type": "https:\/\/www.openaire.eu\/cerif-profile\/vocab\/OpenAIRE_Funding_Types#Award",
-					"name": "Another Test funding"
-				}
-			}
 		}
 	],
 	"keywords": [

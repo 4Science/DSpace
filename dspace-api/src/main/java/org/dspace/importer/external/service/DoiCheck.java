@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Utility class that provides methods to check if a given string is a DOI and exists on CrossRef services
+ * Utility class that provides methods to check if a given string is a DOI
  *
  * @author Corrado Lombardi (corrado.lombardi at 4science.it)
  */
@@ -30,16 +30,12 @@ public class DoiCheck {
                                                                "|10.1207/[\\w\\d]+\\&\\d+_\\d+",
                                                            Pattern.CASE_INSENSITIVE);
 
-
-    private DoiCheck() {
-    }
+    private DoiCheck() {}
 
     public static boolean isDoi(final String value) {
-
         Matcher m = PATTERN.matcher(purgeDoiValue(value));
         return m.matches();
     }
-
 
     public static String purgeDoiValue(final String query) {
         String value = query.replaceAll(",", "");

@@ -270,6 +270,13 @@ public class MetadataValue implements ReloadableEntity<Integer> {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        return "MetadataValue [id=" + id + ", metadataField=" + metadataField + ", value=" + value + ", language="
+            + language + ", place=" + place + ", authority=" + authority + ", confidence=" + confidence
+            + ", securityLevel=" + securityLevel + "]";
+    }
+
     public String getSchema() {
         return getMetadataField().getMetadataSchema().getName();
     }

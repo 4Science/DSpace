@@ -35,6 +35,7 @@ import org.dspace.utils.DSpace;
  * Implementation of {@link DSpaceRunnable} to update CrisMetrics with external service as SCOPUS
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  */
 public class UpdateCrisMetricsWithExternalSource extends
        DSpaceRunnable<UpdateCrisMetricsWithExternalSourceScriptConfiguration<UpdateCrisMetricsWithExternalSource>> {
@@ -97,34 +98,58 @@ public class UpdateCrisMetricsWithExternalSource extends
         }
     }
 
+    /**
+     * Updates the metrics using an external service.
+     * 
+     * @param context
+     * @param metricsExternalServices
+     * @param param
+     */
     private void performUpdate(Context context, MetricsExternalServices metricsExternalServices,
             String param) {
-        int count = 0;
-        try {
-            Iterator<Item> itemIterator = findItems(context, metricsExternalServices);
-            handler.logInfo("Update start");
-            int countFoundItems = 0;
-            int countUpdatedItems = 0;
-            while (itemIterator.hasNext()) {
-                Item item = itemIterator.next();
-                countFoundItems++;
-                final boolean updated = metricsExternalServices.updateMetric(context, item, param);
-                if (updated) {
-                    countUpdatedItems++;
-                }
-                count++;
-                if (count == 20) {
-                    context.commit();
-                    count = 0;
-                }
+        if (metricsExternalServices.canMultiFetch()) {
+            // fetch all items
+            try {
+                final long updatedItems = metricsExternalServices.updateMetric(
+                        context,
+                        findItems(context, metricsExternalServices),
+                        param
+                );
+                handler.logInfo("Updated " + updatedItems + " metrics");
+                handler.logInfo("Update end");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e);
             }
-            context.commit();
-            handler.logInfo("Found " + countFoundItems + " items");
-            handler.logInfo("Updated " + countUpdatedItems + " metrics");
-            handler.logInfo("Update end");
-        } catch (SQLException | SearchServiceException e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
+        } else {
+            // fetch single item
+            int count = 0;
+            try {
+                Iterator<Item> itemIterator = findItems(context, metricsExternalServices);
+                handler.logInfo("Update start");
+                int countFoundItems = 0;
+                int countUpdatedItems = 0;
+                while (itemIterator.hasNext()) {
+                    Item item = itemIterator.next();
+                    countFoundItems++;
+                    final boolean updated = metricsExternalServices.updateMetric(context, item, param);
+                    if (updated) {
+                        countUpdatedItems++;
+                    }
+                    count++;
+                    if (count == 20) {
+                        context.commit();
+                        count = 0;
+                    }
+                }
+                context.commit();
+                handler.logInfo("Found " + countFoundItems + " items");
+                handler.logInfo("Updated " + countUpdatedItems + " metrics");
+                handler.logInfo("Update end");
+            } catch (SQLException | SearchServiceException e) {
+                log.error(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
     }
 

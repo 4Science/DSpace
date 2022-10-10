@@ -7,6 +7,9 @@
  */
 package org.dspace.app.rest.repository;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -316,6 +319,18 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
         item.setDiscoverable(itemRest.getDiscoverable());
         item.setLastModified(itemRest.getLastModified());
         metadataConverter.setMetadata(context, item, itemRest.getMetadata());
+
+        String entityType = itemService.getEntityType(item);
+        String collectionEntityType = collectionService.getEntityType(collection);
+
+        if (isNotBlank(entityType) && isNotBlank(collectionEntityType) && !collectionEntityType.equals(entityType)) {
+            throw new UnprocessableEntityException("The specified entity type is not consistent "
+                + "with the collection's entity type (" + collectionEntityType + ")");
+        }
+
+        if (isBlank(entityType) && isNotBlank(collectionEntityType)) {
+            itemService.setEntityType(context, item, collectionEntityType);
+        }
 
         Item itemToReturn = installItemService.installItem(context, workspaceItem);
 

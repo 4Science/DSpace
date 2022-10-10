@@ -12,15 +12,16 @@
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
     
-    <bean class="org.dspace.app.orcid.service.impl.OrcidQueueServiceImpl" />
-    <bean class="org.dspace.app.orcid.service.impl.OrcidHistoryServiceImpl" />
+    <bean class="org.dspace.orcid.service.impl.OrcidQueueServiceImpl" />
+    <bean class="org.dspace.orcid.service.impl.OrcidHistoryServiceImpl" />
+    <bean class="org.dspace.orcid.service.impl.OrcidTokenServiceImpl" />
     
-    <bean class="org.dspace.app.orcid.service.impl.OrcidSynchronizationServiceImpl"/>
-	<bean class="org.dspace.app.orcid.webhook.OrcidWebhookServiceImpl" />
+    <bean class="org.dspace.orcid.service.impl.OrcidSynchronizationServiceImpl"/>
+	<bean class="org.dspace.orcid.webhook.OrcidWebhookServiceImpl" />
     
     <bean class="org.dspace.authenticate.OrcidAuthenticationBean" id="orcidAuthentication"/>
     
-    <bean class="org.dspace.app.orcid.client.OrcidConfiguration">
+    <bean class="org.dspace.orcid.client.OrcidConfiguration">
     	<property name="apiUrl" value="${orcid.api-url}" />
     	<property name="publicUrl" value="${orcid.public-url}" />
     	<property name="domainUrl" value="${orcid.domain-url}" />
@@ -33,26 +34,26 @@
     	<property name="scopes" value="${orcid.scope}" />
     </bean>
     
-    <bean class="org.dspace.app.orcid.client.OrcidClientImpl" />
-    <bean id="metadataSignatureGenerator" class="org.dspace.app.orcid.service.impl.PlainMetadataSignatureGeneratorImpl" />
+    <bean class="org.dspace.orcid.client.OrcidClientImpl" />
+    <bean id="metadataSignatureGenerator" class="org.dspace.orcid.service.impl.PlainMetadataSignatureGeneratorImpl" />
     
-    <bean class="org.dspace.app.orcid.model.validator.impl.OrcidValidatorImpl" />
+    <bean class="org.dspace.orcid.model.validator.impl.OrcidValidatorImpl" />
     
-    <bean class="org.dspace.app.orcid.service.impl.OrcidEntityFactoryServiceImpl">
+    <bean class="org.dspace.orcid.service.impl.OrcidEntityFactoryServiceImpl">
     	<constructor-arg name="itemService" ref="org.dspace.content.ItemServiceImpl" />
     	<constructor-arg name="entityFactories">
     		<list>
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidWorkFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidWorkFactory">
     				<property name="fieldMapping" ref="orcidWorkFactoryFieldMapping" />
     			</bean>
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidFundingFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidFundingFactory">
     				<property name="fieldMapping" ref="orcidFundingFactoryFieldMapping" />
     			</bean>
     		</list>
    		</constructor-arg>
 	</bean>
 	
-	<bean id="orcidWorkFactoryFieldMapping" class="org.dspace.app.orcid.model.OrcidWorkFieldMapping" >
+	<bean id="orcidWorkFactoryFieldMapping" class="org.dspace.orcid.model.OrcidWorkFieldMapping" >
 		<property name="contributorFields" value="${orcid.mapping.work.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.mapping.work.external-ids}" />
 		<property name="publicationDateField" value="${orcid.mapping.work.publication-date}" />
@@ -77,7 +78,7 @@
 		</property>
 	</bean>
 	
-	<bean id="orcidFundingFactoryFieldMapping" class="org.dspace.app.orcid.model.OrcidFundingFieldMapping" >
+	<bean id="orcidFundingFactoryFieldMapping" class="org.dspace.orcid.model.OrcidFundingFieldMapping" >
 		<property name="contributorFields" value="${orcid.mapping.funding.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.mapping.funding.external-ids}" />
 		<property name="titleField" value="${orcid.mapping.funding.title}" />
@@ -92,7 +93,7 @@
 		<property name="organizationField" value="${orcid.mapping.funding.organization}" />
 	</bean>
     
-    <bean class="org.dspace.app.orcid.model.factory.impl.OrcidCommonObjectFactoryImpl">
+    <bean class="org.dspace.orcid.model.factory.impl.OrcidCommonObjectFactoryImpl">
     	<property name="contributorEmailField" value="${orcid.mapping.contributor.email}" />
     	<property name="contributorOrcidField" value="${orcid.mapping.contributor.orcid}" />
     	<property name="organizationCityField" value="${orcid.mapping.organization.city}" />
@@ -100,11 +101,11 @@
     	<property name="disambiguatedOrganizationIdentifierFields" value="${orcid.mapping.organization.identifiers}" />
     </bean>
     
-    <bean class="org.dspace.app.orcid.service.impl.OrcidProfileSectionFactoryServiceImpl">
+    <bean class="org.dspace.orcid.service.impl.OrcidProfileSectionFactoryServiceImpl">
     	<constructor-arg name="sectionFactories">
     		<list>
     		
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidAffiliationFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidAffiliationFactory">
 					<constructor-arg name="sectionType" value="AFFILIATION" />
 					<constructor-arg name="preference" value="AFFILIATION" />
 					<property name="organizationField" value="${orcid.mapping.affiliation.name}" />
@@ -113,7 +114,7 @@
 					<property name="endDateField" value="${orcid.mapping.affiliation.end-date}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidAffiliationFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidAffiliationFactory">
 					<constructor-arg name="sectionType" value="QUALIFICATION" />
 					<constructor-arg name="preference" value="EDUCATION" />
 					<property name="organizationField" value="${orcid.mapping.qualification.name}" />
@@ -122,7 +123,7 @@
 					<property name="endDateField" value="${orcid.mapping.qualification.end-date}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidAffiliationFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidAffiliationFactory">
 					<constructor-arg name="sectionType" value="EDUCATION" />
 					<constructor-arg name="preference" value="EDUCATION" />
 					<property name="organizationField" value="${orcid.mapping.education.name}" />
@@ -131,31 +132,31 @@
 					<property name="endDateField" value="${orcid.mapping.education.end-date}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
 					<constructor-arg name="sectionType" value="OTHER_NAMES" />
 					<constructor-arg name="preference" value="BIOGRAPHICAL" />
 					<property name="metadataFields" value="${orcid.mapping.other-names}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
 					<constructor-arg name="sectionType" value="KEYWORDS" />
 					<constructor-arg name="preference" value="BIOGRAPHICAL" />
 					<property name="metadataFields" value="${orcid.mapping.keywords}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
 					<constructor-arg name="sectionType" value="COUNTRY" />
 					<constructor-arg name="preference" value="BIOGRAPHICAL" />
 					<property name="metadataFields" value="${orcid.mapping.country}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidPersonExternalIdentifierFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidPersonExternalIdentifierFactory">
 					<constructor-arg name="sectionType" value="EXTERNAL_IDS" />
 					<constructor-arg name="preference" value="IDENTIFIERS" />
 					<property name="externalIds" value="${orcid.mapping.person-external-ids}" />
 				</bean>
 				
-    			<bean class="org.dspace.app.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
 					<constructor-arg name="sectionType" value="RESEARCHER_URLS" />
 					<constructor-arg name="preference" value="IDENTIFIERS" />
 					<property name="metadataFields" value="${orcid.mapping.researcher-urls}" />
@@ -189,10 +190,10 @@
 		<property name="defaultValue" value=""/>
 	</bean>
 	
-	<bean class="org.dspace.app.orcid.webhook.RetrieveOrcidPublicationAction" />
-	<bean class="org.dspace.app.orcid.webhook.CheckOrcidAuthorization" />
+	<bean class="org.dspace.orcid.webhook.RetrieveOrcidPublicationAction" />
+	<bean class="org.dspace.orcid.webhook.CheckOrcidAuthorization" />
 	
-	<bean id="orcidPublicationDataProviderFieldMapping" class="org.dspace.app.orcid.model.OrcidWorkFieldMapping" >
+	<bean id="orcidPublicationDataProviderFieldMapping" class="org.dspace.orcid.model.OrcidWorkFieldMapping" >
 		<property name="contributorFields" value="${orcid.external-data.mapping.publication.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.external-data.mapping.publication.external-ids}" />
 		<property name="publicationDateField" value="${orcid.external-data.mapping.publication.issued-date}" />

@@ -20,6 +20,8 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.xmlworkflow.service.WorkflowRequirementsService;
 import org.dspace.xmlworkflow.storedcomponents.dao.XmlWorkflowItemDAO;
 import org.dspace.xmlworkflow.storedcomponents.service.ClaimedTaskService;
@@ -51,6 +53,8 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     protected WorkflowRequirementsService workflowRequirementsService;
     @Autowired(required = true)
     protected WorkflowItemRoleService workflowItemRoleService;
+    @Autowired(required = true)
+    protected GroupService groupService;
 
     /*
      * The current step in the workflow system in which this workflow item is present
@@ -208,5 +212,22 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     public void move(Context context, XmlWorkflowItem inProgressSubmission, Collection fromCollection,
                      Collection toCollection) {
         // TODO not implemented yet
+    }
+
+    /**
+     * Check if a WORKFLOW_ROLE group related to the given collection exists.
+     */
+    @Override
+    public boolean isWorkflowConfigured(Context context, Collection collection) throws SQLException {
+
+        if (collection == null) {
+            return false;
+
+        }
+
+        String groupName = "COLLECTION_" + collection.getID() + "_WORKFLOW_ROLE";
+        Group workflowRoleGroup = groupService.findByNamePrefix(context, groupName);
+
+        return workflowRoleGroup != null && !groupService.isEmpty(workflowRoleGroup);
     }
 }

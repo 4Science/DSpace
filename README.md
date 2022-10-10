@@ -30,6 +30,15 @@ https://wiki.lyrasis.org/display/DSDOC7x/Installing+DSpace
 
 some extra step to initialize te DSpace-CRIS with proper default can be found in our documentation (see above)
 
+Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL)
+and a servlet container (usually Tomcat) in order to function.
+More information about these and all other prerequisites can be found in the Installation instructions above.
+
+## Running DSpace-CRIS 7 in Docker
+
+NOTE: At this time, we do not have production-ready Docker images for DSpace-CRIS.
+That said, we do have quick-start Docker Compose scripts for development or testing purposes.
+
 Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL or Oracle), a servlet container (usually Tomcat) and a SOLR instance in order to function.
 
 More information about these and all other prerequisites can be found in the Installation instructions above.

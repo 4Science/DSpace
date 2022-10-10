@@ -10,7 +10,9 @@ package org.dspace.discovery;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.core.Context;
@@ -32,6 +34,17 @@ public interface IndexingService {
 
     void indexContent(Context context, IndexableObject dso,
                       boolean force, boolean commit) throws SQLException, SearchServiceException;
+
+    /**
+     * Index a given DSO
+     * @param context   The DSpace Context
+     * @param dso       The DSpace Object to index
+     * @param force     Force update even if not stale
+     * @param commit    Commit the changes
+     * @param preDb     Add a "preDB" status to the index (only applicable to Items)
+     */
+    void indexContent(Context context, IndexableObject dso,
+                      boolean force, boolean commit, boolean preDb) throws SQLException, SearchServiceException;
 
     void unIndexContent(Context context, IndexableObject dso)
         throws SQLException, IOException;
@@ -71,4 +84,15 @@ public interface IndexingService {
     public QueryResponse retriveSolrDocByUniqueID(String uniqueID);
 
     void updateRelationForItem(String itemId, String relationLabel, List<String> relatedItems);
+
+    /**
+     * Atomically update the index of a single field for an object
+     * @param context       The DSpace context
+     * @param uniqueIndexId The unqiue index ID of the object to update the index for
+     * @param field         The field to update
+     * @param fieldModifier The modifiers for the field to update. More information on how to atomically update a solr
+     *                      field using a field modifier can be found here: https://yonik.com/solr/atomic-updates/
+     */
+    void atomicUpdate(Context context, String uniqueIndexId, String field, Map<String,Object> fieldModifier)
+            throws SolrServerException, IOException;
 }

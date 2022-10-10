@@ -143,4 +143,17 @@ public interface IdentifierService {
     void delete(Context context, DSpaceObject dso, String identifier)
         throws AuthorizeException, SQLException, IdentifierException;
 
+    /**
+     * Checks whether the given identifier matches the one of an once-existing object or it's a non-existent one
+     * 
+     * @param context    The relevant DSpace Context.
+     * @param identifier instance of an Identifier of the required type.
+     * @return
+     * @throws SQLException                     if database error
+     * @throws IdentifierNotFoundException      if identifier not found
+     * @throws IdentifierNotResolvableException if identifier not resolvable
+     */
+    boolean isGone(Context context, String identifier)
+            throws SQLException, IdentifierNotFoundException, IdentifierNotResolvableException;
+
 }

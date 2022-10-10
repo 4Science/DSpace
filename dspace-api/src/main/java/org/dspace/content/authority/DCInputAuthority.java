@@ -201,18 +201,21 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
             locale = I18nUtil.getDefaultLocale().getLanguage();
         }
 
+        String[] valuesLocale = values.get(locale);
         String[] labelsLocale = labels.get(locale);
         int pos = -1;
-        for (int i = 0; i < labelsLocale.length; i++) {
-            if (labelsLocale[i].equals(key)) {
+        // search in the values to return the label
+        for (int i = 0; i < valuesLocale.length; i++) {
+            if (valuesLocale[i].equals(key)) {
                 pos = i;
                 break;
             }
         }
         if (pos != -1) {
+            // return the label in the same position where we found the value
             return labelsLocale[pos];
         } else {
-            return key;
+            return "UNKNOWN KEY " + key;
         }
     }
 

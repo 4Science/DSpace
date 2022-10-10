@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.converter;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.eperson.EPerson;
@@ -30,7 +32,7 @@ public class EPersonConverter extends DSpaceObjectConverter<EPerson, org.dspace.
         eperson.setRequireCertificate(obj.getRequireCertificate());
         eperson.setSelfRegistered(obj.getSelfRegistered());
         eperson.setEmail(obj.getEmail());
-
+        eperson.setMachineTokenGenerated(isNotBlank(obj.getMachineSessionSalt()));
         return eperson;
     }
 

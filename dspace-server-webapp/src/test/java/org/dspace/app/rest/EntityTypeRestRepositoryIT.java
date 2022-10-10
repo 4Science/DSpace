@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.dspace.app.rest.matcher.EntityTypeMatcher;
 import org.dspace.app.rest.matcher.RelationshipTypeMatcher;
@@ -510,6 +511,12 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
                                         EntityTypeMatcher.matchEntityTypeEntry(publication))))
                              .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
 
+        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("mock")).getSupportedEntityTypes();
+
+        List<String> pubmedSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("pubmed")).getSupportedEntityTypes();
+
         try {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
                     .setSupportedEntityTypes(Arrays.asList("Publication"));
@@ -537,9 +544,9 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
 
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                    .setSupportedEntityTypes(null);
+                    .setSupportedEntityTypes(mockSupportedEntityTypes);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("pubmed"))
-                    .setSupportedEntityTypes(null);
+                    .setSupportedEntityTypes(pubmedSupportedEntityTypes);
         }
 
     }

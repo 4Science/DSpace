@@ -325,7 +325,9 @@ public class SubmissionService {
         result.setRights(creativeCommonsService.getLicenseName(item));
 
         Bitstream licenseRdfBitstream = creativeCommonsService.getLicenseRdfBitstream(item);
-        result.setFile(converter.toRest(licenseRdfBitstream, Projection.DEFAULT));
+        if (licenseRdfBitstream != null) {
+            result.setFile(converter.toRest(licenseRdfBitstream, Projection.DEFAULT));
+        }
 
         return result;
     }

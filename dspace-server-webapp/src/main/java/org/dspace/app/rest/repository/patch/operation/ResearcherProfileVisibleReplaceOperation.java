@@ -9,13 +9,13 @@ package org.dspace.app.rest.repository.patch.operation;
 
 import java.sql.SQLException;
 
-import org.dspace.app.profile.ResearcherProfile;
-import org.dspace.app.profile.service.ResearcherProfileService;
 import org.dspace.app.rest.exception.RESTAuthorizationException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
+import org.dspace.profile.ResearcherProfile;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * Implementation for ResearcherProfile visibility patches.
  *
  * Example:
- * <code> curl -X PATCH http://${dspace.server.url}/api/cris/profiles/<:id-eperson> -H "
+ * <code> curl -X PATCH http://${dspace.server.url}/api/eperson/profiles/<:id-eperson> -H "
  * Content-Type: application/json" -d '[{ "op": "replace", "path": "
  * /visible", "value": true]'
  * </code>

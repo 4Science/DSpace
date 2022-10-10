@@ -7,12 +7,18 @@
  */
 package org.dspace.metrics.scopus;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  */
-public class UpdateScopusMetrics implements MetricsExternalServices {
+public class UpdateScopusMetrics extends MetricsExternalServices {
 
     private static Logger log = LogManager.getLogger(UpdateScopusMetrics.class);
 
@@ -59,35 +66,128 @@ public class UpdateScopusMetrics implements MetricsExternalServices {
         return updateScopusMetrics(context, item, scopusMetric);
     }
 
+    @Override
+    public long updateMetric(Context context, Iterator<Item> itemIterator, String param) {
+        long updatedItems = 0;
+        long foundItems = 0;
+        long apiCalls = 0;
+        try {
+            while (itemIterator.hasNext()) {
+                Map<String, Item> queryMap = new HashMap<>();
+                List<Item> itemList = new ArrayList<>();
+                for (int i = 0; i < fetchSize && itemIterator.hasNext(); i++) {
+                    itemList.add(itemIterator.next());
+                }
+                foundItems += itemList.size();
+                updatedItems +=
+                        scopusProvider.getScopusList(this.generateQuery(queryMap, itemList))
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .map(scopusMetric -> this.updateScopusMetrics(
+                                    context,
+                                    this.findItem(queryMap, scopusMetric),
+                                    scopusMetric
+                                )
+                            )
+                            .filter(BooleanUtils::isTrue)
+                            .count();
+                apiCalls++;
+                context.commit();
+            }
+        } catch (SQLException e) {
+            log.error("Error while updating scopus' metrics", e);
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            log.info("Found and fetched {} with {} api calls!", foundItems, apiCalls);
+        }
+        return updatedItems;
+    }
+
+    private Item findItem(Map<String, Item> queryMap, CrisMetricDTO scopusMetric) {
+        if (queryMap == null || scopusMetric == null) {
+            return null;
+        }
+        return List.of(
+                mapClause(scopusMetric.getTmpRemark().get("doi"), "DOI"),
+                mapClause(scopusMetric.getTmpRemark().get("pmid"), "PMID"),
+                mapClause(scopusMetric.getIdentifier(), "EID")
+            )
+            .stream()
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(identifierClause -> queryMap.get(identifierClause.toString()))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    private String generateQuery(Map<String, Item> queryMap, List<Item> itemList) {
+        return itemList
+                .stream()
+                .map(item -> new StringBuilder(this.buildQuery(queryMap, item)))
+                .filter(StringUtils::isNotEmpty)
+                .reduce(joiningOr())
+                .map(StringBuilder::toString)
+                .orElse(null);
+    }
+
+    private String buildQuery(Map<String, Item> queryMap, Item item) {
+        String doi = itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
+        String pmid = itemService.getMetadataFirstValue(item, "dc", "identifier", "pmid", Item.ANY);
+        String scopus = itemService.getMetadataFirstValue(item, "dc", "identifier", "scopus", Item.ANY);
+        return List.of(
+                    mapClause(doi, "DOI", queryMap, item),
+                    mapClause(pmid, "PMID", queryMap, item),
+                    mapClause(scopus, "EID", queryMap, item)
+                )
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(joiningOr())
+                .map(StringBuilder::toString)
+                .orElse(null);
+    }
+
     private String buildQuery(Item item) {
         String doi = itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
         String pmid = itemService.getMetadataFirstValue(item, "dc", "identifier", "pmid", Item.ANY);
         String scopus = itemService.getMetadataFirstValue(item, "dc", "identifier", "scopus", Item.ANY);
-        StringBuilder query = new StringBuilder();
-        if (StringUtils.isNotBlank(pmid)) {
-            if (query.length() > 0) {
-                query.append(" OR ");
-            }
-            query.append("PMID(").append(pmid).append(")");
+        return List.of(
+            mapClause(doi, "DOI"),
+            mapClause(pmid, "PMID"),
+            mapClause(scopus, "EID")
+        )
+            .stream()
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .reduce(joiningOr())
+            .map(StringBuilder::toString)
+            .orElse(null);
+    }
+
+    private BinaryOperator<StringBuilder> joiningOr() {
+        return (query, clause) -> query.append(" OR ").append(clause);
+    }
+
+    private Optional<StringBuilder> mapClause(String field, String function) {
+        StringBuilder clause = null;
+        if (StringUtils.isNotEmpty(field)) {
+            clause = new StringBuilder(function).append("(").append(field).append(")");
         }
-        if (StringUtils.isNotBlank(doi)) {
-            if (query.length() > 0) {
-                query.append(" OR ");
-            }
-            query.append("DOI(").append(doi).append(")");
+        return Optional.ofNullable(clause);
+    }
+
+    private Optional<StringBuilder> mapClause(String field, String function, Map<String, Item> queryMap, Item item) {
+        Optional<StringBuilder> generatedClause = this.mapClause(field, function);
+        if (queryMap != null && generatedClause.isPresent()) {
+            queryMap.putIfAbsent(generatedClause.get().toString(), item);
         }
-        if (StringUtils.isNotBlank(scopus)) {
-            if (query.length() > 0) {
-                query.append(" OR ");
-            }
-            query.append("EID(").append(scopus).append(")");
-        }
-        return query.toString();
+        return generatedClause;
     }
 
     private boolean updateScopusMetrics(Context context, Item currentItem, CrisMetricDTO scopusMetric) {
         try {
-            if (scopusMetric == null) {
+            if (scopusMetric == null || currentItem == null) {
                 return false;
             }
             CrisMetrics scopusMetrics = crisMetricsService.findLastMetricByResourceIdAndMetricsTypes(context,
@@ -125,7 +225,7 @@ public class UpdateScopusMetrics implements MetricsExternalServices {
 
     private Double getDeltaPeriod(CrisMetricDTO currentMetric, Optional<CrisMetrics> metric) {
         if (!metric.isEmpty()) {
-            return currentMetric.getMetricCount() - metric.get().getMetricCount();
+            return currentMetric.getMetricCount() - metric.map(CrisMetrics::getMetricCount).orElse(Double.valueOf(0));
         }
         return null;
     }

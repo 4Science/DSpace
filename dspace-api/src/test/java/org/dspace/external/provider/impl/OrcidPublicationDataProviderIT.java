@@ -10,8 +10,10 @@ package org.dspace.external.provider.impl;
 import static java.util.Optional.of;
 import static org.dspace.app.matcher.LambdaMatcher.has;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -21,6 +23,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -29,16 +32,18 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
-import org.dspace.app.orcid.client.OrcidClient;
-import org.dspace.app.orcid.client.OrcidConfiguration;
-import org.dspace.app.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.OrcidTokenBuilder;
 import org.dspace.content.Collection;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.external.model.ExternalDataObject;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.client.OrcidConfiguration;
+import org.dspace.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.utils.DSpace;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +60,7 @@ import org.orcid.jaxb.model.v3.release.record.summary.Works;
  */
 public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithDatabase {
 
-    private static final String BASE_XML_DIR_PATH = "./target/testing/dspace/assetstore/orcid-works/";
+    private static final String BASE_XML_DIR_PATH = "org/dspace/app/orcid-works/";
 
     private static final String ACCESS_TOKEN = "32c83ccb-c6d5-4981-b6ea-6a34a36de8ab";
 
@@ -92,7 +97,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
             .getServiceByName("orcidPublicationDataProvider", OrcidPublicationDataProvider.class);
 
         orcidConfiguration = new DSpace().getServiceManager()
-            .getServiceByName("org.dspace.app.orcid.client.OrcidConfiguration", OrcidConfiguration.class);
+            .getServiceByName("org.dspace.orcid.client.OrcidConfiguration", OrcidConfiguration.class);
 
         orcidClientMock = mock(OrcidClient.class);
         orcidClient = dataProvider.getOrcidClient();
@@ -101,8 +106,8 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         dataProvider.setOrcidClient(orcidClientMock);
 
         originalClientId = orcidConfiguration.getClientId();
-        orcidConfiguration.setClientId("DSPACE-CRIS-CLIENT-ID");
-        orcidConfiguration.setClientSecret("DSPACE-CRIS-CLIENT-SECRET");
+        orcidConfiguration.setClientId("DSPACE-CLIENT-ID");
+        orcidConfiguration.setClientSecret("DSPACE-CLIENT-SECRET");
 
         when(orcidClientMock.getReadPublicAccessToken()).thenReturn(buildTokenResponse(ACCESS_TOKEN));
 
@@ -188,16 +193,30 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
     }
 
     @Test
+    public void testSearchWithInvalidOrcidId() {
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> dataProvider.searchExternalDataObjects("0000-1111-2222", 0, -1));
+
+        assertThat(exception.getMessage(), is("The given ORCID ID is not valid: 0000-1111-2222"));
+
+    }
+
+    @Test
     public void testSearchWithStoredAccessToken() throws Exception {
 
         context.turnOffAuthorisationSystem();
 
         String accessToken = "95cb5ed9-c208-4bbc-bc99-aa0bd76e4452";
 
-        ItemBuilder.createItem(context, persons)
+        Item profile = ItemBuilder.createItem(context, persons)
             .withTitle("Profile")
             .withOrcidIdentifier(ORCID)
-            .withOrcidAccessToken("95cb5ed9-c208-4bbc-bc99-aa0bd76e4452")
+            .withDspaceObjectOwner(eperson.getEmail(), eperson.getID().toString())
+            .build();
+
+        OrcidTokenBuilder.create(context, eperson, accessToken)
+            .withProfileItem(profile)
             .build();
 
         context.restoreAuthSystemState();
@@ -227,6 +246,20 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         verify(orcidClientMock).getReadPublicAccessToken();
         verify(orcidClientMock).getWorks(ACCESS_TOKEN, ORCID);
         verify(orcidClientMock).getWorkBulk(ACCESS_TOKEN, ORCID, List.of("277904", "277902", "277871"));
+        verifyNoMoreInteractions(orcidClientMock);
+    }
+
+    @Test
+    public void testSearchWithoutResults() throws Exception {
+
+        String unknownOrcid = "1111-2222-3333-4444";
+        when(orcidClientMock.getWorks(ACCESS_TOKEN, unknownOrcid)).thenReturn(new Works());
+
+        List<ExternalDataObject> externalObjects = dataProvider.searchExternalDataObjects(unknownOrcid, 0, -1);
+        assertThat(externalObjects, empty());
+
+        verify(orcidClientMock).getReadPublicAccessToken();
+        verify(orcidClientMock).getWorks(ACCESS_TOKEN, unknownOrcid);
         verifyNoMoreInteractions(orcidClientMock);
     }
 
@@ -328,9 +361,22 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         verifyNoMoreInteractions(orcidClientMock);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
+    public void testGetExternalDataObjectWithInvalidOrcidId() {
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> dataProvider.getExternalDataObject("invalid::277902"));
+
+        assertThat(exception.getMessage(), is("The given ORCID ID is not valid: invalid" ));
+    }
+
+    @Test
     public void testGetExternalDataObjectWithInvalidId() {
-        dataProvider.getExternalDataObject("id");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> dataProvider.getExternalDataObject("id"));
+
+        assertThat(exception.getMessage(), is("Invalid identifier 'id', expected <orcid-id>::<put-code>"));
     }
 
     @Test
@@ -381,7 +427,11 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
     private <T> T unmarshall(String fileName, Class<T> clazz) throws Exception {
         JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        return (T) unmarshaller.unmarshal(new File(BASE_XML_DIR_PATH, fileName));
+        URL resource = getClass().getClassLoader().getResource(BASE_XML_DIR_PATH + fileName);
+        if (resource == null) {
+            throw new IllegalStateException("No resource found named " + BASE_XML_DIR_PATH + fileName);
+        }
+        return (T) unmarshaller.unmarshal(new File(resource.getFile()));
     }
 
 }

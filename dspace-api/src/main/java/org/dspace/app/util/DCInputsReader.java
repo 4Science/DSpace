@@ -582,7 +582,9 @@ public class DCInputsReader {
     private void handleInputTypeTagName(String formName, Map<String, String> field, Node nd, String value)
         throws SAXException {
         if (value.equals("dropdown")
+            || value.equals("opendropdown")
             || value.equals("qualdrop_value")
+            || value.equals("openlist")
             || value.equals("list")) {
             String pairTypeName = getAttribute(nd, PAIR_TYPE_NAME);
             if (pairTypeName == null) {
@@ -728,7 +730,9 @@ public class DCInputsReader {
                     // verify reference in certain input types
                     String type = fld.get("input-type");
                     if (StringUtils.isNotBlank(type) && (type.equals("dropdown")
+                        || type.equals("opendropdown")
                         || type.equals("qualdrop_value")
+                        || type.equals("openlist")
                         || type.equals("list"))) {
                         String pairsName = fld.get(PAIR_TYPE_NAME);
                         List<String> v = valuePairs.get(pairsName);

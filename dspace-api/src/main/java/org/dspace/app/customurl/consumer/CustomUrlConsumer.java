@@ -80,7 +80,7 @@ public class CustomUrlConsumer implements Consumer {
     }
 
     private boolean isEntityTypeNotSupported(Item item) {
-        String entityType = itemService.getEntityType(item);
+        String entityType = itemService.getEntityTypeLabel(item);
         return entityType == null || !contains(getSupportedEntities(), entityType);
     }
 

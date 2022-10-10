@@ -680,8 +680,8 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         //by default has no authority
 
         String schema = "dc";
-        String element = "date";
-        String qualifier = "issued";
+        String element = "contributor";
+        String qualifier = "editor";
         String lang = Item.ANY;
         String values = "value0";
         int confidences = 0;
@@ -697,7 +697,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         assertThat("testAddMetadata_7args_2 5", dc.get(0).getLanguage(), equalTo(lang));
         assertThat("testAddMetadata_7args_2 6", dc.get(0).getValue(), equalTo(values));
         assertThat("testAddMetadata_7args_2 7", dc.get(0).getAuthority(), nullValue());
-        assertThat("testAddMetadata_7args_2 8", dc.get(0).getConfidence(), equalTo(-1));
+        assertThat("testAddMetadata_7args_2 8", dc.get(0).getConfidence(), equalTo(0));
     }
 
     /**

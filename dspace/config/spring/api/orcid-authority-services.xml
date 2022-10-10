@@ -20,7 +20,7 @@
     <bean name="OrcidSource" class="org.dspace.authority.orcid.Orcidv3SolrAuthorityImpl">
         <property name="clientId" value="${orcid.application-client-id}" />
         <property name="clientSecret" value="${orcid.application-client-secret}" />
-        <property name="OAUTHUrl" value="${orcid.authorize-url}" />
+        <property name="OAUTHUrl" value="${orcid.token-url}" />
         <property name="orcidRestConnector" ref="orcidRestConnector"/>
     </bean>
  -->

@@ -23,10 +23,10 @@ public class OrcidHistoryRest extends BaseObjectRest<Integer> {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String CATEGORY = RestModel.CRIS;
+    public static final String CATEGORY = RestModel.EPERSON;
     public static final String NAME = "orcidhistory";
 
-    private UUID ownerId;
+    private UUID profileItemId;
 
     private UUID entityId;
 
@@ -56,12 +56,12 @@ public class OrcidHistoryRest extends BaseObjectRest<Integer> {
         return RestResourceController.class;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    public UUID getProfileItemId() {
+        return profileItemId;
     }
 
-    public void setOwnerId(UUID ownerId) {
-        this.ownerId = ownerId;
+    public void setProfileItemId(UUID profileItemId) {
+        this.profileItemId = profileItemId;
     }
 
     public UUID getEntityId() {

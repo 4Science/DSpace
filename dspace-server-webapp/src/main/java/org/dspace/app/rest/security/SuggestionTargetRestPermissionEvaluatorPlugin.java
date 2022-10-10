@@ -82,7 +82,7 @@ public class SuggestionTargetRestPermissionEvaluatorPlugin extends RestObjectPer
             }
             Item item = itemService.find(context, uuid);
             if (item != null) {
-                List<MetadataValue> mvalues = itemService.getMetadataByMetadataString(item, "cris.owner");
+                List<MetadataValue> mvalues = itemService.getMetadataByMetadataString(item, "dspace.object.owner");
                 if (mvalues != null) {
                     for (MetadataValue mv : mvalues) {
                         if (StringUtils.equals(mv.getAuthority(), currentUser.getID().toString())) {

@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,6 +29,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataValueService;
@@ -249,11 +250,9 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             List<String> values, List<String> authorities, List<Integer> confidences, Supplier<Integer> placeSupplier)
                     throws SQLException {
 
-        boolean storeAuthoritySetForMetadata = Optional.ofNullable(requestService.getCurrentRequest())
-            .map(r -> (Boolean) r.getAttribute("store_authority_" + metadataField.toString('.')))
-            .orElse(false);
-        boolean authorityControlled = storeAuthoritySetForMetadata
-            || metadataAuthorityService.isAuthorityControlled(metadataField);
+        Collection collection = getCollection(context, dso);
+        boolean authorityControlled = metadataAuthorityService.isAuthorityAllowed(metadataField,
+                dso.getType(), collection);
 
         boolean nonValidAuthority = isNonValidAuthority(authorityControlled, authorities);
         if (nonValidAuthority) {
@@ -263,7 +262,8 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     + authorities + "\"");
         }
 
-        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
+        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
+                collection);
         List<MetadataValue> newMetadata = new ArrayList<>();
         // We will not verify that they are valid entries in the registry
         // until update() is called.
@@ -327,15 +327,36 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
         return newMetadata;
     }
 
+    private Collection getCollection(Context context, T dso) throws SQLException {
+        Collection col = null;
+        switch (dso.getType()) {
+            case Constants.ITEM:
+                Item item = (Item) dso;
+                col = (Collection) item.getItemService().getParentObject(context, item);
+                break;
+            case Constants.BITSTREAM:
+                Bitstream bit = (Bitstream) dso;
+                BitstreamService bitService = ContentServiceFactory.getInstance().getBitstreamService();
+                DSpaceObject pDSO = bitService.getParentObject(context, bit);
+                if (pDSO != null && pDSO.getType() == Constants.ITEM) {
+                    Item pItem = (Item) pDSO;
+                    col = (Collection) pItem.getItemService().getParentObject(context, pItem);
+                }
+                return null;
+            default:
+                break;
+        }
+        return col;
+    }
+
     public List<MetadataValue> addSecuredMetadataAtPlace(Context context, T dso, MetadataField metadataField,
         String lang, List<String> values, List<String> authorities, List<Integer> confidences,
         Supplier<Integer> placeSupplier, Integer securityValue) throws SQLException {
-        boolean storeAuthoritySetForMetadata = Optional.ofNullable(requestService.getCurrentRequest())
-                .map(r -> (Boolean) r.getAttribute("store_authority_" + metadataField.toString('.')))
-                .orElse(false);
-        boolean authorityControlled = storeAuthoritySetForMetadata
-                || metadataAuthorityService.isAuthorityControlled(metadataField);
-        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
+        Collection collection = getCollection(context, dso);
+        boolean authorityControlled = metadataAuthorityService.isAuthorityAllowed(metadataField.toString(),
+                dso.getType(), collection);
+        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
+                collection);
         List<MetadataValue> newMetadata = new ArrayList<>(values.size());
         // We will not verify that they are valid entries in the registry
         // until update() is called.
@@ -419,12 +440,11 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                         metadataField.getQualifier(), Item.ANY).size() - 1;
 
 
-        boolean storeAuthoritySetForMetadata = Optional.ofNullable(requestService.getCurrentRequest())
-                .map(r -> (Boolean) r.getAttribute("store_authority_" + metadataField.toString('.')))
-                .orElse(false);
-        boolean authorityControlled = storeAuthoritySetForMetadata
-                || metadataAuthorityService.isAuthorityControlled(metadataField);
-        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
+        Collection collection = getCollection(context, dso);
+        boolean authorityControlled = metadataAuthorityService.isAuthorityAllowed(metadataField.toString(),
+                dso.getType(), collection);
+        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
+                collection);
         List<String> values = Arrays.asList(value);
         List<String> authorities = Arrays.asList(authority);
         List<Integer> confidences = Arrays.asList(confidence);
@@ -550,16 +570,14 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             String fieldKey = metadataAuthorityService
                 .makeFieldKey(metadataField.getMetadataSchema().getName(), metadataField.getElement(),
                               metadataField.getQualifier());
-            if (metadataAuthorityService.isAuthorityControlled(fieldKey)) {
+            Collection collection = getCollection(context, dso);
+            if (metadataAuthorityService.isAuthorityAllowed(metadataField, dso.getType(), collection)
+                    && choiceAuthorityService.isChoicesConfigured(fieldKey, dso.getType(), collection)) {
                 List<String> authorities = new ArrayList<>();
                 List<Integer> confidences = new ArrayList<>();
                 for (int i = 0; i < values.size(); ++i) {
-                    if (dso instanceof Item) {
-                        getAuthoritiesAndConfidences(fieldKey, ((Item) dso).getOwningCollection(), values, authorities,
-                                                     confidences, i);
-                    } else {
-                        getAuthoritiesAndConfidences(fieldKey, null, values, authorities, confidences, i);
-                    }
+                    getAuthoritiesAndConfidences(fieldKey, dso.getType(), collection,
+                            values, authorities, confidences, i);
                 }
                 return addMetadata(context, dso, metadataField, language, values, authorities, confidences);
             } else {
@@ -785,11 +803,17 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
         return true;
     }
 
-    protected void getAuthoritiesAndConfidences(String fieldKey, Collection collection, List<String> values,
-                                                List<String> authorities, List<Integer> confidences, int i) {
-        Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), collection, null);
-        authorities.add(c.values.length > 0 ? c.values[0].authority : null);
-        confidences.add(c.confidence);
+    protected void getAuthoritiesAndConfidences(String fieldKey, int dsoType, Collection collection,
+            List<String> values, List<String> authorities, List<Integer> confidences, int i) {
+        String locale = I18nUtil.getDefaultLocale().getLanguage();
+        if (dsoType == Constants.ITEM) {
+            Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), dsoType, collection, locale);
+            authorities.add(c.values.length > 0 ? c.values[0].authority : null);
+            confidences.add(c.confidence);
+        } else {
+            authorities.add(null);
+            confidences.add(Choices.CF_UNSET);
+        }
     }
 
 
@@ -887,8 +911,14 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             });
             for (MetadataValue metadataValue : metadataValues) {
                 //Retrieve & store the place for each metadata value
-                if (StringUtils.startsWith(metadataValue.getAuthority(), Constants.VIRTUAL_AUTHORITY_PREFIX) &&
-                    ((RelationshipMetadataValue) metadataValue).isUseForPlace()) {
+                if (
+                    // For virtual MDVs with useForPlace=true,
+                    // update both the place of the metadatum and the place of the Relationship.
+                    // E.g. for an Author relationship,
+                    //   the place should be updated using the same principle as dc.contributor.author.
+                    StringUtils.startsWith(metadataValue.getAuthority(), Constants.VIRTUAL_AUTHORITY_PREFIX)
+                        && ((RelationshipMetadataValue) metadataValue).isUseForPlace()
+                ) {
                     int mvPlace = getMetadataValuePlace(fieldToLastPlace, metadataValue);
                     metadataValue.setPlace(mvPlace);
                     String authority = metadataValue.getAuthority();
@@ -904,8 +934,16 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                         relationshipService.update(context, relationship);
                     }
 
-                } else if (!StringUtils.startsWith(metadataValue.getAuthority(),
-                                                   Constants.VIRTUAL_AUTHORITY_PREFIX)) {
+                } else if (
+                    // Otherwise, just set the place of the metadatum
+                    // ...unless the metadatum in question is a relation.* metadatum.
+                    // This case is a leftover from when a Relationship is removed and copied to metadata.
+                    // If we let its place change the order of any remaining Relationships will be affected.
+                    // todo: this makes it so these leftover MDVs can't be reordered later on
+                    !StringUtils.equals(
+                        metadataValue.getMetadataField().getMetadataSchema().getName(), "relation"
+                    )
+                ) {
                     int mvPlace = getMetadataValuePlace(fieldToLastPlace, metadataValue);
                     metadataValue.setPlace(mvPlace);
                 }

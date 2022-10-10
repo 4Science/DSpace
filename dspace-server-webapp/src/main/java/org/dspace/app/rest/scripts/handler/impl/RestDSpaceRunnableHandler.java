@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -74,7 +75,8 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
         context.setCurrentLocale(this.locale);
         try {
             this.ePersonId = Objects.nonNull(ePerson) ? ePerson.getID() : null;
-            Process process = processService.create(context, ePerson, scriptName, parameters, specialGroups);
+            Process process = processService.create(context, ePerson, scriptName, parameters,
+                new HashSet<>(specialGroups));
             this.processId = process.getID();
             this.scriptName = process.getName();
 

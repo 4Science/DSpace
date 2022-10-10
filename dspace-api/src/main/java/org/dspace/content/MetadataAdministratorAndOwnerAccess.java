@@ -8,19 +8,19 @@
 package org.dspace.content;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataSecurityEvaluation;
 import org.dspace.core.Context;
+import org.dspace.eperson.service.EPersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * Implementation of {@link MetadataSecurityEvaluation} that check if the
+ * current user is an administrator of it is the owner of the given item.
  *
  * @author Alba Aliu
+ * @author Luca Giamminonni (luca.giamminonni at 4Science)
  */
 public class MetadataAdministratorAndOwnerAccess implements MetadataSecurityEvaluation {
 
@@ -28,28 +28,16 @@ public class MetadataAdministratorAndOwnerAccess implements MetadataSecurityEval
     private AuthorizeService authorizeService;
 
     @Autowired
-    private ItemService itemService;
+    private EPersonService ePersonService;
 
-    /**
-     *
-     * @return true/false if the user can/'t see the metadata
-     * @param context The context of the app
-     * @param item The Item for which the user wants to see the metadata
-     * @param metadataField The metadata field related with a metadata value
-     */
     @Override
     public boolean allowMetadataFieldReturn(Context context, Item item, MetadataField metadataField)
         throws SQLException {
 
-        if (Objects.nonNull(context) && Objects.nonNull(context.getCurrentUser())) {
-            if (authorizeService.isAdmin(context)) {
-                return true;
-            }
-            List<MetadataValue> owners = itemService.getMetadataByMetadataString(item, "cris.owner");
-            return owners.stream()
-                         .anyMatch(v -> StringUtils.equals(v.getAuthority(), context.getCurrentUser().id + ""));
+        if (context == null || context.getCurrentUser() == null) {
+            return false;
         }
 
-        return false;
+        return authorizeService.isAdmin(context) || ePersonService.isOwnerOfItem(context.getCurrentUser(), item);
     }
 }

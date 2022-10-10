@@ -31,6 +31,8 @@
     <bean id="solrLoggerService" class="org.dspace.statistics.SolrLoggerServiceImpl" lazy-init="true"/>
 
     <bean class="org.dspace.statistics.SolrStatisticsCore" autowire-candidate="true"/>
+    
+    <bean class="org.dspace.statistics.GeoIpService" autowire-candidate="true"/>
 
 	<!-- deduplication -->
 	<bean class="org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl" id="org.dspace.app.deduplication.service.DedupService"/>

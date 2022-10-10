@@ -237,8 +237,6 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
 
     @Test
     public void findBrowseBySubjectEntriesWithAuthority() throws Exception {
-        configurationService.setProperty("choices.plugin.dc.subject",
-                                         "SolrSubjectAuthority");
         configurationService.setProperty("authority.controlled.dc.subject",
                                          "true");
 

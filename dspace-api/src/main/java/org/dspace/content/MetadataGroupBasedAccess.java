@@ -9,9 +9,9 @@ package org.dspace.content;
 
 import java.sql.SQLException;
 
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.service.MetadataSecurityEvaluation;
 import org.dspace.core.Context;
+import org.dspace.eperson.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class MetadataGroupBasedAccess implements MetadataSecurityEvaluation {
 
     @Autowired
-    private AuthorizeService authorizeService;
+    private GroupService groupService;
 
     @Autowired
     private MetadataSecurityEvaluation level2Security;
@@ -42,12 +42,16 @@ public class MetadataGroupBasedAccess implements MetadataSecurityEvaluation {
     @Override
     public boolean allowMetadataFieldReturn(Context context, Item item, MetadataField metadataField)
         throws SQLException {
-        // if user is owner or admin, we consider it allowed
+
         if (level2Security.allowMetadataFieldReturn(context, item, metadataField)) {
             return true;
         }
-        // returns true only if the user is part of the group
-        return context != null && authorizeService.isPartOfTheGroup(context, getEgroup());
+
+        if (context == null || context.getCurrentUser() == null) {
+            return false;
+        }
+
+        return groupService.isMember(context, getEgroup());
     }
 
     public String getEgroup() {

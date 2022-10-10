@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.matcher.ProcessMatcher;
 import org.dspace.app.rest.matcher.RelationshipMatcher;
@@ -300,8 +300,7 @@ public class CsvImportIT extends AbstractEntityIntegrationTest {
 
             getClient(token)
                 .perform(multipart("/api/system/scripts/metadata-import/processes").file(bitstreamFile)
-                                                                                   .param("properties",
-                                                                                           new Gson().toJson(list)))
+                                          .param("properties", new ObjectMapper().writeValueAsString(list)))
                 .andExpect(status().isAccepted())
                 .andDo(result -> idRef
                     .set(read(result.getResponse().getContentAsString(), "$.processId")));
@@ -360,8 +359,7 @@ public class CsvImportIT extends AbstractEntityIntegrationTest {
 
             getClient(token)
                 .perform(multipart("/api/system/scripts/metadata-import/processes").file(bitstreamFile)
-                                                                                    .param("properties",
-                                                                                           new Gson().toJson(list)))
+                                             .param("properties", new ObjectMapper().writeValueAsString(list)))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$", is(
                     ProcessMatcher.matchProcess("metadata-import",

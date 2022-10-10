@@ -11,14 +11,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.dspace.app.orcid.OrcidHistory;
-import org.dspace.app.orcid.OrcidOperation;
-import org.dspace.app.orcid.service.OrcidHistoryService;
+import org.apache.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
-
+import org.dspace.orcid.OrcidHistory;
+import org.dspace.orcid.OrcidOperation;
+import org.dspace.orcid.service.OrcidHistoryService;
 /**
  * Builder to construct OrcidHistory objects
  *
@@ -26,7 +24,7 @@ import org.dspace.core.Context;
  */
 public class OrcidHistoryBuilder extends  AbstractBuilder<OrcidHistory, OrcidHistoryService> {
 
-    private static Logger log = LogManager.getLogger(OrcidHistoryBuilder.class);
+    private static final Logger log = Logger.getLogger(OrcidHistoryBuilder.class);
 
     private OrcidHistory orcidHistory;
 
@@ -44,15 +42,15 @@ public class OrcidHistoryBuilder extends  AbstractBuilder<OrcidHistory, OrcidHis
         delete(orcidHistory);
     }
 
-    public static OrcidHistoryBuilder createOrcidHistory(Context context, Item owner, Item entity) {
+    public static OrcidHistoryBuilder createOrcidHistory(Context context, Item profileItem, Item entity) {
         OrcidHistoryBuilder builder = new OrcidHistoryBuilder(context);
-        return builder.create(context, owner, entity);
+        return builder.create(context, profileItem, entity);
     }
 
-    private OrcidHistoryBuilder create(Context context, Item owner, Item entity) {
+    private OrcidHistoryBuilder create(Context context, Item profileItem, Item entity) {
         try {
             this.context = context;
-            this.orcidHistory = getService().create(context, owner, entity);
+            this.orcidHistory = getService().create(context, profileItem, entity);
         } catch (Exception e) {
             log.error("Error in OrcidHistoryBuilder.create(..), error: ", e);
         }

@@ -100,7 +100,7 @@ public class Choice {
     /**
      * Constructor for common need of Hierarchical authorities that want to
      * explicitely set the selectable flag
-     * 
+     *
      * @param authorityName the authority name that can be used to fully-qualify the authority
      * @param authority     the authority key
      * @param value         the text value to store in the metadata

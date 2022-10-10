@@ -174,25 +174,22 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
         }
         List<DSpaceObject> dSpaceObjects = utils.constructDSpaceObjectList(context, stringList);
         if (dSpaceObjects.size() == 1 && dSpaceObjects.get(0).getType() == Constants.ITEM) {
-
             Item replacementItemInRelationship = (Item) dSpaceObjects.get(0);
-            Item leftItem;
-            Item rightItem;
+            Item newLeftItem;
+            Item newRightItem;
+
             if (itemToReplaceIsRight) {
-                leftItem = relationship.getLeftItem();
-                rightItem = replacementItemInRelationship;
+                newLeftItem = null;
+                newRightItem = replacementItemInRelationship;
             } else {
-                leftItem = replacementItemInRelationship;
-                rightItem = relationship.getRightItem();
+                newLeftItem = replacementItemInRelationship;
+                newRightItem = null;
             }
 
-            if (isAllowedToModifyRelationship(context, relationship, leftItem, rightItem)) {
-                relationship.setLeftItem(leftItem);
-                relationship.setRightItem(rightItem);
+            if (isAllowedToModifyRelationship(context, relationship, newLeftItem, newRightItem)) {
                 context.turnOffAuthorisationSystem();
                 try {
-                    relationshipService.updatePlaceInRelationship(context, relationship);
-                    relationshipService.update(context, relationship);
+                    relationshipService.move(context, relationship, newLeftItem, newRightItem);
                     context.commit();
                     context.reloadEntity(relationship);
                 } catch (AuthorizeException e) {
@@ -251,27 +248,24 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
         relationship.setLeftwardValue(relationshipRest.getLeftwardValue());
         relationship.setRightwardValue(relationshipRest.getRightwardValue());
 
-        if (jsonNode.hasNonNull("rightPlace")) {
-            relationship.setRightPlace(relationshipRest.getRightPlace());
-        }
-
-        if (jsonNode.hasNonNull("leftPlace")) {
-            relationship.setLeftPlace(relationshipRest.getLeftPlace());
-        }
-
         if (!authorizeService.canHandleRelationship(context, relationship)) {
             throw new AccessDeniedException("You do not have write rights on this relationship's metadata");
         }
 
         context.turnOffAuthorisationSystem();
         try {
-            // places are updated only if relationship sorting has to be kept. This happens in case
-            // relationshipType is set to handle single-side places (only leftPlace or rightPlace
-            // value should be considered
-            if (updateRelationshipPlaces(relationship.getRelationshipType())) {
-                relationshipService.updatePlaceInRelationship(context, relationship);
+
+            Integer newRightPlace = null;
+            Integer newLeftPlace = null;
+            if (jsonNode.hasNonNull("rightPlace")) {
+                newRightPlace = relationshipRest.getRightPlace();
             }
-            relationshipService.update(context, relationship);
+
+            if (jsonNode.hasNonNull("leftPlace")) {
+                newLeftPlace = relationshipRest.getLeftPlace();
+            }
+
+            relationshipService.move(context, relationship, newLeftPlace, newRightPlace);
             context.commit();
             context.reloadEntity(relationship);
         } catch (AuthorizeException e) {
@@ -299,6 +293,8 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
         RelationshipType relationshipType = relationship.getRelationshipType();
         Item oldLeftItem = relationship.getLeftItem();
         Item oldRightItem = relationship.getRightItem();
+        newLeftItem = newLeftItem != null ? newLeftItem : oldLeftItem;
+        newRightItem = newRightItem != null ? newRightItem : oldRightItem;
 
         return authorizeService.canHandleRelationship(context, relationshipType, newLeftItem, newRightItem) &&
             authorizeService.canHandleRelationship(context, relationshipType, oldLeftItem, oldRightItem);
@@ -443,9 +439,6 @@ public class RelationshipRestRepository extends DSpaceRestRepository<Relationshi
         return converter.toRestPage(relationships, pageable, total, utils.obtainProjection());
     }
 
-    private boolean updateRelationshipPlaces(final RelationshipType relationshipType) {
-        return relationshipService.placesOnly(relationshipType, true)
-            || relationshipService.placesOnly(relationshipType, false);
-    }
+
 
 }

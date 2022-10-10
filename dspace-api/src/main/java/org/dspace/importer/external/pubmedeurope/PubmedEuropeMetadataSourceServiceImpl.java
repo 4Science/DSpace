@@ -12,34 +12,26 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.el.MethodNotFoundException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.components.QuerySource;
-import org.dspace.services.ConfigurationService;
 import org.jaxen.JaxenException;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -49,54 +41,111 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
+/**
+ * Implements a data source for querying PubMed Europe
+ * 
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+ */
+public class PubmedEuropeMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
+        implements QuerySource {
 
-public class PubmedEuropeMetadataSourceServiceImpl
-    extends AbstractImportMetadataSourceService<Element> implements QuerySource {
+    private final static Logger log = LogManager.getLogger();
 
-    private static final Logger log = LogManager.getLogger(PubmedEuropeMetadataSourceServiceImpl.class);
+    private String url;
 
     @Autowired
-    private ConfigurationService configurationService;
-
+    private LiveImportClient liveImportClient;
 
     @Override
     public String getImportSource() {
         return "pubmedeu";
     }
 
+    /**
+     * Get a single record from the PubMed Europe.
+     *
+     * @param id                         Identifier for the record
+     * @return                           The first matching record
+     * @throws MetadataSourceException   If the underlying methods throw any exception.
+     */
     @Override
     public ImportRecord getRecord(String id) throws MetadataSourceException {
         List<ImportRecord> records = retry(new SearchByIdCallable(id));
-        return records == null || records.isEmpty() ? null : records.get(0);
+        return CollectionUtils.isEmpty(records) ? null : records.get(0);
     }
 
+    /**
+     * Find the number of records matching a query;
+     *
+     * @param query a query string to base the search on.
+     * @return the sum of the matching records over this import source
+     * @throws MetadataSourceException if the underlying methods throw any exception.
+     */
     @Override
     public int getRecordsCount(String query) throws MetadataSourceException {
         return retry(new CountByQueryCallable(query));
     }
 
+    /**
+     * Find the number of records matching a query;
+     *
+     * @param query                      A query string to base the search on.
+     * @return                           The sum of the matching records over this import source
+     * @throws MetadataSourceException   If the underlying methods throw any exception.
+     */
     @Override
     public int getRecordsCount(Query query) throws MetadataSourceException {
         return retry(new CountByQueryCallable(query));
     }
 
+    /**
+     * Find records matching a string query.
+     *
+     * @param query                      A query string to base the search on.
+     * @param start                      Offset to start at
+     * @param count                      Number of records to retrieve.
+     * @return                           A set of records. Fully transformed.
+     * @throws MetadataSourceException   If the underlying methods throw any exception.
+     */
     @Override
     public Collection<ImportRecord> getRecords(String query, int start, int count) throws MetadataSourceException {
         return retry(new SearchByQueryCallable(query, count, start));
     }
 
+    /**
+     * Find records based on a object query.
+     *
+     * @param query                     A query object to base the search on.
+     * @return                          A set of records. Fully transformed.
+     * @throws MetadataSourceException  If the underlying methods throw any exception.
+     */
     @Override
     public Collection<ImportRecord> getRecords(Query query) throws MetadataSourceException {
         return retry(new SearchByQueryCallable(query));
     }
 
+    /**
+     * Get a single record from the PubMed Europe.
+     *
+     * @param query                       A query matching a single record
+     * @return                            The first matching record
+     * @throws MetadataSourceException    If the underlying methods throw any exception.
+     */
     @Override
     public ImportRecord getRecord(Query query) throws MetadataSourceException {
         List<ImportRecord> records = retry(new SearchByIdCallable(query));
-        return records == null || records.isEmpty() ? null : records.get(0);
+        return CollectionUtils.isEmpty(records) ? null : records.get(0);
     }
 
+    /**
+     * Finds records based on query object.
+     *
+     * @param query                        A query object to base the search on.
+     * @return                             A collection of import records.
+     * @throws MetadataSourceException     If the underlying methods throw any exception.
+     */
     @Override
     public Collection<ImportRecord> findMatchingRecords(Query query) throws MetadataSourceException {
         return retry(new FindMatchingRecordCallable(query));
@@ -104,13 +153,28 @@ public class PubmedEuropeMetadataSourceServiceImpl
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Item item) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for CrossRef");
+        throw new MethodNotFoundException("This method is not implemented for PubMed Europe");
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() throws Exception {}
+
+    public List<ImportRecord> getByPubmedEuropeID(String pubmedID, Integer start, Integer size)
+            throws IOException, HttpException {
+        String query = "(EXT_ID:" + pubmedID + ")";
+        return search(query, size < 1 ? 1 : size, start);
     }
 
+    /**
+     * This class is a Callable implementation to get PubMed Europe entries based on
+     * query object.
+     * 
+     * This Callable use as query value the string queryString passed to constructor.
+     * If the object will be construct through Query.class instance, a Query's map entry with key "query" will be used.
+     * Pagination is supported too, using the value of the Query's map with keys "start" and "count".
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     private class SearchByQueryCallable implements Callable<List<ImportRecord>> {
 
         private Query query;
@@ -136,6 +200,11 @@ public class PubmedEuropeMetadataSourceServiceImpl
         }
     }
 
+    /**
+     * This class is a Callable implementation to get an PubMed Europe entry using PubMed Europe ID
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     private class SearchByIdCallable implements Callable<List<ImportRecord>> {
         private Query query;
 
@@ -154,6 +223,13 @@ public class PubmedEuropeMetadataSourceServiceImpl
         }
     }
 
+    /**
+     * This class is a Callable implementation to search PubMed Europe entries
+     * using author, title and year.
+     * Pagination is supported too, using the value of the Query's map with keys "start" and "count".
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     public class FindMatchingRecordCallable implements Callable<List<ImportRecord>> {
 
         private Query query;
@@ -174,6 +250,12 @@ public class PubmedEuropeMetadataSourceServiceImpl
 
     }
 
+    /**
+     * This class is a Callable implementation to count the number
+     * of entries for an PubMed Europe query.
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     private class CountByQueryCallable implements Callable<Integer> {
         private Query query;
 
@@ -197,37 +279,22 @@ public class PubmedEuropeMetadataSourceServiceImpl
         }
     }
 
+    /**
+     * Returns the total number of PubMed Europe publications returned by a specific query
+     * 
+     * @param query                      A keyword or combination of keywords to be searched
+     * @throws URISyntaxException        If URI syntax error
+     * @throws ClientProtocolException   The client protocol exception
+     * @throws IOException               If IO error
+     * @throws JaxenException            If Xpath evaluation failed
+     */
     public Integer count(String query) throws URISyntaxException, ClientProtocolException, IOException, JaxenException {
         try {
-            String proxyHost = configurationService.getProperty("http.proxy.host");
-            String proxyPort = configurationService.getProperty("http.proxy.port");
-            HttpGet method = null;
-            HttpHost proxy = null;
-            HttpClient client = new DefaultHttpClient();
-            client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000);
-            URIBuilder uriBuilder = new URIBuilder(
-                "https://www.ebi.ac.uk/europepmc/webservices/rest/search");
-            uriBuilder.addParameter("format", "xml");
-            uriBuilder.addParameter("resulttype", "core");
-            uriBuilder.addParameter("pageSize", "1");
-            uriBuilder.addParameter("query", query);
-            method = new HttpGet(uriBuilder.build());
-            if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-                proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-                client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-            }
-            // Execute the method.
-            HttpResponse response = client.execute(method);
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new RuntimeException("WS call failed: "
-                    + statusLine);
-            }
-            String input = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-            System.out.println("Value: " + input);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            String response = liveImportClient.executeHttpGetRequest(1000, buildURI(1, query), params);
+
             SAXBuilder saxBuilder = new SAXBuilder();
-            Document document = saxBuilder.build(new StringReader(input));
+            Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
             Element element = root.getChild("hitCount");
             return Integer.parseInt(element.getValue());
@@ -238,7 +305,7 @@ public class PubmedEuropeMetadataSourceServiceImpl
     }
 
     public List<ImportRecord> search(String title, String author, int year, int count, int start)
-            throws HttpException, IOException {
+            throws IOException {
         StringBuffer query = new StringBuffer();
         query.append("(");
         if (StringUtils.isNotBlank(title)) {
@@ -246,25 +313,25 @@ public class PubmedEuropeMetadataSourceServiceImpl
             query.append(")");
         }
         if (StringUtils.isNotBlank(author)) {
+            // Search for a surname and (optionally) initial(s) in publication author lists
+            // AUTH:einstein, AUTH:”Smith AB”
             String splitRegex = "(\\s*,\\s+|\\s*;\\s+|\\s*;+|\\s*,+|\\s+)";
             String[] authors = author.split(splitRegex);
-            // [FAU]
             if (query.length() > 0) {
                 query.append(" AND ");
             }
             query.append("(");
-            int x = 0;
+            int countAuthors = 0;
             for (String auth : authors) {
-                x++;
+                countAuthors++;
                 query.append("AUTH:\"").append(auth).append("\"");
-                if (x < authors.length) {
+                if (countAuthors < authors.length) {
                     query.append(" AND ");
                 }
             }
             query.append(")");
         }
         if (year != -1) {
-            // [DP]
             if (query.length() > 0) {
                 query.append(" AND ");
             }
@@ -274,83 +341,79 @@ public class PubmedEuropeMetadataSourceServiceImpl
         return search(query.toString(), count, start);
     }
 
-    public List<ImportRecord> search(String query, Integer count, Integer start) throws IOException, HttpException {
+    /**
+     * Returns a list of PubMed Europe publication records
+     * 
+     * @param query           A keyword or combination of keywords to be searched
+     * @param size           The number of search results per page
+     * @param start           Start number for the acquired search result list
+     * @throws IOException    If IO error
+     */
+    public List<ImportRecord> search(String query, Integer size, Integer start) throws IOException {
         List<ImportRecord> results = new ArrayList<>();
-        String proxyHost = configurationService.getProperty("http.proxy.host");
-        String proxyPort = configurationService.getProperty("http.proxy.port");
-        HttpGet method = null;
-        HttpHost proxy = null;
         try {
-            HttpClient client = new DefaultHttpClient();
-            client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000);
-            URIBuilder uriBuilder = new URIBuilder(
-                "https://www.ebi.ac.uk/europepmc/webservices/rest/search");
+            URIBuilder uriBuilder = new URIBuilder(this.url);
             uriBuilder.addParameter("format", "xml");
             uriBuilder.addParameter("resulttype", "core");
-            uriBuilder.addParameter("pageSize", String.valueOf(count));
+            uriBuilder.addParameter("pageSize", String.valueOf(size));
             uriBuilder.addParameter("query", query);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             boolean lastPage = false;
             int skipped = 0;
-            while (!lastPage || results.size() < count) {
-                method = new HttpGet(uriBuilder.build());
-                if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-                    proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-                    client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-                }
-                // Execute the method.
-                HttpResponse response = client.execute(method);
-                StatusLine statusLine = response.getStatusLine();
-                int statusCode = statusLine.getStatusCode();
-                if (statusCode != HttpStatus.SC_OK) {
-                    throw new RuntimeException("WS call failed: "
-                     + statusLine);
-                }
-                String input = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-                SAXBuilder saxBuilder = new SAXBuilder();
-                Document document = saxBuilder.build(new StringReader(input));
-                XPathFactory xpfac = XPathFactory.instance();
-                XPathExpression<Element> xPath = xpfac.compile("//responseWrapper/resultList/result",
-                    Filters.element());
-                List<Element> records = xPath.evaluate(document);
-                if (records.size() > 0) {
-                    for (Element item : records) {
-                        if (start > skipped) {
-                            skipped++;
-                        } else {
-                            results.add(transformSourceRecords(item));
+            while (!lastPage || results.size() < size) {
+                String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+                String cursorMark = StringUtils.EMPTY;
+                if (StringUtils.isNotBlank(response)) {
+                    SAXBuilder saxBuilder = new SAXBuilder();
+                    Document document = saxBuilder.build(new StringReader(response));
+                    XPathFactory xpfac = XPathFactory.instance();
+                    XPathExpression<Element> xPath = xpfac.compile("//responseWrapper/resultList/result",
+                            Filters.element());
+                    List<Element> records = xPath.evaluate(document);
+                    if (records.size() > 0) {
+                        for (Element item : records) {
+                            if (start > skipped) {
+                                skipped++;
+                            } else {
+                                results.add(transformSourceRecords(item));
+                            }
                         }
-                        if (results.size() == count) {
-                            break;
-                        }
+                    } else {
+                        lastPage = true;
+                        break;
                     }
-                } else {
-                    lastPage = true;
-                    break;
+                    Element root = document.getRootElement();
+                    Element nextCursorMark = root.getChild("nextCursorMark");
+                    cursorMark = Objects.nonNull(nextCursorMark) ? nextCursorMark.getValue() : StringUtils.EMPTY;
                 }
-                Element root = document.getRootElement();
-                Element nextCursorMark = root.getChild("nextCursorMark");
-                String cursorMark = Objects.nonNull(nextCursorMark) ? nextCursorMark.getValue() : StringUtils.EMPTY;
-                if (!"*".equals(cursorMark)) {
+                if (StringUtils.isNotBlank(cursorMark)) {
                     uriBuilder.setParameter("cursorMar", cursorMark);
                 } else {
                     lastPage = true;
                 }
             }
-        } catch (Exception e) {
+        } catch (URISyntaxException | JDOMException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException();
+            throw new RuntimeException(e.getMessage(), e);
         }
         return results;
     }
 
-    public List<ImportRecord> getByPubmedEuropeID(String pubmedID, Integer start, Integer count)
-        throws IOException, HttpException {
-        String query = "(EXT_ID:" + pubmedID + ")";
-        return search(query.toString(), count, start);
+    private String buildURI(Integer pageSize, String query) throws URISyntaxException {
+        URIBuilder uriBuilder = new URIBuilder(this.url);
+        uriBuilder.addParameter("format", "xml");
+        uriBuilder.addParameter("resulttype", "core");
+        uriBuilder.addParameter("pageSize", String.valueOf(pageSize));
+        uriBuilder.addParameter("query", query);
+        return uriBuilder.toString();
     }
 
-
-    private String getKey() {
-        return configurationService.getProperty("submission.lookup.pubmed.key");
+    public String getUrl() {
+        return url;
     }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
 }

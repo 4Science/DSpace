@@ -45,7 +45,7 @@ public class ItemConverter
         item.setDiscoverable(obj.isDiscoverable());
         item.setWithdrawn(obj.isWithdrawn());
         item.setLastModified(obj.getLastModified());
-        item.setEntityType(itemService.getEntityType(obj));
+        item.setEntityType(itemService.getEntityTypeLabel(obj));
         return item;
     }
 

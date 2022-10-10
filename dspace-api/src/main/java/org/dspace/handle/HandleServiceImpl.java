@@ -311,7 +311,7 @@ public class HandleServiceImpl implements HandleService {
         Handle dbHandle = findHandleInternal(context, handle);
         if (dbHandle != null) {
             // Check if we have to remove the handle from the current handle list
-            // or if object is alreday deleted.
+            // or if object is already deleted.
             if (dbHandle.getDSpaceObject() != null) {
                 // Remove the old handle from the current handle list
                 dbHandle.getDSpaceObject().getHandles().remove(dbHandle);
@@ -414,5 +414,15 @@ public class HandleServiceImpl implements HandleService {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isGone(Context context, String prefix) throws SQLException {
+        Handle handle = handleDAO.findByHandle(context, prefix);
+
+        if (handle != null) {
+            return handle.getDSpaceObject() == null;
+        }
+        return false;
     }
 }

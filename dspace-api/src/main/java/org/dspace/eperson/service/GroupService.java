@@ -211,14 +211,25 @@ public interface GroupService extends DSpaceObjectService<Group>, DSpaceObjectLe
     public Group findByName(Context context, String name) throws SQLException;
 
     /**
+     * Find the group with a name that has the given prefix
+     *
+     * @param  context      The relevant DSpace Context.
+     * @param  namePrefix   the prefix of the group name to search for
+     * @return              the named Group, or null if not found
+     * @throws SQLException if error
+     */
+    public Group findByNamePrefix(Context context, String namePrefix) throws SQLException;
+
+    /**
      * Finds all groups in the site
      *
-     * @param context            The relevant DSpace Context.
-     * @param metadataSortFields metadata fields to sort by, leave empty to sort by Name
-     * @param pageSize           how many results return
-     * @param offset             the position of the first result to return
-     * @return List of all groups in the site
-     * @throws SQLException if error
+     * @param  context            The relevant DSpace Context.
+     * @param  metadataSortFields metadata fields to sort by, leave empty to sort by
+     *                            Name
+     * @param  pageSize           how many results return
+     * @param  offset             the position of the first result to return
+     * @return                    List of all groups in the site
+     * @throws SQLException       if error
      */
     public List<Group> findAll(Context context, List<MetadataField> metadataSortFields, int pageSize, int offset)
         throws SQLException;

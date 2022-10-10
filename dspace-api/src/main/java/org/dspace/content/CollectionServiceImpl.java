@@ -986,6 +986,11 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         return toBoolean(getMetadataFirstValue(collection, "cris", "workspace", "shared", Item.ANY));
     }
 
+    @Override
+    public String getEntityType(Collection collection) {
+        return getMetadataFirstValue(collection, new MetadataFieldName("dspace.entity.type"), Item.ANY);
+    }
+
     /**
      * Finds all Indexed Collections where the current user has submit rights. If the user is an Admin,
      * this is all Indexed Collections. Otherwise, it includes those collections where

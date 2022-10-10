@@ -78,7 +78,7 @@ public class XOAICerifItemCompilePlugin implements XOAIExtensionItemCompilePlugi
             StreamDisseminationCrosswalkMapper crosswalkMapper = new DSpace().getSingletonService(
                                                                          StreamDisseminationCrosswalkMapper.class);
             ItemServiceImpl itemService = new DSpace().getSingletonService(ItemServiceImpl.class);
-            String entityType = itemService.getEntityType(item);
+            String entityType = itemService.getEntityTypeLabel(item);
             final String crosswalkType = entityType.substring(0, 1).toLowerCase()
                                              + entityType.substring(1) + "-" + generator;
             StreamDisseminationCrosswalk crosswalk = crosswalkMapper.getByType(crosswalkType);

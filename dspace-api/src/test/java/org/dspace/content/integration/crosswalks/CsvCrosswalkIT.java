@@ -569,7 +569,7 @@ public class CsvCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         Item item = createItem(context, collection)
             .withEntityType("Person")
             .withTitle("Walter White")
-            .withCrisOwner(owner)
+            .withDspaceObjectOwner(owner)
             .withVariantName("Heisenberg")
             .withVariantName("W.W.")
             .withGivenName("Walter")

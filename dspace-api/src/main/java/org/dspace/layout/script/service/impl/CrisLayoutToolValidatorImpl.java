@@ -17,8 +17,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,6 +38,7 @@ import org.dspace.core.ReloadableEntity;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.layout.CrisLayoutBoxTypes;
+import org.dspace.layout.script.service.CrisLayoutToolRenderValidator;
 import org.dspace.layout.script.service.CrisLayoutToolValidationResult;
 import org.dspace.layout.script.service.CrisLayoutToolValidator;
 import org.dspace.util.WorkbookUtils;
@@ -56,6 +60,17 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private List<CrisLayoutToolRenderValidator> renderingValidators;
+
+    private Map<String, CrisLayoutToolRenderValidator> renderingValidatorsByName;
+
+    @PostConstruct
+    private void setup() {
+        renderingValidatorsByName = renderingValidators.stream()
+            .collect(Collectors.toMap(CrisLayoutToolRenderValidator::getName, Function.identity()));
+    }
 
     @Override
     public CrisLayoutToolValidationResult validate(Context context, Workbook workbook) {
@@ -205,6 +220,8 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
             validatePresenceInBoxSheet(result, box2metadataSheet, entityTypeColumn, boxColumn);
         }
 
+        validateRenderingColumn(box2metadataSheet, fieldTypeColumn, result);
+
     }
 
     private void validateMetadataGroupsSheet(List<String> allMetadataFields,
@@ -233,6 +250,8 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         } else {
             validateMetadataFields(allMetadataFields, metadataGroupsSheet, parentColumn, fieldTypeColumn, result);
         }
+
+        validateRenderingColumn(metadataGroupsSheet, fieldTypeColumn, result);
 
     }
 
@@ -360,6 +379,52 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
             }
         }
 
+    }
+
+    private void validateRenderingColumn(Sheet sheet, int fieldTypeColumn, CrisLayoutToolValidationResult result) {
+
+        int renderingColumn = getCellIndexFromHeaderName(sheet, RENDERING_COLUMN);
+        if (renderingColumn == -1) {
+            result.addError("The sheet " + sheet.getSheetName() + " has no " + RENDERING_COLUMN + " column");
+            return;
+        }
+
+        for (Cell cell : getColumnWithoutHeader(sheet, renderingColumn)) {
+            if (WorkbookUtils.isCellNotEmpty(cell)) {
+                validateRenderType(cell, fieldTypeColumn, result);
+            }
+        }
+
+    }
+
+    private void validateRenderType(Cell cell, int fieldTypeColumn, CrisLayoutToolValidationResult result) {
+
+        String renderType = WorkbookUtils.getCellValue(cell);
+
+        String fieldType = getCellValue(cell.getRow(), fieldTypeColumn);
+        if (StringUtils.isEmpty(fieldType)) {
+            fieldType = CrisLayoutBoxTypes.METADATA.name();
+        }
+
+        String sheetName = cell.getRow().getSheet().getSheetName();
+
+        CrisLayoutToolRenderValidator renderValidator = findRenderValidatorByName(renderType);
+
+        if (renderValidator == null) {
+            result.addError("The sheet " + sheetName + " contains an unknown RENDERING type " + renderType + " at row "
+                + cell.getRow().getRowNum());
+            return;
+        }
+
+        renderValidator.validate(renderType, fieldType)
+            .ifPresent(validationError -> result.addError("The sheet " + sheetName + " contains an invalid "
+                + "RENDERING type at row " + cell.getRow().getRowNum() + ": " + validationError));
+
+    }
+
+    private CrisLayoutToolRenderValidator findRenderValidatorByName(String renderType) {
+        String renderName = renderType.split("\\.")[0];
+        return renderingValidatorsByName.get(renderName);
     }
 
     private void validateMetadataAndGroupFields(Context context, List<String> allMetadataFields, Sheet sheet,

@@ -7,42 +7,34 @@
  */
 package org.dspace.importer.external.wos.service;
 
+import static org.dspace.importer.external.liveimportclient.service.LiveImportClientImpl.HEADER_PARAMETERS;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.el.MethodNotFoundException;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.config.RequestConfig.Builder;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.DoiCheck;
 import org.dspace.importer.external.service.components.QuerySource;
-import org.dspace.services.ConfigurationService;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -53,27 +45,29 @@ import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implements a data source for querying WOS
+ * Implements a data source for querying Web of Science.
  * 
  * @author Boychuk Mykhaylo (boychuk.mykhaylo at 4Science dot it)
  */
 public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
-                                                implements QuerySource {
+        implements QuerySource {
 
-    private static final Logger log = LogManager.getLogger(WOSImportMetadataSourceServiceImpl.class);
+    private final static Logger log = LogManager.getLogger();
 
-    private static final String ENDPOINT_SEARCH_WOS = "https://wos-api.clarivate.com/api/wos/?databaseId=WOS&lang=en&usrQuery=";
-    private static final String ENDPOINT_SEARCH_BY_ID_WOS = "https://wos-api.clarivate.com/api/wos/id/";
     private static final String AI_PATTERN  = "^AI=(.*)";
     private static final Pattern ISI_PATTERN = Pattern.compile("^\\d{15}$");
 
     private int timeout = 1000;
 
+    private String url;
+    private String urlSearch;
+    private String apiKey;
+
     @Autowired
-    private ConfigurationService configurationService;
+    private LiveImportClient liveImportClient;
 
     @Override
-    public void init() throws Exception { }
+    public void init() throws Exception {}
 
     /**
      * The string that identifies this import implementation. Preferable a URI
@@ -130,8 +124,6 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
 
     /**
      * This class implements a callable to get the numbers of result
-     * 
-     * @author Boychuk Mykhaylo
      */
     private class SearchNBByQueryCallable implements Callable<Integer> {
 
@@ -147,117 +139,69 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
 
         @Override
         public Integer call() throws Exception {
-            String queryString = checkQuery(query);
-            String proxyHost = configurationService.getProperty("http.proxy.host");
-            String proxyPort = configurationService.getProperty("http.proxy.port");
-            String apiKey = configurationService.getProperty("wos.apiKey");
-            if (apiKey != null && !apiKey.equals("")) {
-                HttpGet method = null;
-                try {
-                    HttpClientBuilder hcBuilder = HttpClients.custom();
-                    Builder requestConfigBuilder = RequestConfig.custom();
-                    requestConfigBuilder.setConnectionRequestTimeout(timeout);
+            if (StringUtils.isNotBlank(apiKey)) {
+                String queryString = URLEncoder.encode(checkQuery(query), StandardCharsets.UTF_8);
+                String url = urlSearch + queryString + "&count=1&firstRecord=1";
+                Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+                params.put(HEADER_PARAMETERS, getRequestParameters());
+                String response = liveImportClient.executeHttpGetRequest(timeout, url, params);
 
-                    if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-                        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-                        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-                        hcBuilder.setRoutePlanner(routePlanner);
-                    }
-                    HttpClient client = hcBuilder.build();
-                    method = new HttpGet(ENDPOINT_SEARCH_WOS
-                             + URLEncoder.encode(queryString, StandardCharsets.UTF_8) + "&count=1&firstRecord=1");
-                    method.setHeader("X-ApiKey", apiKey);
-                    method.setHeader("Accept", "application/xml");
-                    method.setConfig(requestConfigBuilder.build());
-                    HttpResponse httpResponse = client.execute(method);
-                    int statusCode = httpResponse.getStatusLine().getStatusCode();
-                    if (statusCode != HttpStatus.SC_OK) {
-                        log.warn("call to ws to get number of result failed: " + statusCode);
-                        return 0;
-                    }
-                    InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    SAXBuilder saxBuilder = new SAXBuilder();
-                    Document document = saxBuilder.build(new StringReader(response));
-                    Element root = document.getRootElement();
-                    XPathExpression<Element> xpath = XPathFactory.instance().compile("QueryResult/RecordsFound",
-                        Filters.element(), null);
-                    Element tot = xpath.evaluateFirst(root);
-                    return Integer.valueOf(tot.getValue());
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                } finally {
-                    if (method != null) {
-                        method.releaseConnection();
-                    }
-                }
+                SAXBuilder saxBuilder = new SAXBuilder();
+                Document document = saxBuilder.build(new StringReader(response));
+                Element root = document.getRootElement();
+                XPathExpression<Element> xpath = XPathFactory.instance().compile("//*[@name=\"RecordsFound\"]",
+                                                 Filters.element(), null);
+                Element tot = xpath.evaluateFirst(root);
+                return Integer.valueOf(tot.getValue());
             }
             return null;
         }
     }
 
+    /**
+     * This class is a Callable implementation to get a Web of Science entry using Doi
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     private class FindByIdCallable implements Callable<List<ImportRecord>> {
 
         private String doi;
 
         private FindByIdCallable(String doi) {
-            this.doi = doi;
+            this.doi = URLEncoder.encode(doi, StandardCharsets.UTF_8);
         }
 
         @Override
         public List<ImportRecord> call() throws Exception {
             List<ImportRecord> results = new ArrayList<>();
-//            String queryString = "(" + doi.replace("!", "/") + ")";
-            String proxyHost = configurationService.getProperty("http.proxy.host");
-            String proxyPort = configurationService.getProperty("http.proxy.port");
-            String apiKey = configurationService.getProperty("wos.apiKey");
-            if (apiKey != null && !apiKey.equals("")) {
-                HttpGet method = null;
-                try {
-                    HttpClientBuilder hcBuilder = HttpClients.custom();
-                    Builder requestConfigBuilder = RequestConfig.custom();
-                    requestConfigBuilder.setConnectionRequestTimeout(timeout);
-                    if (StringUtils.isNotBlank(proxyHost)
-                        && StringUtils.isNotBlank(proxyPort)) {
-                        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-                        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-                        hcBuilder.setRoutePlanner(routePlanner);
-                    }
+            if (StringUtils.isNotBlank(apiKey)) {
+                String urlString = url + this.doi + "?databaseId=WOS&lang=en&count=10&firstRecord=1";
+                Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+                params.put(HEADER_PARAMETERS, getRequestParameters());
+                String response = liveImportClient.executeHttpGetRequest(timeout, urlString, params);
 
-                    HttpClient client = hcBuilder.build();
-                    method = new HttpGet(ENDPOINT_SEARCH_BY_ID_WOS
-                                         + URLEncoder.encode(doi, StandardCharsets.UTF_8)
-                                         + "?databaseId=WOS&lang=en&count=10&firstRecord=1");
-                    method.setHeader("X-ApiKey", apiKey);
-                    method.setHeader("Accept", "application/xml");
-                    method.setConfig(requestConfigBuilder.build());
-                    HttpResponse httpResponse = client.execute(method);
-                    int statusCode = httpResponse.getStatusLine().getStatusCode();
-                    if (statusCode != HttpStatus.SC_OK) {
-                        throw new RuntimeException("WS call failed: "
-                                                           + statusCode);
-                    }
-                    InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    List<Element> omElements = splitToRecords(response);
-                    for (Element record : omElements) {
-                        results.add(transformSourceRecords(record));
-                    }
-                } catch (Exception e1) {
-                    log.error(e1.getMessage(), e1);
-                } finally {
-                    if (method != null) {
-                        method.releaseConnection();
-                    }
+                List<Element> elements = splitToRecords(response);
+                for (Element record : elements) {
+                    results.add(transformSourceRecords(record));
                 }
             }
             return results;
         }
     }
 
+    /**
+     * Find records matching a string query.
+     *
+     * @param query    A query string to base the search on.
+     * @param start    Offset to start at
+     * @param count    Number of records to retrieve.
+     * @return         A set of records. Fully transformed.
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+     */
     private class SearchByQueryCallable implements Callable<List<ImportRecord>> {
-        private Query query;
 
+        private Query query;
 
         private SearchByQueryCallable(String queryString, Integer maxResult, Integer start) {
             query = new Query();
@@ -276,40 +220,16 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             String queryString = checkQuery(query.getParameterAsClass("query", String.class));
             Integer start = query.getParameterAsClass("start", Integer.class);
             Integer count = query.getParameterAsClass("count", Integer.class);
-            String proxyHost = configurationService.getProperty("http.proxy.host");
-            String proxyPort = configurationService.getProperty("http.proxy.port");
-            String apiKey = configurationService.getProperty("wos.apiKey");
-            if (apiKey != null && !apiKey.equals("")) {
-                HttpGet method = null;
-                try {
-                    HttpClientBuilder hcBuilder = HttpClients.custom();
-                    Builder requestConfigBuilder = RequestConfig.custom();
-                    requestConfigBuilder.setConnectionRequestTimeout(timeout);
-                    if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-                        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http");
-                        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-                        hcBuilder.setRoutePlanner(routePlanner);
-                    }
-                    HttpClient client = hcBuilder.build();
-                    method = new HttpGet(
-                            ENDPOINT_SEARCH_WOS + URLEncoder.encode(queryString, StandardCharsets.UTF_8)
-                                    + "&count=" + count + "&firstRecord=" + (start + 1));
-                    method.setHeader("X-ApiKey", apiKey);
-                    method.setHeader("Accept", "application/xml");
-                    method.setConfig(requestConfigBuilder.build());
-                    HttpResponse httpResponse = client.execute(method);
-                    int statusCode = httpResponse.getStatusLine().getStatusCode();
-                    if (statusCode != HttpStatus.SC_OK) {
-                        throw new RuntimeException("WS call failed: " + statusCode);
-                    }
-                    InputStream is = httpResponse.getEntity().getContent();
-                    String response = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    List<Element> omElements = splitToRecords(response);
-                    for (Element el : omElements) {
-                        results.add(transformSourceRecords(el));
-                    }
-                } catch (Exception e1) {
-                    log.error(e1.getMessage(), e1);
+            if (StringUtils.isNotBlank(apiKey)) {
+                Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+                params.put(HEADER_PARAMETERS, getRequestParameters());
+                String url = urlSearch + URLEncoder.encode(queryString, StandardCharsets.UTF_8)
+                                                 + "&count=" + count + "&firstRecord=" + (start + 1);
+                String response = liveImportClient.executeHttpGetRequest(timeout, url, params);
+
+                List<Element> omElements = splitToRecords(response);
+                for (Element el : omElements) {
+                    results.add(transformSourceRecords(el));
                 }
             }
             return results;
@@ -317,6 +237,23 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
 
     }
 
+    private Map<String, String> getRequestParameters() {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("Accept", "application/xml");
+        params.put("X-ApiKey", this.apiKey);
+        return params;
+    }
+
+    /**
+     * This method check if the query contain
+     * "AI=(...)" Author Identifier or a DOI "DO=(query)"
+     * or Accession Number "UT=(query)".
+     * Otherwise the value is placed in TS=(query) tag
+     * that searches for topic terms in the following fields within a document:
+     * Title, Abstract, Author keywords, Keywords Plus
+     * 
+     * @param query
+     */
     private String checkQuery(String query) {
         Pattern risPattern = Pattern.compile(AI_PATTERN);
         Matcher risMatcher = risPattern.matcher(query.trim());
@@ -350,16 +287,43 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
-            XPathExpression<Element> xpath = XPathFactory.instance().compile("Data/Records/records/REC",
-                Filters.element(), null);
-            List<Element> records = xpath.evaluate(root);
-            if (Objects.nonNull(records)) {
+            String cData = XPathFactory.instance().compile("//*[@name=\"Records\"]",
+                           Filters.element(), null).evaluate(root).get(0).getValue().trim();
+            Document intDocument = saxBuilder.build(new StringReader(cData));
+            XPathExpression<Element> xPath = XPathFactory.instance().compile("*", Filters.element(), null);
+            List<Element> records = xPath.evaluate(intDocument.getRootElement());
+            if (CollectionUtils.isNotEmpty(records)) {
                 return records;
             }
         } catch (JDOMException | IOException e) {
+            log.error(e.getMessage());
             return new ArrayList<Element>();
         }
         return new ArrayList<Element>();
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrlSearch() {
+        return urlSearch;
+    }
+
+    public void setUrlSearch(String urlSearch) {
+        this.urlSearch = urlSearch;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
 }

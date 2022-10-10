@@ -112,6 +112,13 @@ public class GroupDAOImpl extends AbstractHibernateDSODAO<Group> implements Grou
     }
 
     @Override
+    public Group findByNamePrefix(final Context context, final String namePrefix) throws SQLException {
+        Query query = createQuery(context, "SELECT g from Group g where g.name LIKE :namePrefix ");
+        query.setParameter("namePrefix", namePrefix + "%");
+        return singleResult(query);
+    }
+
+    @Override
     public Group findByIdAndMembership(Context context, UUID id, EPerson ePerson) throws SQLException {
         if (id == null || ePerson == null) {
             return null;

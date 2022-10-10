@@ -24,12 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.Map;
 
-import org.dspace.app.orcid.client.OrcidClient;
-import org.dspace.app.orcid.client.OrcidConfiguration;
-import org.dspace.app.orcid.exception.OrcidClientException;
-import org.dspace.app.orcid.factory.OrcidServiceFactory;
-import org.dspace.app.orcid.factory.OrcidServiceFactoryImpl;
-import org.dspace.app.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.app.rest.matcher.ItemAuthorityMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
@@ -38,6 +32,12 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.authority.OrcidAuthority;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.client.OrcidConfiguration;
+import org.dspace.orcid.exception.OrcidClientException;
+import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.orcid.factory.OrcidServiceFactoryImpl;
+import org.dspace.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matcher;

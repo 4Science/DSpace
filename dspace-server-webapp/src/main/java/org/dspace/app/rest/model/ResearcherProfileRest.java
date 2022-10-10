@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.dspace.app.rest.RestResourceController;
 
 /**
@@ -27,8 +26,7 @@ import org.dspace.app.rest.RestResourceController;
 public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
     private static final long serialVersionUID = 1L;
-
-    public static final String CATEGORY = RestModel.CRIS;
+    public static final String CATEGORY = RestModel.EPERSON;
     public static final String NAME = "profile";
 
     public static final String ITEM = "item";
@@ -36,10 +34,10 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
     private boolean visible;
 
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String orcid;
 
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrcidSynchronizationRest orcidSynchronization;
 
     public boolean isVisible() {

@@ -58,7 +58,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                 ExternalSourceMatcher.matchExternalSource("sherpaJournal", "sherpaJournal", false),
                 ExternalSourceMatcher.matchExternalSource("sherpaPublisher", "sherpaPublisher", false),
                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false))))
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(15)));
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
     }
 
     @Test
@@ -383,6 +383,12 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
+        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("mock")).getSupportedEntityTypes();
+
+        List<String> pubmedSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("pubmed")).getSupportedEntityTypes();
+
         try {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
                                .setSupportedEntityTypes(Arrays.asList("Publication", "OrgUnit"));
@@ -407,9 +413,9 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                  .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                    .setSupportedEntityTypes(null);
+                    .setSupportedEntityTypes(mockSupportedEntityTypes);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("pubmed"))
-                    .setSupportedEntityTypes(null);
+                    .setSupportedEntityTypes(pubmedSupportedEntityTypes);
         }
     }
 
@@ -448,6 +454,9 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         context.restoreAuthSystemState();
 
+        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
+            .getExternalDataProvider("mock")).getSupportedEntityTypes();
+
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
         try {
@@ -476,7 +485,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                    .setSupportedEntityTypes(null);
+                    .setSupportedEntityTypes(mockSupportedEntityTypes);
         }
     }
 

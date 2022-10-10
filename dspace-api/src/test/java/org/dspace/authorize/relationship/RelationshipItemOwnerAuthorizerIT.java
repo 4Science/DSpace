@@ -95,7 +95,7 @@ public class RelationshipItemOwnerAuthorizerIT extends AbstractIntegrationTestWi
 
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Test item")
-            .withCrisOwner(eperson)
+            .withDspaceObjectOwner(eperson)
             .build();
 
         context.restoreAuthSystemState();

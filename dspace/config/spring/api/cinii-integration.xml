@@ -13,13 +13,11 @@
     <context:annotation-config/>
     <!-- allows us to use spring annotations in beans -->
 
-
-<!-- 
-                    <entry key="subjects" value="dc.subject" />
-                    <entry key="authors" value="dc.contributor.author" />
-                    <entry key="publisher" value="dc.publisher" />
-                    
-                     -->
+    <!-- 
+         <entry key="subjects" value="dc.subject" />
+         <entry key="authors" value="dc.contributor.author" />
+         <entry key="publisher" value="dc.publisher" />
+    -->
     <util:map id="ciniiMetadataFieldMap" key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
               value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
         <description>Defines which metadatum is mapped on which metadatum. Note that while the key must be unique it
@@ -33,21 +31,19 @@
         <entry key-ref="cinii.language" value-ref="ciniiLanguageContrib"/>
         <entry key-ref="cinii.description" value-ref="ciniiDescriptionContrib"/>
     </util:map>
-    
 
     <bean id="ciniiDescriptionContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.description"/>
-        <property name="query" value="//dc:description"/>
+        <property name="query" value="dc:description"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.description" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.description.abstract"/>
     </bean>
 
-
     <bean id="ciniiLanguageContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.language"/>
-        <property name="query" value="//dc:language"/>
+        <property name="query" value="dc:language"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.language" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -56,7 +52,7 @@
 
     <bean id="ciniiIssuedContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.issued"/>
-        <property name="query" value="//prism:publicationDate"/>
+        <property name="query" value="prism:publicationDate"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.issued" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -65,7 +61,7 @@
 
     <bean id="ciniiJournalContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.journal"/>
-        <property name="query" value="//prism:publicationName"/>
+        <property name="query" value="prism:publicationName"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.journal" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -74,21 +70,20 @@
 
     <bean id="ciniiISSNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.issn"/>
-        <property name="query" value="//prism:issn"/>
+        <property name="query" value="prism:issn"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.issn" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.identifier.issn"/>
     </bean>
 
-
-<!--  alternative authors, titles, etc (based on languages) isn't used at the moment, 
-      org.dspace.importer.external.metadatamapping.contributor.CiniiMetadataContributor
-      could be useful to implements metadata remapping.
- -->
+	<!--  alternative authors, titles, etc (based on languages) isn't used at the moment, 
+          org.dspace.importer.external.metadatamapping.contributor.CiniiMetadataContributor
+          could be useful to implements metadata remapping.
+    -->
     <bean id="ciniiTitleContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="cinii.title"/>
-        <property name="query" value="//dc:title"/>
+        <property name="query" value="dc:title"/>
         <property name="prefixToNamespaceMapping" ref="ciniiPrefixToNamespaceMapping"/>
     </bean>
     <bean id="cinii.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -107,8 +102,8 @@
 		<entry key="http://www.w3.org/2000/01/rdf-schema#" value="rdfs" />
 	</util:map>
 
-
     <bean class="java.lang.Integer" id="maxRetry">
         <constructor-arg value="3"/>
     </bean>
+
 </beans>

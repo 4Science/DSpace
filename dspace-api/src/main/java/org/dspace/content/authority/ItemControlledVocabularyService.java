@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import static org.dspace.content.authority.DSpaceControlledVocabulary.ID_SPLITTER;
+
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -20,9 +22,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.factory.ItemControlledVocabularyFactory;
+import org.dspace.content.authority.service.ItemAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.SelfNamedPlugin;
@@ -37,7 +41,8 @@ import org.dspace.web.ContextUtil;
 /*
  * @author Jurgen Mamani
  */
-public class ItemControlledVocabularyService extends SelfNamedPlugin implements HierarchicalAuthority {
+public class ItemControlledVocabularyService extends SelfNamedPlugin
+    implements HierarchicalAuthority, ItemAuthorityService {
 
     private static final Logger log = LogManager.getLogger(ItemControlledVocabularyService.class);
 
@@ -118,6 +123,10 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
         ItemControlledVocabulary controlledVocabulary =
             itemAuthorityServiceFactory.getInstance(authorityName);
 
+        // FIXME: we must be sure that parentId is a pure uuid
+        if (StringUtils.startsWith(parentId, authorityName + ID_SPLITTER)) {
+            parentId = parentId.replace(authorityName + ID_SPLITTER, "");
+        }
         DiscoverQuery discoverQuery = new DiscoverQuery();
 
         discoverQuery.setStart(start);
@@ -155,6 +164,10 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
         ItemControlledVocabulary controlledVocabulary =
             itemAuthorityServiceFactory.getInstance(authorityName);
 
+        // FIXME: hack to prevent vocabularyId name composed with authority name
+        if (StringUtils.startsWith(vocabularyId, authorityName + ID_SPLITTER)) {
+            vocabularyId = vocabularyId.replace(authorityName + ID_SPLITTER, "");
+        }
         try {
             Item self = itemService.find(ContextUtil.obtainCurrentRequestContext(),
                                            UUID.fromString(vocabularyId));
@@ -172,6 +185,11 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
         }
 
         return null;
+    }
+
+    private List<Choice> getChoicesFromResult(ItemControlledVocabulary controlledVocabulary,
+                                              DiscoverResult result) {
+        return getChoicesFromResult(null, controlledVocabulary, result);
     }
 
     private List<Choice> getChoicesFromResult(String authorityName, ItemControlledVocabulary controlledVocabulary,
@@ -198,7 +216,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
 
         String authority = getValueFromMetadata(item, controlledVocabulary.getAuthorityMetadata());
         choice.authority = authority.isEmpty() ? String.valueOf(item.getID()) : authority;
-        choice.authorityName = authorityName;
+        if (StringUtils.isNotBlank(authorityName)) {
+            choice.authorityName = authorityName;
+        }
 
         choice.extras.put("hasChildren", String.valueOf(hasChildren(item)));
         choice.extras.put("id", choice.authority);
@@ -255,12 +275,42 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
 
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
+        ItemControlledVocabulary itemControlledVocabulary =
+                itemAuthorityServiceFactory.getInstance(this.getPluginInstanceName());
+
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+
+        discoverQuery.setStart(start);
+        discoverQuery.setMaxResults(limit);
+        discoverQuery.setQuery(getSolrQuery(text));
+
+        String entityType = itemControlledVocabulary.getEntityType();
+        if (StringUtils.isNotBlank(entityType)) {
+            discoverQuery.addFilterQueries("dspace.entity.type:" + entityType);
+        }
+
+        try {
+            DiscoverResult result = searchService.search(ContextUtil.obtainCurrentRequestContext(), discoverQuery);
+
+            if (!result.getIndexableObjects().isEmpty()) {
+                int total = (int) result.getTotalSearchResults();
+
+                List<Choice> choices = getChoicesFromResult(itemControlledVocabulary, result);
+
+                return new Choices(choices.toArray(new Choice[choices.size()]), start, total, Choices.CF_AMBIGUOUS,
+                        total > start + limit);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new Choices(Choices.CF_UNSET);
+        }
+
         return null;
     }
 
     @Override
     public Choices getBestMatch(String text, String locale) {
-        return null;
+        return getMatches(text, 0, 1, locale);
     }
 
     @Override
@@ -304,6 +354,20 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin implements 
 
     @Override
     public boolean storeAuthorityInMetadata() {
-        return false;
+        return DSpaceServicesFactory.getInstance().getConfigurationService()
+                .getBooleanProperty("item.controlled.vocabularies."
+                        + this.getPluginInstanceName()
+                        + ".store-authority-in-metadata", true);
+    }
+
+    @Override
+    public String getSolrQuery(String searchTerm) {
+        String luceneQuery = ClientUtils.escapeQueryChars(searchTerm.toLowerCase()) + "*";
+        String solrQuery = null;
+        luceneQuery = luceneQuery.replaceAll("\\\\ "," ");
+        solrQuery = "{!lucene q.op=AND df=itemauthoritylookup}("
+                        + luceneQuery + ")";
+
+        return solrQuery;
     }
 }

@@ -116,4 +116,16 @@ public interface WorkflowItemService<T extends WorkflowItem> extends InProgressS
      */
     public void delete(Context context, T workflowItem) throws SQLException, AuthorizeException, IOException;
 
+    /**
+     * Check if a workflow if configured for the given collection.
+     *
+     * @param  context      The relevant DSpace Context.
+     * @param  collection   the collection to check
+     * @return              true if the given collection has a workflow configured,
+     *                      false otherwise
+     * @throws SQLException An exception that provides information on a database
+     *                      access error or other errors.
+     */
+    public boolean isWorkflowConfigured(Context context, Collection collection) throws SQLException;
+
 }

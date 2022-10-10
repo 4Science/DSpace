@@ -24,6 +24,8 @@ import org.dspace.app.rest.utils.AuthorityUtils;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DSpaceControlledVocabulary;
+import org.dspace.content.authority.ItemControlledVocabularyService;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.InitializingBean;
@@ -77,8 +79,21 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
         String vocabularyId = parts[1];
         ChoiceAuthority source = cas.getChoiceAuthorityByAuthorityName(vocabularyName);
         Choice choice = source.getChoice(vocabularyId, context.getCurrentLocale().toString());
-        return authorityUtils.convertEntryDetails(choice, vocabularyName, source.isHierarchical(),
-                utils.obtainProjection());
+        //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
+        // build a vocabulary entry details ID
+        boolean fix = false;
+        if (dspaceOrItemControlledVocabulary(source) && !StringUtils.startsWith(vocabularyId, vocabularyName)) {
+            fix = true;
+        }
+        VocabularyEntryDetailsRest entryDetails = authorityUtils.convertEntryDetails(fix, choice, vocabularyName,
+                source.isHierarchical(), utils.obtainProjection());
+        //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
+        // build a vocabulary entry details ID
+        if (dspaceOrItemControlledVocabulary(source) && !StringUtils.startsWith(vocabularyId, vocabularyName)
+                && entryDetails != null) {
+            entryDetails.setId(id);
+        }
+        return entryDetails;
     }
 
     @SearchRestMethod(name = "top")
@@ -91,8 +106,15 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
         if (source.isHierarchical()) {
             Choices choices = cas.getTopChoices(vocabularyId, (int)pageable.getOffset(), pageable.getPageSize(),
                     context.getCurrentLocale().toString());
+            //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
+            // build a vocabulary entry details ID
+            boolean fix = false;
+            if (dspaceOrItemControlledVocabulary(source)) {
+                //FIXME this will stop to work once angular starts to deal with the proper form of the entry id...
+                fix = true;
+            }
             for (Choice value : choices.values) {
-                results.add(authorityUtils.convertEntryDetails(value, vocabularyId, source.isHierarchical(),
+                results.add(authorityUtils.convertEntryDetails(fix, value, vocabularyId, source.isHierarchical(),
                         utils.obtainProjection()));
             }
             Page<VocabularyEntryDetailsRest> resources = new PageImpl<VocabularyEntryDetailsRest>(results, pageable,
@@ -100,6 +122,10 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
             return resources;
         }
         throw new LinkNotFoundException(VocabularyRest.CATEGORY, VocabularyEntryDetailsRest.NAME, vocabularyId);
+    }
+
+    private boolean dspaceOrItemControlledVocabulary(ChoiceAuthority source) {
+        return source instanceof DSpaceControlledVocabulary || source instanceof ItemControlledVocabularyService;
     }
 
     @Override

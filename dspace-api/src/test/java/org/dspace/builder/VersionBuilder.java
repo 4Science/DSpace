@@ -27,7 +27,7 @@ import org.dspace.versioning.service.VersioningService;
  */
 public class VersionBuilder extends AbstractBuilder<Version, VersioningService> {
 
-    private static Logger log = LogManager.getLogger(VersionBuilder.class);
+    private static final Logger log = LogManager.getLogger(VersionBuilder.class);
 
     private Version version;
 

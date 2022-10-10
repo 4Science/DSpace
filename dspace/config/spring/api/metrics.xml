@@ -35,7 +35,9 @@
 
     <bean class="org.dspace.metrics.scopus.ScopusProvider"/>
 
-    <bean class="org.dspace.metrics.scopus.UpdateScopusMetrics"/>
+    <bean class="org.dspace.metrics.scopus.UpdateScopusMetrics">
+        <property name="fetchSize" value="${metrics.scopus.citation-count.fetchSize}" />
+    </bean>
 
     <!-- Scopus h-index -->
     <bean class="org.dspace.metrics.scopus.ScopusPersonProvider"/>

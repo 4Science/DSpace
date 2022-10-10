@@ -320,6 +320,16 @@ public class VersionedHandleIdentifierProvider extends IdentifierProvider {
         }
     }
 
+    @Override
+    public boolean isGone(Context context, String identifier)
+        throws IdentifierNotFoundException, IdentifierNotResolvableException {
+        try {
+            return handleService.isGone(context, handleService.parseHandle(identifier));
+        } catch (SQLException sqe) {
+            throw new IdentifierNotResolvableException(sqe.getMessage(), sqe);
+        }
+    }
+
     public static String retrieveHandleOutOfUrl(String url) throws SQLException {
         // We can do nothing with this, return null
         if (!url.contains("/")) {

@@ -29,6 +29,7 @@ import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Collection;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.core.Constants;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
@@ -63,9 +64,9 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     // map of field key to authority plugin
     protected Map<String, ChoiceAuthority> controller = new HashMap<String, ChoiceAuthority>();
 
-    // map of field key, form definition to authority plugin
-    protected Map<String, Map<String, ChoiceAuthority>> controllerFormDefinitions =
-            new HashMap<String, Map<String, ChoiceAuthority>>();
+    // map of field key, dsoType, form definition to authority plugin
+    protected Map<String, Map<Integer, Map<String, ChoiceAuthority>>> controllerFormDefinitions =
+            new HashMap<String, Map<Integer, Map<String, ChoiceAuthority>>>();
 
     // map of field key to presentation type
     protected Map<String, String> presentation = new HashMap<String, String>();
@@ -77,9 +78,13 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     private boolean initialized = false;
 
     // map of authority name to field keys (the same authority can be configured over multiple metadata)
+    // the keys used by this cache are unique across all the dso type so there is
+    // no need to add a dsoType (int key) level
     protected Map<String, List<String>> authorities = new HashMap<String, List<String>>();
 
     // map of authority name to form definition and field keys
+    // the keys used by this cache are unique across all the dso type so there is
+    // no need to add a dsoType (int key) level
     protected Map<String, Map<String, List<String>>> authoritiesFormDefinitions =
             new HashMap<String, Map<String, List<String>>>();
 
@@ -92,6 +97,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected PluginService pluginService;
     @Autowired(required = true)
     protected UploadConfigurationService uploadConfigurationService;
+    @Autowired(required = true)
+    protected AuthorityServiceUtils authorityServiceUtils;
 
     final static String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
     final static String CHOICES_PRESENTATION_PREFIX = "choices.presentation.";
@@ -143,28 +150,9 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public Choices getMatches(String schema, String element, String qualifier,
-                              String query, Collection collection, int start, int limit, String locale) {
-        return getMatches(makeFieldKey(schema, element, qualifier), query,
-                          collection, start, limit, locale);
-    }
-
-    @Override
-    public Choices getMatches(String fieldKey, String query, Collection collection,
-                              int start, int limit, String locale) {
-        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, collection);
-        if (ma == null) {
-            throw new IllegalArgumentException(
-                "No choices plugin was configured for  field \"" + fieldKey
-                    + "\", collection=" + collection.getID().toString() + ".");
-        }
-        return ma.getMatches(query, start, limit, locale);
-    }
-
-    @Override
-    public Choices getBestMatch(String fieldKey, String query, Collection collection,
+    public Choices getBestMatch(String fieldKey, String query, int dsoType, Collection collection,
                                 String locale) {
-        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, collection);
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, dsoType, collection);
         if (ma == null) {
             String errorMessage = "No choices plugin was configured for  field \"" + fieldKey + "\"";
             if (collection != null) {
@@ -176,13 +164,14 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public String getLabel(MetadataValue metadataValue, Collection collection, String locale) {
-        return getLabel(metadataValue.getMetadataField().toString(), collection, metadataValue.getAuthority(), locale);
+    public String getLabel(MetadataValue metadataValue, int dsoType, Collection collection, String locale) {
+        return getLabel(metadataValue.getMetadataField().toString(), dsoType, collection, metadataValue.getAuthority(),
+                locale);
     }
 
     @Override
-    public String getLabel(String fieldKey, Collection collection, String authKey, String locale) {
-        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, collection);
+    public String getLabel(String fieldKey, int dsoType, Collection collection, String authKey, String locale) {
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, dsoType, collection);
         if (ma == null) {
             throw new IllegalArgumentException(
                 "No choices plugin was configured for  field \"" + fieldKey
@@ -192,8 +181,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public boolean isChoicesConfigured(String fieldKey, Collection collection) {
-        return getAuthorityByFieldKeyCollection(fieldKey, collection) != null;
+    public boolean isChoicesConfigured(String fieldKey, int dsoType, Collection collection) {
+        return getAuthorityByFieldKeyCollection(fieldKey, dsoType, collection) != null;
     }
 
     @Override
@@ -207,9 +196,9 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public List<String> getVariants(MetadataValue metadataValue, Collection collection) {
+    public List<String> getVariants(MetadataValue metadataValue, int dsoType, Collection collection) {
         String fieldKey = metadataValue.getMetadataField().toString();
-        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, collection);
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, dsoType, collection);
         if (ma == null) {
             throw new IllegalArgumentException(
                 "No choices plugin was configured for  field \"" + fieldKey
@@ -224,7 +213,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
 
 
     @Override
-    public String getChoiceAuthorityName(String schema, String element, String qualifier, Collection collection) {
+    public String getChoiceAuthorityName(String schema, String element, String qualifier, int dsoType,
+            Collection collection) {
         init();
         String fieldKey = makeFieldKey(schema, element, qualifier);
         // check if there is an authority configured for the metadata valid for all the collections
@@ -237,7 +227,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         } else if (collection != null && controllerFormDefinitions.containsKey(fieldKey)) {
             // there is an authority configured for the metadata valid for some collections,
             // check if it is the requested collection
-            Map<String, ChoiceAuthority> controllerFormDef = controllerFormDefinitions.get(fieldKey);
+            Map<Integer, Map<String, ChoiceAuthority>> controllerFormDefTypes = controllerFormDefinitions.get(fieldKey);
+            Map<String, ChoiceAuthority> controllerFormDef = controllerFormDefTypes.get(dsoType);
             SubmissionConfig submissionConfig = itemSubmissionConfigReader.getSubmissionConfigByCollection(collection);
             String submissionName = submissionConfig.getSubmissionName();
             // check if the requested collection has a submission definition that use an authority for the metadata
@@ -324,13 +315,15 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             for (SubmissionConfig subCfg : submissionConfigs) {
                 String submissionName = subCfg.getSubmissionName();
                 List<DCInputSet> inputsBySubmissionName = dcInputsReader.getInputsBySubmissionName(submissionName);
-                autoRegisterChoiceAuthorityFromSubmissionForms(submissionName, inputsBySubmissionName);
+                autoRegisterChoiceAuthorityFromSubmissionForms(Constants.ITEM, submissionName,
+                        inputsBySubmissionName);
             }
             // loop over all the defined bitstream metadata submission configuration
             for (UploadConfiguration uploadCfg : uploadConfigurationService.getMap().values()) {
                 String formName = uploadCfg.getMetadata();
                 DCInputSet inputByFormName = dcInputsReader.getInputsByFormName(formName);
-                autoRegisterChoiceAuthorityFromSubmissionForms(formName, List.of(inputByFormName));
+                autoRegisterChoiceAuthorityFromSubmissionForms(Constants.BITSTREAM, formName,
+                        List.of(inputByFormName));
             }
         } catch (DCInputsReaderException e) {
             // the system is in an illegal state as the submission definition is not valid
@@ -339,9 +332,10 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         }
     }
 
-    private void autoRegisterChoiceAuthorityFromSubmissionForms(String submissionName,
-                                                                List<DCInputSet> inputsBySubmissionName) {
-        // loop over the submission forms configuration eventually associated with the submission panel
+    private void autoRegisterChoiceAuthorityFromSubmissionForms(int dsoType, String submissionName,
+            List<DCInputSet> inputsBySubmissionName) {
+        // loop over the submission forms configuration eventually associated with the
+        // submission panel
         for (DCInputSet dcinputSet : inputsBySubmissionName) {
             DCInput[][] dcinputs = dcinputSet.getFields();
             for (DCInput[] dcrows : dcinputs) {
@@ -350,7 +344,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                     // or an xml vocabulary
                     String authorityName = null;
                     if (StringUtils.isNotBlank(dcinput.getPairsType())
-                        && !StringUtils.equals(dcinput.getInputType(), "qualdrop_value")) {
+                            && !StringUtils.equals(dcinput.getInputType(), "qualdrop_value")) {
                         authorityName = dcinput.getPairsType();
                     } else if (StringUtils.isNotBlank(dcinput.getVocabulary())) {
                         authorityName = dcinput.getVocabulary();
@@ -359,20 +353,18 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                     // do we have an authority?
                     if (StringUtils.isNotBlank(authorityName)) {
                         String fieldKey = makeFieldKey(dcinput.getSchema(), dcinput.getElement(),
-                                                       dcinput.getQualifier());
+                                dcinput.getQualifier());
                         ChoiceAuthority ca = controller.get(authorityName);
                         if (ca == null) {
-                            ca = (ChoiceAuthority) pluginService
-                                .getNamedPlugin(ChoiceAuthority.class, authorityName);
+                            ca = (ChoiceAuthority) pluginService.getNamedPlugin(ChoiceAuthority.class, authorityName);
                             if (ca == null) {
                                 throw new IllegalStateException("Invalid configuration for " + fieldKey
-                                                                    + " in submission definition " + submissionName
-                                                                    + ", form definition " + dcinputSet.getFormName()
-                                                                    + " no named plugin found: " + authorityName);
+                                        + " in submission definition " + submissionName + ", form definition "
+                                        + dcinputSet.getFormName() + " no named plugin found: " + authorityName);
                             }
                         }
 
-                        addAuthorityToFormCacheMap(submissionName, fieldKey, ca);
+                        addAuthorityToFormCacheMap(dsoType, submissionName, fieldKey, ca);
                         addFormDetailsToAuthorityCacheMap(submissionName, authorityName, fieldKey);
                     }
                 }
@@ -383,12 +375,13 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     /**
      * Add the form/field to the cache map keeping track of which form/field are
      * associated with the specific authority name
-     * 
+     *
      * @param submissionName the form definition name
      * @param authorityName  the name of the authority plugin
      * @param fieldKey       the field key that use the authority
      */
-    private void addFormDetailsToAuthorityCacheMap(String submissionName, String authorityName, String fieldKey) {
+    private void addFormDetailsToAuthorityCacheMap(String submissionName, String authorityName,
+            String fieldKey) {
         Map<String, List<String>> submissionDefinitionNames2fieldKeys;
         if (authoritiesFormDefinitions.containsKey(authorityName)) {
             submissionDefinitionNames2fieldKeys = authoritiesFormDefinitions.get(authorityName);
@@ -411,19 +404,28 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
      * Add the authority plugin to the cache map keeping track of which authority is
      * used by a specific form/field
      * 
+     * @param dsoType        the DSpace Object Type
      * @param submissionName the submission definition name
      * @param fieldKey       the field key that require the authority
      * @param ca             the authority plugin
      */
-    private void addAuthorityToFormCacheMap(String submissionName, String fieldKey, ChoiceAuthority ca) {
-        Map<String, ChoiceAuthority> definition2authority;
+    private void addAuthorityToFormCacheMap(int dsoType, String submissionName, String fieldKey, ChoiceAuthority ca) {
+        Map<Integer, Map<String, ChoiceAuthority>> definition2type2authority;
+        Map<String, ChoiceAuthority> type2authority;
         if (controllerFormDefinitions.containsKey(fieldKey)) {
-            definition2authority = controllerFormDefinitions.get(fieldKey);
+            definition2type2authority = controllerFormDefinitions.get(fieldKey);
         } else {
-            definition2authority = new HashMap<String, ChoiceAuthority>();
+            definition2type2authority = new HashMap<Integer, Map<String, ChoiceAuthority>>();
         }
-        definition2authority.put(submissionName, ca);
-        controllerFormDefinitions.put(fieldKey, definition2authority);
+        if (definition2type2authority.containsKey(dsoType)) {
+            type2authority = definition2type2authority.get(dsoType);
+        } else {
+            type2authority = new HashMap<String, ChoiceAuthority>();
+        }
+
+        type2authority.put(submissionName, ca);
+        definition2type2authority.put(dsoType, type2authority);
+        controllerFormDefinitions.put(fieldKey, definition2type2authority);
     }
 
     /**
@@ -494,28 +496,27 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         return ma;
     }
 
-    private ChoiceAuthority getAuthorityByFieldKeyCollection(String fieldKey, Collection collection) {
+    @Override
+    public ChoiceAuthority getAuthorityByFieldKeyCollection(String fieldKey, int dsoType, Collection collection) {
         init();
         ChoiceAuthority ma = controller.get(fieldKey);
         if (ma == null && collection != null) {
-            SubmissionConfigReader configReader;
-            try {
-                configReader = new SubmissionConfigReader();
-                SubmissionConfig submissionName = configReader.getSubmissionConfigByCollection(collection);
-                ma = controllerFormDefinitions.get(fieldKey).get(submissionName.getSubmissionName());
-            } catch (SubmissionConfigReaderException e) {
-                // the system is in an illegal state as the submission definition is not valid
-                throw new IllegalStateException("Error reading the item submission configuration: " + e.getMessage(),
-                        e);
+            String submissionName = authorityServiceUtils.getSubmissionOrFormName(itemSubmissionConfigReader,
+                    dsoType, collection);
+            if (submissionName == null) {
+                log.warn("No submission name was found for object type " + dsoType + " in collection "
+                        + collection.getHandle());
+                return null;
+            }
+            Map<Integer, Map<String, ChoiceAuthority>> mapType2SubAuth = controllerFormDefinitions.get(fieldKey);
+            if (mapType2SubAuth != null) {
+                Map<String, ChoiceAuthority> mapSubAuth = mapType2SubAuth.get(dsoType);
+                if (mapSubAuth != null) {
+                    ma = mapSubAuth.get(submissionName);
+                }
             }
         }
         return ma;
-    }
-
-    @Override
-    public boolean storeAuthority(String fieldKey, Collection collection) {
-        // currently only named authority can eventually provide real authority
-        return controller.containsKey(fieldKey);
     }
 
     /**
@@ -554,7 +555,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
 
     @Override
     public String getLinkedEntityType(String fieldKey) {
-        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, null);
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, null);
         if (ma == null) {
             throw new IllegalArgumentException("No choices plugin was configured for  field \"" + fieldKey + "\".");
         }

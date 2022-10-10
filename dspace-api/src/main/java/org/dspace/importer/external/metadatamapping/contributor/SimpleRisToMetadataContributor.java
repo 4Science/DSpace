@@ -6,6 +6,7 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.importer.external.metadatamapping.contributor;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;

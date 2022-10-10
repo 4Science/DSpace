@@ -70,6 +70,9 @@ public class JWTTokenHandlerTest {
     @Mock
     protected ClientInfoService clientInfoService;
 
+    @Mock
+    private MachineClaimProvider machineClaimProvider;
+
     @Spy
     protected List<JWTClaimProvider> jwtClaimProviders = new ArrayList<>();
 

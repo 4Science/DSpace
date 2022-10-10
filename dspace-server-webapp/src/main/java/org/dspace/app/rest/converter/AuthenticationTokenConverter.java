@@ -21,6 +21,7 @@ public class AuthenticationTokenConverter implements DSpaceConverter<Authenticat
     public AuthenticationTokenRest convert(AuthenticationToken modelObject, Projection projection) {
         AuthenticationTokenRest token = new AuthenticationTokenRest();
         token.setToken(modelObject.getToken());
+        token.setType(modelObject.getType());
         return token;
     }
 

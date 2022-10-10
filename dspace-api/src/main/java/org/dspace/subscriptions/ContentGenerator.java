@@ -74,7 +74,8 @@ public class ContentGenerator implements SubscriptionGenerator<IndexableObject> 
                 for (IndexableObject indexableObject : indexableObjects) {
                     out.write("\n".getBytes(StandardCharsets.UTF_8));
                     Item item = (Item) indexableObject.getIndexedObject();
-                    mapEntityDisseminatorProperty.get(itemService.getEntityType(item)).disseminate(context, item, out);
+                    mapEntityDisseminatorProperty.get(itemService.getEntityTypeLabel(item)).disseminate(context, item,
+                        out);
                 }
                 return out.toString();
             } else {

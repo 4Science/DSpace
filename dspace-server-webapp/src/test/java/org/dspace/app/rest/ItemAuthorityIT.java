@@ -18,9 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dspace.app.orcid.client.OrcidClient;
-import org.dspace.app.orcid.factory.OrcidServiceFactory;
-import org.dspace.app.orcid.factory.OrcidServiceFactoryImpl;
 import org.dspace.app.rest.matcher.ItemAuthorityMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
@@ -34,6 +31,9 @@ import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.orcid.factory.OrcidServiceFactoryImpl;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -279,7 +279,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
        context.restoreAuthSystemState();
 
-       String token = getAuthToken(eperson.getEmail(), password);
+       String token = getAuthToken(admin.getEmail(), password);
        getClient(token).perform(get("/api/submission/vocabularies/EPersonAuthority/entries")
                        .param("filter", "Andrea"))
                        .andExpect(status().isOk())

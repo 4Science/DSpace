@@ -60,7 +60,7 @@ public class CanClaimItemFeature implements AuthorizationFeature {
     }
 
     private boolean hasNotOwner(Item item) {
-        return StringUtils.isBlank(itemService.getMetadata(item, "cris.owner"));
+        return StringUtils.isBlank(itemService.getMetadata(item, "dspace.object.owner"));
     }
 
     @Override

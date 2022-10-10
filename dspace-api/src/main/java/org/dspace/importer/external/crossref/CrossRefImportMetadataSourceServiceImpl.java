@@ -7,42 +7,49 @@
  */
 package org.dspace.importer.external.crossref;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.el.MethodNotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
-import com.google.gson.Gson;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.ReadContext;
-import net.minidev.json.JSONArray;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.DoiCheck;
 import org.dspace.importer.external.service.components.QuerySource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a data source for querying CrossRef
  * 
- * @author Pasquale Cavallo (pasquale.cavallo at 4science dot it)
- *
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
-public class CrossRefImportMetadataSourceServiceImpl
-    extends AbstractImportMetadataSourceService<String> implements QuerySource {
+public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<String>
+        implements QuerySource {
 
-    private WebTarget webTarget;
+    private final static Logger log = LogManager.getLogger();
+
+    private String url;
+
+    @Autowired
+    private LiveImportClient liveImportClient;
 
     @Override
     public String getImportSource() {
@@ -50,49 +57,33 @@ public class CrossRefImportMetadataSourceServiceImpl
     }
 
     @Override
-    public void init() throws Exception {
-        Client client = ClientBuilder.newClient();
-        webTarget = client.target("https://api.crossref.org/works");
-    }
+    public void init() throws Exception {}
 
     @Override
     public ImportRecord getRecord(String recordId) throws MetadataSourceException {
-        List<ImportRecord> records = null;
         String id = getID(recordId);
-        if (StringUtils.isNotBlank(id)) {
-            records = retry(new SearchByIdCallable(id));
-        } else {
-            records = retry(new SearchByIdCallable(recordId));
-        }
-        return records == null || records.isEmpty() ? null : records.get(0);
+        List<ImportRecord> records = StringUtils.isNotBlank(id) ? retry(new SearchByIdCallable(id))
+                                                                : retry(new SearchByIdCallable(recordId));
+        return CollectionUtils.isEmpty(records) ? null : records.get(0);
     }
 
     @Override
     public int getRecordsCount(String query) throws MetadataSourceException {
         String id = getID(query);
-        if (StringUtils.isNotBlank(id)) {
-            return retry(new DoiCheckCallable(id));
-        }
-        return retry(new CountByQueryCallable(query));
+        return StringUtils.isNotBlank(id) ? retry(new DoiCheckCallable(id)) : retry(new CountByQueryCallable(query));
     }
 
     @Override
     public int getRecordsCount(Query query) throws MetadataSourceException {
         String id = getID(query.toString());
-        if (StringUtils.isNotBlank(id)) {
-            return retry(new DoiCheckCallable(id));
-        }
-        return retry(new CountByQueryCallable(query));
+        return StringUtils.isNotBlank(id) ? retry(new DoiCheckCallable(id)) : retry(new CountByQueryCallable(query));
     }
-
 
     @Override
     public Collection<ImportRecord> getRecords(String query, int start, int count) throws MetadataSourceException {
         String id = getID(query.toString());
-        if (StringUtils.isNotBlank(id)) {
-            return retry(new SearchByIdCallable(id));
-        }
-        return retry(new SearchByQueryCallable(query, count, start));
+        return StringUtils.isNotBlank(id) ? retry(new SearchByIdCallable(id))
+                                          : retry(new SearchByQueryCallable(query, count, start));
     }
 
     @Override
@@ -106,38 +97,36 @@ public class CrossRefImportMetadataSourceServiceImpl
 
     @Override
     public ImportRecord getRecord(Query query) throws MetadataSourceException {
-        List<ImportRecord> records = null;
         String id = getID(query.toString());
-        if (StringUtils.isNotBlank(id)) {
-            records = retry(new SearchByIdCallable(id));
-        } else {
-            records = retry(new SearchByIdCallable(query));
-        }
-        return records == null || records.isEmpty() ? null : records.get(0);
+        List<ImportRecord> records = StringUtils.isNotBlank(id) ? retry(new SearchByIdCallable(id))
+                                                                : retry(new SearchByIdCallable(query));
+        return CollectionUtils.isEmpty(records) ? null : records.get(0);
     }
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Query query) throws MetadataSourceException {
         String id = getID(query.toString());
-        if (StringUtils.isNotBlank(id)) {
-            return retry(new SearchByIdCallable(id));
-        }
-        return retry(new FindMatchingRecordCallable(query));
+        return StringUtils.isNotBlank(id) ? retry(new SearchByIdCallable(id))
+                                          : retry(new FindMatchingRecordCallable(query));
     }
-
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Item item) throws MetadataSourceException {
         throw new MethodNotFoundException("This method is not implemented for CrossRef");
     }
 
-    public String getID(String query) {
-        if (DoiCheck.isDoi(query)) {
-            return "filter=doi:" + query;
-        }
-        return StringUtils.EMPTY;
+    public String getID(String id) {
+        return DoiCheck.isDoi(id) ? "filter=doi:" + id : StringUtils.EMPTY;
     }
 
+    /**
+     * This class is a Callable implementation to get CrossRef entries based on query object.
+     * This Callable use as query value the string queryString passed to constructor.
+     * If the object will be construct through Query.class instance, a Query's map entry with key "query" will be used.
+     * Pagination is supported too, using the value of the Query's map with keys "start" and "count".
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class SearchByQueryCallable implements Callable<List<ImportRecord>> {
 
         private Query query;
@@ -156,48 +145,36 @@ public class CrossRefImportMetadataSourceServiceImpl
         @Override
         public List<ImportRecord> call() throws Exception {
             List<ImportRecord> results = new ArrayList<>();
-            HttpGet method = null;
-            try {
-                Integer count = query.getParameterAsClass("count", Integer.class);
-                Integer start = query.getParameterAsClass("start", Integer.class);
-                WebTarget local = webTarget.queryParam("query", query.getParameterAsClass("query", String.class));
-                if (count != null) {
-                    local = local.queryParam("rows", count);
-                }
-                if (start != null) {
-                    local = local.queryParam("offset", start);
-                }
-                Invocation.Builder invocationBuilder = local.request();
-                Response response = invocationBuilder.get();
-                if (response.getStatus() != 200) {
-                    return null;
-                }
-                String responseString = response.readEntity(String.class);
-                ReadContext ctx = JsonPath.parse(responseString);
-                Object o = ctx.read("$.message.items[*]");
-                if (o.getClass().isAssignableFrom(JSONArray.class)) {
-                    JSONArray array = (JSONArray)o;
-                    int size = array.size();
-                    for (int index = 0; index < size; index++) {
-                        Gson gson = new Gson();
-                        String innerJson = gson.toJson(array.get(index), LinkedHashMap.class);
-                        results.add(transformSourceRecords(innerJson));
-                    }
-                } else {
-                    results.add(transformSourceRecords(o.toString()));
-                }
-                return results;
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
-            } finally {
-                if (method != null) {
-                    method.releaseConnection();
-                }
+            Integer count = query.getParameterAsClass("count", Integer.class);
+            Integer start = query.getParameterAsClass("start", Integer.class);
+
+            URIBuilder uriBuilder = new URIBuilder(url);
+            uriBuilder.addParameter("query", query.getParameterAsClass("query", String.class));
+            if (Objects.nonNull(count)) {
+                uriBuilder.addParameter("rows", count.toString());
             }
+            if (Objects.nonNull(start)) {
+                uriBuilder.addParameter("offset", start.toString());
+            }
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            JsonNode jsonNode = convertStringJsonToJsonNode(response);
+            Iterator<JsonNode> nodes = jsonNode.at("/message/items").iterator();
+            while (nodes.hasNext()) {
+                JsonNode node = nodes.next();
+                results.add(transformSourceRecords(node.toString()));
+            }
+            return results;
         }
 
     }
 
+    /**
+     * This class is a Callable implementation to get an CrossRef entry using DOI
+     * The DOI to use can be passed through the constructor as a String or as Query's map entry, with the key "id".
+     *
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class SearchByIdCallable implements Callable<List<ImportRecord>> {
         private Query query;
 
@@ -213,40 +190,24 @@ public class CrossRefImportMetadataSourceServiceImpl
         @Override
         public List<ImportRecord> call() throws Exception {
             List<ImportRecord> results = new ArrayList<>();
-            HttpGet method = null;
-            try {
-                WebTarget local = webTarget.path(query.getParameterAsClass("id", String.class));
-                Invocation.Builder invocationBuilder = local.request();
-                Response response = invocationBuilder.get();
-                if (response.getStatus() != 200) {
-                    return null;
-                }
-                String responseString = response.readEntity(String.class);
-                ReadContext ctx = JsonPath.parse(responseString);
-                Object o = ctx.read("$.message");
-                if (o.getClass().isAssignableFrom(JSONArray.class)) {
-                    JSONArray array = (JSONArray)o;
-                    int size = array.size();
-                    for (int index = 0; index < size; index++) {
-                        Gson gson = new Gson();
-                        String innerJson = gson.toJson(array.get(index), LinkedHashMap.class);
-                        results.add(transformSourceRecords(innerJson));
-                    }
-                } else {
-                    Gson gson = new Gson();
-                    results.add(transformSourceRecords(gson.toJson(o, Object.class)));
-                }
-                return results;
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
-            } finally {
-                if (method != null) {
-                    method.releaseConnection();
-                }
-            }
+            String ID = URLDecoder.decode(query.getParameterAsClass("id", String.class), "UTF-8");
+            URIBuilder uriBuilder = new URIBuilder(url + "/" + ID);
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
+            JsonNode messageNode = jsonNode.at("/message");
+            results.add(transformSourceRecords(messageNode.toString()));
+            return results;
         }
     }
 
+    /**
+     * This class is a Callable implementation to search CrossRef entries using author and title.
+     * There are two field in the Query map to pass, with keys "title" and "author"
+     * (at least one must be used).
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class FindMatchingRecordCallable implements Callable<List<ImportRecord>> {
 
         private Query query;
@@ -264,61 +225,49 @@ public class CrossRefImportMetadataSourceServiceImpl
             String title = query.getParameterAsClass("title", String.class);
             String bibliographics = query.getParameterAsClass("bibliographics", String.class);
             List<ImportRecord> results = new ArrayList<>();
-            HttpGet method = null;
-            try {
-                WebTarget local = webTarget;
-                if (queryValue != null) {
-                    local = local.queryParam("query", queryValue);
-                }
-                if (count != null) {
-                    local = local.queryParam("rows", count);
-                }
-                if (start != null) {
-                    local = local.queryParam("offset", start);
-                }
-                if (author != null) {
-                    local = local.queryParam("query.author", author);
-                }
-                if (title != null) {
-                    local = local.queryParam("query.container-title", title);
-                }
-                if (bibliographics != null) {
-                    local = local.queryParam("query.bibliographic", bibliographics);
-                }
-                Invocation.Builder invocationBuilder = local.request();
-                Response response = invocationBuilder.get();
-                if (response.getStatus() != 200) {
-                    return null;
-                }
-                String responseString = response.readEntity(String.class);
-                ReadContext ctx = JsonPath.parse(responseString);
-                Object o = ctx.read("$.message.items[*]");
-                if (o.getClass().isAssignableFrom(JSONArray.class)) {
-                    JSONArray array = (JSONArray)o;
-                    int size = array.size();
-                    for (int index = 0; index < size; index++) {
-                        Gson gson = new Gson();
-                        String innerJson = gson.toJson(array.get(index), LinkedHashMap.class);
-                        results.add(transformSourceRecords(innerJson));
-                    }
-                } else {
-                    results.add(transformSourceRecords(o.toString()));
-                }
-                return results;
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
-            } finally {
-                if (method != null) {
-                    method.releaseConnection();
-                }
+            URIBuilder uriBuilder = new URIBuilder(url);
+            if (Objects.nonNull(queryValue)) {
+                uriBuilder.addParameter("query", queryValue);
             }
+            if (Objects.nonNull(count)) {
+                uriBuilder.addParameter("rows", count.toString());
+            }
+            if (Objects.nonNull(start)) {
+                uriBuilder.addParameter("offset", start.toString());
+            }
+            if (Objects.nonNull(author)) {
+                uriBuilder.addParameter("query.author", author);
+            }
+            if (Objects.nonNull(title )) {
+                uriBuilder.addParameter("query.container-title", title);
+            }
+            if (Objects.nonNull(bibliographics)) {
+                uriBuilder.addParameter("query.bibliographic", bibliographics);
+            }
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            String resp = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            JsonNode jsonNode = convertStringJsonToJsonNode(resp);
+            Iterator<JsonNode> nodes = jsonNode.at("/message/items").iterator();
+            while (nodes.hasNext()) {
+                JsonNode node = nodes.next();
+                results.add(transformSourceRecords(node.toString()));
+            }
+            return results;
         }
 
     }
 
+    /**
+     * This class is a Callable implementation to count the number of entries for an CrossRef query.
+     * This Callable use as query value to CrossRef the string queryString passed to constructor.
+     * If the object will be construct through Query.class instance, the value of the Query's
+     * map with the key "query" will be used.
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class CountByQueryCallable implements Callable<Integer> {
-        private Query query;
 
+        private Query query;
 
         private CountByQueryCallable(String queryString) {
             query = new Query();
@@ -329,30 +278,24 @@ public class CrossRefImportMetadataSourceServiceImpl
             this.query = query;
         }
 
-
         @Override
         public Integer call() throws Exception {
-            HttpGet method = null;
-            try {
-                WebTarget local = webTarget.queryParam("query", query.getParameterAsClass("query", String.class));
-                Invocation.Builder invocationBuilder = local.request();
-                Response response = invocationBuilder.get();
-                if (response.getStatus() != 200) {
-                    return null;
-                }
-                String responseString = response.readEntity(String.class);
-                ReadContext ctx = JsonPath.parse(responseString);
-                return ctx.read("$.message.total-results");
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
-            } finally {
-                if (method != null) {
-                    method.releaseConnection();
-                }
-            }
+            URIBuilder uriBuilder = new URIBuilder(url);
+            uriBuilder.addParameter("query", query.getParameterAsClass("query", String.class));
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
+            return jsonNode.at("/message/total-results").asInt();
         }
     }
 
+    /**
+     * This class is a Callable implementation to check if exist an CrossRef entry using DOI.
+     * The DOI to use can be passed through the constructor as a String or as Query's map entry, with the key "id".
+     * return 1 if CrossRef entry exists otherwise 0
+     * 
+     * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+     */
     private class DoiCheckCallable implements Callable<Integer> {
 
         private final Query query;
@@ -369,11 +312,25 @@ public class CrossRefImportMetadataSourceServiceImpl
 
         @Override
         public Integer call() throws Exception {
-            WebTarget local = webTarget.path(query.getParameterAsClass("id", String.class));
-            Invocation.Builder invocationBuilder = local.request();
-            Response response = invocationBuilder.head();
-            return response.getStatus() == 200 ? 1 : 0;
+            Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
+            URIBuilder uriBuilder = new URIBuilder(url + "/" + query.getParameterAsClass("id", String.class));
+            String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
+            return StringUtils.equals(jsonNode.at("/status").toString(), "ok") ? 1 : 0;
         }
+    }
+
+    private JsonNode convertStringJsonToJsonNode(String json) {
+        try {
+            return new ObjectMapper().readTree(json);
+        } catch (JsonProcessingException e) {
+            log.error("Unable to process json response.", e);
+        }
+        return null;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
 }

@@ -10,6 +10,7 @@ package org.dspace.validation;
 import static org.dspace.validation.service.ValidationService.OPERATION_PATH_SECTIONS;
 import static org.dspace.validation.util.ValidationUtils.addError;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,16 @@ import org.dspace.app.util.DCInputSet;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
+import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.services.ConfigurationService;
 import org.dspace.validation.model.ValidationError;
 
 /**
@@ -42,13 +48,13 @@ public class MetadataValidator implements SubmissionStepValidator {
 
     private static final String ERROR_VALIDATION_REGEX = "error.validation.regex";
 
-    private static final String DOCUMENT_TYPE_FIELD = "dc.type";
-
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(MetadataValidator.class);
 
     private DCInputsReader inputReader;
 
     private ItemService itemService;
+
+    private ConfigurationService configurationService;
 
     private MetadataAuthorityService metadataAuthorityService;
 
@@ -60,19 +66,17 @@ public class MetadataValidator implements SubmissionStepValidator {
         List<ValidationError> errors = new ArrayList<>();
 
         DCInputSet inputConfig = getDCInputSet(config);
-        List<MetadataValue> documentType = itemService.getMetadataByMetadataString(obj.getItem(), DOCUMENT_TYPE_FIELD);
-        String documentTypeValue = documentType.size() > 0 ? documentType.get(0).getValue() : "";
+        String documentTypeValue = getDocumentTypeValue(obj);
+
+        // Get list of all field names (including qualdrop names) allowed for this dc.type
+        List<String> allowedFieldNames = inputConfig.populateAllowedFieldNames(documentTypeValue);
 
         for (DCInput[] row : inputConfig.getFields()) {
             for (DCInput input : row) {
-                String fieldKey =
-                    metadataAuthorityService.makeFieldKey(input.getSchema(), input.getElement(), input.getQualifier());
-                boolean isAuthorityControlled = metadataAuthorityService.isAuthorityControlled(fieldKey);
-
-                // skip validation if field is not allowed for the current document type
-                if (input.isAllowedFor(documentTypeValue) == false) {
-                    continue;
-                }
+                String fieldKey = metadataAuthorityService.makeFieldKey(input.getSchema(), input.getElement(),
+                        input.getQualifier());
+                boolean isAuthorityControlled = metadataAuthorityService.isAuthorityAllowed(fieldKey, Constants.ITEM,
+                        obj.getCollection());
 
                 List<String> fieldsName = new ArrayList<String>();
                 if (input.isQualdropValue()) {
@@ -83,9 +87,18 @@ public class MetadataValidator implements SubmissionStepValidator {
                     for (int i = 1; i < inputPairs.size(); i += 2) {
                         String fullFieldname = input.getFieldName() + "." + (String) inputPairs.get(i);
                         List<MetadataValue> mdv = itemService.getMetadataByMetadataString(obj.getItem(), fullFieldname);
-                        validateMetadataValues(mdv, input, config, isAuthorityControlled, fieldKey, errors);
-                        if (mdv.size() > 0 && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
-                            foundResult = true;
+
+                        // Check the lookup list. If no other inputs of the same field name allow this type,
+                        // then remove. This includes field name without qualifier.
+                        if (!input.isAllowedFor(documentTypeValue) &&  (!allowedFieldNames.contains(fullFieldname)
+                                && !allowedFieldNames.contains(input.getFieldName()))) {
+                            removeMetadataValues(context, obj.getItem(), mdv);
+                        } else {
+                            validateMetadataValues(obj.getCollection(), mdv, input, config, isAuthorityControlled,
+                                fieldKey, errors);
+                            if (mdv.size() > 0 && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
+                                foundResult = true;
+                            }
                         }
                     }
                     if (input.isRequired() && ! foundResult) {
@@ -100,19 +113,47 @@ public class MetadataValidator implements SubmissionStepValidator {
                 }
 
                 for (String fieldName : fieldsName) {
+                    boolean valuesRemoved = false;
                     List<MetadataValue> mdv = itemService.getMetadataByMetadataString(obj.getItem(), fieldName);
-                    validateMetadataValues(mdv, input, config, isAuthorityControlled, fieldKey, errors);
-                    if ((input.isRequired() && mdv.size() == 0) && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
-                        // since this field is missing add to list of error
-                        // fields
-                        addError(errors, ERROR_VALIDATION_REQUIRED,
-                            "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
-                                input.getFieldName());
+                    if (!input.isAllowedFor(documentTypeValue)) {
+                        // Check the lookup list. If no other inputs of the same field name allow this type,
+                        // then remove. Otherwise, do not
+                        if (!(allowedFieldNames.contains(fieldName))) {
+                            removeMetadataValues(context, obj.getItem(), mdv);
+                            valuesRemoved = true;
+                            log.debug("Stripping metadata values for " + input.getFieldName() + " on type "
+                                    + documentTypeValue + " as it is allowed by another input of the same field " +
+                                    "name");
+                        } else {
+                            log.debug("Not removing unallowed metadata values for " + input.getFieldName() + " on type "
+                                    + documentTypeValue + " as it is allowed by another input of the same field " +
+                                    "name");
+                        }
+                    }
+                    validateMetadataValues(obj.getCollection(), mdv, input, config,
+                        isAuthorityControlled, fieldKey, errors);
+                    if ((input.isRequired() && mdv.size() == 0) && input.isVisible(DCInput.SUBMISSION_SCOPE)
+                                                                && !valuesRemoved) {
+                        // Is the input required for *this* type? In other words, are we looking at a required
+                        // input that is also allowed for this document type
+                        if (input.isAllowedFor(documentTypeValue)) {
+                            // since this field is missing add to list of error
+                            // fields
+                            addError(errors, ERROR_VALIDATION_REQUIRED,
+                                "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
+                                    input.getFieldName());
+                        }
                     }
                 }
             }
         }
         return errors;
+    }
+
+    private String getDocumentTypeValue(InProgressSubmission<?> obj) {
+        String documentTypeField = configurationService.getProperty("submit.type-bind.field", "dc.type");
+        List<MetadataValue> documentType = itemService.getMetadataByMetadataString(obj.getItem(), documentTypeField);
+        return documentType.size() > 0 ? documentType.get(0).getValue() : "";
     }
 
     private DCInputSet getDCInputSet(SubmissionStepConfig config) {
@@ -123,8 +164,8 @@ public class MetadataValidator implements SubmissionStepValidator {
         }
     }
 
-    private void validateMetadataValues(List<MetadataValue> mdv, DCInput input, SubmissionStepConfig config,
-        boolean isAuthorityControlled, String fieldKey, List<ValidationError> errors) {
+    private void validateMetadataValues(Collection collection, List<MetadataValue> mdv, DCInput input,
+        SubmissionStepConfig config, boolean isAuthorityControlled, String fieldKey, List<ValidationError> errors) {
         for (MetadataValue md : mdv) {
             if (! (input.validate(md.getValue()))) {
                 addError(errors, ERROR_VALIDATION_REGEX,
@@ -133,7 +174,7 @@ public class MetadataValidator implements SubmissionStepValidator {
             }
             if (isAuthorityControlled) {
                 String authKey = md.getAuthority();
-                if (metadataAuthorityService.isAuthorityRequired(fieldKey) &&
+                if (metadataAuthorityService.isAuthorityRequired(md.getMetadataField(), Constants.ITEM, collection) &&
                     StringUtils.isBlank(authKey)) {
                     addError(errors, ERROR_VALIDATION_AUTHORITY_REQUIRED,
                         "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() +
@@ -143,12 +184,24 @@ public class MetadataValidator implements SubmissionStepValidator {
         }
     }
 
+    private void removeMetadataValues(Context context, Item item, List<MetadataValue> metadataValues) {
+        try {
+            itemService.removeMetadataValues(context, item, metadataValues);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
+
     public void setItemService(ItemService itemService) {
         this.itemService = itemService;
     }
 
     public void setMetadataAuthorityService(MetadataAuthorityService metadataAuthorityService) {
         this.metadataAuthorityService = metadataAuthorityService;
+    }
+
+    public void setConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 
     public DCInputsReader getInputReader() {

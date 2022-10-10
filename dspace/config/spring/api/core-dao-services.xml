@@ -76,11 +76,12 @@
     <bean class="org.dspace.layout.dao.impl.CrisLayoutFieldDAOImpl" />
     <bean class="org.dspace.layout.dao.impl.CrisLayoutMetadataGroupDAOImpl" />
     <bean class="org.dspace.layout.dao.impl.CrisLayoutMetric2BoxDAOImpl" />
-    
-    <!-- Orcid DAO --> 
-    <bean class="org.dspace.app.orcid.dao.impl.OrcidQueueDAOImpl" />
-    <bean class="org.dspace.app.orcid.dao.impl.OrcidHistoryDAOImpl" />
 
     <bean class="org.dspace.app.metrics.dao.CrisMetricsDAOImpl" />
+ 	
+    <bean class="org.dspace.orcid.dao.impl.OrcidQueueDAOImpl" />
+    <bean class="org.dspace.orcid.dao.impl.OrcidHistoryDAOImpl" />
+    <bean class="org.dspace.orcid.dao.impl.OrcidTokenDAOImpl" />
+
 
 </beans>

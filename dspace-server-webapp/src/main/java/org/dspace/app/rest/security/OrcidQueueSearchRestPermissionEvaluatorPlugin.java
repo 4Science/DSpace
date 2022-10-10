@@ -28,7 +28,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 /**
- * 
+ * Permission evaluator plugin that check if the current user can search for
+ * ORCID queue records by owner.
+ *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 @Component
@@ -57,7 +59,7 @@ public class OrcidQueueSearchRestPermissionEvaluatorPlugin extends RestObjectPer
         }
 
         Request request = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(request.getServletRequest());
+        Context context = ContextUtil.obtainContext(request.getHttpServletRequest());
         EPerson ePerson = null;
         try {
             ePerson = context.getCurrentUser();
@@ -79,7 +81,7 @@ public class OrcidQueueSearchRestPermissionEvaluatorPlugin extends RestObjectPer
     }
 
     private boolean hasAccess(EPerson ePerson, Item owner) {
-        List<MetadataValue> values = itemService.getMetadata(owner, "cris", "owner", null, Item.ANY);
+        List<MetadataValue> values = itemService.getMetadata(owner, "dspace", "object", "owner", Item.ANY);
         if (values.get(0).getAuthority().equals(ePerson.getID().toString())) {
             return true;
         }

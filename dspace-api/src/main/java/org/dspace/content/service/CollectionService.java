@@ -522,4 +522,12 @@ public interface CollectionService
     public int countCollectionsWithSubmit(String q, Context context, Community community, String entityType)
         throws SQLException, SearchServiceException;
 
+    /**
+     * Returns the collection's entity type, if any.
+     *
+     * @param  collection the collection
+     * @return            the entity type as string, if any
+     */
+    public String getEntityType(Collection collection);
+
 }

@@ -23,17 +23,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.app.orcid.client.OrcidClient;
-import org.dspace.app.orcid.client.OrcidConfiguration;
-import org.dspace.app.orcid.model.OrcidTokenResponseDTO;
-import org.dspace.app.orcid.service.OrcidSynchronizationService;
-import org.dspace.app.profile.ResearcherProfile;
-import org.dspace.app.profile.service.ResearcherProfileService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.orcid.OrcidToken;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.client.OrcidConfiguration;
+import org.dspace.orcid.model.OrcidTokenResponseDTO;
+import org.dspace.orcid.service.OrcidSynchronizationService;
+import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.profile.ResearcherProfile;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.ConfigurationService;
 import org.orcid.jaxb.model.v3.release.record.Email;
 import org.orcid.jaxb.model.v3.release.record.Person;
@@ -73,6 +75,9 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
     @Autowired
     private OrcidSynchronizationService orcidSynchronizationService;
 
+    @Autowired
+    private OrcidTokenService orcidTokenService;
+
     @Override
     public int authenticate(Context context, String username, String password, String realm, HttpServletRequest request)
         throws SQLException {
@@ -82,16 +87,13 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
             return BAD_ARGS;
         }
 
-        if (request.getAttribute(ORCID_AUTH_ATTRIBUTE) == null) {
-            return NO_SUCH_USER;
-        }
-
         String code = (String) request.getParameter("code");
         if (StringUtils.isEmpty(code)) {
             LOGGER.warn("The incoming request has not code parameter");
             return NO_SUCH_USER;
         }
 
+        request.setAttribute(ORCID_AUTH_ATTRIBUTE, true);
         return authenticateWithOrcid(context, code, request);
     }
 
@@ -115,6 +117,11 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
             return "";
         }
 
+    }
+
+    @Override
+    public boolean isUsed(Context context, HttpServletRequest request) {
+        return request.getAttribute(ORCID_AUTH_ATTRIBUTE) != null;
     }
 
     @Override
@@ -205,14 +212,26 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
         try {
             context.turnOffAuthorisationSystem();
 
+            String email = getEmail(person)
+                .orElseThrow(() -> new IllegalStateException("The email is configured private on orcid"));
+
             String orcid = token.getOrcid();
 
             EPerson eperson = ePersonService.create(context);
 
             eperson.setNetid(orcid);
-            eperson.setEmail(getEmail(person).orElse(orcid));
-            eperson.setFirstName(context, getFirstName(person));
-            eperson.setLastName(context, getLastName(person));
+
+            eperson.setEmail(email);
+
+            Optional<String> firstName = getFirstName(person);
+            if (firstName.isPresent()) {
+                eperson.setFirstName(context, firstName.get());
+            }
+
+            Optional<String> lastName = getLastName(person);
+            if (lastName.isPresent()) {
+                eperson.setLastName(context, lastName.get());
+            }
             eperson.setCanLogIn(true);
             eperson.setSelfRegistered(true);
 
@@ -238,15 +257,19 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
 
         String orcid = token.getOrcid();
         String accessToken = token.getAccessToken();
-        String refreshToken = token.getRefreshToken();
         String[] scopes = token.getScopeAsArray();
 
         ePersonService.setMetadataSingleValue(context, person, "eperson", "orcid", null, null, orcid);
-        ePersonService.setMetadataSingleValue(context, person, "eperson", "orcid", "access-token", null, accessToken);
-        ePersonService.setMetadataSingleValue(context, person, "eperson", "orcid", "refresh-token", null, refreshToken);
         ePersonService.clearMetadata(context, person, "eperson", "orcid", "scope", ANY);
         for (String scope : scopes) {
             ePersonService.addMetadata(context, person, "eperson", "orcid", "scope", null, scope);
+        }
+
+        OrcidToken orcidToken = orcidTokenService.findByEPerson(context, person);
+        if (orcidToken == null) {
+            orcidTokenService.create(context, person, accessToken);
+        } else {
+            orcidToken.setAccessToken(accessToken);
         }
 
     }
@@ -268,18 +291,16 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
         return Optional.ofNullable(emails.get(0).getEmail());
     }
 
-    private String getFirstName(Person person) {
+    private Optional<String> getFirstName(Person person) {
         return Optional.ofNullable(person.getName())
             .map(name -> name.getGivenNames())
-            .map(givenNames -> givenNames.getContent())
-            .orElseThrow(() -> new IllegalStateException("The found ORCID person has no first name"));
+            .map(givenNames -> givenNames.getContent());
     }
 
-    private String getLastName(Person person) {
+    private Optional<String> getLastName(Person person) {
         return Optional.ofNullable(person.getName())
             .map(name -> name.getFamilyName())
-            .map(givenNames -> givenNames.getContent())
-            .orElseThrow(() -> new IllegalStateException("The found ORCID person has no last name"));
+            .map(givenNames -> givenNames.getContent());
     }
 
     private boolean canSelfRegister() {
@@ -305,11 +326,6 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
 
     public void setOrcidClient(OrcidClient orcidClient) {
         this.orcidClient = orcidClient;
-    }
-
-    @Override
-    public boolean isUsed(Context context, HttpServletRequest request) {
-        return true;
     }
 
 }

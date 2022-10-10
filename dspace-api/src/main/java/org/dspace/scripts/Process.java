@@ -79,13 +79,16 @@ public class Process implements ReloadableEntity<Integer> {
     )
     private List<Bitstream> bitstreams;
 
+    /*
+     * Special Groups associated with this Process
+     */
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @JoinTable(
         name = "process2group",
         joinColumns = {@JoinColumn(name = "process_id")},
         inverseJoinColumns = {@JoinColumn(name = "group_id")}
     )
-    private final List<Group> groups = new ArrayList<Group>();
+    private List<Group> groups = new ArrayList<Group>();
 
     @Column(name = "creation_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -221,12 +224,23 @@ public class Process implements ReloadableEntity<Integer> {
         return creationTime;
     }
 
+    public void addGroup(Group group) {
+        this.groups.add(group);
+    }
+
+    /**
+     * This method sets the special groups associated with the Process.
+     */
     public List<Group> getGroups() {
         return groups;
     }
 
-    public void addGroup(Group group) {
-        this.groups.add(group);
+    /**
+     * This method will return special groups associated with the Process.
+     * @return The special groups of this process.
+     */
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
 
     /**

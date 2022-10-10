@@ -78,7 +78,7 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public Process create(Context context, EPerson ePerson, String scriptName,
                           List<DSpaceCommandLineParameter> parameters,
-                          final List<Group> specialGroups) throws SQLException {
+                          final Set<Group> specialGroups) throws SQLException {
 
         Process process = new Process();
         process.setEPerson(ePerson);
@@ -86,12 +86,11 @@ public class ProcessServiceImpl implements ProcessService {
         process.setParameters(DSpaceCommandLineParameter.concatenate(parameters));
         process.setCreationTime(new Date());
         Optional.ofNullable(specialGroups)
-                .ifPresent(sg -> {
-                    Set<Group> specialGroupsSet = new HashSet<Group>(sg);
-                    for (Group group : specialGroupsSet) {
-                        process.addGroup(group);
-                    }
-                });
+            .ifPresent(sg -> {
+                // we use a set to be sure no duplicated special groups are stored with process
+                Set<Group> specialGroupsSet = new HashSet<>(sg);
+                process.setGroups(new ArrayList<>(specialGroupsSet));
+            });
 
         Process createdProcess = processDAO.create(context, process);
         String message = Objects.nonNull(ePerson) ? "eperson with email " + ePerson.getEmail() : "an Anonymous user";

@@ -14,5 +14,4 @@ package org.dspace.discovery.configuration;
  *
  */
 public class MultiLanguageDiscoverSearchFilterFacet extends DiscoverySearchFilterFacet {
-
 }

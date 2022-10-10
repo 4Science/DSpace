@@ -836,7 +836,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointDsoTotalVisitsRest expectedPoint = new UsageReportPointDsoTotalVisitsRest();
         expectedPoint.addValue("views", 1);
-        expectedPoint.setId("BitstreamVisitedName");
+        expectedPoint.setId(bitstreamVisited.getID().toString());
+        expectedPoint.setLabel("BitstreamVisitedName");
         expectedPoint.setType("bitstream");
 
         // And request that item's TotalDownloads stat report
@@ -894,8 +895,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPoint = new UsageReportPointCountryRest();
         expectedPoint.addValue("views", 1);
-        expectedPoint.setId("US");
-        expectedPoint.setLabel("United States");
+        expectedPoint.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         // And request that collection's TopCountries report
         getClient(adminToken).perform(
@@ -961,8 +961,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPoint = new UsageReportPointCountryRest();
         expectedPoint.addValue("views", 2);
-        expectedPoint.setId("US");
-        expectedPoint.setLabel("United States");
+        expectedPoint.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         // And request that collection's TopCountries report
         getClient(adminToken).perform(
@@ -1304,8 +1303,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
         pointCountry.addValue("views", 5);
-        pointCountry.setId("US");
-        pointCountry.setLabel("United States");
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         UsageReportPointCategoryRest articleCategory = new UsageReportPointCategoryRest();
         articleCategory.addValue("views", 1);
@@ -1430,8 +1428,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
         pointCountry.addValue("views", 8);
-        pointCountry.setId("US");
-        pointCountry.setLabel("United States");
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         getClient(adminToken)
             .perform(get("/api/statistics/usagereports/search/object")
@@ -1483,8 +1480,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         // And request the community usage reports
         getClient(adminToken)
@@ -1564,8 +1561,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         //views and downloads
         List<UsageReportPointRest> totalDownloadsPoints = new ArrayList<>();
@@ -1661,17 +1658,19 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         List<UsageReportPointRest> totalDownloadsPoints = new ArrayList<>();
         UsageReportPointDsoTotalVisitsRest expectedPointTotalVisitsBit1 = new UsageReportPointDsoTotalVisitsRest();
         expectedPointTotalVisitsBit1.addValue("views", 1);
-        expectedPointTotalVisitsBit1.setId("bitstream1");
+        expectedPointTotalVisitsBit1.setLabel("bitstream1");
+        expectedPointTotalVisitsBit1.setId(bitstream1.getID().toString());
         expectedPointTotalVisitsBit1.setType("bitstream");
         UsageReportPointDsoTotalVisitsRest expectedPointTotalVisitsBit2 = new UsageReportPointDsoTotalVisitsRest();
         expectedPointTotalVisitsBit2.addValue("views", 2);
-        expectedPointTotalVisitsBit2.setId("bitstream2");
+        expectedPointTotalVisitsBit2.setLabel("bitstream2");
+        expectedPointTotalVisitsBit2.setId(bitstream2.getID().toString());
         expectedPointTotalVisitsBit2.setType("bitstream");
         totalDownloadsPoints.add(expectedPointTotalVisitsBit1);
         totalDownloadsPoints.add(expectedPointTotalVisitsBit2);
@@ -1741,8 +1740,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         // And request the community usage reports
         getClient(adminToken)
@@ -1773,7 +1772,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
     private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth, int nrOfMonthsBack) {
         List<UsageReportPointRest> expectedPoints = new ArrayList<>();
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(context.getCurrentLocale());
         for (int i = 0; i <= nrOfMonthsBack; i++) {
             UsageReportPointDateRest expectedPoint = new UsageReportPointDateRest();
             if (i > 0) {
@@ -1781,7 +1780,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
             } else {
                 expectedPoint.addValue("views", viewsLastMonth);
             }
-            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, new Locale("en"));
+            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, context.getCurrentLocale());
             expectedPoint.setId(month + " " + cal.get(Calendar.YEAR));
 
             expectedPoints.add(expectedPoint);
@@ -1889,8 +1888,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
         //add one day to the moment when we visit the community
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
@@ -1950,8 +1949,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
         //downloads and views expected points
         List<UsageReportPointRest> totalDownloadsPoints = new ArrayList<>();
@@ -2080,13 +2079,13 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         //create expected report points for contry visits
         UsageReportPointCountryRest expectedPointCountry = new UsageReportPointCountryRest();
         expectedPointCountry.addValue("views", 1);
-        expectedPointCountry.setId("US");
-        expectedPointCountry.setLabel("United States");
+        expectedPointCountry.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
         //create expected report points for country visits with relation
         UsageReportPointCountryRest expectedPointCountryWithRelation = new UsageReportPointCountryRest();
         expectedPointCountryWithRelation.addValue("views", 3);
-        expectedPointCountryWithRelation.setId("US");
-        expectedPointCountryWithRelation.setLabel("United States");
+        expectedPointCountryWithRelation.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
         getClient(adminToken)
                 .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
                         "/items/" + person.getID().toString()))
@@ -2225,8 +2224,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         //create expected report points for country visits with relation
         UsageReportPointCountryRest expectedPointCountryWithRelation = new UsageReportPointCountryRest();
         expectedPointCountryWithRelation.addValue("views", 3);
-        expectedPointCountryWithRelation.setId("US");
-        expectedPointCountryWithRelation.setLabel("United States");
+        expectedPointCountryWithRelation.setIdAndLabel(Locale.US.getCountry(),
+                Locale.US.getDisplayCountry(context.getCurrentLocale()));
         //top items expected report points
         List<UsageReportPointRest> points = new ArrayList<>();
         //first publication
@@ -2246,11 +2245,13 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         List<UsageReportPointRest> totalDownloadsPoints = new ArrayList<>();
         UsageReportPointDsoTotalVisitsRest expectedPointTotalVisitsBit1 = new UsageReportPointDsoTotalVisitsRest();
         expectedPointTotalVisitsBit1.addValue("views", 1);
-        expectedPointTotalVisitsBit1.setId("bitstream2");
+        expectedPointTotalVisitsBit1.setLabel("bitstream2");
+        expectedPointTotalVisitsBit1.setId(bitstreampublication_first.getID().toString());
         expectedPointTotalVisitsBit1.setType("bitstream");
         UsageReportPointDsoTotalVisitsRest expectedPointTotalVisitsBit2 = new UsageReportPointDsoTotalVisitsRest();
         expectedPointTotalVisitsBit2.addValue("views", 1);
-        expectedPointTotalVisitsBit2.setId("bitstream1");
+        expectedPointTotalVisitsBit2.setLabel("bitstream1");
+        expectedPointTotalVisitsBit2.setId(bitstreampublication_second.getID().toString());
         expectedPointTotalVisitsBit2.setType("bitstream");
         totalDownloadsPoints.add(expectedPointTotalVisitsBit1);
         totalDownloadsPoints.add(expectedPointTotalVisitsBit2);

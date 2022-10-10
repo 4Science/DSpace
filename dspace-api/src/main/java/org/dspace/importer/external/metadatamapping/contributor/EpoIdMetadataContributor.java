@@ -164,11 +164,11 @@ public class EpoIdMetadataContributor implements MetadataContributor<Element> {
         List<MetadatumDTO> values = new LinkedList<>();
         try {
             List<Namespace> namespaces = Arrays.asList(
-                Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
-                Namespace.getNamespace("ops", "http://ops.epo.org"),
-                Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
+                    Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink"),
+                    Namespace.getNamespace("ops", "http://ops.epo.org"),
+                    Namespace.getNamespace("ns", "http://www.epo.org/exchange"));
             XPathExpression<Element> xpath = XPathFactory.instance().compile(query, Filters.element(), null,
-                namespaces);
+                    namespaces);
             List<Element> elements = xpath.evaluate(element);
             for (Element el : elements) {
                 EpoDocumentId document = new EpoDocumentId(el, namespaces);
@@ -215,7 +215,7 @@ public class EpoIdMetadataContributor implements MetadataContributor<Element> {
             this.namespaces = namespaces;
             Element preferredId = null;
             XPathExpression<Object> xpath = XPathFactory.instance().compile(
-                "./ns:document-id[@document-id-type=\"epodoc\"]", Filters.fpassthrough(), null, namespaces);
+                    "./ns:document-id[@document-id-type=\"epodoc\"]", Filters.fpassthrough(), null, namespaces);
 
             List<Object> nodes = xpath.evaluate(documentId);
             if (CollectionUtils.isNotEmpty(nodes)) {
@@ -288,7 +288,7 @@ public class EpoIdMetadataContributor implements MetadataContributor<Element> {
                 return StringUtils.EMPTY;
             }
             XPathExpression<Object> xpath = XPathFactory.instance().compile(path, Filters.fpassthrough(), null,
-                namespaces);
+                    namespaces);
             List<Object> nodes = xpath.evaluate(documentId);
             //exactly one element expected for any field
             return CollectionUtils.isNotEmpty(nodes) ? getValue(nodes.get(0)) : StringUtils.EMPTY;

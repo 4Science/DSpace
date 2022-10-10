@@ -88,13 +88,16 @@ public class IdentifierRestController implements InitializingBean {
             dso = identifierService.resolve(context, id);
             if (dso != null) {
                 DSpaceObjectRest dsor = converter.toRest(dso, utils.obtainProjection());
-                URI link = linkTo(dsor.getController(), dsor.getCategory(),
-                        English.plural(dsor.getType()))
+                URI link = linkTo(dsor.getController(), dsor.getCategory(), English.plural(dsor.getType()))
                         .slash(dsor.getId()).toUri();
                 response.setStatus(HttpServletResponse.SC_FOUND);
                 response.sendRedirect(link.toString());
             } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                if (identifierService.isGone(context, id)) {
+                    response.setStatus(HttpServletResponse.SC_GONE);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } catch (IdentifierNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

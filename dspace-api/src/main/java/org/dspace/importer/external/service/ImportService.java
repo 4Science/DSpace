@@ -296,6 +296,18 @@ public class ImportService implements Destroyable {
         return importSources.keySet();
     }
 
+    public boolean canImportFromFile(String originalName) {
+        for (MetadataSource metadataSource : importSources.values()) {
+            if (metadataSource instanceof FileSource) {
+                FileSource fileSource = (FileSource)metadataSource;
+                if (fileSource.isValidSourceForFile(originalName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /*
      * Get a collection of record from File,
      * The first match will be return.

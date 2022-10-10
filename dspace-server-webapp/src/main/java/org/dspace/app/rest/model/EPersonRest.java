@@ -46,6 +46,8 @@ public class EPersonRest extends DSpaceObjectRest {
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
 
+    private boolean machineTokenGenerated;
+
     @Override
     @JsonProperty(access = Access.READ_ONLY)
     public String getType() {
@@ -106,6 +108,14 @@ public class EPersonRest extends DSpaceObjectRest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isMachineTokenGenerated() {
+        return machineTokenGenerated;
+    }
+
+    public void setMachineTokenGenerated(boolean machineTokenGenerated) {
+        this.machineTokenGenerated = machineTokenGenerated;
     }
 
     @Override

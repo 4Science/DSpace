@@ -163,9 +163,13 @@ public class ExtractMetadataStep implements ListenerProcessingStep, UploadableSt
         throws IOException {
 
         Item item = wsi.getItem();
+        String originalFilename = multipartFile.getOriginalFilename();
+        if (!importService.canImportFromFile(originalFilename)) {
+            return null;
+        }
         File file = Utils.getFile(multipartFile, "extract-metadata-step", stepConfig.getId());
         try {
-            ImportRecord record = importService.getRecord(file, multipartFile.getOriginalFilename());
+            ImportRecord record = importService.getRecord(file, originalFilename);
             if (record != null) {
                 // add metadata to the item if no values are already here
                 Set<String> alreadyFilledMetadata = new HashSet();

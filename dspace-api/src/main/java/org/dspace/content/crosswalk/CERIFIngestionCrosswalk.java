@@ -171,7 +171,6 @@ public class CERIFIngestionCrosswalk implements IngestionCrosswalk {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void convertDimFields(Element dimRoot) {
         List<Element> fields = dimRoot.getChildren();
         for (Element field : fields) {
@@ -204,7 +203,7 @@ public class CERIFIngestionCrosswalk implements IngestionCrosswalk {
     }
 
     private String getEntityType(Item item) {
-        String itemEntityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
+        String itemEntityType = itemService.getEntityTypeLabel(item);
         return StringUtils.isNotBlank(itemEntityType) ? itemEntityType : "Publication";
     }
 

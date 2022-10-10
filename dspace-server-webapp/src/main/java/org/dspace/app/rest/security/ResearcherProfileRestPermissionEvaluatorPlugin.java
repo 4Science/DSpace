@@ -13,6 +13,7 @@ import static org.dspace.app.rest.security.DSpaceRestPermission.WRITE;
 
 import java.io.Serializable;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.ResearcherProfileRest;
@@ -58,7 +59,7 @@ public class ResearcherProfileRestPermissionEvaluatorPlugin extends RestObjectPe
         }
 
         Request request = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(request.getServletRequest());
+        Context context = ContextUtil.obtainContext((HttpServletRequest) request.getServletRequest());
 
         EPerson currentUser = context.getCurrentUser();
         if (currentUser == null) {

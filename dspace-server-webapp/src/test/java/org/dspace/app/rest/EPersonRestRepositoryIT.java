@@ -342,6 +342,34 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void findOneWithMachineTokenTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withNameInMetadata("John", "Doe")
+            .withEmail("Johndoe@example.com")
+            .withPassword(password)
+            .withCanLogin(true)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(ePerson.getEmail(), password);
+
+        getClient(authToken).perform(get("/api/eperson/epersons/" + ePerson.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.machineTokenGenerated", is(false)));
+
+        getClient(authToken).perform(post("/api/authn/machinetokens"))
+            .andExpect(status().isOk());
+
+        getClient(authToken).perform(get("/api/eperson/epersons/" + ePerson.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.machineTokenGenerated", is(true)));
+
+    }
+
+    @Test
     public void findOneForbiddenTest() throws Exception {
         context.turnOffAuthorisationSystem();
 

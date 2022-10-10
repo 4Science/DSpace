@@ -10,10 +10,11 @@ package org.dspace.app.rest.converter;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.VocabularyEntryDetailsRest;
 import org.dspace.app.rest.projection.Projection;
+import org.dspace.app.rest.utils.AuthorityUtils;
 import org.dspace.content.authority.Choice;
 import org.springframework.stereotype.Component;
 
-/*
+/**
  * This is the converter from/to the Choice in the DSpace API data
  * model and the REST data model.
  *
@@ -40,7 +41,11 @@ public class VocabularyEntryDetailsRestConverter implements DSpaceConverter<Choi
 
     private String mapToId(Choice choice) {
         String id = choice.authority;
-        if (StringUtils.isNotEmpty(choice.authorityName)) {
+        //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
+        // build a vocabulary entry details ID
+        if (StringUtils.isNotEmpty(choice.authorityName)
+                && !StringUtils.startsWith(id, choice.authorityName
+                        + VocabularyEntryDetailsRestConverter.ID_SPLITTER)) {
             id = new StringBuilder(choice.authorityName)
                     .append(VocabularyEntryDetailsRestConverter.ID_SPLITTER)
                     .append(choice.authority)

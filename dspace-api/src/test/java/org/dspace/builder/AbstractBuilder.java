@@ -16,9 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.dspace.app.audit.AuditService;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.nbevent.service.NBEventService;
-import org.dspace.app.orcid.factory.OrcidServiceFactory;
-import org.dspace.app.orcid.service.OrcidHistoryService;
-import org.dspace.app.orcid.service.OrcidQueueService;
 import org.dspace.app.requestitem.factory.RequestItemServiceFactory;
 import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.suggestion.SolrSuggestionStorageService;
@@ -59,6 +56,10 @@ import org.dspace.layout.service.CrisLayoutFieldService;
 import org.dspace.layout.service.CrisLayoutMetadataGroupService;
 import org.dspace.layout.service.CrisLayoutMetric2BoxService;
 import org.dspace.layout.service.CrisLayoutTabService;
+import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.orcid.service.OrcidHistoryService;
+import org.dspace.orcid.service.OrcidQueueService;
+import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -115,8 +116,6 @@ public abstract class AbstractBuilder<T, S> {
     static CrisLayoutBoxService crisLayoutBoxService;
     static CrisLayoutFieldService crisLayoutFieldService;
     static CrisLayoutMetadataGroupService crisLayoutMetadataGroupService;
-    static OrcidQueueService orcidQueueService;
-    static OrcidHistoryService orcidHistoryService;
     static AuditService auditService;
     static CrisMetricsService crisMetricsService;
     static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
@@ -126,6 +125,9 @@ public abstract class AbstractBuilder<T, S> {
     static SubscribeService subscribeService;
     static RequestItemService requestItemService;
     static VersioningService versioningService;
+    static OrcidHistoryService orcidHistoryService;
+    static OrcidQueueService orcidQueueService;
+    static OrcidTokenService orcidTokenService;
 
     protected Context context;
 
@@ -186,8 +188,6 @@ public abstract class AbstractBuilder<T, S> {
         crisLayoutBoxService = CrisLayoutServiceFactory.getInstance().getBoxService();
         crisLayoutFieldService = CrisLayoutServiceFactory.getInstance().getFieldService();
         crisLayoutMetadataGroupService = CrisLayoutServiceFactory.getInstance().getMetadataGroupService();
-        orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
-        orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
         auditService = new DSpace().getSingletonService(AuditService.class);
         crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
@@ -195,6 +195,9 @@ public abstract class AbstractBuilder<T, S> {
         nbEventService = new DSpace().getSingletonService(NBEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         subscribeService = ContentServiceFactory.getInstance().getSubscribeService();
+        orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
+        orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
+        orcidTokenService = OrcidServiceFactory.getInstance().getOrcidTokenService();
     }
 
 
@@ -238,6 +241,7 @@ public abstract class AbstractBuilder<T, S> {
         subscribeService = null;
         requestItemService = null;
         versioningService = null;
+        orcidTokenService = null;
     }
 
     public static void cleanupObjects() throws Exception {

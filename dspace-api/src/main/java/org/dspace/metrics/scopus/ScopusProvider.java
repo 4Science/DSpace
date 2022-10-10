@@ -9,7 +9,12 @@ package org.dspace.metrics.scopus;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,15 +38,42 @@ import org.xml.sax.SAXException;
  */
 public class ScopusProvider {
 
-    private static Logger log = LogManager.getLogger(ScopusProvider.class);
+    private static final Logger log = LogManager.getLogger(ScopusProvider.class);
 
     @Autowired
     private ScopusRestConnector scopusRestConnector;
 
+    /**
+     * <p>
+     *  This methods fetch a list of metrics using the {@code id} param,
+     *  once fetched and parsed the response explores for linked urls
+     *  to fetch and adds all of them to the list.
+     * </p>
+     * 
+     * @param id Appender to the URL defined in the props
+     * @return List of CrisMetrics fetched
+     */
+    public List<CrisMetricDTO> getScopusList(String id) {
+        String scopusResponse = getRecords(id);
+        if (StringUtils.isNotBlank(scopusResponse)) {
+            List<CrisMetricDTO> crisMetricList = mapToCrisMetricList(scopusResponse);
+            String nextItemUrl = this.getNext(scopusResponse);
+            // explore all linked items with next clause
+            while (crisMetricList != null && !crisMetricList.isEmpty() && StringUtils.isNotEmpty(nextItemUrl)) {
+                scopusResponse = this.scopusRestConnector.getNextItem(nextItemUrl);
+                crisMetricList.addAll(mapToCrisMetricList(scopusResponse));
+                nextItemUrl = this.getNext(scopusResponse);
+            }
+            return crisMetricList;
+        }
+        log.error("The query : " + id + " is wrong!");
+        return List.of();
+    }
+
     public CrisMetricDTO getScopusObject(String id) {
-        String is = getRecords(id);
-        if (StringUtils.isNotBlank(is)) {
-            return convertToScopusDTO(is);
+        String scopusResponse = getRecords(id);
+        if (StringUtils.isNotBlank(scopusResponse)) {
+            return mapToCrisMetric(scopusResponse);
         }
         log.error("The query : " + id + " is wrong!");
         return null;
@@ -54,67 +86,127 @@ public class ScopusProvider {
         return scopusRestConnector.get(id);
     }
 
-    private CrisMetricDTO convertToScopusDTO(String inputStream) {
-        Document doc = null;
+    private CrisMetricDTO mapToCrisMetric(String scopusResponse) {
+        Document parsedResponse = null;
         DocumentBuilder docBuilder = null;
         try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             docBuilder = docBuilderFactory.newDocumentBuilder();
-            doc = docBuilder.parse(new InputSource(new StringReader(inputStream)));
+            parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             log.error(e.getMessage(), e);
         }
-        return loadScopusMetrics(doc);
+        return mapToCrisMetric(parsedResponse);
     }
 
-    private CrisMetricDTO loadScopusMetrics(Document doc) {
+    private List<CrisMetricDTO> mapToCrisMetricList(String scopusResponse) {
+        Document parsedResponse = null;
+        DocumentBuilder docBuilder = null;
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilder = docBuilderFactory.newDocumentBuilder();
+            parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return mapToCrisMetricList(parsedResponse);
+    }
+
+    private String getNext(String scopusResponse) {
+        Document parsedResponse = null;
+        DocumentBuilder docBuilder = null;
+        String nextUrl = null;
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilder = docBuilderFactory.newDocumentBuilder();
+            parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
+            nextUrl = Optional.ofNullable(
+                    XMLUtils.getElementList(parsedResponse.getDocumentElement(), "link")
+                )
+                .map(List::stream)
+                .orElse(Stream.empty())
+                .filter(element ->
+                    element.hasAttribute("ref") &&
+                    "next".equals(element.getAttribute("ref")) &&
+                    element.hasAttribute("ref")
+                )
+                .findFirst()
+                .map(element -> element.getAttribute("href"))
+                .orElse(null);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return nextUrl;
+    }
+
+    private List<CrisMetricDTO> mapToCrisMetricList(Document doc) {
+        List<CrisMetricDTO> scopusCitationList = new ArrayList<>();
+        try {
+            scopusCitationList = XMLUtils.getElementList(doc.getDocumentElement(), "entry")
+                    .stream()
+                    .map(this::mapToCrisMetric)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return scopusCitationList;
+    }
+
+    private CrisMetricDTO mapToCrisMetric(Document doc) {
         CrisMetricDTO scopusCitation = null;
         try {
-            Element xmlRoot = doc.getDocumentElement();
-            Element dataRoot = XMLUtils.getSingleElement(xmlRoot, "entry");
-            Element errorScopusResp = XMLUtils.getSingleElement(dataRoot, "error");
-            if (dataRoot != null && errorScopusResp == null) {
-                scopusCitation = new CrisMetricDTO();
-                String eid = XMLUtils.getElementValue(dataRoot, "eid");
-                String doi = XMLUtils.getElementValue(dataRoot, "prism:doi");
-                String pmid = XMLUtils.getElementValue(dataRoot, "pubmed-id");
-                String numCitations = XMLUtils.getElementValue(dataRoot, "citedby-count");
-                List<Element> citedByLinkElements = XMLUtils.getElementList(dataRoot, "link");
-                for (Element element : citedByLinkElements) {
-                    if (element.hasAttribute("ref")) {
-                        if ("scopus-citedby".equals(element.getAttribute("ref"))) {
-                            scopusCitation.getTmpRemark().put("link", element.getAttribute("href"));
-                            break;
-                        }
-                    }
-                }
-                if (StringUtils.isNotBlank(eid)) {
-                    scopusCitation.getTmpRemark().put("identifier", eid);
-                }
-                if (StringUtils.isNotBlank(doi)) {
-                    scopusCitation.getTmpRemark().put("doi", doi);
-                }
-                if (StringUtils.isNotBlank(pmid)) {
-                    scopusCitation.getTmpRemark().put("pmid", pmid);
-                }
-                try {
-                    scopusCitation.setMetricCount(Double.parseDouble(numCitations));
-                } catch (NullPointerException ex) {
-                    log.error("Error while trying to parse numCitations:" + numCitations);
-                    throw new Exception(ex);
-                }
-                scopusCitation.setRemark(scopusCitation.buildMetricsRemark());
-                return scopusCitation;
-            } else {
-                if (dataRoot == null) {
-                    log.debug("No citation entry found in Scopus");
-                } else {
-                    log.debug("Error citation entry found in Scopus: " + errorScopusResp.getTextContent());
-                }
-            }
+            scopusCitation = Optional.ofNullable(
+                        XMLUtils.getSingleElement(doc.getDocumentElement(), "entry")
+                    )
+                    .map(this::mapToCrisMetric)
+                    .orElse(null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return scopusCitation;
     }
+
+    private CrisMetricDTO mapToCrisMetric(Element dataRoot) {
+        CrisMetricDTO scopusCitation = new CrisMetricDTO();
+        if (dataRoot == null) {
+            log.debug("No citation entry found in Scopus");
+            return scopusCitation;
+        }
+
+        Element errorScopusResp = XMLUtils.getSingleElement(dataRoot, "error");
+        if (errorScopusResp != null) {
+            log.debug("Error citation entry found in Scopus: " + errorScopusResp.getTextContent());
+            return scopusCitation;
+        }
+
+        String eid = XMLUtils.getElementValue(dataRoot, "eid");
+        String doi = XMLUtils.getElementValue(dataRoot, "prism:doi");
+        String pmid = XMLUtils.getElementValue(dataRoot, "pubmed-id");
+        String numCitations = XMLUtils.getElementValue(dataRoot, "citedby-count");
+
+        XMLUtils.getElementList(dataRoot, "link")
+            .stream()
+            .filter(element -> element.hasAttribute("ref") && "scopus-citedby".equals(element.getAttribute("ref")))
+            .findFirst()
+            .ifPresent(element -> scopusCitation.getTmpRemark().put("link", element.getAttribute("href")));
+
+        if (StringUtils.isNotBlank(eid)) {
+            scopusCitation.getTmpRemark().put("identifier", eid);
+        }
+        if (StringUtils.isNotBlank(doi)) {
+            scopusCitation.getTmpRemark().put("doi", doi);
+        }
+        if (StringUtils.isNotBlank(pmid)) {
+            scopusCitation.getTmpRemark().put("pmid", pmid);
+        }
+        try {
+            scopusCitation.setMetricCount(Double.valueOf(numCitations));
+        } catch (NullPointerException | NumberFormatException ex) {
+            log.error("Error while trying to parse numCitations:" + numCitations);
+        }
+        scopusCitation.setRemark(scopusCitation.buildMetricsRemark());
+        return scopusCitation;
+    }
+
 }

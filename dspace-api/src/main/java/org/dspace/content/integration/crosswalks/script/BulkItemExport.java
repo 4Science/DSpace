@@ -7,18 +7,16 @@
  */
 package org.dspace.content.integration.crosswalks.script;
 
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration.SORT_FUNCTION;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
@@ -32,26 +30,21 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.discovery.DiscoverFilterQuery;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResultItemIterator;
 import org.dspace.discovery.IndexableObject;
-import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration;
-import org.dspace.discovery.configuration.DiscoverySearchFilter;
-import org.dspace.discovery.configuration.DiscoverySortConfiguration;
-import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
-import org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration;
-import org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.discovery.indexobject.IndexableWorkflowItem;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
+import org.dspace.discovery.utils.DiscoverQueryBuilder;
+import org.dspace.discovery.utils.parameter.QueryBuilderSearchFilter;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.kernel.ServiceManager;
@@ -85,7 +78,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
 
     private DiscoveryConfigurationService discoveryConfigurationService;
 
-    private SearchService searchService;
+    private DiscoverQueryBuilder queryBuilder;
 
 
     private String query;
@@ -93,8 +86,6 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
     private String scope;
 
     private String configuration;
-
-    private Map<String, String> filters;
 
     private String searchFilters;
 
@@ -113,7 +104,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
         this.communityService = ContentServiceFactory.getInstance().getCommunityService();
         this.itemService = ContentServiceFactory.getInstance().getItemService();
         this.discoveryConfigurationService = new DSpace().getSingletonService(DiscoveryConfigurationService.class);
-        this.searchService = SearchUtils.getSearchService();
+        this.queryBuilder = SearchUtils.getQueryBuilder();
 
         this.query = commandLine.getOptionValue('q');
         this.scope = commandLine.getOptionValue('s');
@@ -134,8 +125,6 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
         if (exportFormat == null) {
             throw new IllegalArgumentException("The export format must be provided");
         }
-
-        filters = parseSearchFilters();
 
         StreamDisseminationCrosswalk streamDisseminationCrosswalk = getCrosswalkByType(exportFormat);
         if (streamDisseminationCrosswalk == null) {
@@ -230,76 +219,9 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
     }
 
     private DiscoverQuery buildDiscoveryQuery(DiscoveryConfiguration discoveryConfiguration,
-        IndexableObject<?, ?> scope) throws SQLException {
+        IndexableObject<?, ?> scope) throws SQLException, SearchServiceException {
 
-        DiscoverQuery discoverQuery = buildBaseQuery(discoveryConfiguration, scope);
-        discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.addDSpaceObjectFilter(IndexableWorkspaceItem.TYPE);
-        discoverQuery.addDSpaceObjectFilter(IndexableWorkflowItem.TYPE);
-        discoverQuery.setQuery(query);
-        discoverQuery.setMaxResults(QUERY_PAGINATION_SIZE);
-        discoverQuery.addFilterQueries(getFilterQueries(discoveryConfiguration));
-        if (entityType != null) {
-            discoverQuery.addFilterQueries("search.entitytype:" + entityType);
-        }
-        configureSorting(discoverQuery, discoveryConfiguration, scope);
-
-        return discoverQuery;
-    }
-
-    private DiscoverQuery buildBaseQuery(DiscoveryConfiguration discoveryConfiguration, IndexableObject<?, ?> scope) {
-        DiscoverQuery discoverQuery = new DiscoverQuery();
-
-        if (discoveryConfiguration == null) {
-            return discoverQuery;
-        }
-
-        discoverQuery.setDiscoveryConfigurationName(discoveryConfiguration.getId());
-
-        List<String> filterQueries = discoveryConfiguration.getDefaultFilterQueries();
-
-        for (String filterQuery : filterQueries) {
-            if (discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration) {
-                discoverQuery.addFilterQueries(MessageFormat.format(filterQuery, scope.getID()));
-            } else {
-                discoverQuery.addFilterQueries(filterQuery);
-            }
-        }
-
-        return discoverQuery;
-    }
-
-    private String[] getFilterQueries(DiscoveryConfiguration discoveryConfiguration) throws SQLException {
-
-        List<String> filterQueries = new ArrayList<>();
-
-        for (String filterName : filters.keySet()) {
-            DiscoverySearchFilter searchFilter = discoveryConfiguration.getSearchFilter(filterName);
-            if (searchFilter == null) {
-                throw new IllegalArgumentException(filterName + " is not a valid search filter");
-            }
-
-            String value = filters.get(filterName);
-            String filterValue = StringUtils.substringBeforeLast(value, FILTER_OPERATOR_SEPARATOR);
-            String filterOperator = StringUtils.substringAfterLast(value, FILTER_OPERATOR_SEPARATOR);
-
-            String name = searchFilter.getIndexFieldName();
-            if (searchFilter instanceof MultiLanguageDiscoverSearchFilterFacet) {
-                name = context.getCurrentLocale().getLanguage() + "_" + name;
-            }
-
-            DiscoverFilterQuery filterQuery = searchService.toFilterQuery(context, name, filterOperator, filterValue,
-                    discoveryConfiguration);
-            if (filterQuery != null) {
-                filterQueries.add(filterQuery.getFilterQuery());
-            }
-        }
-
-        return filterQueries.toArray(new String[filterQueries.size()]);
-    }
-
-    private void configureSorting(DiscoverQuery discoverQuery, DiscoveryConfiguration discoveryConfiguration,
-        IndexableObject<?, ?> scopeObject) {
+        List<String> dsoTypes = List.of(IndexableItem.TYPE, IndexableWorkspaceItem.TYPE, IndexableWorkflowItem.TYPE);
 
         String sortBy = null;
         String sortOrder = null;
@@ -309,59 +231,42 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
             sortOrder = sortSections.length > 1 ? sortSections[1] : null;
         }
 
-        DiscoverySortConfiguration searchSortConfiguration = discoveryConfiguration.getSearchSortConfiguration();
+        List<QueryBuilderSearchFilter> filters = parseSearchFilters();
 
-        if (sortBy == null) {
-            sortBy = searchSortConfiguration.getDefaultSortField();
-        }
-        if (sortOrder == null) {
-            sortOrder = searchSortConfiguration.getDefaultSortDirection();
-        }
+        DiscoverQuery discoverQuery = queryBuilder.buildQuery(context, scope, discoveryConfiguration, query, filters,
+            dsoTypes, QUERY_PAGINATION_SIZE, 0L, sortBy, sortOrder);
 
-        DiscoverySortFieldConfiguration fieldConfig = searchSortConfiguration.getSortFieldConfiguration(sortBy);
-
-        if (fieldConfig == null) {
-            throw new IllegalArgumentException(sortBy + " is not a valid sort field");
+        if (entityType != null) {
+            discoverQuery.addFilterQueries("search.entitytype:" + entityType);
         }
 
-        String sortField = calculateSortField(fieldConfig, scopeObject);
-
-        if ("asc".equalsIgnoreCase(sortOrder)) {
-            discoverQuery.setSortField(sortField, DiscoverQuery.SORT_ORDER.asc);
-        } else if ("desc".equalsIgnoreCase(sortOrder)) {
-            discoverQuery.setSortField(sortField, DiscoverQuery.SORT_ORDER.desc);
-        } else {
-            throw new IllegalArgumentException(sortOrder + " is not a valid sort order");
-        }
-
+        return discoverQuery;
     }
 
-    private String calculateSortField(DiscoverySortFieldConfiguration sortFieldConfig,
-        IndexableObject<?, ?> scopeObject) {
+    private List<QueryBuilderSearchFilter> parseSearchFilters() {
 
-        if (SORT_FUNCTION.equals(sortFieldConfig.getType()) && scopeObject != null) {
-            return ((DiscoverySortFunctionConfiguration) sortFieldConfig).getFunction(scopeObject.getID());
-        }
+        List<QueryBuilderSearchFilter> queryBuilderSearchFilters = new ArrayList<>();
 
-        return searchService.toSortFieldIndex(sortFieldConfig.getMetadataField(), sortFieldConfig.getType());
-    }
-
-    private Map<String, String> parseSearchFilters() {
         if (searchFilters == null) {
-            return new HashMap<String, String>();
+            return queryBuilderSearchFilters;
         }
 
-        Map<String, String> filterMap = new HashMap<String, String>();
         String[] filters = searchFilters.split("&");
         for (String filter : filters) {
             String[] filterSections = filter.split("=");
             if (filterSections.length != 2) {
                 throw new IllegalArgumentException("Invalid filter: " + filter);
             }
-            filterMap.put(filterSections[0], filterSections[1]);
+
+            String name = filterSections[0];
+            String filterValue = substringBeforeLast(filterSections[1], FILTER_OPERATOR_SEPARATOR);
+            String operator = substringAfterLast(filterSections[1], FILTER_OPERATOR_SEPARATOR);
+
+            queryBuilderSearchFilters.add(new QueryBuilderSearchFilter(name, operator, filterValue));
+
         }
 
-        return filterMap;
+        return queryBuilderSearchFilters;
 
     }
 

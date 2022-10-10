@@ -25,9 +25,11 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
-import org.dspace.discovery.SolrServiceValuePairsIndexPlugin;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -43,17 +45,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIntegrationTest {
 
     @Autowired
-    private SolrServiceValuePairsIndexPlugin solrServiceValuePairsIndexPlugin;
-
-    @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
     private MetadataAuthorityService metadataAuthorityService;
 
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
+
     @After
     public void after() {
+        DSpaceServicesFactory.getInstance().getConfigurationService().reloadConfig();
         metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+        // the DCInputAuthority has an internal cache of the DCInputReader
+        DCInputAuthority.reset();
+        DCInputAuthority.getPluginNames();
     }
 
     @Test
@@ -62,7 +69,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         String[] supportedLanguage = { "it", "uk" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+        // the DCInputAuthority has an internal cache of the DCInputReader
+        DCInputAuthority.reset();
+        DCInputAuthority.getPluginNames();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -158,7 +169,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         String[] supportedLanguage = { "it", "uk" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+        // the DCInputAuthority has an internal cache of the DCInputReader
+        DCInputAuthority.reset();
+        DCInputAuthority.getPluginNames();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -216,7 +231,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         String[] supportedLanguage = { "it", "uk" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+        // the DCInputAuthority has an internal cache of the DCInputReader
+        DCInputAuthority.reset();
+        DCInputAuthority.getPluginNames();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -259,13 +278,12 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
     @Test
     public void discoverFacetsTypesTest() throws Exception {
-        configurationService.setProperty("authority.controlled.dc.type", "true");
-        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
 
         String[] supportedLanguage = { "en","uk", "it" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
@@ -311,13 +329,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
     @Test
     public void discoverFacetsTypesTestWithoutAuthority() throws Exception {
-        configurationService.setProperty("authority.controlled.dc.type", "true");
-        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
-
-        String[] supportedLanguage = { "en", "uk", "it" };
+        String[] supportedLanguage = { "en","uk", "it" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -362,13 +378,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
     @Test
     public void discoverFacetsTypesTestWithUnknownAuthority() throws Exception {
-        configurationService.setProperty("authority.controlled.dc.type", "true");
-        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
-
-        String[] supportedLanguage = { "en", "uk", "it" };
+        String[] supportedLanguage = { "en","uk", "it" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -413,13 +427,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
     @Test
     public void discoverFacetsTypesTestWithUnknownAuthorityName() throws Exception {
-        configurationService.setProperty("authority.controlled.dc.type", "true");
-        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
-
-        String[] supportedLanguage = { "en", "uk", "it" };
+        String[] supportedLanguage = { "en","uk", "it" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -464,13 +476,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
     @Test
     public void discoverFacetsTypesTestWithWrongAuthorityFormat() throws Exception {
-        configurationService.setProperty("authority.controlled.dc.type", "true");
-        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
-
         String[] supportedLanguage = { "en", "uk", "it" };
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
-        solrServiceValuePairsIndexPlugin.setup();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")

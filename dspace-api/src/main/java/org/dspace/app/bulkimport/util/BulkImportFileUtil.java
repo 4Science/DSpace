@@ -18,6 +18,8 @@ import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
+import org.dspace.services.ConfigurationService;
+import org.dspace.utils.DSpace;
 
 /*
  * @author Jurgen Mamani
@@ -93,8 +95,21 @@ public class BulkImportFileUtil {
 
 
     private InputStream getInputStreamOfLocalFile(String path) throws IOException {
-        path = path.replace(LOCAL_PREFIX + "/", "");
+        String orginalPath = path;
+        path = path.replace(LOCAL_PREFIX + "//", "");
+        ConfigurationService configurationService = new DSpace().getConfigurationService();
+        String bulkUploadFolder = configurationService.getProperty("bulk-uploads.local-folder");
+        if (!StringUtils.startsWith(path, "/")) {
+            path = bulkUploadFolder + (StringUtils.endsWith(bulkUploadFolder, "/") ? path : "/" + path);
+        }
         File file = new File(path);
+        String canonicalPath = file.getCanonicalPath();
+        if (!file.exists()) {
+            throw new IOException("file " + orginalPath + " is not found");
+        }
+        if (!StringUtils.startsWith(canonicalPath, bulkUploadFolder)) {
+            throw new IOException("Access to the specified file " + orginalPath + " is not allowed ");
+        }
         return FileUtils.openInputStream(file);
     }
 

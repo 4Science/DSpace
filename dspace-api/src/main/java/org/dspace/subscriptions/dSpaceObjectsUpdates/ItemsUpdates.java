@@ -61,7 +61,7 @@ public class ItemsUpdates implements DSpaceObjectUpdates {
     public List<IndexableObject> findUpdates(Context context, DSpaceObject dSpaceObject, String frequency) {
         List<IndexableObject> list = new ArrayList<>();
         // entity type found
-        String inverseRelationName = "RELATION." + itemService.getEntityType((Item) dSpaceObject);
+        String inverseRelationName = "RELATION." + itemService.getEntityTypeLabel((Item) dSpaceObject);
         List<DiscoveryConfiguration> discoveryConfigurationList =
                 searchConfigurationService.getDiscoveryConfigurationWithPrefixName(inverseRelationName);
         DiscoverQuery discoverQuery = null;

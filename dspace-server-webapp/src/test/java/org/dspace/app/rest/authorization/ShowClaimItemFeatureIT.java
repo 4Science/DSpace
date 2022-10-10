@@ -137,7 +137,7 @@ public class ShowClaimItemFeatureIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Item ownedItem = ItemBuilder.createItem(context, personCollection)
-                                    .withCrisOwner("owner", "ownerAuthority").build();
+                                    .withDspaceObjectOwner("owner", "ownerAuthority").build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(context.getCurrentUser().getEmail(), password);
@@ -159,7 +159,7 @@ public class ShowClaimItemFeatureIT extends AbstractControllerIntegrationTest {
 
         ItemBuilder.createItem(context, personCollection)
             .withTitle("User")
-            .withCrisOwner("User", context.getCurrentUser().getID().toString())
+            .withDspaceObjectOwner("User", context.getCurrentUser().getID().toString())
             .build();
 
         context.restoreAuthSystemState();
