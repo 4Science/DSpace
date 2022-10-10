@@ -9,8 +9,8 @@
 -----------------------------------------------------------------------------------
 -- Hierarchical Vocabularity 2 Box
 -----------------------------------------------------------------------------------
-CREATE SEQUENCE cris_layout_box2hierarchicalvocabulary_id_seq;
-CREATE TABLE cris_layout_box2hierarchicalvocabulary (
+CREATE SEQUENCE IF NOT EXISTS cris_layout_box2hierarchicalvocabulary_id_seq;
+CREATE TABLE IF NOT EXISTS cris_layout_box2hierarchicalvocabulary (
     vocabulary character varying(255) NOT NULL,
     cris_layout_box_id integer NOT NULL,
     id integer NOT NULL,
