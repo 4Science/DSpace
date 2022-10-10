@@ -56,6 +56,7 @@
 	</bean>
 
 	<bean name="publicationFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="entityType" value="Fond"/>
 		<property name="parentQuery" value="entityType:Fond AND -glamfond.parent:*"/>
 		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
 		<!-- Value mapping -->
@@ -69,6 +70,7 @@
 	</bean>
 
 	<bean name="publicationJournalFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="entityType" value="JournalFond"/>
 		<property name="parentQuery" value="entityType:JournalFond AND -glamjournalfond.parent:*"/>
 		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
 		<!-- Value mapping -->
@@ -82,6 +84,7 @@
 	</bean>
 
 	<bean name="fondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="entityType" value="Fond"/>
 		<property name="parentQuery" value="entityType:Fond AND -glamfond.parent:*"/>
 		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
 		<!-- Value mapping -->
@@ -95,6 +98,7 @@
 	</bean>
 
 	<bean name="journalfondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="entityType" value="JournalFond"/>
 		<property name="parentQuery" value="entityType:JournalFond AND -glamjournalfond.parent:*"/>
 		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
 		<!-- Value mapping -->
@@ -108,6 +112,7 @@
 	</bean>
 
 	<bean name="aggregationsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
+		<property name="entityType" value="Aggregation"/>
 		<property name="parentQuery" value="entityType:Aggregation AND -glamaggregation.parent:*"/>
 		<property name="childrenQuery" value="glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0}"/>
 		<!-- Value mapping -->
