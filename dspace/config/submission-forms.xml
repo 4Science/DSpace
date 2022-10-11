@@ -1491,7 +1491,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
-          <label>Tupo di progetto</label>
+          <label>Tipo di progetto</label>
           <input-type value-pairs-name="project_types">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
