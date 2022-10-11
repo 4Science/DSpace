@@ -60,6 +60,9 @@
         <!-- Used by (now obsolete) 'dspace-rest' WAR -->
         <jersey.version>2.35</jersey.version>
 
+        <!--=== ADDON DEPENDENCIES ===-->
+        <addon-ocr.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
+
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
@@ -850,6 +853,26 @@
             <modules>
                 <module>dspace-iiif</module>
             </modules>
+        </profile>
+
+        <!--
+            Builds OCR addon for DSpace
+        -->
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-ocr-api</artifactId>
+                         <version>${addon-ocr.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
         </profile>
 
        <!-- REST Jersey (Deprecated REST API from DSpace 6.x or below) -->

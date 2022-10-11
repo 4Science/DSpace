@@ -35,6 +35,7 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.model.UploadResult;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -60,6 +61,9 @@ public class S3BitStoreService implements BitStoreService {
      * log4j log
      */
     private static final Logger log = LogManager.getLogger(S3BitStoreService.class);
+
+    public static final String TEMP_PREFIX = "s3-virtual-path";
+    public static final String TEMP_SUFFIX = "temp";
 
     /**
      * Checksum algorithm
@@ -521,4 +525,15 @@ public class S3BitStoreService implements BitStoreService {
         store.get(id);
 */
     }
+
+    @Override
+    public String path(Bitstream bitstream) throws IOException {
+        final File tempFile = File.createTempFile(TEMP_PREFIX, TEMP_SUFFIX);
+        tempFile.deleteOnExit();
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            IOUtils.copy(get(bitstream), out);
+        }
+        return tempFile.getAbsolutePath();
+    }
+
 }

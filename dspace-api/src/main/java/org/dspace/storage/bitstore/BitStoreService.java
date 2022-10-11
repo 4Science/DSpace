@@ -77,4 +77,14 @@ public interface BitStoreService {
      * @throws java.io.IOException If a problem occurs while removing the asset
      */
     public void remove(Bitstream bitstream) throws IOException;
+
+    /**
+     * Retrieve the fullpath for bitstream.
+     *
+     * @param bitstream
+     *            The bitstream row
+     * @exception java.io.IOException
+     *            If a problem occurs while retrieving the path
+     */
+    public String path(Bitstream bitstream) throws IOException;
 }

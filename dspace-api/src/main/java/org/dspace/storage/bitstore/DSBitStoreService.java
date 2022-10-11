@@ -318,6 +318,11 @@ public class DSBitStoreService implements BitStoreService {
         return buf.toString();
     }
 
+    @Override
+    public String path(Bitstream bitstream) throws IOException {
+        return getFile(bitstream).getAbsolutePath();
+    }
+
     protected final String REGISTERED_FLAG = "-R";
 
     public boolean isRegisteredBitstream(String internalId) {

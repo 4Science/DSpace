@@ -113,6 +113,9 @@ public interface BitstreamStorageService {
      */
     public boolean isRegisteredBitstream(String internalId);
 
+    public String absolutePath(Context context, Bitstream bitstream)
+            throws SQLException, IOException;
+
     /**
      * Retrieve the bits for the bitstream with ID. If the bitstream does not
      * exist, or is marked deleted, returns null.

@@ -578,6 +578,12 @@
 		<property name="defaultValue" value="Unspecified"/>
 	</bean>
 
+    <bean name="mapConverterTesseract" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-tesseract-languages.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value="@@ident@@"/>
+    </bean>
+
 	<!-- CONDITION EVALUATORS CONFIGURATION -->
 	
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper" id="conditionEvaluatorMapper">

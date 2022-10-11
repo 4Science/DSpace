@@ -50,11 +50,14 @@ import org.dspace.orcid.model.OrcidProfileSectionType;
 import org.dspace.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.util.ThrowingSupplier;
 import org.orcid.jaxb.model.v3.release.record.Address;
+import org.orcid.jaxb.model.v3.release.record.Education;
+import org.orcid.jaxb.model.v3.release.record.Employment;
 import org.orcid.jaxb.model.v3.release.record.Funding;
 import org.orcid.jaxb.model.v3.release.record.Keyword;
 import org.orcid.jaxb.model.v3.release.record.OtherName;
 import org.orcid.jaxb.model.v3.release.record.Person;
 import org.orcid.jaxb.model.v3.release.record.PersonExternalIdentifier;
+import org.orcid.jaxb.model.v3.release.record.Qualification;
 import org.orcid.jaxb.model.v3.release.record.Record;
 import org.orcid.jaxb.model.v3.release.record.ResearcherUrl;
 import org.orcid.jaxb.model.v3.release.record.Work;
@@ -88,6 +91,9 @@ public class OrcidClientImpl implements OrcidClient {
         Map<Class<?>, String> map = new HashMap<Class<?>, String>();
         map.put(Work.class, OrcidEntityType.PUBLICATION.getPath());
         map.put(Funding.class, OrcidEntityType.FUNDING.getPath());
+        map.put(Employment.class, OrcidProfileSectionType.AFFILIATION.getPath());
+        map.put(Education.class, OrcidProfileSectionType.EDUCATION.getPath());
+        map.put(Qualification.class, OrcidProfileSectionType.QUALIFICATION.getPath());
         map.put(Address.class, OrcidProfileSectionType.COUNTRY.getPath());
         map.put(OtherName.class, OrcidProfileSectionType.OTHER_NAMES.getPath());
         map.put(ResearcherUrl.class, OrcidProfileSectionType.RESEARCHER_URLS.getPath());
@@ -418,7 +424,7 @@ public class OrcidClientImpl implements OrcidClient {
     private String getOrcidPathFromOrcidObjectType(Class<?> clazz) {
         String path = PATHS_MAP.get(clazz);
         if (path == null) {
-            throw new IllegalArgumentException("The given class is not an ORCID object's class: " + clazz);
+            throw new IllegalArgumentException("The given class is not a supported ORCID object's class: " + clazz);
         }
         return path;
     }

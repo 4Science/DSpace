@@ -214,6 +214,23 @@
          </dependencies>
       </profile>
 
+      <profile>
+         <id>addon-ocr</id>
+         <activation>
+            <property>
+               <name>ocr.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-ocr-api</artifactId>
+               <version>${addon-ocr.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
+
    </profiles>
 
    <!--
