@@ -88,7 +88,7 @@ public class WordHighlightSolrSearch implements SearchAnnotationService {
         ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         String solrService = configurationService.getProperty("iiif.search.url");
         boolean validationEnabled =  configurationService
-                .getBooleanProperty("discovery.solr.url.validation.enabled");
+                .getBooleanProperty("discovery.solr.url.validation.enabled", true);
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         if (urlValidator.isValid(solrService) || validationEnabled) {
             HttpSolrClient solrServer = new HttpSolrClient.Builder(solrService).build();
