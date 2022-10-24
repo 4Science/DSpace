@@ -220,6 +220,19 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             choice.authorityName = authorityName;
         }
 
+        try {
+            MetadataValue parentMtd = itemService
+                    .getMetadataByMetadataString(item, controlledVocabulary.getParentMetadata())
+                    .stream().findFirst().orElse(null);
+            if (parentMtd != null) {
+                Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
+                                 UUID.fromString(parentMtd.getAuthority()));
+                choice.extras.put("parent", parentItem.getID().toString());
+            }
+        } catch (SQLException e) {
+            log.warn(e.getMessage(), e);
+        }
+
         choice.extras.put("hasChildren", String.valueOf(hasChildren(item)));
         choice.extras.put("id", choice.authority);
         return choice;
