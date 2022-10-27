@@ -8,6 +8,7 @@
 package org.dspace.content.enhancer.consumer;
 
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
+import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -134,18 +135,22 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> values = publication.getMetadata();
-        assertThat(values, hasSize(14));
+        assertThat(values, hasSize(18));
         assertThat(values, hasItem(with("dc.contributor.author", "Red Smith")));
         assertThat(values, hasItem(with("dc.contributor.author", "Walter White", person1.getID().toString(), 1, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "John Smith", person2.getID().toString(), 2, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "Jesse Pinkman", person3.getID().toString(), 3, 600)));
-        assertThat(values, hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(values, hasItem(with("cris.virtualsource.department", person1.getID().toString())));
-        assertThat(values, hasItem(with("cris.virtual.department", "University of Rome", 1)));
-        assertThat(values, hasItem(with("cris.virtualsource.department", person3.getID().toString(), 1)));
+        assertThat(values, hasItem(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
+        assertThat(values, hasItem(with("cris.virtualsource.department", PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
+        assertThat(values, hasItem(with("cris.virtual.department", "4Science", 1)));
+        assertThat(values, hasItem(with("cris.virtualsource.department", person1.getID().toString(), 1)));
+        assertThat(values, hasItem(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE, 2)));
+        assertThat(values, hasItem(with("cris.virtualsource.department", person2.getID().toString(), 2)));
+        assertThat(values, hasItem(with("cris.virtual.department", "University of Rome", 3)));
+        assertThat(values, hasItem(with("cris.virtualsource.department", person3.getID().toString(), 3)));
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(4));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(4));
 
     }
 

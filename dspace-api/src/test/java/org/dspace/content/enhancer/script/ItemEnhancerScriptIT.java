@@ -9,6 +9,7 @@ package org.dspace.content.enhancer.script;
 
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
 import static org.dspace.content.Item.ANY;
+import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -311,6 +312,147 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "University")));
         assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
+
+    }
+
+    @Test
+    public void testItemEnhancementMetadataPositions() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstAuthor = ItemBuilder.createItem(context, collection)
+                                       .withTitle("John Doe")
+                                       .build();
+        String firstAuthorId = firstAuthor.getID().toString();
+
+        Item secondAuthor = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Walter White")
+                                      .withPersonMainAffiliation("4Science")
+                                      .build();
+        String secondAuthorId = secondAuthor.getID().toString();
+
+        Item thirdAuthor = ItemBuilder.createItem(context, collection)
+                                       .withTitle("Jesse Pinkman")
+                                       .withPersonMainAffiliation("Company")
+                                       .build();
+
+        String thirdAuthorId = thirdAuthor.getID().toString();
+
+        Item fourthAuthor = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Jesse Smith")
+                                      .build();
+
+        String fourthAuthorId = fourthAuthor.getID().toString();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test publication 2 ")
+                                      .withEntityType("Publication")
+                                      .withAuthor("John Doe", firstAuthorId)
+                                      .withAuthor("Walter White", secondAuthorId)
+                                      .withAuthor("Jesse Pinkman", thirdAuthorId)
+                                      .withAuthor("Jesse Smith", fourthAuthorId)
+                                      .build();
+
+        context.commit();
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+
+        TestDSpaceRunnableHandler runnableHandler = runScript(false);
+
+        assertThat(runnableHandler.getErrorMessages(), empty());
+        assertThat(runnableHandler.getInfoMessages(), contains("Enhancement completed with success"));
+
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(4));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(4));
+
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
+                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId,0)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 1)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,1)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "Company", 2)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", thirdAuthorId, 2)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
+                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", fourthAuthorId,3)));
+
+    }
+
+    @Test
+    public void testItemEnhancementSourceWithoutAuthority() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item secondAuthor = ItemBuilder.createItem(context, collection)
+                                       .withTitle("Jesse Smith")
+                                       .withPersonMainAffiliation("4Science")
+                                       .build();
+
+        String secondAuthorId = secondAuthor.getID().toString();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test publication 2 ")
+                                      .withEntityType("Publication")
+                                      .withAuthor("Jesse Pinkman")
+                                      .withAuthor("Jesse Smith", secondAuthorId)
+                                      .build();
+
+        context.commit();
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+
+        TestDSpaceRunnableHandler runnableHandler = runScript(false);
+
+        assertThat(runnableHandler.getErrorMessages(), empty());
+        assertThat(runnableHandler.getInfoMessages(), contains("Enhancement completed with success"));
+
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
+
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
+                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department",
+                                                           PLACEHOLDER_PARENT_METADATA_VALUE,0)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 1)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,1)));
+
+    }
+
+    @Test
+    public void testItemEnhancementWithoutAuthorities() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test publication 2 ")
+                                      .withEntityType("Publication")
+                                      .withAuthor("Jesse Pinkman")
+                                      .withAuthor("Jesse Smith")
+                                      .build();
+
+        context.commit();
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+
+        TestDSpaceRunnableHandler runnableHandler = runScript(false);
+
+        assertThat(runnableHandler.getErrorMessages(), empty());
+        assertThat(runnableHandler.getInfoMessages(), contains("Enhancement completed with success"));
+
+        publication = reload(publication);
+
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
 
     }
 
