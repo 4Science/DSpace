@@ -3155,7 +3155,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>relation</dc-element>
           <dc-qualifier>journalfond</dc-qualifier>
           <label>Testate correlate</label>
-          <input-type>group</input-type>
+          <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare evetuali testate correlate</hint>
