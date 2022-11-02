@@ -1726,7 +1726,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Fond</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Fond AND -glamfond.parent:*</value>
             </list>
         </property>
         <!--The configuration for the recent submissions-->
@@ -1798,7 +1798,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:JournalFond</value>
+                <value>search.resourcetype:Item AND entityType_keyword:JournalFond AND -glamjournalfond.parent:*</value>
             </list>
         </property>
         <!--The configuration for the recent submissions-->
@@ -1870,7 +1870,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Aggregations</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Aggregations AND -glamaggregation.parent:*</value>
             </list>
         </property>
         <!--The configuration for the recent submissions-->
