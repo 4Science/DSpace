@@ -1870,7 +1870,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Aggregations AND -glamaggregation.parent:*</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Aggregation AND -glamaggregation.parent:*</value>
             </list>
         </property>
         <!--The configuration for the recent submissions-->
