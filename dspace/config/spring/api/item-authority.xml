@@ -43,7 +43,7 @@
 
 	<bean name="orgunitsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="OrgUnit"/>
-		<property name="parentQuery" value="entityType:OrgUnit AND -organization.parentOrganization:*"/>
+		<property name="parentQuery" value="entityType_keyword:OrgUnit AND -organization.parentOrganization:*"/>
 		<property name="childrenQuery" value="organization.parentOrganization_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="organization.parentOrganization"/>
@@ -57,7 +57,7 @@
 
 	<bean name="publicationFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="Fond"/>
-		<property name="parentQuery" value="entityType:Fond AND -glamfond.parent:*"/>
+		<property name="parentQuery" value="entityType_keyword:Fond AND -glamfond.parent:*"/>
 		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="dc.relation.fond"/>
@@ -71,7 +71,7 @@
 
 	<bean name="publicationJournalFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="JournalFond"/>
-		<property name="parentQuery" value="entityType:JournalFond AND -glamjournalfond.parent:*"/>
+		<property name="parentQuery" value="entityType_keyword:JournalFond AND -glamjournalfond.parent:*"/>
 		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="dc.relation.journalfond"/>
@@ -85,7 +85,7 @@
 
 	<bean name="fondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="Fond"/>
-		<property name="parentQuery" value="entityType:Fond AND -glamfond.parent:*"/>
+		<property name="parentQuery" value="entityType_keyword:Fond AND -glamfond.parent:*"/>
 		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamfond.parent"/>
@@ -99,7 +99,7 @@
 
 	<bean name="journalfondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="JournalFond"/>
-		<property name="parentQuery" value="entityType:JournalFond AND -glamjournalfond.parent:*"/>
+		<property name="parentQuery" value="entityType_keyword:JournalFond AND -glamjournalfond.parent:*"/>
 		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamjournalfond.parent"/>
@@ -113,7 +113,7 @@
 
 	<bean name="aggregationsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
 		<property name="entityType" value="Aggregation"/>
-		<property name="parentQuery" value="entityType:Aggregation AND -glamaggregation.parent:*"/>
+		<property name="parentQuery" value="entityType_keyword:Aggregation AND -glamaggregation.parent:*"/>
 		<property name="childrenQuery" value="glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamaggregation.parent"/>
