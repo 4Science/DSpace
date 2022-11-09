@@ -32,8 +32,6 @@
 				<!-- Specify here any Item based controlled vocabulary configuration,
 				  vocabulary names are defined in item.controlled.vocabularies key-->
 				<!-- <entry key="orgunits" value-ref="orgunitsControlledVocabulary" /> -->
-				<entry key="publicationfonds" value-ref="publicationFondsControlledVocabulary" />
-				<entry key="publicationjournalfonds" value-ref="publicationJournalFondsControlledVocabulary" />
 				<entry key="fonds" value-ref="fondsControlledVocabulary" />
 				<entry key="journalfonds" value-ref="journalfondsControlledVocabulary" />
 				<entry key="aggregations" value-ref="aggregationsControlledVocabulary" />
@@ -51,34 +49,6 @@
 		<property name="labelMetadata" value="dc.title"/>
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="orgunitsExtraValuesMapper"/>
-		<!-- <field_name> <order> - If empty no sorting is made -->
-		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
-	</bean>
-
-	<bean name="publicationFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
-		<property name="entityType" value="Fond"/>
-		<property name="parentQuery" value="entityType_keyword:Fond AND -glamfond.parent:*"/>
-		<property name="childrenQuery" value="glamfond.parent_authority:{0} OR dc.relation.fond_authority:{0}"/>
-		<!-- Value mapping -->
-		<property name="parentMetadata" value="dc.relation.fond"/>
-		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
-		<property name="authorityMetadata" value=""/>
-		<property name="extraValuesMapper" ref="publicationFondsExtraValuesMapper"/>
-		<!-- <field_name> <order> - If empty no sorting is made -->
-		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
-	</bean>
-
-	<bean name="publicationJournalFondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
-		<property name="entityType" value="JournalFond"/>
-		<property name="parentQuery" value="entityType_keyword:JournalFond AND -glamjournalfond.parent:*"/>
-		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
-		<!-- Value mapping -->
-		<property name="parentMetadata" value="dc.relation.journalfond"/>
-		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
-		<property name="authorityMetadata" value=""/>
-		<property name="extraValuesMapper" ref="publicationJournalFondsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
 		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
 	</bean>
@@ -126,24 +96,6 @@
 	</bean>
 
 	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
-		<property name="extraValues">
-			<map>
-				<entry key="display" value="dc.title" />
-				<entry key="note" value="dc.description.abstract" />
-			</map>
-		</property>
-	</bean>
-
-	<bean name="publicationFondsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
-		<property name="extraValues">
-			<map>
-				<entry key="display" value="dc.title" />
-				<entry key="note" value="dc.description.abstract" />
-			</map>
-		</property>
-	</bean>
-
-	<bean name="publicationJournalFondsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
 		<property name="extraValues">
 			<map>
 				<entry key="display" value="dc.title" />
