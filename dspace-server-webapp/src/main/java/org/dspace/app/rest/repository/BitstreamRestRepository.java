@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.handle.service.HandleService;
+import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -231,6 +233,27 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
             .collect(Collectors.toList());
 
         return converter.toRestPage(bitstreams, pageable, utils.obtainProjection());
+    }
+
+    @SearchRestMethod(name = "showableByItem")
+    public Page<BitstreamRest> findShowableByItem(
+        @Parameter(value = "itemId", required = true) String uuid,
+        @Nullable Pageable optionalPageable
+    ) {
+        try {
+            Context context = obtainContext();
+            Pageable pageable = utils.getPageable(optionalPageable);
+            return converter.toRestPage(
+                this.bs.findShowableByItem(
+                    context,
+                    UUIDUtils.fromString(uuid)
+                ),
+                pageable,
+                utils.obtainProjection()
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Bitstream getFirstMatchedBitstream(Item item, Integer sequence, String filename) {

@@ -236,4 +236,6 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
     @Nullable
     Long getLastModified(Bitstream bitstream) throws IOException;
 
+    public List<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException;
+
 }

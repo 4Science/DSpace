@@ -162,6 +162,11 @@ public class BitstreamBuilder extends AbstractDSpaceObjectBuilder<Bitstream> {
         return this;
     }
 
+    public BitstreamBuilder isShowable() throws SQLException {
+        bitstreamService.addMetadata(context, bitstream, "bitstream", "show", null, null, Boolean.TRUE.toString());
+        return this;
+    }
+
     private Bundle getOriginalBundle(Item item) throws SQLException, AuthorizeException {
         List<Bundle> bundles = itemService.getBundles(item, Constants.CONTENT_BUNDLE_NAME);
         Bundle targetBundle = null;

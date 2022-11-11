@@ -501,4 +501,9 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         return bitstreamStorageService.getLastModified(bitstream);
     }
 
+    @Override
+    public List<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
+        return bitstreamDAO.findShowableByItem(context, itemId);
+    }
+
 }
