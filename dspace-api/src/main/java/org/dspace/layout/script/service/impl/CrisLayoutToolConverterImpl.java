@@ -7,6 +7,7 @@
  */
 package org.dspace.layout.script.service.impl;
 
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2HIERARCHICAL_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METADATA_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METRICS_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX_POLICY_SHEET;
@@ -21,6 +22,7 @@ import static org.dspace.util.WorkbookUtils.createCell;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,7 @@ import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutFieldBitstream;
+import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.CrisMetadataGroup;
@@ -123,6 +126,7 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
             buildBoxRow(sheet, box);
             buildBox2metadata(sheet.getWorkbook(), box.getLayoutFields());
             buildBox2metrics(sheet.getWorkbook(), box);
+            buildBoxHierarchical(sheet.getWorkbook(), box);
         });
     }
 
@@ -240,6 +244,22 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
                                      .collect(Collectors.joining(", "));
     }
 
+    private void buildBoxHierarchical(Workbook workbook, CrisLayoutBox box) {
+        Sheet sheet = workbook.getSheet(BOX2HIERARCHICAL_SHEET);
+        buildBoxHierarchicalRow(sheet, box);
+    }
+
+    private void buildBoxHierarchicalRow(Sheet sheet, CrisLayoutBox box) {
+        CrisLayoutHierarchicalVocabulary2Box hierarchicalVocabulary2Box = box.getHierarchicalVocabulary2Box();
+        if (!Objects.isNull(hierarchicalVocabulary2Box)) {
+            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+            createCell(row, 0, box.getCell().getRow().getTab().getEntity().getLabel());
+            createCell(row, 1, box.getShortname());
+            createCell(row, 2, hierarchicalVocabulary2Box.getVocabulary());
+            createCell(row, 3, hierarchicalVocabulary2Box.getMetadataField().toString('.'));
+        }
+    }
+
     private void buildTabPolicy(Workbook workbook, CrisLayoutTab tab) {
         Sheet sheet = workbook.getSheet(TAB_POLICY_SHEET);
         tab.getMetadataSecurityFields()
@@ -314,6 +334,7 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         autoSizeColumns(workbook.getSheet(TAB_SHEET));
         autoSizeColumns(workbook.getSheet(TAB2BOX_SHEET));
         autoSizeColumns(workbook.getSheet(BOX_SHEET));
+        autoSizeColumns(workbook.getSheet(BOX2HIERARCHICAL_SHEET));
         autoSizeColumns(workbook.getSheet(BOX2METADATA_SHEET));
         autoSizeColumns(workbook.getSheet(METADATAGROUPS_SHEET));
         autoSizeColumns(workbook.getSheet(BOX2METRICS_SHEET));

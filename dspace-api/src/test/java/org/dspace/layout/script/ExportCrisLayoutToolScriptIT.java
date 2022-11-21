@@ -8,6 +8,7 @@
 package org.dspace.layout.script;
 
 import static org.dspace.app.launcher.ScriptLauncher.handleScript;
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2HIERARCHICAL_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METADATA_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METRICS_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX_POLICY_SHEET;
@@ -77,7 +78,7 @@ public class ExportCrisLayoutToolScriptIT extends AbstractIntegrationTestWithDat
             .build();
         context.restoreAuthSystemState();
 
-        String fileLocation = getXlsFilePath("export-valid-layout-with-3-tabs.xls");
+        String fileLocation = getXlsFilePath("export-valid-layout-with-4-tabs.xls");
         String[] args = new String[] { "cris-layout-tool", "-f", fileLocation };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
@@ -89,14 +90,14 @@ public class ExportCrisLayoutToolScriptIT extends AbstractIntegrationTestWithDat
         assertThat(infoMessages, hasSize(6));
         assertThat(infoMessages.get(0), containsString("The given workbook is valid. Proceed with the import"));
         assertThat(infoMessages.get(1), containsString("The workbook has been parsed correctly, "
-            + "found 3 tabs to import"));
+            + "found 4 tabs to import"));
         assertThat(infoMessages.get(2), containsString("Proceed with the clearing of the previous layout"));
         assertThat(infoMessages.get(3), containsString("Found 0 tabs to delete"));
         assertThat(infoMessages.get(4), containsString("The previous layout has been deleted, "
             + "proceed with the import of the new configuration"));
         assertThat(infoMessages.get(5), containsString("Import completed successfully"));
 
-        assertThat(tabService.findAll(context), hasSize(3));
+        assertThat(tabService.findAll(context), hasSize(4));
 
         args = new String[] { "export-cris-layout-tool"};
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
@@ -124,6 +125,11 @@ public class ExportCrisLayoutToolScriptIT extends AbstractIntegrationTestWithDat
             Sheet exportedBOX = exportedWorkbook.getSheet(BOX_SHEET);
 
             assertEqualsSheets(importedBox, exportedBOX, 9);
+
+            Sheet importedBox2Hierarchical = importedWorkbook.getSheet(BOX2HIERARCHICAL_SHEET);
+            Sheet exportedBox2Hierarchical = exportedWorkbook.getSheet(BOX2HIERARCHICAL_SHEET);
+
+            assertEqualsSheets(importedBox2Hierarchical, exportedBox2Hierarchical, 4);
 
             Sheet importedBox2Metadata = importedWorkbook.getSheet(BOX2METADATA_SHEET);
             Sheet exportedBOX2Metadata = exportedWorkbook.getSheet(BOX2METADATA_SHEET);
