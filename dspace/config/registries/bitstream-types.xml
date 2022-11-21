@@ -1,0 +1,19 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace Bitstream</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>bitstream</name>
+        <namespace>http://dspace.org/bitstream</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>viewer</element>
+        <qualifier>provider</qualifier>
+        <scope_note>Metadata field used to register custom viewer</scope_note>
+    </dc-type>
+
+</dspace-dc-types>
