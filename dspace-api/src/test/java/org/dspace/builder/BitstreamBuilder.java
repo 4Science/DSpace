@@ -162,8 +162,8 @@ public class BitstreamBuilder extends AbstractDSpaceObjectBuilder<Bitstream> {
         return this;
     }
 
-    public BitstreamBuilder isShowable() throws SQLException {
-        bitstreamService.addMetadata(context, bitstream, "bitstream", "show", null, null, Boolean.TRUE.toString());
+    public BitstreamBuilder isHidden() throws SQLException {
+        bitstreamService.addMetadata(context, bitstream, "bitstream", "hide", null, null, Boolean.TRUE.toString());
         return this;
     }
 

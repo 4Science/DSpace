@@ -114,27 +114,27 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
     }
 
     @Override
-    public List<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
+    public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
         Query query = createQuery(context,
             "select b from Bitstream b " +
             "join b.bundles bitBundles " +
             "join bitBundles.items item " +
             "WHERE item.id = :itemId " +
-            "and EXISTS( " +
+            "and NOT EXISTS( " +
             "  select 1 from MetadataValue mv " +
             "  join mv.metadataField mf " +
             "  join mf.metadataSchema ms " +
             "  where mv.dSpaceObject = b and " +
             "  ms.name = 'bitstream' and " +
-            "  mf.element = 'show' and " +
+            "  mf.element = 'hide' and " +
             "  mf.qualifier = null and " +
-            "  mv.value = 'true' " +
+            "  (mv.value = 'true' or mv.value = 'yes') " +
             ")"
         );
 
         query.setParameter("itemId", itemId);
 
-        return list(query);
+        return iterate(query);
     }
 
     @Override

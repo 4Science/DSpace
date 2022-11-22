@@ -502,7 +502,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     }
 
     @Override
-    public List<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
+    public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
         return bitstreamDAO.findShowableByItem(context, itemId);
     }
 

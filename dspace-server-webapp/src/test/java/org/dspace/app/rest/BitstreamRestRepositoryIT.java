@@ -2670,27 +2670,26 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
             BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test", UTF_8))
                 .withName("first")
                 .withFormat("test format")
-                .isShowable()
                 .build();
 
         Bitstream bitstream2 =
             BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test2", UTF_8))
                 .withName("second")
                 .withFormat("test format 2")
-                .isShowable()
                 .build();
 
         Bitstream bitstream3 =
             BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test3", UTF_8))
                 .withName("third")
                 .withFormat("test format 3")
+                .isHidden()
                 .build();
 
         Bitstream bitstream4 =
             BitstreamBuilder.createBitstream(context, publicItem2, toInputStream("test4", UTF_8))
                 .withName("fourth")
                 .withFormat("test format 4")
-                .isShowable()
+                .isHidden()
                 .build();
 
         context.commit();
@@ -2700,7 +2699,8 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         getClient(token).perform(
                 get("/api/core/bitstreams/search/showableByItem")
-                    .param("itemId", publicItem1.getID().toString())
+                    .param("uuid", publicItem1.getID().toString())
+                    .param("name", Constants.CONTENT_BUNDLE_NAME)
             )
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))

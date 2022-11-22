@@ -12,8 +12,15 @@
 
     <dc-type>
         <schema>bitstream</schema>
-        <element>show</element>
-        <scope_note>Metadata field used to show a bitstream inside the advanced-attachment layout</scope_note>
+        <element>hide</element>
+        <scope_note>Metadata field used to hide a bitstream inside the advanced-attachment layout</scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>viewer</element>
+        <qualifier>viewer</qualifier>
+        <scope_note>Metadata field used to set the viewer provider for the target bitstream</scope_note>
     </dc-type>
 
 </dspace-dc-types>
