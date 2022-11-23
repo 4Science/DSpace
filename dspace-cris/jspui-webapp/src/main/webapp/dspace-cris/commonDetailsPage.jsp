@@ -71,7 +71,7 @@
 								<c:if test="${box.getShortName() eq key && !firstComponentFound}">
 								<%			
 										ASolrConfigurerComponent iii = (ASolrConfigurerComponent)(mapInfo.get(key));
-										String type = (String)iii.getType(request, entity.getId());
+										String type = (String)iii.getType(request, entity.getId(), true);
 									    long count = iii.count(request, type, entity.getId());
 										if(count>0) {
 								%>
@@ -111,7 +111,7 @@
 								<c:if test="${box.getShortName() eq key && !firstComponentFound}">
 								<%			
 										ASolrConfigurerComponent iii = (ASolrConfigurerComponent)(mapInfo.get(key));
-										String type = (String)iii.getType(request, entity.getId());
+										String type = (String)iii.getType(request, entity.getId(), false);
 									    long count = iii.count(request, type, entity.getId());
 										if(count>0) {
 								%>
