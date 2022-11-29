@@ -1,0 +1,33 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace Bitstream</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>bitstream</name>
+        <namespace>http://dspace.org/bitstream</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>viewer</element>
+        <qualifier>provider</qualifier>
+        <scope_note>Metadata field used to register custom viewer</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>hide</element>
+        <qualifier></qualifier>
+        <scope_note>Metadata field used to hide the bitstream</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>canvasindex</qualifier>
+        <scope_note>Metadata field used to store the initial canvas within the sequence to display (0 based)</scope_note>
+    </dc-type>
+
+</dspace-dc-types>
