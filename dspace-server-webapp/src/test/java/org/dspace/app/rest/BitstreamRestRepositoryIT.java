@@ -7,11 +7,15 @@
  */
 package org.dspace.app.rest;
 
+import static org.apache.commons.codec.CharEncoding.UTF_8;
+import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
 import static org.dspace.core.Constants.WRITE;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -2631,6 +2635,95 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
             .andExpect(jsonPath("$._embedded.bitstreams", contains(
                 BitstreamMatcher.matchBitstreamEntry(bitstream2))));
 
+    }
+
+    @Test
+    public void findShowableByItem() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and two collections.
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        //2. A public item that is readable by Anonymous
+        Item publicItem1 =
+            ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .build();
+
+        Item publicItem2 =
+            ItemBuilder.createItem(context, col1)
+            .withTitle("Public item 1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .build();
+
+        Bitstream bitstream =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test", UTF_8))
+                .withName("first")
+                .withFormat("test format")
+                .build();
+
+        Bitstream bitstream2 =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test2", UTF_8))
+                .withName("second")
+                .withFormat("test format 2")
+                .build();
+
+        Bitstream bitstream3 =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test3", UTF_8))
+                .withName("third")
+                .withFormat("test format 3")
+                .isHidden()
+                .build();
+
+        Bitstream bitstream4 =
+            BitstreamBuilder.createBitstream(context, publicItem2, toInputStream("test4", UTF_8))
+                .withName("fourth")
+                .withFormat("test format 4")
+                .isHidden()
+                .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(
+                get("/api/core/bitstreams/search/showableByItem")
+                    .param("uuid", publicItem1.getID().toString())
+                    .param("name", Constants.CONTENT_BUNDLE_NAME)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.bitstreams",
+                    allOf(
+                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream2))
+                    )
+                )
+            )
+            .andExpect(
+                jsonPath(
+                    "$._embedded.bitstreams",
+                     not(
+                         allOf(
+                             hasItem(BitstreamMatcher.matchProperties(bitstream3)),
+                             hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                         )
+                     )
+                )
+            );
     }
 
 }

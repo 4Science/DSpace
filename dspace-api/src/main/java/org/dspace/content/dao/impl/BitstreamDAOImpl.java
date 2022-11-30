@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -108,6 +109,30 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
             "WHERE :item IN item");
 
         query.setParameter("item", item);
+
+        return iterate(query);
+    }
+
+    @Override
+    public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId) throws SQLException {
+        Query query = createQuery(context,
+            "select b from Bitstream b " +
+            "join b.bundles bitBundles " +
+            "join bitBundles.items item " +
+            "WHERE item.id = :itemId " +
+            "and NOT EXISTS( " +
+            "  select 1 from MetadataValue mv " +
+            "  join mv.metadataField mf " +
+            "  join mf.metadataSchema ms " +
+            "  where mv.dSpaceObject = b and " +
+            "  ms.name = 'bitstream' and " +
+            "  mf.element = 'hide' and " +
+            "  mf.qualifier = null and " +
+            "  (mv.value = 'true' or mv.value = 'yes') " +
+            ")"
+        );
+
+        query.setParameter("itemId", itemId);
 
         return iterate(query);
     }
