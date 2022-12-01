@@ -6,29 +6,34 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.metrics;
+
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
+
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
 import org.dspace.discovery.DiscoverResultIterator;
-import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.kernel.ServiceManager;
-import org.dspace.metrics.scopus.UpdateScopusMetrics;
-import org.dspace.metrics.scopus.UpdateScopusPersonMetrics;
-import org.dspace.metrics.wos.UpdateWOSMetrics;
-import org.dspace.metrics.wos.UpdateWOSPersonMetrics;
 import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
@@ -44,26 +49,32 @@ public class UpdateCrisMetricsWithExternalSource extends
 
     private Context context;
 
-    private String service;
+    private String serviceName;
 
     private String param;
 
+    private Integer limit;
+
     private Map<String, MetricsExternalServices> crisMetricsExternalServices = new HashMap<>();
+
+    private ConfigurationService configurationService;
 
     @Override
     public void setup() throws ParseException {
+
         ServiceManager serviceManager = new DSpace().getServiceManager();
-        crisMetricsExternalServices.put("scopus",
-                serviceManager.getServiceByName(UpdateScopusMetrics.class.getName(), UpdateScopusMetrics.class));
-        crisMetricsExternalServices.put("wos",
-                serviceManager.getServiceByName(UpdateWOSMetrics.class.getName(), UpdateWOSMetrics.class));
-        crisMetricsExternalServices.put("scopus-person",
-                serviceManager.getServiceByName(UpdateScopusPersonMetrics.class.getName(),
-                        UpdateScopusPersonMetrics.class));
-        crisMetricsExternalServices.put("wos-person",
-                serviceManager.getServiceByName(UpdateWOSPersonMetrics.class.getName(), UpdateWOSPersonMetrics.class));
-        this.service = commandLine.getOptionValue('s');
+
+        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        crisMetricsExternalServices = serviceManager.getServicesByType(MetricsExternalServices.class).stream()
+            .collect(toMap(MetricsExternalServices::getServiceName, Function.identity()));
+
+        this.serviceName = commandLine.getOptionValue('s');
         this.param = commandLine.getOptionValue('p');
+        if (commandLine.hasOption('l')) {
+            this.limit = Integer.valueOf(commandLine.getOptionValue('l'));
+        } else {
+            this.limit = getDefaultLimit();
+        }
     }
 
     @Override
@@ -78,16 +89,23 @@ public class UpdateCrisMetricsWithExternalSource extends
     public void internalRun() throws Exception {
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
-        if (service == null) {
+
+        if (limit < 0) {
+            throw new IllegalArgumentException("The limit value must be a positive integer");
+        }
+
+        if (serviceName == null) {
             throw new IllegalArgumentException("The name of service must be provided");
         }
-        MetricsExternalServices externalService = crisMetricsExternalServices.get(this.service.toLowerCase());
+
+        MetricsExternalServices externalService = crisMetricsExternalServices.get(this.serviceName.toLowerCase());
         if (externalService == null) {
-            throw new IllegalArgumentException("The name of service must be provided");
+            throw new IllegalArgumentException("The name of service is unknown");
         }
+
         try {
             context.turnOffAuthorisationSystem();
-            performUpdate(context, externalService, param);
+            performUpdate(externalService);
             context.complete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -96,72 +114,115 @@ public class UpdateCrisMetricsWithExternalSource extends
         } finally {
             context.restoreAuthSystemState();
         }
+
     }
 
     /**
      * Updates the metrics using an external service.
-     * 
-     * @param context
-     * @param metricsExternalServices
-     * @param param
      */
-    private void performUpdate(Context context, MetricsExternalServices metricsExternalServices,
-            String param) {
+    private void performUpdate(MetricsExternalServices metricsExternalServices) throws SQLException {
+
+        Iterator<Item> itemIterator = findItems(metricsExternalServices);
+
         if (metricsExternalServices.canMultiFetch()) {
-            // fetch all items
-            try {
-                final long updatedItems = metricsExternalServices.updateMetric(
-                        context,
-                        findItems(context, metricsExternalServices),
-                        param
-                );
-                handler.logInfo("Updated " + updatedItems + " metrics");
-                handler.logInfo("Update end");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            performUpdateWithMultiFetch(metricsExternalServices, itemIterator);
         } else {
-            // fetch single item
-            int count = 0;
-            try {
-                Iterator<Item> itemIterator = findItems(context, metricsExternalServices);
-                handler.logInfo("Update start");
-                int countFoundItems = 0;
-                int countUpdatedItems = 0;
-                while (itemIterator.hasNext()) {
-                    Item item = itemIterator.next();
-                    countFoundItems++;
-                    final boolean updated = metricsExternalServices.updateMetric(context, item, param);
-                    if (updated) {
-                        countUpdatedItems++;
-                    }
-                    count++;
-                    if (count == 20) {
-                        context.commit();
-                        count = 0;
-                    }
-                }
-                context.commit();
-                handler.logInfo("Found " + countFoundItems + " items");
-                handler.logInfo("Updated " + countUpdatedItems + " metrics");
-                handler.logInfo("Update end");
-            } catch (SQLException | SearchServiceException e) {
-                log.error(e.getMessage(), e);
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            performUpdateWithSingleFetches(metricsExternalServices, itemIterator);
         }
+
     }
 
-    private Iterator<Item> findItems(Context context, MetricsExternalServices service)
-            throws SQLException, SearchServiceException {
+    private Iterator<Item> findItems(MetricsExternalServices service) {
+
+        Iterator<Item> itemsWithoutLastImport = findItemsWithoutLastImport(service);
+
+        Iterator<Item> itemsSortedByLastImport = findItemsSortedByLastImport(service);
+
+        Iterator<Item> chainedIterator = chainedIterator(itemsWithoutLastImport, itemsSortedByLastImport);
+        return IteratorUtils.boundedIterator(chainedIterator, limit);
+
+    }
+
+    private Iterator<Item> findItemsWithoutLastImport(MetricsExternalServices service) {
+        return findItems(service, false);
+    }
+
+    private Iterator<Item> findItemsSortedByLastImport(MetricsExternalServices service) {
+        return findItems(service, true);
+    }
+
+    private Iterator<Item> findItems(MetricsExternalServices service, boolean withLastImport) {
+
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
         discoverQuery.setMaxResults(20);
         for (String filter : service.getFilters()) {
             discoverQuery.addFilterQueries(filter);
         }
+
+        String lastImportMetadataField = getLastImportMetadataField(service);
+        if (withLastImport) {
+            // set an upper limit to prevent items updated in the same run from being pulled out again.
+            discoverQuery.setQuery(lastImportMetadataField + ": [* TO " + currentDateMinusOneSecond() + "]");
+            discoverQuery.setSortField(lastImportMetadataField, SORT_ORDER.asc);
+        } else {
+            discoverQuery.setQuery("-" + lastImportMetadataField + ": [* TO *]");
+        }
+
         return new DiscoverResultIterator<Item, UUID>(context, discoverQuery);
+    }
+
+    private String currentDateMinusOneSecond() {
+        return DCDate.getCurrent().toString() + "-1SECONDS";
+    }
+
+    private String getLastImportMetadataField(MetricsExternalServices service) {
+        return "cris.lastimport." + service.getServiceName() + "_dt";
+    }
+
+    private void performUpdateWithMultiFetch(MetricsExternalServices metricsServices, Iterator<Item> itemIterator) {
+
+        long updatedItems = metricsServices.updateMetric(context, itemIterator, param);
+
+        handler.logInfo("Updated " + updatedItems + " metrics");
+        handler.logInfo("Update end");
+
+    }
+
+    private void performUpdateWithSingleFetches(MetricsExternalServices metricsServices,
+        Iterator<Item> itemIterator) throws SQLException {
+
+        handler.logInfo("Update start");
+
+        int count = 0;
+        int countFoundItems = 0;
+        int countUpdatedItems = 0;
+
+        while (itemIterator.hasNext()) {
+            Item item = itemIterator.next();
+            countFoundItems++;
+            final boolean updated = metricsServices.updateMetric(context, item, param);
+            if (updated) {
+                countUpdatedItems++;
+            }
+
+            metricsServices.setLastImportMetadataValue(context, item);
+
+            count++;
+            if (count == 20) {
+                context.commit();
+                count = 0;
+            }
+        }
+
+        context.commit();
+        handler.logInfo("Found " + countFoundItems + " items");
+        handler.logInfo("Updated " + countUpdatedItems + " metrics");
+        handler.logInfo("Update end");
+    }
+
+    private Integer getDefaultLimit() {
+        return configurationService.getIntProperty("metrics.update-metrics.limit", Integer.MAX_VALUE);
     }
 
     private void assignCurrentUserInContext() throws SQLException {
@@ -177,22 +238,6 @@ public class UpdateCrisMetricsWithExternalSource extends
         for (UUID uuid : handler.getSpecialGroups()) {
             context.setSpecialGroup(uuid);
         }
-    }
-
-    public Map<String, MetricsExternalServices> getCrisMetricsExternalServices() {
-        return crisMetricsExternalServices;
-    }
-
-    public void setCrisMetricsExternalServices(Map<String, MetricsExternalServices> crisMetricsExternalServices) {
-        this.crisMetricsExternalServices = crisMetricsExternalServices;
-    }
-
-    public String getParam() {
-        return param;
-    }
-
-    public void setParam(String param) {
-        this.param = param;
     }
 
 }

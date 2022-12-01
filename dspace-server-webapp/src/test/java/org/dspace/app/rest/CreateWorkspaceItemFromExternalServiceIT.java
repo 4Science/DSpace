@@ -6,7 +6,16 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.cli.ParseException;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.authorize.AuthorizeException;
@@ -26,9 +36,11 @@ import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
+import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dto.MetadataValueDTO;
+import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.impl.LiveImportDataProvider;
@@ -54,6 +66,8 @@ public class CreateWorkspaceItemFromExternalServiceIT extends AbstractController
     private XmlWorkflowItemService workflowItemService;
     @Autowired
     private WorkspaceItemService workspaceItemService;
+    @Autowired
+    private ItemService itemService;
 
     @SuppressWarnings("unused")
     private Item itemPersonA;
@@ -475,6 +489,130 @@ public class CreateWorkspaceItemFromExternalServiceIT extends AbstractController
                              .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
+    @Test
+    public void testWithSearchLimit() throws ParseException, SQLException {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("111")
+            .build();
+
+        Item secondPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("222")
+            .withScopusPublicationLastImport("2021-06-01T00:00:00Z")
+            .build();
+
+        Item thirdPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("333")
+            .withScopusPublicationLastImport("2022-01-01T00:00:00Z")
+            .build();
+
+        Item fourthPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("444")
+            .withScopusPublicationLastImport("2021-01-01T00:00:00Z")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        when(mockScopusProvider.getNumberOfResults("AU-ID(111)")).thenReturn(6);
+        when(mockScopusProvider.getNumberOfResults("AU-ID(222)")).thenReturn(18);
+        when(mockScopusProvider.getNumberOfResults("AU-ID(444)")).thenReturn(5);
+
+        when(mockScopusProvider.searchExternalDataObjects(any(), anyInt(), anyInt())).thenReturn(List.of());
+
+        assertThat(getLastImport(firstPerson), nullValue());
+
+        String secondPersonLastImport = getLastImport(secondPerson);
+        assertThat(secondPersonLastImport, notNullValue());
+
+        String thirdPersonLastImport = getLastImport(thirdPerson);
+        String fourthPersonLastImport = getLastImport(fourthPerson);
+        assertThat(thirdPersonLastImport, notNullValue());
+        assertThat(fourthPersonLastImport, notNullValue());
+
+        String[] args = new String[] { "import-publications", "-s", "scopus", "-e", admin.getEmail(), "-l", "4" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        nameToProvider.put("scopus", mockScopusProvider);
+        createWorkspaceItemService.initialize(args, handler, admin);
+        createWorkspaceItemService.setNameToProvider(nameToProvider);
+        createWorkspaceItemService.run();
+
+        verify(mockScopusProvider).getNumberOfResults("AU-ID(111)");
+        verify(mockScopusProvider).getNumberOfResults("AU-ID(222)");
+        verify(mockScopusProvider).getNumberOfResults("AU-ID(444)");
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(111)", 0, 10);
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(222)", 0, 10);
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(222)", 10, 10);
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(444)", 0, 10);
+        verifyNoMoreInteractions(mockScopusProvider);
+
+        assertThat(getLastImport(firstPerson), notNullValue());
+        assertThat(getLastImport(secondPerson), is(not(fourthPersonLastImport)));
+        assertThat(getLastImport(thirdPerson), is(thirdPersonLastImport));
+        assertThat(getLastImport(fourthPerson), is(not(fourthPersonLastImport)));
+
+    }
+
+    @Test
+    public void testWithSearchLimitUpdatingOnlyItemsWithoutLastImportMetadata() throws ParseException, SQLException {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("111")
+            .build();
+
+        Item secondPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("222")
+            .build();
+
+        Item thirdPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("333")
+            .withScopusPublicationLastImport(DCDate.getCurrent().toString())
+            .build();
+
+        Item fourthPerson = ItemBuilder.createItem(context, this.col1)
+            .withScopusAuthorIdentifier("444")
+            .withScopusPublicationLastImport(DCDate.getCurrent().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+
+        when(mockScopusProvider.getNumberOfResults("AU-ID(111)")).thenReturn(6);
+        when(mockScopusProvider.getNumberOfResults("AU-ID(222)")).thenReturn(18);
+
+        when(mockScopusProvider.searchExternalDataObjects(any(), anyInt(), anyInt())).thenReturn(List.of());
+
+        assertThat(getLastImport(firstPerson), nullValue());
+        assertThat(getLastImport(secondPerson), nullValue());
+
+        String thirdPersonLastImport = getLastImport(thirdPerson);
+        String fourthPersonLastImport = getLastImport(fourthPerson);
+        assertThat(thirdPersonLastImport, notNullValue());
+        assertThat(fourthPersonLastImport, notNullValue());
+
+        String[] args = new String[] { "import-publications", "-s", "scopus", "-e", admin.getEmail(), "-l", "3" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        nameToProvider.put("scopus", mockScopusProvider);
+        createWorkspaceItemService.initialize(args, handler, admin);
+        createWorkspaceItemService.setNameToProvider(nameToProvider);
+        createWorkspaceItemService.run();
+
+        verify(mockScopusProvider).getNumberOfResults("AU-ID(111)");
+        verify(mockScopusProvider).getNumberOfResults("AU-ID(222)");
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(111)", 0, 10);
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(222)", 0, 10);
+        verify(mockScopusProvider).searchExternalDataObjects("AU-ID(222)", 10, 10);
+        verifyNoMoreInteractions(mockScopusProvider);
+
+        assertThat(getLastImport(firstPerson), notNullValue());
+        assertThat(getLastImport(secondPerson), notNullValue());
+        assertThat(getLastImport(thirdPerson), is(thirdPersonLastImport));
+        assertThat(getLastImport(fourthPerson), is(fourthPersonLastImport));
+
+    }
+
     @After
     public void destroy() throws Exception {
 
@@ -485,6 +623,11 @@ public class CreateWorkspaceItemFromExternalServiceIT extends AbstractController
         context.restoreAuthSystemState();
 
         super.destroy();
+    }
+
+    private String getLastImport(Item item) throws SQLException {
+        item = context.reloadEntity(item);
+        return itemService.getMetadataFirstValue(item, "cris", "lastimport", "scopus-publication", Item.ANY);
     }
 
     private void deleteWorkspaceItem(WorkspaceItem workspaceItem) {

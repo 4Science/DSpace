@@ -37,6 +37,7 @@
     <bean id="solrServiceMetricsIndexPlugin" class="org.dspace.discovery.SolrServiceMetricsIndexPlugin"/>
     <bean id="solrServiceCrisValuePairsIndexPlugin" class="org.dspace.discovery.SolrServiceValuePairsIndexPlugin"/>
     <bean id="solrServiceCustomUrlIndexPlugin" class="org.dspace.discovery.SolrServiceCustomUrlIndexPlugin"/>
+    <bean id="solrServiceLastImportIndexPlugin" class="org.dspace.discovery.SolrServiceLastImportIndexPlugin"/>
 
 
     <alias name="solrServiceResourceIndexPlugin" alias="org.dspace.discovery.SolrServiceResourceRestrictionPlugin"/>
@@ -977,7 +978,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>projectinvestigators_authority:{0}</value>
+                <value>projectinvestigators_authority:{0} AND search.resourcetype:Item</value>
             </list>
         </property>
         <!--Default result per page  -->
@@ -1054,7 +1055,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>author_authority:{0}</value>
+                <value>author_authority:{0} AND search.resourcetype:Item</value>
             </list>
         </property>
         <!--Default result per page  -->

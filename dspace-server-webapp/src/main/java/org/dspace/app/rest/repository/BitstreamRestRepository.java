@@ -412,11 +412,15 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
 
     private boolean matchesMetadataValue(MetadataValue metadataValue, String value) {
 
-        if (value.startsWith("(") && value.endsWith(")")) {
-            value = value.substring(1, value.length() - 1);
-            return metadataValue.getValue().matches(value);
+        if (StringUtils.isNotBlank(metadataValue.getValue())) {
+            if (value.startsWith("(") && value.endsWith(")")) {
+                value = value.substring(1, value.length() - 1);
+                return metadataValue.getValue().matches(value);
+            } else {
+                return metadataValue.getValue().equals(value);
+            }
         } else {
-            return metadataValue.getValue().equals(value);
+            return false;
         }
 
     }

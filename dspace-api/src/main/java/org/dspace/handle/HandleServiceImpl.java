@@ -405,7 +405,7 @@ public class HandleServiceImpl implements HandleService {
         }
 
         // Check additional prefixes supported in the config file
-        String[] additionalPrefixes = configurationService.getArrayProperty("handle.additional.prefixes");
+        String[] additionalPrefixes = getAdditionalPrefixes();
         for (String additionalPrefix : additionalPrefixes) {
             if (identifier.startsWith(additionalPrefix + "/")) {
                 // prefix is the equivalent of 123456789 in 123456789/???; don't strip
@@ -424,5 +424,10 @@ public class HandleServiceImpl implements HandleService {
             return handle.getDSpaceObject() == null;
         }
         return false;
+    }
+
+    @Override
+    public String[] getAdditionalPrefixes() {
+        return configurationService.getArrayProperty("handle.additional.prefixes");
     }
 }

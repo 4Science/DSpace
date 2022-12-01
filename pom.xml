@@ -61,6 +61,7 @@
         <jersey.version>2.35</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
+        <addon-iiif.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
         <addon-ocr.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
 
         <!--=== MAVEN SETTINGS ===-->
@@ -853,6 +854,26 @@
             <modules>
                 <module>dspace-iiif</module>
             </modules>
+        </profile>
+
+        <!--
+            Builds IIIF addon for DSpace
+        -->
+        <profile>
+            <id>addon-iiif</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-iiif-api</artifactId>
+                         <version>${addon-iiif.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
         </profile>
 
         <!--

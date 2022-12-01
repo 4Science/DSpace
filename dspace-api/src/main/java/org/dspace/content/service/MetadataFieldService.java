@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
@@ -129,4 +130,16 @@ public interface MetadataFieldService {
      * @throws AuthorizeException if authorization error
      */
     public void delete(Context context, MetadataField metadataField) throws SQLException, AuthorizeException;
+
+    /**
+     * Find all the metadata field names by the given schema and element.
+     *
+     * @param  context      dspace context
+     * @param  schema       the metadata schema
+     * @param  element      the element of the metadata field
+     * @return              the metadata field names
+     * @throws SQLException if database error
+     */
+    List<MetadataFieldName> findMetadataFieldNamesBySchemaAndElement(Context context, String schema, String element)
+        throws SQLException;
 }

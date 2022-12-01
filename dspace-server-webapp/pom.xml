@@ -226,6 +226,23 @@
         </profile>
 
         <profile>
+            <id>addon-iiif</id>
+            <activation>
+                <property>
+                    <name>iiif.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-iiif-api</artifactId>
+                    <version>${addon-iiif.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
             <id>addon-ocr</id>
             <activation>
                 <property>

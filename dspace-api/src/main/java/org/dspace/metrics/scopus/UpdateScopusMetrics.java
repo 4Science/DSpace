@@ -52,6 +52,11 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
     private CrisMetricsService crisMetricsService;
 
     @Override
+    public String getServiceName() {
+        return "scopus";
+    }
+
+    @Override
     public List<String> getFilters() {
         return Arrays.asList("dspace.entity.type:Publication", "dc.identifier.doi:* OR dc.identifier.pmid:*");
     }
@@ -76,7 +81,9 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
                 Map<String, Item> queryMap = new HashMap<>();
                 List<Item> itemList = new ArrayList<>();
                 for (int i = 0; i < fetchSize && itemIterator.hasNext(); i++) {
-                    itemList.add(itemIterator.next());
+                    Item item = itemIterator.next();
+                    setLastImportMetadataValue(context, item);
+                    itemList.add(item);
                 }
                 foundItems += itemList.size();
                 updatedItems +=

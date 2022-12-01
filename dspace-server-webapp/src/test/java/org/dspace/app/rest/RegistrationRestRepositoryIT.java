@@ -31,6 +31,7 @@ import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.dao.RegistrationDataDAO;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -175,6 +176,7 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     @Test
+    @Ignore
     public void forgotPasswordTest() throws Exception {
         configurationService.setProperty("user.registration", false);
 

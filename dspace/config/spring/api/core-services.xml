@@ -66,10 +66,11 @@
     <bean class="org.dspace.content.authority.MetadataAuthorityServiceImpl" lazy-init="true"/>
     
     <bean class="org.dspace.profile.OrcidProfileEnricher"/>
-    
-    <bean id= "org.dspace.profile.service.ResearcherProfileService" class="org.dspace.profile.ResearcherProfileServiceImpl"/>
-
     <bean class="org.dspace.profile.OrcidMetadataCopyingAction"/>
+    
+    <bean id="org.dspace.profile.service.ResearcherProfileService" class="org.dspace.profile.ResearcherProfileServiceImpl"/>
+
+    <bean class="org.dspace.handle.hdlresolver.HdlResolverServiceImpl"/>
 
     <bean class='org.dspace.service.impl.HttpConnectionPoolService'
           id='solrHttpConnectionPoolService'

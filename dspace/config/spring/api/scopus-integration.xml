@@ -158,7 +158,7 @@
     </bean>
 
     <bean id="scopus.eid" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.other"/>
+        <constructor-arg value="dc.identifier.scopus"/>
     </bean>
 
     <bean id="scopusAuthkeywordsContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">

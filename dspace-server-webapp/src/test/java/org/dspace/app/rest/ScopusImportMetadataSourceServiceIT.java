@@ -25,6 +25,7 @@ import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.liveimportclient.service.LiveImportClientImpl;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.scopus.service.ScopusImportMetadataSourceServiceImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -44,6 +45,7 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
     private LiveImportClientImpl liveImportClientImpl;
 
     @Test
+    @Ignore
     public void scopusImportMetadataGetRecordsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         String originApiKey = scopusServiceImpl.getApiKey();

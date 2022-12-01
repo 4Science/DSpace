@@ -193,6 +193,12 @@ public class MetadataFieldServiceImpl implements MetadataFieldService {
         this.triggerEventToUpdateIndex(context, metadataField.getID());
     }
 
+    @Override
+    public List<MetadataFieldName> findMetadataFieldNamesBySchemaAndElement(Context context, String schema,
+        String element) throws SQLException {
+        return metadataFieldDAO.findMetadataFieldNamesBySchemaAndElement(context, schema, element);
+    }
+
     /**
      * Calls a MODIFY SITE event with the identifier of the changed mdField, so it can be indexed in
      * {@link org.dspace.discovery.IndexEventConsumer}, with type of {@link org.dspace.discovery.IndexableObject} in
