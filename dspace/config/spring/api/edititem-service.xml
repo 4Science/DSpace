@@ -251,6 +251,28 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="journalissue">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    ADMIN
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="journal_issue-edit" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="journal_issue-edit" />
+                        </bean>
+                    </list>
+                </entry>
                 <entry key="news">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
