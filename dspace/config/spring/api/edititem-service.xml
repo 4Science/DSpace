@@ -31,7 +31,7 @@
                                     SUBMITTER_GROUP
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="admin-person-edit" />
+                            <property name="submissionDefinition" value="person-edit" />
                         </bean>
                     </list>
                 </entry>
