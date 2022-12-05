@@ -89,6 +89,7 @@
                 <entry key="fonds" value-ref="fonds"/>
                 <entry key="journalfonds" value-ref="journalfonds"/>
                 <entry key="aggregations" value-ref="aggregations"/>
+                <entry key="path" value-ref="path"/>
                 <entry key="news" value-ref="news"/>
                 <entry key="homePageTopItems" value-ref="homePageTopItemsConfiguration"/>
                 <!-- search for an entity that can be a Person or an OrgUnit -->
@@ -1888,6 +1889,39 @@
     
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="path" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <property name="id" value="path"/>
+        <!--Which sidebar facets are to be displayed (same as defaultConfiguration above)-->
+        <property name="sidebarFacets">
+            <list>
+            </list>
+        </property>
+         <!--The search filters which can be used on the discovery search page (same as defaultConfiguration above)-->
+        <property name="searchFilters">
+            <list>
+            </list>
+        </property>
+        <!--The sort filters for the discovery search (same as defaultConfiguration above)-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortDateAccessionedDesc" />
+                        <ref bean="sortViews" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+            queries done by discovery for this configuration-->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items -->
+                <value>search.resourcetype:Item AND entityType_keyword:Path</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="news" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
