@@ -2,7 +2,7 @@
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 <item-submission>
   <submission-map>
-    <name-map collection-handle="default" submission-name="archival_materials" />
+    <name-map collection-handle="default" submission-name="archival_material" />
   </submission-map>
   <step-definitions>
     <step-definition id="collection" mandatory="true">
@@ -21,18 +21,18 @@
       <processing-class>org.dspace.app.rest.submit.step.LicenseStep</processing-class>
       <type>license</type>
     </step-definition>
-    <step-definition id="archival_materials" mandatory="true">
-      <heading>submit.progressbar.describe.archival_materials</heading>
+    <step-definition id="archival_material" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="archival_materials_indexing" mandatory="true">
-      <heading>submit.progressbar.describe.archival_materials_indexing</heading>
+    <step-definition id="archival_material_indexing" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material_indexing</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="archival_materials_references" mandatory="true">
-      <heading>submit.progressbar.describe.archival_materials_references</heading>
+    <step-definition id="archival_material_references" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material_references</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -169,18 +169,18 @@
     </step-definition>
   </step-definitions>
   <submission-definitions>
-    <submission-process name="archival_materials">
+    <submission-process name="archival_material">
       <step id="collection" />
-      <step id="archival_materials" />
-      <step id="archival_materials_indexing" />
-      <step id="archival_materials_references" />
+      <step id="archival_material" />
+      <step id="archival_material_indexing" />
+      <step id="archival_material_references" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="archival_materials-edit">
-      <step id="archival_materials" />
-      <step id="archival_materials_indexing" />
-      <step id="archival_materials_references" />
+    <submission-process name="archival_material-edit">
+      <step id="archival_material" />
+      <step id="archival_material_indexing" />
+      <step id="archival_material_references" />
       <step id="upload" />
     </submission-process>
     <submission-process name="publication">

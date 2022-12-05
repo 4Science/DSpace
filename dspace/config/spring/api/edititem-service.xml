@@ -119,7 +119,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="archivalmaterials">
+                <entry key="archivalmaterial">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -128,7 +128,7 @@
                                     ADMIN
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="archival_materials-edit" />
+                            <property name="submissionDefinition" value="archival_material-edit" />
                         </bean>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -137,7 +137,7 @@
                                     SUBMITTER_GROUP
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="archival_materials-edit" />
+                            <property name="submissionDefinition" value="archival_material-edit" />
                         </bean>
                     </list>
                 </entry>

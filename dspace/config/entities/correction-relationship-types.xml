@@ -73,8 +73,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>ArchivalMaterials</leftType>
-        <rightType>ArchivalMaterials</rightType>
+        <leftType>ArchivalMaterial</leftType>
+        <rightType>ArchivalMaterial</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>

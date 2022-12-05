@@ -424,7 +424,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="archival_materials">
+    <form name="archival_material">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -560,7 +560,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>identifier</dc-element>
           <label>Identificativi della risorsa</label>
-          <input-type value-pairs-name="archival_materials_identifiers">qualdrop_value</input-type>
+          <input-type value-pairs-name="archival_material_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire numeri identificativi, codici e/o segnature della risorsa.</hint>
@@ -595,7 +595,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>type</dc-element>
           <dc-qualifier>physical</dc-qualifier>
           <label>Tipologia fisica</label>
-          <input-type value-pairs-name="archival_materials_types">dropdown</input-type>
+          <input-type value-pairs-name="archival_material_types">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Indicare la tipologia fisica della risorsa.</hint>
@@ -695,7 +695,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="archival_materials_indexing">
+    <form name="archival_material_indexing">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -720,7 +720,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="archival_materials_references">
+    <form name="archival_material_references">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -4826,7 +4826,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>item</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="archival_materials_identifiers" dc-term="archival_materials_identifiers">
+    <value-pairs value-pairs-name="archival_material_identifiers" dc-term="archival_material_identifiers">
       <pair>
         <displayed-value>DOI</displayed-value>
         <stored-value>doi</stored-value>
@@ -4852,7 +4852,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>other</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="archival_materials_types" dc-term="archival_materials_types">
+    <value-pairs value-pairs-name="archival_material_types" dc-term="archival_material_types">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
