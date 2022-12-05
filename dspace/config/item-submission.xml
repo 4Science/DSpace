@@ -320,7 +320,7 @@
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="journal_fond_edit">
+    <submission-process name="journal_fond-edit">
       <step id="journal_fond" />
       <step id="journal_fond-glamjournalfond-history" />
       <step id="journal_fond-glamjournalfond-relation-person" />
