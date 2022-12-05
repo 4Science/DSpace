@@ -289,6 +289,7 @@
     </submission-process>
     <submission-process name="path">
       <step id="path" />
+      <step id="upload" />
     </submission-process>
     <submission-process name="news-edit">
       <step id="news" />
@@ -300,6 +301,7 @@
     </submission-process>
     <submission-process name="path-edit">
       <step id="path" />
+      <step id="upload" />
     </submission-process>
     <submission-process name="journal_issue">
       <step id="collection" />
