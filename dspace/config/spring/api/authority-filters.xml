@@ -11,7 +11,7 @@
 	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
 		<property name="supportedAuthorities">
 			<util:list>
-				<value>FondLeafAuthority</value>
+				<value>FondsLeafAuthority</value>
 				<value>JournalFondLeafAuthority</value>
 				<value>AggregationLeafAuthority</value>
 			</util:list>

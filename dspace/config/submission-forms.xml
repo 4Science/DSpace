@@ -379,7 +379,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>fond</dc-qualifier>
+          <dc-qualifier>fonds</dc-qualifier>
           <label>Fondo</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -749,7 +749,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>fond</dc-qualifier>
+          <dc-qualifier>fonds</dc-qualifier>
           <label>Fondo</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -1722,10 +1722,10 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="fond-glamfond-bibliography">
+    <form name="fonds-glamfonds-bibliography">
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>abbreviation</dc-qualifier>
           <label>Abbreviazione</label>
@@ -1737,7 +1737,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>title</dc-qualifier>
           <label>Titolo</label>
@@ -1749,7 +1749,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>editor</dc-qualifier>
           <label>Curatore</label>
@@ -1761,7 +1761,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>publisher</dc-qualifier>
           <label>Editore</label>
@@ -1773,7 +1773,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>place</dc-qualifier>
           <label>Luogo</label>
@@ -1785,7 +1785,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
@@ -1797,7 +1797,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <dc-qualifier>author</dc-qualifier>
           <label>Autori</label>
@@ -1808,7 +1808,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="fond">
+    <form name="fonds">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -1881,7 +1881,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>custodian</dc-element>
           <label>Soggetto conservatore</label>
           <input-type>onebox</input-type>
@@ -1892,7 +1892,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>parent</dc-element>
           <label>Livello gerarchico superiore</label>
           <input-type>onebox</input-type>
@@ -1903,7 +1903,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>length</dc-element>
           <label>Estensione dell'archivio (in metri lineari)</label>
           <input-type>onebox</input-type>
@@ -1914,10 +1914,10 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>photographictype</dc-element>
           <label>Tipologia fondo fotografico</label>
-          <input-type value-pairs-name="fond_photographictype">dropdown</input-type>
+          <input-type value-pairs-name="fonds_photographictype">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la tipologia del fondo fotografico</hint>
@@ -1925,7 +1925,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>shelfmark</dc-element>
           <label>Segnatura del fondo</label>
           <input-type>onebox</input-type>
@@ -1971,7 +1971,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>history</dc-element>
           <label>Storia archivistica</label>
           <input-type>textarea</input-type>
@@ -1994,7 +1994,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>quantity</dc-element>
           <label>Numero di documenti presenti nel fondo</label>
           <input-type>onebox</input-type>
@@ -2005,7 +2005,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>arrangement</dc-element>
           <dc-qualifier>note</dc-qualifier>
           <label>Nota dell'archivista</label>
@@ -2017,7 +2017,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>materials</dc-qualifier>
           <label>Documentazione collegata</label>
@@ -2029,7 +2029,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>accesscondition</dc-element>
           <label>Condizione di accesso</label>
           <input-type>onebox</input-type>
@@ -2040,7 +2040,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>note</dc-element>
           <label>Annotazioni</label>
           <input-type>onebox</input-type>
@@ -2051,7 +2051,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>preservation</dc-element>
           <label>Stato di conservazione</label>
           <input-type>onebox</input-type>
@@ -2062,7 +2062,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>preservation</dc-element>
           <dc-qualifier>note</dc-qualifier>
           <label>Note allo stato di conservazione</label>
@@ -2074,7 +2074,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>usecondition</dc-element>
           <label>Condizione di riproduzione</label>
           <input-type>onebox</input-type>
@@ -2085,7 +2085,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>usecondition</dc-element>
           <dc-qualifier>note</dc-qualifier>
           <label>Note alla condizione di riproduzione</label>
@@ -2097,7 +2097,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
           <label>Bibliografia</label>
           <input-type>group</input-type>
@@ -2143,7 +2143,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>editor</dc-element>
           <label>Compilatore</label>
           <input-type>group</input-type>
@@ -2154,7 +2154,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>enddate</dc-element>
           <dc-qualifier>format</dc-qualifier>
           <label>Formato della data dell'estremo recente</label>
@@ -2166,7 +2166,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>enddate</dc-element>
           <dc-qualifier>from</dc-qualifier>
           <label>Data iniziale dell'estremo recente</label>
@@ -2178,7 +2178,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>enddate</dc-element>
           <dc-qualifier>spec</dc-qualifier>
           <label>Specifiche alla data finale</label>
@@ -2190,7 +2190,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>enddate</dc-element>
           <dc-qualifier>to</dc-qualifier>
           <label>Data finale dell'estremo recente</label>
@@ -2202,7 +2202,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>enddate</dc-element>
           <dc-qualifier>valid</dc-qualifier>
           <label>Validità dell'estremo recente</label>
@@ -2214,7 +2214,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>startdate</dc-element>
           <dc-qualifier>format</dc-qualifier>
           <label>Formato della data dell'estremo remoto</label>
@@ -2226,7 +2226,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>startdate</dc-element>
           <dc-qualifier>from</dc-qualifier>
           <label>Data iniziale dell'estremo remoto</label>
@@ -2238,7 +2238,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>startdate</dc-element>
           <dc-qualifier>spec</dc-qualifier>
           <label>Specifiche alla data iniziale</label>
@@ -2250,7 +2250,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>startdate</dc-element>
           <dc-qualifier>to</dc-qualifier>
           <label>Data finale dell'estremo remoto</label>
@@ -2262,7 +2262,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>startdate</dc-element>
           <dc-qualifier>valid</dc-qualifier>
           <label>Validita dell'estremo remoto</label>
@@ -2296,10 +2296,10 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="fond-glamfond-editor">
+    <form name="fonds-glamfonds-editor">
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>editor</dc-element>
           <dc-qualifier>name</dc-qualifier>
           <label>Nome del compilatore</label>
@@ -2311,7 +2311,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>editor</dc-element>
           <dc-qualifier>qualifier</dc-qualifier>
           <label>Qualifica del compilatore</label>
@@ -2323,7 +2323,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>editing</dc-element>
           <dc-qualifier>type</dc-qualifier>
           <label>Tipo di modifica</label>
@@ -2335,7 +2335,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>editing</dc-element>
           <dc-qualifier>date</dc-qualifier>
           <label>Data della modifica</label>
@@ -3093,7 +3093,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>history</dc-element>
           <label>Storia</label>
           <input-type>textarea</input-type>
@@ -3140,7 +3140,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamfond</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>shelfmark</dc-element>
           <label>Segnatura della testata</label>
           <input-type>onebox</input-type>
@@ -5448,7 +5448,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>3</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="fond_photographictype" dc-term="fond_photographictype">
+    <value-pairs value-pairs-name="fonds_photographictype" dc-term="fonds_photographictype">
       <pair>
         <displayed-value>Scegli un valore</displayed-value>
         <stored-value />

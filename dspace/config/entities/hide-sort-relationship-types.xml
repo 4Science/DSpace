@@ -245,7 +245,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>Fond</rightType>
+        <rightType>Fonds</rightType>
         <leftwardType>isFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedFonds</rightwardType>
         <leftCardinality>

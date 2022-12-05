@@ -20,8 +20,8 @@
     </dc-schema>
 
     <dc-schema>
-        <name>glamfond</name>
-        <namespace>https://www.4science.it/dspace-glam/fond</namespace>
+        <name>glamfonds</name>
+        <namespace>https://www.4science.it/dspace-glam/fonds</namespace>
     </dc-schema>
 
     <dc-schema>
@@ -253,70 +253,70 @@
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>preservation</element>
         <qualifier>note</qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>preservation</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>note</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>accesscondition</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>relation</element>
         <qualifier>materials</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>arrangement</element>
         <qualifier>note</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>editing</element>
         <qualifier>date</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>editing</element>
         <qualifier>type</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>editor</element>
         <qualifier>qualifier</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>editor</element>
         <qualifier>name</qualifier>
         <scope_note></scope_note>
@@ -330,70 +330,70 @@
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>startdate</element>
         <qualifier>valid</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>startdate</element>
         <qualifier>to</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>startdate</element>
         <qualifier>format</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>startdate</element>
         <qualifier>spec</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>startdate</element>
         <qualifier>from</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>enddate</element>
         <qualifier>valid</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>enddate</element>
         <qualifier>to</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>enddate</element>
         <qualifier>format</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>enddate</element>
         <qualifier>spec</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>enddate</element>
         <qualifier>from</qualifier>
         <scope_note></scope_note>
@@ -442,105 +442,105 @@
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>quantity</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>abbreviation</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>title</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>editor</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>publisher</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>place</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>year</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier>author</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>custodian</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>parent</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>length</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>photographictype</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>shelfmark</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>history</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>bibliography</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
@@ -554,21 +554,21 @@
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>editor</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>usecondition</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     
     <dc-type>
-        <schema>glamfond</schema>
+        <schema>glamfonds</schema>
         <element>usecondition</element>
         <qualifier>note</qualifier>
         <scope_note></scope_note>

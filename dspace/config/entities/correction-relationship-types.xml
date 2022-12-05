@@ -87,8 +87,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>Fond</leftType>
-        <rightType>Fond</rightType>
+        <leftType>Fonds</leftType>
+        <rightType>Fonds</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
