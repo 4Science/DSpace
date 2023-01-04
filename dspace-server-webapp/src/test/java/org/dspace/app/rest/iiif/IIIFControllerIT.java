@@ -508,8 +508,8 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                    // should contain 3 canvases, corresponding to each bitstream
                    .andExpect(jsonPath("$.sequences[0].canvases[*].label",
                                        Matchers.contains("Global " + bitstream1.getID().toString(),
-                                               "Global 2" + bitstream2.getID().toString(),
-                                               "Global 3" + bitstream3.getID().toString())))
+                                               "Global " + bitstream2.getID().toString(),
+                                               "Global " + bitstream3.getID().toString())))
 
                    // First structure should be a Table of Contents
                    .andExpect(jsonPath("$.structures[0].@id",
@@ -800,7 +800,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                    .andExpect(jsonPath("$.@context", is("http://iiif.io/api/presentation/2/context.json")))
                    // should contain 3 canvases, corresponding to each bitstream
                    .andExpect(jsonPath("$.sequences[0].canvases[*].label",
-                       Matchers.contains("Global 1" + bitstream1.getID().toString(),
+                       Matchers.contains("Global " + bitstream1.getID().toString(),
                                "Global " + bitstream2.getID().toString())))
 
                    // structures should not be present
@@ -923,8 +923,9 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                 .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
+        Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
-            BitstreamBuilder.
+            bitstream = BitstreamBuilder.
                     createBitstream(context, publicItem1, is)
                     .withName("Bitstream1.jpg")
                     .withMimeType("image/jpeg")
@@ -955,8 +956,9 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                 .andExpect(jsonPath("$.sequences[0].canvases", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$.sequences[0].canvases[0].@id",
                         Matchers.containsString("/iiif/" + publicItem1.getID() + "/canvas/"
-                                + pdf.getID().toString())))
-                .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("Page " + pdf.getID().toString())))
+                                + bitstream.getID().toString())))
+                .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("Page "
+                                + bitstream.getID().toString())))
                 .andExpect(jsonPath("$.rendering.@id",
                         Matchers.endsWith(pdf.getID().toString() + "/content")))
                 .andExpect(jsonPath("$.rendering.label", is("Bitstream3.pdf")))
@@ -1121,7 +1123,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
         Bitstream otherBitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             otherBitstream = BitstreamBuilder.
-                    createBitstream(context, publicItem1, is)
+                    createBitstream(context, publicItem2, is)
                     .withName("IMG1.jpg")
                     .withMimeType("image/jpeg")
                     .build();
