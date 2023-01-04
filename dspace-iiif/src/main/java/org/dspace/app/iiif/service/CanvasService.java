@@ -56,6 +56,9 @@ public class CanvasService extends AbstractResourceService {
     @Autowired
     ApplicationContext applicationContext;
 
+    @Autowired
+    BitstreamService bitstreamService;
+
     protected String[] BITSTREAM_METADATA_FIELDS;
 
     /**
@@ -156,16 +159,16 @@ public class CanvasService extends AbstractResourceService {
      * @param bitstream DSpace bitstream
      * @param bundle  DSpace bundle
      * @param item  DSpace item
-     * @param count  the canvas position in the sequence.
      * @param mimeType  bitstream mimetype
      * @return a canvas generator
      */
     protected CanvasGenerator getCanvas(Context context, String manifestId, Bitstream bitstream, Bundle bundle,
-            Item item, int count, String mimeType) {
-        int pagePosition = count + 1;
+            Item item, String mimeType) {
+        // retrieve canvas identifier
+        String canvasId = utils.getCanvasId(bitstream);
 
         String canvasNaming = utils.getCanvasNaming(item, I18nUtil.getMessage("iiif.canvas.default-naming"));
-        String label = utils.getIIIFLabel(bitstream, canvasNaming + " " + pagePosition);
+        String label = utils.getIIIFLabel(bitstream, canvasNaming + " " + canvasId);
 
         setCanvasDimensions(bitstream);
 
@@ -179,7 +182,7 @@ public class CanvasService extends AbstractResourceService {
                 thumbUtil.getThumbnailProfile(), THUMBNAIL_PATH);
 
         return addMetadata(context, bitstream,
-                new CanvasGenerator(IIIF_ENDPOINT + manifestId + "/canvas/c" + count)
+                new CanvasGenerator(IIIF_ENDPOINT + manifestId + "/canvas/" + canvasId)
                     .addImage(image.generateResource()).addThumbnail(thumb.generateResource()).setHeight(canvasHeight)
                     .setWidth(canvasWidth).setLabel(label));
     }
