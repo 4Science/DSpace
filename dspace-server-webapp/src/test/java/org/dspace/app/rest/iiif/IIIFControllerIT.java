@@ -507,9 +507,15 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                    .andExpect(jsonPath("$.@context", is("http://iiif.io/api/presentation/2/context.json")))
                    // should contain 3 canvases, corresponding to each bitstream
                    .andExpect(jsonPath("$.sequences[0].canvases[*].label",
-                                       Matchers.contains("Global " + bitstream1.getID().toString(),
+                                       Matchers.containsInAnyOrder("Global " + bitstream1.getID().toString(),
                                                "Global " + bitstream2.getID().toString(),
                                                "Global " + bitstream3.getID().toString())))
+                   .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("Global "
+                           + bitstream1.getID().toString())))
+                   .andExpect(jsonPath("$.sequences[0].canvases[1].label", is("Global "
+                           + bitstream2.getID().toString())))
+                   .andExpect(jsonPath("$.sequences[0].canvases[2].label", is("Global "
+                           + bitstream3.getID().toString())))
 
                    // First structure should be a Table of Contents
                    .andExpect(jsonPath("$.structures[0].@id",
