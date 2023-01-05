@@ -40,6 +40,7 @@ import org.dspace.iiif.util.IIIFSharedUtils;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -184,7 +185,19 @@ public class IIIFUtils {
      */
     public Bitstream getBitstreamForCanvas(Context context, Item item, String canvasId)
             throws SQLException {
-        return bitstreamService.find(context, UUID.fromString(canvasId));
+        Bitstream bitstream = bitstreamService.find(context, UUID.fromString(canvasId));
+
+        // check if bitstream is part of the item
+        for (Bundle bundle : bitstream.getBundles()) {
+            for (Item i : bundle.getItems()) {
+                if (i.getID().equals(item.getID())) {
+                    return bitstream;
+                }
+            }
+        }
+
+        // bitstream is not part of the item
+        throw new ResourceNotFoundException();
     }
 
     /**
