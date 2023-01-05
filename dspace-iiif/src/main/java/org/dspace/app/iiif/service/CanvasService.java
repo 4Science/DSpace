@@ -159,14 +159,12 @@ public class CanvasService extends AbstractResourceService {
      * @param bitstream DSpace bitstream
      * @param bundle  DSpace bundle
      * @param item  DSpace item
+     * @param canvasID  the canvas identifier
      * @param mimeType  bitstream mimetype
      * @return a canvas generator
      */
     protected CanvasGenerator getCanvas(Context context, String manifestId, Bitstream bitstream, Bundle bundle,
-            Item item, String mimeType) {
-        // retrieve canvas identifier
-        String canvasId = utils.getCanvasId(bitstream);
-
+            Item item, String canvasId, String mimeType) {
         String canvasNaming = utils.getCanvasNaming(item, I18nUtil.getMessage("iiif.canvas.default-naming"));
         String label = utils.getIIIFLabel(bitstream, canvasNaming + " " + canvasId);
 
@@ -174,11 +172,11 @@ public class CanvasService extends AbstractResourceService {
 
         int canvasWidth = utils.getCanvasWidth(bitstream, bundle, item, getDefaultWidth());
         int canvasHeight = utils.getCanvasHeight(bitstream, bundle, item, getDefaultHeight());
-        UUID bitstreamId = bitstream.getID();
-        ImageContentGenerator image = imageContentService.getImageContent(bitstreamId, mimeType,
+
+        ImageContentGenerator image = imageContentService.getImageContent(UUID.fromString(canvasId), mimeType,
                 imageUtil.getImageProfile(), IMAGE_PATH);
 
-        ImageContentGenerator thumb = imageContentService.getImageContent(bitstreamId, mimeType,
+        ImageContentGenerator thumb = imageContentService.getImageContent(UUID.fromString(canvasId), mimeType,
                 thumbUtil.getThumbnailProfile(), THUMBNAIL_PATH);
 
         return addMetadata(context, bitstream,
