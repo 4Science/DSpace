@@ -87,7 +87,7 @@
         <Appender name='A3'
                   type='File'
                   fileName='${log.dir}/solr.log'>
-            <Layout type='FileAppender'
+            <Layout type='PatternAppender'
                     pattern='%m%n'/>
             <!--
             <policies>
