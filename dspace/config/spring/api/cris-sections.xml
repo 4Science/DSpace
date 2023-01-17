@@ -229,8 +229,25 @@
             </list>
             <list>
                 <bean class="org.dspace.layout.CrisLayoutTopComponent">
+                    <property name="discoveryConfigurationName" value="additions" />
+                    <property name="sortField" value="dc.date.accessioned" />
+                    <property name="order" value="desc" />
+                    <property name="style" value="col-md-12"/>
+                    <property name="numberOfItems" value="8"/>
+                    <property name="showAsCard" value="true"/>
+                    <property name="showLayoutSwitch" value="true"/>
+                    <property name="defaultLayoutMode" value="CARD"/>
+                    <property name="cardStyle" value=""/>
+                    <property name="cardColumnStyle" value="col-6 col-lg-3"/>
+                    <property name="itemListStyle" value=""/>
+                    <property name="showAllResults" value="true"/>
+                </bean>
+            </list>
+            <list>
+                <bean class="org.dspace.layout.CrisLayoutTopComponent">
                     <property name="discoveryConfigurationName" value="path" />
                     <property name="sortField" value="dc.date.accessioned" />
+                    <property name="titleKey" value="paths" />
                     <property name="order" value="desc" />
                     <property name="style" value="col-md-12"/>
                     <property name="numberOfItems" value="8"/>
