@@ -1927,6 +1927,7 @@
                 <!--Only find fonds, journalfonds and aggregations -->
                 <value>search.resourcetype:Item AND -entityType_keyword:News</value>
                 <value>entityType_keyword:Fonds OR entityType_keyword:JournalFond OR entityType_keyword:Aggregation</value>
+                <value>-glamfonds.parent:* -glamjournalfond.parent:* AND -glamaggregation.parent:*</value>
             </list>
         </property>
     </bean>
