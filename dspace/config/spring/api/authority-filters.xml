@@ -23,4 +23,19 @@
 		</constructor-arg>
 	</bean>
 
+	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
+		<property name="supportedAuthorities">
+			<util:list>
+				<value>FondsAuthority</value>
+				<value>JournalFondAuthority</value>
+				<value>AggregationAuthority</value>
+			</util:list>
+		</property>
+		<constructor-arg name="customQueries">
+			<util:list>
+				<value>-glam.leaf:true</value>
+			</util:list>
+		</constructor-arg>
+	</bean>
+
 </beans>
