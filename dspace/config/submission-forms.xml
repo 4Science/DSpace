@@ -2113,7 +2113,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Foglia</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Indicare se si tratta del livello inferiore delle gerarchia archivistica</required>
           <hint>Indicare se si tratta del livello inferiore delle gerarchia archivistica</hint>
         </field>
       </row>
@@ -2662,7 +2662,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Accetta record</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Indicare se si tratta del livello inferiore delle gerarchia archivistica</required>
           <hint>Indicare se si tratta del livello inferiore delle gerarchia archivistica</hint>
         </field>
       </row>
@@ -3238,7 +3238,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Foglia</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Indicare se si tratta del livello inferiore delle gerarchia archivistica</required>
           <hint>Indicare se si tratta del livello inferiore delle gerarchia archivistica</hint>
         </field>
       </row>
