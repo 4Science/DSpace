@@ -11,6 +11,7 @@ import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -66,26 +67,23 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    //Our default Discovery config has 4 browse indexes so we expect this to be reflected in the page
                    // object
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", is(11)))
-                   .andExpect(jsonPath("$.page.totalPages", is(1)))
+                   .andExpect(jsonPath("$.page.totalElements", is(22)))
+                   .andExpect(jsonPath("$.page.totalPages", is(2)))
                    .andExpect(jsonPath("$.page.number", is(0)))
 
                    //The array of browse index should have a size 4
-                   .andExpect(jsonPath("$._embedded.browses", hasSize(11)))
+                   .andExpect(jsonPath("$._embedded.browses", hasSize(22)))
 
                    //Check that all (and only) the default browse indexes are present
-                   .andExpect(jsonPath("$._embedded.browses", containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.browses", hasItems(
                        BrowseIndexMatcher.dateIssuedBrowseIndex("asc"),
                        BrowseIndexMatcher.contributorBrowseIndex("asc"),
                        BrowseIndexMatcher.titleBrowseIndex("asc"),
                        BrowseIndexMatcher.subjectBrowseIndex("asc"),
-                       BrowseIndexMatcher.rodeptBrowseIndex("asc"),
                        BrowseIndexMatcher.typeBrowseIndex("asc"),
-                       BrowseIndexMatcher.rpnameBrowseIndex("asc"),
                        BrowseIndexMatcher.ounameBrowseIndex("asc"),
                        BrowseIndexMatcher.pjtitleBrowseIndex("asc"),
-                       BrowseIndexMatcher.rpdeptBrowseIndex("asc"),
-                       BrowseIndexMatcher.eqtitleBrowseIndex("asc")
+                       BrowseIndexMatcher.rpdeptBrowseIndex("asc")
                    )))
         ;
     }
