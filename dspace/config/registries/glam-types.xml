@@ -601,4 +601,11 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>partecipatedIn</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
