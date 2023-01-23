@@ -115,16 +115,21 @@ public class DiscoverQueryBuilder implements InitializingBean {
                                     String sortDirection)
             throws IllegalArgumentException, SearchServiceException {
 
-        DiscoverQuery queryArgs = buildCommonDiscoverQuery(context, discoveryConfiguration, query, searchFilters,
-                                                           dsoTypes, scope);
+        DiscoverQuery queryArgs =
+            buildCommonDiscoverQuery(
+                context, discoveryConfiguration, query, searchFilters,
+                dsoTypes, scope
+            );
 
         //When all search criteria are set, configure facet results
         addFaceting(context, scope, queryArgs, discoveryConfiguration);
 
         //Configure pagination and sorting
         configurePagination(pageSize, offset, queryArgs);
-        configureSorting(sortProperty, sortDirection, queryArgs, discoveryConfiguration.getSearchSortConfiguration(),
-            scope);
+        configureSorting(
+            sortProperty, sortDirection, queryArgs, discoveryConfiguration.getSearchSortConfiguration(),
+            scope
+        );
 
         addDiscoveryHitHighlightFields(discoveryConfiguration, queryArgs);
         Optional.ofNullable(scope).ifPresent(queryArgs::setScopeObject);
@@ -454,11 +459,14 @@ public class DiscoverQueryBuilder implements InitializingBean {
                     field = context.getCurrentLocale().getLanguage() + "_" + field;
                 }
 
-                DiscoverFilterQuery filterQuery = searchService.toFilterQuery(context,
-                                                                              field,
-                                                                              searchFilter.getOperator(),
-                                                                              searchFilter.getValue(),
-                                                                              discoveryConfiguration);
+                DiscoverFilterQuery filterQuery =
+                    searchService.toFilterQuery(
+                        context,
+                        field,
+                        searchFilter.getOperator(),
+                        searchFilter.getValue(),
+                        discoveryConfiguration
+                );
 
                 if (filterQuery != null) {
                     filterQueries.add(filterQuery.getFilterQuery());

@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
@@ -56,6 +57,7 @@ import org.dspace.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 /**
@@ -97,6 +99,10 @@ public class ResearcherProfileServiceImpl implements ResearcherProfileService {
 
     @Autowired(required = false)
     private List<AfterResearcherProfileCreationAction> afterCreationActions;
+
+    @Autowired(required = false)
+    @Qualifier("sharedWorkspaceAuthorMetadataFields")
+    private List<String> sharedWorkspaceAuthorMetadataFields;
 
     @PostConstruct
     public void postConstruct() {
@@ -223,6 +229,33 @@ public class ResearcherProfileServiceImpl implements ResearcherProfileService {
             return false;
         }
         return profileType.equals(itemService.getEntityTypeLabel(item));
+    }
+
+    @Override
+    public boolean isAuthorOf(Context context, EPerson ePerson, Item item) {
+
+        try {
+
+            if (CollectionUtils.isEmpty(sharedWorkspaceAuthorMetadataFields) || Objects.isNull(ePerson)) {
+                return false;
+            }
+
+            ResearcherProfile researcherProfile = findById(context, ePerson.getID());
+
+            if (researcherProfile == null) {
+                return false;
+            }
+
+            String profileItemId = researcherProfile.getItem().getID().toString();
+
+            return sharedWorkspaceAuthorMetadataFields.stream()
+                .flatMap(field -> itemService.getMetadataByMetadataString(item, field).stream())
+                .anyMatch(metadataValue -> profileItemId.equals(metadataValue.getAuthority()));
+
+        } catch (SQLException | AuthorizeException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override

@@ -457,4 +457,8 @@ public class EPerson extends DSpaceObject implements DSpaceObjectLegacySupport {
         return previousActive;
     }
 
+    public boolean hasPasswordSet() {
+        return StringUtils.isNotBlank(getPassword());
+    }
+
 }

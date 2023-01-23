@@ -793,6 +793,7 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
         expectedPoint1.addValue("views", count);
         if (dso instanceof Item) {
             expectedPoint1.setType("item");
+            expectedPoint1.setLabel(dso.getName());
             expectedPoint1.setId(dso.getID().toString());
         } else if (dso instanceof Bitstream) {
             expectedPoint1.setType("bitstream");

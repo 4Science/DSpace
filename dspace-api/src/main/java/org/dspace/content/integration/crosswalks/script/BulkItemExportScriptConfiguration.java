@@ -7,9 +7,16 @@
  */
 package org.dspace.content.integration.crosswalks.script;
 
+import java.sql.SQLException;
+import java.util.Optional;
+
 import org.apache.commons.cli.Options;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
 import org.dspace.scripts.configuration.ScriptConfiguration;
+import org.dspace.services.ConfigurationService;
+import org.dspace.utils.DSpace;
 
 /**
  * {@link ScriptConfiguration} for the {@link BulkItemExport}.
@@ -24,7 +31,21 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
 
     @Override
     public boolean isAllowedToExecute(Context context) {
-        return context.getCurrentUser() != null;
+        StringBuilder property = new StringBuilder("bulk-export.limit.");
+        AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+        ConfigurationService configurationService = new DSpace().getConfigurationService();
+        try {
+            if (authorizeService.isAdmin(context) || authorizeService.isComColAdmin(context)) {
+                property.append("admin");
+            } else {
+                property.append(Optional.ofNullable(context.getCurrentUser()).map(ignored -> "loggedIn")
+                                    .orElse("notLoggedIn"));
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        int maxByUserCategory = configurationService.getIntProperty(property.toString(), -1);
+        return maxByUserCategory != 0;
     }
 
     @Override
@@ -59,6 +80,18 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
             options.addOption("f", "format", true, "the format in which the itemd must be exported");
             options.getOption("f").setType(String.class);
             options.getOption("f").setRequired(true);
+
+            options.addOption("si", "selected-items", true, "the list of selected items to export");
+            options.getOption("si").setType(String.class);
+            options.getOption("si").setRequired(false);
+
+            options.addOption("o", "offset", true, "the offset for export start");
+            options.getOption("o").setType(String.class);
+            options.getOption("o").setRequired(false);
+
+            options.addOption("l", "limit", true, "limit of items to export");
+            options.getOption("l").setType(String.class);
+            options.getOption("l").setRequired(false);
 
             super.options = options;
         }

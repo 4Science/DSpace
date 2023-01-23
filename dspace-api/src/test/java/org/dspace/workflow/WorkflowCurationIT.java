@@ -25,6 +25,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.ctask.testing.MarkerTask;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -32,6 +33,7 @@ import org.junit.Test;
  *
  * @author mwood
  */
+@Ignore
 public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();

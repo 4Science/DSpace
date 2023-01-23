@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
@@ -33,12 +34,14 @@ import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
+import org.dspace.eperson.EPerson;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -302,4 +305,106 @@ public class DownloadFeatureIT extends AbstractControllerIntegrationTest {
                         .andExpect(jsonPath("$._embedded").doesNotExist());
     }
 
+    @Test
+    public void downloadOfBitstreamWithCrisSecurity() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        // this should be a publication collection but right now no control are enforced
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+        // this should be a person collection
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Person").build();
+
+        //2. A public item with an embargoed bitstream
+        String bitstreamContent = "Embargoed!";
+        EPerson authorEp = EPersonBuilder.createEPerson(context)
+                .withEmail("author@example.com")
+                .withPassword(password)
+                .build();
+        Item profile = ItemBuilder.createItem(context, col2)
+                .withTitle("Author")
+                .withDspaceObjectOwner(authorEp)
+                .build();
+        // set our submitter
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                .withEmail("submitter@example.com")
+                .withPassword(password)
+                .build();
+        context.setCurrentUser(submitter);
+        Bitstream embargoedBit = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            // we need a publication to check our cris enhanced security
+            Item publicItem1 =
+                    ItemBuilder.createItem(context, col1)
+                            .withEntityType("Publication")
+                            .withTitle("Public item 1")
+                            .withIssueDate("2017-10-17")
+                            .withAuthor("Just an author without profile")
+                            .withAuthor("A profile not longer in the system",
+                                    UUID.randomUUID().toString())
+                            .withAuthor("An author with invalid authority",
+                                    "this is not an uuid")
+                            .withAuthor("Author",
+                                    profile.getID().toString())
+                            .build();
+
+            embargoedBit = BitstreamBuilder
+                .createBitstream(context, publicItem1, is)
+                .withName("Test Embargoed Bitstream")
+                .withDescription("This bitstream is embargoed")
+                .withMimeType("text/plain")
+                .withEmbargoPeriod("6 months")
+                .build();
+        }
+        context.restoreAuthSystemState();
+
+        BitstreamRest bitstreamRest = bitstreamConverter.convert(embargoedBit, Projection.DEFAULT);
+        String bitstreamUri = utils.linkToSingleResource(bitstreamRest, "self").getHref();
+
+        //** WHEN **
+        //anonymous try to download the bitstream
+        getClient()
+                .perform(get("/api/authz/authorizations/search/object")
+                        .param("uri", bitstreamUri)
+                        .param("feature", downloadFeature.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", is(0)))
+                .andExpect(jsonPath("$._embedded").doesNotExist());
+
+        // another unrelated eperson should get forbidden
+        getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(get("/api/authz/authorizations/search/object")
+                        .param("uri", bitstreamUri)
+                        .param("feature", downloadFeature.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", is(0)))
+                .andExpect(jsonPath("$._embedded").doesNotExist());
+
+        Authorization authorizationFeature = new Authorization(submitter, downloadFeature, bitstreamRest);
+        // the submitter should be able to download according to our custom cris policy
+        getClient(getAuthToken(submitter.getEmail(), password))
+                .perform(get("/api/authz/authorizations/search/object")
+                        .param("uri", bitstreamUri)
+                        .param("feature", downloadFeature.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", greaterThan(0)))
+                .andExpect(jsonPath("$._embedded.authorizations", contains(
+                        Matchers.is(AuthorizationMatcher.matchAuthorization(authorizationFeature)))));
+
+        authorizationFeature = new Authorization(authorEp, downloadFeature, bitstreamRest);
+        // the author should be able to download according to our custom cris policy
+        getClient(getAuthToken(authorEp.getEmail(), password))
+                .perform(get("/api/authz/authorizations/search/object")
+                        .param("uri", bitstreamUri)
+                        .param("feature", downloadFeature.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", greaterThan(0)))
+                .andExpect(jsonPath("$._embedded.authorizations", contains(
+                        Matchers.is(AuthorizationMatcher.matchAuthorization(authorizationFeature)))));    }
 }

@@ -79,6 +79,22 @@ public interface BitStoreService {
     public void remove(Bitstream bitstream) throws IOException;
 
     /**
+     * Determines if a store has been initialized
+     *
+     * @return {@code boolean} true if initialized, false otherwise
+     */
+    public boolean isInitialized();
+
+    /**
+     * Determines if a store is enabled, by default is enabled
+     *
+     * @return {@code boolean} true if enabled, false otherwise
+     */
+    public default boolean isEnabled() {
+        return true;
+    }
+
+    /**
      * Retrieve the fullpath for bitstream.
      *
      * @param bitstream

@@ -11,13 +11,13 @@ package org.dspace.harvest.model;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
 
-import ORG.oclc.oai.harvester2.verb.HarvesterVerb;
-import ORG.oclc.oai.harvester2.verb.ListRecords;
 import org.dspace.harvest.HarvestingException;
 import org.jdom2.Document;
 import org.jdom2.input.DOMBuilder;
+import org.oclc.oai.harvester2.verb.HarvesterVerb;
+import org.oclc.oai.harvester2.verb.ListRecords;
 import org.w3c.dom.NodeList;
 
 /**
@@ -59,7 +59,7 @@ public class OAIHarvesterResponseDTO {
     private static String getResumptionTokenFromVerb(HarvesterVerb verb) {
         try {
             return isListRecords(verb) ? ((ListRecords) verb).getResumptionToken() : null;
-        } catch (NoSuchFieldException | TransformerException e) {
+        } catch (NoSuchFieldException | XPathExpressionException e) {
             throw new HarvestingException(e);
         }
     }
@@ -86,7 +86,7 @@ public class OAIHarvesterResponseDTO {
     private static NodeList getErrorsFromHarvesterVerb(HarvesterVerb verb) {
         try {
             return verb.getErrors();
-        } catch (TransformerException e) {
+        } catch (XPathExpressionException e) {
             throw new HarvestingException(e);
         }
     }

@@ -196,7 +196,7 @@ public class ITDSpaceAIP extends AbstractIntegrationTest {
             ePersonService.update(context, submitter);
             context.setCurrentUser(submitter);
 
-            //Make our test ePerson an admin so he can perform deletes and restores
+            //Make our test ePerson an admin so it can perform deletes and restores
             GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
             Group adminGroup = groupService.findByName(context, Group.ADMIN);
             groupService.addMember(context, adminGroup, submitter);

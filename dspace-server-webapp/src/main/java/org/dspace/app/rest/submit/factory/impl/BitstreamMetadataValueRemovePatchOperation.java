@@ -51,7 +51,7 @@ public class BitstreamMetadataValueRemovePatchOperation extends MetadataValueRem
         bitstreamMetadataValuePathUtils.validate(stepId, absolutePath);
         Item item = source.getItem();
         List<Bundle> bundle = itemService.getBundles(item, Constants.CONTENT_BUNDLE_NAME);
-        ;
+
         for (Bundle bb : bundle) {
             int idx = 0;
             for (Bitstream b : bb.getBitstreams()) {
@@ -60,7 +60,7 @@ public class BitstreamMetadataValueRemovePatchOperation extends MetadataValueRem
                     if (split.length == 4) {
                         deleteValue(context, b, split[3], -1);
                     } else {
-                        Integer toDelete = Integer.parseInt(split[4]);
+                        int toDelete = Integer.parseInt(split[4]);
                         deleteValue(context, b, split[3], toDelete);
                     }
                 }

@@ -64,17 +64,17 @@
         <property name="description" value="Perform the bulk import of an excel file with a list of item to add, update or remove"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.BulkImportCli"/>
     </bean>
-    
+
     <bean id="item-export" class="org.dspace.content.integration.crosswalks.script.ItemExportCliScriptConfiguration">
         <property name="description" value="Perform the item export in the given format"/>
         <property name="dspaceRunnableClass" value="org.dspace.content.integration.crosswalks.script.ItemExportCli"/>
     </bean>
-    
+
     <bean id="bulk-item-export" class="org.dspace.content.integration.crosswalks.script.BulkItemExportCliScriptConfiguration">
         <property name="description" value="Perform the multiple items export in the given format"/>
         <property name="dspaceRunnableClass" value="org.dspace.content.integration.crosswalks.script.BulkItemExportCli"/>
     </bean>
-    
+
     <bean id="collection-export" class="org.dspace.app.bulkedit.CollectionExportCliScriptConfiguration">
         <property name="description" value="Perform the export of all the archived items of the given collection in xls format"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.CollectionExportCli"/>
@@ -99,12 +99,12 @@
         <property name="description" value="Perform the creating of workspace item using external source"/>
         <property name="dspaceRunnableClass" value="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCli"/>
     </bean>
-    
+
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration">
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>
     </bean>
-    
+
     <bean id="orcid-bulk-pull" class="org.dspace.orcid.script.OrcidBulkPullScriptConfiguration">
         <property name="description" value="Perform a bulk pull from the ORCID registry for all the profiles with an ORCID id set"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPull"/>
@@ -124,7 +124,7 @@
         <property name="description" value="Script to import CRIS layout configuration from excel file"/>
         <property name="dspaceRunnableClass" value="org.dspace.layout.script.CrisLayoutToolScript"/>
     </bean>
-        
+
     <bean id="update-item-references" class="org.dspace.authority.script.UpdateItemReferenceCliScriptConfiguration">
         <property name="description" value="Perform the resolutrion of authority references"/>
         <property name="dspaceRunnableClass" value="org.dspace.authority.script.UpdateItemReferenceCli"/>
@@ -134,7 +134,7 @@
         <property name="description" value="Script that allows to enhance all items"/>
         <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerScript"/>
     </bean>
-    
+
     <!-- Keep as last script; for test ScriptRestRepository#findOneScriptByNameTest -->
     <bean id="mock-script" class="org.dspace.scripts.MockDSpaceRunnableScriptConfiguration" scope="prototype">
         <property name="description" value="Mocking a script for testing purposes" />

@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -169,6 +171,25 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void appendFile(Context context, Process process, InputStream is, String type, String fileName)
         throws IOException, SQLException, AuthorizeException {
+        Bitstream bitstream = createFileBitstream(context, process, is, type, fileName);
+        Map<Integer, Group> groupPolicy = null;
+        Map<Integer, EPerson> userPolicy = null;
+        if (Objects.isNull(context.getCurrentUser())) {
+            Group anonymous = groupService.findByName(context, Group.ANONYMOUS);
+            groupPolicy = new HashMap<>();
+            groupPolicy.put(Constants.READ, anonymous);
+        } else {
+            userPolicy = new HashMap<>();
+            userPolicy.put(Constants.READ, context.getCurrentUser());
+            userPolicy.put(Constants.WRITE, context.getCurrentUser());
+            userPolicy.put(Constants.DELETE, context.getCurrentUser());
+        }
+        this.addBitstream(context, process, bitstream, type, groupPolicy, userPolicy);
+    }
+
+    private Bitstream createFileBitstream(Context context, Process process, InputStream is, String type,
+            String fileName)
+            throws IOException, SQLException {
         Bitstream bitstream = bitstreamService.create(context, is);
         if (getBitstream(context, process, type) != null) {
             throw new IllegalArgumentException("Cannot create another file of type: " + type + " for this process" +
@@ -179,14 +200,33 @@ public class ProcessServiceImpl implements ProcessService {
         MetadataField dspaceProcessFileTypeField = metadataFieldService
             .findByString(context, Process.BITSTREAM_TYPE_METADATAFIELD, '.');
         bitstreamService.addMetadata(context, bitstream, dspaceProcessFileTypeField, null, type);
-        if (Objects.isNull(context.getCurrentUser())) {
-            Group anonymous = groupService.findByName(context, Group.ANONYMOUS);
-            authorizeService.addPolicy(context, bitstream, Constants.READ, anonymous);
-        } else {
-            authorizeService.addPolicy(context, bitstream, Constants.READ, context.getCurrentUser());
-            authorizeService.addPolicy(context, bitstream, Constants.WRITE, context.getCurrentUser());
-            authorizeService.addPolicy(context, bitstream, Constants.DELETE, context.getCurrentUser());
+        return bitstream;
+    }
+
+    @Override
+    public void appendFile(Context context, Process process, InputStream is, String type, String fileName,
+            Map<Integer, Group> groupPolicy, Map<Integer, EPerson> userPolicy)
+            throws IOException, SQLException, AuthorizeException {
+        this.addBitstream(context, process, createFileBitstream(context, process, is, type, fileName), type,
+                groupPolicy, userPolicy);
+    }
+
+    private void addBitstream(Context context, Process process, Bitstream bitstream, String type,
+            Map<Integer, Group> groupPolicy, Map<Integer, EPerson> userPolicy)
+            throws IOException, SQLException, AuthorizeException {
+
+        if (Objects.nonNull(groupPolicy)) {
+            for (Map.Entry<Integer, Group> entry : groupPolicy.entrySet()) {
+                this.authorizeService.addPolicy(context, bitstream, entry.getKey(), entry.getValue());
+            }
         }
+
+        if (Objects.nonNull(userPolicy)) {
+            for (Map.Entry<Integer, EPerson> entry : userPolicy.entrySet()) {
+                this.authorizeService.addPolicy(context, bitstream, entry.getKey(), entry.getValue());
+            }
+        }
+
         try {
             context.turnOffAuthorisationSystem();
             bitstreamService.update(context, bitstream);

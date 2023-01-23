@@ -28,7 +28,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Spliterators;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
@@ -43,14 +47,17 @@ import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
+import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
@@ -58,6 +65,8 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.util.UUIDUtils;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -260,6 +269,64 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
 
+    }
+
+    @Test
+    public void findOneBitstreamTest_WorkspaceItemCoauthorCanAccessOriginalBundle() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection publications = CollectionBuilder.createCollection(context, child1)
+                                           .withEntityType("Publication")
+                                           .withName("Publications").build();
+
+        Collection researchers = CollectionBuilder.createCollection(context, child1)
+                                           .withEntityType("Person")
+                                           .withName("Researchers").build();
+
+        EPerson coauthor = EPersonBuilder.createEPerson(context)
+            .withPassword(password)
+            .withEmail("coauthor@example.com").build();
+
+        Item publicationCoauthor = ItemBuilder.createItem(context, researchers)
+                                              .withDspaceObjectOwner(coauthor)
+                                              .withTitle("Coauthor")
+                                              .build();
+
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, publications)
+                                                          .withAuthor(publicationCoauthor.getName(),
+                                                                      UUIDUtils.toString(publicationCoauthor.getID()))
+                                                          .build();
+
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream("this is the bitstream", CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.
+                createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream1")
+                .withDescription("Description1")
+                .withMimeType("text/plain")
+                .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
+                   .andExpect(status().isUnauthorized());
+
+        getClient(getAuthToken(coauthor.getEmail(), password))
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk());
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -2678,11 +2745,13 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withFormat("test format 2")
                 .build();
 
+        final String customBundle = "Bundle Test";
+        Bundle bundle = BundleBuilder.createBundle(context, publicItem1).withName(customBundle).build();
+
         Bitstream bitstream3 =
-            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test3", UTF_8))
+            BitstreamBuilder.createBitstream(context, bundle, toInputStream("test3", UTF_8))
                 .withName("third")
                 .withFormat("test format 3")
-                .isHidden()
                 .build();
 
         Bitstream bitstream4 =
@@ -2722,6 +2791,121 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                              hasItem(BitstreamMatcher.matchProperties(bitstream4))
                          )
                      )
+                )
+            );
+
+        getClient(token).perform(
+            get("/api/core/bitstreams/search/showableByItem")
+            .param("uuid", publicItem1.getID().toString())
+            .param("name", customBundle)
+            )
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(contentType))
+        .andExpect(
+            jsonPath(
+                "$._embedded.bitstreams",
+                allOf(
+                    hasItem(BitstreamMatcher.matchProperties(bitstream3))
+                    )
+                )
+            )
+        .andExpect(
+            jsonPath(
+                "$._embedded.bitstreams",
+                not(
+                    allOf(
+                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream2)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                        )
+                    )
+                )
+            );
+    }
+
+    @Test
+    public void findShowableByItemWithoutBundleName() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        Item publicItem1 =
+            ItemBuilder.createItem(context, col1)
+            .withTitle("Public item 1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .build();
+
+        Item publicItem2 =
+            ItemBuilder.createItem(context, col1)
+            .withTitle("Public item 1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .build();
+
+        Bitstream bitstream =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test", UTF_8))
+            .withName("first")
+            .withFormat("test format")
+            .build();
+
+        Bitstream bitstream2 =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test2", UTF_8))
+            .withName("second")
+            .withFormat("test format 2")
+            .build();
+
+        final String customBundle = "Bundle Test";
+        Bundle bundle = BundleBuilder.createBundle(context, publicItem1).withName(customBundle).build();
+
+        Bitstream bitstream3 =
+            BitstreamBuilder.createBitstream(context, bundle, toInputStream("test3", UTF_8))
+            .withName("third")
+            .withFormat("test format 3")
+            .build();
+
+        Bitstream bitstream4 =
+            BitstreamBuilder.createBitstream(context, publicItem2, toInputStream("test4", UTF_8))
+            .withName("fourth")
+            .withFormat("test format 4")
+            .isHidden()
+            .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        List<UUID> bitstreamsID = StreamSupport.stream(
+            Spliterators.spliteratorUnknownSize(
+                this.bitstreamService
+                .findShowableByItem(context, publicItem1.getID(), Optional.empty()),
+                0
+                ),
+            false
+            )
+            .map(Bitstream::getID)
+            .collect(Collectors.toList());
+
+        MatcherAssert.assertThat(
+            bitstreamsID,
+            containsInAnyOrder(
+                bitstream.getID(),
+                bitstream2.getID(),
+                bitstream3.getID()
+                )
+            );
+
+        MatcherAssert.assertThat(
+            bitstreamsID,
+            not(
+                contains(
+                    bitstream4.getID()
+                    )
                 )
             );
     }

@@ -20,24 +20,26 @@ import org.dspace.util.SimpleMapConverter;
  *
  * @author Corrado Lombardi (corrado.lombardi at 4science.it)
  */
-public class MappedMetadataContributor implements MetadataContributor<String> {
+public class MappedMetadataContributor<T> implements MetadataContributor<T> {
 
-    private final MetadataContributor<String> innerContributor;
+    private final MetadataContributor<T> innerContributor;
 
     private final SimpleMapConverter mapConverter;
 
-    public MappedMetadataContributor(MetadataContributor<String> innerContributor,
+    public MappedMetadataContributor(MetadataContributor<T> innerContributor,
                                      SimpleMapConverter mapConverter) {
         this.innerContributor = innerContributor;
         this.mapConverter = mapConverter;
     }
 
+
     @Override
-    public void setMetadataFieldMapping(final MetadataFieldMapping<String, MetadataContributor<String>> rt) {
+    public void setMetadataFieldMapping(MetadataFieldMapping<T, MetadataContributor<T>> rt) {
+
     }
 
     @Override
-    public Collection<MetadatumDTO> contributeMetadata(final String t) {
+    public Collection<MetadatumDTO> contributeMetadata(final T t) {
         final Collection<MetadatumDTO> metadata = innerContributor.contributeMetadata(t);
         for (final MetadatumDTO metadatum : metadata) {
             if (StringUtils.isBlank(metadatum.getValue())) {

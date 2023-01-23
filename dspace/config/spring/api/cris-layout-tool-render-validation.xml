@@ -138,19 +138,6 @@
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
-    <bean id="moreRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderNumberSubTypeValidatorImpl">
-        <property name="name" value="more"/>
-        <property name="fieldType" value="METADATA"/>
-        <property name="subTypeValidationRule" value="ALLOWED"/>
-    </bean>
-
-    <bean id="lessRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderNumberSubTypeValidatorImpl">
-        <property name="name" value="less"/>
-        <property name="fieldType" value="METADATA"/>
-        <property name="followedBy" value="less"/>
-        <property name="subTypeValidationRule" value="ALLOWED"/>
-    </bean>
-
     <bean id="browseRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="browse"/>
         <property name="fieldType" value="METADATA"/>

@@ -480,7 +480,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                                               enteredNewStep);
                     }
                 } else if (enteredNewStep) {
-                    // If the user finished his/her step, we keep processing until there is a UI step action or no
+                    // If the user finished their step, we keep processing until there is a UI step action or no
                     // step at all
                     nextStep = workflow.getNextStep(c, wfi, currentStep, currentOutcome.getResult());
                     c.turnOffAuthorisationSystem();
@@ -992,7 +992,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     authorizeService.removeEPersonPolicies(context, bitstream, e);
                 }
             }
-            // Ensure that the submitter always retains his resource policies
+            // Ensure that the submitter always retains their resource policies
             if (e.getID().equals(item.getSubmitter().getID())) {
                 grantSubmitterReadPolicies(context, item);
             }

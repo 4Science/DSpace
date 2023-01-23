@@ -118,7 +118,7 @@
         <property name="description" value="Manage the OAI-PMH harvesting of external collections"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.harvest.HarvestCli"/>
     </bean>
-
+        
     <bean id="cris-layout-tool" class="org.dspace.layout.script.CrisLayoutToolScriptConfiguration">
         <property name="description" value="Script to import CRIS layout configuration from excel file"/>
         <property name="dspaceRunnableClass" value="org.dspace.layout.script.CrisLayoutToolScript"/>

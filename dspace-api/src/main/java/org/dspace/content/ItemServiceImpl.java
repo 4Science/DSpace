@@ -1220,9 +1220,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             if (!isInProgressSubmission(context, item)) {
                 return true;
             } else {
-                return false;
+                return researcherProfileService.isAuthorOf(context, context.getCurrentUser(), item);
             }
         }
+
 
         return collectionService.canEditBoolean(context, item.getOwningCollection(), false);
     }

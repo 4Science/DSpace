@@ -34,17 +34,18 @@ import org.dspace.utils.DSpace;
  */
 public class ProcessCleaner extends DSpaceRunnable<ProcessCleanerConfiguration<ProcessCleaner>> {
 
-
     private ConfigurationService configurationService;
 
     private ProcessService processService;
 
 
-    boolean cleanCompleted = false;
+    private boolean cleanCompleted = false;
 
-    boolean cleanFailed = false;
+    private boolean cleanFailed = false;
 
-    boolean cleanRunning = false;
+    private boolean cleanRunning = false;
+
+    private boolean help = false;
 
     private Integer days;
 
@@ -55,6 +56,7 @@ public class ProcessCleaner extends DSpaceRunnable<ProcessCleanerConfiguration<P
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         this.processService = ScriptServiceFactory.getInstance().getProcessService();
 
+        this.help = commandLine.hasOption('h');
         this.cleanFailed = commandLine.hasOption('f');
         this.cleanRunning = commandLine.hasOption('r');
         this.cleanCompleted = commandLine.hasOption('c') || (!cleanFailed && !cleanRunning);
@@ -62,13 +64,18 @@ public class ProcessCleaner extends DSpaceRunnable<ProcessCleanerConfiguration<P
         this.days = configurationService.getIntProperty("process-cleaner.days", 14);
 
         if (this.days <= 0) {
-            throw new IllegalArgumentException("The number of days must be a positive integer.");
+            throw new IllegalStateException("The number of days must be a positive integer.");
         }
 
     }
 
     @Override
     public void internalRun() throws Exception {
+
+        if (help) {
+            printHelp();
+            return;
+        }
 
         Context context = new Context();
 
@@ -82,6 +89,10 @@ public class ProcessCleaner extends DSpaceRunnable<ProcessCleanerConfiguration<P
 
     }
 
+    /**
+     * Delete the processes based on the specified statuses and the configured days
+     * from their creation.
+     */
     private void performDeletion(Context context) throws SQLException, IOException, AuthorizeException {
 
         List<ProcessStatus> statuses = getProcessToDeleteStatuses();
@@ -98,6 +109,9 @@ public class ProcessCleaner extends DSpaceRunnable<ProcessCleanerConfiguration<P
 
     }
 
+    /**
+     * Returns the list of Process statuses do be deleted.
+     */
     private List<ProcessStatus> getProcessToDeleteStatuses() {
         List<ProcessStatus> statuses = new ArrayList<ProcessStatus>();
         if (cleanCompleted) {

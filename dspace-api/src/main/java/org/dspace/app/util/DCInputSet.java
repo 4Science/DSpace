@@ -20,7 +20,6 @@ import org.dspace.core.Utils;
  * Class representing all DC inputs required for a submission, organized into pages
  *
  * @author Brian S. Hughes, based on work by Jenny Toves, OCLC
- * @version $Revision$
  */
 
 public class DCInputSet {
@@ -41,7 +40,6 @@ public class DCInputSet {
      * constructor
      *
      * @param formName       form name
-     * @param mandatoryFlags
      * @param rows           the rows
      * @param listMap        map
      * @throws DCInputsReaderException

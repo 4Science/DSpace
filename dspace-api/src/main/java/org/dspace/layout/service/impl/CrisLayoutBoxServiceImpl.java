@@ -218,7 +218,7 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     }
 
     private boolean isMetadataPresent(Bitstream bitstream, MetadataField metadataField, String value) {
-        return bitstream.getMetadata().stream()
+        return (Objects.isNull(metadataField) && StringUtils.isBlank(value)) || bitstream.getMetadata().stream()
             .filter(metadataValue -> Objects.equals(metadataField, metadataValue.getMetadataField()))
             .anyMatch(metadataValue -> Objects.equals(value, metadataValue.getValue()));
     }

@@ -30,6 +30,7 @@ public abstract class AbstractCondition implements Condition {
 
     private Map<String, Object> parameters = new HashMap<>();
 
+    // Declare and instantiate spring services
     @Autowired(required = true)
     protected ItemService itemService;
     @Autowired(required = true)
