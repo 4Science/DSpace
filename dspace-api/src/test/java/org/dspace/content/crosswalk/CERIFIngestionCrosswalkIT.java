@@ -30,8 +30,11 @@ import org.dspace.content.MetadataValue;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,8 +62,12 @@ public class CERIFIngestionCrosswalkIT extends AbstractIntegrationTestWithDataba
 
     private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @Before
     public void setup() throws Exception {
+        // skip all tests based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         crosswalk = (CERIFIngestionCrosswalk) pluginService.getNamedPlugin(IngestionCrosswalk.class, "cerif");
         assertThat("A CERIF ingestion crosswalk should be configured", crosswalk, notNullValue());

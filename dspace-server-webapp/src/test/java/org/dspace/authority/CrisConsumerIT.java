@@ -60,6 +60,7 @@ import org.dspace.util.UUIDUtils;
 import org.dspace.xmlworkflow.storedcomponents.PoolTask;
 import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,6 +255,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemMetadataModification() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, publicationCollection).build();

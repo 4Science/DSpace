@@ -84,6 +84,7 @@ import org.dspace.utils.DSpace;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -858,6 +859,9 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     //@Ignore
     @Test
     public void exportPubliclyAvailableItemsTest() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+
         String adminLimit = configurationService.getProperty("bulk-export.limit.admin");
         String notLoggedInLimit = configurationService.getProperty("bulk-export.limit.notLoggedIn");
         String loggedInLimit = configurationService.getProperty("bulk-export.limit.loggedIn");

@@ -45,6 +45,9 @@ import org.dspace.content.Item;
 import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,8 +65,12 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private Collection collection;
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @Before
     public void setup() throws SQLException, AuthorizeException {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();

@@ -47,8 +47,11 @@ import org.dspace.core.CrisConstants;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.LayoutSecurity;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,6 +72,8 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     private XlsCrosswalk xlsCrosswalk;
 
     private DCInputsReader dcInputsReader;
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @Before
     public void setup() throws SQLException, AuthorizeException, DCInputsReaderException {
@@ -253,6 +258,8 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testDisseminatePublications() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
@@ -323,6 +330,8 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testDisseminateProjects() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
