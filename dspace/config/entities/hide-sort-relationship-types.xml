@@ -15,8 +15,74 @@
     </type>
     <type>
         <rightType>Person</rightType>
+        <leftwardType>isPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
+        <leftwardType>isPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
+        <leftwardType>isCoPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingCoPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
+        <leftwardType>isCoPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedCoPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
         <leftwardType>isProjectsHiddenFor</leftwardType>
         <rightwardType>notDisplayingProjects</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
+        <leftwardType>isFondsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Person</rightType>
+        <leftwardType>isFondsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedFonds</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>
@@ -202,6 +268,28 @@
     </type>
     <type>
         <rightType>Project</rightType>
+        <leftwardType>isFundingsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingFundings</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Project</rightType>
+        <leftwardType>isFundingsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedFundings</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Project</rightType>
         <leftwardType>isGrantsHiddenFor</leftwardType>
         <rightwardType>notDisplayingGrants</rightwardType>
         <leftCardinality>
@@ -245,9 +333,86 @@
         </rightCardinality>
     </type>
     <type>
+        <rightType>Project</rightType>
+        <leftwardType>isPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Project</rightType>
+        <leftwardType>isPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
         <rightType>Fonds</rightType>
         <leftwardType>isFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Fonds</rightType>
+        <leftwardType>isFondsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Fonds</rightType>
+        <leftwardType>isPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Fonds</rightType>
+        <leftwardType>isPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Fonds</rightType>
+        <leftwardType>isChildrenSelectedFor</leftwardType>
+        <rightwardType>hasSelectedChildren</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Fonds</rightType>
+        <leftwardType>isChildrenHiddenFor</leftwardType>
+        <rightwardType>notDisplayingChildren</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>
@@ -267,9 +432,163 @@
         </rightCardinality>
     </type>
     <type>
+        <rightType>JournalFond</rightType>
+        <leftwardType>isJournalFondsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingJournalFonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>JournalFond</rightType>
+        <leftwardType>isChildrenSelectedFor</leftwardType>
+        <rightwardType>hasSelectedChildren</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>JournalFond</rightType>
+        <leftwardType>isChildrenHiddenFor</leftwardType>
+        <rightwardType>notDisplayingChildren</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isEventsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
         <rightType>Event</rightType>
         <leftwardType>isEventsSelectedFor</leftwardType>
         <rightwardType>hasSelectedEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isPeopleHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPeople</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Event</rightType>
+        <leftwardType>isPeopleSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPeople</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isEventsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isEventsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Path</rightType>
+        <leftwardType>isPathPublicationsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPathPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Path</rightType>
+        <leftwardType>isPathPublicationsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPathPublications</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>

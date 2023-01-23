@@ -112,7 +112,7 @@
                 <!-- Person Related items -->
                 <entry key="RELATION.Person.projects" value-ref="relationInvestigatorProjectsConfiguration"/>
                 <entry key="RELATION.Person.publications" value-ref="relationAuthorResearchOutputsConfiguration"/>
-                <entry key="RELATION.Person.contributedpublications" value-ref="relationContributorResearchOutputsConfiguration"/>
+                <entry key="RELATION.Person.copublications" value-ref="relationContributorResearchOutputsConfiguration"/>
                 <entry key="RELATION.Person.fonds" value-ref="relationPersonFondsConfiguration"/>
                 <!-- OrgUnit Related items -->
                 <entry key="RELATION.OrgUnit.rpprojects" value-ref="relationOrgunitRPProjectConfiguration"/>
