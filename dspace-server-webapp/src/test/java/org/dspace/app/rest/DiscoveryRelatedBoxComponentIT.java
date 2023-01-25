@@ -240,7 +240,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
@@ -282,7 +282,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
@@ -325,7 +325,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
