@@ -86,6 +86,7 @@ import org.dspace.orcid.webhook.OrcidWebhookServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -2121,6 +2122,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
     @Test
     public void testOrcidSynchronizationPreferenceUpdateForceOrcidQueueRecalculation() throws Exception {
+        // skip all tests based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
