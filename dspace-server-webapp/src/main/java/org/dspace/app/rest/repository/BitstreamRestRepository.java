@@ -96,7 +96,7 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
     }
 
     @Override
-    @PreAuthorize("hasPermission(#id, 'BITSTREAM', 'METADATA_READ')")
+    @PreAuthorize("hasPermission(#id, 'BITSTREAM', 'METADATA_READ') || hasPermission(#id, 'BITSTREAM', 'READ')")
     public BitstreamRest findOne(Context context, UUID id) {
         Bitstream bit = null;
         try {
@@ -224,7 +224,8 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
             .orElseThrow(() -> new UnprocessableEntityException("No item found with the given UUID"));
 
         final Map<String, String> filterMetadata = composeFilterMetadata(filterMetadataFields, filterMetadataValues);
-        final List<Bitstream> bitstreams = applyFilters(findBitstreamsBy(item), bundleName, filterMetadata);
+        final List<Bitstream> bitstreams =
+            applyFilters(findBitstreamsBy(item), Optional.of(bundleName), filterMetadata);
 
         return converter.toRestPage(bitstreams, pageable, utils.obtainProjection());
     }
@@ -263,10 +264,11 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
                     this.getItemBitstreams(
                         this.bs.findShowableByItem(
                             obtainContext(),
-                            item.getID()
+                            item.getID(),
+                            Optional.ofNullable(bundleName)
                         )
                     ),
-                    bundleName,
+                    Optional.empty(),
                     filterMetadata
                 ),
                 pageable,
@@ -341,10 +343,11 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
     }
 
     private List<Bitstream> applyFilters(
-        Stream<Bitstream> bitstreams, String bundleName, Map<String, String> filterMetadata
+        Stream<Bitstream> bitstreams, Optional<String> bundleName, Map<String, String> filterMetadata
     ) {
-        return bitstreams
-            .filter(bitstream -> isContainedInBundleNamed(bitstream, bundleName))
+        return bundleName
+            .map(bundle -> bitstreams.filter(bitstream -> isContainedInBundleNamed(bitstream, bundle)))
+            .orElse(bitstreams)
             .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
             .collect(Collectors.toList());
     }

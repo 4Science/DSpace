@@ -37,6 +37,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.core.CrisConstants;
 import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.orcid.jaxb.model.common.ContributorRole;
@@ -76,6 +79,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     private Collection publications;
 
     private Collection fundings;
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @Before
     public void setup() {
@@ -251,6 +256,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithoutGrantNumberCreation() {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
@@ -282,6 +289,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithGrantNumberCreation() {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
@@ -316,6 +325,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithGrantNumberAndUrlCreation() {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 

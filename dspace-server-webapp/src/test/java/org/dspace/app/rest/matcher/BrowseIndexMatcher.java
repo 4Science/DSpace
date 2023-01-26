@@ -55,7 +55,8 @@ public class BrowseIndexMatcher {
 
     public static Matcher<? super Object> contributorBrowseIndex(final String order) {
         return allOf(
-            hasJsonPath("$.metadata", contains("dc.contributor.*", "dc.creator")),
+            hasJsonPath("$.metadata", contains(
+                    "dc.contributor.author", "dc.contributor.editor", "dc.contributor.contributor", "dc.creator")),
             hasJsonPath("$.metadataBrowse", Matchers.is(true)),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),

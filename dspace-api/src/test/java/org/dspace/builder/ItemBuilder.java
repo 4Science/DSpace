@@ -869,7 +869,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     @Override
     public Item build() {
         try {
-            installItemService.installItem(context, workspaceItem, handle);
+            installItemService.installItem(context, workspaceItem, this.handle);
             itemService.update(context, item);
             //Check if we need to make this item private. This has to be done after item install.
             if (readerGroup != null) {

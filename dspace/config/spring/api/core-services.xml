@@ -64,10 +64,10 @@
     <bean class="org.dspace.content.authority.ChoiceAuthorityServiceImpl"/>
     <bean class="org.dspace.content.authority.AuthorityServiceUtils"/>
     <bean class="org.dspace.content.authority.MetadataAuthorityServiceImpl" lazy-init="true"/>
-    
+
     <bean class="org.dspace.profile.OrcidProfileEnricher"/>
     <bean class="org.dspace.profile.OrcidMetadataCopyingAction"/>
-    
+
     <bean id="org.dspace.profile.service.ResearcherProfileService" class="org.dspace.profile.ResearcherProfileServiceImpl"/>
 
     <bean class="org.dspace.handle.hdlresolver.HdlResolverServiceImpl"/>
@@ -108,7 +108,7 @@
     <bean class="org.dspace.eperson.SubscribeServiceImpl"/>
     <bean class="org.dspace.eperson.SubscribeParameterServiceImpl"/>
     <bean class="org.dspace.eperson.SupervisorServiceImpl"/>
-
+    <bean class="org.dspace.eperson.CaptchaServiceImpl"/>
     <bean class="org.dspace.event.EventServiceImpl"/>
 
     <bean class="org.dspace.handle.HandleServiceImpl"/>
@@ -174,19 +174,22 @@
     <bean class="org.dspace.layout.service.impl.CrisLayoutTabAccessServiceImpl"/>
     <bean class="org.dspace.content.security.CrisSecurityServiceImpl"/>
     <bean class="org.dspace.app.metrics.service.CrisMetricsServiceImpl"/>
-    
+
     <bean class="org.dspace.layout.script.service.impl.CrisLayoutToolValidatorImpl"/>
     <bean class="org.dspace.layout.script.service.impl.CrisLayoutToolParserImpl"/>
-    
+
     <bean id="org.dspace.app.customurl.CustomUrlService" class="org.dspace.app.customurl.service.CustomUrlServiceImpl"/>
-    
+
     <bean class="org.dspace.statistics.LoginStatisticsServiceImpl" />
 
     <bean class="org.dspace.statistics.WorkflowStatisticsServiceImpl" />
-    
+
     <!-- OIDC Authentication -->
     <bean class="org.dspace.authenticate.OidcAuthenticationBean" id="oidcAuthentication"/>
     <bean class="org.dspace.authenticate.oidc.impl.OidcClientImpl" />
-    
+
+    <bean class="org.dspace.authorize.ValidatePasswordServiceImpl"/>
+    <bean class="org.dspace.authorize.RegexPasswordValidator" />
+
 </beans>
 

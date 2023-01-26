@@ -18,6 +18,7 @@ import org.dspace.content.service.BundleService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -32,6 +33,9 @@ public class BitstreamRemovePatchOperation extends RemovePatchOperation<String> 
 
     @Autowired
     BundleService bundleService;
+
+    @Autowired
+    private ResearcherProfileService researcherProfileService;
 
     @Override
     void remove(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
@@ -77,15 +81,36 @@ public class BitstreamRemovePatchOperation extends RemovePatchOperation<String> 
         // delete bundle if it's now empty
         List<Bundle> bundles = bitstream.getBundles();
         Bundle bundle = bundles.get(0);
-        bundleService.removeBitstream(context, bundle, bitstream);
+        if (isCoauthorOfItem(context, item, bundle, bitstream)) {
+            // if access allowed, authorization check could be skipped
+            context.turnOffAuthorisationSystem();
+        }
+        try {
+            bundleService.removeBitstream(context, bundle, bitstream);
+        } catch (Exception e) {
+            context.restoreAuthSystemState();
+            throw e;
+        }
 
         List<Bitstream> bitstreams = bundle.getBitstreams();
 
         // remove bundle if it's now empty
         if (bitstreams.size() < 1) {
-            itemService.removeBundle(context, item, bundle);
+            try {
+                itemService.removeBundle(context, item, bundle);
+            } catch (Exception e) {
+                context.restoreAuthSystemState();
+                throw e;
+            }
         }
 
+    }
+
+    private boolean isCoauthorOfItem(Context context, Item item, Bundle bundle, Bitstream bitstream) {
+        if (!Constants.CONTENT_BUNDLE_NAME.equals(bundle.getName())) {
+            return false;
+        }
+        return researcherProfileService.isAuthorOf(context, context.getCurrentUser(), item);
     }
 
     @Override

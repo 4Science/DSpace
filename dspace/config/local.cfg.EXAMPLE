@@ -32,24 +32,28 @@
 # Windows note: Please remember to use forward slashes for all paths (e.g. C:/dspace)
 dspace.dir=/dspace
 
-# URL of DSpace backend ('server' webapp). Include port number etc.
+# Public URL of DSpace backend ('server' webapp). May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
-# This is where REST API and all enabled server modules (OAI-PMH, SWORD,
-# SWORDv2, RDF, etc) will respond.
+# This is where REST API and all enabled server modules (OAI-PMH, SWORD, SWORDv2, RDF, etc) will respond.
+# NOTE: This URL must be accessible to all DSpace users (should not use 'localhost' in Production)
+# and is usually "synced" with the "rest" section in the DSpace User Interface's config.*.yml.
+# It corresponds to the URL that you would type into your browser to access the REST API.
 dspace.server.url = http://localhost:8080/server
 
-# URL of DSpace frontend (Angular UI). Include port number etc.
+# Public URL of DSpace frontend (Angular UI). May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
-# This is used by the backend to provide links in emails, RSS feeds, Sitemaps,
-# etc.
+# This is used by the backend to provide links in emails, RSS feeds, Sitemaps, etc.
+# NOTE: this URL must be accessible to all DSpace users (should not use 'localhost' in Production).
+# It corresponds to the URL that you would type into your browser to access the User Interface.
 dspace.ui.url = http://localhost:4000
 
 # Name of the site
 dspace.name = DSpace at My University
 
-# assetstore.dir, look at DSPACE/config/spring/api/bitstore.xml for more options
-# default is ${dspace.dir}/assetstore, uncomment and modify if you need to use a different path
-#assetstore.dir = ${dspace.dir}/assetstore
+# Assetstore configurations have moved to config/modules/assetstore.cfg
+# and config/spring/api/bitstore.xml.
+# Additional storage options (e.g. Amazon S3) are available in `assetstore.cfg`
+# assetstore.dir = ${dspace.dir}/assetstore
 
 # Default language for metadata values
 #default.language = en_US
@@ -302,11 +306,11 @@ orcid.webhook.registration-token =
 # Use the localStore or the s3Store implementation
 assetstore.storename.0 = localStore
 
-## Assetstore S3 configuration, only used if the above configuration
-## is set to s3Store
+## Assetstore S3 configuration, only used if the above configuration is set to true
+#assetstore.s3.enabled = true
 
 # For using a relative path (xx/xx/xx/xxx...) set to true
-assetstore.s3.useRelativePath =
+#assetstore.s3.useRelativePath = true
 
 # S3 bucket name to store assets in, default would generate a bucket
 # based on the dspace host name
@@ -335,5 +339,6 @@ iiif.enabled = false
 # iiif.image.server =
 
 ## OCR configuration
+# iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
+# iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
 # ocr.tesseract.path =
-

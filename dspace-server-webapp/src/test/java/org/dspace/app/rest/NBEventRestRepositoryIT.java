@@ -36,10 +36,15 @@ import org.dspace.builder.NBEventBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.NBEvent;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class NBEventRestRepositoryIT extends AbstractControllerIntegrationTest {
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @Test
     public void findAllNotImplementedTest() throws Exception {
@@ -364,6 +369,9 @@ public class NBEventRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void recordDecisionTest() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();

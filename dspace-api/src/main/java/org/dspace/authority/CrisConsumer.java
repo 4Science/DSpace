@@ -8,16 +8,17 @@
 
 package org.dspace.authority;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.dspace.content.MetadataSchemaEnum.CRIS;
 
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -137,24 +138,12 @@ public class CrisConsumer implements Consumer {
 
     private void consumeItem(Context context, Item item) throws Exception {
 
-        List<MetadataValue> metadataValues = item.getMetadata();
-
-        for (MetadataValue metadata : metadataValues) {
-
-            String authority = metadata.getAuthority();
-
-            if (isNestedMetadataPlaceholder(metadata) || isAuthorityAlreadySet(authority)) {
-                continue;
-            }
-
-            boolean skipEmptyAuthority = configurationService.getBooleanProperty("cris-consumer.skip-empty-authority");
-            if (skipEmptyAuthority && StringUtils.isBlank(authority)) {
-                continue;
-            }
+        for (MetadataValue metadata : item.getMetadata()) {
 
             String fieldKey = getFieldKey(metadata);
+            String authority = metadata.getAuthority();
 
-            if (!metadataAuthorityService.isAuthorityAllowed(fieldKey, Constants.ITEM, null)) {
+            if (isMetadataSkippable(metadata)) {
                 continue;
             }
 
@@ -196,7 +185,23 @@ public class CrisConsumer implements Consumer {
 
     }
 
-    private boolean isAuthorityAlreadySet(String authority) {
+    private boolean isMetadataSkippable(MetadataValue metadata) {
+
+        String authority = metadata.getAuthority();
+
+        if (isNestedMetadataPlaceholder(metadata) || isAuthoritySet(authority) || isAuthorityNotAllowed(metadata)) {
+            return true;
+        }
+
+        if (isBlank(authority) && isMetadataWithEmptyAuthoritySkippable(metadata)) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    private boolean isAuthoritySet(String authority) {
         return isNotBlank(authority) && !isGenerateAuthority(authority) && !isReferenceAuthority(authority);
     }
 
@@ -210,6 +215,26 @@ public class CrisConsumer implements Consumer {
 
     private boolean isReferenceAuthority(String authority) {
         return StringUtils.startsWith(authority, AuthorityValueService.REFERENCE);
+    }
+
+    private boolean isMetadataWithEmptyAuthoritySkippable(MetadataValue metadata) {
+
+        if (configurationService.getBooleanProperty("cris-consumer.skip-empty-authority")) {
+            return true;
+        }
+
+        String[] skippableMetadataFields = getSkippableMetadataFieldsWithEmptyAuthority();
+        return ArrayUtils.contains(skippableMetadataFields, metadata.getMetadataField().toString('.'));
+
+    }
+
+    private String[] getSkippableMetadataFieldsWithEmptyAuthority() {
+        return configurationService.getArrayProperty("cris-consumer.skip-empty-authority.metadata", new String[] {});
+    }
+
+    private boolean isAuthorityNotAllowed(MetadataValue metadataValue) {
+        String metadataFieldKey = getFieldKey(metadataValue);
+        return !metadataAuthorityService.isAuthorityAllowed(metadataFieldKey, Constants.ITEM, null);
     }
 
     @Override

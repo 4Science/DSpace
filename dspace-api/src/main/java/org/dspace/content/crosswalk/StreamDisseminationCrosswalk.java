@@ -82,4 +82,13 @@ public interface StreamDisseminationCrosswalk {
      * @return the output MIME type.
      */
     public String getMIMEType();
+
+    /**
+     * Returns true if the output will be publicly readable
+     *
+     * @return publicly readable state
+     */
+    public default boolean isPubliclyReadable() {
+        return false;
+    }
 }

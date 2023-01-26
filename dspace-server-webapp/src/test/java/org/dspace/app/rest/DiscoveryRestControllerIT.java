@@ -88,6 +88,7 @@ import org.dspace.utils.DSpace;
 import org.dspace.xmlworkflow.storedcomponents.ClaimedTask;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.hamcrest.Matchers;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +141,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 //There needs to be a self link to this endpoint
                 .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets")))
                 //We have 4 facets in the default configuration, they need to all be present in the embedded section
-                .andExpect(jsonPath("$._embedded.facets", containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1019,7 +1020,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._links.self.href", containsString("api/discover/search")))
                    //There needs to be a section where these filters as specified as they're the default filters
                    // given in the configuration
-                   .andExpect(jsonPath("$.filters", containsInAnyOrder(
+                   .andExpect(jsonPath("$.filters", Matchers.hasItems(
                        SearchFilterMatcher.barDateIssuedYearFilter(),
                        SearchFilterMatcher.pieItemtypeFilter(),
                        SearchFilterMatcher.typeFilter(),
@@ -1179,7 +1180,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1317,7 +1318,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
                 //We do however exceed the limit for the authors, so this property has to be true for the author
                 // facet
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1406,7 +1407,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
                 //We do however exceed the limit for the subject, so this property has to be true for the subject
                 // facet
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1490,7 +1491,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1597,7 +1598,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1681,7 +1682,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1721,7 +1722,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1762,7 +1763,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1807,7 +1808,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -1898,7 +1899,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2115,7 +2116,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                         SearchResultMatcher.match()
                 )))
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2209,7 +2210,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2299,7 +2300,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                         )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2466,7 +2467,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2555,7 +2556,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 ))))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2739,7 +2740,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2887,7 +2888,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore property
                 // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -2967,7 +2968,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                                                                 )))
                    //These facets have to show up in the embedded.facets section as well with the given hasMore property
                    // because we don't exceed their default limit for a hasMore true (the default is 10)
-                   .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                        FacetEntryMatcher.typeFacet(false),
@@ -3045,7 +3046,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore property
                 // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3124,7 +3125,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                                                      )))
                    //These facets have to show up in the embedded.facets section as well with the given hasMore property
                    // because we don't exceed their default limit for a hasMore true (the default is 10)
-                   .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                        FacetEntryMatcher.typeFacet(false),
@@ -3213,7 +3214,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                         SearchResultMatcher.match()
                 )))
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3286,7 +3287,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(status().isOk())
                 //The type has to be 'discover'
                 .andExpect(jsonPath("$.type", is("discover")))
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3364,7 +3365,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore property
                 // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3443,7 +3444,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                                                                 )))
                    //These facets have to show up in the embedded.facets section as well with the given hasMore property
                    // because we don't exceed their default limit for a hasMore true (the default is 10)
-                   .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                        FacetEntryMatcher.typeFacet(false),
@@ -3522,7 +3523,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore property
                 // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3602,7 +3603,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                                                       )))
                    //These facets have to show up in the embedded.facets section as well with the given hasMore property
                    // because we don't exceed their default limit for a hasMore true (the default is 10)
-                   .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                        FacetEntryMatcher.typeFacet(false),
@@ -3680,7 +3681,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore property
                 // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                         FacetEntryMatcher.typeFacet(false),
@@ -3759,7 +3760,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                                                      )))
                    //These facets have to show up in the embedded.facets section as well with the given hasMore property
                    // because we don't exceed their default limit for a hasMore true (the default is 10)
-                   .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                        FacetEntryMatcher.typeFacet(false),
@@ -4203,7 +4204,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                     )))
                     //These facets have to show up in the embedded.facets section as well with the given hasMore
                     // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                    .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                    .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                             FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                             FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
                             FacetEntryMatcher.typeFacet(false),
@@ -4310,7 +4311,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
         context.restoreAuthSystemState();
         //** WHEN **
-        // each submitter, including the administrator should see only her submission
+        // each submitter, including the administrator should see only their submission
         String submitterToken = getAuthToken(submitter.getEmail(), password);
         String adminToken = getAuthToken(admin.getEmail(), password);
 
@@ -4604,8 +4605,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         ;
 
         // admin should see two pool items and a claimed task,
-        // one pool item from the submitter and one from herself
-        // because the admin is in the reviewer group for step 1, not because she is an admin
+        // one pool item from the submitter and one from the admin
+        // because the admin is in the reviewer group for step 1, not because they are an admin
         getClient(adminToken).perform(get("/api/discover/search/objects").param("configuration", "workflow"))
                 //** THEN **
                 //The status has to be 200 OK
@@ -4828,7 +4829,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
         ;
 
-        // reviewer1 should not see pool items, as he is not an administrator
+        // reviewer1 should not see pool items, as it is not an administrator
         getClient(reviewer1Token).perform(get("/api/discover/search/objects").param("configuration", "workflowAdmin"))
                 //** THEN **
                 //The status has to be 200 OK
@@ -4846,7 +4847,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
 
         // admin should see three pool items and a claimed task
-        // one pool item from the submitter and two from herself
+        // one pool item from the submitter and two from the admin
         getClient(adminToken).perform(get("/api/discover/search/objects").param("configuration", "workflowAdmin"))
                 //** THEN **
                 //The status has to be 200 OK
@@ -4900,7 +4901,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
         ;
 
-        // reviewer2 should not see pool items, as he is not an administrator
+        // reviewer2 should not see pool items, as it is not an administrator
         getClient(reviewer2Token).perform(get("/api/discover/search/objects").param("configuration", "workflowAdmin"))
                 //** THEN **
                 //The status has to be 200 OK
@@ -6264,9 +6265,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     @Test
     public void relevanceByRelationPlacesTest() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         configurationService.setProperty("relationship.places.onlyright",
-                                         "null::Person::isResearchoutputsSelectedFor::hasSelectedResearchoutputs");
+                                         "null::Person::isPublicationsSelectedFor::hasSelectedPublications");
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
@@ -6307,8 +6310,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                 context,
                                                                 null,
                                                                 personEntity,
-                                                                "isResearchoutputsSelectedFor",
-                                                                "hasSelectedResearchoutputs",
+                                                                "isPublicationsSelectedFor",
+                                                                "hasSelectedPublications",
                                                                 0, null,
                                                                 0, null).build();
 
@@ -6338,10 +6341,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                          .param("configuration", "RELATION.Person.researchoutputs")
+                                          .param("configuration", "RELATION.Person.publications")
                                           .param("scope", author1.getID().toString()))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                              .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
                                  SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"),
                                  SearchResultMatcher.matchOnItemName("item", "items", "Publication 1"),
@@ -6349,10 +6352,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                              .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", author2.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 3"),
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
@@ -6410,8 +6413,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                 context,
                                                                 null,
                                                                 personEntity,
-                                                                "isResearchoutputsHiddenFor",
-                                                                "notDisplayingResearchoutputs",
+                                                                "isPublicationsHiddenFor",
+                                                                "notDisplayingPublications",
                                                                 0, null,
                                                                 0, null).build();
 
@@ -6433,11 +6436,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", author.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
-                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItems(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
@@ -6445,10 +6448,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         final String ownerToken = getAuthToken(owner.getEmail(), "password");
 
         getClient(ownerToken).perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", author.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"),
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 1"))))
@@ -6457,10 +6460,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
         final String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/discover/search/objects")
-                                          .param("configuration", "RELATION.Person.researchoutputs")
+                                          .param("configuration", "RELATION.Person.publications")
                                           .param("scope", author.getID().toString()))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                              .andExpect(
                                  jsonPath("$._embedded.searchResult._embedded.objects",
                                           Matchers.containsInAnyOrder(
@@ -6543,8 +6546,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                               context,
                                                               null,
                                                               personEntity,
-                                                              "isResearchoutputsHiddenFor",
-                                                              "notDisplayingResearchoutputs",
+                                                              "isPublicationsHiddenFor",
+                                                              "notDisplayingPublications",
                                                               0, null,
                                                               0, null).build();
 
@@ -6553,8 +6556,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                     context,
                                                                     null,
                                                                     projectEntity,
-                                                                    "isResearchoutputsHiddenFor",
-                                                                    "notDisplayingResearchoutputs",
+                                                                    "isPublicationsHiddenFor",
+                                                                    "notDisplayingPublications",
                                                                     0, null,
                                                                     0, null).build();
 
@@ -6568,19 +6571,19 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", firstPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
-                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItems(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", secondPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6591,10 +6594,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6616,19 +6619,19 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", secondPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 1"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", firstPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6639,10 +6642,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6662,10 +6665,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", firstPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6676,10 +6679,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", secondPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6690,10 +6693,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
@@ -6710,28 +6713,28 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", firstPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", secondPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                    .andExpect(
                        jsonPath("$._embedded.searchResult._embedded.objects",
                                 Matchers.containsInAnyOrder(
@@ -6751,28 +6754,28 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", firstPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Person.researchoutputs")
+                                .param("configuration", "RELATION.Person.publications")
                                 .param("scope", secondPerson.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient().perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                    .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
                        SearchResultMatcher.matchOnItemName("item", "items", "Publication 2"))))
                    .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
@@ -6781,10 +6784,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         // admin user is able to see hidden items
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
-                                          .param("configuration", "RELATION.Person.researchoutputs")
+                                          .param("configuration", "RELATION.Person.publications")
                                           .param("scope", firstPerson.getID().toString()))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                              .andExpect(
                                  jsonPath("$._embedded.searchResult._embedded.objects",
                                           Matchers.containsInAnyOrder(
@@ -6795,10 +6798,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                              .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
-                                          .param("configuration", "RELATION.Person.researchoutputs")
+                                          .param("configuration", "RELATION.Person.publications")
                                           .param("scope", secondPerson.getID().toString()))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                             .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                              .andExpect(
                                  jsonPath("$._embedded.searchResult._embedded.objects",
                                           Matchers.containsInAnyOrder(
@@ -6809,10 +6812,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                              .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
-                                .param("configuration", "RELATION.Project.researchoutputs")
+                                .param("configuration", "RELATION.Project.publications")
                                 .param("scope", project.getID().toString()))
                    .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.researchoutputs")))
+                   .andExpect(jsonPath("$.configuration", is("RELATION.Project.publications")))
                              .andExpect(
                                  jsonPath("$._embedded.searchResult._embedded.objects",
                                           Matchers.containsInAnyOrder(

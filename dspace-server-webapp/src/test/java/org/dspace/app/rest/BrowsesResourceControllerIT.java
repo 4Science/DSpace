@@ -11,6 +11,7 @@ import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -66,26 +67,23 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    //Our default Discovery config has 4 browse indexes so we expect this to be reflected in the page
                    // object
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", is(11)))
-                   .andExpect(jsonPath("$.page.totalPages", is(1)))
+                   .andExpect(jsonPath("$.page.totalElements", is(22)))
+                   .andExpect(jsonPath("$.page.totalPages", is(2)))
                    .andExpect(jsonPath("$.page.number", is(0)))
 
                    //The array of browse index should have a size 4
-                   .andExpect(jsonPath("$._embedded.browses", hasSize(11)))
+                   .andExpect(jsonPath("$._embedded.browses", hasSize(22)))
 
                    //Check that all (and only) the default browse indexes are present
-                   .andExpect(jsonPath("$._embedded.browses", containsInAnyOrder(
+                   .andExpect(jsonPath("$._embedded.browses", hasItems(
                        BrowseIndexMatcher.dateIssuedBrowseIndex("asc"),
                        BrowseIndexMatcher.contributorBrowseIndex("asc"),
                        BrowseIndexMatcher.titleBrowseIndex("asc"),
                        BrowseIndexMatcher.subjectBrowseIndex("asc"),
-                       BrowseIndexMatcher.rodeptBrowseIndex("asc"),
                        BrowseIndexMatcher.typeBrowseIndex("asc"),
-                       BrowseIndexMatcher.rpnameBrowseIndex("asc"),
                        BrowseIndexMatcher.ounameBrowseIndex("asc"),
                        BrowseIndexMatcher.pjtitleBrowseIndex("asc"),
-                       BrowseIndexMatcher.rpdeptBrowseIndex("asc"),
-                       BrowseIndexMatcher.eqtitleBrowseIndex("asc")
+                       BrowseIndexMatcher.rpdeptBrowseIndex("asc")
                    )))
         ;
     }
@@ -948,7 +946,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
 
         //** WHEN **
         //An anonymous user browses the entries in the Browse by Author endpoint
-        //with startsWith set to Ú (accented)
+        //with startsWith set to Ó (accented)
         getClient().perform(get("/api/discover/browses/author/entries?startsWith=Ó"))
 
                    //** THEN **
@@ -973,7 +971,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
 
         //** WHEN **
         //An anonymous user browses the entries in the Browse by Subject endpoint
-        //with startsWith set to Cana
+        //with startsWith set to Tele
         getClient().perform(get("/api/discover/browses/subject/entries?startsWith=Tele"))
 
                    //** THEN **
@@ -1267,6 +1265,87 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                         contains(
                             ItemMatcher.matchItemWithTitleAndDateIssued(item3, "Java", "1995-05-23")
                         )));
+    }
+
+
+    @Test
+    public void testBrowseByTitleStartsWithAndDiacritics() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication").withName("Collection 1").build();
+
+        //2. 2 public items that are readable by Anonymous
+        Item item1 = ItemBuilder.createItem(context, col1)
+                .withTitle("Número 1")
+                .withAuthor("Surname, Name")
+                .withIssueDate("2020")
+                .build();
+
+        Item item2 = ItemBuilder.createItem(context, col1)
+                .withTitle("Numero 2")
+                .withAuthor("Surname, Name")
+                .withIssueDate("2010")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        //** WHEN **
+        //An anonymous user browses the items in the Browse by Title endpoint
+        //with startsWith set to Num (unaccented)
+        getClient().perform(get("/api/discover/browses/title/items?startsWith=Num")
+                        .param("size", "2"))
+
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //We expect the content type to be "application/hal+json;charset=UTF-8"
+                .andExpect(content().contentType(contentType))
+
+                //We expect the totalElements to be the 1 item present in the repository
+                .andExpect(jsonPath("$.page.totalElements", is(2)))
+                //We expect to jump to page 2 in the index
+                .andExpect(jsonPath("$.page.number", is(0)))
+                .andExpect(jsonPath("$._links.self.href", containsString("startsWith=Num")))
+
+                //Verify that the index contains both items (the accented and the unaccented)
+                .andExpect(jsonPath("$._embedded.items",
+                        contains(ItemMatcher.matchItemWithTitleAndDateIssued(item1,
+                                        "Número 1", "2020"),
+                                ItemMatcher.matchItemWithTitleAndDateIssued(item2,
+                                        "Numero 2", "2010")
+                        )));
+
+        //An anonymous user browses the items in the Browse by Title endpoint
+        //with startsWith set to Núm (accented)
+        getClient().perform(get("/api/discover/browses/title/items?startsWith=Núm")
+                        .param("size", "2"))
+
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //We expect the content type to be "application/hal+json;charset=UTF-8"
+                .andExpect(content().contentType(contentType))
+
+                //We expect the totalElements to be the 1 item present in the repository
+                .andExpect(jsonPath("$.page.totalElements", is(2)))
+                //We expect to jump to page 2 in the index
+                .andExpect(jsonPath("$.page.number", is(0)))
+                .andExpect(jsonPath("$._links.self.href", containsString("startsWith=Núm")))
+
+                //Verify that the index contains both items (the accented and the unaccented)
+                .andExpect(jsonPath("$._embedded.items",
+                        contains(ItemMatcher.matchItemWithTitleAndDateIssued(item1,
+                                        "Número 1", "2020"),
+                                ItemMatcher.matchItemWithTitleAndDateIssued(item2,
+                                        "Numero 2", "2010")
+                        )));
+
     }
 
     @Test

@@ -64,9 +64,12 @@ import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.LayoutSecurity;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -94,9 +97,10 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private VirtualField virtualFieldId;
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @Before
     public void setup() throws SQLException, AuthorizeException {
-
         this.crosswalkMapper = new DSpace().getSingletonService(StreamDisseminationCrosswalkMapper.class);
         assertThat(crosswalkMapper, notNullValue());
 
@@ -117,6 +121,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         collection = createCollection(context, community).withAdminGroup(eperson).build();
         context.restoreAuthSystemState();
 
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
     }
 
     @After
