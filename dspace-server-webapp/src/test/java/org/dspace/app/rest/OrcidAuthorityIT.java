@@ -43,6 +43,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedResult;
@@ -77,6 +78,8 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Before
     public void setup() {
+        // skip all tests based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 
