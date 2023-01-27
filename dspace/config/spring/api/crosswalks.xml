@@ -520,6 +520,7 @@
 				<entry key="orgUnitTypes" value-ref="mapConverterOrgUnitTypes" />
 				<entry key="accessRight" value-ref="mapConverterAccessRight" />
 				<entry key="coarToPublicationTypes" value-ref="mapConverterCoarToPublicationTypes" />
+				<entry key="pubmedToCoarPublicationTypes" value-ref="mapConverterPubmedToCoarPublicationTypes" />
 				<entry key="cerifToOrgUnitTypes" value-ref="mapConverterCerifToOrgUnitTypes" />
 				<entry key="cerifToFundingTypes" value-ref="mapConverterCerifToFundingTypes" />
 			</map>
@@ -585,6 +586,12 @@
         <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
         <property name="defaultValue" value="@@ident@@"/>
     </bean>
+
+	<bean name="mapConverterPubmedToCoarPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">
+		<property name="converterNameFile" value="mapConverter-pubmedToCoarPublicationTypes.properties" />
+		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+		<property name="defaultValue" value=""/>
+	</bean>
 
 	<!-- CONDITION EVALUATORS CONFIGURATION -->
 	

@@ -57,6 +57,7 @@ import org.dspace.utils.DSpace;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -101,6 +102,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     @Test
     public void testCollectionDisseminate() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
         Collection collection = createCollection(context, community)
@@ -361,6 +364,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     @Test
     public void testManyItemsDisseminate() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
         Collection collection = createCollection(context, community)

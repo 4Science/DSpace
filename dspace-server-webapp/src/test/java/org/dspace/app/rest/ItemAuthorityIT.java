@@ -114,7 +114,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
-        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
                         .param("metadata", "dc.contributor.author")
                         .param("collection", col1.getID().toString())
                         .param("filter", "author"))
@@ -148,12 +148,12 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
                 new String[] {
-                        "org.dspace.content.authority.ItemMultiAuthority = AuthorAuthority",
+                        "org.dspace.content.authority.ItemMultiAuthority = PersonAuthority",
                         "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority"
                 });
 
        configurationService.setProperty("solr.authority.server", "${solr.server}/authority");
-       configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+       configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
        configurationService.setProperty("choices.presentation.dc.contributor.author", "authorLookup");
        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
 
@@ -195,7 +195,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
        context.restoreAuthSystemState();
 
        String token = getAuthToken(eperson.getEmail(), password);
-       getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+       getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
                        .param("metadata", "dc.contributor.author")
                        .param("collection", col1.getID().toString())
                        .param("filter", "author"))
@@ -213,14 +213,9 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                                ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_2.getID().toString(),
                                "Author 2(OrgUnit_2)", "Author 2", "vocabularyEntry",
                                Map.of("data-oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID(),
-                                   "oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID())),
-                               // filled with EditorAuthority extra metadata generator
-                               ItemAuthorityMatcher.matchItemAuthorityProperties(author_1.getID().toString(),
-                               "Author 1", "Author 1", "vocabularyEntry"),
-                               ItemAuthorityMatcher.matchItemAuthorityProperties(author_2.getID().toString(),
-                               "Author 2", "Author 2", "vocabularyEntry")
+                                   "oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID()))
                                )))
-                       .andExpect(jsonPath("$.page.totalElements", Matchers.is(5)));
+                       .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
     }
 
     @Test
@@ -240,7 +235,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
        context.restoreAuthSystemState();
 
        String token = getAuthToken(eperson.getEmail(), password);
-       getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+       getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
                        .param("metadata", "dc.contributor.author")
                        .param("collection", col1.getID().toString())
                        .param("filter", "author"))
@@ -427,7 +422,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
        context.restoreAuthSystemState();
 
        String token = getAuthToken(eperson.getEmail(), password);
-       getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority"))
+       getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$.entity", Matchers.is("Person")))
                        .andExpect(jsonPath("$.externalSource", Matchers.is(exptectedMap)));
@@ -448,7 +443,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
        context.restoreAuthSystemState();
 
        String token = getAuthToken(eperson.getEmail(), password);
-       getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority"))
+       getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$.entity", Matchers.is("Person")))
                        .andExpect(jsonPath("$.externalSource", Matchers.is(exptectedMap)));

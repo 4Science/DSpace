@@ -12,17 +12,17 @@ import static org.dspace.util.ExceptionMessageUtils.getRootMessage;
 import java.util.List;
 import java.util.Map;
 
-import ORG.oclc.oai.harvester2.verb.GetRecord;
-import ORG.oclc.oai.harvester2.verb.HarvesterVerb;
-import ORG.oclc.oai.harvester2.verb.Identify;
-import ORG.oclc.oai.harvester2.verb.ListMetadataFormats;
-import ORG.oclc.oai.harvester2.verb.ListRecords;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.harvest.model.OAIHarvesterResponseDTO;
 import org.dspace.harvest.service.OAIHarvesterClient;
 import org.dspace.util.ThrowingSupplier;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.oclc.oai.harvester2.verb.GetRecord;
+import org.oclc.oai.harvester2.verb.HarvesterVerb;
+import org.oclc.oai.harvester2.verb.Identify;
+import org.oclc.oai.harvester2.verb.ListMetadataFormats;
+import org.oclc.oai.harvester2.verb.ListRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

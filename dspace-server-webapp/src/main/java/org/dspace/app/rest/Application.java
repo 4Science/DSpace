@@ -22,6 +22,7 @@ import org.dspace.app.rest.utils.DSpaceKernelInitializer;
 import org.dspace.app.sitemap.GenerateSitemaps;
 import org.dspace.app.solrdatabaseresync.SolrDatabaseResyncCli;
 import org.dspace.app.util.DSpaceContextListener;
+import org.dspace.google.GoogleAsyncEventListener;
 import org.dspace.utils.servlet.DSpaceWebappServletFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,9 @@ public class Application extends SpringBootServletInitializer {
     @Autowired
     private ApplicationConfig configuration;
 
+    @Autowired
+    private GoogleAsyncEventListener googleAsyncEventListener;
+
     @Scheduled(cron = "${sitemap.cron:-}")
     public void generateSitemap() throws IOException, SQLException {
         GenerateSitemaps.generateSitemapsScheduled();
@@ -76,6 +80,11 @@ public class Application extends SpringBootServletInitializer {
     @Scheduled(cron = "${solr-database-resync.cron:-}")
     public void solrDatabaseResync() throws Exception {
         SolrDatabaseResyncCli.runScheduled();
+    }
+
+    @Scheduled(cron = "${google.analytics.cron:-}")
+    public void sendGoogleAnalyticsEvents() {
+        googleAsyncEventListener.sendCollectedEvents();
     }
 
     /**
@@ -189,7 +198,8 @@ public class Application extends SpringBootServletInitializer {
                             .allowCredentials(corsAllowCredentials).allowedOrigins(corsAllowedOrigins)
                             // Allow list of request preflight headers allowed to be sent to us from the client
                             .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
-                                "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER")
+                                "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                                "x-recaptcha-token")
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }
@@ -200,7 +210,8 @@ public class Application extends SpringBootServletInitializer {
                             .allowCredentials(iiifAllowCredentials).allowedOrigins(iiifAllowedOrigins)
                             // Allow list of request preflight headers allowed to be sent to us from the client
                             .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
-                                "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER")
+                                "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                                "x-recaptcha-token")
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }

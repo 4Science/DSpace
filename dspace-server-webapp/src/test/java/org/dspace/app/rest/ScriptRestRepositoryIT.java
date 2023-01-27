@@ -9,6 +9,8 @@ package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.dspace.builder.ItemBuilder.createItem;
+import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -16,6 +18,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import net.minidev.json.JSONArray;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.matcher.BitstreamMatcher;
 import org.dspace.app.rest.matcher.PageMatcher;
@@ -49,6 +54,7 @@ import org.dspace.app.rest.model.ParameterValueRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
@@ -63,6 +69,9 @@ import org.dspace.content.ProcessStatus;
 import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.content.integration.crosswalks.ReferCrosswalk;
+import org.dspace.content.integration.crosswalks.StreamDisseminationCrosswalkMapper;
+import org.dspace.core.CrisConstants;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.scripts.DSpaceCommandLineParameter;
@@ -71,14 +80,17 @@ import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.utils.DSpace;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
@@ -86,10 +98,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     private ProcessService processService;
 
     @Autowired
+    private ResourcePolicyService resourcePolicyService;
+
+    @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
-    private List<ScriptConfiguration> scriptConfigurations;
+    private List<ScriptConfiguration<?>> scriptConfigurations;
 
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
@@ -672,6 +687,64 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void TrackSpecialGroupduringprocessSchedulingTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Group specialGroup = GroupBuilder.createGroup(context)
+                                         .withName("Special Group")
+                                         .addMember(admin)
+                                         .build();
+
+        context.restoreAuthSystemState();
+
+        configurationService.setProperty("authentication-password.login.specialgroup", specialGroup.getName());
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+
+        parameters.add(new DSpaceCommandLineParameter("-r", "test"));
+        parameters.add(new DSpaceCommandLineParameter("-i", null));
+
+        List<ParameterValueRest> list = parameters.stream()
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                  .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
+
+
+
+        String token = getAuthToken(admin.getEmail(), password);
+        List<ProcessStatus> acceptableProcessStatuses = new LinkedList<>();
+        acceptableProcessStatuses.addAll(Arrays.asList(ProcessStatus.SCHEDULED,
+                                                       ProcessStatus.RUNNING,
+                                                       ProcessStatus.COMPLETED));
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        try {
+            getClient(token).perform(post("/api/system/scripts/mock-script/processes")
+                            .contentType("multipart/form-data")
+                            .param("properties", new Gson().toJson(list)))
+                            .andExpect(status().isAccepted())
+                            .andExpect(jsonPath("$", is(ProcessMatcher.matchProcess("mock-script",
+                                                        String.valueOf(admin.getID()),
+                                                        parameters, acceptableProcessStatuses))))
+                            .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
+
+            Process process = processService.find(context, idRef.get());
+            List<Group> groups = process.getGroups();
+            boolean isPresent = false;
+            for (Group group : groups) {
+                if (group.getID().equals(specialGroup.getID())) {
+                    isPresent = true;
+                }
+            }
+            assertTrue(isPresent);
+
+        } finally {
+            ProcessBuilder.deleteProcess(idRef.get());
+        }
+    }
+
+    @Test
     public void postProcessWithAnonymousUser() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -737,96 +810,591 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts/type-conversion-test"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", ScriptMatcher
-                                .matchScript("type-conversion-test",
-                                             "Test the type conversion different option types")))
-                        .andExpect(jsonPath("$.parameters", containsInAnyOrder(
-                                allOf(
-                                        hasJsonPath("$.name", is("-b")),
-                                        hasJsonPath("$.description", is("option set to the boolean class")),
-                                        hasJsonPath("$.type", is("boolean")),
-                                        hasJsonPath("$.mandatory", is(false)),
-                                        hasJsonPath("$.nameLong", is("--boolean"))
-                                ),
-                                allOf(
-                                        hasJsonPath("$.name", is("-s")),
-                                        hasJsonPath("$.description", is("string option with an argument")),
-                                        hasJsonPath("$.type", is("String")),
-                                        hasJsonPath("$.mandatory", is(false)),
-                                        hasJsonPath("$.nameLong", is("--string"))
-                                ),
-                                allOf(
-                                        hasJsonPath("$.name", is("-n")),
-                                        hasJsonPath("$.description", is("string option without an argument")),
-                                        hasJsonPath("$.type", is("boolean")),
-                                        hasJsonPath("$.mandatory", is(false)),
-                                        hasJsonPath("$.nameLong", is("--noargument"))
-                                ),
-                                allOf(
-                                        hasJsonPath("$.name", is("-f")),
-                                        hasJsonPath("$.description", is("file option with an argument")),
-                                        hasJsonPath("$.type", is("InputStream")),
-                                        hasJsonPath("$.mandatory", is(false)),
-                                        hasJsonPath("$.nameLong", is("--file"))
-                                )
-                        ) ));
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath(
+                    "$", ScriptMatcher
+                        .matchScript(
+                            "type-conversion-test",
+                            "Test the type conversion different option types"
+                        )
+                )
+            )
+            .andExpect(
+                jsonPath(
+                    "$.parameters", containsInAnyOrder(
+                        allOf(
+                            hasJsonPath("$.name", is("-b")),
+                            hasJsonPath("$.description", is("option set to the boolean class")),
+                            hasJsonPath("$.type", is("boolean")),
+                            hasJsonPath("$.mandatory", is(false)),
+                            hasJsonPath("$.nameLong", is("--boolean"))
+                        ),
+                        allOf(
+                            hasJsonPath("$.name", is("-s")),
+                            hasJsonPath("$.description", is("string option with an argument")),
+                            hasJsonPath("$.type", is("String")),
+                            hasJsonPath("$.mandatory", is(false)),
+                            hasJsonPath("$.nameLong", is("--string"))
+                        ),
+                        allOf(
+                            hasJsonPath("$.name", is("-n")),
+                            hasJsonPath("$.description", is("string option without an argument")),
+                            hasJsonPath("$.type", is("boolean")),
+                            hasJsonPath("$.mandatory", is(false)),
+                            hasJsonPath("$.nameLong", is("--noargument"))
+                        ),
+                        allOf(
+                            hasJsonPath("$.name", is("-f")),
+                            hasJsonPath("$.description", is("file option with an argument")),
+                            hasJsonPath("$.type", is("InputStream")),
+                            hasJsonPath("$.mandatory", is(false)),
+                            hasJsonPath("$.nameLong", is("--file"))
+                        )
+                    )
+                )
+            );
     }
 
+    //@Ignore
     @Test
-    public void TrackSpecialGroupduringprocessSchedulingTest() throws Exception {
-        context.turnOffAuthorisationSystem();
+    public void exportPubliclyAvailableItemsTest() throws Exception {
+        // skip test based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
-        Group specialGroup = GroupBuilder.createGroup(context)
-            .withName("Special Group")
-            .addMember(admin)
-            .build();
-
-        context.restoreAuthSystemState();
-
-        configurationService.setProperty("authentication-password.login.specialgroup", specialGroup.getName());
-
-        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
-
-        parameters.add(new DSpaceCommandLineParameter("-r", "test"));
-        parameters.add(new DSpaceCommandLineParameter("-i", null));
-
-        List<ParameterValueRest> list = parameters.stream()
-            .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
-            .collect(Collectors.toList());
-
-
-
-        String token = getAuthToken(admin.getEmail(), password);
-        List<ProcessStatus> acceptableProcessStatuses = new LinkedList<>();
-        acceptableProcessStatuses.addAll(Arrays.asList(ProcessStatus.SCHEDULED,
-                                                       ProcessStatus.RUNNING,
-                                                       ProcessStatus.COMPLETED));
-
-        AtomicReference<Integer> idRef = new AtomicReference<>();
-
+        String adminLimit = configurationService.getProperty("bulk-export.limit.admin");
+        String notLoggedInLimit = configurationService.getProperty("bulk-export.limit.notLoggedIn");
+        String loggedInLimit = configurationService.getProperty("bulk-export.limit.loggedIn");
+        ReferCrosswalk publicationCerif = null;
+        Boolean isPubliclyReadable = false;
         try {
-            getClient(token).perform(post("/api/system/scripts/mock-script/processes")
-                                         .contentType("multipart/form-data")
-                                         .param("properties", new ObjectMapper().writeValueAsString(list)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$", is(ProcessMatcher.matchProcess("mock-script",
-                                                                        String.valueOf(admin.getID()),
-                                                                        parameters, acceptableProcessStatuses))))
-                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
+            context.turnOffAuthorisationSystem();
 
-            Process process = processService.find(context, idRef.get());
-            List<Group> groups = process.getGroups();
-            boolean isPresent = groups.stream().anyMatch(g -> g.getID().equals(specialGroup.getID()));
-            assertTrue(isPresent);
+            publicationCerif =
+                (ReferCrosswalk) new DSpace()
+                    .getSingletonService(StreamDisseminationCrosswalkMapper.class)
+                    .getByType("publication-cerif-xml");
+            isPubliclyReadable = publicationCerif.isPubliclyReadable();
 
+            publicationCerif.setPubliclyReadable(true);
+
+            configurationService.setProperty("bulk-export.limit.admin", "2");
+
+            parentCommunity =
+                CommunityBuilder.createCommunity(context)
+                    .withName("Parent Community")
+                    .build();
+
+            Collection collection =
+                CollectionBuilder.createCollection(context, parentCommunity)
+                    .withName("Collection 1")
+                    .build();
+
+            Item firstPerson =
+                createItem(context, collection)
+                    .withEntityType("Person")
+                    .withTitle("Smith, John")
+                    .withVariantName("J.S.")
+                    .withVariantName("Smith John")
+                    .withGender("M")
+                    .withPersonMainAffiliation("University")
+                    .withOrcidIdentifier("0000-0002-9079-5932")
+                    .withScopusAuthorIdentifier("SA-01")
+                    .withPersonEmail("test@test.com")
+                    .withResearcherIdentifier("R-01")
+                    .withResearcherIdentifier("R-02")
+                    .withPersonAffiliation("Company")
+                    .withPersonAffiliationStartDate("2018-01-01")
+                    .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                    .withPersonAffiliationRole("Developer")
+                    .withPersonAffiliation("Another Company")
+                    .withPersonAffiliationStartDate("2017-01-01")
+                    .withPersonAffiliationEndDate("2017-12-31")
+                    .withPersonAffiliationRole("Developer")
+                    .build();
+
+            Item secondPerson =
+                createItem(context, collection)
+                    .withEntityType("Person")
+                    .withTitle("White, Walter")
+                    .withGender("M")
+                    .withPersonMainAffiliation("University")
+                    .withOrcidIdentifier("0000-0002-9079-5938")
+                    .withPersonEmail("w.w@test.com")
+                    .withResearcherIdentifier("R-03")
+                    .withPersonAffiliation("Company")
+                    .withPersonAffiliationStartDate("2018-01-01")
+                    .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                    .withPersonAffiliationRole("Developer")
+                    .build();
+
+            Item project =
+                ItemBuilder.createItem(context, collection)
+                    .withEntityType("Project")
+                    .withTitle("Test Project")
+                    .withInternalId("111-222-333")
+                    .withAcronym("TP")
+                    .withProjectStartDate("2020-01-01")
+                    .withProjectEndDate("2020-04-01")
+                    .build();
+
+            ItemBuilder.createItem(context, collection)
+                .withEntityType("Funding")
+                .withTitle("Test Funding")
+                .withType("Internal Funding")
+                .withFunder("Test Funder")
+                .withRelationProject("Test Project", project.getID().toString())
+                .build();
+
+            Item funding =
+                ItemBuilder.createItem(context, collection)
+                    .withEntityType("Funding")
+                    .withTitle("Another Test Funding")
+                    .withType("Contract")
+                    .withFunder("Another Test Funder")
+                    .withAcronym("ATF-01")
+                    .build();
+
+            ItemBuilder.createItem(context, collection)
+                .withEntityType("Publication")
+                .withTitle("First Publication")
+                .withAlternativeTitle("Alternative publication title")
+                .withRelationPublication("Published in publication")
+                .withRelationDoi("doi:10.3972/test")
+                .withDoiIdentifier("doi:111.111/publication")
+                .withIsbnIdentifier("978-3-16-148410-0")
+                .withIssnIdentifier("2049-3630")
+                .withIsiIdentifier("111-222-333")
+                .withScopusIdentifier("99999999")
+                .withLanguage("en")
+                .withPublisher("Publication publisher")
+                .withVolume("V.01")
+                .withIssue("Issue")
+                .withSubject("test")
+                .withSubject("export")
+                .withIssueDate("2022-08-22")
+                .withAuthor("John Smith", firstPerson.getID().toString())
+                .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
+                .withAuthor("Walter White")
+                .withAuthorAffiliation("Company")
+                .withEditor("Editor")
+                .withEditorAffiliation("Editor Affiliation")
+                .withRelationProject("Test Project", project.getID().toString())
+                .withRelationFunding("Another Test Funding", funding.getID().toString())
+                .withRelationConference("The best Conference")
+                .withRelationProduct("DataSet")
+                .build();
+
+            ItemBuilder.createItem(context, collection)
+                .withEntityType("Publication")
+                .withTitle("Second Publication")
+                .withAlternativeTitle("Alternative publication title")
+                .withRelationPublication("Published in publication")
+                .withRelationDoi("doi:10.3973/test")
+                .withDoiIdentifier("doi:111.222/publication")
+                .withIsbnIdentifier("978-3-16-148410-0")
+                .withIssnIdentifier("2049-3630")
+                .withIsiIdentifier("111-222-333")
+                .withScopusIdentifier("99999999")
+                .withLanguage("en")
+                .withPublisher("Publication publisher")
+                .withVolume("V.01")
+                .withIssue("Issue")
+                .withSubject("test")
+                .withSubject("export")
+                .withType("Controlled Vocabulary for Resource Type Genres::text::review")
+                .withIssueDate("2022-08-22")
+                .withAuthor("Jessie Pinkman", secondPerson.getID().toString())
+                .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
+                .withAuthor("Walter White")
+                .withAuthorAffiliation("Company")
+                .withEditor("Editor")
+                .withEditorAffiliation("Editor Affiliation")
+                .withRelationProject("Test Project", project.getID().toString())
+                .withRelationFunding("Another Test Funding", funding.getID().toString())
+                .withRelationConference("The best Conference")
+                .withRelationProduct("DataSet")
+                .build();
+
+            Item restrictedItem =
+                ItemBuilder.createItem(context, collection)
+                    .withEntityType("Publication")
+                    .withTitle("Third Publication")
+                    .withSubject("export")
+                    .withAuthor("EPerson", eperson.getID().toString())
+                    .build();
+
+            Item restrictedItem2 =
+                ItemBuilder.createItem(context, collection)
+                    .withEntityType("Publication")
+                    .withTitle("Fourth Publication")
+                    .withSubject("export")
+                    .build();
+
+            resourcePolicyService.removeAllPolicies(context, restrictedItem);
+            resourcePolicyService.removeAllPolicies(context, restrictedItem2);
+
+            LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+            parameters.add(new DSpaceCommandLineParameter("-t", "Publication"));
+            parameters.add(new DSpaceCommandLineParameter("-f", "publication-cerif-xml"));
+
+            List<ParameterValueRest> list =
+                parameters.stream()
+                    .map(
+                        dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                            .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
+                    )
+                    .collect(Collectors.toList());
+
+            String adminToken = getAuthToken(admin.getEmail(), password);
+            List<ProcessStatus> acceptableProcessStatuses = new LinkedList<>();
+            acceptableProcessStatuses.addAll(
+                Arrays.asList(
+                    ProcessStatus.SCHEDULED,
+                    ProcessStatus.RUNNING,
+                    ProcessStatus.COMPLETED
+                )
+            );
+
+            AtomicReference<Integer> idRef = new AtomicReference<>();
+
+            context.restoreAuthSystemState();
+
+            String[] includedContents =
+                {
+                        "First Publication",
+                        "Second Publication"
+                };
+            String[] excludedContents =
+                {
+                        "Third Publication",
+                        "Fourth Publication"
+                };
+            try {
+                getClient(adminToken)
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    String.valueOf(admin.getID()),
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(adminToken, null, idRef, includedContents, excludedContents, true);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
+            configurationService.setProperty("bulk-export.limit.notLoggedIn", "0");
+            // anonymous export
+            getClient()
+                .perform(
+                    multipart("/api/system/scripts/bulk-item-export/processes")
+                        .param("properties", new Gson().toJson(list))
+                )
+                // this is acceptable here because the process
+                .andExpect(status().isUnauthorized());
+            configurationService.setProperty("bulk-export.limit.loggedIn", "2");
+            configurationService.setProperty("bulk-export.limit.notLoggedIn", "2");
+            try {
+                // eperson export
+                String epToken = getAuthToken(eperson.getEmail(), password);
+                getClient(epToken)
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    String.valueOf(eperson.getID()),
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(epToken, null, idRef, includedContents, excludedContents, true);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
+
+            // set the export results as not public, we should get reserved content in it
+            ReferCrosswalk expCross =
+                (ReferCrosswalk) new DSpace()
+                    .getSingletonService(StreamDisseminationCrosswalkMapper.class)
+                    .getByType("publication-cerif-xml");
+            // allow anonymous users to run the export
+            configurationService.setProperty("bulk-export.limit.admin", "10");
+            expCross.setPubliclyReadable(false);
+            includedContents =
+                new String[] {
+                        "First Publication",
+                        "Second Publication",
+                        "Third Publication",
+                        "Fourth Publication"
+                };
+            excludedContents = new String[] {};
+            try {
+                getClient(adminToken)
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    String.valueOf(admin.getID()),
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(adminToken, null, idRef, includedContents, excludedContents, false);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
+            configurationService.setProperty("bulk-export.limit.notLoggedIn", "2");
+            includedContents =
+                new String[] {
+                        "First Publication",
+                        "Second Publication"
+                };
+            excludedContents =
+                new String[] {
+                        "Third Publication",
+                        "Fourth Publication"
+                };
+            try {
+                // anonymous export
+                getClient()
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    null,
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(null, null, idRef, includedContents, excludedContents, false);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
+            // lower the allowed limit of item to export and check again
+            configurationService.setProperty("bulk-export.limit.notLoggedIn", 1);
+            includedContents =
+                new String[] {
+                        "First Publication"
+                };
+            excludedContents =
+                new String[] {
+                        "Second Publication",
+                        "Third Publication",
+                        "Fourth Publication"
+                };
+            try {
+                // anonymous export
+                getClient()
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    null,
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(null, null, idRef, includedContents, excludedContents, false);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
+
+            configurationService.setProperty("bulk-export.limit.loggedIn", "2");
+            includedContents =
+                new String[] {
+                        "First Publication",
+                        "Second Publication"
+                };
+            excludedContents =
+                new String[] {
+                        "Fourth Publication",
+                        "Third Publication"
+                };
+            try {
+                // eperson export
+                String epToken = getAuthToken(eperson.getEmail(), password);
+                getClient(epToken)
+                    .perform(
+                        multipart("/api/system/scripts/bulk-item-export/processes")
+                            .param("properties", new Gson().toJson(list))
+                    )
+                    .andExpect(status().isAccepted())
+                    .andExpect(
+                        jsonPath(
+                            "$", is(
+                                ProcessMatcher.matchProcess(
+                                    "bulk-item-export",
+                                    String.valueOf(eperson.getID()),
+                                    parameters,
+                                    acceptableProcessStatuses
+                                )
+                            )
+                        )
+                    )
+                    .andDo(
+                        result -> idRef
+                            .set(read(result.getResponse().getContentAsString(), "$.processId"))
+                    );
+                checkExportOutput(epToken, null, idRef, includedContents, excludedContents, false);
+            } finally {
+                if (idRef.get() != null) {
+                    ProcessBuilder.deleteProcess(idRef.get());
+                }
+            }
         } finally {
-            ProcessBuilder.deleteProcess(idRef.get());
+            configurationService.setProperty("bulk-export.limit.admin", adminLimit);
+            configurationService.setProperty("bulk-export.limit.notLoggedIn", notLoggedInLimit);
+            configurationService.setProperty("bulk-export.limit.loggedIn", loggedInLimit);
+            if (publicationCerif != null) {
+                publicationCerif.setPubliclyReadable(isPubliclyReadable);
+            }
+        }
+
+    }
+
+    private void checkExportOutput(
+        String processToken,
+        String fileToken,
+        AtomicReference<Integer> idRef,
+        String[] includedContents,
+        String[] excludedContents,
+        boolean publicFile
+    ) throws Exception, SQLException, UnsupportedEncodingException {
+        String contentAsString = null;
+        MvcResult mvcResult = null;
+        // wait and retry up to 3 sec to get the process completed
+        for (int i = 0; i < 6; i++) {
+            Thread.sleep(500);
+            mvcResult =
+                getClient(processToken)
+                    .perform(get("/api/system/processes/" + idRef.get() + "/files"))
+                    .andReturn();
+            contentAsString = mvcResult.getResponse().getContentAsString();
+            if (StringUtils.isNotBlank(contentAsString)) {
+                break;
+            }
+        }
+        JSONArray publicationsId =
+            read(
+                contentAsString,
+                "$._embedded.files[?(@.name=='publication.xml')].id"
+            );
+
+        assertNotNull("The publication.xml file must be present", publicationsId);
+        String publicationJsonId = publicationsId.get(0).toString();
+        getClient(processToken)
+            .perform(get("/api/core/bitstreams/" + publicationJsonId))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath(
+                    "$",
+                    allOf(
+                        hasJsonPath("name", is("publication.xml")),
+                        hasJsonPath("id", is(publicationJsonId))
+                    )
+                )
+            );
+
+        ResultMatcher anonymousDownload =
+            publicFile || processToken == null ? status().isOk() : status().isUnauthorized();
+        getClient(fileToken)
+            .perform(get("/api/core/bitstreams/" + publicationJsonId + "/content"))
+            .andExpect(anonymousDownload);
+        mvcResult =
+            getClient(processToken)
+                .perform(get("/api/core/bitstreams/" + publicationJsonId + "/content"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String exportContent = mvcResult.getResponse().getContentAsString();
+        for (String includedContent : includedContents) {
+            assertThat(
+                "The following content must be present " + includedContent,
+                exportContent.contains(includedContent)
+            );
+        }
+        for (String excludedContent : excludedContents) {
+            assertThat(
+                "The following content must be NOT present " + excludedContent,
+                !exportContent.contains(excludedContent)
+            );
         }
     }
 
 
+    @Override
     @After
     public void destroy() throws Exception {
         CollectionUtils.emptyIfNull(processService.findAll(context)).stream().forEach(process -> {

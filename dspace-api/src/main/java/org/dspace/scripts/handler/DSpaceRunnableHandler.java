@@ -113,6 +113,21 @@ public interface DSpaceRunnableHandler {
      * @param fileName      The filename
      * @param inputStream   The inputstream to be written
      * @param type          The type of the file
+     * @param isPublicReadable The file can be read by everyone
+     * @throws IOException  If something goes wrong
+     */
+    public default void writeFilestream(Context context, String fileName, InputStream inputStream, String type,
+            boolean isPublicReadable) throws IOException, SQLException, AuthorizeException {
+        this.writeFilestream(context, fileName, inputStream, type);
+    }
+
+    /**
+     * This method will write the InputStream to either a file on the filesystem or a bitstream in the database
+     * depending on whether it's coming from a CommandLine call or REST call respectively
+     * @param context       The relevant DSpace context
+     * @param fileName      The filename
+     * @param inputStream   The inputstream to be written
+     * @param type          The type of the file
      * @throws IOException  If something goes wrong
      */
     public void writeFilestream(Context context, String fileName, InputStream inputStream, String type)

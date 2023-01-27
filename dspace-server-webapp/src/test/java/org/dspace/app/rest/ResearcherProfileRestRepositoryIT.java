@@ -86,6 +86,7 @@ import org.dspace.orcid.webhook.OrcidWebhookServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -499,7 +500,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     }
 
     /**
-     * Verify that a user can delete his profile using the delete endpoint.
+     * Verify that a user can delete their profile using the delete endpoint.
      *
      * @throws Exception
      */
@@ -537,7 +538,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     }
 
     /**
-     * Verify that a user can hard delete his profile using the delete endpoint.
+     * Verify that a user can hard delete their profile using the delete endpoint.
      *
      * @throws Exception
      */
@@ -646,7 +647,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     }
 
     /**
-     * Verify that an user can delete his profile using the delete endpoint even if
+     * Verify that an user can delete their profile using the delete endpoint even if
      * was created by an admin.
      *
      * @throws Exception
@@ -838,7 +839,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     }
 
     /**
-     * Verify that an user can change the visibility of his profile using the patch
+     * Verify that an user can change the visibility of their profile using the patch
      * endpoint even if was created by an admin.
      *
      * @throws Exception
@@ -2121,6 +2122,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
     @Test
     public void testOrcidSynchronizationPreferenceUpdateForceOrcidQueueRecalculation() throws Exception {
+        // skip all tests based on configuration
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
 
         context.turnOffAuthorisationSystem();
 

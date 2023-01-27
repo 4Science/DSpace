@@ -22,6 +22,7 @@ import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.dspace.util.UUIDUtils;
@@ -45,10 +46,17 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
     private AuthorizeService authorizeService;
 
     @Autowired
+    private ResearcherProfileService researcherProfileService;
+
+    @Autowired
     private RequestService requestService;
 
     @Autowired
     private ContentServiceFactory contentServiceFactory;
+
+    @Autowired
+    private BitstreamCrisSecurityService bitstreamCrisSecurityService;
+
 
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
@@ -96,12 +104,35 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
                                    !item.isArchived() && !item.isWithdrawn()) {
                             return false;
                         }
+
+                        if (DSpaceRestPermission.READ.equals(restPermission)
+                                && !item.isArchived()
+                                && !item.isWithdrawn()
+                                && researcherProfileService.isAuthorOf(context, ePerson, item)) {
+                            return true;
+                        }
+
                     }
 
-                    if (dSpaceObject instanceof Bitstream && Objects.isNull(context.getCurrentUser())
-                            && authorizeService.authorizeActionBoolean(context, (Bitstream) dSpaceObject,
-                                    restPermission.getDspaceApiActionId())) {
+                    if (dSpaceObject instanceof Bitstream && Objects.isNull(ePerson)
+                        && authorizeService.authorizeActionBoolean(context, dSpaceObject,
+                                restPermission.getDspaceApiActionId())) {
                         return true;
+                    }
+
+                    if (dSpaceObject instanceof Bitstream && !Objects.isNull(ePerson)) {
+                        Bitstream bit = (Bitstream) dSpaceObject;
+                        try {
+                            if (bitstreamCrisSecurityService
+                                    .isBitstreamAccessAllowedByCrisSecurity(context, ePerson, bit)) {
+                                return true;
+                            }
+                        } catch (Exception e) {
+                            log.warn(
+                                    "We got an exception during the cris security evaluation, safe fallback " +
+                                    "ignoring extra grant given by cris",
+                                    e);
+                        }
                     }
 
                     return authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject,

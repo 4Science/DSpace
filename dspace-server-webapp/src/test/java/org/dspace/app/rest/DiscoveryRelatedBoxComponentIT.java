@@ -118,7 +118,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
         //An anonymous user browses this endpoint to find the authors by the facet
         //The user enters a small query, namely the title has to contain 'test'
         getClient().perform(get("/api/discover/facets/subject")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidFirstPerson))
                 //** THEN **
                 //The status has to be 200 OK
@@ -134,7 +134,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //The self link needs to contain the query that was specified in the parameters, this is how it
                 // looks like
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidFirstPerson)))
                 //This is how the page object must look like because it's the default
                 .andExpect(jsonPath("$.page",
@@ -147,7 +147,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )));
         // verify that filter are used
         getClient().perform(get("/api/discover/facets/subject")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidFirstPerson)
                 .param("f.title", "item,contains"))
                 //** THEN **
@@ -165,7 +165,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 // looks like
                 .andExpect(jsonPath("$._links.self.href", containsString("f.title=item,contains")))
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidFirstPerson)))
                 //The applied filters have to be specified like this, applied filters are the parameters given
                 // below starting with f.
@@ -181,7 +181,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                         FacetValueMatcher.entryText("subject", "ExtraEntry", 1)
                 )));
         getClient().perform(get("/api/discover/facets/subject")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidSecondPerson))
                 //** THEN **
                 //The status has to be 200 OK
@@ -197,7 +197,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //The self link needs to contain the query that was specified in the parameters, this is how it
                 // looks like
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidSecondPerson)))
                 //This is how the page object must look like because it's the default
                 .andExpect(jsonPath("$.page",
@@ -218,7 +218,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
         //An anonymous user browses this endpoint to find the the objects in the system
         //With a scope 'test'
         getClient().perform(get("/api/discover/search/objects")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidFirstPerson))
                 //** THEN **
                 //The status has to be 200 OK
@@ -231,7 +231,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //The scope property has to be set to the value we entered in the parameters
                 .andExpect(jsonPath("$.scope", is(uuidFirstPerson)))
-                .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                 //All the elements created in the structure above have to be present in the embedded.objects section
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItems(
                         SearchResultMatcher.matchOnItemName("item", "items", "Test item" ),
@@ -240,7 +240,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
@@ -257,11 +257,11 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidFirstPerson)))
         ;
         getClient().perform(get("/api/discover/search/objects")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidFirstPerson)
                 .param("f.title", "item,contains"))
                 //** THEN **
@@ -275,14 +275,14 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //The scope property has to be set to the value we entered in the parameters
                 .andExpect(jsonPath("$.scope", is(uuidFirstPerson)))
-                .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                 //All the elements created in the structure above have to be present in the embedded.objects section
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItems(
                         SearchResultMatcher.matchOnItemName("item", "items", "Test item" )
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
@@ -298,11 +298,11 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidFirstPerson)))
         ;
         getClient().perform(get("/api/discover/search/objects")
-                .param("configuration", "RELATION.Person.researchoutputs")
+                .param("configuration", "RELATION.Person.publications")
                 .param("scope", uuidSecondPerson))
                 //** THEN **
                 //The status has to be 200 OK
@@ -315,7 +315,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //The scope property has to be set to the value we entered in the parameters
                 .andExpect(jsonPath("$.scope", is(uuidSecondPerson)))
-                .andExpect(jsonPath("$.configuration", is("RELATION.Person.researchoutputs")))
+                .andExpect(jsonPath("$.configuration", is("RELATION.Person.publications")))
                 //All the elements created in the structure above have to be present in the embedded.objects section
                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItems(
                         SearchResultMatcher.matchOnItemName("item", "items", "Public item 2" ),
@@ -325,7 +325,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 )))
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
+                .andExpect(jsonPath("$._embedded.facets", Matchers.hasItems(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
 //                        FacetEntryMatcher.typeFacet(false),
@@ -341,7 +341,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
                 .andExpect(
-                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.researchoutputs")))
+                        jsonPath("$._links.self.href", containsString("configuration=RELATION.Person.publications")))
                 .andExpect(jsonPath("$._links.self.href", containsString("scope=" + uuidSecondPerson)))
         ;
     }

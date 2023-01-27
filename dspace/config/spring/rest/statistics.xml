@@ -42,7 +42,7 @@
     <bean id="topCitiesGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TopCitiesGenerator">
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="10"/>
-        <property name="relation" value="RELATION.Person.researchoutputs"/>
+        <property name="relation" value="RELATION.Person.publications"/>
     </bean>
 
     <!--new generator supporting relation between person and projects-->
@@ -83,7 +83,7 @@
     <bean id="topCitiesGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TopCitiesGenerator">
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="10"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
 
@@ -108,7 +108,7 @@
     <bean id="topCountriesGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TopCountriesGenerator">
         <property name="viewMode" value="map"/>
         <property name="maxResults" value="10"/>
-        <property name="relation" value="RELATION.Person.researchoutputs"/>
+        <property name="relation" value="RELATION.Person.publications"/>
     </bean>
 
     <!--generator supporting relation between person and projects-->
@@ -129,7 +129,7 @@
     <bean id="topCountriesGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TopCountriesGenerator">
         <property name="viewMode" value="map"/>
         <property name="maxResults" value="10"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!-- generator supporting relation between orgunit and rpprojects-->
@@ -189,7 +189,7 @@
     <bean id="topItemsGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TopItemsGenerator">
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="20"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!--generator supporting relation between orgunit and projects-->
@@ -229,7 +229,7 @@
     <bean id="totalDownloadsGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TotalDownloadsGenerator">
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="100"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!--generator supporting relation between orgunits and projects-->
@@ -246,7 +246,7 @@
     <!--generator supporting relation between person and researchoutputs-->
     <bean id="totalVisitGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TotalVisitGenerator">
         <property name="viewMode" value="table"/>
-        <property name="relation" value="RELATION.Person.researchoutputs"/>
+        <property name="relation" value="RELATION.Person.publications"/>
     </bean>
 
     <!--generator supporting relation between person and projects-->
@@ -276,7 +276,7 @@
     <!--generator for supporting relation between project and researchoutputs-->
     <bean id="totalVisitGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TotalVisitGenerator">
         <property name="viewMode" value="table"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!--generator for supporting relation between orgunit and projects-->
@@ -298,7 +298,7 @@
         <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
-        <property name="relation" value="RELATION.Person.researchoutputs"/>
+        <property name="relation" value="RELATION.Person.publications"/>
     </bean>
 
     <!--generator supporting relation between person and projects-->
@@ -343,7 +343,7 @@
         <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!--new generator for supporting relation between orgunits and projects-->
@@ -386,7 +386,7 @@
     <bean id="totalDownloadsAndVisitsGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TotalDownloadsAndVisitsGenerator">
         <property name="viewMode" value="table"/>
         <property name="maxResults" value="10"/>
-        <property name="relation" value="RELATION.Project.researchoutputs" />
+        <property name="relation" value="RELATION.Project.publications" />
     </bean>
 
     <!--generator supporting relation between orgunit and projects-->

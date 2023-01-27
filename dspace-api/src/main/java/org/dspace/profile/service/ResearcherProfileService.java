@@ -109,4 +109,6 @@ public interface ResearcherProfileService {
      * @return the profile type
      */
     String getProfileType();
+
+    boolean isAuthorOf(Context context, EPerson ePerson, Item item);
 }

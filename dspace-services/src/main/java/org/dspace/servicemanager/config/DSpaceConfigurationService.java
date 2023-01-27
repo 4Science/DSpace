@@ -177,7 +177,7 @@ public final class DSpaceConfigurationService implements ConfigurationService {
      * @see org.dspace.services.ConfigurationService#getProperty(java.lang.String)
      */
     @Override
-    public String getProperty(String name) {
+    public synchronized String getProperty(String name) {
         return getProperty(name, null);
     }
 
@@ -198,7 +198,7 @@ public final class DSpaceConfigurationService implements ConfigurationService {
      * @see org.dspace.services.ConfigurationService#getProperty(java.lang.String, java.lang.String)
      */
     @Override
-    public String getProperty(String name, String defaultValue) {
+    public synchronized String getProperty(String name, String defaultValue) {
         return getPropertyAsType(name, defaultValue);
     }
 
@@ -420,7 +420,7 @@ public final class DSpaceConfigurationService implements ConfigurationService {
             throw new IllegalArgumentException("properties cannot be null");
         }
 
-        ArrayList<String> changed = new ArrayList<String>();
+        ArrayList<String> changed = new ArrayList<>();
 
         // loop through each new property entry
         for (Entry<String, Object> entry : properties.entrySet()) {

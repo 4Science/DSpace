@@ -138,7 +138,9 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         return results
         .stream()
         .map(doc ->  {
-            String title = ((ArrayList<String>) doc.getFieldValue("dc.title")).get(0);
+            Object fieldValue = doc.getFieldValue("dc.title");
+            String title = fieldValue instanceof String ? (String) fieldValue :
+                ((ArrayList<String>) fieldValue).get(0);
             Map<String, String> extras = ItemAuthorityUtils.buildExtra(getPluginInstanceName(), doc);
             return new Choice((String) doc.getFieldValue("search.resourceid"),
                 title,

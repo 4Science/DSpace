@@ -338,6 +338,8 @@ public class Email {
                 message.addRecipient(Message.RecipientType.CC, new InternetAddress(ccAddress));
             }
         }
+        // Get headers defined by the template.
+        String[] templateHeaders = config.getArrayProperty("mail.message.headers");
 
         // Format the mail message body
         VelocityEngine templateEngine = new VelocityEngine();
@@ -358,6 +360,7 @@ public class Email {
             repo.putStringResource(contentName, content);
             // Turn content into a template.
             template = templateEngine.getTemplate(contentName);
+            templateHeaders = new String[] {};
         }
 
         StringWriter writer = new StringWriter();
@@ -392,8 +395,7 @@ public class Email {
         message.setSentDate(date);
         message.setFrom(new InternetAddress(from));
 
-        // Get headers defined by the template.
-        for (String headerName : config.getArrayProperty("mail.message.headers")) {
+        for (String headerName : templateHeaders) {
             String headerValue = (String) vctx.get(headerName);
             if ("subject".equalsIgnoreCase(headerName)) {
                 if (null != subject) {
