@@ -185,12 +185,11 @@ public class IIIFUtils {
      */
     public Bitstream getBitstreamForCanvas(Context context, Item item, String canvasId)
             throws SQLException {
-        Bitstream bitstream = bitstreamService.find(context, UUID.fromString(canvasId));
-
         // check if bitstream is part of the item
-        for (Bundle bundle : bitstream.getBundles()) {
-            for (Item i : bundle.getItems()) {
-                if (i.getID().equals(item.getID())) {
+        for (Bundle bundle : item.getBundles()) {
+            for (Bitstream bitstream : bundle.getBitstreams()) {
+                if (bitstream.getID().equals(UUID.fromString(canvasId))) {
+                    // return bitstream
                     return bitstream;
                 }
             }
