@@ -110,7 +110,7 @@ public class IIIFUtils {
      */
     public List<Bitstream> getIIIFBitstreams(Context context, Item item) {
         List<Bitstream> bitstreams = new ArrayList<Bitstream>();
-        for (Bundle bnd : IIIFSharedUtils.getIIIFBundles(item)) {
+        for (Bundle bnd : getIIIFBundles(item)) {
             bitstreams
                     .addAll(getIIIFBitstreams(context, bnd));
         }
@@ -136,7 +136,7 @@ public class IIIFUtils {
      * @param b the DSpace bitstream to check
      * @return true if the bitstream can be used as IIIF resource
      */
-    private boolean isIIIFBitstream(Context context, Bitstream b) {
+    protected boolean isIIIFBitstream(Context context, Bitstream b) {
         return checkImageMimeType(getBitstreamMimeType(b, context)) && b.getMetadata().stream()
                 .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_ENABLED))
                 .noneMatch(m -> m.getValue().equalsIgnoreCase("false") || m.getValue().equalsIgnoreCase("no"));
