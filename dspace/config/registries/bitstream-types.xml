@@ -32,6 +32,13 @@
 
     <dc-type>
         <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>position</qualifier>
+        <scope_note>Metadata field used to store the position of the bitstream</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
         <element>master</element>
         <qualifier></qualifier>
         <scope_note>Metadata field used to store the UUID of the master bitstream on the ocr bitstream</scope_note>
