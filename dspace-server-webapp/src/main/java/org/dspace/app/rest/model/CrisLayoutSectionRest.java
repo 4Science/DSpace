@@ -832,4 +832,34 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
     }
 
+    public static class CrisGridComponentRest implements CrisLayoutSectionComponentRest {
+
+        private String discoveryConfigurationName;
+        private String style;
+        private String mainContentLink;
+
+        public CrisGridComponentRest(String discoveryConfigurationName, String style, String mainContentLink) {
+            this.discoveryConfigurationName = discoveryConfigurationName;
+            this.style = style;
+            this.mainContentLink = mainContentLink;
+        }
+
+        @Override
+        public String getComponentType() {
+            return "grid";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        public String getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+        public String getMainContentLink() {
+            return mainContentLink;
+        }
+    }
 }
