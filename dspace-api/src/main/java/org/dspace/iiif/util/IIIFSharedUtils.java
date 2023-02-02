@@ -51,7 +51,7 @@ public class IIIFSharedUtils {
 
     // metadata used to specify the canvas id of the bitstream
     public static final String[] METADATA_IIIF_CANVASID_ARRAY = {"bitstream", "iiif", "canvasid"};
-    public static final String METADATA_IIIF_CANVASINDEX = METADATA_IIIF_CANVASID_ARRAY[0] + "." +
+    public static final String METADATA_IIIF_CANVASID = METADATA_IIIF_CANVASID_ARRAY[0] + "." +
             METADATA_IIIF_CANVASID_ARRAY[1] + "." + METADATA_IIIF_CANVASID_ARRAY[2];
 
     protected static final ConfigurationService configurationService
@@ -176,7 +176,7 @@ public class IIIFSharedUtils {
     public static String getCanvasId(Bitstream bitstream) {
         // retrieve the canvas identifier from metadata
         Optional<MetadataValue> canvasId = bitstream.getMetadata().stream()
-                .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_CANVASINDEX))
+                .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_CANVASID))
                 .findAny();
         if (canvasId.isEmpty()) {
             // otherwise use the bitstream identifier
