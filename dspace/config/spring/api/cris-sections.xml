@@ -229,6 +229,13 @@
                     <property name="titleStyle" value="text-center" />
                 </bean>
             </list>
+            <list>
+                <bean class="org.dspace.layout.CrisGridComponent">
+                    <property name="discoveryConfigurationName" value="researchoutputs"/>
+                    <property name="style" value="style"/>
+                    <property name="mainContentLink" value="/explore/paths"/>
+                </bean>
+            </list>
           </list>
         </constructor-arg>
     </bean>
