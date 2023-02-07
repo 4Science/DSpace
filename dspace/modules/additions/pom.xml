@@ -248,6 +248,23 @@
          </dependencies>
       </profile>
 
+      <profile>
+         <id>addon-document-viewer</id>
+         <activation>
+            <property>
+               <name>docviewer.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-docviewer-api</artifactId>
+               <version>${addon-docviewer.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
+
    </profiles>
 
    <!--
