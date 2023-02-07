@@ -201,6 +201,41 @@
     <dc-type>
         <schema>cris</schema>
         <element>cms</element>
+        <qualifier>grid-component-badge</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>grid-component-title</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>grid-component-subtitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>grid-component-abstract</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>grid-component-link</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
         <qualifier>footer</qualifier>
         <scope_note></scope_note>
     </dc-type>
