@@ -54,6 +54,9 @@ public class IIIFSharedUtils {
     public static final String METADATA_IIIF_CANVASID = METADATA_IIIF_CANVASID_ARRAY[0] + "." +
             METADATA_IIIF_CANVASID_ARRAY[1] + "." + METADATA_IIIF_CANVASID_ARRAY[2];
 
+    // string used in the metadata toc as separator among the different levels
+    public static final String TOC_SEPARATOR = "|||";
+
     protected static final ConfigurationService configurationService
         = DSpaceServicesFactory.getInstance().getConfigurationService();
 
