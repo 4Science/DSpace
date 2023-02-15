@@ -69,6 +69,8 @@
 
                <!--Use site to override the default configuration for the home page & default discovery page-->
                <entry key="site" value-ref="homepageConfiguration" />
+               <!--Use collection to override the default configuration for the collection page-->
+               <entry key="collection" value-ref="collectionConfiguration" />
                <!--<entry key="123456789/7621" value-ref="defaultConfiguration"/>-->
                <!-- Used to show filters and results on MyDSpace -->
                <!-- Do not change the id of special entries or else they won't work -->
@@ -561,6 +563,17 @@
     <!--The Homepage specific configuration settings for discovery-->
     <bean id="homepageConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype" parent="commonConfiguration">
         <property name="id" value="homepageConfiguration"/>
+    </bean>
+
+    <!--The Collection page specific configuration settings for discovery-->
+    <bean id="collectionConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype" parent="commonConfiguration">
+        <property name="id" value="homepageConfiguration"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <value>search.resourcetype:Item</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <!--The backend configuration settings for discovery-->
