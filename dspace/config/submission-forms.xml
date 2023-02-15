@@ -10,7 +10,7 @@
           <label>Nome del file</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required>You must enter a title for the file.</required>
+          <required>Inserire il titolo del file.</required>
           <hint />
         </field>
       </row>
@@ -1265,7 +1265,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Tipo</label>
           <input-type value-pairs-name="orgunit_types">dropdown</input-type>
           <repeatable>false</repeatable>
-          <required>You must specify the organisation type</required>
+          <required>Indicare il tipo di ente</required>
           <hint>Indicare il tipo di ente</hint>
         </field>
       </row>
