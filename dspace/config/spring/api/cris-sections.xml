@@ -197,7 +197,8 @@
                     <property name="order" value="asc" />
                     <property name="targetBlank" value="true" />
                     <property name="fitWidth" value="false" />
-                    <property name="fitHeight" value="true" />
+                    <property name="fitHeight" value="false" />
+                    <property name="showBlurryBackdrop" value="true" />
                     <property name="keepAspectRatio" value="false" />
                     <property name="carouselHeightPx" value="500" />
                     <property name="captionStyle" value="text-justify" />
