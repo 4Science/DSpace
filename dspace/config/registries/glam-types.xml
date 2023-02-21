@@ -53,6 +53,11 @@
         <name>glamevent</name>
         <namespace>https://www.4science.it/dspace-glam/event</namespace>
     </dc-schema>
+
+    <dc-schema>
+        <name>glampicture</name>
+        <namespace>https://www.4science.it/dspace-glam/picture</namespace>
+    </dc-schema>
     
     <dc-type>
         <schema>glamevent</schema>
@@ -552,7 +557,28 @@
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
-    
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>mark</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>glamfonds</schema>
         <element>editor</element>
@@ -605,6 +631,20 @@
         <schema>glamperson</schema>
         <element>partecipatedIn</element>
         <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glampicture</schema>
+        <element>type</element>
+        <qualifier>framing</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glampicture</schema>
+        <element>subject</element>
+        <qualifier>place</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
