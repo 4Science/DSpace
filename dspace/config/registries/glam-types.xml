@@ -628,6 +628,20 @@
     </dc-type>
 
     <dc-type>
+        <schema>glamjournalfond</schema>
+        <element>relation</element>
+        <qualifier>journalfond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamjournalfond</schema>
+        <element>relation</element>
+        <qualifier>person</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
         <schema>glamperson</schema>
         <element>partecipatedIn</element>
         <qualifier></qualifier>
