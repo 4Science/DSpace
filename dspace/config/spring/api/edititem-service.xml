@@ -317,6 +317,28 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="picture">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    ADMIN
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="picture-edit" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    SUBMITTER_GROUP
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="picture-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>
