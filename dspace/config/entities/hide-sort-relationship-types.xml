@@ -575,6 +575,50 @@
         </rightCardinality>
     </type>
     <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPlacesHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPlaces</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPlacesSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPlaces</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPeopleHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPeople</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPeopleSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPeople</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
         <rightType>Path</rightType>
         <leftwardType>isPathPublicationsHiddenFor</leftwardType>
         <rightwardType>notDisplayingPathPublications</rightwardType>
