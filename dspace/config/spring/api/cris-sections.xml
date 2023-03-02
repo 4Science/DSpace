@@ -198,6 +198,7 @@
                     <property name="targetBlank" value="true" />
                     <property name="fitWidth" value="false" />
                     <property name="fitHeight" value="false" />
+                    <property name="showBlurryBackdrop" value="true" />
                     <property name="keepAspectRatio" value="false" />
                     <property name="carouselHeightPx" value="500" />
                     <property name="captionStyle" value="text-justify" />
@@ -270,7 +271,7 @@
                 <bean class="org.dspace.layout.CrisGridComponent">
                     <property name="discoveryConfigurationName" value="researchoutputs"/>
                     <property name="style" value="pad-left-title pad-right-title m-auto"/>
-                    <property name="mainContentLink" value="/explore/paths"/>
+                    <property name="mainContentLink" value="/search?f.entityType=Path,equals&amp;spc.page=1&amp;view=grid"/>
                 </bean>
             </list>
           </list>

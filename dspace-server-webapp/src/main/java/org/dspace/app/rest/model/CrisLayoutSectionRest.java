@@ -690,6 +690,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         private String titleStyle;
 
+        private boolean showBlurryBackdrop;
+
         /**
          * Initializes the rest component using the
          * CrisLayoutCarouselComponent component
@@ -713,6 +715,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             carouselHeightPx = component.getCarouselHeightPx();
             captionStyle = component.getCaptionStyle();
             titleStyle = component.getTitleStyle();
+            showBlurryBackdrop = component.isShowBlurryBackdrop();
         }
 
         /**
@@ -828,6 +831,13 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
          */
         public String getTitleStyle() {
             return titleStyle;
+        }
+
+        /**
+         * @return the showBlurryBackdrop
+         */
+        public boolean isShowBlurryBackdrop() {
+            return showBlurryBackdrop;
         }
 
     }
