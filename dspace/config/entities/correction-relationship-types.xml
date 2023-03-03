@@ -157,8 +157,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>JournalIssue</leftType>
-        <rightType>JournalIssue</rightType>
+        <leftType>JournalFile</leftType>
+        <rightType>JournalFile</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>

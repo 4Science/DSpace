@@ -142,8 +142,8 @@
       <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
       <type>custom-url</type>
     </step-definition>
-    <step-definition id="journal_issue" mandatory="true">
-      <heading>submit.progressbar.describe.journal_issue</heading>
+    <step-definition id="journal_file" mandatory="true">
+      <heading>submit.progressbar.describe.journal_file</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -323,14 +323,14 @@
       <step id="path" />
       <step id="upload" />
     </submission-process>
-    <submission-process name="journal_issue">
+    <submission-process name="journal_file">
       <step id="collection" />
-      <step id="journal_issue" />
+      <step id="journal_file" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
-    <submission-process name="journal_issue-edit">
-      <step id="journal_issue" />
+    <submission-process name="journal_file-edit">
+      <step id="journal_file" />
       <step id="upload" />
     </submission-process>
     <submission-process name="journal_fond">

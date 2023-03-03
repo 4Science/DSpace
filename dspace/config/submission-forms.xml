@@ -2864,7 +2864,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="journal_issue">
+    <form name="journal_file">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
