@@ -421,7 +421,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isJournalFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedJournalFonds</rightwardType>
         <leftCardinality>
@@ -432,7 +432,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isJournalFondsHiddenFor</leftwardType>
         <rightwardType>notDisplayingJournalFonds</rightwardType>
         <leftCardinality>
@@ -443,7 +443,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isChildrenSelectedFor</leftwardType>
         <rightwardType>hasSelectedChildren</rightwardType>
         <leftCardinality>
@@ -454,7 +454,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isChildrenHiddenFor</leftwardType>
         <rightwardType>notDisplayingChildren</rightwardType>
         <leftCardinality>
@@ -567,6 +567,50 @@
         <rightType>Place</rightType>
         <leftwardType>isEventsSelectedFor</leftwardType>
         <rightwardType>hasSelectedEvents</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPlacesHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPlaces</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPlacesSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPlaces</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPeopleHiddenFor</leftwardType>
+        <rightwardType>notDisplayingPeople</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Place</rightType>
+        <leftwardType>isPeopleSelectedFor</leftwardType>
+        <rightwardType>hasSelectedPeople</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>

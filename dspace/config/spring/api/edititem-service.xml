@@ -229,7 +229,7 @@
                         </bean>
                     </list>
                 </entry>
-				<entry key="journalfond">
+				<entry key="journalfonds">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -238,7 +238,7 @@
                                     ADMIN
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="journal_fond-edit" />
+                            <property name="submissionDefinition" value="journal_fonds-edit" />
                         </bean>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -247,11 +247,11 @@
                                     SUBMITTER_GROUP
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="journal_fond-edit" />
+                            <property name="submissionDefinition" value="journal_fonds-edit" />
                         </bean>
                     </list>
                 </entry>
-                <entry key="journalissue">
+                <entry key="journalfile">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -260,7 +260,7 @@
                                     ADMIN
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="journal_issue-edit" />
+                            <property name="submissionDefinition" value="journal_file-edit" />
                         </bean>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -269,7 +269,7 @@
                                     SUBMITTER_GROUP
                                 </value>
                             </property>
-                            <property name="submissionDefinition" value="journal_issue-edit" />
+                            <property name="submissionDefinition" value="journal_file-edit" />
                         </bean>
                     </list>
                 </entry>
