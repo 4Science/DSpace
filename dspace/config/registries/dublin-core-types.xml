@@ -1139,7 +1139,7 @@
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
-    <qualifier>journalfond</qualifier>
+    <qualifier>journalfonds</qualifier>
     <scope_note></scope_note>
   </dc-type>
 

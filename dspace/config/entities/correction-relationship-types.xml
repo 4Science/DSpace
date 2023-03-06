@@ -143,8 +143,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>JournalFond</leftType>
-        <rightType>JournalFond</rightType>
+        <leftType>JournalFonds</leftType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
