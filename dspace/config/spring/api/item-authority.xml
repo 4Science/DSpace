@@ -68,11 +68,11 @@
 	</bean>
 
 	<bean name="journalfondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
-		<property name="entityType" value="JournalFond"/>
-		<property name="parentQuery" value="entityType_keyword:JournalFond AND -glamjournalfond.parent:*"/>
-		<property name="childrenQuery" value="glamjournalfond.parent_authority:{0} OR dc.relation.journalfond_authority:{0}"/>
+		<property name="entityType" value="JournalFonds"/>
+		<property name="parentQuery" value="entityType_keyword:JournalFonds AND -glamjournalfonds.parent:*"/>
+		<property name="childrenQuery" value="glamjournalfonds.parent_authority:{0} OR dc.relation.journalfonds_authority:{0}"/>
 		<!-- Value mapping -->
-		<property name="parentMetadata" value="glamjournalfond.parent"/>
+		<property name="parentMetadata" value="glamjournalfonds.parent"/>
 		<property name="selectableMetadata" value=""/>
 		<property name="labelMetadata" value="dc.title"/>
 		<property name="authorityMetadata" value=""/>
