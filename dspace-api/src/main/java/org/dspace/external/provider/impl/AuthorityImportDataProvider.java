@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dspace.authority.factory.AuthorityServiceFactory;
 import org.dspace.authority.filler.AuthorityImportFiller;
 import org.dspace.authority.filler.AuthorityImportFillerService;
+import org.dspace.authority.filler.ItemMetadataImportFiller;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -24,14 +25,13 @@ import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.core.CrisConstants;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.AbstractExternalDataProvider;
 import org.dspace.util.UUIDUtils;
 
 /**
  * This class allows to configure a Live Import Provider as an External Data Provider
- * 
+ *
  * @author Giuseppe Digilio (giuseppe.digilio at 4science.it)
  *
  */
@@ -150,7 +150,7 @@ public class AuthorityImportDataProvider extends AbstractExternalDataProvider {
                 title = metadataValueDTO.getValue();
             }
             if (StringUtils.isNotBlank(metadataValueDTO.getValue())
-                    && !metadataValueDTO.getValue().equals(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE )) {
+                && !ItemMetadataImportFiller.isPlaceholderMetadataValue(metadataValueDTO.getValue())) {
                 externalDataObject.addMetadata(metadataValueDTO);
             }
         }

@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -51,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,15 +61,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.dspace.app.rest.exception.ExtractMetadataStepException;
 import org.dspace.app.rest.matcher.CollectionMatcher;
 import org.dspace.app.rest.matcher.ItemMatcher;
 import org.dspace.app.rest.matcher.MetadataMatcher;
 import org.dspace.app.rest.matcher.ResourcePolicyMatcher;
 import org.dspace.app.rest.matcher.WorkspaceItemMatcher;
+import org.dspace.app.rest.model.AInprogressSubmissionRest;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
+import org.dspace.app.rest.repository.WorkspaceItemRestRepository;
+import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -87,6 +93,7 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.Relationship;
@@ -97,6 +104,7 @@ import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -108,6 +116,8 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
@@ -134,6 +144,15 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
     @Autowired
     private AuthorizeService authorizeService;
+
+    @Autowired
+    private WorkspaceItemRestRepository workspaceItemRestRepository;
+
+    @Autowired
+    private SubmissionService submissionService;
+
+    @Mock
+    private SubmissionService mockedSubmissionService;
 
     private GroupService groupService;
 
@@ -9697,6 +9716,71 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .content("/api/submission/workspaceitems/" + workspaceItem.getID())
                 .contentType(textUriContentType))
             .andExpect(status().isCreated());
+
+    }
+
+    @Test
+    public void lookupScopusMetadataWhenHaveExtractMetadataStepExceptionTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                                           .withName("Collection 1")
+                                           .build();
+
+        WorkspaceItem workspaceItem =
+            WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                                .withScopusIdentifier("2-s2.0-85009909050")
+                                .build();
+
+        // try to add the web of science identifier
+        String patchBody =
+            getPatchContent(
+                List.of(
+                new AddOperation("/sections/traditionalpageone/dc.identifier.scopus",
+                    List.of(Map.of("value", "2-s2.0-85009909030")))
+                ));
+
+        // throw an ExtractMetadataStepException
+        Mockito.doThrow(new ExtractMetadataStepException("Error extracting metadata"))
+               .when(mockedSubmissionService)
+               .evaluatePatchToInprogressSubmission(
+                   any(Context.class),
+                   any(HttpServletRequest.class),
+                   any(InProgressSubmission.class),
+                   any(AInprogressSubmissionRest.class),
+                   any(String.class), any(Operation.class));
+
+        try {
+            // set mocked submissionService to workspaceItemRestRepository
+            workspaceItemRestRepository.setSubmissionService(mockedSubmissionService);
+
+            String authToken = getAuthToken(admin.getEmail(), password);
+            getClient(authToken).perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                                    .content(patchBody)
+                                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                .andExpect(status().isOk())
+                                // testing lookup still old value for dc.identifier.scopus
+                                .andExpect(jsonPath("$.sections.traditionalpageone['dc.identifier.scopus'][0].value",
+                                    is("2-s2.0-85009909050")));
+
+            // verify that the patch changes haven't been persisted
+            getClient(authToken).perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.sections.traditionalpageone['dc.identifier.scopus'][0].value",
+                                    is("2-s2.0-85009909050")));
+        } finally {
+            workspaceItemRestRepository.setSubmissionService(submissionService);
+        }
 
     }
 

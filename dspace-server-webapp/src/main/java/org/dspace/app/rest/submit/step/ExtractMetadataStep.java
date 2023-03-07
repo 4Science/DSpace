@@ -22,6 +22,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Equator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.rest.exception.ExtractMetadataStepException;
 import org.dspace.app.rest.model.ErrorRest;
 import org.dspace.app.rest.submit.ListenerProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
@@ -118,7 +119,7 @@ public class ExtractMetadataStep implements ListenerProcessingStep, UploadableSt
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ExtractMetadataStepException("Error extracting metadata", e);
         }
     }
 

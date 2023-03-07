@@ -7,30 +7,36 @@
  */
 package org.dspace.authority.service.impl;
 
-import java.io.Serializable;
+import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
+
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authority.service.ItemReferenceResolver;
 import org.dspace.authority.service.ItemSearcher;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.core.ReloadableEntity;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
-import org.dspace.discovery.DiscoverResultIterator;
+import org.dspace.discovery.DiscoverResultItemIterator;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
@@ -38,7 +44,6 @@ import org.dspace.discovery.indexobject.IndexableInProgressSubmission;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.discovery.indexobject.IndexableWorkflowItem;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
-import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -60,12 +65,16 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
 
-    @Autowired
-    private ConfigurationService configurationService;
+    private ThreadLocal<Map<String, UUID>> valuesToItemIds = ThreadLocal.withInitial(() -> new HashMap<>());
+
+    private ThreadLocal<MultiValuedMap<String, UUID>> referenceResolutionAttempts =
+        ThreadLocal.withInitial(() -> new ArrayListValuedHashMap<>());
 
     private final String metadata;
 
     private final String authorityPrefix;
+
+    private static Logger log = LogManager.getLogger(ItemSearcherByMetadata.class);
 
     public ItemSearcherByMetadata(String metadata, String authorityPrefix) {
         this.metadata = metadata;
@@ -73,11 +82,28 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     }
 
     @Override
-    public Item searchBy(Context context, String searchParam) {
+    public Item searchBy(Context context, String searchParam, Item source) {
         try {
-            return performSearchByMetadata(context, searchParam);
+            if (source != null) {
+                referenceResolutionAttempts.get().get(searchParam).add(source.getID());
+            }
+            if (valuesToItemIds.get().containsKey(searchParam)) {
+                Item foundInCache = itemService.find(context, valuesToItemIds.get().get(searchParam));
+                if (foundInCache != null) {
+                    return foundInCache;
+                } else {
+                    UUID removedUUID = valuesToItemIds.get().remove(searchParam);
+                    log.info("No item with uuid: " + removedUUID + " was found");
+                    log.info("Removing uuid: " + removedUUID + " from cache");
+                    return performSearchByMetadata(context, searchParam);
+                }
+            } else {
+                return performSearchByMetadata(context, searchParam);
+            }
         } catch (SearchServiceException e) {
             throw new RuntimeException("An error occurs searching the item by metadata", e);
+        } catch (SQLException e) {
+            throw new RuntimeException("An error occurs retrieving the item by identifier", e);
         }
     }
 
@@ -126,36 +152,49 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
 
     private void resolveReferences(Context context, List<MetadataValue> metadataValues, Item item)
         throws SQLException, AuthorizeException {
-        final boolean isValueToUpdate = checkWhetherTitleNeedsToBeSet();
-        String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
+
+        metadataValues.forEach(metadataValue -> {
+            valuesToItemIds.get().put(metadataValue.getValue(), item.getID());
+        });
 
         List<String> authorities = metadataValues.stream()
             .map(MetadataValue::getValue)
             .map(value -> AuthorityValueService.REFERENCE + authorityPrefix + "::" + value)
             .collect(Collectors.toList());
 
-        Iterator<ReloadableEntity<?>> entityIterator = findItemsToResolve(context, authorities, entityType);
+        Iterator<Item> itemsIterator = findItemsToResolve(context, item, authorities);
 
-        while (entityIterator.hasNext()) {
-            Item itemWithReference = getNextItem(entityIterator.next());
+        Iterator<Item> cachedItemsIterator = getItemsFromResolutionAttemptsCache(context, metadataValues);
 
-            itemWithReference.getMetadata().stream()
-                .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
-                .forEach(metadataValue -> setReferences(metadataValue, item, isValueToUpdate));
+        Iterator<Item> itemsWithReferenceIterator = chainedIterator(itemsIterator, cachedItemsIterator);
 
-            itemService.update(context, itemWithReference);
+        while (itemsWithReferenceIterator.hasNext()) {
+            Item itemWithReference = itemsIterator.next();
+            updateReferences(context, itemWithReference, item, authorities);
         }
+
     }
 
-    /**
-     * @return whether Title metadata needs to be updated
-     */
-    private boolean checkWhetherTitleNeedsToBeSet() {
-        return configurationService.getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
+    private Iterator<Item> getItemsFromResolutionAttemptsCache(Context context, List<MetadataValue> metadataValues) {
+        return metadataValues.stream()
+            .flatMap(metadataValue -> referenceResolutionAttempts.get().get(metadataValue.getValue()).stream())
+            .flatMap(itemId -> findItemById(context, itemId).stream())
+            .iterator();
     }
 
-    private Iterator<ReloadableEntity<?>> findItemsToResolve(Context context, List<String> authorities,
-        String entityType) {
+    private void updateReferences(Context context, Item itemWithReference, Item item, List<String> authorities)
+        throws SQLException, AuthorizeException {
+
+        itemWithReference.getMetadata().stream()
+            .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
+            .forEach(metadataValue -> choiceAuthorityService.setReferenceWithAuthority(metadataValue, item));
+
+        itemService.update(context, itemWithReference);
+    }
+
+    private Iterator<Item> findItemsToResolve(Context context, Item item, List<String> authorities) {
+
+        String entityType = itemService.getEntityType(item);
 
         String query = choiceAuthorityService.getAuthorityControlledFieldsByEntityType(entityType).stream()
             .map(field -> getFieldFilter(field, authorities))
@@ -171,31 +210,28 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
         discoverQuery.addDSpaceObjectFilter(IndexableWorkflowItem.TYPE);
         discoverQuery.addFilterQueries(query);
 
-        return new DiscoverResultIterator<ReloadableEntity<?>, Serializable>(context, discoverQuery, false);
+        return new DiscoverResultItemIterator(context, discoverQuery, false);
 
-    }
-
-    private void setReferences(MetadataValue metadataValue, Item item, boolean isValueToUpdate) {
-        metadataValue.setAuthority(item.getID().toString());
-        metadataValue.setConfidence(Choices.CF_ACCEPTED);
-        String newMetadataValue = itemService.getMetadata(item, "dc.title");
-        if (isValueToUpdate && StringUtils.isNotBlank(newMetadataValue)) {
-            metadataValue.setValue(newMetadataValue);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Item getNextItem(ReloadableEntity<?> nextEntity) {
-        if (nextEntity instanceof Item) {
-            return (Item) nextEntity;
-        }
-        return ((InProgressSubmission<Integer>) nextEntity).getItem();
     }
 
     private String getFieldFilter(String field, List<String> authorities) {
         return authorities.stream()
             .map(authority -> field.replaceAll("_", ".") + "_allauthority: \"" + authority + "\"")
             .collect(Collectors.joining(" OR "));
+    }
+
+    private Optional<Item> findItemById(Context context, UUID itemId) {
+        try {
+            return Optional.ofNullable(itemService.find(context, itemId));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void clearCache() {
+        valuesToItemIds.get().clear();
+        referenceResolutionAttempts.get().clear();
     }
 
 }

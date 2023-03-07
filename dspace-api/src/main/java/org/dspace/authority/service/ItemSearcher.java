@@ -24,7 +24,8 @@ public interface ItemSearcher {
      *
      * @param context the DSpace context
      * @param searchParam the search param
+     * @param source the source item
      * @return the found item
      */
-    public Item searchBy(Context context, String searchParam);
+    public Item searchBy(Context context, String searchParam, Item source);
 }

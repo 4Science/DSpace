@@ -8,8 +8,11 @@
 package org.dspace.content.integration.crosswalks;
 
 import static java.util.Arrays.asList;
+import static org.dspace.app.bulkedit.BulkImport.BITSTREAMS_SHEET_HEADERS;
+import static org.dspace.builder.BitstreamBuilder.createBitstream;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
+import static org.dspace.util.MultiFormatDateParser.parse;
 import static org.dspace.util.WorkbookUtils.getRowValues;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
@@ -28,16 +31,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -46,9 +52,6 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.BundleService;
 import org.dspace.core.Constants;
 import org.dspace.core.CrisConstants;
 import org.dspace.services.ConfigurationService;
@@ -70,10 +73,6 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     private XlsCollectionCrosswalk xlsCollectionCrosswalk;
 
-    private BitstreamService bitstreamService;
-
-    private BundleService bundleService;
-
     private ConfigurationService configurationService;
 
     private Community community;
@@ -89,8 +88,6 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
         xlsCollectionCrosswalk = (XlsCollectionCrosswalk) crosswalkMapper.getByType("collection-xls");
 
-        bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
-        bundleService = ContentServiceFactory.getInstance().getBundleService();
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
         context.turnOffAuthorisationSystem();
@@ -655,29 +652,46 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withDescription("Publication Description")
             .build();
 
-        // Create first bundle and bitstream
-        Bundle firstBundle = bundleService.create(context, firstItem, "TEST-BUNDLE");
-        Bitstream firstBitstream = bitstreamService.create(context, getBitstreamSample("First bitstream sample"));
-        bundleService.addBitstream(context, firstBundle, firstBitstream);
+        Bundle firstBundle = BundleBuilder.createBundle(context, firstItem)
+            .withName("TEST-BUNDLE")
+            .build();
 
-        // Add metadata to the first bitstream
-        bitstreamService.addMetadata(context, firstBitstream, "dc", "title",
-                                     null, null, List.of("test.txt"));
-        bitstreamService.addMetadata(context, firstBitstream, "dc", "description",
-                                     null, null, List.of("test description 1"));
+        Bitstream firstBitstream = createBitstream(context, firstBundle, getBitstreamSample("First bitstream"))
+            .withName("test.txt")
+            .withDescription("desc 1")
+            .withMetadata("dc", "date", null, "2023-02-23")
+            .withMetadata("dc", "contributor", null, "Unknown author")
+            .build();
 
-        // Create second bundle and bitstream
-        Bundle secondBundle = bundleService.create(context, secondItem, "TEST-BUNDLE2");
-        Bitstream secondBitstream = bitstreamService.create(context, getBitstreamSample("Second bitstream sample"));
-        bundleService.addBitstream(context, secondBundle, secondBitstream);
+        Bitstream secondBitstream = createBitstream(context, firstBundle, getBitstreamSample("Second bitstream"))
+            .withName("test2.txt")
+            .withDescription("desc 2")
+            .build();
 
-        // Add metadata to the second bitstream
-        bitstreamService.addMetadata(context, secondBitstream, "dc", "title",
-                                     null, null, List.of("test2.txt"));
-        bitstreamService.addMetadata(context, secondBitstream, "dc", "description",
-                                     null, null, List.of("test description 2"));
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(secondBitstream)
+            .withAction(Constants.READ)
+            .withName("openaccess")
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
 
-        context.restoreAuthSystemState();
+        Bundle secondBundle = BundleBuilder.createBundle(context, firstItem)
+            .withName("TEST-BUNDLE-2")
+            .build();
+
+        Bitstream thirdBitstream = createBitstream(context, secondBundle, getBitstreamSample("Third bitstream"))
+            .withName("test3.txt")
+            .withDescription("desc 3")
+            .build();
+
+        Bundle thirdBundle = BundleBuilder.createBundle(context, secondItem)
+            .withName("TEST-BUNDLE")
+            .build();
+
+        Bitstream fourthBitstream = createBitstream(context, thirdBundle, getBitstreamSample("Fourth bitstream"))
+            .withName("test4.txt")
+            .withDescription("desc 4")
+            .build();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xlsCollectionCrosswalk.disseminate(context, collection, baos);
@@ -688,18 +702,20 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         String firstItemId = firstItem.getID().toString();
         String secondItemId = secondItem.getID().toString();
 
-        String[] bitstreamSheetHeaders = Stream.concat(
-                XlsCollectionCrosswalk.BITSTREAM_BASE_HEADERS.stream(),
-                Stream.of("dc.description", "dc.title")
-            )
-            .toArray(String[]::new);
-        String[] firstRow = { firstItemId, getBitstreamLocationUrl(firstBitstream), "TEST-BUNDLE", "test description 1",
-                "test.txt" };
-        String[] secondRow = { secondItemId, getBitstreamLocationUrl(secondBitstream), "TEST-BUNDLE2",
-                "test description 2", "test2.txt" };
+        String firstUrl = getBitstreamLocationUrl(firstBitstream);
+        String secondUrl = getBitstreamLocationUrl(secondBitstream);
+        String thirdUrl = getBitstreamLocationUrl(thirdBitstream);
+        String fourthUrl = getBitstreamLocationUrl(fourthBitstream);
 
-        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 3,
-                          bitstreamSheetHeaders, List.of(firstRow, secondRow));
+        String[] bitstreamHeaders = ArrayUtils.addAll(BITSTREAMS_SHEET_HEADERS, "dc.title", "dc.description");
+        String[] firstRow = { firstItemId, firstUrl, "TEST-BUNDLE", "1", "", "N", "test.txt", "desc 1" };
+        String[] secondRow = { firstItemId, secondUrl, "TEST-BUNDLE", "2", "openaccess", "N", "test2.txt", "desc 2" };
+        String[] thirdRow = { firstItemId, thirdUrl, "TEST-BUNDLE-2", "1", "", "N", "test3.txt", "desc 3" };
+        String[] fourthRow = { secondItemId, fourthUrl, "TEST-BUNDLE", "1", "", "N", "test4.txt", "desc 4" };
+
+        List<String[]> rows = List.of(firstRow, secondRow, thirdRow, fourthRow);
+
+        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 5, bitstreamHeaders, rows);
     }
 
     @Test
@@ -722,16 +738,61 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withDescription("Publication Description")
             .build();
 
-        // Create first bundle and bitstream
-        Bundle firstBundle = bundleService.create(context, firstItem, "TEST-BUNDLE");
-        Bitstream firstBitstream = bitstreamService.create(context, getBitstreamSample("First bitstream sample"));
-        bundleService.addBitstream(context, firstBundle, firstBitstream);
+        Bundle bundle = BundleBuilder.createBundle(context, firstItem)
+            .withName("TEST-BUNDLE")
+            .build();
 
-        // Add metadata to the first bitstream
-        bitstreamService.addMetadata(context, firstBitstream, "dc", "title",
-                                     null, null, List.of("test.txt"));
-        bitstreamService.addMetadata(context, firstBitstream, "dc", "description",
-                                     null, null, List.of("test description 1"));
+        Bitstream bitstream = createBitstream(context, bundle, getBitstreamSample("First bitstream sample"))
+            .withName("test.txt")
+            .withDescription("test description 1")
+            .withMetadata("dc", "date", null, "2023-02-23")
+            .withMetadata("dc", "contributor", null, "Unknown author")
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.READ)
+            .withDescription("Test policy")
+            .withName("administrator")
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.WRITE)
+            .withName("administrator")
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.READ)
+            .withName("openaccess")
+            .withPolicyType(ResourcePolicy.TYPE_INHERITED)
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.READ)
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.READ)
+            .withName("embargo")
+            .withStartDate(parse("2025-03-25"))
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context)
+            .withDspaceObject(bitstream)
+            .withAction(Constants.READ)
+            .withName("lease")
+            .withDescription("Test")
+            .withEndDate(parse("2025-03-25"))
+            .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+            .build();
 
         context.restoreAuthSystemState();
 
@@ -742,19 +803,17 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         assertThat(workbook.getNumberOfSheets(), equalTo(5));
 
         String firstItemId = firstItem.getID().toString();
+        String bitstreamLocation = getBitstreamLocationUrl(bitstream);
+        String expectedPolicies = "administrator$$Test policy||embargo$$2025-03-25||lease$$2025-03-25$$Test";
 
-        String[] bitstreamSheetHeaders = Stream.concat(
-                XlsCollectionCrosswalk.BITSTREAM_BASE_HEADERS.stream(),
-                Stream.of("dc.description", "dc.title")
-            )
-            .toArray(String[]::new);
-        String[] firstRow = { firstItemId, getBitstreamLocationUrl(firstBitstream), "TEST-BUNDLE", "test description 1",
-                "test.txt" };
+        String[] bitstreamHeaders = ArrayUtils.addAll(BITSTREAMS_SHEET_HEADERS, "dc.title", "dc.description");
+        String[] firstRow = { firstItemId, bitstreamLocation, "TEST-BUNDLE", "1", expectedPolicies, "N",
+            "test.txt", "test description 1" };
 
         List<String[]> rowList = new ArrayList<>();
         rowList.add(firstRow);
 
-        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 2, bitstreamSheetHeaders, rowList);
+        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 2, bitstreamHeaders, rowList);
     }
 
     @Test
@@ -785,8 +844,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
         assertThat(workbook.getNumberOfSheets(), equalTo(5));
 
-        String[] bitstreamSheetHeaders = XlsCollectionCrosswalk.BITSTREAM_BASE_HEADERS.stream().toArray(String[]::new);
-        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 1, bitstreamSheetHeaders, List.of());
+        String[] bitstreamHeaders = ArrayUtils.addAll(BITSTREAMS_SHEET_HEADERS);
+        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 1, bitstreamHeaders, List.of());
     }
 
     private InputStream getBitstreamSample(String text) {

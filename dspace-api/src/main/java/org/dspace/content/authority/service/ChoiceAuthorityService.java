@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.dspace.content.Collection;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
@@ -211,4 +212,13 @@ public interface ChoiceAuthorityService {
      * @return the ChoiceAuthority identified by the specified params
      */
     public ChoiceAuthority getAuthorityByFieldKeyCollection(String fieldKey, int dsoType, Collection collection);
+
+    /**
+     * Set the reference between the given metadata value and the item using the
+     * authority.
+     *
+     * @param metadataValue the metadata value to update
+     * @param item          the item to be linked to the metadata value
+     */
+    void setReferenceWithAuthority(MetadataValue metadataValue, Item item);
 }

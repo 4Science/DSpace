@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,8 +29,10 @@ import org.dspace.app.util.SubmissionConfig;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Collection;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
@@ -99,6 +103,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected UploadConfigurationService uploadConfigurationService;
     @Autowired(required = true)
     protected AuthorityServiceUtils authorityServiceUtils;
+    @Autowired(required = true)
+    protected ItemService itemService;
 
     final static String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
     final static String CHOICES_PRESENTATION_PREFIX = "choices.presentation.";
@@ -581,6 +587,24 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         return controller.keySet().stream()
             .filter(field -> isLinkableToAnEntityWithEntityType(controller.get(field), entityType))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void setReferenceWithAuthority(MetadataValue metadataValue, Item item) {
+
+        metadataValue.setAuthority(item.getID().toString());
+        metadataValue.setConfidence(Choices.CF_ACCEPTED);
+
+        String relatedItemTitle = itemService.getMetadata(item, "dc.title");
+
+        if (isNotBlank(relatedItemTitle) && isValueOverwritingEnabledOnReferenceResolution()) {
+            metadataValue.setValue(relatedItemTitle);
+        }
+
+    }
+
+    private boolean isValueOverwritingEnabledOnReferenceResolution() {
+        return configurationService.getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
     }
 
     private boolean isLinkableToAnEntityWithEntityType(ChoiceAuthority choiceAuthority, String entityType) {

@@ -58,7 +58,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
     @Override
     public void internalRun() throws Exception {
 
-        context = new Context(Context.Mode.BATCH_EDIT);
+        context = new Context(Context.Mode.READ_ONLY);
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
 
@@ -92,6 +92,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
         xlsCollectionCrosswalk.disseminate(context, collection, out);
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        context.setMode(Context.Mode.READ_WRITE);
         handler.writeFilestream(context, fileName, in, xlsCollectionCrosswalk.getMIMEType());
 
         handler.logInfo("Items exported successfully into file named " + fileName);

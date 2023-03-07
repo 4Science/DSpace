@@ -149,17 +149,17 @@ public class CrisConsumer implements Consumer {
 
             String entityType = choiceAuthorityService.getLinkedEntityType(fieldKey);
             if (entityType == null) {
-                log.warn(NO_ENTITY_TYPE_FOUND_MSG, fieldKey);
+                log.debug(NO_ENTITY_TYPE_FOUND_MSG, fieldKey);
                 continue;
             }
 
             String crisSourceId = generateCrisSourceId(metadata);
 
-            Item relatedItem = itemSearchService.search(context, crisSourceId, entityType);
+            Item relatedItem = itemSearchService.search(context, crisSourceId, entityType, item);
             boolean relatedItemAlreadyPresent = relatedItem != null;
 
             if (!relatedItemAlreadyPresent && isNotBlank(authority) && isReferenceAuthority(authority)) {
-                log.warn(NO_ITEM_FOUND_BY_AUTHORITY_MSG, metadata.getAuthority());
+                log.debug(NO_ITEM_FOUND_BY_AUTHORITY_MSG, metadata.getAuthority());
                 metadata.setConfidence(Choices.CF_UNSET);
                 continue;
             }
@@ -179,8 +179,8 @@ public class CrisConsumer implements Consumer {
 
             fillRelatedItem(context, metadata, relatedItem, relatedItemAlreadyPresent);
 
-            metadata.setAuthority(relatedItem.getID().toString());
-            metadata.setConfidence(Choices.CF_ACCEPTED);
+            choiceAuthorityService.setReferenceWithAuthority(metadata, relatedItem);
+
         }
 
     }

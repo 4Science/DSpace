@@ -31,7 +31,7 @@ public class ItemSearcherById implements ItemSearcher {
     }
 
     @Override
-    public Item searchBy(Context context, String searchParam) {
+    public Item searchBy(Context context, String searchParam, Item source) {
         UUID uuid = UUIDUtils.fromString(searchParam);
         try {
             return itemService.find(context, uuid);

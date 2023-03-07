@@ -100,11 +100,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -148,11 +148,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -199,11 +199,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -249,11 +249,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, 600)));
+            ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, 600)));
+            ridAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -296,11 +296,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, 600)));
+            ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, 600)));
+            ridAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -344,11 +344,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, 600)));
+            ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, 600)));
+            orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -393,11 +393,11 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            firstRidAuthority, 0, 600)));
+            firstRidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            secondRidAuthority, 0, 600)));
+            secondRidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -434,7 +434,7 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         context.restoreAuthSystemState();
 
         item = context.reloadEntity(item);
-        assertThat(item.getMetadata(), hasItem(with("dc.contributor.author", "Author", null, orcidAuthority, 0, 600)));
+        assertThat(item.getMetadata(), hasItem(with("dc.contributor.author", "Author", null, orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -449,7 +449,7 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         context.restoreAuthSystemState();
 
         item = context.reloadEntity(item);
-        assertThat(item.getMetadata(), hasItem(with("dc.contributor.author", "Author", null, orcidAuthority, 0, 600)));
+        assertThat(item.getMetadata(), hasItem(with("dc.contributor.author", "Author", null, orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
         installItemService.installItem(context, author);
@@ -524,23 +524,23 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         firstPublication = context.reloadEntity(firstPublication);
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author A", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0001"), 0, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0001"), 0, -1)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 1, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 1, -1)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author C", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, -1)));
 
         secondPublication = context.reloadEntity(secondPublication);
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 0, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 0, -1)));
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author D", null,
-            formatWillBeReferencedAuthority("RID", "RID-01"), 1, 600)));
+            formatWillBeReferencedAuthority("RID", "RID-01"), 1, -1)));
 
         thirdPublication = context.reloadEntity(thirdPublication);
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author E", null,
-            formatWillBeReferencedAuthority("RID", "RID-02"), 0, 600)));
+            formatWillBeReferencedAuthority("RID", "RID-02"), 0, -1)));
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author F", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, -1)));
 
         context.turnOffAuthorisationSystem();
 
@@ -571,7 +571,7 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
             authorB.getID().toString(), 1, 600)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author C", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, -1)));
 
         secondPublication = context.reloadEntity(secondPublication);
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
@@ -581,9 +581,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         thirdPublication = context.reloadEntity(thirdPublication);
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author E", null,
-            formatWillBeReferencedAuthority("RID", "RID-02"), 0, 600)));
+            formatWillBeReferencedAuthority("RID", "RID-02"), 0, -1)));
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author F", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, 600)));
+            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, -1)));
 
     }
 

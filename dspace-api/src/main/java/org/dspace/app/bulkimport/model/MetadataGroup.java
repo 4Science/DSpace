@@ -14,7 +14,7 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.vo.MetadataValueVO;
 
-public class MetadataGroup {
+public class MetadataGroup implements ChildRow {
 
     private final String parentId;
 

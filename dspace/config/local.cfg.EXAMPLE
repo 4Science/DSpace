@@ -255,15 +255,7 @@ db.schema = public
 ##########################
 # COMMERCIAL DATABASE    #
 ##########################
-# In order to use the Scopus services you need to obtain an API Key from Scopus. Once you get it, add it to the following configuration value.
-# Additional settings are defined below or in specific module file, i.e metrics.cfg
-scopus.apiKey =
-# Number of items to fetch within same request using OR clause concatenation.
-scopus.fetchSize = 1
-# leave empty if you don't need to use an institutional token
-scopus.instToken =
-# In order to use the Web of Science services you need to obtain an API Key from Clarivate. Once you get it, add it to the following configuration value.
-wos.apiKey =
+
 
 ##########################
 # METADATA EXTRACTION #
@@ -303,8 +295,8 @@ orcid.webhook.registration-token =
 #---------------------------------------------------------------#
 #-----------------STORAGE CONFIGURATIONS------------------------#
 #---------------------------------------------------------------#
-# Use the localStore or the s3Store implementation
-assetstore.storename.0 = localStore
+# Specify the incoming assetstore (see config/spring/api/bitstore.xml)
+#assetstore.index.primary = 1
 
 ## Assetstore S3 configuration, only used if the above configuration is set to true
 #assetstore.s3.enabled = true

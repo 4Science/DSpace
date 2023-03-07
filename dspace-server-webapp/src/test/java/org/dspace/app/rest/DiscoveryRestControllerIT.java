@@ -6262,6 +6262,138 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     }
 
+    /**
+     * This test verifies a known bug fund with the DSC-940,
+     * the number of date facets returned by issuing a search with scope should be
+     * the same of a search issued using a filter for that entity scope.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void discoverFacetsTestSameResultWithOrWithoutScope() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                .withName("SharedParentCommunity!!!")
+                .build();
+
+        Collection authors =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Person")
+                .withName("Authors")
+                .build();
+
+        Item author =
+            ItemBuilder.createItem(context, authors)
+                .withTitle("Author 1")
+                .withDspaceObjectOwner(admin)
+                .build();
+
+        Collection col1 =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .build();
+
+        Collection col2 =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 2")
+                .build();
+
+        Item publicItem1 =
+            ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor(author.getName(), author.getID().toString())
+                .withAuthor("Smith, Donald")
+                .withSubject("ExtraEntry")
+                .build();
+
+        Item publicItem2 =
+            ItemBuilder.createItem(context, col2)
+                .withTitle("Public item 2")
+                .withIssueDate("2020-02-13")
+                .withAuthor(author.getName(), author.getID().toString())
+                .withAuthor("Doe, Jane")
+                .withSubject("ExtraEntry")
+                .build();
+
+        Item publicItem3 =
+            ItemBuilder.createItem(context, col2)
+                .withTitle("Public item 2")
+                .withIssueDate("2020-02-13")
+                .withAuthor(author.getName(), author.getID().toString())
+                .withAuthor("Anton, Senek")
+                .withSubject("TestingForMore")
+                .withSubject("ExtraEntry")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        // finds the facets using the relation configuration using
+        // the author as scope
+        getClient()
+            .perform(
+                get("/api/discover/facets/dateIssued")
+                    .param("configuration", "RELATION.Person.researchoutputs")
+                    .param("scope", author.getID().toString())
+            )
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.type", is("discover")))
+           .andExpect(jsonPath("$.name", is("dateIssued")))
+           .andExpect(jsonPath("$.facetType", is("date")))
+           .andExpect(jsonPath("$.scope", is(author.getID().toString())))
+           .andExpect(jsonPath("$._links.self.href",
+                containsString(
+                    "api/discover/facets/dateIssued?scope=" +
+                    author.getID().toString() +
+                    "&configuration=RELATION.Person.researchoutputs"
+                )
+            ))
+           .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2020")))
+           .andExpect(jsonPath("$._embedded.values[0].count", is(3)))
+           .andExpect(jsonPath("$._embedded.values[0]._links.search.href",
+                containsString(
+                    "api/discover/search/objects?scope=" +
+                    author.getID().toString() +
+                    "&configuration=RELATION.Person.researchoutputs" +
+                    "&f.dateIssued=%5B2017%20TO%202020%5D,equals"
+                )
+            ))
+           .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+
+        // finds the facets using the default configuration and
+        // a filter that is the same used for the previous scope
+        getClient()
+            .perform(
+                get("/api/discover/facets/dateIssued")
+                    .param("configuration", "defaultConfiguration")
+                    .param("f.author", author.getID().toString() + ",authority")
+            )
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.type", is("discover")))
+           .andExpect(jsonPath("$.name", is("dateIssued")))
+           .andExpect(jsonPath("$.facetType", is("date")))
+           .andExpect(jsonPath("$.scope", is(emptyOrNullString())))
+           .andExpect(jsonPath("$._links.self.href",
+                containsString(
+                    "api/discover/facets/dateIssued?configuration=defaultConfiguration" +
+                    "&f.author=" + author.getID().toString() + ",authority"
+                )
+            ))
+           .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2020")))
+           .andExpect(jsonPath("$._embedded.values[0].count", is(3)))
+           .andExpect(jsonPath("$._embedded.values[0]._links.search.href",
+                containsString(
+                    "api/discover/search/objects?configuration=defaultConfiguration" +
+                    "&f.author=" + author.getID().toString() + ",authority" +
+                    "&f.dateIssued=%5B2017%20TO%202020%5D,equals"
+                )
+            ))
+           .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+
+    }
+
     @Test
     public void relevanceByRelationPlacesTest() throws Exception {
 

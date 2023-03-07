@@ -55,6 +55,10 @@ public final class EntityRow {
         return unmodifiableList(metadataGroups);
     }
 
+    public List<UploadDetails> getUploadDetails() {
+        return unmodifiableList(uploadDetails);
+    }
+
     public String getId() {
         return id;
     }
@@ -65,10 +69,6 @@ public final class EntityRow {
 
     public int getRow() {
         return row;
-    }
-
-    public List<UploadDetails> getUploadDetails() {
-        return uploadDetails;
     }
 
 }

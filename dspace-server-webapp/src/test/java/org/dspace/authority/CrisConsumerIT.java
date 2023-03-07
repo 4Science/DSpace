@@ -7,7 +7,6 @@
  */
 package org.dspace.authority;
 
-import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.UUID.fromString;
 import static org.dspace.content.authority.Choices.CF_ACCEPTED;
@@ -52,15 +51,10 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.ItemService;
 import org.dspace.eperson.EPerson;
-import org.dspace.event.factory.EventServiceFactory;
-import org.dspace.event.service.EventService;
 import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.UUIDUtils;
 import org.dspace.xmlworkflow.storedcomponents.PoolTask;
 import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,10 +69,6 @@ import org.springframework.test.web.servlet.MvcResult;
  *
  */
 public class CrisConsumerIT extends AbstractControllerIntegrationTest {
-
-    private static final String CRIS_CONSUMER = CrisConsumer.CONSUMER_NAME;
-
-    private static String[] consumers;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -100,32 +90,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ItemService itemService;
-
-    /**
-     * This method will be run before the first test as per @BeforeClass. It will
-     * configure the event.dispatcher.default.consumers property to add the
-     * CrisConsumer.
-     */
-    @BeforeClass
-    public static void initCrisConsumer() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
-        consumers = configService.getArrayProperty("event.dispatcher.default.consumers");
-        String newConsumers = consumers.length > 0 ? join(",", consumers) + "," + CRIS_CONSUMER : CRIS_CONSUMER;
-        configService.setProperty("event.dispatcher.default.consumers", newConsumers);
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
-        eventService.reloadConfiguration();
-    }
-
-    /**
-     * Reset the event.dispatcher.default.consumers property value.
-     */
-    @AfterClass
-    public static void resetDefaultConsumers() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
-        configService.setProperty("event.dispatcher.default.consumers", consumers);
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
-        eventService.reloadConfiguration();
-    }
 
     @Override
     public void setUp() throws Exception {
@@ -172,6 +136,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     }
 
     private void configurationSetUp() {
+        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
         configurationService.setProperty("cris.import.submission.enabled.entity", true);
         configurationService.setProperty("cris.import.submission.strategy.uuid.dc_relation_project", false);
         configurationService.setProperty("cris.import.submission.strategy.uuid.dc_contributor_author", false);
@@ -765,6 +730,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authorAuthority = author.getAuthority();
         assertThat("The author should have the authority set", authorAuthority, equalTo(person.getID().toString()));
         assertThat("The author should have an ACCEPTED confidence", author.getConfidence(), equalTo(CF_ACCEPTED));
+        assertThat("The author should have Walter White as value", author.getValue(), equalTo("Walter White"));
+
         person = context.reloadEntity(person);
         List<MetadataValue> metadata = itemService.getMetadataByMetadataString(person, "dc.title");
         assertThat("The person item still have a single dc.title", metadata.size(), equalTo(1));
@@ -919,6 +886,39 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String editorAuthority = editor.getAuthority();
         assertThat("The editor should have the authority null", editorAuthority, nullValue());
         assertThat("The editor should have an UNSET confidence", editor.getConfidence(), equalTo(CF_UNSET));
+    }
+
+    @Test
+    public void testItemWithWillBeReferencedAuthorityAndValueOverwriting() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("cris.item-reference-resolution.override-metadata-value", true);
+
+        Collection personCollection = createCollection("Collection of persons", "Person", subCommunity);
+
+        Item person = ItemBuilder.createItem(context, personCollection)
+            .withTitle("Walter White Original")
+            .withOrcidIdentifier("0000-0002-9079-593X")
+            .build();
+
+        Item publication = ItemBuilder.createItem(context, publicationCollection)
+            .withEntityType("Publication")
+            .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        String authToken = getAuthToken(submitter.getEmail(), password);
+        ItemRest item = getItemViaRestByID(authToken, publication.getID());
+
+        MetadataValueRest author = findSingleMetadata(item, "dc.contributor.author");
+
+        assertThat(author.getAuthority(), equalTo(person.getID().toString()));
+        assertThat(author.getConfidence(), equalTo(CF_ACCEPTED));
+        assertThat(author.getValue(), equalTo("Walter White Original"));
+
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {

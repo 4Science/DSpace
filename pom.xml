@@ -61,8 +61,9 @@
         <jersey.version>2.35</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addon-iiif.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
-        <addon-ocr.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
+        <addon-iiif.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
+        <addon-ocr.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
+        <addon-docviewer.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-docviewer.version>
 
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -891,6 +892,26 @@
                          <groupId>it.4science.dspace</groupId>
                          <artifactId>addon-ocr-api</artifactId>
                          <version>${addon-ocr.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds Document Viewer addon for DSpace
+        -->
+        <profile>
+            <id>addon-document-viewer</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-docviewer-api</artifactId>
+                         <version>${addon-docviewer.version}</version>
                          <type>jar</type>
                     </dependency>
                 </dependencies>

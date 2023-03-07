@@ -8,13 +8,17 @@
 package org.dspace.content.integration.crosswalks.virtualfields;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.content.Item;
 import org.dspace.content.integration.crosswalks.csl.CSLGeneratorFactory;
+import org.dspace.content.integration.crosswalks.csl.CSLResult;
 import org.dspace.content.integration.crosswalks.csl.DSpaceListItemDataProvider;
+import org.dspace.content.integration.crosswalks.virtualfields.postprocessors.VirtualFieldCitationsPostProcessor;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
 import org.slf4j.Logger;
@@ -25,14 +29,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Implementation of {@link VirtualField} that generates the citation for the
  * given item or, if a relation name is provided, for all the publications
- * related to the given item.
- * 
+ * related to the given item. The structure of the virtual field is
+ * virtual.citations.{format}.{style}[.{relation-name}.{post-processor}] where:
+ * <ul>
+ * <li>format is the citation output format (text, fo, html etc..)</li>
+ * <li>style is the citation style to be applied (apa, chicago etc...)</li>
+ * <li>relation-name (optional) is name of the relation to be used to find the
+ * item to be formatted</li>
+ * <li>post-processor (optional) is the name of the post processor to be applied
+ * to the generated citations</li>
+ * </ul>
  * Example:
  * <ul>
- * <li><b>virtual.citations.apa.researchoutputs</b> generates the citations for
- * all the publications found with the researchoutputs relation in the apa
+ * <li><b>virtual.citations.text.apa.researchoutputs</b> generates the citations
+ * for all the publications found with the researchoutputs relation in the apa
  * style</li>
- * <li><b>virtual.citations.chicago</b> generates the citation for the given
+ * <li><b>virtual.citations.fo.chicago</b> generates the citation for the given
  * item in the chicago style</li>
  * </ul>
  *
@@ -52,33 +64,41 @@ public class VirtualFieldCitations implements VirtualField {
     @Autowired
     private CSLGeneratorFactory cslGeneratorFactory;
 
+    @Autowired(required = false)
+    private List<VirtualFieldCitationsPostProcessor> postProcessors;
+
     @Override
     public String[] getMetadata(Context context, Item item, String fieldName) {
 
         String[] virtualFieldName = fieldName.split("\\.");
-        if (virtualFieldName.length < 2 || virtualFieldName.length > 4) {
+        if (virtualFieldName.length < 4 || virtualFieldName.length > 6) {
             LOGGER.warn("Invalid citations virtual field: " + fieldName);
             return new String[] {};
         }
-
-        String style = getStyle(virtualFieldName);
 
         Iterator<Item> itemIterator = getRelationName(virtualFieldName)
             .map(relationName -> findRelatedItems(context, item, relationName))
             .orElseGet(() -> IteratorUtils.singletonIterator(item));
 
-        return generateCitations(context, itemIterator, style);
+        CSLResult cslResult = generateCitations(context, itemIterator, virtualFieldName);
+
+        return getPostProcessor(virtualFieldName)
+            .map(processor -> processor.process(context, item, cslResult))
+            .map(CSLResult::getCitationEntries)
+            .orElseGet(cslResult::getCitationEntries);
 
     }
 
-    private String[] generateCitations(Context context, Iterator<Item> itemIterator, String style) {
+    private CSLResult generateCitations(Context context, Iterator<Item> itemIterator, String[] virtualFieldName) {
 
         DSpaceListItemDataProvider itemDataProvider = getDSpaceListItemDataProviderInstance();
 
         itemDataProvider.processItems(itemIterator);
 
-        String citations = cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, "text");
-        return citations != null ? citations.split("\n") : new String[] {};
+        String style = getStyle(virtualFieldName);
+        String format = getFormat(virtualFieldName);
+
+        return cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, format);
 
     }
 
@@ -86,8 +106,12 @@ public class VirtualFieldCitations implements VirtualField {
         return dSpaceListItemDataProviderObjectFactory.getObject();
     }
 
+    private String getFormat(String[] virtualFieldName) {
+        return virtualFieldName[2];
+    }
+
     private String getStyle(String[] virtualFieldName) {
-        String style = virtualFieldName[2];
+        String style = virtualFieldName[3];
         if (!StringUtils.endsWith(style, ".csl")) {
             style = style + ".csl";
         }
@@ -95,10 +119,39 @@ public class VirtualFieldCitations implements VirtualField {
     }
 
     private Optional<String> getRelationName(String[] virtualFieldName) {
-        if (virtualFieldName.length == 3) {
+
+        if (virtualFieldName.length == 4) {
             return Optional.empty();
         }
-        return Optional.of(virtualFieldName[3]);
+
+        if (virtualFieldName.length == 6) {
+            return Optional.of(virtualFieldName[4]);
+        }
+
+        // if the virtual field has 5 sections than the last one can be the relation
+        // name or the processor name
+        String lastFieldSection = virtualFieldName[4];
+        if (getPostProcessorByName(lastFieldSection).isPresent()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(lastFieldSection);
+        }
+
+    }
+
+    private Optional<VirtualFieldCitationsPostProcessor> getPostProcessor(String[] virtualFieldName) {
+
+        if (virtualFieldName.length == 4) {
+            return Optional.empty();
+        }
+
+        return getPostProcessorByName(virtualFieldName[virtualFieldName.length - 1]);
+    }
+
+    private Optional<VirtualFieldCitationsPostProcessor> getPostProcessorByName(String name) {
+        return ListUtils.emptyIfNull(postProcessors).stream()
+            .filter(postProcessor -> postProcessor.getName().equals(name))
+            .findFirst();
     }
 
     private Iterator<Item> findRelatedItems(Context context, Item item, String relationName) {

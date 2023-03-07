@@ -11,7 +11,10 @@ import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -35,7 +38,7 @@ public class CSLWebServiceGenerator implements CSLGenerator {
     private ConfigurationService configurationService;
 
     @Override
-    public String generate(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
+    public CSLResult generate(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
 
         if (!isWebServiceAvailable()) {
             throw new IllegalStateException("The web service to generate citations is not available");
@@ -50,14 +53,15 @@ public class CSLWebServiceGenerator implements CSLGenerator {
             throw new RuntimeException(errorMessage + formatErrorMessage(response));
         }
 
-        return getContent(response);
+        return extractCitationsFromResponse(response, format);
     }
 
     private HttpUriRequest composePostRequest(String requestBody, String style, String format) {
         return RequestBuilder.post(getWebServiceUrl())
-            .addParameter("responseformat", "html")
+            .addParameter("responseformat", "json")
             .addParameter("style", removeCslSuffix(style))
             .addParameter("outputformat", format)
+            .addParameter("linkwrap", "1")
             .setEntity(new StringEntity(requestBody, APPLICATION_JSON))
             .build();
     }
@@ -68,6 +72,55 @@ public class CSLWebServiceGenerator implements CSLGenerator {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private CSLResult extractCitationsFromResponse(HttpResponse response, String format) {
+        String responseContent = getContent(response);
+
+        DocumentContext documentContext = JsonPath.parse(responseContent);
+        String[] itemIds = extractEntryIds(documentContext);
+        String[] citationEntries = extractCitationEntries(documentContext, format);
+
+        return new CSLResult(format, itemIds, citationEntries);
+    }
+
+    private String[] extractCitationEntries(DocumentContext documentContext, String format) {
+
+        String[] entries = readStrings(documentContext, "bibliography[1]");
+
+        if ("fo".equals(format)) {
+            for (int i = 0; i < entries.length; i++) {
+                entries[i] = removeFoUnknownAttributes(entries[i]);
+            }
+        }
+
+        return entries;
+    }
+
+    private String[] extractEntryIds(DocumentContext documentContext) {
+        return readStrings(documentContext, "bibliography[0].entry_ids[*][*]");
+    }
+
+    private String[] readStrings(DocumentContext documentContext, String path) {
+        return read(documentContext, path).stream()
+            .map(Object::toString)
+            .toArray(String[]::new);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> read(DocumentContext jsonContext, String path) {
+        Object result = jsonContext.read(path);
+        if (result == null) {
+            return List.of();
+        }
+        if (result instanceof List) {
+            return (List<Object>) result;
+        }
+        return List.of(result);
+    }
+
+    private String removeFoUnknownAttributes(String str) {
+        return str.replaceAll("start-indent=\"trueem\"", "").replaceAll("text-indent=\"-trueem\"", "");
     }
 
     private boolean isNotSuccessfull(HttpResponse response) {
