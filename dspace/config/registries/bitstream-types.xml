@@ -44,4 +44,11 @@
         <scope_note>Metadata field used to store the UUID of the master bitstream on the ocr bitstream</scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>view-orientation</qualifier>
+        <scope_note>Metadata field used to store the rotation necessary to apply to the image to have a proper visualization</scope_note>
+    </dc-type>
+
 </dspace-dc-types>
