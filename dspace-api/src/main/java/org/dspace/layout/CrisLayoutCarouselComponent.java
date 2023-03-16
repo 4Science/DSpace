@@ -45,6 +45,8 @@ public class CrisLayoutCarouselComponent implements CrisLayoutSectionComponent {
 
     private String titleStyle;
 
+    private boolean showBlurryBackdrop;
+
     /**
      * @return the discoveryConfigurationName
      */
@@ -265,4 +267,18 @@ public class CrisLayoutCarouselComponent implements CrisLayoutSectionComponent {
      */
     public void setTitleStyle(String titleStyle) {
         this.titleStyle = titleStyle;    }
+
+    /**
+     * @return isShowBlurryBackdrop
+     */
+    public boolean isShowBlurryBackdrop() {
+        return showBlurryBackdrop;
+    }
+
+    /**
+     * @param showBlurryBackdrop the showBlurryBackdrop to set
+     */
+    public void setShowBlurryBackdrop(boolean showBlurryBackdrop) {
+        this.showBlurryBackdrop = showBlurryBackdrop;
+    }
 }
