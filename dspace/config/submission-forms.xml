@@ -10,7 +10,7 @@
           <label>Nome del file</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required>You must enter a title for the file.</required>
+          <required>Inserire il titolo del file.</required>
           <hint />
         </field>
       </row>
@@ -245,10 +245,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -261,7 +261,19 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint />
+          <hint>Indicare i percorsi collegati</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>isreferencedby</dc-qualifier>
+          <label>Documento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare eventuali documenti collegati</hint>
         </field>
       </row>
     </form>
@@ -320,7 +332,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -675,10 +687,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -692,6 +704,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>isreferencedby</dc-qualifier>
+          <label>Documento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare eventuali documenti collegati</hint>
         </field>
       </row>
     </form>
@@ -929,7 +953,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire l'anno di nascita della Persona</hint>
+          <hint>Inserire l’anno di nascita della Persona</hint>
         </field>
       </row>
       <row>
@@ -951,7 +975,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire l'anno di morte della Persona</hint>
+          <hint>Inserire l’anno di morte della Persona</hint>
         </field>
       </row>
       <row>
@@ -978,8 +1002,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamperson</dc-schema>
-          <dc-element>partecipatedIn</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>event</dc-qualifier>
           <label>Ha partecipato a</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -1014,10 +1039,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1265,7 +1290,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Tipo</label>
           <input-type value-pairs-name="orgunit_types">dropdown</input-type>
           <repeatable>false</repeatable>
-          <required>You must specify the organisation type</required>
+          <required>Indicare il tipo di ente</required>
           <hint>Indicare il tipo di ente</hint>
         </field>
       </row>
@@ -1307,10 +1332,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1537,10 +1562,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1678,10 +1703,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -1727,7 +1752,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamfonds</dc-schema>
           <dc-element>bibliography</dc-element>
-          <dc-qualifier>abbreviation</dc-qualifier>
           <label>Abbreviazione</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -2301,7 +2325,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamfonds</dc-schema>
           <dc-element>editor</dc-element>
-          <dc-qualifier>name</dc-qualifier>
           <label>Nome del compilatore</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -2457,10 +2480,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -2551,10 +2574,10 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <label>Aggregazione</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -2576,7 +2599,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamfamily</dc-schema>
           <dc-element>editor</dc-element>
-          <dc-qualifier>name</dc-qualifier>
           <label>Nome del compilatore</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -2829,6 +2851,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Inserire il numero di corda</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>aggregation</dc-qualifier>
+          <label>Aggregazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
     </form>
     <form name="journal_issue">
       <row>
@@ -3047,11 +3081,23 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>aggregation</dc-qualifier>
-          <label>Collezione</label>
+          <dc-qualifier>isreferencedby</dc-qualifier>
+          <label>Documento collegato</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-          <required></required>
+          <required />
+          <hint>Indicare eventuali documenti collegati</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>aggregation</dc-qualifier>
+          <label>Aggregazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
         </field>
       </row>
@@ -3151,11 +3197,11 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
+          <dc-schema>glamjournalfond</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>journalfond</dc-qualifier>
           <label>Testate correlate</label>
-          <input-type>onebox</input-type>
+          <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare evetuali testate correlate</hint>
@@ -3268,6 +3314,17 @@ it, please enter the types and the actual numbers or codes.</hint>
     <form name="journal_fond-glamjournalfond-history">
       <row>
         <field>
+          <dc-schema>glamjournalfond</dc-schema>
+          <dc-element>history</dc-element>
+          <label>Denominazione del Periodo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>dc</dc-schema>
           <dc-element>date</dc-element>
           <dc-qualifier>start</dc-qualifier>
@@ -3352,7 +3409,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
+          <dc-schema>glamjournalfond</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>journalfond</dc-qualifier>
           <label>Testata correlata</label>
@@ -3366,7 +3423,7 @@ it, please enter the types and the actual numbers or codes.</hint>
     <form name="journal_fond-glamjournalfond-relation-person">
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
+          <dc-schema>glamjournalfond</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>person</dc-qualifier>
           <label>Nome</label>
@@ -3385,6 +3442,855 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Indicare il ruolo della persona rispetto alla testata</hint>
+        </field>
+      </row>
+    </form>
+    <form name="picture-dc-contributor-author">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>authorrole</dc-qualifier>
+          <label>Ruolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il ruolo nella realizzazione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Creatore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare l'autore o gli autori della fotografia</hint>
+        </field>
+      </row>
+    </form>
+    <form name="picture">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <label>Titolo della fotografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire il titolo della fotografia</required>
+          <hint>E' il campo in cui riportare il titolo assegnato dall'autore o dalla tradizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <dc-qualifier>alternative</dc-qualifier>
+          <label>Titolo alternativo della fotografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare uno o più eventuali titoli alternativi della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glampicture</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>framing</dc-qualifier>
+          <label>Integrazione al titolo della fotografia</label>
+          <input-type value-pairs-name="framing_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Indicare il tipo di innquadratura</required>
+          <hint>E' il campo in cui descrivere l'inquadratura dell'immagine</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autori</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Enter the names of the authors of this item.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <label>Indicazioni sul soggetto</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>il campo è riservato alla descrizione fisica dell'immagine ed è finalizzato ad integrare - con l'inserimento di dettagli sugli oggetti ritratti nella fotografia - le informazioni di contenuto sintetizzate nei titoli (proprio o attribuito)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glampicture</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Ubicazione del soggetto ritratto</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>il campo è riservato alla descrizione fisica dell'immagine ed è finalizzato ad integrare - con l'inserimento di dettagli sugli oggetti ritratti nella fotografia - le informazioni di contenuto sintetizzate nei titoli (proprio o attribuito)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>keywords</dc-qualifier>
+          <label>Parole chiave</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare le parole chiave legate alla fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>temporal</dc-qualifier>
+          <label>Datazione generica</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il periodo in cui ricade la datazione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>temporalfraction</dc-qualifier>
+          <label>Frazione del periodo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la frazione del periodo indicato nel campo precedente in cui ricade la datazione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>fonds</dc-qualifier>
+          <label>Fondo</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indica l'archivio di riferimento oggetto della catalogazione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <label>Descrizione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la descrizione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>function</dc-qualifier>
+          <label>Funzione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la descrizione della funzione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>use</dc-qualifier>
+          <label>Modalità d'uso</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la modalità d'uso della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>collection</dc-qualifier>
+          <label>Collezione fisica</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare la collezione di appartenenza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>collectionholder</dc-qualifier>
+          <label>Proprietario della Collezione fisica</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare il proprietario della collezione di appartenenza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>collectionnotes</dc-qualifier>
+          <label>Informazioni sulla Collezione fisica</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare eventuali ulteriori informazioni sulla collezione di appartenenza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>references</dc-qualifier>
+          <label>In relazione con</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire i documenti collegati.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>aggregation</dc-qualifier>
+          <label>Aggregazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
+          <label>Fa parte di</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'eventuale "contenitore" della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>haspart</dc-qualifier>
+          <label>Contiene</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'eventuale "contenuto" della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <label>Identificativo</label>
+          <input-type value-pairs-name="common_picture_identifiers">qualdrop_value</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire numeri identificativi, codici, inventario, segnatura della risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>form</dc-qualifier>
+          <label>Tipo di scheda</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il tipo di scheda ICCD utilizzato per la catalogazione dell'oggetto.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>archivalunit</dc-qualifier>
+          <label>Numero di corda</label>
+          <input-type>number</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il numero di corda delle risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>parts</dc-qualifier>
+          <label>Parti dell'oggetto</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare eventuali parti da cui è composto l'oggetto fotografico</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>number</dc-qualifier>
+          <label>Numero degli oggetti fotografici</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Numero degli oggetti fotografici</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcs</dc-qualifier>
+          <label>Nazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la nazione di provenienza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcr</dc-qualifier>
+          <label>Regione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la regione di provenienza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcn</dc-qualifier>
+          <label>Provincia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la provincia di provenienza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialabbreviation</dc-qualifier>
+          <label>Sigla della provincia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la sigla della provincia di provenienza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcc</dc-qualifier>
+          <label>Comune</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il comune di provenienza della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>shelfmark</dc-qualifier>
+          <label>Luogo di Conservazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il luogo di conservazione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>inventory</dc-qualifier>
+          <label>Data dell'inventario</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare la data in cui è stata inventariata la fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>start</dc-qualifier>
+          <label>Datazione alta</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la datazione piu antica (anno) dell'intervallo cronologico cui è riferibile la fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>end</dc-qualifier>
+          <label>Datazione bassa</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la datazione piu recente (anno) dell'intervallo cronologico cui è riferibile la fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>note</dc-qualifier>
+          <label>Note alla data</label>
+          <input-type value-pairs-name="common_date_note">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare su quale base è stata effettuata la datazione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>color</dc-qualifier>
+          <label>Colore</label>
+          <input-type value-pairs-name="picture_color_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire il dato</required>
+          <hint>E' il campo in cui indicare se si tratta di fotografia in bianco/nero, colori, misto (per fotografie colorate a mano)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>materialandtechnique</dc-qualifier>
+          <label>Materiale e tecnica</label>
+          <input-type value-pairs-name="picture_material_and_technique">dropdown</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Il campo fornisce indicazioni sul procedimento utilizzato per l'esecuzione dell'opera fotografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>note</dc-qualifier>
+          <label>Note tecniche</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>ll campo, a testo libero, può essere utilizzato per descrivere ulteriormente, qualora si conoscano, modalità e particolarità tecniche di esecuzione dell'opera catalogata</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <label>Formato</label>
+          <input-type value-pairs-name="picture_format">dropdown</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>E' il campo in cui indicare il "formato". Per la scheda F si fa riferimento con formato alla dimensione standardizzata dei materiali fotografici (negativi, positivi)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misu</dc-qualifier>
+          <label>Unità di misura</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'unità di misura utilizzata per misurare la fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misa</dc-qualifier>
+          <label>Altezza</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>in questo campo si inseriscono le informazioni di altezza non standard (non presenti quindi nel menu a tendina)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misl</dc-qualifier>
+          <label>Larghezza</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>in questo campo si inseriscono le informazioni di larghezza non standard (non presenti quindi nel menu a tendina)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>person</dc-qualifier>
+          <label>Persona</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il nome della persona cui è eventualmente connessa la fotografia.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>conference</dc-qualifier>
+          <label>Evento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il titolo dell'evento/convegno nel cui ambito sia stata eventalmente presentata la risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <label>Iscrizioni presenti sulla fotografia</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire le informazioni relative ad eventuali iscrizioni presenti sulla fotografia.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <label>Stemma/Marchio/Timbro presente sulla fotografia</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire le informazioni relative ad eventuali stemmi/marchi/timbri presenti sulla fotografia.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <label>Bibliografia</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire la bibliografia relativa alla fotografia catalogata</hint>
+        </field>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationstate</dc-qualifier>
+          <label>Stato di conservazione</label>
+          <input-type value-pairs-name="common_preservation_state">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire lo stato di conservazione</required>
+          <hint>Inserire la stato di conservazione della fotografia</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationspecifications</dc-qualifier>
+          <label>Specifiche sullo stato di conservazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire le specifiche relative allo stato di conservazione della fotografia.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>rights</dc-element>
+          <dc-qualifier>license</dc-qualifier>
+          <label>Licenza</label>
+          <input-type value-pairs-name="license_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la licenza attribuita alla risorsa.</hint>
+        </field>
+      </row>
+    </form>
+    <form name="picture-glam-inscription">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <label>Trascrizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la trascrizione dell'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>position</dc-qualifier>
+          <label>Posizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la posizione in cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>font</dc-qualifier>
+          <label>Carattere dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il carattere con cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>technique</dc-qualifier>
+          <label>Tecnica dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la tecnica di realizzazione dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>language</dc-qualifier>
+          <label>Lingua dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la lingua dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>class</dc-qualifier>
+          <label>Classe di appartenenza</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la classe di appartenenza dell'iscrizione</hint>
+        </field>
+      </row>
+    </form>
+    <form name="picture-glam-mark">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <label>Descrizione dello stemma/marchio/timbro</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la descrizione dello stemma/marchio/timbro</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <dc-qualifier>position</dc-qualifier>
+          <label>Posizione dello stemma/marchio/timbro</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la posizione dello stemma/marchio/timbro</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <dc-qualifier>identification</dc-qualifier>
+          <label>Identificazione dello stemma/marchio/timbro</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'identificazione dello stemma/marchio/timbro</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <dc-qualifier>qualification</dc-qualifier>
+          <label>Qualificazione dello stemma/marchio/timbro</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la qualificazione dello stemma/marchio/timbro</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <dc-qualifier>quantity</dc-qualifier>
+          <label>Quantità</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare quante volte lo stemma/marchio/timbro è ripetuto sull'oggetto catalogato.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>mark</dc-element>
+          <dc-qualifier>class</dc-qualifier>
+          <label>Classe di appartenenza</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la classe di appartenenza dello stemma/marchio/timbro</hint>
+        </field>
+      </row>
+    </form>
+    <form name="picture-glam-bibliography">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <label>Titolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il titolo della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>year</dc-qualifier>
+          <label>Anno di pubblicazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>publisher</dc-qualifier>
+          <label>Editore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'editore della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo di edizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore/i</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo di bibliografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il tipo di bibliografia</hint>
         </field>
       </row>
     </form>
@@ -4988,7 +5894,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>uri</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="title_integration" dc-term="title_integration">
+    <value-pairs value-pairs-name="framing_type" dc-term="framing_type">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
@@ -5034,7 +5940,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>campo lunghissimo</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="common_pictures_identifiers" dc-term="common_pictures_identifiers">
+    <value-pairs value-pairs-name="common_picture_identifiers" dc-term="common_picture_identifiers">
       <pair>
         <displayed-value>scheda</displayed-value>
         <stored-value>form</stored-value>
@@ -5060,7 +5966,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>uri</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="pictures_types" dc-term="pictures_types">
+    <value-pairs value-pairs-name="picture_types" dc-term="picture_types">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
@@ -5170,7 +6076,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>data di acquisizione</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="pictures_color_types" dc-term="pictures_color_types">
+    <value-pairs value-pairs-name="picture_color_types" dc-term="picture_color_types">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
@@ -5188,7 +6094,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>misto</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="pictures_material_and_technique" dc-term="pictures_material_and_technique">
+    <value-pairs value-pairs-name="picture_material_and_technique" dc-term="picture_material_and_technique">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
@@ -5250,7 +6156,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>gelatina bromuro d'argento</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="pictures_format" dc-term="pictures_format">
+    <value-pairs value-pairs-name="picture_format" dc-term="picture_format">
       <pair>
         <displayed-value>N/A</displayed-value>
         <stored-value />
@@ -5394,24 +6300,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>3</stored-value>
       </pair>
     </value-pairs>
-    <value-pairs value-pairs-name="start_date_format" dc-term="start_date_format">
-      <pair>
-        <displayed-value>Incerta</displayed-value>
-        <stored-value>0</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Attribuita</displayed-value>
-        <stored-value>1</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Incerta e Attribuita</displayed-value>
-        <stored-value>2</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>YMD</displayed-value>
-        <stored-value>3</stored-value>
-      </pair>
-    </value-pairs>
     <value-pairs value-pairs-name="end_date_valid" dc-term="end_date_valid">
       <pair>
         <displayed-value>C</displayed-value>
@@ -5431,6 +6319,24 @@ it, please enter the types and the actual numbers or codes.</hint>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="end_date_format" dc-term="end_date_format">
+      <pair>
+        <displayed-value>Incerta</displayed-value>
+        <stored-value>0</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Attribuita</displayed-value>
+        <stored-value>1</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Incerta e Attribuita</displayed-value>
+        <stored-value>2</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>YMD</displayed-value>
+        <stored-value>3</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="start_date_format" dc-term="start_date_format">
       <pair>
         <displayed-value>Incerta</displayed-value>
         <stored-value>0</stored-value>

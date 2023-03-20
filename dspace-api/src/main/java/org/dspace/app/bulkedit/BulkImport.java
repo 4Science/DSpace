@@ -692,8 +692,13 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private void addMetadataToBitstream(Bitstream bitstream, MetadataField metadataField, MetadataValueVO metadata) {
         try {
-            bitstreamService.addMetadata(context, bitstream, metadataField, "", metadata.getValue(),
-                                         metadata.getAuthority(), metadata.getConfidence());
+            metadata = bulkImportTransformerService.converter(context, metadataField.toString('.'), metadata);
+            String authority = metadata.getAuthority();
+            int confidence = metadata.getConfidence();
+            String value = metadata.getValue();
+            if (StringUtils.isNotEmpty(value)) {
+                bitstreamService.addMetadata(context, bitstream, metadataField, "", value, authority, confidence);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

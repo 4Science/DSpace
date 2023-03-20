@@ -690,6 +690,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         private String titleStyle;
 
+        private boolean showBlurryBackdrop;
+
         /**
          * Initializes the rest component using the
          * CrisLayoutCarouselComponent component
@@ -713,6 +715,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             carouselHeightPx = component.getCarouselHeightPx();
             captionStyle = component.getCaptionStyle();
             titleStyle = component.getTitleStyle();
+            showBlurryBackdrop = component.isShowBlurryBackdrop();
         }
 
         /**
@@ -830,6 +833,43 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             return titleStyle;
         }
 
+        /**
+         * @return the showBlurryBackdrop
+         */
+        public boolean isShowBlurryBackdrop() {
+            return showBlurryBackdrop;
+        }
+
     }
 
+    public static class CrisGridComponentRest implements CrisLayoutSectionComponentRest {
+
+        private String discoveryConfigurationName;
+        private String style;
+        private String mainContentLink;
+
+        public CrisGridComponentRest(String discoveryConfigurationName, String style, String mainContentLink) {
+            this.discoveryConfigurationName = discoveryConfigurationName;
+            this.style = style;
+            this.mainContentLink = mainContentLink;
+        }
+
+        @Override
+        public String getComponentType() {
+            return "grid";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        public String getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+        public String getMainContentLink() {
+            return mainContentLink;
+        }
+    }
 }

@@ -15,9 +15,11 @@
     <bean class="org.dspace.app.bulkedit.BulkImportTransformerService">
         <constructor-arg>
 			<map>
-			<!-- <entry  key="" value-ref= ""> </entry> -->       
+				<entry key="iiif.toc" value-ref="ToCBulkImportValueTransformer"/>
 			</map>
 		</constructor-arg>
 	</bean>
+
+	<bean id="ToCBulkImportValueTransformer" class="org.dspace.app.bulkedit.ToCBulkImportValueTransformer"/>
 
 </beans>

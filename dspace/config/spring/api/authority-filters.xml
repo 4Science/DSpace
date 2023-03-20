@@ -27,7 +27,7 @@
 		<property name="supportedAuthorities">
 			<util:list>
 				<value>FondsAuthority</value>
-				<value>JournalFondAuthority</value>
+				<value>JournalFondParentAuthority</value>
 				<value>AggregationAuthority</value>
 			</util:list>
 		</property>

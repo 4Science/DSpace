@@ -9,6 +9,7 @@ package org.dspace.iiif.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Constants;
 import org.dspace.license.CreativeCommonsServiceImpl;
 import org.dspace.services.ConfigurationService;
@@ -46,6 +48,14 @@ public class IIIFSharedUtils {
     public static final String METADATA_IIIF_LABEL_ELEMENT = "label";
     public static final String METADATA_IIIF_HEIGHT_QUALIFIER = "height";
     public static final String METADATA_IIIF_WIDTH_QUALIFIER = "width";
+
+    // metadata used to specify the canvas id of the bitstream
+    public static final String[] METADATA_IIIF_CANVASID_ARRAY = {"bitstream", "iiif", "canvasid"};
+    public static final String METADATA_IIIF_CANVASID = METADATA_IIIF_CANVASID_ARRAY[0] + "." +
+            METADATA_IIIF_CANVASID_ARRAY[1] + "." + METADATA_IIIF_CANVASID_ARRAY[2];
+
+    // string used in the metadata toc as separator among the different levels
+    public static final String TOC_SEPARATOR = "|||";
 
     protected static final ConfigurationService configurationService
         = DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -157,5 +167,24 @@ public class IIIFSharedUtils {
     public static String getManifestId(UUID uuid) {
         return configurationService.getProperty("dspace.server.url") + "/iiif/"
                 + uuid + "/manifest";
+    }
+
+    /**
+     * Return the canvas identifier of the bitstream:
+     * - the bitstream.iiif.canvasid metadata
+     * - or the UUID of the bitstream
+     * @param bitstream the DSpace Bitstream
+     * @return the canvas identifier
+     */
+    public static String getCanvasId(Bitstream bitstream) {
+        // retrieve the canvas identifier from metadata
+        Optional<MetadataValue> canvasId = bitstream.getMetadata().stream()
+                .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_CANVASID))
+                .findAny();
+        if (canvasId.isEmpty()) {
+            // otherwise use the bitstream identifier
+            return bitstream.getID().toString();
+        }
+        return canvasId.get().getValue();
     }
 }

@@ -167,6 +167,26 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="picture" mandatory="true">
+      <heading>submit.progressbar.describe.picture</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-inscription" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-inscription</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-mark" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-mark</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_material">
@@ -327,6 +347,16 @@
       <step id="journal_fond-glamjournalfond-history" />
       <step id="journal_fond-glamjournalfond-relation-person" />
       <step id="journal_fond-glamjournalfond-relation-journalfond" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="picture">
+      <step id="collection" />
+      <step id="picture" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="picture-edit">
+      <step id="picture" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>

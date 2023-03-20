@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,6 +40,7 @@ import org.dspace.iiif.util.IIIFSharedUtils;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,9 +50,6 @@ public class IIIFUtils {
 
     // The DSpace bundle for other content related to item.
     protected static final String OTHER_CONTENT_BUNDLE = "OtherContent";
-
-    // The canvas position will be appended to this string.
-    private static final String CANVAS_PATH_BASE = "/canvas/c";
 
     // metadata used to enable the iiif features on the item
     public static final String METADATA_IIIF_ENABLED = "dspace.iiif.enabled";
@@ -111,7 +110,7 @@ public class IIIFUtils {
      */
     public List<Bitstream> getIIIFBitstreams(Context context, Item item) {
         List<Bitstream> bitstreams = new ArrayList<Bitstream>();
-        for (Bundle bnd : IIIFSharedUtils.getIIIFBundles(item)) {
+        for (Bundle bnd : getIIIFBundles(item)) {
             bitstreams
                     .addAll(getIIIFBitstreams(context, bnd));
         }
@@ -137,7 +136,7 @@ public class IIIFUtils {
      * @param b the DSpace bitstream to check
      * @return true if the bitstream can be used as IIIF resource
      */
-    private boolean isIIIFBitstream(Context context, Bitstream b) {
+    protected boolean isIIIFBitstream(Context context, Bitstream b) {
         return checkImageMimeType(getBitstreamMimeType(b, context)) && b.getMetadata().stream()
                 .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_ENABLED))
                 .noneMatch(m -> m.getValue().equalsIgnoreCase("false") || m.getValue().equalsIgnoreCase("no"));
@@ -179,32 +178,25 @@ public class IIIFUtils {
      *
      * @param context        DSpace Context
      * @param item           DSpace Item
-     * @param canvasPosition bitstream position
+     * @param canvasId       DSpace Bitstream UUID
      * @return bitstream or null if the specified canvasPosition doesn't exist in
      *         the manifest
+     * @throws SQLException
      */
-    public Bitstream getBitstreamForCanvas(Context context, Item item, int canvasPosition) {
-        List<Bitstream> bitstreams = getIIIFBitstreams(context, item);
-        return bitstreams.size() > canvasPosition ? bitstreams.get(canvasPosition) : null;
-    }
+    public Bitstream getBitstreamForCanvas(Context context, Item item, String canvasId)
+            throws SQLException {
+        // check if bitstream is part of the item
+        for (Bundle bundle : item.getBundles()) {
+            for (Bitstream bitstream : bundle.getBitstreams()) {
+                if (bitstream.getID().equals(UUID.fromString(canvasId))) {
+                    // return bitstream
+                    return bitstream;
+                }
+            }
+        }
 
-    /**
-     * Extracts canvas position from the URL input path.
-     * @param canvasId e.g. "c12"
-     * @return the position, e.g. 12
-     */
-    public int getCanvasId(String canvasId) {
-        return Integer.parseInt(canvasId.substring(1));
-    }
-
-    /**
-     * Returns the canvas path with position. The path
-     * returned is partial, not the fully qualified URI.
-     * @param position position of the bitstream in the DSpace bundle.
-     * @return partial canvas path.
-     */
-    public String getCanvasId(int position) {
-        return CANVAS_PATH_BASE + position;
+        // bitstream is not part of the item
+        throw new ResourceNotFoundException();
     }
 
     /**
@@ -455,6 +447,17 @@ public class IIIFUtils {
         return item.getMetadata().stream()
                 .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_CANVAS_NAMING))
                 .findFirst().map(m -> m.getValue()).orElse(defaultNaming);
+    }
+
+    /**
+     * Return the canvas identifier of the bitstream:
+     * - the bitstream.iiif.canvasid metadata
+     * - or the UUID of the bitstream
+     * @param bitstream the DSpace Bitstream
+     * @return the canvas identifier
+     */
+    public String getCanvasId(Bitstream bitstream) {
+        return IIIFSharedUtils.getCanvasId(bitstream);
     }
 
 }
