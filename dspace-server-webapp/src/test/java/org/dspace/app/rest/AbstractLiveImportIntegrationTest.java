@@ -34,10 +34,16 @@ public class AbstractLiveImportIntegrationTest extends AbstractControllerIntegra
     protected void matchRecords(ArrayList<ImportRecord> recordsImported, ArrayList<ImportRecord> records2match) {
         assertEquals(records2match.size(), recordsImported.size());
         for (int i = 0; i < recordsImported.size(); i++) {
-            ImportRecord imported = recordsImported.get(i);
-            ImportRecord toMatch = records2match.get(i);
-            checkMetadataValue(imported.getValueList(), toMatch.getValueList());
+            matchRecord(recordsImported.get(i), records2match.get(i));
         }
+    }
+
+    protected void matchRecord(ImportRecord imported, ImportRecord toMatch) {
+        matchMetadataValue(imported.getValueList(), toMatch.getValueList());
+    }
+
+    protected void matchMetadataValue(List<MetadatumDTO> list, List<MetadatumDTO> list2) {
+        checkMetadataValue(list, list2);
     }
 
     private void checkMetadataValue(List<MetadatumDTO> list, List<MetadatumDTO> list2) {

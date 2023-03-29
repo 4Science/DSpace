@@ -22,7 +22,6 @@ public class EditItemModeRest extends BaseObjectRest<String> {
 
     private String name;
     private String label;
-    private Integer security;
     private String submissionDefinition;
 
     /* (non-Javadoc)
@@ -47,14 +46,6 @@ public class EditItemModeRest extends BaseObjectRest<String> {
 
     public void setLabel(String label) {
         this.label = label;
-    }
-
-    public Integer getSecurity() {
-        return security;
-    }
-
-    public void setSecurity(Integer security) {
-        this.security = security;
     }
 
     public String getSubmissionDefinition() {

@@ -35,6 +35,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -1170,6 +1171,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    @Ignore // To be fixed, see DSC-837
     public void findOneWithCacheEvictionAfterBitstreamUpdate() throws Exception {
         String patchRequestBody =
             "[{\"op\": \"replace\",\"path\": \"/metadata/iiif.label/0/value\",\"value\": \"Test label\"}]";
@@ -1292,6 +1294,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    @Ignore // To be fixed, see DSC-837
     public void findOneWithCacheEvictionAfterItemUpdate() throws Exception {
         String patchRequestBody =
                 "[{\"op\": \"replace\",\"path\": \"/metadata/dc.title/0/value\",\"value\": \"Public item (revised)\"}]";

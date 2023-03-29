@@ -627,7 +627,7 @@
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>journal</dc-qualifier>
           <label>Journal or Serie</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>

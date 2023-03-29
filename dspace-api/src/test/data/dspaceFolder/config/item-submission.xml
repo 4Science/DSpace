@@ -379,6 +379,11 @@
         <submission-process name="modeB">
            <step id="onlyTitle"/>
         </submission-process>
+        <submission-process name="modeC">
+           <step id="collection" />
+           <step id="onlyTitle"/>
+           <step id="upload" />
+        </submission-process>
 
         <submission-process name="extractiontestprocess">
             <step id="collection"/>

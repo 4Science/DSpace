@@ -9,6 +9,7 @@ package org.dspace.content.integration.crosswalks;
 
 import static java.util.Arrays.asList;
 import static org.dspace.app.bulkedit.BulkImport.BITSTREAMS_SHEET_HEADERS;
+import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.dspace.builder.BitstreamBuilder.createBitstream;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
@@ -17,6 +18,9 @@ import static org.dspace.util.WorkbookUtils.getRowValues;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -25,6 +29,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,6 +44,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.launcher.ScriptLauncher;
+import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
@@ -93,6 +101,71 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
         context.restoreAuthSystemState();
+
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testBulkImportOfCollectionDisseminate() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection collection = createCollection(context, community)
+            .withSubmissionDefinition("publication")
+            .withAdminGroup(eperson)
+            .build();
+
+        Item firstItem = ItemBuilder.createItem(context, collection)
+            .withTitle("First Publication")
+            .withAuthor("Test, User")
+            .withAuthor("White, Walter")
+            .withAcronym("TEST")
+            .withIssueDate("2020-01-01")
+            .withEntityType("Publication")
+            .makeUnDiscoverable()
+            .withFulltext("test.pdf", "Test", InputStream.nullInputStream())
+            .build();
+
+        ItemBuilder.createItem(context, collection)
+            .withTitle("Second Publication")
+            .withIssueDate("2020-01-01")
+            .withSecuredMetadata("dc", "relation", "publication", null, "First Publication",
+                firstItem.getID().toString(), 600, 2)
+            .build();
+
+        ItemBuilder.createItem(context, collection)
+            .withTitle("Third Publication")
+            .withType("Article")
+            .withAuthor("White, Walter")
+            .build();
+
+        context.turnOffAuthorisationSystem();
+
+        File tempWorkbookFile = File.createTempFile("test-workbook", "xls");
+
+        try (FileOutputStream fos = new FileOutputStream(tempWorkbookFile)) {
+            xlsCollectionCrosswalk.disseminate(context, collection, fos);
+        }
+
+        String[] args = new String[] { "bulk-import", "-c", collection.getID().toString(),
+            "-f", tempWorkbookFile.getAbsolutePath() };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), empty());
+
+        assertThat(handler.getInfoMessages(), containsInAnyOrder(
+            is("Start reading all the metadata group rows"),
+            is("Found 3 metadata groups to process"),
+            is("Start reading all the bitstream rows"),
+            is("Found 1 bitstreams to process"),
+            is("Found 3 items to process"),
+            containsString("Sheet bitstream-metadata - Row 2 - Bitstream updated successfully"),
+            containsString("Row 2 - Item updated successfully - ID: "),
+            containsString("Row 3 - Item updated successfully - ID: "),
+            containsString("Row 4 - Item updated successfully - ID: ")));
 
     }
 
@@ -175,7 +248,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         String secondItemId = secondItem.getID().toString();
 
         Sheet mainSheet = workbook.getSheetAt(0);
-        String[] mainSheetHeader = { "ID", "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi",
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.identifier.doi", "dc.identifier.scopus",
+            "dc.identifier.isi",
             "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn",
             "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
             "dc.identifier.uri", "dc.identifier.isbn", "dc.title", "dc.title.alternative", "dc.date.issued",
@@ -185,13 +259,13 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             "dc.description.sponsorship", "dc.description.volume", "dc.description.issue", "dc.description.startpage",
             "dc.description.endpage", "dc.relation.conference", "dc.relation.product",
             "dc.identifier.citation", "dc.description" };
-        String[] mainSheetFirstRow = { firstItemId, "doi:111.111/publication", "99999999",
+        String[] mainSheetFirstRow = { firstItemId, "Y", "doi:111.111/publication", "99999999",
             "111-222-333", "", "", "", "2049-3630", "", "", "", "http://localhost:4000/handle/123456789/001",
             "978-3-16-148410-0", "Test Publication", "Alternative publication title", "2020-01-01",
             "Controlled Vocabulary for Resource Type Genres::text::review", "en", "test||export",
             "Description Abstract", "Published in publication", "ISBN-01", "doi:10.3972/test", "Journal", "", "", "",
             "", "", "", "", "", "", "", "The best Conference", "DataSet", "", "Description" };
-        String[] mainSheetSecondRow = { secondItemId, "", "SCOPUS-002", "ISI-002", "", "",
+        String[] mainSheetSecondRow = { secondItemId, "Y", "", "SCOPUS-002", "ISI-002", "", "",
             "", "ISSN-002||ISSN-003", "", "", "", "http://localhost:4000/handle/123456789/002", "ISBN-002",
             "Second Publication", "", "2020-01-01", "Controlled Vocabulary for Resource Type Genres::text::review", "",
             "export", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Conference1||Conference2", "DataSet",
@@ -241,7 +315,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         assertThat(workbook.getNumberOfSheets(), equalTo(2));
 
         Sheet mainSheet = workbook.getSheetAt(0);
-        String[] mainSheetHeader = { "ID", "dc.contributor.author", "dc.title", "dc.title.alternative",
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.contributor.author", "dc.title", "dc.title.alternative",
             "dc.date.issued", "dc.publisher", "dc.identifier.citation", "dc.relation.ispartofseries",
             "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi", "dc.identifier.adsbibcode",
             "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn", "dc.identifier.other",
@@ -293,6 +367,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withTitleForLanguage("Seconda pubblicazione", "it")
                 .withTitleForLanguage("Second publication", "en")
                 .withIssueDate("2019-01-01")
+                .makeUnDiscoverable()
                 .build();
 
             Item thirdPublication = ItemBuilder.createItem(context, collection)
@@ -301,6 +376,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withTitleForLanguage("Terza pubblicazione", "it")
                 .withIssueDate("2018-01-01")
                 .withAuthor("Carl Johnson")
+                .makeUnDiscoverable()
                 .build();
 
             Item fourthPublication = ItemBuilder.createItem(context, collection)
@@ -331,11 +407,13 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             String fourthId = fourthPublication.getID().toString();
 
             Sheet mainSheet = workbook.getSheetAt(0);
-            String[] header = { "ID", "dc.title", "dc.date.issued", "dc.subject", "dc.title[it]", "dc.title[en]" };
-            String[] firstRow = { firstId, "First publication", "2020-01-01", "", "Prima pubblicazione", "" };
-            String[] secondRow = { secondId, "", "2019-01-01", "", "Seconda pubblicazione", "Second publication" };
-            String[] thirdRow = { thirdId, "Third publication", "2018-01-01", "", "Terza pubblicazione", "" };
-            String[] fourthRow = { fourthId, "Fourth publication", "2017-01-01", "test||export", "Pubblicazione", "" };
+            String[] header = { "ID", "DISCOVERABLE", "dc.title", "dc.date.issued",
+                "dc.subject", "dc.title[it]", "dc.title[en]" };
+            String[] firstRow = { firstId, "Y", "First publication", "2020-01-01", "", "Prima pubblicazione", "" };
+            String[] secondRow = { secondId, "N", "", "2019-01-01", "", "Seconda pubblicazione", "Second publication" };
+            String[] thirdRow = { thirdId, "N", "Third publication", "2018-01-01", "", "Terza pubblicazione", "" };
+            String[] fourthRow = { fourthId, "Y", "Fourth publication", "2017-01-01",
+                "test||export", "Pubblicazione", "" };
 
             asserThatSheetHas(mainSheet, "items", 5, header, asList(firstRow, secondRow, thirdRow, fourthRow));
 
@@ -448,9 +526,9 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         String thirdItemId = thirdItem.getItem().getID().toString();
 
         Sheet mainSheet = workbook.getSheetAt(0);
-        String[] mainSheetHeader = { "ID", "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi",
-            "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn",
-            "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.identifier.doi", "dc.identifier.scopus",
+            "dc.identifier.isi", "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv",
+            "dc.identifier.issn", "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
             "dc.identifier.uri", "dc.identifier.isbn", "dc.title", "dc.title.alternative", "dc.date.issued",
             "dc.type", "dc.language.iso", "dc.subject", "dc.description.abstract", "dc.relation.publication",
             "dc.relation.isbn", "dc.relation.doi", "dc.relation.ispartof", "dc.relation.ispartofseries",
@@ -458,20 +536,21 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             "dc.description.sponsorship", "dc.description.volume", "dc.description.issue", "dc.description.startpage",
             "dc.description.endpage", "dc.relation.conference", "dc.relation.product",
             "dc.identifier.citation", "dc.description" };
-        String[] mainSheetFirstRow = { firstItemId, "doi:111.111/publication", "99999999",
+        String[] mainSheetFirstRow = { firstItemId, "Y", "doi:111.111/publication", "99999999",
             "111-222-333", "", "", "", "2049-3630", "", "", "", "http://localhost:4000/handle/123456789/001",
             "978-3-16-148410-0", "Test Publication", "Alternative publication title", "2020-01-01",
             "Controlled Vocabulary for Resource Type Genres::text::review", "en", "test||export",
             "Description Abstract", "Published in publication", "ISBN-01", "doi:10.3972/test", "Journal", "", "", "",
             "", "", "", "", "", "", "", "The best Conference", "DataSet", "", "Description" };
-        String[] mainSheetSecondRow = { secondItemId, "", "SCOPUS-002", "ISI-002", "", "",
+        String[] mainSheetSecondRow = { secondItemId, "Y", "", "SCOPUS-002", "ISI-002", "", "",
             "", "ISSN-002||ISSN-003", "", "", "", "http://localhost:4000/handle/123456789/002", "ISBN-002",
             "Second Publication", "", "2020-01-01", "Controlled Vocabulary for Resource Type Genres::text::review", "",
             "export", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Conference1||Conference2", "DataSet",
             "CIT-01", "Publication Description" };
-        String[] mainSheetThirdRow = { thirdItemId, "doi:222.111/publication", "", "", "", "", "", "", "", "", "", "",
-            "", "Third Publication", "", "2022-01-01", "Controlled Vocabulary for Resource Type Genres::text::review",
-            "", "test||export", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" };
+        String[] mainSheetThirdRow = { thirdItemId, "Y", "doi:222.111/publication", "", "", "", "", "", "", "", "", "",
+            "", "", "Third Publication", "", "2022-01-01",
+            "Controlled Vocabulary for Resource Type Genres::text::review", "", "test||export", "", "", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "" };
 
         asserThatSheetHas(mainSheet, "items", 4, mainSheetHeader,
             asList(mainSheetFirstRow, mainSheetSecondRow, mainSheetThirdRow));
@@ -600,9 +679,9 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         String itemId = item.getID().toString();
 
         Sheet mainSheet = workbook.getSheetAt(0);
-        String[] mainSheetHeader = { "ID", "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi",
-            "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn",
-            "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.identifier.doi", "dc.identifier.scopus",
+            "dc.identifier.isi", "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv",
+            "dc.identifier.issn", "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
             "dc.identifier.uri", "dc.identifier.isbn", "dc.title", "dc.title.alternative", "dc.date.issued",
             "dc.type", "dc.language.iso", "dc.subject", "dc.description.abstract", "dc.relation.publication",
             "dc.relation.isbn", "dc.relation.doi", "dc.relation.ispartof", "dc.relation.ispartofseries",
@@ -611,7 +690,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             "dc.description.endpage", "dc.relation.conference", "dc.relation.product",
             "dc.identifier.citation", "dc.description" };
 
-        String[] mainSheetRow = { itemId, "", "", "", "", "", "", "", "", "", "",
+        String[] mainSheetRow = { itemId, "Y", "", "", "", "", "", "", "", "", "", "",
             "http://localhost:4000/handle/123456789/001", "", "", "", "", "", "", "", "Description Abstract", "", "",
             "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" };
 
@@ -846,6 +925,58 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
         String[] bitstreamHeaders = ArrayUtils.addAll(BITSTREAMS_SHEET_HEADERS);
         asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 1, bitstreamHeaders, List.of());
+    }
+
+    @Test
+    public void testCollectionDisseminateWithSecurityLevel() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection collection = createCollection(context, community)
+            .withSubmissionDefinition("publication")
+            .withAdminGroup(eperson)
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withHandle("123456789/001")
+            .withEntityType("Publication")
+            .withTitle("Test Publication")
+            .withSecuredMetadata("dc", "type", null, "Article", 1)
+            .withSecuredMetadata("dc", "relation", "publication", null, "First Publication", "authority1", 600, 2)
+            .withMetadata("dc", "relation", "publication", "Second Publication")
+            .withSecuredMetadata("dc", "relation", "publication", "Third Publication", 0)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCollectionCrosswalk.disseminate(context, collection, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(5));
+
+        String itemId = item.getID().toString();
+
+        Sheet mainSheet = workbook.getSheetAt(0);
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.identifier.doi", "dc.identifier.scopus",
+            "dc.identifier.isi", "dc.identifier.adsbibcode", "dc.identifier.pmid", "dc.identifier.arxiv",
+            "dc.identifier.issn", "dc.identifier.other", "dc.identifier.ismn", "dc.identifier.govdoc",
+            "dc.identifier.uri", "dc.identifier.isbn", "dc.title", "dc.title.alternative", "dc.date.issued",
+            "dc.type", "dc.language.iso", "dc.subject", "dc.description.abstract", "dc.relation.publication",
+            "dc.relation.isbn", "dc.relation.doi", "dc.relation.ispartof", "dc.relation.ispartofseries",
+            "dc.relation.issn", "dc.coverage.publication", "dc.coverage.isbn", "dc.coverage.doi",
+            "dc.description.sponsorship", "dc.description.volume", "dc.description.issue", "dc.description.startpage",
+            "dc.description.endpage", "dc.relation.conference", "dc.relation.product",
+            "dc.identifier.citation", "dc.description" };
+
+        String[] mainSheetRow = { itemId, "Y", "", "", "", "", "", "", "", "", "", "",
+            "http://localhost:4000/handle/123456789/001", "", "Test Publication", "", "", "Article$$sl-1", "", "", "",
+            "First Publication$$authority1$$600$$sl-2||Second Publication||Third Publication$$sl-0", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" };
+
+        List<String[]> rows = new ArrayList<String[]>();
+        rows.add(mainSheetRow);
+        asserThatSheetHas(mainSheet, "items", 2, mainSheetHeader, rows);
+
     }
 
     private InputStream getBitstreamSample(String text) {

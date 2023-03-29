@@ -1801,7 +1801,7 @@ prevent the generation of resource policy entry values with null dspace_object a
                     ". Metadata field does not exist!");
         }
         final Supplier<Integer> placeSupplier = () -> place;
-        return addSecuredMetadataAtPlace(context, dso, metadataField, lang, Arrays.asList(value),
+        return addMetadata(context, dso, metadataField, lang, Arrays.asList(value),
                 Arrays.asList(authority), Arrays.asList(confidence), placeSupplier, securityValue)
                 .stream().findFirst().orElse(null);
 

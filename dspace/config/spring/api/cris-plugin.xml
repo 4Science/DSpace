@@ -130,7 +130,7 @@
 	
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByDOI">
 		<constructor-arg value="dc.identifier.doi"></constructor-arg>
-		<constructor-arg value="URL"></constructor-arg>
+		<constructor-arg value="DOI"></constructor-arg>
 	</bean>
 	
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByURL">

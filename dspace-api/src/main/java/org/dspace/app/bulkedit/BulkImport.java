@@ -9,12 +9,14 @@ package org.dspace.app.bulkedit;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.ArrayUtils.indexOf;
+import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
+import static org.apache.commons.lang3.math.NumberUtils.isCreatable;
 import static org.dspace.authorize.ResourcePolicy.TYPE_CUSTOM;
 import static org.dspace.authorize.ResourcePolicy.TYPE_INHERITED;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
@@ -45,7 +47,6 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -130,7 +131,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     public static final String ACCESS_CONDITION_ATTRIBUTES_SEPARATOR = "$$";
 
-    public static final String AUTHORITY_SEPARATOR = "$$";
+    public static final String METADATA_ATTRIBUTES_SEPARATOR = "$$";
 
     public static final String METADATA_SEPARATOR = "||";
 
@@ -140,12 +141,16 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     public static final String ID_SEPARATOR = "::";
 
+    public static final String SECURITY_LEVEL_PREFIX = "sl-";
+
     public static final String ROW_ID = "ROW-ID";
 
 
     public static final String ID_HEADER = "ID";
 
     public static final String ACTION_HEADER = "ACTION";
+
+    public static final String DISCOVERABLE_HEADER = "DISCOVERABLE";
 
     public static final String PARENT_ID_HEADER = "PARENT-ID";
 
@@ -159,7 +164,9 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     public static final String ADDITIONAL_ACCESS_CONDITION_HEADER = "ADDITIONAL-ACCESS-CONDITION";
 
-    public static final String[] ENTITY_ROWS_SHEET_HEADERS = { ID_HEADER, ACTION_HEADER };
+    public static final String[] ENTITY_ROWS_SHEET_HEADERS = { ID_HEADER };
+
+    public static final String[] ENTITY_ROWS_SHEET_OPTIONAL_HEADERS = { ACTION_HEADER, DISCOVERABLE_HEADER };
 
     public static final String[] METADATA_GROUPS_SHEET_HEADERS = { PARENT_ID_HEADER };
 
@@ -335,11 +342,16 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     }
 
     private void validateMainHeaders(Sheet sheet, List<String> headers) {
-        String[] expectedMainHeaders = getMainHeadersBySheetType(sheet);
-        validateMainHeaders(sheet, headers, expectedMainHeaders);
+
+        String[] mandatoryMainHeaders = getMandatoryMainHeadersBySheetType(sheet);
+        validateMandatoryMainHeaders(sheet, headers, mandatoryMainHeaders);
+
+        String[] optionalMainHeaders = getOptionalMainHeadersBySheetType(sheet);
+        validateOptionalMainHeaders(sheet, headers, mandatoryMainHeaders, optionalMainHeaders);
+
     }
 
-    private String[] getMainHeadersBySheetType(Sheet sheet) {
+    private String[] getMandatoryMainHeadersBySheetType(Sheet sheet) {
         BulkImportSheetType sheetType = BulkImportSheetType.getTypeFromSheet(sheet);
         switch (sheetType) {
             case ENTITY_ROWS:
@@ -353,20 +365,46 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         }
     }
 
-    private void validateMainHeaders(Sheet sheet, List<String> headers, String[] expectedMainHeaders) {
+    private String[] getOptionalMainHeadersBySheetType(Sheet sheet) {
+        BulkImportSheetType sheetType = BulkImportSheetType.getTypeFromSheet(sheet);
+        switch (sheetType) {
+            case ENTITY_ROWS:
+                return ENTITY_ROWS_SHEET_OPTIONAL_HEADERS;
+            default:
+                return new String[] {};
+        }
+    }
+
+    private void validateMandatoryMainHeaders(Sheet sheet, List<String> headers, String[] mandatoryMainHeaders) {
 
         String sheetName = sheet.getSheetName();
 
-        if (headers.size() < expectedMainHeaders.length) {
-            throw new BulkImportException("The columns " + ArrayUtils.toString(expectedMainHeaders)
+        if (headers.size() < mandatoryMainHeaders.length) {
+            throw new BulkImportException("The columns " + ArrayUtils.toString(mandatoryMainHeaders)
                 + " are required for the sheet " + sheetName);
         }
 
-        for (int i = 0; i < expectedMainHeaders.length; i++) {
+        for (int i = 0; i < mandatoryMainHeaders.length; i++) {
             String header = headers.get(i);
-            String expected = expectedMainHeaders[i];
-            if (!expectedMainHeaders[i].equals(header)) {
+            String expected = mandatoryMainHeaders[i];
+            if (!mandatoryMainHeaders[i].equals(header)) {
                 throw new BulkImportException("Wrong " + expected + " header on sheet " + sheetName + ": " + header);
+            }
+        }
+
+    }
+
+    private void validateOptionalMainHeaders(Sheet sheet, List<String> headers, String[] mandatoryMainHeaders,
+        String[] optionalMainHeaders) {
+
+        long optionalHeadersCount = countOptionalHeaders(headers, optionalMainHeaders);
+        long maxMainHeadersCount = mandatoryMainHeaders.length + optionalHeadersCount;
+
+        for (String optionalMainHeader : optionalMainHeaders) {
+            int indexOfOptionalHeader = headers.indexOf(optionalMainHeader);
+            if (indexOfOptionalHeader >= maxMainHeadersCount) {
+                throw new BulkImportException("The optional column " + optionalMainHeader
+                    + " present in sheet " + sheet.getSheetName() + " must be placed before the metadata fields");
             }
         }
 
@@ -482,7 +520,15 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             return false;
         }
 
-        return isNotBlank(action) ? isValidAction(id, action, row) : true;
+        if (!isValidAction(id, action, row)) {
+            return false;
+        }
+
+        if (!areMetadataValuesValid(row, true)) {
+            return false;
+        }
+
+        return true;
     }
 
     private EntityRow buildEntityRow(Row row, Map<String, Integer> headers,
@@ -490,12 +536,13 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         String id = getIdFromRow(row);
         String action = getActionFromRow(row);
+        Boolean discoverable = headers.containsKey(DISCOVERABLE_HEADER) ? getDiscoverableFromRow(row) : null;
 
         MultiValuedMap<String, MetadataValueVO> metadata = getMetadataFromRow(row, headers);
         List<MetadataGroup> ownMetadataGroup = getOwnChildRows(row, metadataGroups);
         List<UploadDetails> ownUploadDetails = getOwnChildRows(row, uploadDetails);
 
-        return new EntityRow(id, action, row.getRowNum(), metadata, ownMetadataGroup, ownUploadDetails);
+        return new EntityRow(id, action, row.getRowNum(), discoverable, metadata, ownMetadataGroup, ownUploadDetails);
 
     }
 
@@ -549,34 +596,77 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             return false;
         }
 
+        if (!areMetadataValuesValid(row, false)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean areMetadataValuesValid(Row row, boolean manyMetadataValuesAllowed) {
+
         int firstMetadataIndex = getFirstMetadataIndex(row.getSheet());
         for (int index = firstMetadataIndex; index < row.getLastCellNum(); index++) {
 
             String cellValue = WorkbookUtils.getCellValue(row, index);
             String[] values = isNotBlank(cellValue) ? split(cellValue, METADATA_SEPARATOR) : new String[] { "" };
-            if (values.length > 1) {
+            if (values.length > 1 && !manyMetadataValuesAllowed) {
                 handleValidationErrorOnRow(row, "Multiple metadata value on the same cell not allowed "
                     + "in the metadata group sheets: " + cellValue);
                 return false;
             }
 
-            String value = values[0];
-            if (value.contains(AUTHORITY_SEPARATOR)) {
-
-                String[] valueSections = StringUtils.split(value, AUTHORITY_SEPARATOR);
-                if (valueSections.length > 3) {
-                    handleValidationErrorOnRow(row, "Invalid metadata value " + value + ": too many sections "
-                        + "splitted by " + AUTHORITY_SEPARATOR);
+            for (String value : values) {
+                if (!isMetadataValueValid(row, value)) {
                     return false;
                 }
-
-                if (valueSections.length > 2 && !NumberUtils.isCreatable(valueSections[2])) {
-                    handleValidationErrorOnRow(row,
-                        "Invalid metadata value " + value + ": invalid confidence value " + valueSections[2]);
-                    return false;
-                }
-
             }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * The allowed metadata value syntax are:
+     * <ul>
+     * <li>value</li>
+     * <li>value$$authority</li>
+     * <li>value$$security-level</li>
+     * <li>value$$authority$$security-level</li>
+     * <li>value$$authority$$confidence</li>
+     * <li>value$$authority$$confidence$$security-level</li>
+     * </ul>
+     */
+    private boolean isMetadataValueValid(Row row, String value) {
+
+        if (!value.contains(METADATA_ATTRIBUTES_SEPARATOR)) {
+            return true;
+        }
+
+        String[] attributes = StringUtils.split(value, METADATA_ATTRIBUTES_SEPARATOR);
+        if (attributes.length > 4) {
+            handleValidationErrorOnRow(row, "Invalid metadata value " + value + ": too many sections "
+                + "splitted by " + METADATA_ATTRIBUTES_SEPARATOR);
+            return false;
+        }
+
+        if (attributes.length == 4 && isConfidenceNotValid(attributes[2])) {
+            handleValidationErrorOnRow(row,
+                "Invalid metadata value " + value + ": invalid confidence value " + attributes[2]);
+            return false;
+        }
+
+        if (attributes.length == 4 && isSecurityLevelNotValid(attributes[3])) {
+            handleValidationErrorOnRow(row,
+                "Invalid metadata value " + value + ": invalid security level " + attributes[3]);
+            return false;
+        }
+
+        if (attributes.length == 3 && isSecurityLevelNotValid(attributes[2]) && isConfidenceNotValid(attributes[2])) {
+            handleValidationErrorOnRow(row,
+                "Invalid metadata value " + value + ": invalid security level or confidence value " + attributes[2]);
+            return false;
         }
 
         return true;
@@ -803,12 +893,14 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         addMetadata(item, entityRow, false);
         addUploadsToItem(item, entityRow);
+        configureDiscoverability(item, entityRow);
 
         String itemId = item.getID().toString();
         int row = entityRow.getRow();
 
         switch (entityRow.getAction()) {
             case ADD:
+            case NOT_SPECIFIED:
                 startWorkflow(entityRow, workspaceItem);
                 break;
             case ADD_ARCHIVE:
@@ -1061,6 +1153,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         addMetadata(item, entityRow, true);
         addUploadsToItem(item, entityRow);
+        configureDiscoverability(item, entityRow);
 
         handler.logInfo("Row " + entityRow.getRow() + " - Item updated successfully - ID: " + item.getID());
 
@@ -1133,6 +1226,13 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             .collect(Collectors.toList());
     }
 
+    private void configureDiscoverability(Item item, EntityRow entityRow) {
+        Boolean discoverable = entityRow.getDiscoverable();
+        if (discoverable != null) {
+            item.setDiscoverable(discoverable);
+        }
+    }
+
     private void addMetadata(Item item, EntityRow entityRow, boolean replace) throws SQLException {
 
         if (replace) {
@@ -1162,8 +1262,10 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
                 String authority = metadataValue.getAuthority();
                 int confidence = metadataValue.getConfidence();
                 String value = metadataValue.getValue();
+                Integer security = metadataValue.getSecurityLevel();
                 if (StringUtils.isNotEmpty(value)) {
-                    dSpaceObjectService.addMetadata(context, dso, metadataField, lang, value, authority, confidence);
+                    dSpaceObjectService.addSecuredMetadata(context, dso, metadataField, lang, value,
+                        authority, confidence, security);
                 }
             }
         }
@@ -1225,9 +1327,28 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         return getValueFromRow(row, PARENT_ID_HEADER);
     }
 
+    private Boolean getDiscoverableFromRow(Row row) {
+        String discoverableValue = getValueFromRow(row, DISCOVERABLE_HEADER);
+        return StringUtils.isBlank(discoverableValue) ? null : toBooleanObject(discoverableValue);
+    }
+
     private String getValueFromRow(Row row, String header) {
-        String[] mainHeaders = getMainHeadersBySheetType(row.getSheet());
-        return WorkbookUtils.getCellValue(row, indexOf(mainHeaders, header));
+
+        Sheet sheet = row.getSheet();
+
+        List<String> headers = WorkbookUtils.getAllHeaders(sheet);
+        int headerIndex = headers.indexOf(header);
+
+        if (headerIndex != -1) {
+            return WorkbookUtils.getCellValue(row, headerIndex);
+        }
+
+        if (isOptionalHeader(sheet, header)) {
+            return null;
+        } else {
+            throw new IllegalStateException("Header not found " + header + " on sheet " + sheet.getSheetName());
+        }
+
     }
 
     private MultiValuedMap<String, MetadataValueVO> getMetadataFromRow(Row row, Map<String, Integer> headers) {
@@ -1258,32 +1379,84 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     private MetadataValueVO buildMetadataValueVO(Row row, String metadataValue, boolean isMetadataGroup) {
 
         if (isBlank(metadataValue)) {
-            return new MetadataValueVO(isMetadataGroup ? PLACEHOLDER_PARENT_METADATA_VALUE : metadataValue, null, -1);
+            return new MetadataValueVO(isMetadataGroup ? PLACEHOLDER_PARENT_METADATA_VALUE : metadataValue);
         }
 
-        if (!metadataValue.contains(AUTHORITY_SEPARATOR)) {
-            return new MetadataValueVO(metadataValue, null, -1);
+        if (!metadataValue.contains(METADATA_ATTRIBUTES_SEPARATOR)) {
+            return new MetadataValueVO(metadataValue);
         }
 
-        String[] valueSections = StringUtils.split(metadataValue, AUTHORITY_SEPARATOR);
+        String[] valueAttributes = StringUtils.split(metadataValue, METADATA_ATTRIBUTES_SEPARATOR);
 
-        String value = valueSections[0];
-        String authority = valueSections[1];
-        int confidence = 600;
-        if (valueSections.length > 2) {
-            String confidenceAsString = valueSections[2];
-            confidence = Integer.valueOf(confidenceAsString);
+        String value = valueAttributes[0];
+        String authority = null;
+        int confidence = -1;
+        Integer securityLevel = null;
+
+        if (valueAttributes.length > 3) {
+            authority = valueAttributes[1];
+            confidence = Integer.valueOf(valueAttributes[2]);
+            securityLevel = parseSecurityLevel(valueAttributes[3]);
         }
 
-        return new MetadataValueVO(value, authority, confidence);
+        if (valueAttributes.length == 3) {
+            authority = valueAttributes[1];
+            if (isSecurityLevelNotValid(valueAttributes[2])) {
+                confidence = Integer.valueOf(valueAttributes[2]);
+            } else {
+                securityLevel = parseSecurityLevel(valueAttributes[2]);
+                confidence = 600;
+            }
+        }
+
+        if (valueAttributes.length == 2) {
+            if (isSecurityLevelNotValid(valueAttributes[1])) {
+                authority = valueAttributes[1];
+                confidence = 600;
+            } else {
+                securityLevel = parseSecurityLevel(valueAttributes[1]);
+            }
+        }
+
+        return new MetadataValueVO(value, authority, confidence, securityLevel);
+    }
+
+    private Integer parseSecurityLevel(String securityLevel) {
+        return Integer.valueOf(removeSecurityLevelPrefix(securityLevel));
     }
 
     private boolean isMetadataGroupsSheet(Sheet sheet) {
         return BulkImportSheetType.getTypeFromSheet(sheet) == BulkImportSheetType.METADATA_GROUPS;
     }
 
+    private long countOptionalHeaders(List<String> headers, String[] optionalHeaders) {
+        return headers.stream()
+            .filter(header -> ArrayUtils.contains(optionalHeaders, header))
+            .count();
+    }
+
+    private boolean isOptionalHeader(Sheet sheet, String header) {
+        String[] optionalMainHeaders = getOptionalMainHeadersBySheetType(sheet);
+        return ArrayUtils.contains(optionalMainHeaders, header);
+    }
+
     private int getFirstMetadataIndex(Sheet sheet) {
-        return BulkImportSheetType.getTypeFromSheet(sheet).getFirstMetadataFieldIndex();
+
+        List<String> headers = WorkbookUtils.getAllHeaders(sheet);
+
+        String[] mandatoryHeaders = getMandatoryMainHeadersBySheetType(sheet);
+        String[] optionalHeaders = getOptionalMainHeadersBySheetType(sheet);
+
+        int firstMetadataIndex = mandatoryHeaders.length;
+
+        for (String optionalHeader : optionalHeaders) {
+            if (headers.contains(optionalHeader)) {
+                firstMetadataIndex++;
+            }
+        }
+
+        return firstMetadataIndex;
+
     }
 
     private boolean isUnknownMetadataField(String metadataField) {
@@ -1303,6 +1476,10 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     }
 
     private boolean isValidAction(String id, String action, Row row) {
+
+        if (isBlank(action)) {
+            return true;
+        }
 
         ImportAction[] actions = ImportAction.values();
         if (!ImportAction.isValid(action)) {
@@ -1377,6 +1554,19 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             .collect(Collectors.toMap(AccessConditionOption::getName, Function.identity()));
 
         return uploadAccessConditions;
+    }
+
+    private boolean isConfidenceNotValid(String confidence) {
+        return !isCreatable(confidence);
+    }
+
+    private boolean isSecurityLevelNotValid(String securityLevel) {
+        return !startsWith(securityLevel, SECURITY_LEVEL_PREFIX)
+            || !isCreatable(removeSecurityLevelPrefix(securityLevel));
+    }
+
+    private String removeSecurityLevelPrefix(String str) {
+        return StringUtils.removeStart(str, SECURITY_LEVEL_PREFIX);
     }
 
     private void handleException(EntityRow entityRow, BulkImportException bie) {

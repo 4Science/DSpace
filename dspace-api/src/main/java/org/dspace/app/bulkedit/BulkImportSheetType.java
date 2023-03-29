@@ -20,32 +20,18 @@ public enum BulkImportSheetType {
     /**
      * The type of the main sheet of the Bulk Import excel.
      */
-    ENTITY_ROWS(2),
+    ENTITY_ROWS,
 
     /**
      * The type of the sheets with nested metadata groups.
      */
-    METADATA_GROUPS(1),
+    METADATA_GROUPS,
 
     /**
      * The type of the sheet with the bitstream access condition and metadata
      * fields.
      */
-    BITSTREAMS(6);
-
-    private int firstMetadataFieldIndex;
-
-    private BulkImportSheetType(int firstMetadataFieldIndex) {
-        this.firstMetadataFieldIndex = firstMetadataFieldIndex;
-    }
-
-    public int getFirstMetadataFieldIndex() {
-        return firstMetadataFieldIndex;
-    }
-
-    public void setFirstMetadataFieldIndex(int firstMetadataFieldIndex) {
-        this.firstMetadataFieldIndex = firstMetadataFieldIndex;
-    }
+    BITSTREAMS;
 
     public static BulkImportSheetType getTypeFromSheet(Sheet sheet) {
 
