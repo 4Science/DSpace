@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
@@ -935,6 +936,34 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         assertThat(queueRecords.get(0), matches(profile, "KEYWORDS", "12346",
             "dc.subject::Science", "Science", DELETE));
 
+    }
+
+    @Test
+    public void testOrcidQueueRecordCreationForPublicationWithNotFoundAuthority() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .withOrcidSynchronizationPublicationsPreference(ALL)
+            .build();
+
+        Collection publicationCollection = createCollection("Publications", "Publication");
+
+        Item publication = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Test publication")
+            .withAuthor("First User", UUID.randomUUID().toString())
+            .withAuthor("Test User", profile.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(1));
+        assertThat(orcidQueueRecords.get(0), matches(profile, publication, "Publication", INSERT));
     }
 
     private void addMetadata(Item item, String schema, String element, String qualifier, String value,

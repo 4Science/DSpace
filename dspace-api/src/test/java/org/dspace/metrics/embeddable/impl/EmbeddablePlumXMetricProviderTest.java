@@ -105,8 +105,8 @@ public class EmbeddablePlumXMetricProviderTest {
                 .thenReturn("0000-0002-9029-1854");
         String template = provider.innerHtml(context, item);
 
-        assertEquals("{\"data-person-badge-enabled\":false,\"list-person-data-badge-enabled\":false," +
-                "\"data-publication-badge-enabled\":false,\"list-publication-data-badge-enabled\":false," +
+        assertEquals("{\"data-person-badge-enabled\":false,\"list-data-person-badge-enabled\":false," +
+                "\"data-publication-badge-enabled\":false,\"list-data-publication-badge-enabled\":false," +
                 "\"type\":\"Person\",\"list-type\":\"Person\",\"placeholder\":\"\",\"list-placeholder\":\"\"," +
                 "\"src\":\"//cdn.plu.mx/widget-person.js\",\"href\":\"https://plu.mx/plum/u/?orcid=0000-0002-9029-1854\"," +
                 "\"list-src\":\"//cdn.plu.mx/widget-person.js\"," +
@@ -131,8 +131,8 @@ public class EmbeddablePlumXMetricProviderTest {
                 .thenReturn("10.1016/j.gene.2009.04.019");
         String template = provider.innerHtml(context, item);
 
-        assertEquals("{\"data-person-badge-enabled\":false,\"list-person-data-badge-enabled\":false," +
-                "\"data-publication-badge-enabled\":false,\"list-publication-data-badge-enabled\":false," +
+        assertEquals("{\"data-person-badge-enabled\":false,\"list-data-person-badge-enabled\":false," +
+                "\"data-publication-badge-enabled\":false,\"list-data-publication-badge-enabled\":false," +
                 "\"type\":\"Publication\",\"list-type\":\"Publication\",\"placeholder\":\"\"," +
                 "\"list-placeholder\":\"\",\"src\":\"//cdn.plu.mx/widget-popup.js\"," +
                 "\"href\":\"https://plu.mx/plum/a/?doi=10.1016/j.gene.2009.04.019\"," +

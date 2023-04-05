@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.CombinableMatcher.both;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +75,13 @@ import org.dspace.content.service.BundleService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.CrisConstants;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
@@ -106,6 +114,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
 
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+
+    private SearchService searchService = SearchUtils.getSearchService();
 
     private Community community;
 
@@ -1936,7 +1946,77 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat(bitstream.getResourcePolicies(), containsInAnyOrder(
             matches(READ, anonymousGroup, "openaccess", TYPE_CUSTOM, "open access description"),
             matches(READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2023-01-12", null, null)));
+    }
 
+    @Test
+    public void testUpdateItems() throws Exception {
+        String oldDescription = "This is a test";
+        String newDescription = "Lorem ipsum";
+        // prepare data
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+        Item publication1 = createItem(context, publication)
+                .withTitle("Test Publication 1")
+                .withAuthor("Scognamiglio, Francesco Pio")
+                .withDescription(oldDescription)
+                .withIsniIdentifier("12345")
+                .build();
+        Item publication2 = createItem(context, publication)
+                .withTitle("Test Publication 2")
+                .withAuthor("Scognamiglio, Francesco Pio")
+                .withDescription(oldDescription)
+                .withIsniIdentifier("12346")
+                .build();
+        Item publication3 = createItem(context, publication)
+                .withTitle("Test Publication 3")
+                .withAuthor("Scognamiglio, Francesco Pio")
+                .withDescription(oldDescription)
+                .withIsniIdentifier("12347")
+                .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        // start test
+        String fileLocation = getXlsFilePath("update-items.xls");
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), empty());
+
+        List<String> infoMessages = handler.getInfoMessages();
+        assertThat(infoMessages, hasSize(6));
+        assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
+        assertThat(infoMessages.get(1), containsString("Found 0 metadata groups to process"));
+        assertThat(infoMessages.get(2), containsString("Found 3 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - Item updated successfully"));
+        assertThat(infoMessages.get(4), containsString("Row 3 - Item updated successfully"));
+        assertThat(infoMessages.get(5), containsString("Row 4 - Item updated successfully"));
+
+        assertSearchQuery(IndexableItem.TYPE, oldDescription, 0);
+        assertSearchQuery(IndexableItem.TYPE, newDescription, 3);
+    }
+
+    private void assertSearchQuery(String resourceType, String description, int size) throws SearchServiceException {
+        assertSearchQuery(resourceType, description, size, size, 0, -1);
+    }
+
+    private void assertSearchQuery(String resourceType, String description,
+            int size, int totalFound, int start, int limit)
+        throws SearchServiceException {
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.setQuery("*:*");
+        discoverQuery.setStart(start);
+        discoverQuery.setMaxResults(limit);
+        discoverQuery.addFilterQueries("search.resourcetype:" + resourceType);
+        discoverQuery.addFilterQueries("dc.description:\"" + description + "\"");
+        DiscoverResult discoverResult = searchService.search(context, discoverQuery);
+        List<IndexableObject> indexableObjects = discoverResult.getIndexableObjects();
+        assertEquals(size, indexableObjects.size());
+        assertEquals(totalFound, discoverResult.getTotalSearchResults());
     }
 
     @Test

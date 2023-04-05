@@ -42,7 +42,6 @@ import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.service.IdentifierService;
-import org.dspace.services.RequestService;
 import org.dspace.utils.DSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -74,8 +73,6 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired(required = true)
     protected RelationshipService relationshipService;
-    @Autowired
-    private RequestService requestService;
 
     public DSpaceObjectServiceImpl() {
 
@@ -137,6 +134,11 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
 
         values = getFilteredMetadataValuesByLanguage(values, lang);
 
+        // Sort the metadataValues if they have been modified,
+        // is used to preserve the default order.
+        if (dso.isMetadataModified()) {
+            values.sort(MetadataValueComparators.defaultComparator);
+        }
         // Create an array of matching values
         return values;
     }
@@ -716,7 +718,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
 
         int add = 4 - tokens.length;
         if (add > 0) {
-            tokens = (String[]) ArrayUtils.addAll(tokens, new String[add]);
+            tokens = ArrayUtils.addAll(tokens, new String[add]);
         }
 
         return tokens;
@@ -777,21 +779,18 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             //If two places are the same then the MetadataValue instance will be placed before the
             //RelationshipMetadataValue instance.
             //This is done to ensure that the order is correct.
-            metadataValues.sort(new Comparator<MetadataValue>() {
-                @Override
-                public int compare(MetadataValue o1, MetadataValue o2) {
-                    int compare = o1.getPlace() - o2.getPlace();
-                    if (compare == 0) {
-                        if (o1 instanceof RelationshipMetadataValue && o2 instanceof RelationshipMetadataValue) {
-                            return compare;
-                        } else if (o1 instanceof RelationshipMetadataValue) {
-                            return 1;
-                        } else if (o2 instanceof RelationshipMetadataValue) {
-                            return -1;
-                        }
+            metadataValues.sort((o1, o2) -> {
+                int compare = o1.getPlace() - o2.getPlace();
+                if (compare == 0) {
+                    if (o1 instanceof RelationshipMetadataValue && o2 instanceof RelationshipMetadataValue) {
+                        return compare;
+                    } else if (o1 instanceof RelationshipMetadataValue) {
+                        return 1;
+                    } else if (o2 instanceof RelationshipMetadataValue) {
+                        return -1;
                     }
-                    return compare;
                 }
+                return compare;
             });
             for (MetadataValue metadataValue : metadataValues) {
                 //Retrieve & store the place for each metadata value

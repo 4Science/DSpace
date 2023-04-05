@@ -7,10 +7,12 @@
  */
 package org.dspace.app.rest;
 
+import static org.dspace.app.matcher.LambdaMatcher.has;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authority.service.AuthorityValueService;
@@ -25,20 +27,23 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.core.Context;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ItemSearcherIT extends AbstractControllerIntegrationTest {
+
     private static final String ORCID_ID_1 = "0000-0001-8387-8895";
+
     private static final String ORCID_ID_2 = "0000-0001-0000-0000";
+
     private static final String ORCID_ID_3 = "0000-0002-0000-0000";
+
     @Autowired
     private WorkspaceItemService workspaceItemService;
+
     @Autowired
     private InstallItemService installItemService;
+
     @Autowired
     private ItemService itemService;
 
@@ -54,7 +59,7 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             Item publication = createPublicationAndInstall(community, collection, ORCID_ID_1);
             // Commit context to save data on SOLR
             context.commit();
-            checkReferenceResolved(context, person, publication);
+            checkReferenceResolved(person, publication);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -74,8 +79,8 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             Item publication2 = createPublicationAndInstall(community, collection, ORCID_ID_2);
             // Commit context to save data on SOLR
             context.commit();
-            checkReferenceResolved(context, person, publication);
-            checkReferenceResolved(context, person2, publication2);
+            checkReferenceResolved(person, publication);
+            checkReferenceResolved(person2, publication2);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -93,7 +98,7 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             Item person = createPersonAndInstall(community, collection, ORCID_ID_1);
             // Commit context to save data on SOLR
             context.commit();
-            checkReferenceResolved(context, person, publication);
+            checkReferenceResolved(person, publication);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -114,9 +119,9 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             // Commit context to save data on SOLR
             context.commit();
 
-            checkReferenceResolved(context, person, publication);
-            checkReferenceResolved(context, person, publication2);
-            checkReferenceResolved(context, person, publication3);
+            checkReferenceResolved(person, publication);
+            checkReferenceResolved(person, publication2);
+            checkReferenceResolved(person, publication3);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -137,9 +142,9 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             // Commit context to save data on SOLR
             context.commit();
 
-            checkReferenceResolved(context, person, publication);
-            checkReferenceResolved(context, person, publication2);
-            checkReferenceNotResolved(context, ORCID_ID_2, publication3);
+            checkReferenceResolved(person, publication);
+            checkReferenceResolved(person, publication2);
+            checkReferenceNotResolved(ORCID_ID_2, publication3);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -161,9 +166,9 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             // Commit context to save data on SOLR
             context.commit();
 
-            checkReferenceResolved(context, person, publication);
-            checkReferenceResolved(context, person, publication2);
-            checkReferenceResolved(context, person2, publication3);
+            checkReferenceResolved(person, publication);
+            checkReferenceResolved(person, publication2);
+            checkReferenceResolved(person2, publication3);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -184,12 +189,12 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
             // Commit context to save data on SOLR
             context.commit();
 
-            checkReferenceResolved(context, person, publication);
-            checkReferenceResolved(context, person2, publication);
-            checkReferenceNotResolved(context, ORCID_ID_3, publication);
+            checkReferenceResolved(person, publication);
+            checkReferenceResolved(person2, publication);
+            checkReferenceNotResolved(ORCID_ID_3, publication);
 
-            checkReferenceResolved(context, person, publication2);
-            checkReferenceResolved(context, person2, publication2);
+            checkReferenceResolved(person, publication2);
+            checkReferenceResolved(person2, publication2);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -224,26 +229,19 @@ public class ItemSearcherIT extends AbstractControllerIntegrationTest {
         return publication;
     }
 
-    private void checkReferenceResolved(Context context, Item person, Item publication) throws SQLException, Exception {
-        List<MetadataValue> authorsList = itemService.getMetadataByMetadataString(publication,
-            "dc.contributor.author");
-        authorsList = authorsList.stream()
-            .filter(authorMetadata -> authorMetadata.getValue().equals("P-orcid-" + person.getID().toString()))
-            .collect(Collectors.toList());
-        authorsList.stream().map(MetadataValue::getAuthority)
-            .forEach(authority -> MatcherAssert.assertThat(authority, Matchers.equalTo(person.getID().toString())));
+    private void checkReferenceResolved(Item person, Item publication) throws SQLException, Exception {
+        publication = context.reloadEntity(publication);
+        assertThat(publication.getMetadata(), has(authorMetadataFieldWithAuthority(person.getID().toString())));
     }
 
-    private void checkReferenceNotResolved(Context context, String personOrcid, Item publication)
-        throws SQLException, Exception {
-        List<MetadataValue> authorsList = itemService.getMetadataByMetadataString(publication,
-            "dc.contributor.author");
-        authorsList = authorsList.stream()
-            .filter(authorMetadata -> authorMetadata.getValue().equals("P-orcid-" + personOrcid))
-            .collect(Collectors.toList());
-        authorsList.stream().map(MetadataValue::getAuthority)
-            .forEach(authority -> MatcherAssert.assertThat(authority,
-                Matchers.startsWith(AuthorityValueService.REFERENCE + "ORCID::")));
-        ;
+    private void checkReferenceNotResolved(String personOrcid, Item publication) throws SQLException, Exception {
+        publication = context.reloadEntity(publication);
+        String expectedAuthority = AuthorityValueService.REFERENCE + "ORCID::" + personOrcid;
+        assertThat(publication.getMetadata(), has(authorMetadataFieldWithAuthority(expectedAuthority)));
+    }
+
+    private Predicate<MetadataValue> authorMetadataFieldWithAuthority(String authority) {
+        return metadataValue -> "dc.contributor.author".equals(metadataValue.getMetadataField().toString('.'))
+            && authority.equals(metadataValue.getAuthority());
     }
 }

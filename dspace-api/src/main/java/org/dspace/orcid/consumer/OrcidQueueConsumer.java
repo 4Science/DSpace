@@ -152,17 +152,17 @@ public class OrcidQueueConsumer implements Consumer {
                 continue;
             }
 
-            Item owner = itemService.find(context, relatedItemUuid);
+            Item relatedItem = itemService.find(context, relatedItemUuid);
 
-            if (isNotProfileItem(owner) || isNotLinkedToOrcid(context, owner)) {
+            if (relatedItem == null || isNotProfileItem(relatedItem) || isNotLinkedToOrcid(context, relatedItem)) {
                 continue;
             }
 
-            if (shouldNotBeSynchronized(owner, entity) || isAlreadyQueued(context, owner, entity)) {
+            if (shouldNotBeSynchronized(relatedItem, entity) || isAlreadyQueued(context, relatedItem, entity)) {
                 continue;
             }
 
-            orcidQueueService.create(context, owner, entity);
+            orcidQueueService.create(context, relatedItem, entity);
 
         }
 

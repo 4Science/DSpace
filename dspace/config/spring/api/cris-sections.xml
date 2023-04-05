@@ -141,13 +141,6 @@
         <constructor-arg name="sectionComponents">
           <list>
             <list>
-                <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
-                    <property name="contentType" value="text-metadata"/>
-                    <property name="content" value="cms.homepage.header"/>
-                    <property name="style" value="style"/>
-                </bean>
-            </list>
-            <list>
                 <bean class="org.dspace.layout.CrisLayoutSearchComponent">
                     <property name="discoveryConfigurationName" value="site" />
                     <property name="style" value="col-md-12"/>

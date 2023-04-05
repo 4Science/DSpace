@@ -174,9 +174,9 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
         String entityType = getEntityType(item);
 
         innerHtml.addProperty("data-person-badge-enabled", this.personDetailViewEnabled);
-        innerHtml.addProperty("list-person-data-badge-enabled", this.personListViewEnabled);
+        innerHtml.addProperty("list-data-person-badge-enabled", this.personListViewEnabled);
         innerHtml.addProperty("data-publication-badge-enabled", this.publicationDetailViewEnabled);
-        innerHtml.addProperty("list-publication-data-badge-enabled", this.publicationListViewEnabled);
+        innerHtml.addProperty("list-data-publication-badge-enabled", this.publicationListViewEnabled);
         innerHtml.addProperty("type", entityType);
         innerHtml.addProperty("list-type", entityType);
         innerHtml.addProperty("placeholder", "");

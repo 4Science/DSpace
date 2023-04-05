@@ -29,12 +29,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
+import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -61,7 +63,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 /**
  * Test suite for the EditItem endpoint
- * 
+ *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest {
@@ -1272,6 +1274,131 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                                      hasJsonPath("$['dc.date.issued'][0].value", is("2021-11-11")),
                                      hasJsonPath("$['dc.description.abstract'][0].value", is("New Abstract"))
                                      )));
+    }
+
+    @Test
+    public void patchReplaceAllMetadataTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        final boolean virtualMetadataEnabled =
+            configurationService.getBooleanProperty("item.enable-virtual-metadata", false);
+
+        configurationService.setProperty("item.enable-virtual-metadata", false);
+
+        parentCommunity =
+            CommunityBuilder
+                .createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Publication")
+                .withSubmissionDefinition("modeA")
+                .withName("Collection 1")
+                .build();
+
+        Item itemA =
+            ItemBuilder.createItem(context, col1)
+                .withTitle("My Title")
+                .withIssueDate("2023-03-23")
+                .withAuthor("Wayne, Bruce")
+                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+        context.restoreAuthSystemState();
+
+        try {
+            String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+            List<Operation> operations = new ArrayList<Operation>();
+
+            List<Map.Entry<String, String>> abstractValues = new ArrayList<>();
+
+            Entry<String, String> abstract1 = Map.entry("value", "Abstract 1");
+            Entry<String, String> abstract2 = Map.entry("value", "Abstract 2");
+            Entry<String, String> abstract3 = Map.entry("value", "Abstract 3");
+
+            abstractValues.add(abstract1);
+            abstractValues.add(abstract2);
+            abstractValues.add(abstract3);
+
+            List<Map.Entry<String, String>> titleValues = new ArrayList<>();
+
+            titleValues.add(Map.entry("value", "TITLE 1"));
+            titleValues.add(Map.entry("value", "TITLE 2"));
+
+            operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.description.abstract", abstractValues));
+            operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", titleValues));
+
+            String patchBody = getPatchContent(operations);
+            getClient(tokenAdmin).perform(
+                patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                    .content(patchBody)
+                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(
+                    jsonPath(
+                        "$.sections.titleAndIssuedDate", Matchers.allOf(
+                            hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                            hasJsonPath("$['dc.title'][1].value", is("TITLE 2")),
+                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 1")),
+                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 2")),
+                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 3"))
+                        )
+                    )
+                );
+
+            // verify that the patch changes have been persisted
+            getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                .andExpect(status().isOk())
+                .andExpect(
+                    jsonPath(
+                        "$.sections.titleAndIssuedDate", Matchers.allOf(
+                            hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                            hasJsonPath("$['dc.title'][1].value", is("TITLE 2")),
+                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 1")),
+                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 2")),
+                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 3"))
+                        )
+                    )
+                );
+
+            operations.clear();
+
+            operations.add(
+                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/0", abstract2)
+            );
+            operations.add(
+                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/1", abstract3)
+            );
+            operations.add(
+                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/2", abstract1)
+            );
+
+            patchBody = getPatchContent(operations);
+            getClient(tokenAdmin).perform(
+                patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                    .content(patchBody)
+                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(
+                    jsonPath(
+                        "$.sections.titleAndIssuedDate", Matchers.allOf(
+                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 2")),
+                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 3")),
+                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 1"))
+                        )
+                    )
+                );
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            this.configurationService.setProperty("item.enable-virtual-metadata", virtualMetadataEnabled);
+        }
+
     }
 
     @Test

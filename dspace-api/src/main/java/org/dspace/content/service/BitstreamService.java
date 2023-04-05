@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -237,7 +237,10 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
     @Nullable
     Long getLastModified(Bitstream bitstream) throws IOException;
 
-    public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId, Optional<String> bundleName)
-        throws SQLException;
+    List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
+        Map<String, String> filterMetadata) throws SQLException;
+
+    List<Bitstream> findByItemAndBundleAndMetadata(Context context, Item item, String bundleName,
+        Map<String, String> filterMetadata);
 
 }

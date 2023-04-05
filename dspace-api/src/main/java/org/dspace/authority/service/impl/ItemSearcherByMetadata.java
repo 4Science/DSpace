@@ -10,7 +10,6 @@ package org.dspace.authority.service.impl;
 import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
 
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authority.service.AuthorityValueService;
@@ -36,7 +34,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
-import org.dspace.discovery.DiscoverResultItemIterator;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
@@ -162,14 +159,15 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
             .map(value -> AuthorityValueService.REFERENCE + authorityPrefix + "::" + value)
             .collect(Collectors.toList());
 
-        Iterator<Item> itemsIterator = findItemsToResolve(context, item, authorities);
+        Iterator<Item> itemsIterator =
+                      itemService.findRelatedItemsByAuthorityControlledFields(context, item, authorities);
 
         Iterator<Item> cachedItemsIterator = getItemsFromResolutionAttemptsCache(context, metadataValues);
 
         Iterator<Item> itemsWithReferenceIterator = chainedIterator(itemsIterator, cachedItemsIterator);
 
         while (itemsWithReferenceIterator.hasNext()) {
-            Item itemWithReference = itemsIterator.next();
+            Item itemWithReference = itemsWithReferenceIterator.next();
             updateReferences(context, itemWithReference, item, authorities);
         }
 
@@ -192,34 +190,6 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
         itemService.update(context, itemWithReference);
     }
 
-    private Iterator<Item> findItemsToResolve(Context context, Item item, List<String> authorities) {
-
-        String entityType = itemService.getEntityType(item);
-
-        String query = choiceAuthorityService.getAuthorityControlledFieldsByEntityType(entityType).stream()
-            .map(field -> getFieldFilter(field, authorities))
-            .collect(Collectors.joining(" OR "));
-
-        if (StringUtils.isEmpty(query)) {
-            return Collections.emptyIterator();
-        }
-
-        DiscoverQuery discoverQuery = new DiscoverQuery();
-        discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.addDSpaceObjectFilter(IndexableWorkspaceItem.TYPE);
-        discoverQuery.addDSpaceObjectFilter(IndexableWorkflowItem.TYPE);
-        discoverQuery.addFilterQueries(query);
-
-        return new DiscoverResultItemIterator(context, discoverQuery, false);
-
-    }
-
-    private String getFieldFilter(String field, List<String> authorities) {
-        return authorities.stream()
-            .map(authority -> field.replaceAll("_", ".") + "_allauthority: \"" + authority + "\"")
-            .collect(Collectors.joining(" OR "));
-    }
-
     private Optional<Item> findItemById(Context context, UUID itemId) {
         try {
             return Optional.ofNullable(itemService.find(context, itemId));
@@ -232,6 +202,14 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     public void clearCache() {
         valuesToItemIds.get().clear();
         referenceResolutionAttempts.get().clear();
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public String getAuthorityPrefix() {
+        return authorityPrefix;
     }
 
 }
