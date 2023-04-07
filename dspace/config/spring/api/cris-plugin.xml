@@ -14,6 +14,8 @@
 				<entry key-ref="CrisConsumer-SOURCE_INTERNAL">
 					<bean class="org.dspace.authority.filler.ItemMetadataImportFiller" parent="fullItemMetadataConfiguration" />
 				</entry>
+                <entry key="ORCID" value-ref="orcidImportFiller" />
+                <entry key="ISSN" value-ref="sherpaImportFiller" />
 			</map>
 		</property>
 	</bean>
@@ -98,6 +100,16 @@
 			</map>
 		</property>
 	</bean>
+	
+	<bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="orcidImportFiller" >
+	   <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider"/>
+	   <constructor-arg name="authorityIdentifier" value="ORCID"/>
+	</bean>
+    
+    <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="sherpaImportFiller" >
+       <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.SHERPAv2JournalISSNDataProvider"/>
+       <constructor-arg name="authorityIdentifier" value="ISSN"/>
+    </bean>
 
 	<bean class="org.dspace.authority.service.ItemSearcherMapper" name="org.dspace.authority.service.ItemSearcherMapper">
 		<constructor-arg index="0">
@@ -110,6 +122,7 @@
 				<entry key="ISNI" value-ref="itemSearcherByISNI"/>
 				<entry key="DOI" value-ref="itemSearcherByDOI"/>
 				<entry key="URL" value-ref="itemSearcherByURL"/>
+                <entry key="ISSN" value-ref="itemSearcherByISSN"/>
 				<entry key="LEGACY-ID" value-ref="itemSearcherByLegacyId"/>
 				<entry key="SCOPUS-AUTHOR-ID" value-ref="itemSearcherByScopusAuthorId"/>
 			</map>
@@ -143,6 +156,11 @@
 		<constructor-arg value="person.identifier.isni"></constructor-arg>
 		<constructor-arg value="ISNI"></constructor-arg>
 	</bean>
+    
+    <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByISSN">
+        <constructor-arg value="dc.identifier.issn"></constructor-arg>
+        <constructor-arg value="ISSN"></constructor-arg>
+    </bean>
 	
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByLegacyId">
 		<constructor-arg value="cris.legacyId"></constructor-arg>

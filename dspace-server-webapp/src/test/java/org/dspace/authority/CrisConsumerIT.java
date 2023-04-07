@@ -9,15 +9,22 @@ package org.dspace.authority;
 
 import static java.util.Arrays.asList;
 import static java.util.UUID.fromString;
+import static org.dspace.app.matcher.MetadataValueMatcher.with;
 import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import static org.dspace.content.authority.Choices.CF_UNSET;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -51,11 +58,14 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.ItemService;
 import org.dspace.eperson.EPerson;
+import org.dspace.external.OrcidRestConnector;
+import org.dspace.external.provider.impl.OrcidV3AuthorDataProvider;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.dspace.xmlworkflow.storedcomponents.PoolTask;
 import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -79,6 +89,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     @Value("classpath:org/dspace/app/rest/simple-article.pdf")
     private Resource simpleArticle;
 
+    @Value("classpath:org/dspace/authority/orcid/orcid-person-record.xml")
+    private Resource orcidPersonRecord;
+
     private EPerson submitter;
 
     private Collection publicationCollection;
@@ -90,6 +103,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private OrcidV3AuthorDataProvider orcidV3AuthorDataProvider;
 
     @Override
     public void setUp() throws Exception {
@@ -884,8 +900,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         MetadataValueRest editor = findSingleMetadata(item, "dc.contributor.editor");
         String editorAuthority = editor.getAuthority();
-        assertThat("The editor should have the authority null", editorAuthority, nullValue());
-        assertThat("The editor should have an UNSET confidence", editor.getConfidence(), equalTo(CF_UNSET));
+        assertThat("The editor should have the authority set", editorAuthority, notNullValue());
+        assertThat("The editor should have an uuid authority", UUIDUtils.fromString(editorAuthority), notNullValue());
+        assertThat("The editor should have an ACCEPTED confidence", editor.getConfidence(), equalTo(CF_ACCEPTED));
     }
 
     @Test
@@ -918,6 +935,134 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(author.getAuthority(), equalTo(person.getID().toString()));
         assertThat(author.getConfidence(), equalTo(CF_ACCEPTED));
         assertThat(author.getValue(), equalTo("Walter White Original"));
+
+    }
+
+    @Test
+    public void testOrcidImportFiller() throws Exception {
+
+        OrcidRestConnector mockOrcidConnector = Mockito.mock(OrcidRestConnector.class);
+        OrcidRestConnector orcidConnector = orcidV3AuthorDataProvider.getOrcidRestConnector();
+
+        orcidV3AuthorDataProvider.setOrcidRestConnector(mockOrcidConnector);
+
+        String orcid = "0000-0002-9029-1854";
+
+        when(mockOrcidConnector.get(eq(orcid + "/person"), any()))
+            .thenAnswer(i -> orcidPersonRecord.getInputStream());
+
+        try {
+
+            context.turnOffAuthorisationSystem();
+
+            Collection persons = createCollection("Collection of persons", "Person", subCommunity);
+
+            Item publication = ItemBuilder.createItem(context, publicationCollection)
+                .withTitle("Test Publication")
+                .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
+                .build();
+
+            context.commit();
+
+            context.restoreAuthSystemState();
+
+            verify(mockOrcidConnector).get(eq(orcid + "/person"), any());
+            verifyNoMoreInteractions(mockOrcidConnector);
+
+            String authToken = getAuthToken(submitter.getEmail(), password);
+            ItemRest item = getItemViaRestByID(authToken, publication.getID());
+
+            MetadataValueRest authorMetadata = findSingleMetadata(item, "dc.contributor.author");
+
+            UUID authorId = UUIDUtils.fromString(authorMetadata.getAuthority());
+            assertThat(authorId, notNullValue());
+
+            Item author = itemService.find(context, authorId);
+            assertThat(author, notNullValue());
+            assertThat(author.getOwningCollection(), is(persons));
+            assertThat(author.getMetadata(), hasItems(
+                with("dc.title", "Bollini, Andrea"),
+                with("person.familyName", "Bollini"),
+                with("person.givenName", "Andrea"),
+                with("person.identifier.orcid", orcid),
+                with("cris.sourceId", "ORCID::" + orcid)));
+
+            context.turnOffAuthorisationSystem();
+
+            publicationCollection = context.reloadEntity(publicationCollection);
+
+            Item anotherPublication = ItemBuilder.createItem(context, publicationCollection)
+                .withTitle("Test Publication 2")
+                .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
+                .build();
+
+            context.commit();
+
+            context.restoreAuthSystemState();
+
+            verifyNoMoreInteractions(mockOrcidConnector);
+
+            item = getItemViaRestByID(authToken, anotherPublication.getID());
+            authorMetadata = findSingleMetadata(item, "dc.contributor.author");
+            assertThat(UUIDUtils.fromString(authorMetadata.getAuthority()), is(author.getID()));
+
+
+        } finally {
+            orcidV3AuthorDataProvider.setOrcidRestConnector(orcidConnector);
+        }
+
+    }
+
+    @Test
+    public void testSherpaImportFiller() throws Exception {
+
+        String issn = "2731-0582";
+
+        context.turnOffAuthorisationSystem();
+
+        Collection journals = createCollection("Collection of journals", "Journal", subCommunity);
+
+        Item publication = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Test Publication")
+            .withRelationJournal("Nature Synthesis", "will be generated::ISSN::" + issn)
+            .build();
+
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(submitter.getEmail(), password);
+        ItemRest item = getItemViaRestByID(authToken, publication.getID());
+
+        MetadataValueRest journalMetadata = findSingleMetadata(item, "dc.relation.journal");
+
+        UUID journalId = UUIDUtils.fromString(journalMetadata.getAuthority());
+        assertThat(journalId, notNullValue());
+
+        Item journal = itemService.find(context, journalId);
+        assertThat(journal, notNullValue());
+        assertThat(journal.getOwningCollection(), is(journals));
+        assertThat(journal.getMetadata(), hasItems(
+            with("dc.title", "Nature Synthesis"),
+            with("dc.identifier.issn", issn, null, 400),
+            with("cris.sourceId", "ISSN::" + issn)));
+
+        context.turnOffAuthorisationSystem();
+
+        publicationCollection = context.reloadEntity(publicationCollection);
+
+        Item anotherPublication = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Test Publication 2")
+            .withRelationJournal("Nature Synthesis", "will be generated::ISSN::" + issn)
+            .build();
+
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        item = getItemViaRestByID(authToken, anotherPublication.getID());
+        journalMetadata = findSingleMetadata(item, "dc.relation.journal");
+        assertThat(UUIDUtils.fromString(journalMetadata.getAuthority()), is(journal.getID()));
 
     }
 

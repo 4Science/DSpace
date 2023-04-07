@@ -102,6 +102,16 @@
                             <property name="items" ref="itemsMetadata" />
                             <property name="submissionDefinition" value="traditional-cris" />
                         </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-VOC" />
+                            <property name="securities">
+                              <list>
+                                <value>ADMIN</value>
+                              </list>
+                            </property>
+                            <property name="items" ref="itemsMetadata" />
+                            <property name="submissionDefinition" value="controlled-vocabulary-test" />
+                        </bean>
                     </list>
                 </entry>
                 <entry key="publication.modeC">

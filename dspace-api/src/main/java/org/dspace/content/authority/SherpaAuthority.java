@@ -7,11 +7,13 @@
  */
 package org.dspace.content.authority;
 
-import java.util.ArrayList;
+import static org.apache.commons.lang3.ArrayUtils.addAll;
+import static org.dspace.authority.service.AuthorityValueService.REFERENCE;
+import static org.dspace.authority.service.AuthorityValueService.SPLIT;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -22,21 +24,21 @@ import org.dspace.app.sherpa.v2.SHERPAResponse;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Implementation of {@link ChoiceAuthority} that search Journals using the
+ * SHERPA API.
+ * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+ * @author Luca Giamminonni (luca.giamminonni at 4science.com)
  */
-public class SherpaAuthority implements ChoiceAuthority, LinkableEntityAuthority {
+public class SherpaAuthority extends ItemAuthority {
 
     private static final String  TYPE = "publication";
     private static final String  ISSN_FIELD = "issn";
     private static final String  TITLE_FILED = "title";
     private static final String  PREDICATE_EQUALS = "equals";
     private static final String  PREDICATE_CONTAINS_WORD = "contains word";
-
-    private static final Logger log = LoggerFactory.getLogger(SherpaAuthority.class);
 
     /**
      * the name assigned to the specific instance by the PluginService, @see
@@ -52,43 +54,81 @@ public class SherpaAuthority implements ChoiceAuthority, LinkableEntityAuthority
                                    .getServicesByType(SherpaExtraMetadataGenerator.class);
 
     @Override
-    public Choices getBestMatch(String text, String locale) {
-        return getMatches(text, 0, 2, locale);
+    public String getLabel(String key, String locale) {
+        Choices choices = getMatches(key, 0, 1, locale);
+        return choices.values.length == 1 ? choices.values[0].label : StringUtils.EMPTY;
     }
 
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
-        Choice[] choice = sherpaSearch(text, start, limit <= 0 ? 20 : limit);
-        return new Choices(choice, start, choice.length, Choices.CF_AMBIGUOUS, false);
+
+        Choices itemChoices = getLocalItemChoices(text, start, limit, locale);
+
+        int sherpaSearchStart = start > itemChoices.total ? start - itemChoices.total : 0;
+        int sherpaSearchLimit = limit > itemChoices.values.length ? limit - itemChoices.values.length : 0;
+
+        Choices choicesFromSherpa = getSherpaChoices(text, sherpaSearchStart, sherpaSearchLimit);
+        int total = itemChoices.total + choicesFromSherpa.total;
+
+        Choice[] choices = addAll(itemChoices.values, choicesFromSherpa.values);
+
+        return new Choices(choices, start, total, calculateConfidence(choices), total > (start + limit), 0);
+
     }
 
-    private Choice[] sherpaSearch(String text, int start, int limit) {
-        if (Objects.nonNull(sherpaService)) {
-            List<Choice> results = new ArrayList<Choice>();
-            boolean isIssn = ISSNValidator.getInstance().isValid(text);
-            String field = isIssn ? ISSN_FIELD : TITLE_FILED;
-            String predicate = isIssn ? PREDICATE_EQUALS : PREDICATE_CONTAINS_WORD;
-            SHERPAResponse sherpaResponse = sherpaService.performRequest(TYPE, field, predicate, text, start, limit);
-            String authority;
-            if (CollectionUtils.isNotEmpty(sherpaResponse.getJournals())) {
-                for (SHERPAJournal journal : sherpaResponse.getJournals()) {
-                    authority = CollectionUtils.isEmpty(journal.getIssns()) ? "" : journal.getIssns().get(0);
-                    Map<String, String> extras = getSherpaExtra(journal);
-                    String title = journal.getTitles().get(0);
-                    results.add(new Choice(authority, title, title, extras));
-                }
-            }
-            return results.toArray(new Choice[results.size()]);
-        } else {
-            log.warn("External source for SherpaAuthority not configured!");
-            return new Choice[0];
+    private Choices getLocalItemChoices(String text, int start, int limit, String locale) {
+        if (isLocalItemChoicesEnabled()) {
+            return super.getMatches(text, start, limit, locale);
         }
+        return new Choices(Choices.CF_UNSET);
     }
 
-    @Override
-    public String getLabel(String key, String locale) {
-        Choice[] choices = sherpaSearch(key, 0, 1);
-        return choices.length == 1 ? choices[0].label : StringUtils.EMPTY;
+    private Choices getSherpaChoices(String text, int start, int limit) {
+
+        boolean isIssn = ISSNValidator.getInstance().isValid(text);
+        String field = isIssn ? ISSN_FIELD : TITLE_FILED;
+        String predicate = isIssn ? PREDICATE_EQUALS : PREDICATE_CONTAINS_WORD;
+
+        List<SHERPAJournal> journals = getJournalsFromSherpa(field, predicate, text, start, limit);
+
+        Choice[] results = journals.stream()
+            .map(journal -> convertToChoice(journal))
+            .toArray(Choice[]::new);
+
+        // From Sherpa we don't get the total number of results for a specific search,
+        // so the pagination count may be incorrect
+        int total = sherpaService.performCountRequest(TYPE, field, predicate, text);
+
+        if (total <= 0) {
+            total = results.length;
+        }
+
+        return new Choices(results, start, total, calculateConfidence(results), total > (start + limit), 0);
+
+    }
+
+    private List<SHERPAJournal> getJournalsFromSherpa(String field, String predicate,
+        String text, int start, int limit) {
+
+        if (limit <= 0) {
+            return List.of();
+        }
+
+        SHERPAResponse sherpaResponse = sherpaService.performRequest(TYPE, field, predicate, text, start, limit);
+
+        if (sherpaResponse == null || CollectionUtils.isEmpty(sherpaResponse.getJournals())) {
+            return List.of();
+        }
+
+        return sherpaResponse.getJournals();
+
+    }
+
+    private Choice convertToChoice(SHERPAJournal journal) {
+        String authority = composeAuthorityValue(journal);
+        Map<String, String> extras = getSherpaExtra(journal);
+        String title = journal.getTitles().get(0);
+        return new Choice(authority, title, title, extras);
     }
 
     private Map<String, String> getSherpaExtra(SHERPAJournal journal) {
@@ -99,6 +139,19 @@ public class SherpaAuthority implements ChoiceAuthority, LinkableEntityAuthority
             }
         }
         return extras;
+    }
+
+    private String composeAuthorityValue(SHERPAJournal journal) {
+
+        if (CollectionUtils.isEmpty(journal.getIssns())) {
+            return "";
+        }
+
+        String issn = journal.getIssns().get(0);
+
+        String prefix = configurationService.getProperty("sherpa.authority.prefix", REFERENCE + "ISSN" + SPLIT);
+        return prefix.endsWith(SPLIT) ? prefix + issn : prefix + SPLIT + issn;
+
     }
 
     @Override
@@ -114,6 +167,10 @@ public class SherpaAuthority implements ChoiceAuthority, LinkableEntityAuthority
     @Override
     public String getLinkedEntityType() {
         return configurationService.getProperty("cris." + this.authorityName + ".entityType", "Journal");
+    }
+
+    private boolean isLocalItemChoicesEnabled() {
+        return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
     }
 
     @Override
