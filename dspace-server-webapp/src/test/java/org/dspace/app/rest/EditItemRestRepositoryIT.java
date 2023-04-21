@@ -294,6 +294,62 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         List<Operation> operations = new ArrayList<Operation>();
         List<Map<String, String>> values = new ArrayList<Map<String, String>>();
         Map<String, String> value1 = new HashMap<String, String>();
+        value1.put("value", "First Subject");
+        Map<String, String> value2 = new HashMap<String, String>();
+        value2.put("value", "Second Subject");
+        values.add(value1);
+        values.add(value2);
+
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.subject", values));
+
+        String patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("Title of item A")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("First Subject")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Second Subject")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2015-06-25"))
+                                     )));
+
+        // verify that the patch changes have been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("Title of item A")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("First Subject")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Second Subject")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2015-06-25"))
+                                     )));
+    }
+
+    @Test
+    public void notRepeatableFiledValidationErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1").build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withTitle("Title of item A")
+                                .withIssueDate("2015-06-25").build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> operations = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<Map<String, String>>();
+        Map<String, String> value1 = new HashMap<String, String>();
         value1.put("value", "First Title");
         Map<String, String> value2 = new HashMap<String, String>();
         value2.put("value", "Second Title");
@@ -306,21 +362,13 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":SECOND")
                              .content(patchBody)
                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.sections.onlyTitle", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("First Title")),
-                                     hasJsonPath("$['dc.title'][1].value", is("Second Title"))
-                                     )))
-                             .andExpect(jsonPath("$.sections.onlyTitle['dc.date.issued']").doesNotExist());
+                             .andExpect(status().isUnprocessableEntity());
 
-        // verify that the patch changes have been persisted
+        // verify that the patch changes haven't been persisted
         getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":SECOND"))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.sections.onlyTitle", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("First Title")),
-                                     hasJsonPath("$['dc.title'][1].value", is("Second Title"))
-                                     )))
-                             .andExpect(jsonPath("$.sections.onlyTitle['dc.date.issued']").doesNotExist());
+                             .andExpect(jsonPath("$.sections.onlyTitle['dc.title'][0].value", is("Title of item A")))
+                             .andExpect(jsonPath("$.sections.onlyTitle['dc.title'][1].value").doesNotExist());
     }
 
     @Test
@@ -1280,125 +1328,85 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
     public void patchReplaceAllMetadataTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        final boolean virtualMetadataEnabled =
-            configurationService.getBooleanProperty("item.enable-virtual-metadata", false);
-
         configurationService.setProperty("item.enable-virtual-metadata", false);
 
-        parentCommunity =
-            CommunityBuilder
-                .createCommunity(context)
-                .withName("Parent Community")
-                .build();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
 
-        Collection col1 =
-            CollectionBuilder.createCollection(context, parentCommunity)
-                .withEntityType("Publication")
-                .withSubmissionDefinition("modeA")
-                .withName("Collection 1")
-                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1")
+                                           .build();
 
-        Item itemA =
-            ItemBuilder.createItem(context, col1)
-                .withTitle("My Title")
-                .withIssueDate("2023-03-23")
-                .withAuthor("Wayne, Bruce")
-                .build();
+        Item item = ItemBuilder.createItem(context, col1)
+                               .withTitle("My Title")
+                               .withIssueDate("2023-03-23")
+                               .withAuthor("Wayne, Bruce")
+                               .build();
 
-        EditItem editItem = new EditItem(context, itemA);
+        EditItem editItem = new EditItem(context, item);
         context.restoreAuthSystemState();
 
-        try {
-            String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        List<Operation> operations = new ArrayList<Operation>();
 
-            List<Operation> operations = new ArrayList<Operation>();
+        List<Map.Entry<String, String>> subjectValues = new ArrayList<>();
 
-            List<Map.Entry<String, String>> abstractValues = new ArrayList<>();
+        Entry<String, String> subject1 = Map.entry("value", "Subject 1");
+        Entry<String, String> subject2 = Map.entry("value", "Subject 2");
+        Entry<String, String> subject3 = Map.entry("value", "Subject 3");
 
-            Entry<String, String> abstract1 = Map.entry("value", "Abstract 1");
-            Entry<String, String> abstract2 = Map.entry("value", "Abstract 2");
-            Entry<String, String> abstract3 = Map.entry("value", "Abstract 3");
+        subjectValues.add(subject1);
+        subjectValues.add(subject2);
+        subjectValues.add(subject3);
 
-            abstractValues.add(abstract1);
-            abstractValues.add(abstract2);
-            abstractValues.add(abstract3);
+        List<Map.Entry<String, String>> titleValues = new ArrayList<>();
 
-            List<Map.Entry<String, String>> titleValues = new ArrayList<>();
+        titleValues.add(Map.entry("value", "TITLE 1"));
 
-            titleValues.add(Map.entry("value", "TITLE 1"));
-            titleValues.add(Map.entry("value", "TITLE 2"));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.subject", subjectValues));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", titleValues));
 
-            operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.description.abstract", abstractValues));
-            operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", titleValues));
+        String patchBody = getPatchContent(operations);
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 1")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 3"))
+                                     )));
 
-            String patchBody = getPatchContent(operations);
-            getClient(tokenAdmin).perform(
-                patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
-                    .content(patchBody)
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON)
-            )
-                .andExpect(status().isOk())
-                .andExpect(
-                    jsonPath(
-                        "$.sections.titleAndIssuedDate", Matchers.allOf(
-                            hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
-                            hasJsonPath("$['dc.title'][1].value", is("TITLE 2")),
-                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 1")),
-                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 2")),
-                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 3"))
-                        )
-                    )
-                );
+        // verify that the patch changes have been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 1")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 3"))
+                                     )));
 
-            // verify that the patch changes have been persisted
-            getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
-                .andExpect(status().isOk())
-                .andExpect(
-                    jsonPath(
-                        "$.sections.titleAndIssuedDate", Matchers.allOf(
-                            hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
-                            hasJsonPath("$['dc.title'][1].value", is("TITLE 2")),
-                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 1")),
-                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 2")),
-                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 3"))
-                        )
-                    )
-                );
+        operations.clear();
 
-            operations.clear();
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/0", subject2));
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/1", subject3));
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/2", subject1));
 
-            operations.add(
-                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/0", abstract2)
-            );
-            operations.add(
-                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/1", abstract3)
-            );
-            operations.add(
-                new ReplaceOperation("/sections/titleAndIssuedDate/dc.description.abstract/2", abstract1)
-            );
-
-            patchBody = getPatchContent(operations);
-            getClient(tokenAdmin).perform(
-                patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
-                    .content(patchBody)
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON)
-            )
-                .andExpect(status().isOk())
-                .andExpect(
-                    jsonPath(
-                        "$.sections.titleAndIssuedDate", Matchers.allOf(
-                            hasJsonPath("$['dc.description.abstract'][0].value", is("Abstract 2")),
-                            hasJsonPath("$['dc.description.abstract'][1].value", is("Abstract 3")),
-                            hasJsonPath("$['dc.description.abstract'][2].value", is("Abstract 1"))
-                        )
-                    )
-                );
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            this.configurationService.setProperty("item.enable-virtual-metadata", virtualMetadataEnabled);
-        }
-
+        patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 3")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 1"))
+                                     )));
     }
 
     @Test

@@ -673,13 +673,8 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>add cris owner metadata field</from>
+      <from>add dspace object owner metadata field</from>
       <to>select metadata attributes 2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Append legacy ids</from>
-      <to>Append cris owner</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -689,7 +684,7 @@
     </hop>
     <hop>
       <from>owner not null</from>
-      <to>add cris owner metadata field</to>
+      <to>add dspace object owner metadata field</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -794,7 +789,7 @@
     </hop>
     <hop>
       <from>entities nested metadata</from>
-      <to>Join rows 4</to>
+      <to>Append Nested</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -992,7 +987,320 @@
       <to>Filter rows</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>Add constants</from>
+      <to>Select values 6</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows2</from>
+      <to>entities nested placeholder</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Placeholder Var</from>
+      <to>Filter rows2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 6</from>
+      <to>Append Nested</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>entities nested placeholder</from>
+      <to>Add constants</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append Nested</from>
+      <to>Sort position</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort position</from>
+      <to>Join rows 4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get eperson 2</from>
+      <to>eperson values not null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>eperson values not null</from>
+      <to>select metadata attributes 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>is eperson</from>
+      <to>Get eperson 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append legacy ids</from>
+      <to>Append eperson metadata</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append eperson metadata</from>
+      <to>Append cris owner</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>select metadata attributes 2 2</from>
+      <to>Append eperson metadata</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>is file</from>
+      <to>is eperson</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
+  <step>
+    <name>Add constants</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>dtype</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>text</nullif>
+        <length>31</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>sortvalue</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>datevalue</name>
+        <type>Timestamp</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>6</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>linkdescription</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>linkvalue</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>fileextension</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>filefolder</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>filemime</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>filename</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>255</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>doublevalue</name>
+        <type>Number</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>rpvalue</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>projectvalue</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>9</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>ouvalue</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>9</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>dovalue</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>9</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>booleanvalue</name>
+        <type>Boolean</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>classificationvalue</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>9</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>custompointer</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>9</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>row_number</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>15</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>1040</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
   <step>
     <name>Add imp_bitstream_id</name>
     <type>Sequence</type>
@@ -1185,6 +1493,33 @@
     </GUI>
   </step>
   <step>
+    <name>Append Nested</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>entities nested metadata</head_name>
+    <tail_name>Select values 6</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>880</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>Append cris owner</name>
     <type>Append</type>
     <description/>
@@ -1195,7 +1530,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <head_name>Append legacy ids</head_name>
+    <head_name>Append eperson metadata</head_name>
     <tail_name>select metadata attributes 2</tail_name>
     <attributes/>
     <cluster_schema/>
@@ -1340,14 +1675,18 @@
 var file_main_dir = 'do-files';
 if(entity_type_var == 'OrgUnit'){
    file_main_dir = 'ou-files';
-} else if(entity_type_var == 'Project'){
-   file_main_dir = 'pj-files';
+} else if(entity_type_var == 'Funding' || entity_type_var == 'Project' ){
+   file_main_dir = 'rg-files';
 } else if(entity_type_var == 'Person'){
    file_main_dir = 'rp-files';
 }
 
-var file_path = getVariable('file_root','') + '/' + file_main_dir + '/' + filefolder + '/' + filename + '.' + fileextension;
-var file_name = filename + '.' + fileextension;</jsScript_script>
+var file_path = getVariable('file_root','') + '/' + file_main_dir + '/' + filefolder + '/' + filename;
+var file_name = filename;
+if (fileextension != null &amp;&amp; fileextension != '') {
+   file_path = file_path + '.' + fileextension;
+   file_name = file_name + '.' + fileextension;
+}</jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
@@ -1549,6 +1888,85 @@ var metadata_authority = 'will be referenced::LEGACY-ID::' + pointer_crisid;
     <GUI>
       <xloc>624</xloc>
       <yloc>1968</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Filter rows2</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>entities nested placeholder</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>table</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <leftvalue>pdef</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND NOT</operator>
+            <leftvalue>table</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text/>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>Y</isnull>
+              <mask/>
+            </value>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND NOT</operator>
+            <leftvalue>pdef</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text/>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>Y</isnull>
+              <mask/>
+            </value>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>32</xloc>
+      <yloc>960</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1893,10 +2311,14 @@ WHERE property_def.id = properties.typo_id
   AND values.id = properties.value_id
   AND properties.parent_id = entity.id  
   AND entity.crisid = ?
-  AND property_def.shortname = 'title';</sql>
+  AND (property_def.shortname = 'title' OR property_def.shortname = CONCAT(REGEXP_REPLACE(? ,'[[:digit:]]','','g'),'name'));</sql>
     <outer_join>N</outer_join>
     <replace_vars>Y</replace_vars>
     <parameter>
+      <field>
+        <name>pointer_crisid</name>
+        <type>String</type>
+      </field>
       <field>
         <name>pointer_crisid</name>
         <type>String</type>
@@ -2342,6 +2764,57 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>Placeholder Var</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>table</name>
+        <variable>${PLACEHOLDER_TP}</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>pdef</name>
+        <variable>${PLACEHOLDER_PDEF}</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>944</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>Rename to metadata_visibility</name>
     <type>SelectValues</type>
     <description/>
@@ -2554,6 +3027,9 @@ WHERE property_def.id = properties.typo_id
       <remove>
         <name>nested_object_id</name>
       </remove>
+      <remove>
+        <name>positiondef</name>
+      </remove>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -2597,6 +3073,106 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>352</xloc>
       <yloc>528</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values 6</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>parent_id</name>
+      </field>
+      <field>
+        <name>positiondef</name>
+      </field>
+      <field>
+        <name>nested_object_id</name>
+      </field>
+      <field>
+        <name>visibility</name>
+      </field>
+      <field>
+        <name>shortname</name>
+      </field>
+      <field>
+        <name>dtype</name>
+      </field>
+      <field>
+        <name>sortvalue</name>
+      </field>
+      <field>
+        <name>datevalue</name>
+      </field>
+      <field>
+        <name>textvalue</name>
+      </field>
+      <field>
+        <name>linkdescription</name>
+      </field>
+      <field>
+        <name>linkvalue</name>
+      </field>
+      <field>
+        <name>fileextension</name>
+      </field>
+      <field>
+        <name>filefolder</name>
+      </field>
+      <field>
+        <name>filemime</name>
+      </field>
+      <field>
+        <name>filename</name>
+      </field>
+      <field>
+        <name>doublevalue</name>
+      </field>
+      <field>
+        <name>rpvalue</name>
+      </field>
+      <field>
+        <name>projectvalue</name>
+      </field>
+      <field>
+        <name>ouvalue</name>
+      </field>
+      <field>
+        <name>dovalue</name>
+      </field>
+      <field>
+        <name>booleanvalue</name>
+      </field>
+      <field>
+        <name>classificationvalue</name>
+      </field>
+      <field>
+        <name>custompointer</name>
+      </field>
+      <field>
+        <name>row_number</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>960</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2855,6 +3431,56 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
+    <name>Sort position</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>positiondef</name>
+        <ascending>N</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>nested_object_id</name>
+        <ascending>N</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>800</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>Sort rows</name>
     <type>SortRows</type>
     <description/>
@@ -2921,7 +3547,7 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
-    <name>add cris owner metadata field</name>
+    <name>add dspace object owner metadata field</name>
     <type>Constant</type>
     <description/>
     <distribute>Y</distribute>
@@ -2939,7 +3565,7 @@ WHERE property_def.id = properties.typo_id
         <currency/>
         <decimal/>
         <group/>
-        <nullif>cris</nullif>
+        <nullif>dspace</nullif>
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -2951,7 +3577,7 @@ WHERE property_def.id = properties.typo_id
         <currency/>
         <decimal/>
         <group/>
-        <nullif>owner</nullif>
+        <nullif>object</nullif>
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -2975,7 +3601,7 @@ WHERE property_def.id = properties.typo_id
         <currency/>
         <decimal/>
         <group/>
-        <nullif/>
+        <nullif>owner</nullif>
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -4467,6 +5093,7 @@ WHERE property_def.id = properties.typo_id
     </partitioning>
     <connection>dspace</connection>
     <sql>SELECT nested_object.parent_id,
+nested_object.positiondef,
 properties.parent_id as nested_object_id, 
 properties.visibility,
 property_def.shortname,
@@ -5044,6 +5671,207 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>80</xloc>
       <yloc>880</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>entities nested placeholder</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <sql>SELECT DISTINCT 
+nested_object.parent_id,
+nested_object.positiondef,        
+properties.parent_id as nested_object_id,     
+--property_def.id AS pdef_id,    
+--original pdef from where the value is caluclated. Remove because of DISTINCT clause 
+--property_def2.id AS pdef_id_missing,  
+properties.visibility,   
+property_def2.shortname,    
+property_def2.value AS textvalue
+FROM    
+(   
+(SELECT * FROM "public".${NESTED_PROP}) AS properties   
+Left JOIN    
+(SELECT * FROM "public".${NESTED_TABLE}) AS nested_object ON nested_object.id = properties.parent_id   
+Left JOIN    
+(SELECT * FROM "public".${NESTED_PROP_DEF}) AS property_def ON property_def.id = properties.typo_id    
+Left JOIN  
+(SELECT * FROM "public".${NESTED_TABLE}_tp2pdef) AS tp2 ON tp2.${PLACEHOLDER_TP} = nested_object.typo_id AND tp2.${PLACEHOLDER_PDEF} != property_def.id   
+-- CAN't use variables because they contain old_, thus introducing Placeholde variables
+--join with non-existing values where not exist 
+Left JOIN    
+(SELECT '#PLACEHOLDER_PARENT_METADATA_VALUE#' AS value, shortname, id FROM "public".${NESTED_PROP_DEF}) AS property_def2 ON property_def2.id = tp2.${PLACEHOLDER_PDEF} AND NOT EXISTS(SELECT * from "public".${NESTED_PROP} AS pdef3 WHERE pdef3.parent_id = properties.parent_id AND pdef3.typo_id = property_def2.id)  
+) 
+
+WHERE property_def2.id IS NOT NULL 
+ORDER BY parent_id ASC; 
+
+</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>parent_id</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>parent_id</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>nested_object_id</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>nested_object_id</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>pdef_id_missing</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>pdef_id_missing</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>visibility</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>visibility</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>shortname</name>
+        <length>255</length>
+        <precision>-1</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>shortname</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>textvalue</name>
+        <length>2147483647</length>
+        <precision>-1</precision>
+        <origin>entities nested placeholder</origin>
+        <comments>textvalue</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>it_IT</date_format_locale>
+        <date_format_timezone>Europe/Rome</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+    </row-meta>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>1040</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -5740,7 +6568,7 @@ WHERE property_def.id = properties.typo_id
       <schema_name/>
     </partitioning>
     <send_true_to>Get ENTITY_TYPE from variables 4</send_true_to>
-    <send_false_to/>
+    <send_false_to>is eperson</send_false_to>
     <compare>
       <condition>
         <negated>N</negated>
@@ -6505,7 +7333,7 @@ WHERE property_def.id = properties.typo_id
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>add cris owner metadata field</send_true_to>
+    <send_true_to>add dspace object owner metadata field</send_true_to>
     <send_false_to/>
     <compare>
       <condition>
@@ -6984,6 +7812,434 @@ WHERE property_def.id = properties.typo_id
     <GUI>
       <xloc>976</xloc>
       <yloc>1840</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+    <step>
+    <name>Get eperson 2</name>
+    <type>DBJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <rowlimit>1</rowlimit>
+    <sql>SELECT ep.uuid as metadata_authority, ep.email as metadata_value
+FROM eperson ep
+WHERE ep.eperson_id = ?</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>Y</replace_vars>
+    <parameter>
+      <field>
+        <name>custompointer</name>
+        <type>Integer</type>
+      </field>
+    </parameter>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>912</xloc>
+      <yloc>1792</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>eperson values not null</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>select metadata attributes 2 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>metadata_value</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <leftvalue>metadata_authority</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1776</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>is eperson</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Get eperson 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>dtype</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>eperson</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>160</xloc>
+      <yloc>1792</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>select metadata attributes 2 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>metadata_value</name>
+      </field>
+      <field>
+        <name>metadata_order</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1648</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Append eperson metadata</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Append legacy ids</head_name>
+    <tail_name>select metadata attributes 2 2</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1536</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Get eperson 2</name>
+    <type>DBJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <rowlimit>1</rowlimit>
+    <sql>SELECT ep.uuid as metadata_authority, ep.email as metadata_value
+FROM eperson ep
+WHERE ep.eperson_id = ?</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>Y</replace_vars>
+    <parameter>
+      <field>
+        <name>custompointer</name>
+        <type>Integer</type>
+      </field>
+    </parameter>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>912</xloc>
+      <yloc>1792</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>eperson values not null</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>select metadata attributes 2 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>metadata_value</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <leftvalue>metadata_authority</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1776</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>is eperson</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Get eperson 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>dtype</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>eperson</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>160</xloc>
+      <yloc>1792</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>select metadata attributes 2 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>metadata_value</name>
+      </field>
+      <field>
+        <name>metadata_order</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1648</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Append eperson metadata</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Append legacy ids</head_name>
+    <tail_name>select metadata attributes 2 2</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1536</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

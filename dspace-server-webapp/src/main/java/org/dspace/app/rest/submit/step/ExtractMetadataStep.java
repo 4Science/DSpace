@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.app.rest.submit.step;
 
 import java.io.File;
@@ -21,6 +20,7 @@ import java.util.StringJoiner;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Equator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.exception.ExtractMetadataStepException;
 import org.dspace.app.rest.model.ErrorRest;
@@ -62,6 +62,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class ExtractMetadataStep implements ListenerProcessingStep, UploadableStep {
 
+    private static final Logger log = LogManager.getLogger(ExtractMetadataStep.class);
+
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private ImportService importService = new DSpace().getSingletonService(ImportService.class);
     private MetadataListener listener = new DSpace().getSingletonService(MetadataListener.class);
@@ -69,8 +71,6 @@ public class ExtractMetadataStep implements ListenerProcessingStep, UploadableSt
     // we need to use thread local as we need to store the status of the item before that changes are performed
     private ThreadLocal<Map<String, List<MetadataValue>>> metadataMap =
             new ThreadLocal<Map<String, List<MetadataValue>>>();
-
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ExtractMetadataStep.class);
 
     @Override
     public void doPreProcessing(Context context, InProgressSubmission wsi) {
@@ -99,7 +99,7 @@ public class ExtractMetadataStep implements ListenerProcessingStep, UploadableSt
                 ExternalDataObject obj = listener.getExternalDataObject(context, wsi.getItem(), changedMetadata);
                 if (obj != null) {
                     // add metadata to the item if no values are already here
-                    Set<String> alreadyFilledMetadata = new HashSet();
+                    Set<String> alreadyFilledMetadata = new HashSet<String>();
                     for (MetadataValue mv : wsi.getItem().getMetadata()) {
                         alreadyFilledMetadata.add(mv.getMetadataField().toString('.'));
                     }
@@ -173,7 +173,7 @@ public class ExtractMetadataStep implements ListenerProcessingStep, UploadableSt
             ImportRecord record = importService.getRecord(file, originalFilename);
             if (record != null) {
                 // add metadata to the item if no values are already here
-                Set<String> alreadyFilledMetadata = new HashSet();
+                Set<String> alreadyFilledMetadata = new HashSet<String>();
                 for (MetadataValue mv : item.getMetadata()) {
                     alreadyFilledMetadata.add(mv.getMetadataField().toString('.'));
                 }

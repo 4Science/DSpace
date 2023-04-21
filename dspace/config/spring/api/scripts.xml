@@ -125,7 +125,7 @@
     </bean>
     
     <bean id="update-item-references" class="org.dspace.authority.script.UpdateItemReferenceCliScriptConfiguration">
-        <property name="description" value="Perform the resolutrion of authority references"/>
+        <property name="description" value="Perform the resolution of authority references"/>
         <property name="dspaceRunnableClass" value="org.dspace.authority.script.UpdateItemReferenceCli"/>
     </bean>
 

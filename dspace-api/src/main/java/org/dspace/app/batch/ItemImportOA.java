@@ -678,6 +678,7 @@ public class ItemImportOA {
         String qualifier = n.getImpQualifier();
         String authority = n.getImpAuthority();
         int confidence = n.getImpConfidence();
+        int order = n.getMetadataOrder();
         String language = "";
         if (StringUtils.isNotBlank(impSchema)) {
             schema = impSchema;
@@ -729,10 +730,20 @@ public class ItemImportOA {
             }
         } else {
             if (securityLevel == null) {
-                itemService.addMetadata(c, i, schema, element, qualifier, language, value, authority, confidence);
+                if (order > -1) {
+                    itemService.addMetadata(c, i, schema, element, qualifier, language, value, authority, confidence,
+                        order);
+                } else {
+                    itemService.addMetadata(c, i, schema, element, qualifier, language, value, authority, confidence);
+                }
             } else {
-                itemService.addSecuredMetadata(c, i, schema, element, qualifier, language, value, authority,
-                    confidence, securityLevel);
+                if (order > -1) {
+                    itemService.addMetadataInPlaceSecured(c, i, schema, element, qualifier, language, value, authority,
+                        confidence, order, securityLevel);
+                } else {
+                    itemService.addSecuredMetadata(c, i, schema, element, qualifier, language, value, authority,
+                        confidence, securityLevel);
+                }
             }
         }
     }

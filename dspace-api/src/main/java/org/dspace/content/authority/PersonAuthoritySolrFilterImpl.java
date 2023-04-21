@@ -5,15 +5,19 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.content.authority;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.content.DCPersonName;
-import org.dspace.content.authority.service.ItemAuthorityService;
 
-public class PersonItemAuthorityService implements ItemAuthorityService {
+/**
+ * 
+ * @author Stefano Maffei 4Science.com
+ *
+ */
+
+public class PersonAuthoritySolrFilterImpl extends ItemAuthorityCustomSolrFilterImpl {
 
     @Override
     public String getSolrQuery(String searchTerm) {
@@ -27,8 +31,8 @@ public class PersonItemAuthorityService implements ItemAuthorityService {
             String luceneQuery = lastName + "*";
             luceneQuery = luceneQuery.replaceAll("\\\\ ", " ");
 
-            solrQuery = "{!lucene q.op=AND df=itemauthoritylookup}(" + luceneQuery + ") OR (\""
-                + luceneQuery.substring(0, luceneQuery.length() - 1) + "\")";
+            solrQuery = "{!lucene q.op=AND df=itemauthoritylookup}(" + luceneQuery + ")^100 OR (\""
+                + luceneQuery.substring(0, luceneQuery.length() - 1) + "\")^10";
         } else {
             String luceneQuerySurExact = lastName + " " + firstName + "*";
 
@@ -36,10 +40,10 @@ public class PersonItemAuthorityService implements ItemAuthorityService {
             String luceneQuerySurJolly = lastName + "* " + firstName + "*";
 
             solrQuery = "{!lucene q.op=AND df=itemauthoritylookup}("
-                + luceneQuerySurExact + ") OR (\""
-                + luceneQuerySurExact.substring(0, luceneQuerySurExact.length() - 1) + "\") OR ("
-                + luceneQuerySurJolly + ") OR ("
-                + luceneQuerySurJolly.substring(0, luceneQuerySurJolly.length() - 1) + ")";
+                + luceneQuerySurExact + ")^90 OR (\""
+                + luceneQuerySurExact.substring(0, luceneQuerySurExact.length() - 1) + "\")^100 OR ("
+                + luceneQuerySurJolly + ")^40 OR ("
+                + luceneQuerySurJolly.substring(0, luceneQuerySurJolly.length() - 1) + ")^50";
         }
 
         return solrQuery;

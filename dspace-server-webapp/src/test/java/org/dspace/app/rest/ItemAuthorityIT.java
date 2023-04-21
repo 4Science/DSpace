@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest;
 
+import static org.dspace.app.rest.matcher.ItemAuthorityMatcher.matchItemAuthorityProperties;
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -563,6 +565,313 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                     ItemAuthorityMatcher.matchItemAuthorityProperties(person3.getID().toString(),
                         "Author 3", "Author 3", "vocabularyEntry"))));
 
+    }
+    @Test
+    public void personAuthorityTests() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = PersonAuthority" });
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.entityType", "Person");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Person")
+            .build();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        // AuthorAuthority Test
+        Item person1 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Andrea")
+            .withFullName("Andrea Bollini")
+            .withGivenName("Andrea")
+            .withFamilyName("Bollini")
+            .build();
+
+        Item person2 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Riccardo Andrea")
+            .withVariantName("Riccardo Andrea Bollini")
+            .build();
+
+        Item person3 = ItemBuilder.createItem(context, col1)
+            .withTitle("Giamminonni, Andrea")
+            .withVariantName("Giamminonni Andrea")
+            .build();
+
+        Item person4 = ItemBuilder.createItem(context, col1)
+            .withTitle("Cortese, Claudio")
+            .withGivenName("Claudio Andrea Paolo")
+            .withFamilyName("Cortese")
+            .build();
+
+        context.restoreAuthSystemState();
+        String person4Id = person4.getID().toString();
+
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
+            .param("filter", "Cortese Claudio")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
+            .param("filter", "Claudio Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
+            .param("filter", "Claudio Andrea Paolo Cortese"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+
+    }
+
+    @Test
+    public void testAuthorStrictMatchAuthority() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorStrictMatchAuthority" });
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorStrictMatchAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("cris.ItemAuthority.AuthorStrictMatchAuthority.forceInternalName", true);
+        configurationService.setProperty("cris.ItemAuthority.AuthorStrictMatchAuthority.entityType", "Person");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.entityType", "Person");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Person")
+            .build();
+
+        Item person1 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Andrea")
+            .withFullName("Andrea Bollini")
+            .withVariantName("Andrea Bollini Test")
+            .withGivenName("Andrea")
+            .withFamilyName("Bollini")
+            .build();
+
+        Item person2 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Riccardo Andrea")
+            .withVariantName("Riccardo Andrea Bollini")
+            .build();
+
+
+        context.restoreAuthSystemState();
+
+        String person1Id = person1.getID().toString();
+        String person2Id = person2.getID().toString();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Bollini Andrea")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person1Id, "Bollini, Andrea", "Bollini, Andrea", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Bollini A.")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "A. Bollini")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Riccardo Andrea Bollini")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person2Id, "Bollini, Riccardo Andrea", "Bollini, Riccardo Andrea", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Andrea Bollini Test")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person1Id, "Bollini, Andrea", "Bollini, Andrea", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Bollini Andrea Riccardo")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorStrictMatchAuthority/entries")
+            .param("filter", "Andrea Giamminonni")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
+    }
+
+    @Test
+    public void authorCoarseAuthorityTests() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorCoarseMatchAuthority" });
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorCoarseMatchAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("cris.ItemAuthority.AuthorCoarseMatchAuthority.forceInternalName", true);
+        configurationService.setProperty("cris.ItemAuthority.AuthorCoarseMatchAuthority.entityType", "Person");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.entityType", "Person");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Person")
+            .build();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        // AuthorAuthority Test
+        Item person1 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Andrea")
+            .withFullName("Andrea Bollini")
+            .withGivenName("Andrea")
+            .withFamilyName("Bollini")
+            .build();
+
+        Item person2 = ItemBuilder.createItem(context, col1)
+            .withTitle("Bollini, Riccardo Andrea")
+            .withVariantName("Riccardo Andrea Bollini")
+            .build();
+
+        Item person3 = ItemBuilder.createItem(context, col1)
+            .withTitle("Giamminonni, Andrea")
+            .withVariantName("Giamminonni Andrea")
+            .build();
+
+        Item person4 = ItemBuilder.createItem(context, col1)
+            .withTitle("Cortese, Claudio")
+            .withGivenName("Claudio Andrea Paolo")
+            .withFamilyName("Cortese")
+            .build();
+
+        context.restoreAuthSystemState();
+        String person4Id = person4.getID().toString();
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Claudio")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Claudio Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Claudio Andrea Paolo Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Claudio Andrea Paolo")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Claudio Paolo Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Claudio Andrea Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Andrea Paolo Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Andrea Paolo")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Andrea Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Andrea")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Claudio Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Claudio")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Paolo Cortese")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese Paolo")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorCoarseMatchAuthority/entries")
+            .param("filter", "Cortese A. P.")
+            .param("exact", "true"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
+                person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
     }
 
     @Override

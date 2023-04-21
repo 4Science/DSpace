@@ -58,6 +58,17 @@ public interface ChoiceAuthorityService {
             Collection collection);
 
     /**
+     * @param schema    schema of metadata field
+     * @param element   element of metadata field
+     * @param qualifier qualifier of metadata field
+     * @param formName  the form name to retrieve the specific authority
+     * @return the name of the choice authority associated with the specified
+     * metadata. Throw IllegalArgumentException if the supplied metadata
+     * is not associated with an authority choice
+     */
+    public String getChoiceAuthorityName(String schema, String element, String qualifier, String formName);
+
+    /**
      * Wrapper that calls getBestMatch method of the plugin corresponding to
      * the metadata field defined by single field key.
      *
@@ -122,6 +133,17 @@ public interface ChoiceAuthorityService {
      * @return true if choices are configured for this field.
      */
     public boolean isChoicesConfigured(String fieldKey, int dsoType, Collection collection);
+
+    /**
+     * Predicate, is there a Choices configuration of any kind for the
+     * given metadata field?
+     *
+     * @param fieldKey single string identifying metadata field
+     * @param dsoType   the dspace object type as defined in the {@link Constants}
+     * @param formname the formname used by the collection
+     * @return true if choices are configured for this field.
+     */
+    public boolean isChoicesConfigured(String fieldKey, int dsoType, String formname);
 
     /**
      * Get the presentation keyword (should be "lookup", "select" or "suggest", but this

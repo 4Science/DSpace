@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -71,7 +72,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     private String consumerKey;
     private String consumerSecret;
 
-    private MetadataFieldConfig dateFiled;
+    private MetadataFieldConfig dateFilled;
     private MetadataFieldConfig applicationNumber;
 
     public static final String APP_NO_DATE_SEPARATOR = "$$$";
@@ -117,12 +118,12 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         return consumerSecret;
     }
 
-    public void setDateFiled(MetadataFieldConfig dateFiled) {
-        this.dateFiled = dateFiled;
+    public void setDateFilled(MetadataFieldConfig dateFilled) {
+        this.dateFilled = dateFilled;
     }
 
-    public MetadataFieldConfig getDateFiled() {
-        return dateFiled;
+    public MetadataFieldConfig getDateFilled() {
+        return dateFilled;
     }
 
     public void setApplicationNumber(MetadataFieldConfig applicationNumber) {
@@ -302,29 +303,24 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         }
 
         public List<ImportRecord> call() throws Exception {
-            int positionToSplit = id.indexOf(":");
-            String docType = EpoDocumentId.EPODOC;
-            String idS = id;
-            if (positionToSplit != -1) {
-                docType = id.substring(0, positionToSplit);
-                idS = id.substring(positionToSplit + 1, id.length());
-            } else if (id.contains(APP_NO_DATE_SEPARATOR)) {
-                 // special case the id is the combination of the applicationnumber and date filed
+            if (id.contains(APP_NO_DATE_SEPARATOR)) {
+                // special case the id is the combination of the applicationnumber and date filed
                 String query = "applicationnumber=" + id.split(APP_NO_DATE_SEPARATOR_REGEX)[0];
                 SearchByQueryCallable search = new SearchByQueryCallable(query, bearer, 0, 10);
                 List<ImportRecord> records = search.call().stream()
-                        .filter(r -> r.getValue(dateFiled.getSchema(), dateFiled.getElement(),
-                                    dateFiled.getQualifier())
-                                .stream()
-                                .anyMatch(m -> StringUtils.equals(m.getValue(),
-                                        id.split(APP_NO_DATE_SEPARATOR_REGEX)[1])
-                        ))
-                        .limit(1).collect(Collectors.toList());
+                     .filter(r -> r.getValue(dateFilled.getSchema(), dateFilled.getElement(), dateFilled.getQualifier())
+                            .stream()
+                            .anyMatch(m -> StringUtils.equals(m.getValue(), id.split(APP_NO_DATE_SEPARATOR_REGEX)[1])
+                      ))
+                     .limit(1).collect(Collectors.toList());
                 return records;
             }
-            List<ImportRecord> records = searchDocument(bearer, idS, docType);
+            // search by Patent Number
+            String[] identifier = id.split(":");
+            String patentIdentifier = identifier.length == 2 ? identifier[1] : id;
+            List<ImportRecord> records = retry(new SearchByQueryCallable(patentIdentifier, bearer, null, null));
             if (records.size() > 1) {
-                log.warn("More record are returned with epocID " + id);
+                log.warn("More record are returned with Patent Number: " + id);
             }
             return records;
         }
@@ -350,13 +346,11 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             this.bearer = bearer;
         }
 
-        public SearchByQueryCallable(String queryValue, String bearer, int start, int count) {
+        public SearchByQueryCallable(String queryValue, String bearer, Integer start, Integer count) {
             this.query = new Query();
-            query.addParameter("query", queryValue);
-            this.start = query.getParameterAsClass("start", Integer.class) != null ?
-                query.getParameterAsClass("start", Integer.class) : 0;
-            this.count = query.getParameterAsClass("count", Integer.class) != null ?
-                query.getParameterAsClass("count", Integer.class) : 20;
+            this.query.addParameter("query", queryValue);
+            this.start = Objects.nonNull(start) ? start : 0;
+            this.count = Objects.nonNull(count) ? count : 20;
             this.bearer = bearer;
         }
 
@@ -364,18 +358,16 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
         public List<ImportRecord> call() throws Exception {
             List<ImportRecord> records = new ArrayList<ImportRecord>();
             String queryString = query.getParameterAsClass("query", String.class);
-            if (StringUtils.isNotBlank(consumerKey) && StringUtils.isNotBlank(consumerSecret)) {
-                if (StringUtils.isNotBlank(queryString) && StringUtils.isNotBlank(bearer)) {
-                    List<EpoDocumentId> epoDocIds = searchDocumentIds(bearer, queryString, start + 1, count);
-                    for (EpoDocumentId epoDocId : epoDocIds) {
-                        List<ImportRecord> recordfounds = searchDocument(bearer, epoDocId);
-                        if (recordfounds.size() > 1) {
-                            log.warn("More record are returned with epocID " + epoDocId.toString());
-                        }
-                        records.addAll(recordfounds);
-                    }
+            if (StringUtils.isAnyBlank(consumerKey, consumerSecret, bearer, queryString)) {
+                return records;
+            }
+            List<EpoDocumentId> epoDocIds = searchDocumentIds(bearer, queryString, start + 1, count);
+            for (EpoDocumentId epoDocId : epoDocIds) {
+                List<ImportRecord> recordfounds = searchDocument(bearer, epoDocId);
+                if (recordfounds.size() > 1) {
+                    log.warn("More record are returned with epocID " + epoDocId.toString());
                 }
-
+                records.addAll(recordfounds);
             }
             return records;
         }

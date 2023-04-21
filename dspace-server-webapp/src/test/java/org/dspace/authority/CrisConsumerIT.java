@@ -1044,7 +1044,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(journal.getOwningCollection(), is(journals));
         assertThat(journal.getMetadata(), hasItems(
             with("dc.title", "Nature Synthesis"),
-            with("dc.identifier.issn", issn, null, 400),
+            with("dc.identifier.issn", issn),
             with("cris.sourceId", "ISSN::" + issn)));
 
         context.turnOffAuthorisationSystem();

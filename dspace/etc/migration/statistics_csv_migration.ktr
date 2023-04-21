@@ -573,11 +573,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Append streams</from>
-      <to>write csv</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Find all dspace object's uuids</from>
       <to>Filter rows 2</to>
       <enabled>Y</enabled>
@@ -680,6 +675,41 @@
     <hop>
       <from>Filter rows 3</from>
       <to>Sort rows 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows 2 3</from>
+      <to>not-found</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 3</from>
+      <to>Select values 4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 4</from>
+      <to>Filter rows 2 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Stream lookup</from>
+      <to>Select values 3</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table input</from>
+      <to>Stream lookup</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values 4</from>
+      <to>write csv</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append streams</from>
+      <to>Stream lookup</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1499,6 +1529,16 @@ SELECT eperson_id as dso_id, '7' as entity_type, uuid as dso_uuid
 FROM eperson
 where eperson_id is not null
 
+UNION
+
+SELECT collection_id as dso_id, '3' as entity_type, uuid as dso_uuid
+FROM collection
+where collection_id is not null
+
+UNION
+SELECT community_id as dso_id, '4' as entity_type, uuid as dso_uuid
+FROM community
+where community_id is not null
 
 </sql>
     <limit>0</limit>
@@ -1864,6 +1904,14 @@ if (cris_type==0) {
 
 if (cris_type==7) {
   new_type='7';
+}
+
+if (cris_type==4) {
+  new_type='4';
+}
+
+if (cris_type==3) {
+  new_type='3';
 }
 </jsScript_script>
       </jsScript>
@@ -3135,8 +3183,304 @@ if (cris_type==7) {
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1136</xloc>
+      <xloc>1664</xloc>
       <yloc>976</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Filter rows 2 3</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>not-found</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>owningItem</leftvalue>
+        <function>IS NULL</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1568</xloc>
+      <yloc>1104</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values 3</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <remove>
+        <name>owningItem</name>
+      </remove>
+      <remove>
+        <name>bundleName</name>
+      </remove>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1232</xloc>
+      <yloc>976</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values 4</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>continent</name>
+      </field>
+      <field>
+        <name>submitter</name>
+      </field>
+      <field>
+        <name>isBot</name>
+      </field>
+      <field>
+        <name>statistics_type</name>
+      </field>
+      <field>
+        <name>previousWorkflowStep</name>
+      </field>
+      <field>
+        <name>city</name>
+      </field>
+      <field>
+        <name>latitude</name>
+      </field>
+      <field>
+        <name>type</name>
+      </field>
+      <field>
+        <name>countryCode</name>
+      </field>
+      <field>
+        <name>id</name>
+      </field>
+      <field>
+        <name>owningComm</name>
+      </field>
+      <field>
+        <name>longitude</name>
+      </field>
+      <field>
+        <name>workflowItemId</name>
+      </field>
+      <field>
+        <name>ip</name>
+      </field>
+      <field>
+        <name>workflowStep</name>
+      </field>
+      <field>
+        <name>dns</name>
+      </field>
+      <field>
+        <name>userAgent</name>
+      </field>
+      <field>
+        <name>actor</name>
+      </field>
+      <field>
+        <name>referrer</name>
+      </field>
+      <field>
+        <name>time</name>
+      </field>
+      <field>
+        <name>epersonid</name>
+      </field>
+      <field>
+        <name>owningColl</name>
+      </field>
+      <field>
+        <name>uid</name>
+      </field>
+      <field>
+        <name>workflowAction</name>
+      </field>
+      <field>
+        <name>previousWorkflowAction</name>
+      </field>
+      <field>
+        <name>previousActionRequiresUI</name>
+      </field>
+      <field>
+        <name>workflow</name>
+      </field>
+      <field>
+        <name>item_id</name>
+        <rename>owningItem</rename>
+      </field>
+      <field>
+        <name>text_value</name>
+        <rename>bundleName</rename>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1408</xloc>
+      <yloc>976</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Stream lookup</name>
+    <type>StreamLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <from>Table input</from>
+    <input_sorted>N</input_sorted>
+    <preserve_memory>Y</preserve_memory>
+    <sorted_list>N</sorted_list>
+    <integer_pair>N</integer_pair>
+    <lookup>
+      <key>
+        <name>id</name>
+        <field>bitstream_id</field>
+      </key>
+      <value>
+        <name>item_id</name>
+        <rename>item_id</rename>
+        <default/>
+        <type>None</type>
+      </value>
+      <value>
+        <name>text_value</name>
+        <rename>text_value</rename>
+        <default/>
+        <type>None</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>976</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Table input</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <sql>select item_id, b2b.bitstream_id, text_value from item2bundle i2b 
+   left join  bundle2bitstream b2b on i2b.bundle_id = b2b.bundle_id 
+   left join metadatavalue m on i2b.bundle_id = m.dspace_object_id AND metadata_field_id in 
+      (select metadata_field_id from metadatafieldregistry where metadata_schema_id = 1 AND element = 'title' AND qualifier IS NULL )</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>1200</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>not-found</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1712</xloc>
+      <yloc>1104</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

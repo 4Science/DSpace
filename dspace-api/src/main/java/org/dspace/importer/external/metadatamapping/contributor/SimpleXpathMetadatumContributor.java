@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
@@ -158,7 +159,7 @@ public class SimpleXpathMetadatumContributor implements MetadataContributor<Elem
         List<Object> nodes = xpath.evaluate(t);
         for (Object el : nodes) {
             if (el instanceof Element) {
-                values.add(metadataFieldMapping.toDCValue(field, ((Element) el).getText()));
+                values.add(metadataFieldMapping.toDCValue(field, extractValue(el)));
             } else if (el instanceof Attribute) {
                 values.add(metadataFieldMapping.toDCValue(field, ((Attribute) el).getValue()));
             } else if (el instanceof String) {
@@ -170,6 +171,11 @@ public class SimpleXpathMetadatumContributor implements MetadataContributor<Elem
             }
         }
         return values;
+    }
+
+    private String extractValue(Object el) {
+        String value = ((Element) el).getText();
+        return StringUtils.isNotBlank(value) ? value : ((Element) el).getValue().trim();
     }
 
 }

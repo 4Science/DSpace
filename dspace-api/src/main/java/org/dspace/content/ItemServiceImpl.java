@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -1002,9 +1003,19 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     private List<MetadataValue> getMetadataWithAuthority(Item item, String metadataField, String authority) {
-        return getMetadataByMetadataString(item, metadataField).stream()
-                      .filter(metadataValue -> StringUtils.equals(metadataValue.getAuthority(), authority))
-                      .collect(Collectors.toList());
+        if (isValidMetadata(metadataField)) {
+            return getMetadataByMetadataString(item, metadataField).stream()
+                .filter(metadataValue -> StringUtils.equals(metadataValue.getAuthority(), authority))
+                .collect(Collectors.toList());
+        }
+        return List.of();
+    }
+
+    public boolean isValidMetadata(String metadataField) {
+        if (metadataField.split(Pattern.quote(".")).length > 3) {
+            return false;
+        }
+        return true;
     }
 
     private void applyCleanUpMode(Context context, Item deletedItem, Item itemToProcess,
@@ -1044,6 +1055,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         String entityType = this.getEntityType(item);
         return choiceAuthorityService.getAuthorityControlledFieldsByEntityType(entityType)
                                      .stream()
+                                     .filter(field -> isValidMetadata(field))
                                      .map(field -> field.replaceAll("_", "."))
                                      .collect(Collectors.toList());
     }

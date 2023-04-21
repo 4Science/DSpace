@@ -1828,6 +1828,15 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <!--    <language value-pairs-name="common_iso_languages">true</language> -->
        </field>
        <field>
+            <dc-schema>dc</dc-schema>
+            <dc-element>subject</dc-element>
+            <repeatable>true</repeatable>
+            <label>Subject</label>
+            <input-type>onebox</input-type>
+            <hint>Subject field that can be associated with an authority providing lookup</hint>
+            <required></required>
+        </field>
+       <field>
          <dc-schema>dc</dc-schema>
          <dc-element>description</dc-element>
          <dc-qualifier>abstract</dc-qualifier>

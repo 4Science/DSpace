@@ -38,6 +38,19 @@
     <bean id="solrServiceCrisValuePairsIndexPlugin" class="org.dspace.discovery.SolrServiceValuePairsIndexPlugin"/>
     <bean id="solrServiceCustomUrlIndexPlugin" class="org.dspace.discovery.SolrServiceCustomUrlIndexPlugin"/>
     <bean id="solrServiceLastImportIndexPlugin" class="org.dspace.discovery.SolrServiceLastImportIndexPlugin"/>
+    <bean id="itemAuthorityLookupIndexPlugin" class="org.dspace.discovery.ItemAuthorityLookupIndexPlugin">
+    	<property name="additionalFields">
+    		<list>
+        		<value>crisrp.name</value>
+        		<value>crisrp.name.variant</value>
+        		<value>crisrp.name.translated</value>
+        		<value>person.givenName</value>
+        		<value>person.familyName</value>
+    		</list>
+    	</property>
+    </bean>
+    <bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>
+    <bean id="solrServiceBestMatchStrictIndexingPlugin" class="org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin"/>
     <bean id="sharedWorkspaceSolrIndexPlugin" class="org.dspace.discovery.SharedWorkspaceSolrIndexPlugin">
         <constructor-arg name="additionalReadMetadata" ref="sharedWorkspaceAuthorMetadataFields"/>
     </bean>
@@ -69,6 +82,7 @@
 
                <!--Use site to override the default configuration for the home page & default discovery page-->
                <entry key="site" value-ref="homepageConfiguration" />
+                <entry key="communityOrCollection" value-ref="communitycollectionConfiguration"/>
                <!--<entry key="123456789/7621" value-ref="defaultConfiguration"/>-->
                <!-- Used to show filters and results on MyDSpace -->
                <!-- Do not change the id of special entries or else they won't work -->
@@ -167,6 +181,20 @@
     <bean id="defaultConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype" parent="commonConfiguration">
         <property name="id" value="defaultConfiguration"/>
     </bean>
+
+
+    <!-- The community collection setting for discovery -->
+    <bean id="communitycollectionConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+          scope="prototype" parent="commonConfiguration">
+        <property name="id" value="communitycollectionConfiguration"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find communities and Collections-->
+                <value>search.resourcetype:Community OR search.resourcetype:Collection</value>
+            </list>
+        </property>
+    </bean>
+
 
     <!--The edit community configuration settings for discovery-->
     <bean id="editCommunityConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype" parent="commonConfiguration">
