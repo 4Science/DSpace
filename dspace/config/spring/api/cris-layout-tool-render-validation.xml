@@ -172,11 +172,5 @@
         <property name="subTypeValidationRule" value="MANDATORY"/>
     </bean>
 
-    <bean id="matrixRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
-        <property name="name" value="matrix"/>
-        <property name="fieldType" value="METADATA"/>
-        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
-    </bean>
-
 </beans>
 
