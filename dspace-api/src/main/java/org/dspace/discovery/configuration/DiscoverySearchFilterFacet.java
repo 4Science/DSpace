@@ -19,6 +19,7 @@ public class DiscoverySearchFilterFacet extends DiscoverySearchFilter {
     private static final int DEFAULT_FACET_LIMIT = 10;
     private int facetLimit = -1;
     private DiscoveryConfigurationParameters.SORT sortOrder = DiscoveryConfigurationParameters.SORT.COUNT;
+    private boolean isMultilingual = false;
     public static final String FILTER_TYPE_FACET = "facet";
 
 
@@ -34,6 +35,14 @@ public class DiscoverySearchFilterFacet extends DiscoverySearchFilter {
     public void setFacetLimit(int facetLimit)
     {
         this.facetLimit = facetLimit;
+    }
+
+    public void setIsMultilingual(boolean isMultilingual) {
+        this.isMultilingual = isMultilingual;
+    }
+
+    public boolean getIsMultilingual() {
+        return this.isMultilingual;
     }
 
     public DiscoveryConfigurationParameters.SORT getSortOrder()

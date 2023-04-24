@@ -35,6 +35,9 @@ public final class BrowseIndex
     /** the name of the browse index, as specified in the config */
     private String name;
 
+    /** the multilingualism of the browse index, as specified in the config */
+    private boolean isMultilingual = false;
+
     /** the SortOption for this index (only valid for item indexes) */
     private SortOption sortOption;
 
@@ -104,13 +107,22 @@ public final class BrowseIndex
      * the form:
      * 
      * <code>
-     * [name]:[metadata]:[data type]:[display type]
+     * [name]:[metadata]:[data type]:[display type]:[multilingual]:[sort order]
+     *
+     * # allowed forms
+     * type:metadata:dc.type
+     * type:metadata:dc.type:multilingual
+     * type:metadata:dc.type::DESC
+     * type:metadata:dc.type:multilingual:DESC
+     * ...
      * </code>
      * 
      * [name] is a freetext name for the field
      * [metadata] is the usual format of the metadata such as dc.contributor.author
      * [data type] must be either "title", "date" or "text"
      * [display type] must be either "single" or "full"
+     * [multilingual] can be "multilingual" or empty (default) (OPTIONAL)
+     * [sort order] can be either "ASC" (default) or "DESC"  (OPTIONAL)
      * 
      * @param definition	the configuration definition of this index
      * @param number		the configuration number of this index
@@ -125,7 +137,7 @@ public final class BrowseIndex
             this.defaultOrder = SortOption.ASCENDING;
             this.number = number;
 
-            String rx = "(\\w+):(\\w+):([\\w\\.\\*,]+):?(\\w*):?(\\w*)";
+            String rx = "(\\w+):(\\w+):([\\w\\.\\*,]+):?(\\w*):?(\\w*):?(\\w*)";
             Pattern pattern = Pattern.compile(rx);
             Matcher matcher = pattern.matcher(definition);
 
@@ -136,32 +148,28 @@ public final class BrowseIndex
 
                 if (isMetadataIndex())
                 {
-                    metadataAll = matcher.group(3);
-                    datatype = matcher.group(4);
-
-                    if (metadataAll != null)
-                    {
-                        metadata = metadataAll.split(",");
-                    }
-
-                    if (metadata == null || metadata.length == 0)
-                    {
-                        valid = false;
-                    }
-
-                    if (datatype == null || datatype.equals(""))
-                    {
-                        valid = false;
-                    }
-
-                    // If an optional ordering configuration is supplied,
-                    // set the defaultOrder appropriately (asc or desc)
-                    if (matcher.groupCount() > 4)
-                    {
-                        String order = matcher.group(5);
-                        if (SortOption.DESCENDING.equalsIgnoreCase(order))
-                        {
+                    switch (matcher.groupCount()) {
+                    case 6:
+                        String order = matcher.group(6);
+                        if (SortOption.DESCENDING.equalsIgnoreCase(order)) {
                             this.defaultOrder = SortOption.DESCENDING;
+                        }
+                    case 5:
+                        String multilinguism = matcher.group(5);
+                        if ("multilingual".equals(multilinguism)) {
+                            this.isMultilingual = true;
+                        }
+                    default:
+                        datatype = matcher.group(4);
+                        metadataAll = matcher.group(3);
+                        if (metadataAll != null) {
+                            metadata = metadataAll.split(",");
+                        }
+                        if (metadata == null || metadata.length == 0) {
+                            valid = false;
+                        }
+                        if (datatype == null || datatype.equals("")) {
+                            valid = false;
                         }
                     }
 
@@ -169,29 +177,21 @@ public final class BrowseIndex
                 }
                 else if (isItemIndex())
                 {
-                    String sortName = matcher.group(3);
-
-                    for (SortOption so : SortOption.getSortOptions())
-                    {
-                        if (so.getName().equals(sortName))
-                        {
-                            sortOption = so;
+                    switch (matcher.groupCount()) {
+                    case 4:
+                        String multilinguism = matcher.group(4);
+                        if ("multilingual".equals(multilinguism)) {
+                            this.isMultilingual = true;
                         }
-                    }
-
-                    if (sortOption == null)
-                    {
-                        valid = false;
-                    }
-
-                    // If an optional ordering configuration is supplied,
-                    // set the defaultOrder appropriately (asc or desc)
-                    if (matcher.groupCount() > 3)
-                    {
-                        String order = matcher.group(4);
-                        if (SortOption.DESCENDING.equalsIgnoreCase(order))
-                        {
-                            this.defaultOrder = SortOption.DESCENDING;
+                    default:
+                        String sortName = matcher.group(3);
+                        for (SortOption so : SortOption.getSortOptions()) {
+                            if (so.getName().equals(sortName)) {
+                                sortOption = so;
+                            }
+                        }
+                        if (sortOption == null) {
+                            valid = false;
                         }
                     }
 
@@ -293,6 +293,14 @@ public final class BrowseIndex
 	public String getName()
 	{
 		return name;
+	}
+
+	/**
+	 * @return multilingualism of browse index
+	 */
+	public boolean isMultilingual()
+	{
+		return this.isMultilingual;
 	}
 
 	/**

@@ -210,6 +210,7 @@
 			<bean class="org.dspace.discovery.configuration.DiscoveryCollapsingConfiguration">
 				<property name="groupIndexFieldName" value="resourcetype" />
 				<property name="groupLimit" value="10" />
+		        <property name="isMultilingual" value="true" />
 			</bean>
 		</property>		
 		<property name="hitHighlightingConfiguration">
@@ -2050,8 +2051,9 @@
 				<value>dc.type</value>
 			</list>
 		</property>
-	</bean>	
-	
+		<property name="isMultilingual" value="true" />
+	</bean>
+
 	<bean id="searchFilterAuthor"
 		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
 		<property name="indexFieldName" value="author" />
@@ -2269,6 +2271,7 @@
 		</property>
 		<property name="facetLimit" value="10" />
 		<property name="sortOrder" value="COUNT" />
+		<property name="isMultilingual" value="true" />
 	</bean>
 	
 	<bean id="searchFilterPermissionFulltext"

@@ -15,6 +15,16 @@ public class DiscoveryCollapsingConfiguration {
 
 	private int groupLimit;
 	
+    private boolean isMultilingual = false;
+
+    public void setIsMultilingual(boolean isMultilingual) {
+        this.isMultilingual = isMultilingual;
+    }
+
+    public boolean getIsMultilingual() {
+        return this.isMultilingual;
+    }
+
     public String getGroupIndexFieldName() {
 		return groupIndexFieldName;
 	}

@@ -503,6 +503,7 @@ public class DiscoverUtility
         	globalConfiguration = SearchUtils.getGlobalConfiguration();
         	DiscoverySearchFilterFacet facet = new DiscoverySearchFilterFacet();
         	facet.setIndexFieldName(globalConfiguration.getCollapsingConfiguration().getGroupIndexFieldName());
+            facet.setIsMultilingual(globalConfiguration.getCollapsingConfiguration().getIsMultilingual());
         	facets.add(facet);
         }
         facets.addAll(currentFacets);
@@ -694,7 +695,7 @@ public class DiscoverUtility
                             // filterquery
                         	queryArgs.addFacetField(new DiscoverFacetField(
                                     facet.getIndexFieldName(), facet.getType(),
-                                    10, facet.getSortOrder(),false));
+                                    10, facet.getSortOrder(), false, facet.getIsMultilingual()));
                         }
                         else
                         {
@@ -774,16 +775,16 @@ public class DiscoverUtility
                     if (DiscoverySearchMultilanguageFilterFacet.class.isAssignableFrom(facet.getClass())) {
                         queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(),
                                 DiscoveryConfigurationParameters.TYPE_TEXT, facetLimit + 1 + alreadySelected, facet
-                                .getSortOrder(), I18nUtil.getSupportedLocale(context.getCurrentLocale()).getLanguage() + "_", facetPage * facetLimit,false));                    }
-                    else if (discoveryConfiguration.isGlobalConfigurationEnabled() && facet.getIndexFieldName().equals(
+                                .getSortOrder(), I18nUtil.getSupportedLocale(context.getCurrentLocale()).getLanguage() + "_", facetPage * facetLimit, false, facet.getIsMultilingual()));
+                    } else if (discoveryConfiguration.isGlobalConfigurationEnabled() && facet.getIndexFieldName().equals(
 							globalConfiguration.getCollapsingConfiguration().getGroupIndexFieldName())) {
 						queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(),
 								DiscoveryConfigurationParameters.TYPE_TEXT, facetLimit + 1 + alreadySelected, facet
-										.getSortOrder(), facetPage * facetLimit, true));
+										.getSortOrder(), facetPage * facetLimit, true, facet.getIsMultilingual()));
 					} else {
 						queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(),
 								DiscoveryConfigurationParameters.TYPE_TEXT, facetLimit + 1 + alreadySelected, facet
-										.getSortOrder(), facetPage * facetLimit, false));
+										.getSortOrder(), facetPage * facetLimit, false, facet.getIsMultilingual()));
 					}
                 }
             }

@@ -8,6 +8,7 @@
 package org.dspace.discovery;
 
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
+import org.dspace.discovery.configuration.DiscoveryConfigurationParameters.SORT;
 
 /**
  * Class contains facet query information
@@ -22,36 +23,56 @@ public class DiscoverFacetField {
     private String prefix;
     private String type;
     private boolean exclude;
+    private boolean isMultilingual = false;
     
     private DiscoveryConfigurationParameters.SORT sortOrder;
 
     public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, boolean exclude) {
+        this(field, type, limit, sortOrder, exclude, false);
+    }
+
+    public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, boolean exclude, boolean isMultilingual) {
         this.field = field;
         this.type = type;
         this.limit = limit;
         this.sortOrder = sortOrder;
         this.exclude = exclude;
+        this.isMultilingual = isMultilingual;
     }
 
     public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, int offset, boolean exclude) {
+        this(field, type, limit, sortOrder, offset, exclude, false);
+    }
+
+    public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, int offset, boolean exclude, boolean isMultilingual) {
         this.field = field;
         this.type = type;
         this.limit = limit;
         this.sortOrder = sortOrder;
         this.offset = offset;
         this.exclude = exclude;
+        this.isMultilingual = isMultilingual;
     }
 
     public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, String prefix, boolean exclude) {
+        this(field, type, limit, sortOrder, prefix, exclude, false);
+    }
+
+    public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, String prefix, boolean exclude, boolean isMultilingual) {
         this.prefix = prefix;
         this.limit = limit;
         this.type = type;
         this.sortOrder = sortOrder;
         this.field = field;
         this.exclude = exclude;
+        this.isMultilingual = isMultilingual;
     }
 
     public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, String prefix, int offset, boolean exclude) {
+        this(field, type, limit, sortOrder, prefix, offset, exclude, false);
+    }
+
+    public DiscoverFacetField(String field, String type, int limit, DiscoveryConfigurationParameters.SORT sortOrder, String prefix, int offset, boolean exclude, boolean isMultilingual) {
         this.prefix = prefix;
         this.limit = limit;
         this.type = type;
@@ -59,8 +80,9 @@ public class DiscoverFacetField {
         this.field = field;
         this.offset = offset;
         this.exclude = exclude;
+        this.isMultilingual = isMultilingual;
     }    
-    
+
     public String getField() {
         return field;
     }
@@ -94,6 +116,14 @@ public class DiscoverFacetField {
 	public boolean isExclude() {
 		return exclude;
 	}
+
+    public boolean isMultilingual() {
+        return isMultilingual;
+    }
+
+    public void setIsMultilingual(boolean isMultilingual) {
+        this.isMultilingual = isMultilingual;
+    }
 
 	public void setExclude(boolean exclude) {
 		this.exclude = exclude;

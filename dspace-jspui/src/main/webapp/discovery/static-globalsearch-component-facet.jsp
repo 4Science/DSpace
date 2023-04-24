@@ -108,7 +108,7 @@
     <div class="input-group-btn search-panel">
         <span onmouseover="hover(this);" onmouseout="out(this);">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        	<span id="search_concept">All</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
+            <span id="search_concept"><fmt:message key="jsp.search.facet.all" /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><span class="caret"></b>
         </button>
         <ul class="dropdown-menu menu-global-processor" role="menu">
         
