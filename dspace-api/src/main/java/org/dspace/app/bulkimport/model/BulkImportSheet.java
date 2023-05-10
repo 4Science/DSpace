@@ -5,7 +5,7 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.content.integration.crosswalks.model;
+package org.dspace.app.bulkimport.model;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.dspace.util.WorkbookUtils.createCell;
@@ -18,17 +18,18 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.dspace.app.bulkimport.service.BulkImportWorkbookBuilderImpl;
 import org.dspace.content.Collection;
-import org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk;
 import org.dspace.util.WorkbookUtils;
 
 /**
  * Class that model one of the sheets of the workbook produced by
- * {@link XlsCollectionCrosswalk}.
+ * {@link BulkImportWorkbookBuilderImpl}.
+ *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-public final class XlsCollectionSheet {
+public final class BulkImportSheet {
 
     private final Collection collection;
 
@@ -40,8 +41,7 @@ public final class XlsCollectionSheet {
 
     private final boolean nestedMetadata;
 
-    public XlsCollectionSheet(Workbook workbook, String sheetname, boolean nestedMetadata,
-                              Collection collection) {
+    public BulkImportSheet(Workbook workbook, String sheetname, boolean nestedMetadata, Collection collection) {
         this.sheet = workbook.createSheet(sheetname);
         this.collection = collection;
         this.headerRow = sheet.createRow(0);

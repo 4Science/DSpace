@@ -78,12 +78,14 @@
         <property name="doiField" value="${altmetric.doiField}" />
         <property name="pmidField" value="${altmetric.pmidField}" />
         <property name="badgeType" value="${altmetric.badgeType:#{'donut'}}" />
+        <property name="linkTarget" value="${altmetric.linkTarget:#{'_blank'}}" />
         <property name="popover" value="${altmetric.popover}" />
         <property name="details" value="${altmetric.details:#{null}}" />
         <property name="minScore" value="${altmetric.hideLessThan:#{null}}" />
         <property name="hideNoMentions" value="${altmetric.hideNoMentions:#{null}}" />
         <property name="listBadgeType" value="${altmetric.list-badgeType:#{'donut'}}" />
         <property name="listPopOver" value="${altmetric.list-popover}" />
+        <property name="listLinkTarget" value="${altmetric.list-linkTarget:#{'_blank'}}" />
     </bean>
 
     <bean class="org.dspace.metrics.embeddable.impl.EmbeddablePlumXMetricProvider">

@@ -44,6 +44,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.bulkimport.service.BulkImportWorkbookBuilderImpl;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.app.util.DCInputsReader;
@@ -81,6 +82,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     private XlsCollectionCrosswalk xlsCollectionCrosswalk;
 
+    private BulkImportWorkbookBuilderImpl workbookBuilder;
+
     private ConfigurationService configurationService;
 
     private Community community;
@@ -95,6 +98,9 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         assertThat(crosswalkMapper, notNullValue());
 
         xlsCollectionCrosswalk = (XlsCollectionCrosswalk) crosswalkMapper.getByType("collection-xls");
+
+        workbookBuilder = new DSpace().getServiceManager()
+            .getServicesByType(BulkImportWorkbookBuilderImpl.class).get(0);
 
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -348,7 +354,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             when(reader.getSubmissionFormMetadataGroups(collection)).thenReturn(publicationMetadataFieldGroups);
             when(reader.getAllNestedMetadataByGroupName(collection, "dc.contributor.author")).thenReturn(authorGroup);
 
-            xlsCollectionCrosswalk.setReader(reader);
+            workbookBuilder.setReader(reader);
 
             Item firstPublication = ItemBuilder.createItem(context, collection)
                 .withEntityType("Publication")
@@ -429,7 +435,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 authorSheetSecondRow, authorSheetThirdRow, authorSheetFourthRow, authorSheetFifthRow));
 
         } finally {
-            this.xlsCollectionCrosswalk.setReader(new DCInputsReader());
+            this.workbookBuilder.setReader(new DCInputsReader());
         }
 
     }

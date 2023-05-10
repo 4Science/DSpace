@@ -32,6 +32,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
     private List<List<CrisLayoutSectionComponentRest>> componentRows = new LinkedList<>();
 
+    private List<CrisLayoutSectionRest> nestedSections = new ArrayList<>();
+
     @Override
     public String getType() {
         return NAME;
@@ -53,6 +55,14 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
     public void setComponentRows(List<List<CrisLayoutSectionComponentRest>> componentRows) {
         this.componentRows = componentRows;
+    }
+
+    public List<CrisLayoutSectionRest> getNestedSections() {
+        return nestedSections;
+    }
+
+    public void setNestedSections(List<CrisLayoutSectionRest> nestedSections) {
+        this.nestedSections = nestedSections;
     }
 
     /**
@@ -124,6 +134,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String titleKey;
 
         private Integer numberOfItems;
+
+        private boolean showThumbnails;
 
         private boolean showAsCard;
 
@@ -198,6 +210,14 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
          */
         public Integer getNumberOfItems() {
             return numberOfItems;
+        }
+
+        public boolean isShowThumbnails() {
+            return showThumbnails;
+        }
+
+        public void setShowThumbnails(boolean showThumbnails) {
+            this.showThumbnails = showThumbnails;
         }
 
         /**
@@ -693,7 +713,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         /**
          * Initializes the rest component using the
          * CrisLayoutCarouselComponent component
-         * 
+         *
          * @param component
          */
         public CrisLayoutCarouselComponentRest(CrisLayoutCarouselComponent component) {

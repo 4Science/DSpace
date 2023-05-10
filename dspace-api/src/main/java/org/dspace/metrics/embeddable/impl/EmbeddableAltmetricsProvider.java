@@ -31,6 +31,8 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
 
     private Boolean hideNoMentions;
 
+    private String linkTarget;
+
     private String listDetails;
 
     private String listBadgeType;
@@ -40,6 +42,8 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
     private boolean detailViewEnabled;
 
     private boolean listViewEnabled;
+
+    private String listLinkTarget;
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -77,6 +81,7 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
         jsonObject.addProperty("pmidAttr", pmidAtt);
         jsonObject.addProperty("data-hide-less-than", this.minScore);
         jsonObject.addProperty("data-hide-no-mentions", this.hideNoMentions);
+        jsonObject.addProperty("data-link-target", this.linkTarget);
 
         jsonObject.addProperty("list-popover", this.listPopOver);
         jsonObject.addProperty("list-badgeType", this.listBadgeType);
@@ -85,6 +90,7 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
         jsonObject.addProperty("list-pmidAttr", pmidAtt);
         jsonObject.addProperty("list-data-hide-less-than", this.minScore);
         jsonObject.addProperty("list-data-hide-no-mentions", this.hideNoMentions);
+        jsonObject.addProperty("list-data-link-target", this.listLinkTarget);
 
         return jsonObject.toString();
     }
@@ -123,6 +129,14 @@ public class EmbeddableAltmetricsProvider extends AbstractEmbeddableMetricProvid
 
     public void setHideNoMentions(Boolean hideNoMentions) {
         this.hideNoMentions = hideNoMentions;
+    }
+
+    public void setLinkTarget(String linkTarget) {
+        this.linkTarget = linkTarget;
+    }
+
+    public void setListLinkTarget(String listLinkTarget) {
+        this.listLinkTarget = listLinkTarget;
     }
 
     public void setDoiField(String doiField) {
