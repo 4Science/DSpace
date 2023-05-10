@@ -51,6 +51,8 @@ public class EmbeddableAltmetricsProviderTest {
         provider.setListBadgeType("listBadgeType");
         provider.setListPopOver("listPopOver");
         provider.setMinScore(100);
+        provider.setLinkTarget("_blank");
+        provider.setListLinkTarget("_blank");
     }
 
     @Test
@@ -74,13 +76,15 @@ public class EmbeddableAltmetricsProviderTest {
             + "\"pmidAttr\":\"calculatedPmid\","
             + "\"data-hide-less-than\":100,"
             + "\"data-hide-no-mentions\":null,"
+            + "\"data-link-target\":\"_blank\","
             + "\"list-popover\":\"listPopOver\","
             + "\"list-badgeType\":\"listBadgeType\","
             + "\"list-data-badge-details\":null,"
             + "\"list-doiAttr\":\"calculatedDoi\","
             + "\"list-pmidAttr\":\"calculatedPmid\","
             + "\"list-data-hide-less-than\":100,"
-            + "\"list-data-hide-no-mentions\":null"
+            + "\"list-data-hide-no-mentions\":null,"
+            + "\"list-data-link-target\":\"_blank\""
             + "}", innerHtml);
     }
 
