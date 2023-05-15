@@ -594,6 +594,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
           <label>Contenuto</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
