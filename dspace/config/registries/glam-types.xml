@@ -25,8 +25,8 @@
     </dc-schema>
 
     <dc-schema>
-        <name>glamjournalfond</name>
-        <namespace>https://www.4science.it/dspace-glam/journalfond</namespace>
+        <name>glamjournalfonds</name>
+        <namespace>https://www.4science.it/dspace-glam/journalfonds</namespace>
     </dc-schema>
     
     <dc-schema>
@@ -608,34 +608,34 @@
     </dc-type>
 
     <dc-type>
-        <schema>glamjournalfond</schema>
+        <schema>glamjournalfonds</schema>
         <element>parent</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamjournalfond</schema>
+        <schema>glamjournalfonds</schema>
         <element>ownedyears</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
     <dc-type>
-        <schema>glamjournalfond</schema>
+        <schema>glamjournalfonds</schema>
         <element>history</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamjournalfond</schema>
+        <schema>glamjournalfonds</schema>
         <element>relation</element>
-        <qualifier>journalfond</qualifier>
+        <qualifier>journalfonds</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glamjournalfond</schema>
+        <schema>glamjournalfonds</schema>
         <element>relation</element>
         <qualifier>person</qualifier>
         <scope_note></scope_note>
