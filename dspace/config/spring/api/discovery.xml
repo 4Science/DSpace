@@ -1909,6 +1909,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
+                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -1982,6 +1983,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
+                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2055,6 +2057,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
+                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2138,6 +2141,7 @@
                     <list>
                         <ref bean="sortDateAccessionedDesc" />
                         <ref bean="sortViews" />
+                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -4214,6 +4218,12 @@
     <bean id="sortPriority" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="cris.priority"/>
         <property name="defaultSortOrder" value="asc"/>
+    </bean>
+
+    <bean id="sortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="glam.index"/>
+        <property name="defaultSortOrder" value="asc"/>
+        <property name="type" value="integer"/>
     </bean>
 
     <!-- functional sorting -->

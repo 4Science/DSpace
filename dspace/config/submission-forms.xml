@@ -2302,7 +2302,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -2694,7 +2694,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -2846,7 +2846,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -3305,7 +3305,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
