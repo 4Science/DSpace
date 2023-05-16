@@ -327,6 +327,7 @@
     <dynamicField name="*_hl" type="text" indexed="true" stored="true" multiValued="true" omitNorms="true"/>
 
     <dynamicField name="*_sort" type="lowerCaseSort" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
+    <dynamicField name="*_sint" type="sint" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
     <dynamicField name="*_min" type="text" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
     <dynamicField name="*_max" type="text" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
 

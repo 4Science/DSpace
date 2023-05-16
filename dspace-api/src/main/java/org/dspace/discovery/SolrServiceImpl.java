@@ -1454,6 +1454,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             return DiscoverySortConfiguration.SCORE;
         } else if (StringUtils.equals(type, DiscoveryConfigurationParameters.TYPE_DATE)) {
             return metadataField + "_dt";
+        } else if (StringUtils.equals(type, DiscoveryConfigurationParameters.TYPE_INTEGER)) {
+            return metadataField + "_sint";
         } else {
             return metadataField + "_sort";
         }
