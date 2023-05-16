@@ -567,6 +567,41 @@
 
     <dc-type>
         <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier>position</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier>font</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier>technique</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier>language</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>inscription</element>
+        <qualifier>class</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
         <element>mark</element>
         <qualifier></qualifier>
         <scope_note></scope_note>
@@ -574,8 +609,78 @@
 
     <dc-type>
         <schema>glam</schema>
+        <element>mark</element>
+        <qualifier>position</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>mark</element>
+        <qualifier>identification</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>mark</element>
+        <qualifier>qualification</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>mark</element>
+        <qualifier>quantity</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>mark</element>
+        <qualifier>class</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
         <element>bibliography</element>
         <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>year</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>publisher</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>place</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>author</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>type</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
