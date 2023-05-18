@@ -594,6 +594,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
           <label>Contenuto</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -2301,7 +2302,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -2693,7 +2694,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -2845,7 +2846,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
@@ -2864,7 +2865,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="journal_issue">
+    <form name="journal_file">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -3033,7 +3034,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>journalfond</dc-qualifier>
+          <dc-qualifier>journalfonds</dc-qualifier>
           <label>Testata</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -3102,7 +3103,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="journal_fond">
+    <form name="journal_fonds">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -3197,9 +3198,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>journalfond</dc-qualifier>
+          <dc-qualifier>journalfonds</dc-qualifier>
           <label>Testate correlate</label>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
@@ -3209,7 +3210,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>ownedyears</dc-element>
           <label>Annate possedute</label>
           <input-type>onebox</input-type>
@@ -3220,7 +3221,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>person</dc-qualifier>
           <label>Persone correlate</label>
@@ -3268,7 +3269,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>parent</dc-element>
           <label>Livello gerarchico superiore</label>
           <input-type>onebox</input-type>
@@ -3290,7 +3291,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>history</dc-element>
           <label>Storia</label>
           <input-type>group</input-type>
@@ -3304,17 +3305,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>glam</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
         </field>
       </row>
     </form>
-    <form name="journal_fond-glamjournalfond-history">
+    <form name="journal_fonds-glamjournalfonds-history">
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>history</dc-element>
           <label>Denominazione del Periodo</label>
           <input-type>onebox</input-type>
@@ -3394,7 +3395,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="journal_fond-glamjournalfond-relation-journalfond">
+    <form name="journal_fonds-glamjournalfonds-relation-journalfonds">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -3409,9 +3410,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>journalfond</dc-qualifier>
+          <dc-qualifier>journalfonds</dc-qualifier>
           <label>Testata correlata</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -3420,10 +3421,10 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="journal_fond-glamjournalfond-relation-person">
+    <form name="journal_fonds-glamjournalfonds-relation-person">
       <row>
         <field>
-          <dc-schema>glamjournalfond</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>person</dc-qualifier>
           <label>Nome</label>

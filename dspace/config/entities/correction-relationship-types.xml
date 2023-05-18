@@ -157,8 +157,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>JournalFond</leftType>
-        <rightType>JournalFond</rightType>
+        <leftType>JournalFonds</leftType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
@@ -171,8 +171,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>JournalIssue</leftType>
-        <rightType>JournalIssue</rightType>
+        <leftType>JournalFile</leftType>
+        <rightType>JournalFile</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>

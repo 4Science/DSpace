@@ -421,7 +421,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isJournalFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedJournalFonds</rightwardType>
         <leftCardinality>
@@ -432,7 +432,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isJournalFondsHiddenFor</leftwardType>
         <rightwardType>notDisplayingJournalFonds</rightwardType>
         <leftCardinality>
@@ -443,7 +443,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isChildrenSelectedFor</leftwardType>
         <rightwardType>hasSelectedChildren</rightwardType>
         <leftCardinality>
@@ -454,7 +454,7 @@
         </rightCardinality>
     </type>
     <type>
-        <rightType>JournalFond</rightType>
+        <rightType>JournalFonds</rightType>
         <leftwardType>isChildrenHiddenFor</leftwardType>
         <rightwardType>notDisplayingChildren</rightwardType>
         <leftCardinality>
