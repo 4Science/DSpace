@@ -64,7 +64,7 @@
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="fondsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
-		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
+		<property name="sortFieldAndOrder" value="glam.index_sint asc"/>
 	</bean>
 
 	<bean name="journalfondsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
@@ -78,7 +78,7 @@
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="journalfondsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
-		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
+		<property name="sortFieldAndOrder" value="glam.index_sint asc"/>
 	</bean>
 
 	<bean name="aggregationsControlledVocabulary" class="org.dspace.content.authority.ItemControlledVocabulary">
@@ -92,7 +92,7 @@
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="aggregationsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
-		<property name="sortFieldAndOrder" value="dc.title_sort asc"/>
+		<property name="sortFieldAndOrder" value="glam.index_sint asc"/>
 	</bean>
 
 	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">

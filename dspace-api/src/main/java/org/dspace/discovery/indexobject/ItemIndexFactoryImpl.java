@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -687,6 +688,8 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                             log.warn("Error while indexing sort date field, item: " + item
                                     .getHandle() + " metadata field: " + field + " date value: " + date);
                         }
+                    } else if (StringUtils.equals(type, DiscoveryConfigurationParameters.TYPE_INTEGER)) {
+                        doc.addField(field + "_sint", NumberUtils.toInt(value));
                     } else {
                         doc.addField(field + "_sort", value);
                     }
