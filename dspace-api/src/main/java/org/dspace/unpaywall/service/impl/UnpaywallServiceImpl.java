@@ -13,14 +13,18 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.copy;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,7 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class UnpaywallServiceImpl implements UnpaywallService {
 
-    private CloseableHttpClient client;
+    private final CloseableHttpClient client;
 
     @Autowired
     private ConfigurationService configurationService;
@@ -77,16 +81,51 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     }
 
     @Override
-    public Unpaywall getUnpaywallCall(Context context, String doi, UUID itemId) throws SQLException {
+    public void initUnpaywallCallIfNeeded(Context context, String doi, UUID itemId) {
+        Optional<Unpaywall> unpaywall = findUnpaywall(context, doi, itemId);
+        if (unpaywall.isEmpty()) {
+            initUnpaywallCall(context, doi, itemId);
+        }
+    }
+
+    @Override
+    public void initUnpaywallCall(Context context, String doi, UUID itemId) {
         if (isBlank(doi) || isNull(itemId)) {
             throw new IllegalArgumentException();
         }
-        Unpaywall unpaywall = unpaywallDAO.uniqueByDOIAndItemID(context, doi, itemId);
-        if (isNull(unpaywall)) {
-            initApiCall(doi, itemId);
-            unpaywall = createUnpaywall(doi, itemId);
+        initApiCall(doi, itemId);
+    }
+
+    @Override
+    public Optional<Unpaywall> findUnpaywall(Context context, String doi, UUID itemId) {
+        return unpaywallDAO.findByDOIAndItemID(context, doi, itemId);
+    }
+
+    @Override
+    public Unpaywall create(Context context, Unpaywall unpaywall) {
+        try {
+            return unpaywallDAO.create(context, unpaywall);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return unpaywall;
+    }
+
+    @Override
+    public List<Unpaywall> findAll(Context context) {
+        try {
+            return unpaywallDAO.findAll(context, Unpaywall.class);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void delete(Context context, Unpaywall unpaywall) {
+        try {
+            unpaywallDAO.delete(context, unpaywall);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Unpaywall createUnpaywall(String doi, UUID itemId) {
@@ -119,13 +158,13 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             Context context = new Context(Context.Mode.READ_WRITE);
             Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
 
-            unpaywallCall(doi).ifPresentOrElse(value -> {
+            callUnpaywallApi(doi).ifPresentOrElse(value -> {
                 unpaywall.setJsonRecord(value);
                 unpaywall.setStatus(UnpaywallStatus.SUCCESSFUL);
             }, () -> {
-                unpaywall.setJsonRecord(null);
-                unpaywall.setStatus(UnpaywallStatus.NOT_FOUND);
-            });
+                    unpaywall.setJsonRecord(null);
+                    unpaywall.setStatus(UnpaywallStatus.NOT_FOUND);
+                });
             unpaywallDAO.save(context, unpaywall);
             context.commit();
         } catch (SQLException e) {
@@ -134,22 +173,21 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     }
 
     private Unpaywall getUnpaywall(Context context, String doi, UUID itemId) throws SQLException {
-        Unpaywall unpaywall = unpaywallDAO.uniqueByItemId(context, itemId);
-        if (nonNull(unpaywall)) {
-            unpaywall.setDoi(doi);
-            return unpaywall;
+        Optional<Unpaywall> unpaywall = unpaywallDAO.findByItemId(context, itemId);
+        if (unpaywall.isPresent()) {
+            unpaywall.get().setDoi(doi);
+            return unpaywall.get();
         }
         return unpaywallDAO.create(context, createUnpaywall(doi, itemId));
     }
 
-    private Optional<String> unpaywallCall(String doi) {
+    private Optional<String> callUnpaywallApi(String doi) {
         String endpoint = configurationService.getProperty("unpaywall.url");
         String email = configurationService.getProperty("unpaywall.email");
         HttpGet method = null;
 
         try {
-            endpoint = endpoint + doi;
-            URIBuilder uriBuilder = new URIBuilder(endpoint);
+            URIBuilder uriBuilder = new URIBuilder(endpoint + doi);
             uriBuilder.addParameter("email", email);
             method = new HttpGet(uriBuilder.build());
 
@@ -158,12 +196,12 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
             int statusCode = response.getStatusLine().getStatusCode();
             switch (statusCode) {
-                case 200:
-                    InputStream is = response.getEntity().getContent();
+                case SC_OK:
+                    InputStream responseStream = response.getEntity().getContent();
                     StringWriter writer = new StringWriter();
-                    copy(is, writer, "UTF-8");
+                    copy(responseStream, writer, StandardCharsets.UTF_8);
                     return of(writer.toString());
-                case 404:
+                case SC_NOT_FOUND:
                     return empty();
                 default:
                     throw new RuntimeException("Http call failed: " + statusLine);

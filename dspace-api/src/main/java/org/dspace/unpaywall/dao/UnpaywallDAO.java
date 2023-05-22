@@ -7,7 +7,7 @@
  */
 package org.dspace.unpaywall.dao;
 
-import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.dspace.core.Context;
@@ -27,10 +27,9 @@ public interface UnpaywallDAO extends GenericDAO<Unpaywall> {
      *
      * @param context the DSpace context
      * @param itemId  entity item id
-     * @return record
-     * @throws SQLException if an SQL error occurs
+     * @return optional of the record
      */
-    Unpaywall uniqueByItemId(Context context, UUID itemId) throws SQLException;
+    Optional<Unpaywall> findByItemId(Context context, UUID itemId);
 
     /**
      * Find the Unpaywall record by the given doi and itemId values.
@@ -38,9 +37,8 @@ public interface UnpaywallDAO extends GenericDAO<Unpaywall> {
      * @param context the DSpace context
      * @param doi     entity item doi
      * @param itemId  item id
-     * @return record
-     * @throws SQLException if an SQL error occurs
+     * @return optional of the record
      */
-    Unpaywall uniqueByDOIAndItemID(Context context, String doi, UUID itemId) throws SQLException;
+    Optional<Unpaywall> findByDOIAndItemID(Context context, String doi, UUID itemId);
 
 }

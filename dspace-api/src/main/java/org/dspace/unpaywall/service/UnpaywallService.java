@@ -7,10 +7,10 @@
  */
 package org.dspace.unpaywall.service;
 
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.http.HttpException;
 import org.dspace.core.Context;
 import org.dspace.unpaywall.model.Unpaywall;
 
@@ -20,13 +20,56 @@ import org.dspace.unpaywall.model.Unpaywall;
 public interface UnpaywallService {
 
     /**
-     * Returns unpaywall api record, creates if not exists.
+     * Initiates an unpaywall API call if it has not yet been initiated.
      *
      * @param context the relevant DSpace Context
      * @param doi     object doi
      * @param itemId  item id
-     * @return unpaywall api record.
      */
-    Unpaywall getUnpaywallCall(Context context, String doi, UUID itemId)
-            throws HttpException, SQLException;
+    void initUnpaywallCallIfNeeded(Context context, String doi, UUID itemId);
+
+    /**
+     * Initiates an unpaywall API call.
+     *
+     * @param context the relevant DSpace Context
+     * @param doi     object doi
+     * @param itemId  item id
+     */
+    void initUnpaywallCall(Context context, String doi, UUID itemId);
+
+
+    /**
+     * Retrieves the Unpaywall record by the given doi and itemId values.
+     *
+     * @param context the DSpace context
+     * @param doi     entity item doi
+     * @param itemId  item id
+     * @return record
+     */
+    Optional<Unpaywall> findUnpaywall(Context context, String doi, UUID itemId);
+
+    /**
+     * Creates the Unpaywall record.
+     *
+     * @param context   the DSpace context
+     * @param unpaywall unpaywall record
+     * @return created record
+     */
+    Unpaywall create(Context context, Unpaywall unpaywall);
+
+    /**
+     * Deletes Unpaywall record.
+     *
+     * @param context   the DSpace context
+     * @param unpaywall unpaywall record
+     */
+    void delete(Context context, Unpaywall unpaywall);
+
+    /**
+     * Find all Unpaywall records.
+     *
+     * @param context the DSpace context
+     * @return all records
+     */
+    List<Unpaywall> findAll(Context context);
 }

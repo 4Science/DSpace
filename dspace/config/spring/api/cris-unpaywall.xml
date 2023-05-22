@@ -5,6 +5,6 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
        default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
 
-    <bean class="org.dspace.unpaywall.service.impl.UnpaywallServiceImpl"/>
+    <bean id="unpaywallService" class="org.dspace.unpaywall.service.impl.UnpaywallServiceImpl"/>
 
 </beans>

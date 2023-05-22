@@ -8,6 +8,7 @@
 package org.dspace.unpaywall.dao.impl;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -24,25 +25,33 @@ import org.dspace.unpaywall.model.Unpaywall;
 public class UnpaywallDAOImpl extends AbstractHibernateDAO<Unpaywall> implements UnpaywallDAO {
 
     @Override
-    public Unpaywall uniqueByItemId(Context context, UUID itemId) throws SQLException {
-        Query query = createQuery(context, "FROM Unpaywall WHERE itemId = :itemId");
-        query.setParameter("itemId", itemId);
-        return getSungleResult(query);
+    public Optional<Unpaywall> findByItemId(Context context, UUID itemId) {
+        try {
+            Query query = createQuery(context, "FROM Unpaywall WHERE itemId = :itemId");
+            query.setParameter("itemId", itemId);
+            return getSingleResult(query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public Unpaywall uniqueByDOIAndItemID(Context context, String doi, UUID itemId) throws SQLException {
-        Query query = createQuery(context, "FROM Unpaywall WHERE doi = :doi AND itemId = :itemId");
-        query.setParameter("doi", doi);
-        query.setParameter("itemId", itemId);
-        return getSungleResult(query);
+    public Optional<Unpaywall> findByDOIAndItemID(Context context, String doi, UUID itemId) {
+        try {
+            Query query = createQuery(context, "FROM Unpaywall WHERE doi = :doi AND itemId = :itemId");
+            query.setParameter("doi", doi);
+            query.setParameter("itemId", itemId);
+            return getSingleResult(query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static Unpaywall getSungleResult(Query query) {
+    private static Optional<Unpaywall> getSingleResult(Query query) {
         try {
-            return (Unpaywall) query.getSingleResult();
+            return Optional.of((Unpaywall) query.getSingleResult());
         } catch (NoResultException e) {
-            return null;
+            return Optional.empty();
         }
     }
 }

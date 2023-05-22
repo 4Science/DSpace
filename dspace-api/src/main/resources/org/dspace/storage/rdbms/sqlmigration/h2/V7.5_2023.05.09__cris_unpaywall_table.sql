@@ -14,10 +14,10 @@ CREATE SEQUENCE cris_unpaywall_seq;
 
 CREATE TABLE cris_unpaywall
 (
-	id uuid not null,
+	id int4 not null,
 	doi varchar(255),
 	status varchar(64),
-	item_id int4 unique,
+	item_id uuid unique,
 	json_record text,
 	timestamp_created timestamp,
 	timestamp_last_modified timestamp,
