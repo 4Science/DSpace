@@ -30,7 +30,6 @@ public class EditItemModeConverter implements DSpaceConverter<EditItemMode, Edit
         rest.setName(model.getName());
         rest.setLabel(model.getLabel());
         rest.setSubmissionDefinition(model.getSubmissionDefinition());
-        rest.setSecurity(model.getSecurity().ordinal());
         return rest;
     }
 

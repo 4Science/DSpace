@@ -7,33 +7,27 @@
  */
 package org.dspace.content.integration.crosswalks;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Optional;
 
-import de.undercouch.citeproc.CSL;
-import org.apache.commons.io.IOUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
+import org.dspace.content.integration.crosswalks.csl.CSLGeneratorFactory;
+import org.dspace.content.integration.crosswalks.csl.CSLResult;
 import org.dspace.content.integration.crosswalks.csl.DSpaceListItemDataProvider;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,7 +48,7 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
     private ItemService itemService;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private CSLGeneratorFactory cslGeneratorFactory;
 
     private String mimeType;
 
@@ -81,6 +75,21 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
     public void disseminate(Context context, Iterator<? extends DSpaceObject> dsoIterator, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException {
 
+        DSpaceListItemDataProvider itemDataProvider = createItemDataProvider(context, dsoIterator);
+
+        if (isJsonMimeType()) {
+            print(out, itemDataProvider.toJson());
+            return;
+        }
+
+        CSLResult result = cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, format);
+        print(out, result.getCitation());
+
+    }
+
+    private DSpaceListItemDataProvider createItemDataProvider(Context context,
+        Iterator<? extends DSpaceObject> dsoIterator) throws CrosswalkObjectNotSupported {
+
         DSpaceListItemDataProvider dSpaceListItemDataProvider = getDSpaceListItemDataProviderInstance();
 
         while (dsoIterator.hasNext()) {
@@ -93,31 +102,11 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
             dSpaceListItemDataProvider.processItem((Item) dso);
         }
 
-        if (getMIMEType() != null && getMIMEType().startsWith("application/json")) {
-            print(out, dSpaceListItemDataProvider.toJson());
-        } else {
-            CSL citeproc = new CSL(dSpaceListItemDataProvider, getStyle());
-            citeproc.setOutputFormat(format);
-            citeproc.registerCitationItems(dSpaceListItemDataProvider.getIds());
-            print(out, citeproc.makeBibliography().makeString());
-        }
-
+        return dSpaceListItemDataProvider;
     }
 
-    private String getStyle() throws IOException {
-        return CSL.supportsStyle(style) ? style : readXmlStyleContent();
-    }
-
-    private String readXmlStyleContent() throws IOException {
-        String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
-        File styleFile = new File(parent, style);
-        if (!styleFile.exists()) {
-            throw new FileNotFoundException("Could not find style in " + styleFile.getAbsolutePath());
-        }
-
-        try (FileInputStream fis = new FileInputStream(styleFile)) {
-            return IOUtils.toString(fis, Charset.defaultCharset());
-        }
+    private boolean isJsonMimeType() {
+        return getMIMEType() != null && getMIMEType().startsWith("application/json");
     }
 
     private void print(OutputStream out, String value) {
@@ -141,8 +130,7 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
     }
 
     private boolean isPublication(Item item) {
-        String itemEntityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
-        return Objects.equals(itemEntityType, "Publication");
+        return "Publication".equals(itemService.getEntityType(item));
     }
 
     public void setMimeType(String mimeType) {

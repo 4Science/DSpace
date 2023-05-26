@@ -47,6 +47,11 @@ public class UpdateScopusPersonMetrics extends MetricsExternalServices {
     }
 
     @Override
+    public String getServiceName() {
+        return "scopus-person";
+    }
+
+    @Override
     public boolean updateMetric(Context context, Item item, String param) {
         List<CrisMetricDTO> metricDTOs = null;
         String authorId = itemService.getMetadataFirstValue(item, "person", "identifier", "scopus-author-id", Item.ANY);

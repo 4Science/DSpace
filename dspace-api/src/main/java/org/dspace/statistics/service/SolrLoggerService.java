@@ -10,6 +10,7 @@ package org.dspace.statistics.service;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +57,8 @@ public interface SolrLoggerService {
      */
     public void postView(DSpaceObject dspaceObject, HttpServletRequest request,
                          EPerson currentUser);
+
+    public void postView(DSpaceObject dspaceObject, HttpServletRequest request, EPerson currentUser, Date time);
 
     public void postView(DSpaceObject dspaceObject,
                          String ip, String userAgent, String xforwardedfor, EPerson currentUser);
@@ -228,14 +231,14 @@ public interface SolrLoggerService {
      * @param dateEnd           formatted string date
      * @param showTotal         boolean to use total
      * @param facetMinCount     min count of the results
-     * @param max               maximum count of the results
+     * @param increment         the gap increment
      * @return
      * @throws SolrServerException
      * @throws IOException
      */
     ObjectCount[] queryFacetDateField(Context context, String fieldList, String facetField, String query,
             String filterQuery, String dateType, String dateStart, String dateEnd, boolean showTotal, int facetMinCount,
-            int max) throws SolrServerException, IOException;
+            int increment) throws SolrServerException, IOException;
 
     public ObjectCount queryTotal(String query, String filterQuery, int facetMinCount)
         throws SolrServerException, IOException;
@@ -303,6 +306,7 @@ public interface SolrLoggerService {
      * @param  rows                 the max number of results to return
      * @param  max                  the max number of facets to return
      * @param  dateType             the type to be used (example: DAY, MONTH, YEAR)
+     * @param  increment            the gap increment
      * @param  dateStart            the start date Format:(-3, -2, ..) the date is
      *                              calculated relatively on today
      * @param  dateEnd              the end date stop Format (-2, +1, ..) the date
@@ -320,9 +324,9 @@ public interface SolrLoggerService {
      * @throws                      java.io.IOException passed through.
      */
     public QueryResponse query(String query, String filterQuery, String facetField, int rows,
-        int max, String dateType, String dateStart, String dateEnd, List<String> facetQueries, String sort,
-        boolean ascending, int facetMinCount, boolean defaultFilterQueries, String pivotField, String fieldList)
-        throws SolrServerException, IOException;
+        int max, String dateType, String dateStart, String dateEnd, int increment, List<String> facetQueries,
+        String sort, boolean ascending, int facetMinCount, boolean defaultFilterQueries,
+        String pivotField, String fieldList) throws SolrServerException, IOException;
 
     /**
      * Returns in a filterQuery string all the ip addresses that should be ignored

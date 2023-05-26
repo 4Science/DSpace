@@ -50,35 +50,43 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
     private EPersonService ePersonService;
 
     @Override
-    public boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode)
-        throws SQLException {
+    public boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode) throws SQLException {
+        return accessMode.getSecurities().stream()
+            .anyMatch(security -> hasAccess(context, item, user, accessMode, security));
+    }
 
-        switch (accessMode.getSecurity()) {
-            case ADMIN:
-                return authorizeService.isAdmin(context, user);
-            case ADMIN_OWNER:
-                return authorizeService.isAdmin(context, user) || isOwner(user, item);
-            case CUSTOM:
-                return hasAccessByCustomPolicy(context, item, user, accessMode);
-            case GROUP:
-                return hasAccessByGroup(context, user, accessMode.getGroups());
-            case ITEM_ADMIN:
-                return authorizeService.isAdmin(context, user, item);
-            case OWNER:
-                return isOwner(user, item);
-            case SUBMITTER:
-                return user != null && user.equals(item.getSubmitter());
-            case SUBMITTER_GROUP:
-                return isUserInSubmitterGroup(context, item, user);
-            case NONE:
-            default:
-                return false;
+    private boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode,
+        CrisSecurity crisSecurity) {
+
+        try {
+
+            switch (crisSecurity) {
+                case ADMIN:
+                    return authorizeService.isAdmin(context, user);
+                case CUSTOM:
+                    return hasAccessByCustomPolicy(context, item, user, accessMode);
+                case GROUP:
+                    return hasAccessByGroup(context, user, accessMode.getGroups());
+                case ITEM_ADMIN:
+                    return authorizeService.isAdmin(context, user, item);
+                case OWNER:
+                    return isOwner(user, item);
+                case SUBMITTER:
+                    return user != null && user.equals(item.getSubmitter());
+                case SUBMITTER_GROUP:
+                    return isUserInSubmitterGroup(context, item, user);
+                case NONE:
+                default:
+                    return false;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
-    @Override
-    public boolean isOwner(EPerson eperson, Item item) {
+    private boolean isOwner(EPerson eperson, Item item) {
         return ePersonService.isOwnerOfItem(eperson, item);
     }
 

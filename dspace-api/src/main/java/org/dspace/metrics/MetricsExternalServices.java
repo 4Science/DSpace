@@ -6,12 +6,19 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.metrics;
+
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DCDate;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataFieldName;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -22,7 +29,15 @@ public abstract class MetricsExternalServices {
 
     public static final int DEFAULT_FETCH_SIZE = 1;
 
+    @Autowired
+    private ItemService itemService;
+
     protected int fetchSize = DEFAULT_FETCH_SIZE;
+
+    /**
+     * Returns the name of the external service.
+     */
+    public abstract String getServiceName();
 
     /**
      * Updates and fetches metrics of a target {@code item}
@@ -66,6 +81,21 @@ public abstract class MetricsExternalServices {
             }
         }
         return count;
+    }
+
+    /**
+     * Set the last import metadata value to the given item based on the service name.
+     */
+    public void setLastImportMetadataValue(Context context, Item item) {
+        try {
+            item = context.reloadEntity(item);
+            String metadataField = "cris.lastimport." + getServiceName();
+            String currentDate = DCDate.getCurrent().toString();
+            itemService.setMetadataSingleValue(context, item, new MetadataFieldName(metadataField), null, currentDate);
+            itemService.update(context, item);
+        } catch (SQLException | AuthorizeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<String> getFilters() {

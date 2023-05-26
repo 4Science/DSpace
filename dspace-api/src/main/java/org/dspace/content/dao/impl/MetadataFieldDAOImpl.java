@@ -21,6 +21,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataField_;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataSchema_;
@@ -198,5 +199,23 @@ public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> im
         query.setHint("org.hibernate.cacheable", Boolean.TRUE);
 
         return list(query);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<MetadataFieldName> findMetadataFieldNamesBySchemaAndElement(Context context, String schema,
+        String element) throws SQLException {
+
+        Query query = createQuery(context, "" +
+            " SELECT new org.dspace.content.MetadataFieldName(ms.name, mf.element, mf.qualifier)" +
+            " FROM MetadataField mf " +
+            " JOIN mf.metadataSchema ms " +
+            " WHERE ms.name = :name AND mf.element = :element ");
+
+        query.setParameter("name", schema);
+        query.setParameter("element", element);
+
+        return query.getResultList();
+
     }
 }

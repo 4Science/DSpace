@@ -211,6 +211,11 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "editor", editorName);
     }
 
+    public WorkspaceItemBuilder withEditor(String editorName, String authority) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "editor", null, editorName, authority,
+            600);
+    }
+
     public WorkspaceItemBuilder withProject(final String projectName) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "relation", "project", projectName);
     }
@@ -241,6 +246,10 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
 
     public WorkspaceItemBuilder withIsniIdentifier(String isni) {
         return addMetadataValue("person", "identifier", "isni", isni);
+    }
+
+    public WorkspaceItemBuilder withScopusIdentifier(String scopus) {
+        return addMetadataValue("dc", "identifier", "scopus", scopus);
     }
 
     public WorkspaceItemBuilder withOrcidIdentifier(String orcid) {

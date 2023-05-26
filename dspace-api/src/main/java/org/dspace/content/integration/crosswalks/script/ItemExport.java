@@ -65,7 +65,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
     @Override
     public void internalRun() throws Exception {
 
-        context = new Context();
+        context = new Context(Context.Mode.READ_ONLY);
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
 
@@ -107,7 +107,9 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
         streamDisseminationCrosswalk.disseminate(context, item, out);
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         String name = getFileName(streamDisseminationCrosswalk);
-        handler.writeFilestream(context, name, in, streamDisseminationCrosswalk.getMIMEType());
+        context.setMode(Context.Mode.READ_WRITE);
+        handler.writeFilestream(context, name, in, streamDisseminationCrosswalk.getMIMEType(),
+                streamDisseminationCrosswalk.isPubliclyReadable());
         handler.logInfo("Item exported successfully into file named " + name);
     }
 

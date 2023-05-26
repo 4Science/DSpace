@@ -56,6 +56,11 @@ public class UpdateCrisMetricsWithExternalSourceScriptConfiguration<T extends Up
             options.getOption("p").setType(String.class);
             options.getOption("p").setRequired(false);
 
+            options.addOption("l", "limit", true, "the max number of item to be updated. If no limit is provided, "
+                + "the default one will be used");
+            options.getOption("l").setType(Integer.class);
+            options.getOption("l").setRequired(false);
+
             super.options = options;
         }
         return options;

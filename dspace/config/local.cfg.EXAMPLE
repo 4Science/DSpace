@@ -32,24 +32,28 @@
 # Windows note: Please remember to use forward slashes for all paths (e.g. C:/dspace)
 dspace.dir=/dspace
 
-# URL of DSpace backend ('server' webapp). Include port number etc.
+# Public URL of DSpace backend ('server' webapp). May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
-# This is where REST API and all enabled server modules (OAI-PMH, SWORD,
-# SWORDv2, RDF, etc) will respond.
+# This is where REST API and all enabled server modules (OAI-PMH, SWORD, SWORDv2, RDF, etc) will respond.
+# NOTE: This URL must be accessible to all DSpace users (should not use 'localhost' in Production)
+# and is usually "synced" with the "rest" section in the DSpace User Interface's config.*.yml.
+# It corresponds to the URL that you would type into your browser to access the REST API.
 dspace.server.url = http://localhost:8080/server
 
-# URL of DSpace frontend (Angular UI). Include port number etc.
+# Public URL of DSpace frontend (Angular UI). May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
-# This is used by the backend to provide links in emails, RSS feeds, Sitemaps,
-# etc.
+# This is used by the backend to provide links in emails, RSS feeds, Sitemaps, etc.
+# NOTE: this URL must be accessible to all DSpace users (should not use 'localhost' in Production).
+# It corresponds to the URL that you would type into your browser to access the User Interface.
 dspace.ui.url = http://localhost:4000
 
 # Name of the site
 dspace.name = DSpace at My University
 
-# assetstore.dir, look at DSPACE/config/spring/api/bitstore.xml for more options
-# default is ${dspace.dir}/assetstore, uncomment and modify if you need to use a different path
-#assetstore.dir = ${dspace.dir}/assetstore
+# Assetstore configurations have moved to config/modules/assetstore.cfg
+# and config/spring/api/bitstore.xml.
+# Additional storage options (e.g. Amazon S3) are available in `assetstore.cfg`
+# assetstore.dir = ${dspace.dir}/assetstore
 
 # Default language for metadata values
 #default.language = en_US
@@ -144,6 +148,14 @@ db.schema = public
 
 # Recipient for new user registration emails (defaults to unspecified)
 #registration.notify =
+
+# An option is added to disable the mailserver. By default, this property is set to false
+# By setting mail.server.disabled = true, DSpace will not send out emails.
+# It will instead log the subject of the email which should have been sent
+# This is especially useful for development and test environments where production data is used when testing functionality.
+#mail.server.disabled = false
+# If the mail.server.fixedRecipient is not empty then only in the case mail.server.disabled = true all email will be sent to this email address.
+#mail.server.fixedRecipient =
 
 
 ########################
@@ -251,15 +263,7 @@ db.schema = public
 ##########################
 # COMMERCIAL DATABASE    #
 ##########################
-# In order to use the Scopus services you need to obtain an API Key from Scopus. Once you get it, add it to the following configuration value.
-# Additional settings are defined below or in specific module file, i.e metrics.cfg
-scopus.apiKey =
-# Number of items to fetch within same request using OR clause concatenation.
-scopus.fetchSize = 1
-# leave empty if you don't need to use an institutional token
-scopus.instToken =
-# In order to use the Web of Science services you need to obtain an API Key from Clarivate. Once you get it, add it to the following configuration value.
-wos.apiKey =
+
 
 ##########################
 # METADATA EXTRACTION #
@@ -299,14 +303,14 @@ orcid.webhook.registration-token =
 #---------------------------------------------------------------#
 #-----------------STORAGE CONFIGURATIONS------------------------#
 #---------------------------------------------------------------#
-# Use the localStore or the s3Store implementation
-assetstore.storename.0 = localStore
+# Specify the incoming assetstore (see config/spring/api/bitstore.xml)
+#assetstore.index.primary = 1
 
-## Assetstore S3 configuration, only used if the above configuration
-## is set to s3Store
+## Assetstore S3 configuration, only used if the above configuration is set to true
+#assetstore.s3.enabled = true
 
 # For using a relative path (xx/xx/xx/xxx...) set to true
-assetstore.s3.useRelativePath =
+#assetstore.s3.useRelativePath = true
 
 # S3 bucket name to store assets in, default would generate a bucket
 # based on the dspace host name
@@ -326,9 +330,15 @@ assetstore.s3.awsRegionName =
 #GeoIP dbfile configuration for usage statistics
 usage-statistics.dbfile=/var/lib/GeoIP/GeoLite2-City.mmdb
 
-### IIIF Integration ###
-iiif.enabled = false
-iiif.image.server =
+############################
+# IIIF and OCR Integration #
+############################
 
-### OCR Integration ###
-ocr.tesseract.path =
+## IIIF configuration
+iiif.enabled = false
+# iiif.image.server =
+
+## OCR configuration
+# iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
+# iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
+# ocr.tesseract.path =

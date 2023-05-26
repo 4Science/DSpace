@@ -151,10 +151,17 @@
         <property name="prefixToNamespaceMapping" ref="prefixToNamespaceMapping"/>
     </bean>
 
-    <bean id="typeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+
+    <bean id="innerTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="dc.type"/>
         <property name="query" value="descendant::PublicationTypeList/PublicationType"/>
         <property name="prefixToNamespaceMapping" ref="prefixToNamespaceMapping"/>
+        <property name="metadataFieldMapping" ref="pubmedMetadataFieldMapping"/>
+    </bean>
+
+    <bean id="typeContrib" class="org.dspace.importer.external.metadatamapping.contributor.MappedMetadataContributor">
+        <constructor-arg name="innerContributor" ref="innerTypeContrib"/>
+        <constructor-arg name="mapConverter" ref="mapConverterPubmedToCoarPublicationTypes"/>
     </bean>
 
     <bean id="dc.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">

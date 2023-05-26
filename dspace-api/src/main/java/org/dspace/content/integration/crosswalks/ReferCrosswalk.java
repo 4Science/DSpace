@@ -108,6 +108,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     private String entityType;
 
+    private boolean publiclyReadable = false;
 
     private List<TemplateLine> templateLines;
 
@@ -501,6 +502,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         this.entityType = entityType;
     }
 
+    @Override
     public Optional<String> getEntityType() {
         return Optional.ofNullable(entityType);
     }
@@ -509,8 +511,18 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         this.crosswalkMode = crosswalkMode;
     }
 
+    @Override
     public CrosswalkMode getCrosswalkMode() {
         return Optional.ofNullable(this.crosswalkMode).orElse(ItemExportCrosswalk.super.getCrosswalkMode());
+    }
+
+    @Override
+    public boolean isPubliclyReadable() {
+        return this.publiclyReadable;
+    }
+
+    public void setPubliclyReadable(boolean isPubliclyReadable) {
+        this.publiclyReadable = isPubliclyReadable;
     }
 
 }

@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.dspace.core.Context;
 import org.dspace.core.ReloadableEntity;
@@ -42,20 +43,22 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
 
     private boolean uncacheEntitites;
 
+    private int maxResults;
+
     public DiscoverResultIterator(Context context, DiscoverQuery discoverQuery) {
-        this(context, null, discoverQuery, true);
+        this(context, null, discoverQuery, true, -1);
     }
 
     public DiscoverResultIterator(Context context, DiscoverQuery discoverQuery, boolean uncacheEntities) {
-        this(context, null, discoverQuery, uncacheEntities);
+        this(context, null, discoverQuery, uncacheEntities, -1);
     }
 
     public DiscoverResultIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery) {
-        this(context, scopeObject, discoverQuery, true);
+        this(context, scopeObject, discoverQuery, true, -1);
     }
 
     public DiscoverResultIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery,
-        boolean uncacheEntities) {
+                                  boolean uncacheEntities, int maxResults) {
 
         this.context = context;
         this.scopeObject = scopeObject;
@@ -63,12 +66,16 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
         this.iteratorCounter = discoverQuery.getStart();
         this.searchService = SearchUtils.getSearchService();
         this.uncacheEntitites = uncacheEntities;
+        this.maxResults = maxResults;
 
         updateCurrentSlotIterator();
     }
 
     @Override
     public boolean hasNext() {
+        if (maxResults > 0 && iteratorCounter >= maxResults) {
+            return false;
+        }
         if (currentSlotIterator.hasNext()) {
             return true;
         }
@@ -83,18 +90,29 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
 
         return currentSlotIterator.hasNext();
     }
+
     @Override
     public T next() {
         return (T) getNextIndexableObject().getIndexedObject();
     }
 
-    protected IndexableObject getNextIndexableObject() {
-        iteratorCounter++;
-        return currentSlotIterator.next();
+    public long getTotalSearchResults() {
+
+        if (currentSlotIterator == null) {
+            updateCurrentSlotIterator();
+        }
+
+        return this.currentDiscoverResult.getTotalSearchResults();
     }
 
-    public long getTotalSearchResults() {
-        return this.currentDiscoverResult.getTotalSearchResults();
+    protected IndexableObject getNextIndexableObject() {
+
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+
+        iteratorCounter++;
+        return currentSlotIterator.next();
     }
 
     private void uncacheEntitites() {

@@ -27,7 +27,6 @@
         <entry key-ref="scopus.volume" value-ref="scopusVolumeContrib"/>
         <entry key-ref="scopus.issueIdentifier" value-ref="scopusIssueIdentifierContrib"/>
         <entry key-ref="scopus.authkeywords" value-ref="scopusAuthkeywordsContrib"/>        
-        <entry key-ref="scopus.creator" value-ref="scopusCreatorContrib"/>
         <entry key-ref="scopus.openaccessFlag" value-ref="scopusOpenaccessFlagContrib"/>
         <entry key-ref="scopus.ispartof" value-ref="scopusIspartofContrib"/>
         <entry key-ref="scopus.ispartofseries" value-ref="scopusIspartofseriesContrib"/>
@@ -158,7 +157,7 @@
     </bean>
 
     <bean id="scopus.eid" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.other"/>
+        <constructor-arg value="dc.identifier.scopus"/>
     </bean>
 
     <bean id="scopusAuthkeywordsContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
@@ -216,6 +215,7 @@
         <property name="scopusId" ref="scopus.scopusId"/>
         <property name="affiliation" ref="scopus.affiliation"/>
         <property name="query" value=""/>
+        <property name="creatorMetadataContributor" ref="scopusCreatorContrib"/>
         <property name="prefixToNamespaceMapping" ref="scopusNs"/>
     </bean>
 

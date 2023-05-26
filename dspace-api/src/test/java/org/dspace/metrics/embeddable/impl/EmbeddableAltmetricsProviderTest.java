@@ -8,21 +8,16 @@
 package org.dspace.metrics.embeddable.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -35,65 +30,62 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EmbeddableAltmetricsProviderTest {
 
-    @Mock
+    @InjectMocks
     private EmbeddableAltmetricsProvider provider;
 
     @Mock
     private ItemService itemService;
 
     @Mock
-    Item item;
+    private Item item;
 
     @Mock
-    Context context;
-
-    private List<MetadataValue> fieldValueList;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
-        when(provider.getItemService()).thenReturn(itemService);
-
-        provider.doiDataAttr = "doiAttr";
-        provider.doiField = "doiField";
-        provider.pmidDataAttr = "pmidAttr";
-        provider.pmidField = "pmidField";
-        provider.popover = "popover";
-        provider.badgeType = "badgeType";
-        provider.listBadgeType = "listBadgeType";
-        provider.listPopOver = "listPopOver";
-
-        fieldValueList = new ArrayList<>();
-        MetadataValue value = mock(MetadataValue.class);
-        when(value.getValue()).thenReturn("value");
-        fieldValueList.add(value);
+        provider.setDoiField("dc.identifier.doi");
+        provider.setPmidField("dc.identifier.pmid");
+        provider.setPopover("popover");
+        provider.setBadgeType("badgeType");
+        provider.setListBadgeType("listBadgeType");
+        provider.setListPopOver("listPopOver");
+        provider.setMinScore(100);
+        provider.setLinkTarget("_blank");
+        provider.setListLinkTarget("_blank");
     }
 
     @Test
-    public void innerHtml() {
-        when(provider.innerHtml(any(), any())).thenCallRealMethod();
+    public void testInnerHtml() {
 
-        // should replace doiAttr whit the calculated attribute
-        // should replace pmidAttr whit the calculated attribute
-        when(provider.calculateAttribute(eq(item), eq("doiField"), eq("doiAttr")))
-        .thenReturn("calculatedDoi");
-        when(provider.calculateAttribute(eq(item), eq("pmidField"), eq("pmidAttr")))
-        .thenReturn("calculatedPmid");
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dc.identifier.doi"), Item.ANY))
+            .thenReturn("calculatedDoi");
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dc.identifier.pmid"), Item.ANY))
+            .thenReturn("calculatedPmid");
 
         String innerHtml = provider.innerHtml(context, item);
 
-        assertEquals("{\"popover\":\"popover\",\"badgeType\":\"badgeType\",\"doiAttr\":\"calculatedDoi\"," +
-                         "\"pmidAttr\":\"calculatedPmid\",\"list-popover\":\"listPopOver\"," +
-                         "\"list-badgeType\":\"listBadgeType\",\"list-doiAttr\":\"calculatedDoi\"," +
-                         "\"list-pmidAttr\":\"calculatedPmid\"}", innerHtml);
+        assertEquals("{"
+            + "\"data-badge-enabled\":false,"
+            + "\"list-data-badge-enabled\":false,"
+            + "\"popover\":\"popover\","
+            + "\"badgeType\":\"badgeType\","
+            + "\"data-badge-details\":null,"
+            + "\"doiAttr\":\"calculatedDoi\","
+            + "\"pmidAttr\":\"calculatedPmid\","
+            + "\"data-hide-less-than\":100,"
+            + "\"data-hide-no-mentions\":null,"
+            + "\"data-link-target\":\"_blank\","
+            + "\"list-popover\":\"listPopOver\","
+            + "\"list-badgeType\":\"listBadgeType\","
+            + "\"list-data-badge-details\":null,"
+            + "\"list-doiAttr\":\"calculatedDoi\","
+            + "\"list-pmidAttr\":\"calculatedPmid\","
+            + "\"list-data-hide-less-than\":100,"
+            + "\"list-data-hide-no-mentions\":null,"
+            + "\"list-data-link-target\":\"_blank\""
+            + "}", innerHtml);
     }
-
-    @Test
-    public void calculateAttribute() {
-        // should concat attr with first metadata value of field
-        when(provider.calculateAttribute(eq(item), eq("field"), eq("attr"))).thenCallRealMethod();
-        when(itemService.getMetadataByMetadataString(any(), eq("field"))).thenReturn(fieldValueList);
-        assertEquals(provider.calculateAttribute(item, "field", "attr"), "value");
-    }
-
 
 }

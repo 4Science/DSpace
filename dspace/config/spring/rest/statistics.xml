@@ -287,7 +287,6 @@
 
     <bean id="totalVisitPerPeriodGenerator" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
     </bean>
@@ -295,7 +294,6 @@
     <!--generator supporting relation between person and researchoutputs-->
     <bean id="totalVisitPerPeriodGeneratorRelationPersonResearchoutputs" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.Person.researchoutputs"/>
@@ -304,7 +302,6 @@
     <!--generator supporting relation between person and projects-->
     <bean id="totalVisitPerPeriodGeneratorRelationPersonProjects" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.Person.projects"/>
@@ -313,7 +310,6 @@
     <!--generator supporting relation between orgunit and rppublications-->
     <bean id="totalVisitPerPeriodGeneratorRelationOrgUnitRppublications" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.OrgUnit.rppublications" />
@@ -322,7 +318,6 @@
     <!--new generator for supporting relation between orgunits and rpprojects-->
     <bean id="totalVisitPerPeriodGeneratorRelationOrgUnitRpprojects" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.OrgUnit.rpprojects" />
@@ -331,7 +326,6 @@
   <!--generator supporting relation between orgunit and publications-->
     <bean id="totalVisitPerPeriodGeneratorRelationOrgUnitPublications" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.OrgUnit.publications" />
@@ -340,7 +334,6 @@
     <!-- generator for supporting relation between project and researchoutputs-->
     <bean id="totalVisitPerPeriodGeneratorProjectPublications" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.Project.researchoutputs" />
@@ -349,7 +342,6 @@
     <!--new generator for supporting relation between orgunits and projects-->
     <bean id="totalVisitPerPeriodGeneratorRelationOrgUnitProjects" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="6"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="relation" value="RELATION.OrgUnit.projects" />
@@ -398,7 +390,6 @@
     
     <bean id="totalSiteVisitPerPeriod" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="12"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="dsoType" value="2" />
@@ -406,7 +397,6 @@
     
     <bean id="totalSiteDownloadPerPeriod" class="org.dspace.app.rest.statistics.TotalVisitPerPeriodGenerator">
         <property name="viewMode" value="chart.line"/>
-        <property name="maxResults" value="12"/>
         <property name="periodType" value="month"/>
         <property name="increment" value="1"/>
         <property name="dsoType" value="0" />

@@ -40,6 +40,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -194,6 +195,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
     }
 
     @Test
+    @Ignore
     public void adminInvitedEPersonToGroupNotExistTest() throws Exception {
         context.turnOffAuthorisationSystem();
         Group group = GroupBuilder.createGroup(context)

@@ -36,6 +36,8 @@ public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy>
 
     public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId) throws SQLException;
 
+    public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId, String type) throws SQLException;
+
     public List<ResourcePolicy> find(Context c, DSpaceObject dso, Group group, int action) throws SQLException;
 
     public List<ResourcePolicy> find(Context context, Group group) throws SQLException;

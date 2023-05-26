@@ -30,6 +30,11 @@ public class UpdateWOSMetrics extends AbstractUpdateWOSMetrics {
     private WOSProvider wosProvider;
 
     @Override
+    public String getServiceName() {
+        return "wos";
+    }
+
+    @Override
     public List<String> getFilters() {
         return Arrays.asList("dspace.entity.type:Publication", "dc.identifier.doi:*");
     }

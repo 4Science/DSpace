@@ -15,6 +15,7 @@ import static org.dspace.content.Item.ANY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -32,6 +33,7 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.CrisConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -256,6 +258,173 @@ public class ItemMetadataImportFillerTest {
         verify(itemService).addMetadata(context, itemToFill, "dc", "title", null, null, "Mario Rossi", null, -1);
         verify(itemService).addMetadata(context, itemToFill, "oairecerif", "author", "affiliation",
                                         null, "Affiliation", null, -1);
+        verifyNoMoreInteractions(context, itemService);
+    }
+
+    /**
+     * Verifies that the placeholder metadata won't be added
+     * to the itemToFill
+     *
+     * @throws SQLException
+     */
+    @Test
+    public void testFilterPlaceholderAuthorityItem() throws SQLException {
+        UUID sourceItemId = randomUUID();
+        MetadataValue metadataValue =
+            buildMetadataValue(sourceItemId, "oairecerif", "funder", null, "My Funder", 0);
+        Item sourceItem = (Item) metadataValue.getDSpaceObject();
+        Item itemToFill = buildItem(sourceItemId);
+
+        Map<String, MappingDetails> mappingDetails = new HashMap<>();
+        mappingDetails.put(
+            "crisfund.funder.description",
+            buildMappingDetails(false, "dc.description")
+        );
+
+        Map<String, MetadataConfiguration> configurations = new HashMap<>();
+        configurations.put("oairecerif.funder", buildMetadataConfig(true, mappingDetails));
+        cut.setConfigurations(configurations);
+
+        MetadataValue firstMetdata =
+            buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
+        List<MetadataValue> archivedItemAffiliationMetadata = asList(firstMetdata);
+        when(itemService.getMetadataByMetadataString(sourceItem, "crisfund.funder.description"))
+            .thenReturn(archivedItemAffiliationMetadata);
+
+        List<MetadataValue> itemToFillMetadata =
+            asList(
+                buildMetadataValue("oairecerif", "funder", null, "old")
+            );
+        when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
+            .thenReturn(itemToFillMetadata);
+
+        cut.fillItem(context, metadataValue, itemToFill);
+
+        verify(itemService).getMetadataByMetadataString(sourceItem, "crisfund.funder.description");
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "title", null, null, "My Funder", null, -1);
+        verify(itemService, never())
+            .addMetadata(
+                context, itemToFill, "dc", "description", "", null, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE,
+                null, -1
+            );
+        verifyNoMoreInteractions(context, itemService);
+    }
+
+    /**
+     * Verifies that the first metadata found in place (0) of the linked list of metadata
+     * that is not a placeholder will be added to the itemToFill
+     *
+     * @throws SQLException
+     */
+    @Test
+    public void testAddNonPlaceholderAuthorityMetadata() throws SQLException {
+        UUID sourceItemId = randomUUID();
+        MetadataValue metadataValue =
+            buildMetadataValue(sourceItemId, "oairecerif", "funder", null, "My Funder", 0);
+        Item sourceItem = (Item) metadataValue.getDSpaceObject();
+        Item itemToFill = buildItem(sourceItemId);
+
+        Map<String, MappingDetails> mappingDetails = new HashMap<>();
+        mappingDetails.put(
+            "crisfund.funder.description",
+            buildMappingDetails(false, "dc.description")
+        );
+
+        Map<String, MetadataConfiguration> configurations = new HashMap<>();
+        configurations.put("oairecerif.funder", buildMetadataConfig(true, mappingDetails));
+        cut.setConfigurations(configurations);
+
+        MetadataValue firstMetadata =
+            buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
+        MetadataValue secondMetadata =
+            buildMetadataValue("crisfund", "funder", "description", "My Custom Metadata");
+        MetadataValue thirdMetadata =
+            buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
+        List<MetadataValue> archivedItemAffiliationMetadata = asList(firstMetadata, secondMetadata, thirdMetadata);
+        when(itemService.getMetadataByMetadataString(sourceItem, "crisfund.funder.description"))
+            .thenReturn(archivedItemAffiliationMetadata);
+
+        List<MetadataValue> itemToFillMetadata =
+            asList(
+                buildMetadataValue("oairecerif", "funder", null, "old")
+            );
+        when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
+            .thenReturn(itemToFillMetadata);
+
+        cut.fillItem(context, metadataValue, itemToFill);
+
+        verify(itemService).getMetadataByMetadataString(sourceItem, "crisfund.funder.description");
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "title", null, null, "My Funder", null, -1);
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "description", null, null, "My Custom Metadata", null, -1);
+        verify(itemService, never())
+            .addMetadata(
+                context, itemToFill, "dc", "description", null, null, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE,
+                null, -1
+            );
+        verifyNoMoreInteractions(context, itemService);
+    }
+
+    /**
+     * Verifies that all metadata with {@link CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE} of the
+     * sourceItem will be filtered out and not added to the itemToFill.
+     *
+     * @throws SQLException
+     */
+    @Test
+    public void testAddAllNonPlaceholderAuthorityMetadata() throws SQLException {
+        UUID sourceItemId = randomUUID();
+        MetadataValue metadataValue =
+            buildMetadataValue(sourceItemId, "oairecerif", "funder", null, "My Funder", 0);
+        Item sourceItem = (Item) metadataValue.getDSpaceObject();
+        Item itemToFill = buildItem(sourceItemId);
+
+        Map<String, MappingDetails> mappingDetails = new HashMap<>();
+        mappingDetails.put(
+            "crisfund.funder.description",
+            buildMappingDetails(true, "dc.description")
+        );
+
+        Map<String, MetadataConfiguration> configurations = new HashMap<>();
+        configurations.put("oairecerif.funder", buildMetadataConfig(true, mappingDetails));
+        cut.setConfigurations(configurations);
+
+        MetadataValue firstMetadata =
+            buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
+        MetadataValue secondMetadata =
+            buildMetadataValue("crisfund", "funder", "description", "Description 1");
+        MetadataValue thirdMetadata =
+            buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
+        MetadataValue fourthMetadata =
+            buildMetadataValue("crisfund", "funder", "description", "Description 2");
+        List<MetadataValue> archivedItemAffiliationMetadata =
+            asList(firstMetadata, secondMetadata, thirdMetadata, fourthMetadata);
+        when(itemService.getMetadataByMetadataString(sourceItem, "crisfund.funder.description"))
+            .thenReturn(archivedItemAffiliationMetadata);
+
+        List<MetadataValue> itemToFillMetadata =
+            asList(
+                buildMetadataValue("oairecerif", "funder", null, "old")
+            );
+        when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
+            .thenReturn(itemToFillMetadata);
+
+        cut.fillItem(context, metadataValue, itemToFill);
+
+        verify(itemService).getMetadataByMetadataString(sourceItem, "crisfund.funder.description");
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "title", null, null, "My Funder", null, -1);
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "description", null, null, "Description 1", null, -1);
+        verify(itemService)
+            .addMetadata(context, itemToFill, "dc", "description", null, null, "Description 2", null, -1);
+        verify(itemService, never())
+            .addMetadata(
+                context, itemToFill, "dc", "description", null, null, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE,
+                null, -1
+            );
         verifyNoMoreInteractions(context, itemService);
     }
 

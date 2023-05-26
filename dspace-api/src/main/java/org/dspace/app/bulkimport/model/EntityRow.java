@@ -30,18 +30,22 @@ public final class EntityRow {
 
     private final ImportAction action;
 
+    private final Boolean discoverable;
+
     private final MultiValuedMap<String, MetadataValueVO> metadata;
 
     private final List<MetadataGroup> metadataGroups;
 
     private final List<UploadDetails> uploadDetails;
 
-    public EntityRow(String id, String action, int row, MultiValuedMap<String, MetadataValueVO> metadata,
-        List<MetadataGroup> metadataGroups, List<UploadDetails> uploadDetails) {
+    public EntityRow(String id, String action, int row, Boolean discoverable,
+        MultiValuedMap<String, MetadataValueVO> metadata, List<MetadataGroup> metadataGroups,
+        List<UploadDetails> uploadDetails) {
         super();
         this.id = id;
         this.row = row + 1;
         this.action = isBlank(action) ? ImportAction.NOT_SPECIFIED : ImportAction.valueOf(action.toUpperCase());
+        this.discoverable = discoverable;
         this.metadata = metadata;
         this.metadataGroups = metadataGroups;
         this.uploadDetails = uploadDetails;
@@ -53,6 +57,10 @@ public final class EntityRow {
 
     public List<MetadataGroup> getMetadataGroups() {
         return unmodifiableList(metadataGroups);
+    }
+
+    public List<UploadDetails> getUploadDetails() {
+        return unmodifiableList(uploadDetails);
     }
 
     public String getId() {
@@ -67,8 +75,8 @@ public final class EntityRow {
         return row;
     }
 
-    public List<UploadDetails> getUploadDetails() {
-        return uploadDetails;
+    public Boolean getDiscoverable() {
+        return discoverable;
     }
 
 }

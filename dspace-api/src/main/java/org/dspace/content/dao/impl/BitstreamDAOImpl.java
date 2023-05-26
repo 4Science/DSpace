@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -41,13 +42,14 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
     }
 
     @Override
-    public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException {
+    public List<Bitstream> findDeletedBitstreams(Context context, int limit, int offset) throws SQLException {
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, Bitstream.class);
         Root<Bitstream> bitstreamRoot = criteriaQuery.from(Bitstream.class);
         criteriaQuery.select(bitstreamRoot);
+        criteriaQuery.orderBy(criteriaBuilder.desc(bitstreamRoot.get(Bitstream_.ID)));
         criteriaQuery.where(criteriaBuilder.equal(bitstreamRoot.get(Bitstream_.deleted), true));
-        return list(context, criteriaQuery, false, Bitstream.class, -1, -1);
+        return list(context, criteriaQuery, false, Bitstream.class, limit, offset);
 
     }
 
@@ -108,6 +110,46 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
             "WHERE :item IN item");
 
         query.setParameter("item", item);
+
+        return iterate(query);
+    }
+
+    @Override
+    public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName) throws SQLException {
+        Query query = createQuery(
+            context,
+            "select b from Bitstream b " +
+            "join b.bundles bitBundle " +
+            "join bitBundle.items item " +
+            "WHERE item.id = :itemId " +
+            "and NOT EXISTS( " +
+            "  select 1 from MetadataValue mv " +
+            "  join mv.metadataField mf " +
+            "  join mf.metadataSchema ms " +
+            "  where mv.dSpaceObject = b and " +
+            "  ms.name = 'bitstream' and " +
+            "  mf.element = 'hide' and " +
+            "  mf.qualifier = null and " +
+            "  (mv.value = 'true' or mv.value = 'yes') " +
+            ")" +
+            " AND (" +
+            "  :bundleName is null OR " +
+            "  EXISTS ( " +
+            "    select 1 " +
+            "    from MetadataValue mvB " +
+            "    join mvB.metadataField mfB " +
+            "    join mfB.metadataSchema msB " +
+            "    where mvB.dSpaceObject = bitBundle and " +
+            "    msB.name = 'dc' and " +
+            "    mfB.element = 'title' and " +
+            "    mfB.qualifier is null and " +
+            "    mvB.value = :bundleName " +
+            "  )" +
+            ")"
+        );
+
+        query.setParameter("itemId", itemId);
+        query.setParameter("bundleName", bundleName);
 
         return iterate(query);
     }

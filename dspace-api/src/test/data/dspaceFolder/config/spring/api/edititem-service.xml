@@ -8,6 +8,7 @@
            http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <bean class="org.dspace.content.edit.service.impl.EditItemServiceImpl"/>
+    <bean class="org.dspace.content.edit.service.impl.EditItemModeValidatorImpl"/>
 
     <bean class="org.dspace.content.edit.service.impl.EditItemModeServiceImpl">
          <property name="editModesMap">
@@ -88,6 +89,50 @@
                               </value>
                             </property>
                             <property name="submissionDefinition" value="traditional-with-custom-url" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-WITH-MANY-SECURITIES" />
+                            <property name="securities">
+                              <list>
+                                <value>ADMIN</value>
+                                <value>CUSTOM</value>
+                                <value>OWNER</value>
+                              </list>
+                            </property>
+                            <property name="items" ref="itemsMetadata" />
+                            <property name="submissionDefinition" value="traditional-cris" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-VOC" />
+                            <property name="securities">
+                              <list>
+                                <value>ADMIN</value>
+                              </list>
+                            </property>
+                            <property name="items" ref="itemsMetadata" />
+                            <property name="submissionDefinition" value="controlled-vocabulary-test" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.modeC">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-A" />
+                            <property name="security">
+                              <value type="org.dspace.content.security.CrisSecurity">
+                                ADMIN
+                              </value>
+                            </property>
+                            <property name="submissionDefinition" value="traditional-with-custom-url" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="MODE-B" />
+                            <property name="security">
+                              <value type="org.dspace.content.security.CrisSecurity">
+                                OWNER
+                              </value>
+                            </property>
+                            <property name="submissionDefinition" value="traditional" />
                         </bean>
                     </list>
                 </entry>

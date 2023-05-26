@@ -31,6 +31,7 @@ import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
@@ -38,6 +39,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.eperson.EPerson;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +63,7 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     public void beforeTests() throws SQLException, AuthorizeException {
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
-        collection = createCollection(context, community).withAdminGroup(eperson).withWorkflowGroup(1, eperson).build();
+        collection = createCollection(context, community).withAdminGroup(eperson).build();
         context.restoreAuthSystemState();
     }
 
@@ -436,14 +440,17 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testBulkItemExportWithWorkspaceAndWorkflowItemsAndDefaultConfiguration() throws Exception {
 
         context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createItem(collection, "Company", "", "OrgUnit");
-        createWorkspaceItem(collection, "Edward Smith", "Science", "Person");
-        createItem(collection, "John Smith", "Software", "Person");
-        createWorkflowItem(collection, "Edward White", "Science", "Person");
+        Collection anotherCollection = createCollection(context, community).withAdminGroup(eperson).
+                                                                           withWorkflowGroup(1, eperson).build();
+        createItem(anotherCollection, "Edward Red", "Science", "Person");
+        createItem(anotherCollection, "Company", "", "OrgUnit");
+        createWorkspaceItem(anotherCollection, "Edward Smith", "Science", "Person");
+        createItem(anotherCollection, "John Smith", "Software", "Person");
+        createWorkflowItem(anotherCollection, "Edward White", "Science", "Person");
         context.restoreAuthSystemState();
         context.commit();
 
@@ -504,12 +511,103 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         }
     }
 
+    @Test
+    public void testSelectedItemsBulkItemExport() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Item item1 = createItem(collection, "Edward Red", "Science", "Publication");
+        createItem(collection, "My publication", "", "Publication");
+        Item item2 = createItem(collection, "Walter White", "Science", "Publication");
+        createItem(collection, "John Smith", "Science", "Publication");
+        context.restoreAuthSystemState();
+        context.commit();
+
+        String items = item1.getID().toString() + ";" + item2.getID().toString();
+
+        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago" };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        File txt = new File("publications.txt");
+        txt.deleteOnExit();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        try (FileInputStream fis = new FileInputStream(txt)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content,
+                    containsString("“Edward Red,” n.d. http://localhost:4000/handle/" + item1.getHandle()));
+            assertThat(content,
+                    containsString("“Walter White,” n.d. http://localhost:4000/handle/" + item2.getHandle()));
+        }
+    }
+
+    @Test
+    public void testBulkItemExportLimited() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        createItem(collection, "Edward Red", "Science", "Person");
+        createItem(collection, "My publication", "", "Publication");
+        createItem(collection, "Walter White", "Science", "Person");
+        createItem(collection, "John Smith", "Science", "Person");
+        EPerson member = createEPerson();
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        int loggedInLimit = configurationService.getIntProperty("bulk-export.limit.loggedIn");
+        int notLoggedInLimit = configurationService.getIntProperty("bulk-export.limit.notLoggedIn");
+        configurationService.setProperty("bulk-export.limit.loggedIn", 2);
+        configurationService.setProperty("bulk-export.limit.notLoggedIn", 1);
+
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        // eperson is the collection admin, so the output will be the same as the admin.
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        // member is a newly created eperson, so it will be treated as a generic logged user.
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, member);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Export will be limited to 2 items."));
+        assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        // null eperson, so it will be treated as there is no user logged in.
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Export will be limited to 1 items."));
+        assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        configurationService.setProperty("bulk-export.limit.loggedIn", loggedInLimit);
+        configurationService.setProperty("bulk-export.limit.notLoggedIn", notLoggedInLimit);
+    }
+
     private Item createItem(Collection collection, String title, String subject, String entityType) {
         return ItemBuilder.createItem(context, collection)
             .withTitle(title)
             .withSubject(subject)
             .withEntityType(entityType)
             .build();
+    }
+
+    private EPerson createEPerson() {
+        return EPersonBuilder.createEPerson(context).build();
     }
 
     private WorkspaceItem createWorkspaceItem(Collection collection, String title, String subject, String entityType) {

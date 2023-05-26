@@ -73,27 +73,30 @@
         <property name="filterService">
             <ref bean="item-has-altmetrics"/>
         </property>
-        <property name="enabled" value="${altmetric.enabled}" />
+        <property name="detailViewEnabled" value="${altmetric.data-badge-enabled:#{true}}" />
+        <property name="listViewEnabled" value="${altmetric.list-data-badge-enabled:#{true}}" />
         <property name="doiField" value="${altmetric.doiField}" />
-        <property name="doiDataAttr" value="${altmetric.doiDataAttr}" />
         <property name="pmidField" value="${altmetric.pmidField}" />
-        <property name="pmidDataAttr" value="${altmetric.pmidDataAttr}" />
         <property name="badgeType" value="${altmetric.badgeType:#{'donut'}}" />
+        <property name="linkTarget" value="${altmetric.linkTarget:#{'_blank'}}" />
         <property name="popover" value="${altmetric.popover}" />
         <property name="details" value="${altmetric.details:#{null}}" />
-        <property name="noScore" value="${altmetric.noScore:#{null}}" />
+        <property name="minScore" value="${altmetric.hideLessThan:#{null}}" />
         <property name="hideNoMentions" value="${altmetric.hideNoMentions:#{null}}" />
-        <property name="linkTarget" value="${altmetric.linkTarget:#{null}}" />
         <property name="listBadgeType" value="${altmetric.list-badgeType:#{'donut'}}" />
         <property name="listPopOver" value="${altmetric.list-popover}" />
+        <property name="listLinkTarget" value="${altmetric.list-linkTarget:#{'_blank'}}" />
     </bean>
 
     <bean class="org.dspace.metrics.embeddable.impl.EmbeddablePlumXMetricProvider">
+        <property name="personDetailViewEnabled" value="${plumx.data-person-badge-enabled:#{false}}" />
+        <property name="personListViewEnabled" value="${plumx.list-data-person-badge-enabled:#{false}}" />
+        <property name="publicationDetailViewEnabled" value="${plumx.data-publication-badge-enabled:#{false}}" />
+        <property name="publicationListViewEnabled" value="${plumx.list-data-publication-badge-enabled:#{false}}" />
         <property name="personPlumXScript" value="${plumx.person-plumx-script}" />
         <property name="publicationPlumXScript" value="${plumx.publication-plumx-script}" />
         <property name="publicationHref" value="${plumx.publication-href}" />
         <property name="personHref" value="${plumx.person-href}" />
-        <property name="dataLang" value="${plumx.data-lang:#{'en'}}" />
         <property name="dataNoName" value="${plumx.data-no-name:#{false}}" />
         <property name="dataNumArtifacts" value="${plumx.data-num-artifacts:#{5}}" />
         <property name="dataWidth" value="${plumx.data-width:#{'350px'}}" />
@@ -111,7 +114,6 @@
         <property name="dataPassHiddenCategories" value="${plumx.data-pass-hidden-categories:#{false}}" />
         <property name="dataDetailSamePage" value="${plumx.data-detail-same-page:#{false}}" />
 
-        <property name="listDataLang" value="${plumx.list-data-lang:#{'en'}}" />
         <property name="listDataNoName" value="${plumx.list-data-no-name:#{true}}" />
         <property name="listDataNumArtifacts" value="${plumx.list-data-num-artifacts:#{5}}" />
         <property name="listDataWidth" value="${plumx.list-data-width:#{'6em'}}" />
@@ -134,13 +136,13 @@
         <property name="filterService">
             <ref bean="item-has-dimensions"/>
         </property>
-        <property name="enabled" value="${dimensions.enabled}" />
+        <property name="detailViewEnabled" value="${dimensions.data-badge-enabled:#{true}}" />
+        <property name="listViewEnabled" value="${dimensions.list-data-badge-enabled:#{true}}" />
         <property name="dataLegend" value="${dimensions.data-legend:#{'hover-right'}}" />
         <property name="dataStyle" value="${dimensions.data-style:#{'small_circle'}}" />
-        <property name="badgeInstalled" value="${dimensions.data-dimensions-badge-installed:#{true}}" />
         <property name="listDataLegend" value="${dimensions.list-data-legend:#{'hover-right'}}" />
         <property name="listDataStyle" value="${dimensions.list-data-style:#{'small_circle'}}" />
-        <property name="listBadgeInstalled" value="${dimensions.list-data-dimensions-badge-installed:#{true}}" />
+        <property name="hideZeroCitations" value="${dimensions.data-hide-zero-citations:#{true}}" />
         <property name="doiField" value="${dimensions.doiField}" />
         <property name="pmidField" value="${dimensions.pmidField}" />
     </bean>

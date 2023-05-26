@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2022.02.01-SNAPSHOT</version>
+        <version>cris-2023.01.00-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -224,6 +224,12 @@
                     <groupId>org.dspace</groupId>
                     <artifactId>dspace-sword</artifactId>
                     <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>xalan</groupId>
+                            <artifactId>xalan</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
                 <dependency>
                     <groupId>org.dspace</groupId>

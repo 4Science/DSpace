@@ -7,16 +7,21 @@
  */
 package org.dspace.app.rest;
 
+import static org.apache.commons.codec.CharEncoding.UTF_8;
+import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
 import static org.dspace.core.Constants.WRITE;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,6 +37,9 @@ import org.dspace.app.rest.matcher.BitstreamFormatMatcher;
 import org.dspace.app.rest.matcher.BitstreamMatcher;
 import org.dspace.app.rest.matcher.BundleMatcher;
 import org.dspace.app.rest.matcher.HalMatcher;
+import org.dspace.app.rest.matcher.MetadataMatcher;
+import org.dspace.app.rest.model.patch.Operation;
+import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.test.MetadataPatchSuite;
 import org.dspace.authorize.service.ResourcePolicyService;
@@ -39,14 +47,18 @@ import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
+import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchemaEnum;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
@@ -54,6 +66,7 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.util.UUIDUtils;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -256,6 +269,64 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
 
+    }
+
+    @Test
+    public void findOneBitstreamTest_WorkspaceItemCoauthorCanAccessOriginalBundle() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection publications = CollectionBuilder.createCollection(context, child1)
+                                           .withEntityType("Publication")
+                                           .withName("Publications").build();
+
+        Collection researchers = CollectionBuilder.createCollection(context, child1)
+                                           .withEntityType("Person")
+                                           .withName("Researchers").build();
+
+        EPerson coauthor = EPersonBuilder.createEPerson(context)
+            .withPassword(password)
+            .withEmail("coauthor@example.com").build();
+
+        Item publicationCoauthor = ItemBuilder.createItem(context, researchers)
+                                              .withDspaceObjectOwner(coauthor)
+                                              .withTitle("Coauthor")
+                                              .build();
+
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, publications)
+                                                          .withAuthor(publicationCoauthor.getName(),
+                                                                      UUIDUtils.toString(publicationCoauthor.getID()))
+                                                          .build();
+
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream("this is the bitstream", CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.
+                createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream1")
+                .withDescription("Description1")
+                .withMimeType("text/plain")
+                .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
+                   .andExpect(status().isUnauthorized());
+
+        getClient(getAuthToken(coauthor.getEmail(), password))
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk());
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -1222,6 +1293,91 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         new MetadataPatchSuite().runWith(getClient(token), "/api/core/bitstreams/"
                 + parentCommunity.getLogo().getID(), expectedStatus);
+    }
+
+    @Test
+    public void patchReplaceMultipleDescriptionBitstream() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        List<String> bitstreamDescriptions = List.of(
+            "FIRST",
+            "SECOND",
+            "THIRD"
+        );
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Community child1 =
+            CommunityBuilder.createSubCommunity(context, parentCommunity).withName("Sub Community").build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+
+        Item publicItem1 = ItemBuilder.createItem(context, col1).withTitle("Test").build();
+
+        String bitstreamContent = "ThisIsSomeDummyText";
+        Bitstream bitstream = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.
+                    createBitstream(context, publicItem1, is)
+                    .withName("Bitstream")
+                    .build();
+        }
+
+        this.bitstreamService
+            .addMetadata(
+                context, bitstream,
+                MetadataSchemaEnum.DC.getName(), "description", null,
+                Item.ANY, bitstreamDescriptions
+            );
+
+        context.restoreAuthSystemState();
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$.metadata",
+                    Matchers.allOf(
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 0),
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 1),
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 2)
+                    )
+                )
+            );
+
+        List<Operation> ops = List.of(
+            new ReplaceOperation("/metadata/dc.description/0", bitstreamDescriptions.get(2)),
+            new ReplaceOperation("/metadata/dc.description/1", bitstreamDescriptions.get(0)),
+            new ReplaceOperation("/metadata/dc.description/2", bitstreamDescriptions.get(1))
+        );
+        String requestBody = getPatchContent(ops);
+        getClient(token)
+            .perform(patch("/api/core/bitstreams/" + bitstream.getID())
+            .content(requestBody)
+            .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+            .andExpect(status().isOk())
+            .andExpect(
+                 jsonPath("$.metadata",
+                     Matchers.allOf(
+                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
+                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
+                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
+                     )
+                 )
+             );
+        getClient(token)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID()))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$.metadata",
+                    Matchers.allOf(
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
+                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
+                    )
+                )
+            );
     }
 
 
@@ -2595,6 +2751,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
             .withMimeType("text/plain")
             .build();
 
+        Bitstream bitstream4 = BitstreamBuilder.createBitstream(context, license, InputStream.nullInputStream())
+            .withName("this is a test 3")
+            .withMimeType("text/plain")
+            .build();
+
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
             .param("uuid", publicItem1.getID().toString())
             .param("name", license.getName())
@@ -2622,6 +2783,18 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
             .param("uuid", publicItem1.getID().toString())
             .param("name", license.getName())
+            .param("filterMetadata", "dc.type")
+            .param("filterMetadataValue", "!Personal Picture")
+            .param("projection", "full"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.page.totalElements", is(2)))
+            .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
+                BitstreamMatcher.matchBitstreamEntry(bitstream1),
+                BitstreamMatcher.matchBitstreamEntry(bitstream4))));
+
+        getClient().perform(get("/api/core/bitstreams/search/byItemId")
+            .param("uuid", publicItem1.getID().toString())
+            .param("name", license.getName())
             .param("filterMetadata", "dc.title", "dc.type")
             .param("filterMetadataValue", "this is a test", "Personal Picture")
             .param("projection", "full"))
@@ -2631,6 +2804,125 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
             .andExpect(jsonPath("$._embedded.bitstreams", contains(
                 BitstreamMatcher.matchBitstreamEntry(bitstream2))));
 
+    }
+
+    @Test
+    public void findShowableByItem() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and two collections.
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        //2. A public item that is readable by Anonymous
+        Item publicItem1 =
+            ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .build();
+
+        Item publicItem2 =
+            ItemBuilder.createItem(context, col1)
+            .withTitle("Public item 1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .build();
+
+        Bitstream bitstream =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test", UTF_8))
+                .withName("first")
+                .withFormat("test format")
+                .build();
+
+        Bitstream bitstream2 =
+            BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test2", UTF_8))
+                .withName("second")
+                .withFormat("test format 2")
+                .build();
+
+        final String customBundle = "Bundle Test";
+        Bundle bundle = BundleBuilder.createBundle(context, publicItem1).withName(customBundle).build();
+
+        Bitstream bitstream3 =
+            BitstreamBuilder.createBitstream(context, bundle, toInputStream("test3", UTF_8))
+                .withName("third")
+                .withFormat("test format 3")
+                .build();
+
+        Bitstream bitstream4 =
+            BitstreamBuilder.createBitstream(context, publicItem2, toInputStream("test4", UTF_8))
+                .withName("fourth")
+                .withFormat("test format 4")
+                .isHidden()
+                .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(
+                get("/api/core/bitstreams/search/showableByItem")
+                    .param("uuid", publicItem1.getID().toString())
+                    .param("name", Constants.CONTENT_BUNDLE_NAME)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.bitstreams",
+                    allOf(
+                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream2))
+                    )
+                )
+            )
+            .andExpect(
+                jsonPath(
+                    "$._embedded.bitstreams",
+                     not(
+                         allOf(
+                             hasItem(BitstreamMatcher.matchProperties(bitstream3)),
+                             hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                         )
+                     )
+                )
+            );
+
+        getClient(token).perform(
+            get("/api/core/bitstreams/search/showableByItem")
+            .param("uuid", publicItem1.getID().toString())
+            .param("name", customBundle)
+            )
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(contentType))
+        .andExpect(
+            jsonPath(
+                "$._embedded.bitstreams",
+                allOf(
+                    hasItem(BitstreamMatcher.matchProperties(bitstream3))
+                    )
+                )
+            )
+        .andExpect(
+            jsonPath(
+                "$._embedded.bitstreams",
+                not(
+                    allOf(
+                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream2)),
+                        hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                        )
+                    )
+                )
+            );
     }
 
 }

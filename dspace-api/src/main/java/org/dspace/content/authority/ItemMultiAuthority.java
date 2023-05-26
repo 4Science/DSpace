@@ -85,7 +85,7 @@ public class ItemMultiAuthority implements LinkableEntityAuthority {
             return new Choices(Choices.CF_UNSET);
         }
 
-        ItemAuthorityService itemAuthorityService = itemAuthorityServiceFactory.getInstance(field);
+        ItemAuthorityService itemAuthorityService = itemAuthorityServiceFactory.getInstance(authorityName);
         String luceneQuery = itemAuthorityService.getSolrQuery(text);
 
         SolrQuery solrQuery = new SolrQuery();

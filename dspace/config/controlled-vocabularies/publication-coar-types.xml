@@ -231,5 +231,9 @@
         </node>
       </isComposedBy>
     </node>
+    <node id="c_1843" label="other">
+      <hasNote>A resource type that is not included in existing terms. [COAR definition]
+      </hasNote>
+    </node>
   </isComposedBy>
 </node>

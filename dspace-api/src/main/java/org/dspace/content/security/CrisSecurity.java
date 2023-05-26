@@ -7,8 +7,6 @@
  */
 package org.dspace.content.security;
 
-import java.util.Arrays;
-
 /**
  * Enum that model all the allowed values for an item access security
  * configuration.
@@ -18,31 +16,13 @@ import java.util.Arrays;
  */
 public enum CrisSecurity {
 
-    NONE("0"),
-    ADMIN("1"),
-    OWNER("2"),
-    ADMIN_OWNER("3"),
-    CUSTOM("4"),
-    ITEM_ADMIN("5"),
-    SUBMITTER("6"),
-    SUBMITTER_GROUP("7"),
-    GROUP("8");
-
-    private final String value;
-
-    private CrisSecurity(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public static CrisSecurity getByValue(String value) {
-        return Arrays.stream(CrisSecurity.values())
-            .filter(security -> security.getValue().equals(value))
-            .findFirst()
-            .orElse(CrisSecurity.NONE);
-    }
+    NONE,
+    ADMIN,
+    OWNER,
+    CUSTOM,
+    ITEM_ADMIN,
+    SUBMITTER,
+    SUBMITTER_GROUP,
+    GROUP;
 
 }

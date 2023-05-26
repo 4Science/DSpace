@@ -22,6 +22,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.SelfNamedPlugin;
@@ -57,10 +58,10 @@ import org.xml.sax.InputSource;
  *
  * @author Michael B. Klein
  */
-
 public class DSpaceControlledVocabulary extends SelfNamedPlugin implements HierarchicalAuthority {
 
-    private static Logger log = org.apache.logging.log4j.LogManager.getLogger(DSpaceControlledVocabulary.class);
+    private static Logger log = LogManager.getLogger(DSpaceControlledVocabulary.class);
+
     protected static String xpathTemplate = "//node[contains(translate(@label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
         "'abcdefghijklmnopqrstuvwxyz'),'%s')]";
     protected static String idTemplate = "//node[@id = '%s']";
@@ -78,21 +79,11 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     protected String hierarchyDelimiter = "::";
     protected Integer preloadLevel = 1;
 
+    private ConfigurationService config;
+
     public DSpaceControlledVocabulary() {
         super();
-        ConfigurationService config = DSpaceServicesFactory.getInstance().getConfigurationService();
-        vocabularyName = this.getPluginInstanceName();
-        log.info("Configuring " + this.getClass().getName() + ": " + vocabularyName);
-        String configurationPrefix = "vocabulary.plugin." + vocabularyName;
-        storeHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.store", storeHierarchy);
-        storeAuthority = config.getBooleanProperty(configurationPrefix + ".authority.store",
-                config.getBooleanProperty("vocabulary.plugin.authority.store", false));
-        suggestHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.suggest", suggestHierarchy);
-        preloadLevel = config.getIntProperty(configurationPrefix + ".hierarchy.preloadLevel", preloadLevel);
-        String configuredDelimiter = config.getProperty(configurationPrefix + ".delimiter");
-        if (configuredDelimiter != null) {
-            hierarchyDelimiter = configuredDelimiter.replaceAll("(^\"|\"$)", "");
-        }
+        config = DSpaceServicesFactory.getInstance().getConfigurationService();
     }
 
     @Override
@@ -109,7 +100,6 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         if (pluginNames == null) {
             initPluginNames();
         }
-
         return (String[]) ArrayUtils.clone(pluginNames);
     }
 
@@ -137,17 +127,26 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     }
 
     private synchronized void init() {
-        if (vocabularies == null) {
+        vocabularyName = this.getPluginInstanceName();
+        log.info("Configuring " + this.getClass().getName() + ": " + vocabularyName);
+        String configurationPrefix = "vocabulary.plugin." + vocabularyName;
+        storeHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.store", storeHierarchy);
+        storeAuthority = config.getBooleanProperty(configurationPrefix + ".authority.store",
+                                            config.getBooleanProperty("vocabulary.plugin.authority.store", false));
+        suggestHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.suggest", suggestHierarchy);
+        preloadLevel = config.getIntProperty(configurationPrefix + ".hierarchy.preloadLevel", preloadLevel);
+        String configuredDelimiter = config.getProperty(configurationPrefix + ".delimiter");
+        if (configuredDelimiter != null) {
+            hierarchyDelimiter = configuredDelimiter.replaceAll("(^\"|\"$)", "");
+        }
+
+        if (Objects.isNull(vocabularies)) {
             vocabularies = new HashMap<Locale, InputSource>();
-            Locale[] locales = I18nUtil.getSupportedLocales();
-            ConfigurationService config = DSpaceServicesFactory.getInstance().getConfigurationService();
-            vocabularyName = this.getPluginInstanceName();
             log.info("Initializing " + this.getClass().getName() + ": " + vocabularyName);
-            String filename;
-            for (Locale l : locales) {
-                filename = I18nUtil.getControlledVocabularyFileName(l, vocabularyName);
+            for (Locale locale : I18nUtil.getSupportedLocales()) {
+                String filename = I18nUtil.getControlledVocabularyFileName(locale, vocabularyName);
                 log.info("Loading " + filename);
-                vocabularies.put(l, new InputSource(filename));
+                vocabularies.put(locale, new InputSource(filename));
             }
         }
     }

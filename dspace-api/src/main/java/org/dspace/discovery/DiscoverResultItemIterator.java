@@ -27,8 +27,21 @@ public class DiscoverResultItemIterator extends DiscoverResultIterator<Item, UUI
         super(context, discoverQuery);
     }
 
+    public DiscoverResultItemIterator(Context context, DiscoverQuery discoverQuery, boolean uncacheEntities) {
+        super(context, discoverQuery, uncacheEntities);
+    }
+
     public DiscoverResultItemIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery) {
         super(context, scopeObject, discoverQuery);
+    }
+
+    public DiscoverResultItemIterator(Context context, DiscoverQuery discoverQuery, int maxResults) {
+        super(context, null, discoverQuery, true, maxResults);
+    }
+
+    public DiscoverResultItemIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery,
+                                      int maxResults) {
+        super(context, scopeObject, discoverQuery, true, maxResults);
     }
 
     @Override

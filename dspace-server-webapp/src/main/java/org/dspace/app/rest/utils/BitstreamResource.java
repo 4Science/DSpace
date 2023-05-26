@@ -40,6 +40,7 @@ public class BitstreamResource extends AbstractResource {
     private UUID uuid;
     private UUID currentUserUUID;
     private boolean shouldGenerateCoverPage;
+    private boolean skipAuthCheck;
     private byte[] file;
     private Set<UUID> currentSpecialGroups;
 
@@ -50,12 +51,13 @@ public class BitstreamResource extends AbstractResource {
                     .getServicesByType(CitationDocumentService.class).get(0);
 
     public BitstreamResource(String name, UUID uuid, UUID currentUserUUID, Set<UUID> currentSpecialGroups,
-        boolean shouldGenerateCoverPage) {
+        boolean shouldGenerateCoverPage, boolean skipAuth) {
         this.name = name;
         this.uuid = uuid;
         this.currentUserUUID = currentUserUUID;
         this.currentSpecialGroups = currentSpecialGroups;
         this.shouldGenerateCoverPage = shouldGenerateCoverPage;
+        this.skipAuthCheck = skipAuth;
     }
 
     /**
@@ -89,6 +91,11 @@ public class BitstreamResource extends AbstractResource {
     public InputStream getInputStream() throws IOException {
         try (Context context = initializeContext()) {
 
+            if (skipAuthCheck) {
+                context.turnOffAuthorisationSystem();
+            }
+            EPerson currentUser = ePersonService.find(context, currentUserUUID);
+            context.setCurrentUser(currentUser);
             Bitstream bitstream = bitstreamService.find(context, uuid);
             InputStream out;
 

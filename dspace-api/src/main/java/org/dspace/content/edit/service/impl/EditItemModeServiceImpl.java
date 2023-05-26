@@ -14,10 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
+import org.dspace.app.util.SubmissionConfigReader;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Item;
 import org.dspace.content.edit.EditItemMode;
 import org.dspace.content.edit.service.EditItemModeService;
+import org.dspace.content.edit.service.EditItemModeValidator;
 import org.dspace.content.security.service.CrisSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -35,10 +39,22 @@ public class EditItemModeServiceImpl implements EditItemModeService {
 
     @Autowired
     private ItemService itemService;
+
     @Autowired
     private CrisSecurityService crisSecurityService;
 
+    @Autowired
+    private EditItemModeValidator editItemModeValidator;
+
+    private SubmissionConfigReader submissionConfigReader;
+
     private Map<String, List<EditItemMode>> editModesMap;
+
+    @PostConstruct
+    private void setup() throws SubmissionConfigReaderException {
+        editItemModeValidator.validate(editModesMap);
+        submissionConfigReader = new SubmissionConfigReader();
+    }
 
     @Override
     public List<EditItemMode> findModes(Context context, Item item) throws SQLException {
@@ -100,7 +116,7 @@ public class EditItemModeServiceImpl implements EditItemModeService {
 
         List<EditItemMode> defaultModes = List.of();
 
-        if (item == null) {
+        if (item == null || !item.isArchived()) {
             return defaultModes;
         }
 
@@ -109,7 +125,19 @@ public class EditItemModeServiceImpl implements EditItemModeService {
             return defaultModes;
         }
 
-        return editModesMap.getOrDefault(entityType.toLowerCase(), defaultModes);
+        String entityTypeLowerCase = entityType.toLowerCase();
+        String submissionName = getSubmissionDefinitionName(item);
+
+        String typeAndSubmissionKey = String.join(".", entityTypeLowerCase, submissionName);
+        if (editModesMap.containsKey(typeAndSubmissionKey)) {
+            return editModesMap.get(typeAndSubmissionKey);
+        }
+
+        return editModesMap.getOrDefault(entityTypeLowerCase, defaultModes);
+    }
+
+    private String getSubmissionDefinitionName(Item item) {
+        return submissionConfigReader.getSubmissionConfigByCollection(item.getOwningCollection()).getSubmissionName();
     }
 
     public Map<String, List<EditItemMode>> getEditModesMap() {

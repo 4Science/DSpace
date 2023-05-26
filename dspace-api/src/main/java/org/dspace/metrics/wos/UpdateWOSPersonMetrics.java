@@ -31,6 +31,11 @@ public class UpdateWOSPersonMetrics extends AbstractUpdateWOSMetrics {
     private WOSPersonRestConnector wosPersonRestConnector;
 
     @Override
+    public String getServiceName() {
+        return "wos-person";
+    }
+
+    @Override
     public List<String> getFilters() {
         return Arrays.asList("dspace.entity.type:Person", "person.identifier.orcid:*");
     }

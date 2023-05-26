@@ -34,8 +34,10 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
 
     private Integer confidence;
 
+    private Integer securityLevel;
+
     private MetadataValueMatcher(String field, String value, String language, String authority, Integer place,
-        Integer confidence) {
+        Integer confidence, Integer securityLevel) {
 
         this.field = field;
         this.value = value;
@@ -43,6 +45,7 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
         this.authority = authority;
         this.place = place;
         this.confidence = confidence;
+        this.securityLevel = securityLevel;
 
     }
 
@@ -50,7 +53,7 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
     public void describeTo(Description description) {
         description.appendText("MetadataValue with the following attributes [field=" + field + ", value="
             + value + ", language=" + language + ", authority=" + authority + ", place=" + place + ", confidence="
-            + confidence + "]");
+            + confidence + ", securityLevel=" + securityLevel + "]");
     }
 
     @Override
@@ -59,7 +62,8 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
                 .appendValue("MetadataValue [metadataField=").appendValue(item.getMetadataField().toString('.'))
                 .appendValue(", value=").appendValue(item.getValue()).appendValue(", language=").appendValue(language)
                 .appendValue(", place=").appendValue(item.getPlace()).appendValue(", authority=")
-                .appendValue(item.getAuthority()).appendValue(", confidence=").appendValue(item.getConfidence() + "]");
+            .appendValue(item.getAuthority()).appendValue(", confidence=").appendValue(item.getConfidence())
+            .appendValue(", securityLevel=").appendValue(item.getSecurityLevel() + "]");
     }
 
     @Override
@@ -69,20 +73,35 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
             Objects.equals(metadataValue.getLanguage(), language) &&
             Objects.equals(metadataValue.getAuthority(), authority) &&
             Objects.equals(metadataValue.getPlace(), place) &&
-            Objects.equals(metadataValue.getConfidence(), confidence);
+            Objects.equals(metadataValue.getConfidence(), confidence) &&
+            Objects.equals(metadataValue.getSecurityLevel(), securityLevel);
+    }
+
+    public static MetadataValueMatcher with(String field, String value, String language,
+        String authority, Integer place, Integer confidence, Integer securityLevel) {
+        return new MetadataValueMatcher(field, value, language, authority, place, confidence, securityLevel);
     }
 
     public static MetadataValueMatcher with(String field, String value, String language,
         String authority, Integer place, Integer confidence) {
-        return new MetadataValueMatcher(field, value, language, authority, place, confidence);
+        return with(field, value, language, authority, place, confidence, null);
     }
 
     public static MetadataValueMatcher with(String field, String value) {
         return with(field, value, null, null, 0, -1);
     }
 
+    public static MetadataValueMatcher withSecurity(String field, String value, Integer securityLevel) {
+        return with(field, value, null, null, 0, -1, securityLevel);
+    }
+
     public static MetadataValueMatcher with(String field, String value, String authority, int place, int confidence) {
         return with(field, value, null, authority, place, confidence);
+    }
+
+    public static MetadataValueMatcher withSecurity(String field, String value, String authority, int place,
+        int confidence, Integer securityLevel) {
+        return with(field, value, null, authority, place, confidence, securityLevel);
     }
 
     public static MetadataValueMatcher with(String field, String value, String authority, int confidence) {

@@ -17,22 +17,23 @@ import org.dspace.content.authority.service.ItemAuthorityService;
  * ItemAuthorityServiceFactory.getInstance() to retrieve an implementation
  *
  * @author Giuseppe Digilio (giuseppe dot digilio at 4science dot it)
+ * @author Stefano Maffei 4Science.com
  */
 public class ItemAuthorityServiceFactory {
 
-    private Map<String, ItemAuthorityService> itemAthorityEntityTypeMap;
+    private Map<String, ItemAuthorityService> authorityServiceImplMap;
 
-    public Map<String, ItemAuthorityService> getItemAthorityEntityTypeMap() {
-        return itemAthorityEntityTypeMap;
+    public Map<String, ItemAuthorityService> getAuthorityServiceImplMap() {
+        return authorityServiceImplMap;
     }
 
-    public void setItemAthorityEntityTypeMap(Map<String, ItemAuthorityService> itemAthorityEntityTypeMap) {
-        this.itemAthorityEntityTypeMap = itemAthorityEntityTypeMap;
+    public void setAuthorityServiceImplMap(Map<String, ItemAuthorityService> authorityServiceImplMap) {
+        this.authorityServiceImplMap = authorityServiceImplMap;
     }
 
-    public ItemAuthorityService getInstance(String entityType) {
-        return (entityType != null && itemAthorityEntityTypeMap.containsKey(entityType))
-            ? itemAthorityEntityTypeMap.get(entityType)
-            : itemAthorityEntityTypeMap.get("default");
+    public ItemAuthorityService getInstance(String authorityName) {
+        return (authorityName != null && authorityServiceImplMap.containsKey(authorityName))
+            ? authorityServiceImplMap.get(authorityName)
+            : authorityServiceImplMap.get("default");
     }
 }

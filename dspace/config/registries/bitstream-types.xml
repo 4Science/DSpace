@@ -1,0 +1,54 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace Bitstream</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>bitstream</name>
+        <namespace>http://dspace.org/bitstream</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>viewer</element>
+        <qualifier>provider</qualifier>
+        <scope_note>Metadata field used to register custom viewer</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>hide</element>
+        <qualifier></qualifier>
+        <scope_note>Metadata field used to hide the bitstream</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>canvasid</qualifier>
+        <scope_note>Metadata field used to store the canvas identifier (the UUID of the bitstream)</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>position</qualifier>
+        <scope_note>Metadata field used to store the position of the bitstream</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>master</element>
+        <qualifier></qualifier>
+        <scope_note>Metadata field used to store the UUID of the master bitstream on the ocr bitstream</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>iiif</element>
+        <qualifier>view-orientation</qualifier>
+        <scope_note>Metadata field used to store the rotation necessary to apply to the image to have a proper visualization</scope_note>
+    </dc-type>
+
+</dspace-dc-types>

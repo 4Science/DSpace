@@ -1018,11 +1018,16 @@ public class MetadatafieldRestRepositoryIT extends AbstractControllerIntegration
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    // Metadata fields are returned alphabetically. So, look for the next 3 alphabetically
-                   .andExpect(jsonPath("$._embedded.metadatafields", Matchers.hasItems(
-                              MetadataFieldMatcher.matchMetadataFieldByKeys("creativework","publisher", null),
-                              MetadataFieldMatcher.matchMetadataFieldByKeys("creativeworkseries", "issn", null),
-                              MetadataFieldMatcher.matchMetadataFieldByKeys("cris", "author", "orcid")
-                              )))
+                   .andExpect(
+                       jsonPath(
+                           "$._embedded.metadatafields",
+                           Matchers.hasItems(
+                              MetadataFieldMatcher.matchMetadataField(alphabeticMdFields.get(3)),
+                              MetadataFieldMatcher.matchMetadataField(alphabeticMdFields.get(4)),
+                              MetadataFieldMatcher.matchMetadataField(alphabeticMdFields.get(5))
+                          )
+                       )
+                   )
                    .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                            Matchers.containsString("/api/core/metadatafields?"),
                            Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))

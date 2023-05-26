@@ -89,7 +89,7 @@
                     <!-- select all names and relative affiliations -->
                     <xsl:variable name="author" select="doc:metadata/doc:element[@name='dc']/doc:element[@name='contributor']/doc:element[@name='author']/doc:element/doc:field[@name='value']"/>
                     <xsl:variable name="department" select="doc:metadata/doc:element[@name='dc']/doc:element[@name='contributor']/doc:element[@name='department']/doc:element/doc:field[@name='value']"/>
-                    <xsl:variable name="orcid" select="doc:metadata/doc:element[@name='crisitem']/doc:element[@name='author']/doc:element[@name='orcid']/doc:element/doc:field[@name='value']"/>
+                    <xsl:variable name="orcid" select="doc:metadata/doc:element[@name='cris']/doc:element[@name='virtual']/doc:element[@name='author-orcid']/doc:element/doc:field[@name='value']"/>
                     
                     <xsl:if test="$author!=''">
                         <creators>
