@@ -39,6 +39,16 @@ public interface CrisLayoutToolValidator {
 
     String BOX_POLICY_SHEET = "boxpolicy";
 
+    String UTILSDATA_SHEET = "utilsdata";
+
+    String TAB_i18n_SHEET = "tab_i18n";
+
+    String BOX_i18n_SHEET = "box_i18n";
+
+    String METADATA_i18n_SHEET = "metadata_i18n";
+
+    String METADATAGROUP_i18n_SHEET = "metadatagroup_i18n";
+
 
     String CONTAINER_COLUMN = "CONTAINER";
 
