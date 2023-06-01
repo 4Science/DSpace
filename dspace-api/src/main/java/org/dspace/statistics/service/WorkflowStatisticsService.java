@@ -42,7 +42,6 @@ public interface WorkflowStatisticsService {
      * statistics, an empty Optional is returned.
      * 
      * @param  context  the DSpace Context
-     * @param  stepName the step name
      * @return          the found statistics
      */
     Optional<WorkflowOwnerStatistics> findOwnerStatistics(Context context, UUID ownerId);

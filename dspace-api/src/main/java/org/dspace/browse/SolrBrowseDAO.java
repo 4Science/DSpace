@@ -13,12 +13,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverFacetField;
@@ -30,6 +31,8 @@ import org.dspace.discovery.DiscoverResult.SearchDocument;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.services.ConfigurationService;
@@ -124,9 +127,9 @@ public class SolrBrowseDAO implements BrowseDAO {
     private String containerIDField = null;
 
     /**
-     * the database id of the container we are constraining to
+     * the container we are constraining to
      */
-    private UUID containerID = null;
+    private DSpaceObject container = null;
 
     /**
      * the column that we are sorting results by
@@ -180,6 +183,7 @@ public class SolrBrowseDAO implements BrowseDAO {
             addLocationScopeFilter(query);
             addStatusFilter(query);
             addExtraFilter(query);
+            addDefaultFilterQueries(query);
             if (distinct) {
                 DiscoverFacetField dff;
                 if (StringUtils.isNotBlank(startsWith)) {
@@ -210,7 +214,8 @@ public class SolrBrowseDAO implements BrowseDAO {
                     query.addFilterQueries("{!field f=" + facetField + "_partial}" + value);
                 }
                 if (StringUtils.isNotBlank(startsWith) && orderField != null) {
-                    query.addFilterQueries("bi_" + orderField + "_sort:" + startsWith + "*");
+                    query.addFilterQueries(
+                        "bi_" + orderField + "_sort:" + ClientUtils.escapeQueryChars(startsWith) + "*");
                 }
                 // filter on item to be sure to don't include any other object
                 // indexed in the Discovery Search core
@@ -249,13 +254,18 @@ public class SolrBrowseDAO implements BrowseDAO {
     }
 
     private void addLocationScopeFilter(DiscoverQuery query) {
-        if (containerID != null) {
+        if (container != null) {
             if (containerIDField.startsWith("collection")) {
-                query.addFilterQueries("location.coll:" + containerID);
+                query.addFilterQueries("location.coll:" + container.getID());
             } else if (containerIDField.startsWith("community")) {
-                query.addFilterQueries("location.comm:" + containerID);
+                query.addFilterQueries("location.comm:" + container.getID());
             }
         }
+    }
+
+    private void addDefaultFilterQueries(DiscoverQuery query) {
+        DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(container);
+        discoveryConfiguration.getDefaultFilterQueries().forEach(query::addFilterQueries);
     }
 
     @Override
@@ -348,6 +358,7 @@ public class SolrBrowseDAO implements BrowseDAO {
         addLocationScopeFilter(query);
         addStatusFilter(query);
         addExtraFilter(query);
+        addDefaultFilterQueries(query);
         query.setMaxResults(0);
         query.addFilterQueries("search.resourcetype:" + IndexableItem.TYPE);
 
@@ -408,8 +419,8 @@ public class SolrBrowseDAO implements BrowseDAO {
      * @see org.dspace.browse.BrowseDAO#getContainerID()
      */
     @Override
-    public UUID getContainerID() {
-        return containerID;
+    public DSpaceObject getContainer() {
+        return container;
     }
 
     /*
@@ -571,8 +582,8 @@ public class SolrBrowseDAO implements BrowseDAO {
      * @see org.dspace.browse.BrowseDAO#setContainerID(int)
      */
     @Override
-    public void setContainerID(UUID containerID) {
-        this.containerID = containerID;
+    public void setContainer(DSpaceObject container) {
+        this.container = container;
 
     }
 

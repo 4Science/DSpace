@@ -2855,10 +2855,6 @@
     </value-pairs>
     <value-pairs value-pairs-name="common_iso_languages" dc-term="common_iso_languages">
       <pair>
-        <displayed-value>N/A</displayed-value>
-        <stored-value />
-      </pair>
-      <pair>
         <displayed-value>English (United States)</displayed-value>
         <stored-value>en_US</stored-value>
       </pair>
@@ -3207,10 +3203,6 @@
     </value-pairs>
     <value-pairs value-pairs-name="gender" dc-term="gender">
       <pair>
-        <displayed-value>Unknown</displayed-value>
-        <stored-value />
-      </pair>
-      <pair>
         <displayed-value>Male</displayed-value>
         <stored-value>m</stored-value>
       </pair>
@@ -3219,7 +3211,7 @@
         <stored-value>f</stored-value>
       </pair>
       <pair>
-        <displayed-value>Unspecifiied</displayed-value>
+        <displayed-value>Unspecified</displayed-value>
         <stored-value>n/a</stored-value>
       </pair>
     </value-pairs>
@@ -3260,10 +3252,6 @@
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="orgunit_types" dc-term="orgunit_types">
-      <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
       <pair>
         <displayed-value>Academic Institute</displayed-value>
         <stored-value>Academic Institute</stored-value>
@@ -3319,10 +3307,6 @@
     </value-pairs>
     <value-pairs value-pairs-name="project_types" dc-term="project_types">
       <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
-      <pair>
         <displayed-value>basic research</displayed-value>
         <stored-value>basic research</stored-value>
       </pair>
@@ -3336,10 +3320,6 @@
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="funding_types" dc-term="funding_types">
-      <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
       <pair>
         <displayed-value>Gift</displayed-value>
         <stored-value>Gift</stored-value>
@@ -3363,10 +3343,6 @@
     </value-pairs>
     <value-pairs value-pairs-name="event_types" dc-term="event_types">
       <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
-      <pair>
         <displayed-value>Conference</displayed-value>
         <stored-value>Conference</stored-value>
       </pair>
@@ -3376,10 +3352,6 @@
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="common_iso_countries" dc-term="common_iso_countries">
-      <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
       <pair>
         <displayed-value>Afghanistan</displayed-value>
         <stored-value>AF</stored-value>
@@ -4378,10 +4350,6 @@
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="bitstream_types" dc-term="bitstream_types">
-      <pair>
-        <displayed-value>Unspecified</displayed-value>
-        <stored-value />
-      </pair>
       <pair>
         <displayed-value>Logo</displayed-value>
         <stored-value>logo</stored-value>

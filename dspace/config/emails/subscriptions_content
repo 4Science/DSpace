@@ -2,9 +2,9 @@
 ##
 ## Parameters: {0} Collections updates
 ##             {1} Communities updates
-##             {2} Items updates
+#set($subject = 'DSpace Subscription')
 
-This email is sent from DSpace-CRIS based on the chosen subscription preferences.
+This email is sent from DSpace based on the chosen subscription preferences.
 
 Communities
 -----------
@@ -14,6 +14,3 @@ Collections
 -----------
 List of changed items : ${params[1]}
 
-Items
------
-List of changed items : ${params[2]}

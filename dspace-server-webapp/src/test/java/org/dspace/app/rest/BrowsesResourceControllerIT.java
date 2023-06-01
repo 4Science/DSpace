@@ -187,6 +187,24 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                       .withSubject("AnotherTest").withSubject("TestingForMore")
                                       .withSubject("ExtraEntry")
                                       .build();
+        Item withdrawnItem1 = ItemBuilder.createItem(context, col2)
+                                      .withTitle("Withdrawn item 1")
+                                      .withIssueDate("2016-02-13")
+                                      .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                      .withSubject("AnotherTest").withSubject("TestingForMore")
+                                      .withSubject("ExtraEntry").withSubject("WithdrawnEntry")
+                                      .withdrawn()
+                                      .build();
+        Item privateItem1 = ItemBuilder.createItem(context, col2)
+                                       .withTitle("Private item 1")
+                                       .withIssueDate("2016-02-13")
+                                       .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                       .withSubject("AnotherTest").withSubject("TestingForMore")
+                                       .withSubject("ExtraEntry").withSubject("PrivateEntry")
+                                       .makeUnDiscoverable()
+                                       .build();
+
+
 
         context.restoreAuthSystemState();
 
@@ -390,6 +408,23 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                       .withSubject("AnotherTest")
                                       .build();
 
+        Item withdrawnItem1 = ItemBuilder.createItem(context, col2)
+                                         .withTitle("Withdrawn item 1")
+                                         .withIssueDate("2016-02-13")
+                                         .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                         .withSubject("AnotherTest").withSubject("TestingForMore")
+                                         .withSubject("ExtraEntry").withSubject("WithdrawnEntry")
+                                         .withdrawn()
+                                         .build();
+        Item privateItem1 = ItemBuilder.createItem(context, col2)
+                                       .withTitle("Private item 1")
+                                       .withIssueDate("2016-02-13")
+                                       .withAuthor("Smith, Maria").withAuthor("Doe, Jane")
+                                       .withSubject("AnotherTest").withSubject("TestingForMore")
+                                       .withSubject("ExtraEntry").withSubject("PrivateEntry")
+                                       .makeUnDiscoverable()
+                                       .build();
+
         context.restoreAuthSystemState();
 
         //** WHEN **
@@ -428,6 +463,31 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                        ItemMatcher.matchItemWithTitleAndDateIssued(publicItem1, "zPublic item more", "2017-10-17")
                    )));
 
+        //** WHEN **
+        //An anonymous user browses the items that correspond with the PrivateEntry subject query
+        getClient().perform(get("/api/discover/browses/subject/items")
+                                    .param("filterValue", "PrivateEntry"))
+                   //** THEN **
+                   //The status has to be 200
+                   .andExpect(status().isOk())
+                   //We expect the content type to be "application/hal+json;charset=UTF-8"
+                   .andExpect(content().contentType(contentType))
+                   //We expect there to be no elements because the item is private
+                   .andExpect(jsonPath("$.page.totalElements", is(0)))
+                   .andExpect(jsonPath("$.page.size", is(20)));
+
+        //** WHEN **
+        //An anonymous user browses the items that correspond with the WithdrawnEntry subject query
+        getClient().perform(get("/api/discover/browses/subject/items")
+                                    .param("filterValue", "WithdrawnEntry"))
+                   //** THEN **
+                   //The status has to be 200
+                   .andExpect(status().isOk())
+                   //We expect the content type to be "application/hal+json;charset=UTF-8"
+                   .andExpect(content().contentType(contentType))
+                   //We expect there to be no elements because the item is withdrawn
+                   .andExpect(jsonPath("$.page.totalElements", is(0)))
+                   .andExpect(jsonPath("$.page.size", is(20)));
     }
 
     @Test
@@ -526,13 +586,52 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(jsonPath("$._embedded.items[*].metadata", Matchers.allOf(
                            not(matchMetadata("dc.title", "This is a private item")),
                            not(matchMetadata("dc.title", "Internal publication")))));
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        //** WHEN **
+        //An anonymous user browses the items in the Browse by item endpoint
+        //sorted descending by tile
+        getClient(adminToken).perform(get("/api/discover/browses/title/items")
+                                .param("sort", "title,desc"))
+
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //We expect the content type to be "application/hal+json;charset=UTF-8"
+                   .andExpect(content().contentType(contentType))
+
+                   .andExpect(jsonPath("$.page.size", is(20)))
+                   .andExpect(jsonPath("$.page.totalElements", is(4)))
+                   .andExpect(jsonPath("$.page.totalPages", is(1)))
+                   .andExpect(jsonPath("$.page.number", is(0)))
+
+                   .andExpect(jsonPath("$._embedded.items",
+                                       contains(ItemMatcher.matchItemWithTitleAndDateIssued(publicItem2,
+                                                                                            "Public item 2",
+                                                                                            "2016-02-13"),
+                                                ItemMatcher.matchItemWithTitleAndDateIssued(publicItem1,
+                                                                                            "Public item 1",
+                                                                                            "2017-10-17"),
+                                                ItemMatcher.matchItemWithTitleAndDateIssued(internalItem,
+                                                                                            "Internal publication",
+                                                                                            "2016-09-19"),
+                                                ItemMatcher.matchItemWithTitleAndDateIssued(embargoedItem,
+                                                                                            "An embargoed publication",
+                                                                                            "2017-08-10")
+                                                )))
+
+                   //The private and internal items must not be present
+                   .andExpect(jsonPath("$._embedded.items[*].metadata", Matchers.allOf(
+                           not(matchMetadata("dc.title", "This is a private item")),
+                           not(matchMetadata("dc.title", "Internal publication")))));
     }
 
     @Test
     /**
      * This test was introduced to reproduce the bug DS-4269 Pagination links must be consistent also when there is not
      * explicit pagination parameters in the request (i.e. defaults apply)
-     * 
+     *
      * @throws Exception
      */
     public void browsePaginationWithoutExplicitParams() throws Exception {
@@ -654,6 +753,18 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                 .withIssueDate("2016-01-12")
                                 .build();
 
+        Item withdrawnItem1 = ItemBuilder.createItem(context, col2)
+                                         .withTitle("Withdrawn item 1")
+                                         .withIssueDate("2016-02-13")
+                                         .withdrawn()
+                                         .build();
+
+        Item privateItem1 = ItemBuilder.createItem(context, col2)
+                                       .withTitle("Private item 1")
+                                       .makeUnDiscoverable()
+                                       .build();
+
+
         context.restoreAuthSystemState();
 
         //** WHEN **
@@ -691,6 +802,32 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
 
         //The next page gives us the last two items
         getClient().perform(get("/api/discover/browses/dateissued/items")
+                                .param("sort", "title,asc")
+                                .param("size", "5")
+                                .param("page", "1"))
+
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //We expect the content type to be "application/hal+json;charset=UTF-8"
+                   .andExpect(content().contentType(contentType))
+
+                   //We expect only the first five items to be present
+                   .andExpect(jsonPath("$.page.size", is(5)))
+                   .andExpect(jsonPath("$.page.totalElements", is(7)))
+                   .andExpect(jsonPath("$.page.totalPages", is(2)))
+                   .andExpect(jsonPath("$.page.number", is(1)))
+
+                   //Verify that the title and date of the items match and that they are sorted ascending
+                   .andExpect(jsonPath("$._embedded.items",
+                                       contains(ItemMatcher.matchItemWithTitleAndDateIssued(item6,
+                                                                                            "Item 6", "2016-01-13"),
+                                                ItemMatcher.matchItemWithTitleAndDateIssued(item7,
+                                                                                            "Item 7", "2016-01-12")
+                                       )));
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        //The next page gives us the last two items
+        getClient(adminToken).perform(get("/api/discover/browses/dateissued/items")
                                 .param("sort", "title,asc")
                                 .param("size", "5")
                                 .param("page", "1"))
@@ -1158,7 +1295,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
 
                    //We expect the totalElements to be the 1 item present in the collection
                    .andExpect(jsonPath("$.page.totalElements", is(1)))
-                   //As this is is a small collection, we expect to go-to page 0
+                   //As this is a small collection, we expect to go-to page 0
                    .andExpect(jsonPath("$.page.number", is(0)))
                    .andExpect(jsonPath("$._links.self.href", containsString("startsWith=Blade")))
 
@@ -1168,6 +1305,33 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                                                                             "Blade Runner",
                                                                                             "1982-06-25")
                                        )));
+
+        //Test filtering with spaces:
+        //** WHEN **
+        //An anonymous user browses the items in the Browse by Title endpoint
+        //with startsWith set to Blade Runner and scope set to Col 1
+        getClient().perform(get("/api/discover/browses/title/items?startsWith=Blade Runner")
+                .param("scope", col1.getID().toString())
+                .param("size", "2"))
+
+            //** THEN **
+            //The status has to be 200 OK
+            .andExpect(status().isOk())
+            //We expect the content type to be "application/hal+json;charset=UTF-8"
+            .andExpect(content().contentType(contentType))
+
+            //We expect the totalElements to be the 1 item present in the collection
+            .andExpect(jsonPath("$.page.totalElements", is(1)))
+            //As this is a small collection, we expect to go-to page 0
+            .andExpect(jsonPath("$.page.number", is(0)))
+            .andExpect(jsonPath("$._links.self.href", containsString("startsWith=Blade Runner")))
+
+            //Verify that the index jumps to the "Blade Runner" item.
+            .andExpect(jsonPath("$._embedded.items",
+                contains(ItemMatcher.matchItemWithTitleAndDateIssued(item2,
+                    "Blade Runner",
+                    "1982-06-25")
+                )));
     }
 
     @Test
@@ -1526,5 +1690,58 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$._embedded.items[0]._embedded.owningCollection._embedded.adminGroup",
                                                  nullValue()));
+    }
+
+    /**
+     * Expect a single author browse definition
+     * @throws Exception
+     */
+    @Test
+    public void findOneLinked() throws Exception {
+        // When we call the search endpoint
+        getClient().perform(get("/api/discover/browses/search/byFields")
+                        .param("fields", "dc.contributor.author"))
+                // The status has to be 200 OK
+                .andExpect(status().isOk())
+                // We expect the content type to be "application/hal+json;charset=UTF-8"
+                .andExpect(content().contentType(contentType))
+                // The browse definition ID should be "author"
+                .andExpect(jsonPath("$.id", is("author")))
+                // It should be configured as a metadata browse
+                .andExpect(jsonPath("$.metadataBrowse", is(true)))
+        ;
+    }
+
+    @Test
+    public void findOneLinkedPassingTwoFields() throws Exception {
+        // When we call the search endpoint
+        getClient().perform(get("/api/discover/browses/search/byFields")
+                        .param("fields", "dc.contributor.author")
+                        .param("fields", "dc.date.issued"))
+                // The status has to be 200 OK
+                .andExpect(status().isOk())
+                // We expect the content type to be "application/hal+json;charset=UTF-8"
+                .andExpect(content().contentType(contentType))
+                // The browse definition ID should be "author"
+                .andExpect(jsonPath("$.id", is("author")))
+                // It should be configured as a metadata browse
+                .andExpect(jsonPath("$.metadataBrowse", is(true)));
+    }
+
+    @Test
+    public void findUnconfiguredFields() throws Exception {
+        // When we call the search endpoint with a field that isn't configured for any browse links
+        getClient().perform(get("/api/discover/browses/search/byFields")
+                        .param("fields", "dc.identifier.uri"))
+                // The status has to be 204 NO CONTENT
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findBrowseLinksWithMissingParameter() throws Exception {
+        // When we call the search endpoint with a field that isn't configured for any browse links
+        getClient().perform(get("/api/discover/browses/search/byFields"))
+                // The status has to be 400 BAD REQUEST
+                .andExpect(status().isBadRequest());
     }
 }

@@ -30,6 +30,7 @@ import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.RegistrationRest;
 import org.dspace.app.util.AuthorizeUtil;
+import org.dspace.authenticate.service.AuthenticationService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
@@ -60,11 +61,18 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
 
     private static Logger log = LogManager.getLogger(RegistrationRestRepository.class);
 
+    public static final String TYPE_QUERY_PARAM = "accountRequestType";
+    public static final String TYPE_REGISTER = "register";
+    public static final String TYPE_FORGOT = "forgot";
+
     @Autowired
     private EPersonService ePersonService;
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Autowired
     private RequestService requestService;
@@ -131,34 +139,48 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
                 log.error(e.getMessage(), e);
             }
         }
+        String accountType = request.getParameter(TYPE_QUERY_PARAM);
+        if (StringUtils.isBlank(accountType) ||
+            (!accountType.equalsIgnoreCase(TYPE_FORGOT) && !accountType.equalsIgnoreCase(TYPE_REGISTER))) {
+            throw new IllegalArgumentException(String.format("Needs query param '%s' with value %s or %s indicating " +
+                "what kind of registration request it is", TYPE_QUERY_PARAM, TYPE_FORGOT, TYPE_REGISTER));
+        }
         EPerson eperson = null;
         try {
             eperson = ePersonService.findByEmail(context, registrationRest.getEmail());
         } catch (SQLException e) {
             log.error("Something went wrong retrieving EPerson for email: " + registrationRest.getEmail(), e);
         }
-        if (eperson != null) {
+        if (eperson != null && accountType.equalsIgnoreCase(TYPE_FORGOT)) {
             try {
                 if (!AuthorizeUtil.authorizeUpdatePassword(context, eperson.getEmail())) {
-                    throw new DSpaceBadRequestException(
-                            "Password cannot be updated for the given EPerson with email: " + eperson.getEmail());
+                    throw new DSpaceBadRequestException("Password cannot be updated for the given EPerson with email: "
+                        + eperson.getEmail());
                 }
                 accountService.sendForgotPasswordInfo(context, registrationRest.getEmail(),
                         registrationRest.getGroups());
             } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
                 log.error("Something went wrong with sending forgot password info email: "
-                              + registrationRest.getEmail(), e);
+                    + registrationRest.getEmail(), e);
             }
-        } else {
+        } else if (accountType.equalsIgnoreCase(TYPE_REGISTER)) {
             try {
+                String email = registrationRest.getEmail();
                 if (!AuthorizeUtil.authorizeNewAccountRegistration(context, request)) {
                     throw new AccessDeniedException(
                             "Registration is disabled, you are not authorized to create a new Authorization");
                 }
+
+                if (!authenticationService.canSelfRegister(context, request, registrationRest.getEmail())) {
+                    throw new UnprocessableEntityException(
+                        String.format("Registration is not allowed with email address" +
+                            " %s", email));
+                }
+
                 accountService.sendRegistrationInfo(context, registrationRest.getEmail(), registrationRest.getGroups());
             } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
                 log.error("Something went wrong with sending registration info email: "
-                              + registrationRest.getEmail(), e);
+                    + registrationRest.getEmail(), e);
             }
         }
         return null;

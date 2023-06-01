@@ -103,16 +103,23 @@ public class ItemMetadataImportFiller implements AuthorityImportFiller {
 
             MappingDetails mappingDetails = configurationMapping.get(additionalMetadataField);
 
-            List<MetadataValue> metadataValuesToAdd = findMetadata(relatedItem, additionalMetadataField);
-            if (mappingDetails.isUseAll()) {
-                listToReturn.addAll(getAllMetadata(mappingDetails, metadataValuesToAdd));
+            if (StringUtils.isNotBlank(mappingDetails.getConstantValue())) {
+                listToReturn.add(createMetadataValueDTO(
+                        mappingDetails.getTargetMetadataSchema(),
+                        mappingDetails.getTargetMetadataElement(),
+                        mappingDetails.getTargetMetadataQualifier(),
+                        null, mappingDetails.getConstantValue(), null, -1));
             } else {
-                MetadataValueDTO singleMetadata = getSingleMetadataByPlace(mappingDetails, metadataValuesToAdd,
-                        metadata);
-                if (singleMetadata != null) {
-                    listToReturn.add(singleMetadata);
+                List<MetadataValue> metadataValuesToAdd = findMetadata(relatedItem, additionalMetadataField);
+                if (mappingDetails.isUseAll()) {
+                    listToReturn.addAll(getAllMetadata(mappingDetails, metadataValuesToAdd));
+                } else {
+                    MetadataValueDTO singleMetadata = getSingleMetadataByPlace(mappingDetails, metadataValuesToAdd,
+                            metadata);
+                    if (singleMetadata != null) {
+                        listToReturn.add(singleMetadata);
+                    }
                 }
-
             }
         }
 
@@ -162,7 +169,7 @@ public class ItemMetadataImportFiller implements AuthorityImportFiller {
                     mappingDetails.getTargetMetadataSchema(),
                     mappingDetails.getTargetMetadataElement(),
                     mappingDetails.getTargetMetadataQualifier(),
-                    null, metadataValue.getValue(), null, -1
+                    null, metadataValue.getValue(), metadataValue.getAuthority(), metadataValue.getConfidence()
                 )
             )
             .collect(Collectors.toList());
@@ -186,7 +193,7 @@ public class ItemMetadataImportFiller implements AuthorityImportFiller {
             return createMetadataValueDTO(
                 mappingDetails.getTargetMetadataSchema(),
                 mappingDetails.getTargetMetadataElement(), mappingDetails.getTargetMetadataQualifier(),
-                null, valueToAdd, null, -1
+                null, valueToAdd, metadataValueToAdd.getAuthority(), metadataValueToAdd.getConfidence()
             );
         }
         return null;

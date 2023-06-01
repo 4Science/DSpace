@@ -490,6 +490,8 @@ public class ItemMetadataImportFillerTest {
     private MetadataValue buildMetadataValue(MetadataField field, String value) {
         MetadataValue metadata = mock(MetadataValue.class);
         when(metadata.getValue()).thenReturn(value);
+        when(metadata.getAuthority()).thenReturn(null);
+        when(metadata.getConfidence()).thenReturn(-1);
         when(metadata.getMetadataField()).thenReturn(field);
         return metadata;
     }

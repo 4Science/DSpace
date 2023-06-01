@@ -13,6 +13,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.alerts.service.SystemWideAlertService;
 import org.dspace.app.audit.AuditService;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.nbevent.service.NBEventService;
@@ -63,6 +64,8 @@ import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.supervision.factory.SupervisionOrderServiceFactory;
+import org.dspace.supervision.service.SupervisionOrderService;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
@@ -128,6 +131,9 @@ public abstract class AbstractBuilder<T, S> {
     static OrcidHistoryService orcidHistoryService;
     static OrcidQueueService orcidQueueService;
     static OrcidTokenService orcidTokenService;
+    static SystemWideAlertService systemWideAlertService;
+    static SupervisionOrderService supervisionOrderService;
+
 
     protected Context context;
 
@@ -198,6 +204,10 @@ public abstract class AbstractBuilder<T, S> {
         orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
         orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
         orcidTokenService = OrcidServiceFactory.getInstance().getOrcidTokenService();
+        systemWideAlertService = DSpaceServicesFactory.getInstance().getServiceManager()
+                                                      .getServicesByType(SystemWideAlertService.class).get(0);
+        subscribeService = ContentServiceFactory.getInstance().getSubscribeService();
+        supervisionOrderService = SupervisionOrderServiceFactory.getInstance().getSupervisionOrderService();
     }
 
 
@@ -242,6 +252,9 @@ public abstract class AbstractBuilder<T, S> {
         requestItemService = null;
         versioningService = null;
         orcidTokenService = null;
+        systemWideAlertService = null;
+        subscribeService = null;
+        supervisionOrderService = null;
     }
 
     public static void cleanupObjects() throws Exception {

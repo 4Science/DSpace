@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.Relationship;
@@ -33,6 +34,7 @@ import org.dspace.core.Context;
 import org.dspace.discovery.IndexEventConsumer;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.utils.DSpace;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
 import org.dspace.versioning.utils.RelationshipVersioningUtils;
@@ -58,6 +60,7 @@ public class VersioningConsumer implements Consumer {
     private RelationshipTypeService relationshipTypeService;
     private RelationshipService relationshipService;
     private RelationshipVersioningUtils relationshipVersioningUtils;
+    private DedupService dedupService;
 
     @Override
     public void initialize() throws Exception {
@@ -67,6 +70,8 @@ public class VersioningConsumer implements Consumer {
         relationshipTypeService = ContentServiceFactory.getInstance().getRelationshipTypeService();
         relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
         relationshipVersioningUtils = VersionServiceFactory.getInstance().getRelationshipVersioningUtils();
+        dedupService = new DSpace().getServiceManager().getServiceByName(DedupService.class.getName(),
+            DedupService.class);
     }
 
     @Override
@@ -133,6 +138,8 @@ public class VersioningConsumer implements Consumer {
         // unarchive previous item
         unarchiveItem(ctx, previousItem);
 
+        updateDuplicateDetection(ctx, latestItem, previousItem);
+
         // update relationships
         updateRelationships(ctx, latestItem, previousItem);
     }
@@ -146,6 +153,12 @@ public class VersioningConsumer implements Consumer {
         ctx.addEvent(new Event(
             Event.MODIFY, item.getType(), item.getID(), null, itemService.getIdentifiers(ctx, item)
         ));
+    }
+
+    private void updateDuplicateDetection(Context ctx, Item latestItem, Item previousItem) throws Exception {
+        dedupService.inheritDecisions(ctx, previousItem, latestItem);
+        dedupService.removeMatch(previousItem);
+        dedupService.indexContent(ctx, latestItem, true);
     }
 
     /**

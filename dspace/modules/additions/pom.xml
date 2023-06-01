@@ -265,6 +265,23 @@
          </dependencies>
       </profile>
 
+	   	<profile>
+			<id>addon-analytics</id>
+	         <activation>
+	            <property>
+	               <name>analytics.on</name>
+	            </property>
+	         </activation>
+			<dependencies>
+				<dependency>
+					<groupId>it.4science.dspace</groupId>
+					<artifactId>addon-analytics-api</artifactId>
+					<version>${addon-analytics.version}</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>      
+
    </profiles>
 
    <!--
@@ -317,13 +334,6 @@
          <artifactId>solr-core</artifactId>
          <version>${solr.client.version}</version>
          <scope>test</scope>
-         <exclusions>
-            <!-- Newer version brought in by opencsv -->
-            <exclusion>
-               <groupId>org.apache.commons</groupId>
-               <artifactId>commons-text</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.lucene</groupId>

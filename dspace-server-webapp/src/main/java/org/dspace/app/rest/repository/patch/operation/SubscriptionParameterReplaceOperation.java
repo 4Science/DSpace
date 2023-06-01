@@ -88,7 +88,7 @@ public class SubscriptionParameterReplaceOperation extends PatchOperation<Subscr
     @SuppressWarnings("ReturnValueIgnored")
     private void checkModelForExistingValue(Subscription subscription, Integer id) {
         subscription.getSubscriptionParameterList().stream().filter(subscriptionParameter -> {
-            return subscriptionParameter.getId().equals(id);
+            return subscriptionParameter.getID().equals(id);
         }).findFirst().orElseThrow();
 
     }

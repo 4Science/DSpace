@@ -21,6 +21,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
+import org.dspace.supervision.service.SupervisionOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,13 @@ public class WorkspaceItemRestPermissionEvaluatorPlugin extends RestObjectPermis
     private RequestService requestService;
 
     @Autowired
+    WorkspaceItemService wis;
+
+    @Autowired
     private ResearcherProfileService researcherProfileService;
 
     @Autowired
-    WorkspaceItemService wis;
+    private SupervisionOrderService supervisionOrderService;
 
     @Autowired
     private AuthorizeService authorizeService;
@@ -95,9 +99,12 @@ public class WorkspaceItemRestPermissionEvaluatorPlugin extends RestObjectPermis
                 return true;
             }
 
-            if (authorizeService.authorizeActionBoolean(context, witem.getItem(),
-                restPermission.getDspaceApiActionId())) {
-                return true;
+            if (witem.getItem() != null) {
+                if (supervisionOrderService.isSupervisor(context, ePerson, witem.getItem())) {
+                    return authorizeService.authorizeActionBoolean(context, ePerson, witem.getItem(),
+                                                                   restPermission.getDspaceApiActionId(),
+                                                                   true);
+                }
             }
 
         } catch (SQLException e) {

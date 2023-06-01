@@ -157,4 +157,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExportCLI"/>
     </bean>
 
+    <bean id="export-cris-layout-tool" class="org.dspace.layout.script.ExportCrisLayoutToolCliScriptConfiguration">
+        <property name="description" value="Script to export CRIS layout configuration into excel file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.layout.script.ExportCrisLayoutToolScriptCli"/>
+    </bean>
+
 </beans>

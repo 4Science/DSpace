@@ -56,4 +56,8 @@ public interface DedupService {
 
     public QueryResponse findDecisions(UUID firstItemID, UUID secondItemID, DuplicateDecisionType t)
             throws SearchServiceException;
+
+    void removeMatch(Item item);
+
+    public void inheritDecisions(Context ctx, Item sourceItem, Item destinationItem);
 }

@@ -19,5 +19,4 @@ import org.dspace.eperson.SubscriptionParameter;
  * @author Alba Aliu at atis.al
  */
 public interface SubscriptionParameterDAO extends GenericDAO<SubscriptionParameter> {
-
 }

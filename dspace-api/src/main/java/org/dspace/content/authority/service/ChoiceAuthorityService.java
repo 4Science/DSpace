@@ -188,7 +188,6 @@ public interface ChoiceAuthorityService {
     /**
      * Get the entity type starting from the metadata field.
      *
-     * @param  field single string identifying metadata field
      * @return       the entity type as a String
      */
     String getLinkedEntityType(String fieldKey);

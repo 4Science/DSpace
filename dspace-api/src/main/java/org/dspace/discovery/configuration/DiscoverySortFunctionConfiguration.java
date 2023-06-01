@@ -58,9 +58,9 @@ public class DiscoverySortFunctionConfiguration extends DiscoverySortFieldConfig
      * @return
      */
     public String getFunction(final Serializable... functionArgs) {
-        final String args = String.join(",",
-                                        Optional.ofNullable(arguments).orElse(Collections.emptyList()));
+        final String args = String.join(",", Optional.ofNullable(arguments).orElse(Collections.emptyList()));
         final String result = function + "(" + args + ")";
-        return  MessageFormat.format(result, functionArgs);
+        return MessageFormat.format(result, functionArgs);
     }
+
 }
