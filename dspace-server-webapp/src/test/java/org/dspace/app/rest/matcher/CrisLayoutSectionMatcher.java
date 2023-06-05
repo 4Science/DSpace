@@ -306,9 +306,6 @@ public final class CrisLayoutSectionMatcher {
      * @param pos             the index of the top component in the given row
      * @param style           the component style
      * @param discoveryConfig the discovery configuration name of the top component
-     * @param sortField       the sort field of the top component to match
-     * @param order           the order of the top component to match
-     * @param numberOfItems
      * @return the Matcher instance
      */
     public static Matcher<? super Object> withIdAndCarouselComponent(String id, int row,
