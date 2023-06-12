@@ -644,4 +644,16 @@ public interface AuthorizeService {
      */
     boolean isAccountManager(Context context);
 
+    /**
+     * Replace all the policies in the target object with exactly the same policies that exist in the source object
+     * 
+     * @param context DSpace Context
+     * @param source  source of policies
+     * @param dest    destination of inherited policies
+     * @throws SQLException       if there's a database problem
+     * @throws AuthorizeException if the current user is not authorized to add these policies
+     */
+    public void replaceAllPolicies(Context context, DSpaceObject source, DSpaceObject dest)
+            throws SQLException, AuthorizeException;
+
 }

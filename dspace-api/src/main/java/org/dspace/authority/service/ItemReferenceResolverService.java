@@ -24,13 +24,11 @@ public interface ItemReferenceResolverService {
      *
      * @param  context the DSpace Context
      * @param  item    the item to search for
-     * @return         the found items
      */
     void resolveReferences(Context context, Item item);
 
     /**
      * Clears the resolver cache if any is used
-     * @return         void
      */
     void clearResolversCache();
 }

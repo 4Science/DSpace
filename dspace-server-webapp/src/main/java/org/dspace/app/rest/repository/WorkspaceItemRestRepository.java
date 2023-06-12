@@ -57,6 +57,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonServiceImpl;
 import org.dspace.event.Event;
@@ -436,7 +437,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                 "No AuthorizationFeature configured with name " + ItemCorrectionFeature.NAME);
         }
 
-        return itemCorrectionFeature.isAuthorized(context, findItemRestById(context, itemId.toString()));
+        try {
+            return itemCorrectionFeature.isAuthorized(context, findItemRestById(context, itemId.toString()));
+        } catch (SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private BaseObjectRest<?> findItemRestById(Context context, String itemId) throws SQLException {

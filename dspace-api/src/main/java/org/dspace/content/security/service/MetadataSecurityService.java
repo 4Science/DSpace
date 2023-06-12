@@ -92,8 +92,6 @@ public interface MetadataSecurityService {
      * @param  context                 the DSpace Context
      * @param  item                    the item
      * @param  metadataField           the metadata field
-     * @param  preventBoxSecurityCheck true if the box security check must be
-     *                                 skipped, false otherwise
      * @return                         true if the metadata field is visible, false
      *                                 otherwise
      */

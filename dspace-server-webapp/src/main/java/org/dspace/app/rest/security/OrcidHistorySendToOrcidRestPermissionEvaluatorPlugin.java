@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import org.dspace.app.rest.model.OrcidQueueRest;
 import org.dspace.app.rest.utils.ContextUtil;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -89,7 +90,7 @@ public class OrcidHistorySendToOrcidRestPermissionEvaluatorPlugin extends RestOb
     private boolean hasAccess(Context context, EPerson currentUser, OrcidQueue orcidQueue) {
         if (orcidQueue != null) {
             List<MetadataValue> value = itemService.getMetadata(orcidQueue.getProfileItem(),
-                "dspace", "object", "owner", null);
+                "dspace", "object", "owner", Item.ANY);
             if (value.get(0).getAuthority().equals(currentUser.getID().toString())) {
                 return true;
             }

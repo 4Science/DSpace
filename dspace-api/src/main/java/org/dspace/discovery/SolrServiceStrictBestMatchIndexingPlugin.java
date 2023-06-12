@@ -7,11 +7,11 @@
  */
 package org.dspace.discovery;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -67,16 +67,19 @@ public class SolrServiceStrictBestMatchIndexingPlugin extends SolrServiceBestMat
     }
 
     public Set<String> getPossibleBestMatchValues(Collection<String> fullnames) {
-
-        Set<String> nameSet = new HashSet<String>();
-        // add all possible matches to the solr index
-        nameSet.addAll(fullnames.stream().map(SolrServiceStrictBestMatchIndexingPlugin::cleanNameWithStrictPolicies)
-            .collect(toSet()));
-
-        return nameSet;
+        return fullnames
+                .stream()
+                .filter(Objects::nonNull)
+                // add all possible matches to the solr index
+                .map(SolrServiceStrictBestMatchIndexingPlugin::cleanNameWithStrictPolicies)
+                .collect(Collectors.toSet());
     }
 
     public static String cleanNameWithStrictPolicies(String name) {
+        if (name == null) {
+            return null;
+        }
+
         if (configurationService.getBooleanProperty(EXCLUDE_LETTER_CASE_CONFIG, true)) {
             name = name.toLowerCase();
         }
@@ -110,6 +113,7 @@ public class SolrServiceStrictBestMatchIndexingPlugin extends SolrServiceBestMat
         return baseNameSet;
     }
 
+    @Override
     protected void addIndexValue(SolrInputDocument document, String value) {
         document.addField(BEST_MATCH_INDEX, value);
     }

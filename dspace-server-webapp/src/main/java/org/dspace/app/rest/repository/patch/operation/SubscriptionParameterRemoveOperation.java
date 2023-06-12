@@ -10,9 +10,7 @@ package org.dspace.app.rest.repository.patch.operation;
 import java.sql.SQLException;
 
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
-import org.dspace.app.rest.exception.RESTAuthorizationException;
 import org.dspace.app.rest.model.patch.Operation;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.eperson.Subscription;
 import org.dspace.eperson.SubscriptionParameter;
@@ -43,12 +41,8 @@ public class SubscriptionParameterRemoveOperation extends PatchOperation<Subscri
             throws SQLException {
         if (supports(subscription, operation)) {
             Integer path = Integer.parseInt(operation.getPath().split("/")[2]);
-            try {
-                SubscriptionParameter subscriptionParameter = subscriptionParameterService.findById(context, path);
-                subscribeService.removeSubscriptionParameter(context, subscription.getID(), subscriptionParameter);
-            } catch (AuthorizeException e) {
-                throw new RESTAuthorizationException("Unauthorized user for removing subscription parameter");
-            }
+            SubscriptionParameter subscriptionParameter = subscriptionParameterService.findById(context, path);
+            subscribeService.removeSubscriptionParameter(context, subscription.getID(), subscriptionParameter);
         } else {
             throw new DSpaceBadRequestException("Subscription does not support this operation");
 

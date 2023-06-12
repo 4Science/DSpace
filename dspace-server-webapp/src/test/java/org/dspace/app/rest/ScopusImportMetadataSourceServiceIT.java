@@ -184,7 +184,7 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
         MetadatumDTO doi = createMetadatumDTO("dc", "identifier", null, "10.3934/mine.2023004");
         MetadatumDTO title = createMetadatumDTO("dc","title", null,
                 "Hardy potential versus lower order terms in Dirichlet problems: regularizing effects<sup>†</sup>");
-        MetadatumDTO type = createMetadatumDTO("dc", "type", null, "Journal");
+        MetadatumDTO type = createMetadatumDTO("dc", "type", null, "Resource Types::text::journal::journal article");
         MetadatumDTO date = createMetadatumDTO("dc", "date", "issued", "2023-01-01");
         MetadatumDTO scopusId = createMetadatumDTO("dc", "identifier", "scopus", "2-s2.0-85124241875");
         MetadatumDTO citationVolume = createMetadatumDTO("oaire", "citation", "volume", "5");
@@ -206,7 +206,6 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
 
         metadatums.add(doi);
         metadatums.add(title);
-        metadatums.add(type);
         metadatums.add(date);
         metadatums.add(scopusId);
         metadatums.add(citationVolume);
@@ -224,6 +223,7 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
         metadatums.add(author3);
         metadatums.add(scopusAuthorId3);
         metadatums.add(orgunit3);
+        metadatums.add(type);
         ImportRecord firstrRecord = new ImportRecord(metadatums);
 
         //define second record
@@ -233,7 +233,7 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
                 "Large deviations for a binary collision model: energy evaporation<sup>†</sup>");
         MetadatumDTO date2 = createMetadatumDTO("dc", "date", "issued", "2023-01-01");
         MetadatumDTO scopusId2 = createMetadatumDTO("dc", "identifier", "scopus", "2-s2.0-85124226483");
-        MetadatumDTO type2 = createMetadatumDTO("dc", "type", null, "Journal");
+        MetadatumDTO type2 = createMetadatumDTO("dc", "type", null, "Resource Types::text::journal::journal article");
         MetadatumDTO citationVolume2 = createMetadatumDTO("oaire", "citation", "volume", "5");
         MetadatumDTO citationIssue2 = createMetadatumDTO("oaire", "citation", "issue", "1");
 
@@ -258,7 +258,6 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
                                                           "Mathematics In Engineering");
         metadatums2.add(doi2);
         metadatums2.add(title2);
-        metadatums2.add(type2);
         metadatums2.add(date2);
         metadatums2.add(scopusId2);
         metadatums2.add(citationVolume2);
@@ -279,6 +278,7 @@ public class ScopusImportMetadataSourceServiceIT extends AbstractLiveImportInteg
         metadatums2.add(author7);
         metadatums2.add(scopusAuthorId7);
         metadatums2.add(orgunit7);
+        metadatums2.add(type2);
         ImportRecord secondRecord = new ImportRecord(metadatums2);
         records.add(firstrRecord);
         records.add(secondRecord);

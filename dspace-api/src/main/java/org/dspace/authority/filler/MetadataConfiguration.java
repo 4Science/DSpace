@@ -55,6 +55,8 @@ public class MetadataConfiguration {
         private String targetMetadataElement;
         private String targetMetadataQualifier;
 
+        private String constantValue;
+
         public boolean isAppendMode() {
             return appendMode;
         }
@@ -101,6 +103,14 @@ public class MetadataConfiguration {
 
         public String getTargetMetadataQualifier() {
             return targetMetadataQualifier;
+        }
+
+        public String getConstantValue() {
+            return constantValue;
+        }
+
+        public void setConstantValue(String constantValue) {
+            this.constantValue = constantValue;
         }
     }
 

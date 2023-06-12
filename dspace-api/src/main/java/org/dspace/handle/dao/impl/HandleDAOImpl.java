@@ -95,7 +95,7 @@ public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements Handl
         CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 
         Root<Handle> handleRoot = criteriaQuery.from(Handle.class);
-        criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(Handle.class)));
+        criteriaQuery.select(criteriaBuilder.count(handleRoot));
         criteriaQuery.where(criteriaBuilder.like(handleRoot.get(Handle_.handle), prefix + "%"));
         return countLong(context, criteriaQuery, criteriaBuilder, handleRoot);
     }

@@ -7,23 +7,16 @@
  */
 package org.dspace.app.deduplication;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.deduplication.service.DedupService;
-import org.dspace.app.deduplication.utils.Signature;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
-import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
@@ -47,15 +40,9 @@ public class DedupEventConsumer implements Consumer {
     DedupService indexer = dspace.getServiceManager().getServiceByName(DedupService.class.getName(),
             DedupService.class);
 
-    Map<UUID, Map<String, List<String>>> cache = new HashMap<UUID, Map<String, List<String>>>();
-
-    Set<String> configuredMetadata = new HashSet<String>();
 
     public void initialize() throws Exception {
-        List<Signature> signAlgo = dspace.getServiceManager().getServicesByType(Signature.class);
-        for (Signature algo : signAlgo) {
-            configuredMetadata.add(algo.getMetadata());
-        }
+
     }
 
     /**
@@ -103,7 +90,7 @@ public class DedupEventConsumer implements Consumer {
                             + ", perhaps it has been deleted.");
                 } else {
                     log.debug("consume() adding event to update queue: " + event.toString());
-                    fillObjectToUpdate((Item) subject);
+                    objectsToUpdate.add((Item) subject);
                 }
                 break;
 
@@ -115,7 +102,7 @@ public class DedupEventConsumer implements Consumer {
                             + ", perhaps it has been deleted.");
                 } else {
                     log.debug("consume() adding event to update queue: " + event.toString());
-                    fillObjectToUpdate((Item) subject);
+                    objectsToUpdate.add((Item) subject);
                 }
                 break;
 
@@ -127,73 +114,6 @@ public class DedupEventConsumer implements Consumer {
                 log.warn("IndexConsumer should not have been given a event of type=" + event.getEventTypeAsString()
                         + " on subject=" + event.getSubjectTypeAsString());
                 break;
-        }
-    }
-
-    private void fillObjectToUpdate(Item subject) {
-        if (!cache.containsKey(subject.getID())) {
-            objectsToUpdate.add(subject);
-            Map<String, List<String>> newCacheMetadata = new HashMap<String, List<String>>();
-            boolean saveIt = false;
-            for (String mdString : configuredMetadata) {
-                List<MetadataValue> values = ContentServiceFactory.getInstance().getDSpaceObjectService(subject)
-                        .getMetadataByMetadataString(subject, mdString);
-                if (values != null && !values.isEmpty()) {
-                    List<String> metadataValue = new ArrayList<String>();
-                    for (MetadataValue v : values) {
-                        metadataValue.add(v.getValue());
-                    }
-
-                    newCacheMetadata.put(mdString, metadataValue);
-                    saveIt = true;
-                }
-            }
-            if (saveIt) {
-                cache.put(subject.getID(), newCacheMetadata);
-            }
-        } else {
-            // rebuild cache if the lenght of the collections is different or there are a
-            // value not contains in the cache
-            boolean rebuildCache = false;
-            superext: for (String mdString : configuredMetadata) {
-                List<String> cachedMdValues = cache.get(subject.getID()).get(mdString);
-                List<MetadataValue> mdValues = ContentServiceFactory.getInstance().getDSpaceObjectService(subject)
-                        .getMetadataByMetadataString(subject, mdString);
-
-                if (cachedMdValues == null && (mdValues != null && !mdValues.isEmpty())) {
-                    rebuildCache = true;
-                    break superext;
-                }
-                if (cachedMdValues != null && mdValues != null) {
-                    if (cachedMdValues.size() != mdValues.size()) {
-                        rebuildCache = true;
-                        break superext;
-                    }
-                }
-                for (MetadataValue mdValue : mdValues) {
-                    if (!cachedMdValues.contains(mdValue.getValue())) {
-                        rebuildCache = true;
-                        break superext;
-                    }
-                }
-            }
-            if (rebuildCache) {
-                objectsToUpdate.add(subject);
-                Map<String, List<String>> newCacheMetadata = new HashMap<String, List<String>>();
-                for (String mdString : configuredMetadata) {
-                    List<MetadataValue> values = ContentServiceFactory.getInstance().getDSpaceObjectService(subject)
-                            .getMetadataByMetadataString(subject, mdString);
-                    if (values != null && !values.isEmpty()) {
-                        List<String> metadataValue = new ArrayList<String>();
-                        for (MetadataValue v : values) {
-                            metadataValue.add(v.getValue());
-                        }
-
-                        newCacheMetadata.put(mdString, metadataValue);
-                    }
-                }
-                cache.put(subject.getID(), newCacheMetadata);
-            }
         }
     }
 

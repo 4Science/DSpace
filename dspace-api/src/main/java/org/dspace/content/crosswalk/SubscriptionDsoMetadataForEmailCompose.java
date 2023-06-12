@@ -7,15 +7,15 @@
  */
 package org.dspace.content.crosswalk;
 
-import java.io.IOException;
+import static org.dspace.content.Item.ANY;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.logging.log4j.Logger;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
@@ -24,53 +24,40 @@ import org.dspace.core.Context;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
-
 /**
  * Creates a String to be sent as email body for subscriptions
  *
- * @author Alba Aliu at (atis.al)
+ * @author Alba Aliu
  */
 public class SubscriptionDsoMetadataForEmailCompose implements StreamDisseminationCrosswalk {
-    /**
-     * log4j logger
-     */
-    private static Logger log =
-            org.apache.logging.log4j.LogManager.getLogger(SubscriptionDsoMetadataForEmailCompose.class);
 
     private List<String> metadata = new ArrayList<>();
+
     @Autowired
     private ItemService itemService;
 
     @Override
     public boolean canDisseminate(Context context, DSpaceObject dso) {
-        try {
-            return dso.getType() == Constants.ITEM;
-        } catch (Exception e) {
-            log.error("Failed getting mail body", e);
-            return false;
-        }
+        return Objects.nonNull(dso) && dso.getType() == Constants.ITEM;
     }
 
     @Override
-    public void disseminate(Context context, DSpaceObject dso, OutputStream out)
-            throws CrosswalkException, IOException, SQLException, AuthorizeException {
+    public void disseminate(Context context, DSpaceObject dso, OutputStream out) throws SQLException {
         if (dso.getType() == Constants.ITEM) {
             Item item = (Item) dso;
             PrintStream printStream = new PrintStream(out);
-            for (int i = 0; i < metadata.size(); i++) {
-                String actualMetadata = metadata.get(i);
+            for (String actualMetadata : metadata) {
                 String[] splitted = actualMetadata.split("\\.");
                 String qualifier = null;
                 if (splitted.length == 1) {
                     qualifier = splitted[2];
                 }
-                String metadataValue = itemService.getMetadataFirstValue(item, splitted[0],
-                        splitted[1], qualifier, Item.ANY);
+                var metadataValue = itemService.getMetadataFirstValue(item, splitted[0], splitted[1], qualifier, ANY);
                 printStream.print(metadataValue + " ");
             }
-            String itemURL = HandleServiceFactory.getInstance().getHandleService()
-                    .resolveToURL(context, item.getHandle());
+            String itemURL = HandleServiceFactory.getInstance()
+                                                 .getHandleService()
+                                                 .resolveToURL(context, item.getHandle());
             printStream.print(itemURL);
             printStream.print("\n");
             printStream.close();

@@ -1,0 +1,19 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>Thesis Types</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>thesis</name>
+        <namespace>https://schema.org/Thesis</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>thesis</schema>
+        <element>inSupportOf</element>
+        <qualifier></qualifier>
+        <scope_note>Qualification, candidature, degree, application that Thesis supports.</scope_note>
+    </dc-type>
+
+</dspace-dc-types>

@@ -72,7 +72,7 @@ public class UsageReportCategoryRest extends BaseObjectRest<String> implements B
     /**
      * Sets the category type of this UsageReportCategory
      * 
-     * @param reportType The category type of this UsageReportCategory
+     * @param categoryType The category type of this UsageReportCategory
      */
     public void setCategoryType(String categoryType) {
         this.categoryType = categoryType;

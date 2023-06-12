@@ -9,6 +9,7 @@ package org.dspace.builder;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,18 +45,27 @@ public class SubscribeBuilder extends AbstractBuilder<Subscription, SubscribeSer
             // Ensure object and any related objects are reloaded before checking to see what needs cleanup
             subscription = c.reloadEntity(subscription);
             if (subscription != null) {
-                delete(subscription);
+                delete(c, subscription);
             }
             c.complete();
             indexingService.commit();
         }
     }
 
-    @Override
-    public void delete(Context c, Subscription subscription) throws Exception {
-        if (subscription != null) {
-            getService().deleteSubscription(c, subscription.getID());
+    public static void deleteSubscription(int id) throws Exception {
+        try (Context c = new Context()) {
+            c.turnOffAuthorisationSystem();
+            Subscription subscription = subscribeService.findById(c, id);
+            if (Objects.nonNull(subscription)) {
+                try {
+                    subscribeService.deleteSubscription(c, subscription);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+            c.complete();
         }
+        indexingService.commit();
     }
 
     @Override
@@ -76,7 +86,7 @@ public class SubscribeBuilder extends AbstractBuilder<Subscription, SubscribeSer
             c.turnOffAuthorisationSystem();
             Subscription subscription1 = c.reloadEntity(subscription);
             if (subscription1 != null) {
-                getService().deleteSubscription(c, subscription1.getID());
+                getService().deleteSubscription(c, subscription1);
             }
             c.complete();
         }
@@ -103,4 +113,12 @@ public class SubscribeBuilder extends AbstractBuilder<Subscription, SubscribeSer
         }
         return this;
     }
+
+    @Override
+    public void delete(Context c, Subscription dso) throws Exception {
+        if (Objects.nonNull(dso)) {
+            getService().deleteSubscription(c, dso);
+        }
+    }
+
 }

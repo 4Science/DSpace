@@ -109,11 +109,7 @@
         <property name="description" value="Perform a bulk pull from the ORCID registry for all the profiles with an ORCID id set"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPull"/>
     </bean>
-    <bean id="subscription-send" class="org.dspace.subscriptions.SubscriptionEmailNotificationCliScriptConfiguration">
-        <property name="description" value="Perform subscriptions send"/>
-        <property name="dspaceRunnableClass" value="org.dspace.subscriptions.SubscriptionEmailNotificationCli"/>
-    </bean>
-        
+
     <bean id="harvest" class="org.dspace.app.harvest.HarvestCliScriptConfiguration">
         <property name="description" value="Manage the OAI-PMH harvesting of external collections"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.harvest.HarvestCli"/>
@@ -158,4 +154,10 @@
         <property name="description" value="Batch Export to Simple Archive Format (SAF)"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExportCLI"/>
     </bean>
+
+    <bean id="subscription-send" class="org.dspace.subscriptions.SubscriptionEmailNotificationCliScriptConfiguration">
+        <property name="description" value="Send emails related to Community/Collection/Item subscriptions"/>
+        <property name="dspaceRunnableClass" value="org.dspace.subscriptions.SubscriptionEmailNotificationCli"/>
+    </bean>
+
 </beans>

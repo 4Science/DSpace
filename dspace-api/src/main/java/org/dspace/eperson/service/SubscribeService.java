@@ -38,22 +38,26 @@ public interface SubscribeService {
      * @return list of Subscription objects
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public List<Subscription> findAll(Context context, String resourceType,
-                                      Integer limit, Integer offset) throws Exception;
+    public List<Subscription> findAll(Context context, String resourceType, Integer limit, Integer offset)
+            throws Exception;
 
     /**
-     * Subscribe an e-person to a collection. An e-mail will be sent every day a
-     * new item appears in the collection.
-     *
-     * @param context DSpace context
-     * @throws SQLException       An exception that provides information on a database access error or other errors.
-     * @throws AuthorizeException Exception indicating the current user of the context does not have permission
-     *                            to perform a particular action.
+     * Subscribe an EPerson to a dSpaceObject (Collection or Community). An e-mail will be sent every day a
+     * new item appears in the Collection or Community.
+     * 
+     * @param context                 DSpace context object
+     * @param eperson                 EPerson to subscribe
+     * @param dSpaceObject            DSpaceObject to subscribe
+     * @param subscriptionParameters  list of @SubscriptionParameter
+     * @param subscriptionType        Currently supported only "content"
+     * @return
+     * @throws SQLException           An exception that provides information on a database access error or other errors.
+     * @throws AuthorizeException     Exception indicating the current user of the context does not have permission
+     *                                to perform a particular action.
      */
-    public Subscription subscribe(Context context, EPerson eperson,
-                                  DSpaceObject dSpaceObject,
-                                  List<SubscriptionParameter> subscriptionParameterList,
-                                  String type) throws SQLException, AuthorizeException;
+    public Subscription subscribe(Context context, EPerson eperson, DSpaceObject dSpaceObject,
+                                  List<SubscriptionParameter> subscriptionParameters,
+                                  String subscriptionType) throws SQLException, AuthorizeException;
 
     /**
      * Unsubscribe an e-person to a collection. Passing in <code>null</code>
@@ -67,8 +71,8 @@ public interface SubscribeService {
      * @throws AuthorizeException Exception indicating the current user of the context does not have permission
      *                            to perform a particular action.
      */
-    public void unsubscribe(Context context, EPerson eperson,
-                            DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
+    public void unsubscribe(Context context, EPerson eperson, DSpaceObject dSpaceObject)
+            throws SQLException, AuthorizeException;
 
     /**
      * Find out which collections an e-person is subscribed to
@@ -80,8 +84,8 @@ public interface SubscribeService {
      * @return array of collections e-person is subscribed to
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public List<Subscription> getSubscriptionsByEPerson(Context context, EPerson eperson,
-                                                        Integer limit, Integer offset) throws SQLException;
+    public List<Subscription> findSubscriptionsByEPerson(Context context, EPerson eperson, Integer limit,Integer offset)
+            throws SQLException;
 
     /**
      * Find out which collections an e-person is subscribed to and related with dso
@@ -94,11 +98,9 @@ public interface SubscribeService {
      * @return array of collections e-person is subscribed to and related with dso
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public List<Subscription> getSubscriptionsByEPersonAndDso(Context context,
-                                                              EPerson eperson,
+    public List<Subscription> findSubscriptionsByEPersonAndDso(Context context, EPerson eperson,
                                                               DSpaceObject dSpaceObject,
-                                                              Integer limit,
-                                                              Integer offset) throws SQLException;
+                                                              Integer limit, Integer offset) throws SQLException;
 
     /**
      * Find out which collections the currently logged in e-person can subscribe to
@@ -107,8 +109,7 @@ public interface SubscribeService {
      * @return array of collections the currently logged in e-person can subscribe to
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public List<Collection> getAvailableSubscriptions(Context context)
-            throws SQLException;
+    public List<Collection> findAvailableSubscriptions(Context context) throws SQLException;
 
     /**
      * Find out which collections an e-person can subscribe to
@@ -118,8 +119,7 @@ public interface SubscribeService {
      * @return array of collections e-person can subscribe to
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public List<Collection> getAvailableSubscriptions(Context context, EPerson eperson)
-            throws SQLException;
+    public List<Collection> findAvailableSubscriptions(Context context, EPerson eperson) throws SQLException;
 
     /**
      * Is that e-person subscribed to that collection?
@@ -130,8 +130,7 @@ public interface SubscribeService {
      * @return <code>true</code> if they are subscribed
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public boolean isSubscribed(Context context, EPerson eperson,
-                                DSpaceObject dSpaceObject) throws SQLException;
+    public boolean isSubscribed(Context context, EPerson eperson, DSpaceObject dSpaceObject) throws SQLException;
 
     /**
      * Delete subscription by collection.
@@ -158,23 +157,19 @@ public interface SubscribeService {
      * @param id      the id of subscription to be searched
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public Subscription findById(Context context, int id) throws SQLException, AuthorizeException;
+    public Subscription findById(Context context, int id) throws SQLException;
 
     /**
      * Updates a subscription by id
      *
      * @param context                   DSpace context
      * @param id                        Integer id
-     * @param eperson                   EPerson eperson
-     * @param dSpaceObject              DSpaceObject dSpaceObject
      * @param subscriptionParameterList List<SubscriptionParameter>  subscriptionParameterList
-     * @param type                      String  type
+     * @param subscriptionType          type
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public Subscription updateSubscription(Context context, Integer id, EPerson eperson,
-                                           DSpaceObject dSpaceObject,
-                                           List<SubscriptionParameter> subscriptionParameterList,
-                                           String type) throws SQLException, AuthorizeException;
+    public Subscription updateSubscription(Context context, Integer id, String subscriptionType,
+            List<SubscriptionParameter> subscriptionParameterList) throws SQLException;
 
     /**
      * Adds a parameter to a subscription
@@ -184,48 +179,46 @@ public interface SubscribeService {
      * @param subscriptionParameter SubscriptionParameter subscriptionParameter
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public Subscription addSubscriptionParameter(Context context, Integer id,
-                                                 SubscriptionParameter subscriptionParameter)
-            throws SQLException, AuthorizeException;
+    public Subscription addSubscriptionParameter(Context context,Integer id,
+            SubscriptionParameter subscriptionParameter) throws SQLException;
 
     /**
      * Deletes a parameter from subscription
      *
      * @param context               DSpace context
      * @param id                    Integer id
-     * @param subscriptionParameter SubscriptionParameter subscriptionParameter
-     * @throws SQLException An exception that provides information on a database access error or other errors.
+     * @param subscriptionParam     SubscriptionParameter subscriptionParameter
+     * @throws SQLException         An exception that provides information on a database access error or other errors.
      */
     public Subscription removeSubscriptionParameter(Context context, Integer id,
-            SubscriptionParameter subscriptionParameter) throws SQLException, AuthorizeException;
+            SubscriptionParameter subscriptionParam) throws SQLException;
 
     /**
      * Deletes a subscription
      *
      * @param context DSpace context
-     * @param id Integer id of subscription
+     * @param subscription The subscription to delete
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public void deleteSubscription(Context context, Integer id) throws SQLException, AuthorizeException;
+    public void deleteSubscription(Context context, Subscription subscription) throws SQLException;
 
     /**
-     * Finds all subscriptions having given type and frequency
+     * Finds all subscriptions by subscriptionType and frequency
      *
-     * @param context DSpace context
-     * @param type String type of subscription
-     * @param frequencyValue String frequency value of subscription
-     * @throws SQLException An exception that provides information on a database access error or other errors.
+     * @param context             DSpace context
+     * @param subscriptionType    Could be "content" or "statistics". NOTE: in DSpace we have only "content"
+     * @param frequencyValue      Could be "D" stand for Day, "W" stand for Week, and "M" stand for Month
+     * @throws SQLException       An exception that provides information on a database access error or other errors.
      */
-    public List<Subscription> findAllSubscriptionsByTypeAndFrequency(Context context,
-                          String type, String frequencyValue) throws SQLException;
-
+    public List<Subscription> findAllSubscriptionsBySubscriptionTypeAndFrequency(Context context,
+            String subscriptionType, String frequencyValue) throws SQLException;
 
     /**
      * Counts all subscriptions
      *
      * @param context DSpace context
      */
-    public Long countAll(Context context) throws SQLException, AuthorizeException;
+    public Long countAll(Context context) throws SQLException;
 
     /**
      * Counts all subscriptions by ePerson
@@ -233,8 +226,7 @@ public interface SubscribeService {
      * @param context DSpace context
      * @param ePerson EPerson ePerson
      */
-    public Long countAllByEPerson(Context context, EPerson ePerson) throws SQLException, AuthorizeException;
-
+    public Long countSubscriptionsByEPerson(Context context, EPerson ePerson) throws SQLException;
 
     /**
      * Counts all subscriptions by ePerson and DSO
@@ -243,6 +235,6 @@ public interface SubscribeService {
      * @param ePerson      EPerson ePerson
      * @param dSpaceObject DSpaceObject dSpaceObject
      */
-    public Long countAllByEPersonAndDSO(Context context, EPerson ePerson,
-          DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
+    public Long countByEPersonAndDSO(Context context, EPerson ePerson, DSpaceObject dSpaceObject) throws SQLException;
+
 }

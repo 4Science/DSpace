@@ -10,6 +10,8 @@ package org.dspace.content.authority;
 import static org.apache.solr.client.solrj.util.ClientUtils.escapeQueryChars;
 import static org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin.cleanNameWithStrictPolicies;
 
+import java.util.Optional;
+
 import org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin;
 
 /**
@@ -29,8 +31,9 @@ public class PersonStrictCustomSolrFilterImpl implements CustomAuthoritySolrFilt
      * @return            solr query
      */
     public String generateSearchQueryStrictBestMatch(String searchTerm) {
-        return SolrServiceStrictBestMatchIndexingPlugin.BEST_MATCH_INDEX + ":"
-            + escapeQueryChars(cleanNameWithStrictPolicies(searchTerm));
+        return Optional.ofNullable(cleanNameWithStrictPolicies(searchTerm))
+            .map(query -> SolrServiceStrictBestMatchIndexingPlugin.BEST_MATCH_INDEX + ":" + escapeQueryChars(query))
+            .orElse(null);
     }
 
     @Override

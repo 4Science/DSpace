@@ -9,6 +9,7 @@ package org.dspace.versioning;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -124,7 +125,10 @@ public abstract class AbstractVersionProvider {
         this.ignoredMetadataFields = ignoredMetadataFields;
     }
 
-    public Set getIgnoredMetadataFields() {
+    public Set<String> getIgnoredMetadataFields() {
+        if (ignoredMetadataFields == null) {
+            return new HashSet<>();
+        }
         return ignoredMetadataFields;
     }
 }

@@ -26,8 +26,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.core.ReloadableEntity;
 
-
-
 /**
  * Database entity representation of the subscription table
  *
@@ -43,7 +41,7 @@ public class Subscription implements ReloadableEntity<Integer> {
     @SequenceGenerator(name = "subscription_seq", sequenceName = "subscription_seq", allocationSize = 1)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dspace_object_id")
     private DSpaceObject dSpaceObject;
 
@@ -51,8 +49,13 @@ public class Subscription implements ReloadableEntity<Integer> {
     @JoinColumn(name = "eperson_id")
     private EPerson ePerson;
 
+    /**
+     * Represent subscription type, for example, "content" or  "statistics".
+     * 
+     * NOTE: Currently, in DSpace we use only one "content"
+     */
     @Column(name = "type")
-    private String type;
+    private String subscriptionType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubscriptionParameter> subscriptionParameterList = new ArrayList<>();
@@ -61,15 +64,14 @@ public class Subscription implements ReloadableEntity<Integer> {
      * Protected constructor, create object using:
      * {@link org.dspace.eperson.service.SubscribeService#subscribe(Context, EPerson, DSpaceObject, List, String)}
      */
-    protected Subscription() {
-    }
+    protected Subscription() {}
 
     @Override
     public Integer getID() {
         return id;
     }
 
-    public DSpaceObject getdSpaceObject() {
+    public DSpaceObject getDSpaceObject() {
         return this.dSpaceObject;
     }
 
@@ -77,24 +79,20 @@ public class Subscription implements ReloadableEntity<Integer> {
         this.dSpaceObject = dSpaceObject;
     }
 
-    public EPerson getePerson() {
+    public EPerson getEPerson() {
         return ePerson;
     }
 
-    public void setePerson(EPerson ePerson) {
+    public void setEPerson(EPerson ePerson) {
         this.ePerson = ePerson;
     }
 
-    public void setdSpaceObject(DSpaceObject dSpaceObject) {
-        this.dSpaceObject = dSpaceObject;
+    public String getSubscriptionType() {
+        return subscriptionType;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setSubscriptionType(String subscriptionType) {
+        this.subscriptionType = subscriptionType;
     }
 
     public List<SubscriptionParameter> getSubscriptionParameterList() {
