@@ -1004,6 +1004,14 @@ WHERE label = ?</sql>
         <column_name>left_place</column_name>
         <stream_name>left_place</stream_name>
       </field>
+      <field>
+        <column_name>leftward_value</column_name>
+        <stream_name>leftward_type</stream_name>
+      </field>
+      <field>
+        <column_name>rightward_value</column_name>
+        <stream_name>rightward_type</stream_name>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
