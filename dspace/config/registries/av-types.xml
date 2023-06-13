@@ -83,5 +83,12 @@
 		<element>video</element>
 		<qualifier>audiocodec</qualifier>
 		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>audio</element>
+		<qualifier>peaks</qualifier>
+		<scope_note></scope_note>
 	</dc-type>	
 </dspace-dc-types>
