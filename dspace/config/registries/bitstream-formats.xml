@@ -800,12 +800,14 @@
     </bitstream-type>
 
     <bitstream-type>
-        <mimetype>text/srt</mimetype>
-        <short_description>SRT</short_description>
-        <description>SRT Subtitle</description>
+        <mimetype>application/ttml+xml</mimetype>
+        <short_description>TTML</short_description>
+        <description>TTML - Timed Text Markup Language</description>
         <support_level>1</support_level>
         <internal>false</internal>
-        <extension>srt</extension>
+        <extension>ttml</extension>
+        <extension>dfxp</extension>
+        <extension>xml</extension>
     </bitstream-type>
 
     <bitstream-type>
