@@ -91,4 +91,11 @@
 		<qualifier>peaks</qualifier>
 		<scope_note></scope_note>
 	</dc-type>	
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>scene</element>
+		<qualifier>timestamp</qualifier>
+		<scope_note></scope_note>
+	</dc-type>	
 </dspace-dc-types>
