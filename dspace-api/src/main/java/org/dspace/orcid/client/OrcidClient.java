@@ -39,7 +39,6 @@ public interface OrcidClient {
      * 2-step OAuth. A single token can be used to register webhooks for multiple
      * records.
      *
-     * @param  code                 the authorization code
      * @return                      the ORCID token
      * @throws OrcidClientException if some error occurs during the exchange
      */
@@ -222,7 +221,6 @@ public interface OrcidClient {
      * Perform an expanded search with the given query and pagination using the
      * public endpoint.
      *
-     * @param  accessToken the access token
      * @param  query       the query
      * @param  start       the start index
      * @param  rows        the number of rows to retrieve

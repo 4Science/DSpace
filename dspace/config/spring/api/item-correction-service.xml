@@ -23,7 +23,19 @@
 				<value>dspace.entity.type</value>
             </set>
         </property>
-        
+        <property name="ignoredMetadataFieldsOfCreation" >
+            <set>
+            </set>
+        </property>
+        <property name="ignoredMetadataFieldsOfMerging" >
+            <set>
+            </set>
+        </property>
+		<property name="bundles" >
+			<set>
+				<value>ORIGINAL</value>
+			</set>
+		</property>
     </bean>
     
 	<util:map id="correctItemModesMap" map-class="java.util.HashMap" key-type="java.lang.String" value-type="java.util.List"> 

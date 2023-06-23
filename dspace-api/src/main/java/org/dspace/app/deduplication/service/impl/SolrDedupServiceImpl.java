@@ -7,6 +7,8 @@
  */
 package org.dspace.app.deduplication.service.impl;
 
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -19,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
@@ -34,18 +37,24 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.dspace.app.deduplication.model.DuplicateDecisionObjectRest;
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
+import org.dspace.app.deduplication.model.DuplicateDecisionValue;
 import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.app.deduplication.service.SearchDeduplication;
 import org.dspace.app.deduplication.service.SolrDedupServiceIndexPlugin;
+import org.dspace.app.deduplication.utils.DedupUtils;
+import org.dspace.app.deduplication.utils.DuplicateItemInfo;
 import org.dspace.app.deduplication.utils.Signature;
 import org.dspace.app.util.Util;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.deduplication.Deduplication;
 import org.dspace.deduplication.service.DeduplicationService;
 import org.dspace.discovery.SearchServiceException;
@@ -53,6 +62,7 @@ import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
+import org.dspace.versioning.service.VersioningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -159,6 +169,12 @@ public class SolrDedupServiceImpl implements DedupService {
 
     @Autowired(required = true)
     protected ConfigurationService configurationService;
+
+    @Autowired(required = true)
+    protected VersioningService versioningService;
+
+    @Autowired(required = true)
+    protected DedupUtils dedupUtils;
 
     /***
      * Deduplication status
@@ -326,7 +342,7 @@ public class SolrDedupServiceImpl implements DedupService {
         }
     }
 
-    private void buildPotentialMatch(Context ctx, DSpaceObject iu, Map<String, List<String>> tmpMapFilter,
+    private void buildPotentialMatch(Context ctx, Item iu, Map<String, List<String>> tmpMapFilter,
             List<String> tmpFilter, SearchDeduplication searchSignature) throws SearchServiceException {
         tmpFilter.add("+" + RESOURCE_FLAG_FIELD + ":" + DeduplicationFlag.FAKE.getDescription());
         // select all fake not in reject and build the potential match
@@ -351,8 +367,8 @@ public class SolrDedupServiceImpl implements DedupService {
                 }
             }
 
-            // this check manage fake node
-            if (matchId.equals(iu.getID())) {
+            if (matchId.equals(iu.getID()) || areDifferentVersionsOfSameItem(ctx, iu, matchId)
+                || isNotLastVersion(ctx, matchId)) {
                 continue external;
             }
 
@@ -379,6 +395,18 @@ public class SolrDedupServiceImpl implements DedupService {
 
             build(ctx, iu.getID(), matchId, DeduplicationFlag.MATCH, tmp, searchSignature, null);
 
+        }
+    }
+
+    private boolean isNotLastVersion(Context context, UUID itemId) {
+        try {
+            Item item = itemService.find(context, itemId);
+            if (item == null) {
+                return true;
+            }
+            return !itemService.isLatestVersion(context, item);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
@@ -460,6 +488,14 @@ public class SolrDedupServiceImpl implements DedupService {
         } catch (IOException e) {
             log.error("Error while writing a " + flag.description + " to deduplication index: " + dedupID + " message:"
                     + e.getMessage(), e);
+        }
+    }
+
+    private boolean areDifferentVersionsOfSameItem(Context context, Item iu, UUID matchId) {
+        try {
+            return versioningService.areDifferentVersionsOfSameItem(context, iu.getID(), matchId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -648,6 +684,60 @@ public class SolrDedupServiceImpl implements DedupService {
         }
         if (item != null) {
             unIndexContent(context, item);
+        }
+    }
+
+    @Override
+    public void removeMatch(Item item) {
+        try {
+            removeMatch(item.getID(), item.getType());
+        } catch (SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void inheritDecisions(Context ctx, Item sourceItem, Item destinationItem) {
+
+        List<DuplicateItemInfo> duplications = findDuplicationWithDecisions(ctx, sourceItem);
+
+        for (DuplicateItemInfo duplication : duplications) {
+
+            for (DuplicateDecisionType decisionType : duplication.getDecisionTypes()) {
+
+                DuplicateDecisionValue decisionValue = duplication.getDecision(decisionType);
+
+                setDuplicateDecision(ctx, destinationItem, duplication.getDuplicateItem().getID(),
+                    decisionType, decisionValue, duplication.getNote(decisionType));
+            }
+
+        }
+
+    }
+
+    private void setDuplicateDecision(Context context, Item item, UUID duplicatedItemId,
+        DuplicateDecisionType decisionType, DuplicateDecisionValue decisionValue, String note) {
+
+        DuplicateDecisionObjectRest decisionObject = new DuplicateDecisionObjectRest();
+        decisionObject.setNote(note);
+        decisionObject.setType(decisionType);
+        decisionObject.setValue(decisionValue.toString());
+
+        try {
+            dedupUtils.setDuplicateDecision(context, item.getID(), duplicatedItemId, item.getType(), decisionObject);
+        } catch (AuthorizeException | SQLException | SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private List<DuplicateItemInfo> findDuplicationWithDecisions(Context context, Item item) {
+        try {
+            return dedupUtils.getAdminDuplicateByIdAndType(context, item.getID(), item.getType()).stream()
+                .filter(duplication -> isNotEmpty(duplication.getDecisionTypes()))
+                .collect(Collectors.toList());
+        } catch (SQLException | SearchServiceException e) {
+            throw new RuntimeException(e);
         }
     }
 

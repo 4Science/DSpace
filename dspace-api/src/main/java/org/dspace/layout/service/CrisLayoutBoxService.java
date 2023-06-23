@@ -68,7 +68,6 @@ public interface CrisLayoutBoxService extends DSpaceCRUDService<CrisLayoutBox> {
      * @param context The relevant DSpace Context
      * @param box     CrisLayoutBox instance
      * @param item    the box's item
-     * @param values  metadataValue of item
      * @return true if the box has content to show, false otherwise
      */
     public boolean hasContent(Context context, CrisLayoutBox box, Item item);

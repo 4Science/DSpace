@@ -32,6 +32,10 @@
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>
+
+    <bean name="detectPotentialDuplicateValidator" class="org.dspace.validation.DetectPotentialDuplicateValidator">
+        <property name="name" value="detect-duplicate"/>
+    </bean>
     
     <bean name="testValidation" class="org.dspace.validation.LogicalStatementValidator">
         <property name="errorKey" value="error.validation.test"/>

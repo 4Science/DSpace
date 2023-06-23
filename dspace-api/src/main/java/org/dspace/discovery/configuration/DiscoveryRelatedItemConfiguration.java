@@ -10,7 +10,7 @@ package org.dspace.discovery.configuration;
 /**
  * This class extends {@link DiscoveryConfiguration} and add method for set parameters
  * to filter query list
- * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
+ * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  */
 public class DiscoveryRelatedItemConfiguration extends DiscoveryConfiguration {}

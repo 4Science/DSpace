@@ -398,7 +398,7 @@ public class Email {
         for (String headerName : templateHeaders) {
             String headerValue = (String) vctx.get(headerName);
             if ("subject".equalsIgnoreCase(headerName)) {
-                if (null != subject) {
+                if (null != headerValue) {
                     subject = headerValue;
                 }
             } else if ("charset".equalsIgnoreCase(headerName)) {

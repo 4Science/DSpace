@@ -8,30 +8,37 @@
 package org.dspace.subscriptions.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchServiceException;
 
-
 /**
- * Interface class which will be used to find
- * all objects updated related with subscribed DSO
+ * Interface class which will be used to find all objects updated related with subscribed DSO
  *
  * @author Alba Aliu
  */
 public interface DSpaceObjectUpdates {
+
     /**
-     * Send an email to some addresses, concerning a Subscription, using a given
-     * dso.
+     * Send an email to some addresses, concerning a Subscription, using a given dso.
      *
      * @param context current DSpace session.
      */
-    public List<IndexableObject> findUpdates(Context context, DSpaceObject dSpaceObject
-            , String frequency) throws SearchServiceException;
+    @SuppressWarnings("rawtypes")
+    public List<IndexableObject> findUpdates(Context context, DSpaceObject dSpaceObject, String frequency)
+            throws SearchServiceException;
+
+    default List<String> getDefaultFilterQueries() {
+        return Arrays.asList("search.resourcetype:" + Item.class.getSimpleName(),
+                             "-discoverable:" + false,
+                             "-withdrawn:" + true);
+    }
 
     default String findLastFrequency(String frequency) {
         String startDate = "";

@@ -22,7 +22,6 @@ public interface CustomAuthoritySolrFilter {
 
     /**
      * Get the confidence value for the generated choices
-     * @param  searchTerm The search term string
      * @return            solr query
      */
     public int getConfidenceForChoices(Choice... choices);

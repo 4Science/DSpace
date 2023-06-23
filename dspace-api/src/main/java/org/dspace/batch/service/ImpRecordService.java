@@ -59,7 +59,6 @@ public interface ImpRecordService {
      * withdrawn state
      * 
      * @param impRecord the ImpRecord object
-     * @param ePerson   the person
      */
     public void setStatus(ImpRecord impRecord, Character status);
 
@@ -69,7 +68,6 @@ public interface ImpRecordService {
      * update = update or create a new record delete = delete the record
      * 
      * @param impRecord the ImpRecord object
-     * @param ePerson   the person
      */
     public void setOperation(ImpRecord impRecord, String operation);
 

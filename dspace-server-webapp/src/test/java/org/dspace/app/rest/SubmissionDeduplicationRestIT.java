@@ -6,8 +6,14 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest;
+
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,12 +39,14 @@ import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.VersionBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.deduplication.MockSolrDedupCore;
 import org.dspace.eperson.EPerson;
@@ -66,6 +74,9 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
 
     @Autowired
     private XmlWorkflowItemService workflowItemService;
+
+    @Autowired
+    private InstallItemService installItemService;
 
     private MockSolrDedupCore dedupService;
 
@@ -169,6 +180,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
 
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision")
@@ -187,6 +200,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -194,6 +208,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -222,6 +237,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision")
@@ -245,6 +262,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -259,6 +278,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -288,6 +309,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -304,6 +326,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
@@ -371,6 +394,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workflowItemId + "'].matchObject.id",
                         is(workflowItemId)))
                 .andExpect(
@@ -390,6 +415,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workflowItemId + "'].matchObject.id",
                         is(workflowItemId)))
                 .andExpect(
@@ -398,6 +424,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workflowItemId + "'].matchObject.id",
                         is(workflowItemId)))
                 .andExpect(
@@ -579,6 +606,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -598,6 +627,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -606,6 +636,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -635,6 +666,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -659,6 +692,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -675,6 +710,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -705,6 +742,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         getClient(authToken)
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID()).content(patchBody)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -723,6 +761,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath(
                         "$.sections['detect-duplicate'].matches['" + witemOne.getItem().getID() + "'].matchObject.id",
                         is(witemOne.getItem().getID().toString())))
@@ -1157,6 +1196,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         // check for duplicates
         String workspaceItemId = workspaceItem.getItem().getID().toString();
         getClient(reviewerToken).perform(get("/api/workflow/workflowitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workspaceItemId + "'].matchObject.id",
                         is(workspaceItemId)))
                 .andExpect(
@@ -1182,6 +1223,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/workflow/workflowitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workspaceItemId + "'].matchObject.id",
                         is(workspaceItemId)))
                 .andExpect(
@@ -1190,6 +1232,7 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(reviewerToken).perform(get("/api/workflow/workflowitems/" + witem.getID())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workspaceItemId + "'].matchObject.id",
                         is(workspaceItemId)))
                 .andExpect(
@@ -1252,6 +1295,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                 .perform(patch("/api/workflow/workflowitems/" + witem.getID())
                         .content(patchBody).contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workspaceItemId + "'].matchObject.id",
                         is(workspaceItemId)))
                 .andExpect(
@@ -1266,6 +1311,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         dedupService.commit();
         // check that changes persist
         getClient(reviewerToken).perform(get("/api/workflow/workflowitems/" + witem.getID())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + workspaceItemId + "'].matchObject.id",
                         is(workspaceItemId)))
                 .andExpect(
@@ -1523,12 +1570,15 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         getClient(authToken)
                 .perform(patch("/api/submission/workspaceitems/" + witem.getID()).content(patchBody)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                    contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$", Matchers.is(WorkspaceItemMatcher
                         .matchItemWithTitleAndDateIssuedAndSubject(witem, "Sample submission", "2020-02-01", "Test"))));
         dedupService.commit();
         // check for duplicates
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
                         is(item.getID().toString())))
                 .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision")
@@ -1550,6 +1600,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         String submitterToken = getAuthToken(submitter.getEmail(), password);
         getClient(submitterToken).perform(get("/api/workflow/workflowitems/" + workflowItem.getID()))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches", aMapWithSize(1)))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemId + "'].matchObject.id", is(itemId)))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemId + "']"
@@ -1571,6 +1623,8 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
         String submitterToken = getAuthToken(submitter.getEmail(), password);
         getClient(submitterToken).perform(get("/api/workflow/workflowitems/" + workflowItem.getID()))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches", aMapWithSize(1)))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemId + "'].matchObject.id", is(itemId)))
             .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemId + "']"
@@ -1621,6 +1675,263 @@ public class SubmissionDeduplicationRestIT extends AbstractControllerIntegration
                                  .andExpect(jsonPath("$.sections['detect-duplicate'].matches['"
                                      + item.getID().toString() + "'].matchObject.id", is(item.getID().toString())));
 
+    }
+
+    @Test
+    public void testNoDetectionOccursWithVersionsOfSameEntity() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .withType("Article")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        Item itemV2 = createNewVersion(item);
+
+        WorkspaceItem workspaceItemV2 = workspaceItemService.findByItem(context, itemV2);
+        assertThat(workspaceItemV2, notNullValue());
+
+        String authToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + workspaceItemV2.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors").doesNotExist());
+
+        itemV2 = installItem(workspaceItemV2);
+
+        Item itemV3 = createNewVersion(itemV2);
+
+        WorkspaceItem workspaceItemV3 = workspaceItemService.findByItem(context, itemV3);
+        assertThat(workspaceItemV3, notNullValue());
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + workspaceItemV3.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors").doesNotExist());
+
+    }
+
+    @Test
+    public void testNoDetectionOccursWithOldVersions() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        WorkspaceItem otherWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .withType("Article")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        Item itemV2 = createNewVersion(item);
+
+        WorkspaceItem workspaceItemV2 = workspaceItemService.findByItem(context, itemV2);
+        assertThat(workspaceItemV2, notNullValue());
+
+        itemV2 = installItem(workspaceItemV2);
+
+        String authToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV2.getID() + "'].matchObject.id",
+                is(itemV2.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "']").doesNotExist());
+
+        Item itemV3 = createNewVersionAndDeposit(itemV2);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV3.getID() + "'].matchObject.id",
+                is(itemV3.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV2.getID() + "']").doesNotExist())
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "']").doesNotExist());
+
+        Map<String, String> value = Map.of("value", "reject", "note", "test");
+        String patchBody = getPatchContent(List.of(new AddOperation("/sections/detect-duplicate/matches/"
+            + itemV3.getID() + "/submitterDecision", value)));
+
+        getClient(authToken)
+            .perform(patch("/api/submission/workspaceitems/" + otherWorkspaceItem.getID())
+                .content(patchBody)
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV3.getID() + "'].matchObject.id",
+                is(itemV3.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV3.getID() + "'].submitterDecision",
+                is("reject")));
+
+        context.restoreAuthSystemState();
+
+    }
+
+    @Test
+    public void testDuplicateDetectionWithLastVersionDeletion() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        Item itemV2 = createNewVersion(item);
+
+        WorkspaceItem otherWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .withType("Article")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        String authToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
+                is(item.getID().toString())));
+
+        WorkspaceItem workspaceItemV2 = workspaceItemService.findByItem(context, itemV2);
+        assertThat(workspaceItemV2, notNullValue());
+
+        itemV2 = installItem(workspaceItemV2);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV2.getID() + "'].matchObject.id",
+                is(itemV2.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "']").doesNotExist());
+
+        // delete last version and verify that the conflict is with the first version
+
+        getClient(authToken).perform(delete("/api/core/items/" + itemV2.getID()))
+            .andExpect(status().isNoContent());
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
+                is(item.getID().toString())));
+
+        context.restoreAuthSystemState();
+
+    }
+
+    @Test
+    public void testNewVersionsInherentDuplicateDecisions() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        WorkspaceItem otherWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Public test item")
+            .withIssueDate("2021-04-27")
+            .withType("Article")
+            .grantLicense()
+            .withFulltext("test.txt", "test", InputStream.nullInputStream())
+            .build();
+
+        String authToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]",
+                contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/detect-duplicate")))))))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
+                is(item.getID().toString())));
+
+        Map<String, String> value = Map.of("value", "reject", "note", "test");
+        String patchBody = getPatchContent(List.of(new AddOperation("/sections/detect-duplicate/matches/"
+            + item.getID() + "/submitterDecision", value)));
+
+        getClient(authToken)
+            .perform(patch("/api/submission/workspaceitems/" + otherWorkspaceItem.getID())
+                .content(patchBody)
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].matchObject.id",
+                is(item.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + item.getID() + "'].submitterDecision",
+                is("reject")));
+
+        Item itemV2 = createNewVersionAndDeposit(item);
+
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + otherWorkspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.detect-duplicate')]").doesNotExist())
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV2.getID() + "'].matchObject.id",
+                is(itemV2.getID().toString())))
+            .andExpect(jsonPath("$.sections['detect-duplicate'].matches['" + itemV2.getID() + "'].submitterDecision",
+                is("reject")));
+
+        context.restoreAuthSystemState();
+
+    }
+
+    private Item createNewVersionAndDeposit(Item item) throws SQLException, AuthorizeException {
+
+        Item itemV2 = createNewVersion(item);
+
+        WorkspaceItem workspaceItemV2 = workspaceItemService.findByItem(context, itemV2);
+        assertThat(workspaceItemV2, notNullValue());
+
+        return installItem(workspaceItemV2);
+
+    }
+
+    private Item installItem(WorkspaceItem workspaceItem) throws SQLException, AuthorizeException {
+        return installItemService.installItem(context, context.reloadEntity(workspaceItem));
+    }
+
+    private Item createNewVersion(Item item) throws SQLException, AuthorizeException {
+        return VersionBuilder.createVersion(context, item, "test").build().getItem();
     }
 
     private Item createItem(String title, Collection collection) {

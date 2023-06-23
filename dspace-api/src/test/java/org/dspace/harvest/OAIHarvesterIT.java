@@ -791,7 +791,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(authorPerson.getOwningCollection(), equalTo(personCollection));
 
             values = authorPerson.getMetadata();
-            assertThat(values, hasSize(7));
+            assertThat(values, hasSize(8));
             assertThat(values, hasItems(with("dc.title", "Manghi, Paolo")));
             assertThat(values, hasItems(with("cris.sourceId", "test-harvest::123")));
             assertThat(values, hasItems(with("dspace.entity.type", "Person")));

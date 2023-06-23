@@ -9,9 +9,6 @@ package org.dspace.subscriptions;
 
 /**
  * Extension of {@link SubscriptionEmailNotificationCli} for CLI.
- *
- * @author alba aliu at atis.al
- *
  */
 public class SubscriptionEmailNotificationCliScriptConfiguration<T extends SubscriptionEmailNotificationCli>
         extends SubscriptionEmailNotificationConfiguration<T> {

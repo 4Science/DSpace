@@ -154,6 +154,8 @@ public class CSLWebServiceGenerator implements CSLGenerator {
     }
 
     private String removeCslSuffix(String style) {
+        int slash = style.lastIndexOf("/");
+        style = slash > 0 ? style.substring(slash + 1) : style;
         return StringUtils.removeEnd(style, ".csl");
     }
 

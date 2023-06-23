@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest.submit.step;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.services.RequestService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.services.model.Request;
@@ -80,8 +82,14 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
         Context context = ContextUtil.obtainContext(request.getServletRequest());
         context.turnOffAuthorisationSystem();
         for (DuplicateItemInfo itemInfo : potentialDuplicates) {
+
             DuplicateMatch match = new DuplicateMatch();
             DSpaceObject duplicateItem = itemInfo.getDuplicateItem();
+
+            if (isNotLastVersion(context, (Item) duplicateItem)) {
+                continue;
+            }
+
             match.setMatchObject(ConverterServiceFactoryImpl.getInstance().getConverterService()
                     .toRest((Item) duplicateItem, Projection.DEFAULT));
             match.setSubmitterDecision(itemInfo.getDecision(DuplicateDecisionType.WORKSPACE));
@@ -94,6 +102,7 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
             if (!matches.containsKey(duplicateItem.getID()) || match.anyDecisionMade()) {
                 matches.put((UUID) duplicateItem.getID(), match);
             }
+
         }
         context.restoreAuthSystemState();
 
@@ -107,6 +116,14 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
         PatchOperation<MetadataValueRest> patchOperation = new PatchOperationFactory()
                 .instanceOf(DETECT_DUPLICATE_STEP_ADD_OPERATION_ENTRY, op.getOp());
         patchOperation.perform(context, currentRequest, source, op);
+    }
+
+    private boolean isNotLastVersion(Context context, Item item) {
+        try {
+            return !itemService.isLatestVersion(context, item);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
     }
 
     private Context getContext() {
