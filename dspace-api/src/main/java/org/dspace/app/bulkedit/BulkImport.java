@@ -1096,24 +1096,8 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private Bitstream createBitstream(Bundle bundle, InputStream inputStream) {
         try {
-            return Optional.of(metadataFieldService.findByString(context, metadata, '.'));
-        } catch (Exception e) {
-            handler.logError(e.getMessage());
-        }
-
-        return Optional.ofNullable(null);
-    }
-
-    private void addMetadataToBitstream(Bitstream bitstream, MetadataField metadataField, MetadataValueVO metadata) {
-        try {
-            metadata = bulkImportTransformerService.converter(context, metadataField.toString('.'), metadata);
-            String authority = metadata.getAuthority();
-            int confidence = metadata.getConfidence();
-            String value = metadata.getValue();
-            if (StringUtils.isNotEmpty(value)) {
-                bitstreamService.addMetadata(context, bitstream, metadataField, "", value, authority, confidence);
-            }
-        } catch (SQLException e) {
+            return bitstreamService.create(context, bundle, inputStream);
+        } catch (IOException | SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }
     }
