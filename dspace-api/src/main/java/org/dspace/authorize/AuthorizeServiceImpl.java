@@ -35,10 +35,12 @@ import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
@@ -544,6 +546,15 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     }
 
     @Override
+    public void replaceAllPolicies(Context context, DSpaceObject source, DSpaceObject dest)
+            throws SQLException, AuthorizeException {
+        // find all policies for the source object
+        List<ResourcePolicy> policies = getPolicies(context, source);
+        removeAllPolicies(context, dest);
+        addPolicies(context, policies, dest);
+    }
+
+    @Override
     public void switchPoliciesAction(Context context, DSpaceObject dso, int fromAction, int toAction)
         throws SQLException, AuthorizeException {
         List<ResourcePolicy> rps = getPoliciesActionFilter(context, dso, fromAction);
@@ -852,7 +863,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
                                                               IndexableCommunity.TYPE,
-            offset, limit);
+            offset, limit, null, null);
         for (IndexableObject solrCollections : discoverResult.getIndexableObjects()) {
             Community community = ((IndexableCommunity) solrCollections).getIndexedObject();
             communities.add(community);
@@ -874,7 +885,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
                                                               IndexableCommunity.TYPE,
-            null, null);
+            null, null, null, null);
         return discoverResult.getTotalSearchResults();
     }
 
@@ -895,11 +906,12 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         if (context.getCurrentUser() == null) {
             return collections;
         }
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(formatCustomQuery(query));
-        queryBuilder.append("search.resourcetype:").append(IndexableCollection.TYPE);
-        DiscoverResult discoverResult = getDiscoverResult(context, queryBuilder.toString(),
-                offset, limit);
+
+        query = formatCustomQuery(query);
+        DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
+                                                              IndexableCollection.TYPE,
+            offset, limit, CollectionService.SOLR_SORT_FIELD, SORT_ORDER.asc);
+
         for (IndexableObject solrCollections : discoverResult.getIndexableObjects()) {
             Collection collection = ((IndexableCollection) solrCollections).getIndexedObject();
             collections.add(collection);
@@ -921,7 +933,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
                                                               IndexableCollection.TYPE,
-            null, null);
+            null, null, null, null);
         return discoverResult.getTotalSearchResults();
     }
 
@@ -941,7 +953,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         }
 
         try {
-            DiscoverResult discoverResult = getDiscoverResult(context, query, null, null);
+            DiscoverResult discoverResult = getDiscoverResult(context, query, null, null, null, null);
             if (discoverResult.getTotalSearchResults() > 0) {
                 return true;
             }
@@ -953,8 +965,8 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         return false;
     }
 
-    private DiscoverResult getDiscoverResult(Context context, String query, Integer offset, Integer limit)
-            throws SearchServiceException, SQLException {
+    private DiscoverResult getDiscoverResult(Context context, String query, Integer offset, Integer limit,
+        String sortField, SORT_ORDER sortOrder) throws SearchServiceException, SQLException {
         DiscoverQuery discoverQuery = new DiscoverQuery();
         if (!this.isAdmin(context)) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -970,7 +982,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         if (limit != null) {
             discoverQuery.setMaxResults(limit);
         }
-
+        if (sortField != null && sortOrder != null) {
+            discoverQuery.setSortField(sortField, sortOrder);
+        }
 
         return searchService.search(context, discoverQuery);
     }

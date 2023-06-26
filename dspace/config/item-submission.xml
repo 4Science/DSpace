@@ -81,6 +81,11 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="owner" mandatory="true">
+      <heading>submit.progressbar.describe.owner</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
     <step-definition id="fonds" mandatory="true">
       <heading>submit.progressbar.describe.fonds</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>

@@ -63,7 +63,7 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     public void beforeTests() throws SQLException, AuthorizeException {
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
-        collection = createCollection(context, community).withAdminGroup(eperson).withWorkflowGroup(1, eperson).build();
+        collection = createCollection(context, community).withAdminGroup(eperson).build();
         context.restoreAuthSystemState();
     }
 
@@ -440,14 +440,17 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testBulkItemExportWithWorkspaceAndWorkflowItemsAndDefaultConfiguration() throws Exception {
 
         context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createItem(collection, "Company", "", "OrgUnit");
-        createWorkspaceItem(collection, "Edward Smith", "Science", "Person");
-        createItem(collection, "John Smith", "Software", "Person");
-        createWorkflowItem(collection, "Edward White", "Science", "Person");
+        Collection anotherCollection = createCollection(context, community).withAdminGroup(eperson).
+                                                                           withWorkflowGroup(1, eperson).build();
+        createItem(anotherCollection, "Edward Red", "Science", "Person");
+        createItem(anotherCollection, "Company", "", "OrgUnit");
+        createWorkspaceItem(anotherCollection, "Edward Smith", "Science", "Person");
+        createItem(anotherCollection, "John Smith", "Software", "Person");
+        createWorkflowItem(anotherCollection, "Edward White", "Science", "Person");
         context.restoreAuthSystemState();
         context.commit();
 

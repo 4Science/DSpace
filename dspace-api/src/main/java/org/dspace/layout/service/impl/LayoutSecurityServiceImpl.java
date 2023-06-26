@@ -23,13 +23,13 @@ import org.dspace.content.authority.EPersonAuthority;
 import org.dspace.content.authority.GroupAuthority;
 import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
-import org.dspace.content.security.service.CrisSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.service.LayoutSecurityService;
@@ -44,19 +44,19 @@ public class LayoutSecurityServiceImpl implements LayoutSecurityService {
     private final AuthorizeService authorizeService;
     private final ItemService itemService;
     private final GroupService groupService;
-    private final CrisSecurityService crisSecurityService;
+    private final EPersonService ePersonService;
     private final ChoiceAuthorityService choiceAuthorityService;
 
     @Autowired
     public LayoutSecurityServiceImpl(AuthorizeService authorizeService,
                                      ItemService itemService,
                                      final GroupService groupService,
-                                     CrisSecurityService crisSecurityService,
+                                     EPersonService ePersonService,
                                      ChoiceAuthorityService choiceAuthorityService) {
         this.authorizeService = authorizeService;
         this.itemService = itemService;
         this.groupService = groupService;
-        this.crisSecurityService = crisSecurityService;
+        this.ePersonService = ePersonService;
         this.choiceAuthorityService = choiceAuthorityService;
     }
 
@@ -70,7 +70,7 @@ public class LayoutSecurityServiceImpl implements LayoutSecurityService {
             case PUBLIC:
                 return true;
             case OWNER_ONLY:
-                return crisSecurityService.isOwner(user, item);
+                return isOwner(user, item);
             case CUSTOM_DATA:
                 return customDataGrantAccess(context, user, metadataSecurityFields, item)
                     || customDataGrantAccessGroup(context, groupSecurityFields);
@@ -81,7 +81,7 @@ public class LayoutSecurityServiceImpl implements LayoutSecurityService {
                     || customDataGrantAccess(context, user, metadataSecurityFields, item)
                     || customDataGrantAccessGroup(context, groupSecurityFields);
             case OWNER_AND_ADMINISTRATOR:
-                return authorizeService.isAdmin(context) || crisSecurityService.isOwner(user, item);
+                return authorizeService.isAdmin(context) || isOwner(user, item);
             default:
                 return false;
         }
@@ -167,11 +167,15 @@ public class LayoutSecurityServiceImpl implements LayoutSecurityService {
     private boolean isOwnerOfRelatedItem(Context context, MetadataValue metadataValue, EPerson user) {
         try {
             Item relatedItem = itemService.find(context, UUIDUtils.fromString(metadataValue.getAuthority()));
-            return relatedItem != null ? crisSecurityService.isOwner(user, relatedItem) : false;
+            return relatedItem != null ? isOwner(user, relatedItem) : false;
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
 
+    }
+
+    private boolean isOwner(EPerson eperson, Item item) {
+        return ePersonService.isOwnerOfItem(eperson, item);
     }
 
     private boolean isMemberOfGroup(Context context, Group group) {

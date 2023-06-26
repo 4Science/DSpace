@@ -217,9 +217,26 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
                                     final String value) {
         return addMetadataValue(item, schema, element, qualifier, value);
     }
-    public ItemBuilder withSecuredMetadata(final String schema, final String element, final String qualifier,
-                                    final String value, Integer securityLevel) {
-        return addMetadataValue(item, schema, element, qualifier, value);
+
+    public ItemBuilder withMetadata(final String schema,
+                                    final String element,
+                                    final String qualifier,
+                                    final String language,
+                                    final String value,
+                                    final String authority,
+                                    final int confidence) {
+        return addMetadataValue(item, schema, element, qualifier, language, value, authority, confidence);
+    }
+
+    public ItemBuilder withSecuredMetadata(String schema, String element, String qualifier,
+        String value, Integer securityLevel) {
+        return addSecuredMetadataValue(item, schema, element, qualifier, value, securityLevel);
+    }
+
+    public ItemBuilder withSecuredMetadata(String schema, String element, String qualifier, String language,
+        String value, String authority, int confidence, Integer securityLevel) {
+        return addSecuredMetadataValue(item, schema, element, qualifier, language, value,
+            authority, confidence, securityLevel);
     }
 
     public ItemBuilder withCrisPolicyEPerson(String value, String authority) {
@@ -386,6 +403,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withRelationProject(String project, String authority) {
         return addMetadataValue(item, DC.getName(), "relation", "project", null, project, authority, 600);
+    }
+
+    public ItemBuilder withRelationJournal(String journal, String authority) {
+        return addMetadataValue(item, DC.getName(), "relation", "journal", null, journal, authority, 600);
     }
 
     public ItemBuilder withRelationFunding(String funding, String authority) {
@@ -918,13 +939,18 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
        try (Context c = new Context()) {
             c.setDispatcher("noindex");
             c.turnOffAuthorisationSystem();
+            // If the workspaceItem used to create this item still exists, delete it
+            workspaceItem = c.reloadEntity(workspaceItem);
+            if (workspaceItem != null) {
+                workspaceItemService.deleteAll(c, workspaceItem);
+            }
             // Ensure object and any related objects are reloaded before checking to see what needs cleanup
             item = c.reloadEntity(item);
             if (item != null) {
-                delete(c, item);
-                c.complete();
+                 delete(c, item);
             }
-        }
+            c.complete();
+       }
     }
 
     @Override

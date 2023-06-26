@@ -21,6 +21,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
+import org.dspace.supervision.service.SupervisionOrderService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.ClaimedTaskService;
 import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
@@ -60,6 +61,10 @@ public class WorkflowRestPermissionEvaluatorPlugin extends RestObjectPermissionE
     @Autowired
     private ResearcherProfileService researcherProfileService;
 
+    @Autowired
+    private SupervisionOrderService supervisionOrderService;
+
+
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId,
                                  String targetType, DSpaceRestPermission permission) {
@@ -94,7 +99,7 @@ public class WorkflowRestPermissionEvaluatorPlugin extends RestObjectPermissionE
                 return true;
             }
 
-            if (researcherProfileService.isAuthorOf(context, ePerson, workflowItem.getItem())) {
+            if (supervisionOrderService.isSupervisor(context, ePerson, workflowItem.getItem())) {
                 return true;
             }
 

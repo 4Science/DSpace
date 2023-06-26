@@ -83,6 +83,7 @@ public class ChecksumHistoryDAOImplTest
         context.turnOffAuthorisationSystem();
         bss.update(context, bs);
         context.restoreAuthSystemState();
+        context.flush();
 
         cal.add(Calendar.DATE, -1);
         Date matchDate = cal.getTime();

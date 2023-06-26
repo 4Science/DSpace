@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.converter;
 
+import java.util.Objects;
+
 import org.dspace.app.rest.model.CrisLayoutSectionRest.CrisLayoutTopComponentRest;
 import org.dspace.layout.CrisLayoutSectionComponent;
 import org.dspace.layout.CrisLayoutTopComponent;
@@ -30,6 +32,10 @@ public class CrisLayoutTopComponentConverter implements CrisLayoutSectionCompone
     public CrisLayoutTopComponentRest convert(CrisLayoutSectionComponent component) {
         CrisLayoutTopComponent topComponent = (CrisLayoutTopComponent) component;
         CrisLayoutTopComponentRest rest = new CrisLayoutTopComponentRest();
+        boolean showThumbnails =
+            Objects.isNull(topComponent.getShowThumbnails()) ?
+                false : topComponent.getShowThumbnails();
+
         rest.setDiscoveryConfigurationName(topComponent.getDiscoveryConfigurationName());
         rest.setOrder(topComponent.getOrder());
         rest.setSortField(topComponent.getSortField());
@@ -43,6 +49,7 @@ public class CrisLayoutTopComponentConverter implements CrisLayoutSectionCompone
         rest.setCardStyle(topComponent.getCardStyle());
         rest.setItemListStyle(topComponent.getItemListStyle());
         rest.setShowAllResults(topComponent.isShowAllResults());
+        rest.setShowThumbnails(showThumbnails);
         return rest;
     }
 

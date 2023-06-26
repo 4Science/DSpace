@@ -248,6 +248,10 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return addMetadataValue("person", "identifier", "isni", isni);
     }
 
+    public WorkspaceItemBuilder withScopusIdentifier(String scopus) {
+        return addMetadataValue("dc", "identifier", "scopus", scopus);
+    }
+
     public WorkspaceItemBuilder withOrcidIdentifier(String orcid) {
         return addMetadataValue("person", "identifier", "orcid", orcid);
     }

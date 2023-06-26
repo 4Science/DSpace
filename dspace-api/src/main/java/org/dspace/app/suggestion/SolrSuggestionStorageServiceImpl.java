@@ -306,12 +306,18 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
 
         Suggestion suggestion = new Suggestion(sourceName, target, (String) solrDoc.getFieldValue(SUGGESTION_ID));
         suggestion.setDisplay((String) solrDoc.getFieldValue(DISPLAY));
-        suggestion.getMetadata()
-            .add(new MetadataValueDTO("dc", "title", null, null, (String) solrDoc.getFieldValue(TITLE)));
-        suggestion.getMetadata()
-            .add(new MetadataValueDTO("dc", "date", "issued", null, (String) solrDoc.getFieldValue(DATE)));
-        suggestion.getMetadata().add(
-            new MetadataValueDTO("dc", "description", "abstract", null, (String) solrDoc.getFieldValue(ABSTRACT)));
+        if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(TITLE))) {
+            suggestion.getMetadata()
+                .add(new MetadataValueDTO("dc", "title", null, null, (String) solrDoc.getFieldValue(TITLE)));
+        }
+        if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(DATE))) {
+            suggestion.getMetadata()
+                .add(new MetadataValueDTO("dc", "date", "issued", null, (String) solrDoc.getFieldValue(DATE)));
+        }
+        if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(ABSTRACT))) {
+            suggestion.getMetadata().add(
+                new MetadataValueDTO("dc", "description", "abstract", null, (String) solrDoc.getFieldValue(ABSTRACT)));
+        }
 
         suggestion.setExternalSourceUri((String) solrDoc.getFieldValue(EXTERNAL_URI));
         if (solrDoc.containsKey(CATEGORY)) {

@@ -158,8 +158,8 @@ public class DCInputsReader {
      * Returns the set of DC inputs used for a particular collection, or the default
      * set if no inputs defined for the collection
      *
-     * @param collectionHandle collection
-     * @return DC input set
+     * @param  collection              collection
+     * @return                         DC input set
      * @throws DCInputsReaderException if no default set defined
      * @throws ServletException
      */

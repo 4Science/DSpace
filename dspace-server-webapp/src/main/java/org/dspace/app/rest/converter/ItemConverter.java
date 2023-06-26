@@ -54,7 +54,7 @@ public class ItemConverter
      * When the context is null, it will return the metadatalist as for an anonymous user
      * Overrides the parent method to include virtual metadata
      * @param context The context
-     * @param obj     The object of which the filtered metadata will be retrieved6
+     * @param item     The object of which the filtered metadata will be retrieved
      * @param projection The projection(s) used into current request
      * @return A list of object metadata (including virtual metadata) filtered based on the the hidden metadata
      * configuration

@@ -23,22 +23,26 @@ public class MetadataValueVO {
 
     private final int confidence;
 
+    private final Integer securityLevel;
+
     public MetadataValueVO(String value) {
-        this(value, null, -1);
+        this(value, null, -1, null);
     }
 
     public MetadataValueVO(String value, String authority) {
-        this(value, authority, 600);
+        this(value, authority, 600, null);
     }
 
-    public MetadataValueVO(String value, String authority, int confidence) {
+    public MetadataValueVO(String value, String authority, int confidence, Integer securityLevel) {
         this.value = value;
         this.authority = authority;
         this.confidence = confidence;
+        this.securityLevel = securityLevel;
     }
 
     public MetadataValueVO(MetadataValue metadataValue) {
-        this(metadataValue.getValue(), metadataValue.getAuthority(), metadataValue.getConfidence());
+        this(metadataValue.getValue(), metadataValue.getAuthority(), metadataValue.getConfidence(),
+            metadataValue.getSecurityLevel());
     }
 
     public String getValue() {
@@ -51,6 +55,10 @@ public class MetadataValueVO {
 
     public int getConfidence() {
         return confidence;
+    }
+
+    public Integer getSecurityLevel() {
+        return securityLevel;
     }
 
 }

@@ -6,9 +6,13 @@
 	exclude-result-prefixes="fo">
 	
 	<xsl:param name="imageDir" />
+    <xsl:param name="fontFamily" />
 	
 	<xsl:template match="cerif:Equipment">	
 		<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+            <xsl:attribute name="font-family">
+                <xsl:value-of select="$fontFamily" />
+            </xsl:attribute>
 			<fo:layout-master-set>
 				<fo:simple-page-master master-name="simpleA4"
 					page-height="29.7cm" page-width="24cm" margin-top="2cm"

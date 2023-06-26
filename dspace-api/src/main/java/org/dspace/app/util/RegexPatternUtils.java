@@ -34,7 +34,9 @@ public class RegexPatternUtils {
 
     /**
      * Computes a pattern starting from a regex definition with flags that
-     * uses the standard format: <code>/{regex}/{flags}</code>.
+     * uses the standard format: <code>/{regex}/{flags}</code> (ECMAScript format).
+     * This method can transform an ECMAScript regex into a java {@code Pattern} object
+     * wich can be used to validate strings.
      * <br/>
      * If regex is null, empty or blank a null {@code Pattern} will be retrieved
      * If it's a valid regex, then a non-null {@code Pattern} will be retrieved,
@@ -49,20 +51,21 @@ public class RegexPatternUtils {
             return null;
         }
         Matcher inputMatcher = PATTERN_REGEX_INPUT_VALIDATOR.matcher(regex);
-        Pattern pattern = null;
+        String regexPattern = regex;
+        String regexFlags = "";
         if (inputMatcher.matches()) {
-            String regexPattern = inputMatcher.group(2);
-            String regexFlags =
+            regexPattern =
+                Optional.of(inputMatcher.group(2))
+                    .filter(StringUtils::isNotBlank)
+                    .orElse(regex);
+            regexFlags =
                 Optional.ofNullable(inputMatcher.group(3))
-                .filter(StringUtils::isNotBlank)
-                .map(flags -> String.format(REGEX_FLAGS, flags))
-                .orElse("")
-                .replaceAll("g", "");
-            pattern = Pattern.compile(regexFlags + regexPattern);
-        } else {
-            pattern = Pattern.compile(regex);
+                    .filter(StringUtils::isNotBlank)
+                    .map(flags -> String.format(REGEX_FLAGS, flags))
+                    .orElse("")
+                    .replaceAll("g", "");
         }
-        return pattern;
+        return Pattern.compile(regexFlags + regexPattern);
     }
 
     private RegexPatternUtils() {}

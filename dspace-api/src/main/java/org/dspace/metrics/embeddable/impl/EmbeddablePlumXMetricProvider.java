@@ -37,8 +37,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
      */
     protected String personHref;
 
-    protected String dataLang;
-
     protected boolean dataNoName;
 
     protected int dataNumArtifacts;
@@ -70,8 +68,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
     protected boolean dataPassHiddenCategories;
 
     protected boolean dataDetailSamePage;
-
-    protected String listDataLang;
 
     protected boolean listDataNoName;
 
@@ -105,9 +101,41 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
 
     protected boolean listDataDetailSamePage;
 
-    String doiIdentifier;
+    private boolean personDetailViewEnabled;
 
-    String orcid;
+    private boolean personListViewEnabled;
+
+    private boolean publicationDetailViewEnabled;
+
+    private boolean publicationListViewEnabled;
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        log.error("The enabled property is not used by " + this.getClass().getName()
+                + " please rely on the detail and list view enabled properties instead");
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.personDetailViewEnabled || this.personListViewEnabled || this.publicationDetailViewEnabled
+                || this.publicationListViewEnabled;
+    }
+
+    public void setPersonDetailViewEnabled(boolean detailViewEnabled) {
+        this.personDetailViewEnabled = detailViewEnabled;
+    }
+
+    public void setPersonListViewEnabled(boolean listViewEnabled) {
+        this.personListViewEnabled = listViewEnabled;
+    }
+
+    public void setPublicationDetailViewEnabled(boolean publicationDetailViewEnabled) {
+        this.publicationDetailViewEnabled = publicationDetailViewEnabled;
+    }
+
+    public void setPublicationListViewEnabled(boolean publicationListViewEnabled) {
+        this.publicationListViewEnabled = publicationListViewEnabled;
+    }
 
     @Override
     public boolean hasMetric(Context context, Item item, List<CrisMetrics> retrivedStoredMetrics) {
@@ -115,7 +143,7 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
         if (entityType != null) {
             if (entityType.equals("Person")) {
                 // if it is of type person use orcid
-                orcid = getItemService()
+                String orcid = getItemService()
                         .getMetadataFirstValue(item, "person", "identifier", "orcid", Item.ANY);
                 if (orcid != null) {
                     return true;
@@ -125,7 +153,7 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
             } else {
                 // if it is of type publication use doi
                 if (entityType.equals("Publication")) {
-                    doiIdentifier = getItemService()
+                    String doiIdentifier = getItemService()
                             .getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
                     if (doiIdentifier != null) {
                         return true;
@@ -145,18 +173,26 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
         JsonObject innerHtml = new JsonObject();
         String entityType = getEntityType(item);
 
+        innerHtml.addProperty("data-person-badge-enabled", this.personDetailViewEnabled);
+        innerHtml.addProperty("list-data-person-badge-enabled", this.personListViewEnabled);
+        innerHtml.addProperty("data-publication-badge-enabled", this.publicationDetailViewEnabled);
+        innerHtml.addProperty("list-data-publication-badge-enabled", this.publicationListViewEnabled);
         innerHtml.addProperty("type", entityType);
         innerHtml.addProperty("list-type", entityType);
         innerHtml.addProperty("placeholder", "");
         innerHtml.addProperty("list-placeholder", "");
 
         if (entityType.equals("Person")) {
+            String orcid = getItemService()
+                    .getMetadataFirstValue(item, "person", "identifier", "orcid", Item.ANY);
             innerHtml.addProperty("src", personPlumXScript);
             innerHtml.addProperty("href", personHref + "?orcid=" + orcid);
 
             innerHtml.addProperty("list-src", personPlumXScript);
             innerHtml.addProperty("list-href", personHref + "?orcid=" + orcid);
         } else {
+            String doiIdentifier = getItemService()
+                    .getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
             innerHtml.addProperty("src", publicationPlumXScript);
             innerHtml.addProperty("href", publicationHref + "?doi=" + doiIdentifier);
 
@@ -164,7 +200,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
             innerHtml.addProperty("list-href", publicationHref + "?doi=" + doiIdentifier);
         }
 
-        innerHtml.addProperty("data-lang", this.dataLang);
         innerHtml.addProperty("data-no-name", this.dataNoName);
         innerHtml.addProperty("data-num-artifacts", this.dataNumArtifacts);
         innerHtml.addProperty("data-width", this.dataWidth);
@@ -182,7 +217,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
         innerHtml.addProperty("data-pass-hidden-categories", this.dataPassHiddenCategories);
         innerHtml.addProperty("data-detail-same-page", this.dataDetailSamePage);
 
-        innerHtml.addProperty("list-data-lang", this.listDataLang);
         innerHtml.addProperty("list-data-no-name", this.listDataNoName);
         innerHtml.addProperty("list-data-num-artifacts", this.listDataNumArtifacts);
         innerHtml.addProperty("list-data-width", this.listDataWidth);
@@ -227,10 +261,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
 
     public void setPersonHref(String personHref) {
         this.personHref = personHref;
-    }
-
-    public void setDataLang(String dataLang) {
-        this.dataLang = dataLang;
     }
 
     public void setDataNoName(boolean dataNoName) {
@@ -295,11 +325,6 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
 
     public void setDataDetailSamePage(boolean dataDetailSamePage) {
         this.dataDetailSamePage = dataDetailSamePage;
-    }
-
-
-    public void setListDataLang(String listDataLang) {
-        this.listDataLang = listDataLang;
     }
 
     public void setListDataNoName(boolean listDataNoName) {

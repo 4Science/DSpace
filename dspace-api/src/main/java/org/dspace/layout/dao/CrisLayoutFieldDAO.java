@@ -50,8 +50,6 @@ public interface CrisLayoutFieldDAO extends GenericDAO<CrisLayoutField> {
      * Returns the field that are available for specific Box
      * @param context The relevant DSpace Context
      * @param boxId id of the box {@link CrisLayoutBox}
-     * @param limit how many results return
-     * @param offset the position of the first result to return
      * @return List of CrisLayoutField {@link CrisLayoutField}
      * @throws SQLException An exception that provides information on a database errors.
      */

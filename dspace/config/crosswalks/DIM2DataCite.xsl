@@ -32,6 +32,7 @@
     <xsl:param name="hostinginstitution"><xsl:value-of select="$publisher" /></xsl:param>
     <!-- Please take a look into the DataCite schema documentation if you want to know how to use these elements.
          http://schema.datacite.org -->
+    <xsl:variable name="placeholder">#PLACEHOLDER_PARENT_METADATA_VALUE#</xsl:variable>
 
     <xsl:output method="xml" indent="yes" encoding="utf-8" />
 
@@ -303,10 +304,26 @@
 
     <!-- DataCite (2) :: Creator -->
     <xsl:template match="//dspace:field[@mdschema='dc' and @element='contributor' and @qualifier='author']">
+        <xsl:variable name="counter" select="position()"/>
         <creator>
             <creatorName>
                 <xsl:value-of select="." />
             </creatorName>
+            <xsl:if test="contains(., ',')">
+                <givenName>
+                    <xsl:value-of select="substring-after(., ', ')"/>
+                </givenName>
+                <familyName>
+                    <xsl:value-of select="substring-before(., ',')"/>
+                </familyName>
+            </xsl:if>
+            <xsl:if test="//dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][number($counter)]!=$placeholder and //dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][number($counter)]!=''">
+                <nameIdentifier>
+                    <xsl:attribute name="schemeURI">https://orcid.org/</xsl:attribute>
+                    <xsl:attribute name="nameIdentifierScheme">ORCID</xsl:attribute>
+                    <xsl:value-of select="//dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][$counter]"/>
+                </nameIdentifier>
+            </xsl:if>
         </creator>
     </xsl:template>
 

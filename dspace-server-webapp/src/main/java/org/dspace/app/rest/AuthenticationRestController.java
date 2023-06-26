@@ -278,7 +278,7 @@ public class AuthenticationRestController implements InitializingBean {
     }
 
     /**
-     * See {@link #shortLivedToken} and {@link #shortLivedTokenViaGet}
+     * See {@link #shortLivedToken}
      */
     private AuthenticationTokenResource shortLivedTokenResponse(HttpServletRequest request) {
         Projection projection = utils.obtainProjection();

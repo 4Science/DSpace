@@ -69,6 +69,7 @@
             <map>
                 <entry key="dc.identifier.pmid" value="^[0-9]*$" />
                 <entry key="dc.identifier.doi" value="10.\d{4,9}/[-._;()/:A-Z0-9]+|10.1002/[^\s]+|10.\d{4}/\d+-\d+X?(\d+)\d+[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d|10.1021/\w\w\d++|10.1207/[\w\d]+\d+_\d+" />
+                <entry key="dc.identifier.scopus" value="^2-s2.0-[0-9]*$" />
             </map>           
         </property>
 	</bean>

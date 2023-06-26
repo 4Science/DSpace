@@ -12,16 +12,20 @@ import static org.dspace.content.Item.ANY;
 
 import java.text.ParseException;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.google.gson.GsonBuilder;
 import de.undercouch.citeproc.ListItemDataProvider;
+import de.undercouch.citeproc.csl.CSLDate;
+import de.undercouch.citeproc.csl.CSLDateBuilder;
 import de.undercouch.citeproc.csl.CSLItemData;
 import de.undercouch.citeproc.csl.CSLItemDataBuilder;
 import de.undercouch.citeproc.csl.CSLName;
 import de.undercouch.citeproc.csl.CSLType;
 import de.undercouch.citeproc.helper.json.JsonBuilder;
 import de.undercouch.citeproc.helper.json.MapJsonBuilderFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCPersonName;
@@ -239,23 +243,12 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
 
     protected CSLItemDataBuilder handleCslDateFields(Item item, CSLItemDataBuilder itemBuilder) {
 
-        consumeDateIfNotBlank(accessed, item,
-            dcDate -> itemBuilder.accessed(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
-
-        consumeDateIfNotBlank(container, item,
-            dcDate -> itemBuilder.container(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
-
-        consumeDateIfNotBlank(eventDate, item,
-            dcDate -> itemBuilder.eventDate(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
-
-        consumeDateIfNotBlank(issued, item,
-            dcDate -> itemBuilder.issued(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
-
-        consumeDateIfNotBlank(originalDate, item,
-            dcDate -> itemBuilder.originalDate(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
-
-        consumeDateIfNotBlank(submitted, item,
-            dcDate -> itemBuilder.submitted(dcDate.getYear(), dcDate.getMonth(), dcDate.getDay()));
+        consumeDateIfNotBlank(accessed, item, itemBuilder::accessed);
+        consumeDateIfNotBlank(container, item, itemBuilder::container);
+        consumeDateIfNotBlank(eventDate, item, itemBuilder::eventDate);
+        consumeDateIfNotBlank(issued, item, itemBuilder::issued);
+        consumeDateIfNotBlank(originalDate, item, itemBuilder::originalDate);
+        consumeDateIfNotBlank(submitted, item, itemBuilder::submitted);
 
         return itemBuilder;
     }
@@ -324,13 +317,39 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
         }
     }
 
-    private void consumeDateIfNotBlank(String value, Item item, Consumer<DCDate> consumer) {
-        if (StringUtils.isNotBlank(value)) {
-            DCDate dcDate = getDCDateFromMetadataValue(item, value);
-            if (dcDate.toDate() != null) {
-                consumer.accept(dcDate);
-            }
+    private void consumeDateIfNotBlank(String value, Item item, Consumer<CSLDate> consumer) {
+
+        if (StringUtils.isBlank(value)) {
+            return;
         }
+
+        DCDate dcDate = getDCDateFromMetadataValue(item, value);
+
+        convertToCSLDate(dcDate).ifPresent(consumer::accept);
+
+    }
+
+    private Optional<CSLDate> convertToCSLDate(DCDate dcDate) {
+
+        if (dcDate.toDate() == null || dcDate.getYear() == -1) {
+            return Optional.empty();
+        }
+
+        int[] dateParts = new int[] { dcDate.getYear() };
+
+        int month = dcDate.getMonth();
+        if (month != -1) {
+            dateParts = ArrayUtils.add(dateParts, month);
+
+            int day = dcDate.getDay();
+            if (day != -1) {
+                dateParts = ArrayUtils.add(dateParts, day);
+            }
+
+        }
+
+        return Optional.of(new CSLDateBuilder().dateParts(dateParts).build());
+
     }
 
     private CSLType getPublicationType(String value) {

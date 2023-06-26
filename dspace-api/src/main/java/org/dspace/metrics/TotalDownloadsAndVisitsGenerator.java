@@ -55,7 +55,8 @@ public class TotalDownloadsAndVisitsGenerator {
             //add visits for item
             views += (int) topCount.getCount();
             // check bitstreams  statistics related with this item
-            String bitStreamQuery = "owningItem" + ":" + topCount.getValue() + " AND type:" + Constants.BITSTREAM;
+            String bitStreamQuery = "owningItem" + ":" + topCount.getValue() + " AND type:" + Constants.BITSTREAM
+                    + " AND -bundleName:LICENSE AND -bundleName:THUMBNAIL AND -bundleName:SWORD AND -bundleName:TEXT";
             ObjectCount[] topCounts1 = solrLoggerService
                                            .queryFacetField(bitStreamQuery,
                                                             filterQuery.toString(),

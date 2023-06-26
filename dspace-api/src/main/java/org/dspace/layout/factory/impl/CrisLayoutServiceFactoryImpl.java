@@ -8,6 +8,7 @@
 package org.dspace.layout.factory.impl;
 
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
+import org.dspace.layout.script.service.CrisLayoutToolConverter;
 import org.dspace.layout.script.service.CrisLayoutToolParser;
 import org.dspace.layout.script.service.CrisLayoutToolValidator;
 import org.dspace.layout.service.CrisLayoutBoxService;
@@ -50,6 +51,9 @@ public class CrisLayoutServiceFactoryImpl extends CrisLayoutServiceFactory {
     @Autowired(required = true)
     private CrisLayoutToolParser parser;
 
+    @Autowired(required = true)
+    private CrisLayoutToolConverter converter;
+
     @Override
     public CrisLayoutTabService getTabService() {
         return this.tabService;
@@ -88,6 +92,11 @@ public class CrisLayoutServiceFactoryImpl extends CrisLayoutServiceFactory {
     @Override
     public CrisLayoutToolParser getCrisLayoutToolParser() {
         return parser;
+    }
+
+    @Override
+    public CrisLayoutToolConverter getCrisLayoutToolConverter() {
+        return converter;
     }
 
 }

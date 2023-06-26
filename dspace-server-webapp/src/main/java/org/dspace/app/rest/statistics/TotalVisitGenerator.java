@@ -195,6 +195,8 @@ public class TotalVisitGenerator extends AbstractUsageReportGenerator {
         String query = "type: " + Constants.BITSTREAM;
         query += " AND ";
         query += "(owningItem:" + uuid + " OR " + "owningColl:" + uuid + " OR " + "owningComm:" + uuid + ")";
+        query += " AND -bundleName:LICENSE AND -bundleName:THUMBNAIL AND -bundleName:SWORD AND -bundleName:TEXT";
         return query;
     }
+
 }

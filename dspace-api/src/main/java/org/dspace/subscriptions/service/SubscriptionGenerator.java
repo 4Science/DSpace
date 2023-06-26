@@ -12,15 +12,14 @@ import java.util.List;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 
-
-
 /**
- * Class which will be used to send
- * email notifications to ePerson
- * containing information for all list of objects
+ * Interface Class which will be used to send email notifications to ePerson
+ * containing information for all list of objects.
  *
  * @author Alba Aliu
  */
 public interface SubscriptionGenerator<T> {
-    public void notifyForSubscriptions(Context c, EPerson ePerson, List<T> comm, List<T> coll, List<T> items);
+
+    public void notifyForSubscriptions(Context c, EPerson ePerson, List<T> comm, List<T> coll);
+
 }

@@ -9,6 +9,7 @@
 package org.dspace.subscriptions;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 import org.apache.commons.cli.Options;
 import org.dspace.authorize.AuthorizeServiceImpl;
@@ -19,10 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementation of {@link DSpaceRunnable} to find subscribed objects and send notification mails about them
- *
- * @author alba aliu
  */
-
 public class SubscriptionEmailNotificationConfiguration<T
         extends SubscriptionEmailNotification> extends ScriptConfiguration<T> {
 
@@ -30,16 +28,6 @@ public class SubscriptionEmailNotificationConfiguration<T
 
     @Autowired
     private AuthorizeServiceImpl authorizeService;
-
-    @Override
-    public Class<T> getDspaceRunnableClass() {
-        return dspaceRunnableClass;
-    }
-
-    @Override
-    public void setDspaceRunnableClass(Class<T> dspaceRunnableClass) {
-        this.dspaceRunnableClass = dspaceRunnableClass;
-    }
 
     @Override
     public boolean isAllowedToExecute(Context context) {
@@ -52,16 +40,24 @@ public class SubscriptionEmailNotificationConfiguration<T
 
     @Override
     public Options getOptions() {
-        if (options == null) {
+        if (Objects.isNull(options)) {
             Options options = new Options();
-            options.addOption("t", "Type", true,
-                    "Subscription type, It can have values content or statistics");
-            options.getOption("t").setRequired(true);
-            options.addOption("f", "Frequency", true,
-                    "Subscription frequency. It can have value D, M or W");
+            options.addOption("f", "frequency", true,
+                              "Subscription frequency. Valid values include: D (Day), W (Week) and M (Month)");
             options.getOption("f").setRequired(true);
             super.options = options;
         }
         return options;
     }
+
+    @Override
+    public Class<T> getDspaceRunnableClass() {
+        return dspaceRunnableClass;
+    }
+
+    @Override
+    public void setDspaceRunnableClass(Class<T> dspaceRunnableClass) {
+        this.dspaceRunnableClass = dspaceRunnableClass;
+    }
+
 }

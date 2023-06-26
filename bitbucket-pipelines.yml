@@ -7,8 +7,9 @@ definitions:
     gradlewrapper: ~/.gradle/wrapper
   steps:
     - step: &unit-test-code-checks
+        runs-on: self.hosted
         name: unit-test-code-checks
-        size: 2x
+        size: 4x
         caches:
           - maven
         script:
@@ -35,8 +36,9 @@ definitions:
           - dspace-swordv2/target/failsafe-reports/*-output.txt
 
     - step: &integration-tests
+        runs-on: self.hosted
         name: integration-tests
-        size: 2x
+        size: 4x
         caches:
           - gradle
           - gradlewrapper

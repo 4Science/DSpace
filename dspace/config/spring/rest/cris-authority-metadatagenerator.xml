@@ -58,4 +58,13 @@
      <bean id="org.dspace.content.authority.OpenAIRECodeExtraMetadataGenerator" 
     	class="org.dspace.content.authority.OpenAIRECodeExtraMetadataGenerator">
      </bean>
+     
+     <bean id="org.dspace.content.authority.SherpaExtraIPublisherMetadataGenerator" 
+    	class="org.dspace.content.authority.SherpaExtraIPublisherMetadataGenerator">
+    	<property name="relatedInputFormMetadata" value="dc_publisher"/>
+     </bean>
+     <bean id="org.dspace.content.authority.SherpaExtraISSNmetadataGenerator" 
+    	class="org.dspace.content.authority.SherpaExtraISSNmetadataGenerator">
+    	<property name="relatedInputFormMetadata" value="dc_relation_issn"/>
+     </bean>
 </beans>

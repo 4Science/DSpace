@@ -26,6 +26,7 @@ import org.dspace.app.rest.authorization.AuthorizationRestUtil;
 import org.dspace.app.rest.authorization.impl.ItemCorrectionFeature;
 import org.dspace.app.rest.converter.WorkspaceItemConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
+import org.dspace.app.rest.exception.ExtractMetadataStepException;
 import org.dspace.app.rest.exception.RESTAuthorizationException;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -56,6 +57,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonServiceImpl;
 import org.dspace.event.Event;
@@ -264,7 +266,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
             String[] path = op.getPath().substring(1).split("/", 3);
             if (OPERATION_PATH_SECTIONS.equals(path[0])) {
                 String section = path[1];
-                submissionService.evaluatePatchToInprogressSubmission(context, request, source, wsi, section, op);
+                try {
+                    submissionService.evaluatePatchToInprogressSubmission(context, request, source, wsi, section, op);
+                } catch (ExtractMetadataStepException e) {
+                    log.warn(e.getMessage(), e);
+                }
             } else {
                 throw new DSpaceBadRequestException(
                     "Patch path operation need to starts with '" + OPERATION_PATH_SECTIONS + "'");
@@ -431,7 +437,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                 "No AuthorizationFeature configured with name " + ItemCorrectionFeature.NAME);
         }
 
-        return itemCorrectionFeature.isAuthorized(context, findItemRestById(context, itemId.toString()));
+        try {
+            return itemCorrectionFeature.isAuthorized(context, findItemRestById(context, itemId.toString()));
+        } catch (SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private BaseObjectRest<?> findItemRestById(Context context, String itemId) throws SQLException {
@@ -457,5 +467,9 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                 }
             }
         }
+    }
+
+    public void setSubmissionService(SubmissionService submissionService) {
+        this.submissionService = submissionService;
     }
 }

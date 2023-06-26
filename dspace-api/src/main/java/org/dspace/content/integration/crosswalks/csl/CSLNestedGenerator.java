@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import de.undercouch.citeproc.CSL;
+import de.undercouch.citeproc.output.Bibliography;
 import org.apache.commons.io.IOUtils;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,10 @@ public class CSLNestedGenerator implements CSLGenerator {
     private ConfigurationService configurationService;
 
     @Override
-    public String generate(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
+    public CSLResult generate(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
         CSL citeproc = createCitationProcessor(itemDataProvider, style, format);
-        return citeproc.makeBibliography().makeString();
+        Bibliography bibliography = citeproc.makeBibliography();
+        return CSLResult.fromBibliography(format, bibliography);
     }
 
     private CSL createCitationProcessor(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
@@ -55,7 +57,11 @@ public class CSLNestedGenerator implements CSLGenerator {
         String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
         File styleFile = new File(parent, style);
         if (!styleFile.exists()) {
-            throw new FileNotFoundException("Could not find style in " + styleFile.getAbsolutePath());
+            parent = parent + File.separator + "crosswalks" + File.separator + "csl";
+            styleFile = new File(parent, style);
+            if (!styleFile.exists()) {
+                throw new FileNotFoundException("Could not find style " + style);
+            }
         }
 
         try (FileInputStream fis = new FileInputStream(styleFile)) {

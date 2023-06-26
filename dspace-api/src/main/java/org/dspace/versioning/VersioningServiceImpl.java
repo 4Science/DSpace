@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
@@ -264,6 +265,12 @@ public class VersioningServiceImpl implements VersioningService {
     @Override
     public int countVersionsByHistoryWithItem(Context context, VersionHistory versionHistory) throws SQLException {
         return versionDAO.countVersionsByHistoryWithItem(context, versionHistory);
+    }
+
+    @Override
+    public boolean areDifferentVersionsOfSameItem(Context context, UUID firstItemUuid, UUID secondItemUuid)
+        throws SQLException {
+        return versionDAO.areDifferentVersionsOfSameItem(context, firstItemUuid, secondItemUuid);
     }
 
 }

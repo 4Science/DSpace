@@ -147,6 +147,7 @@ public class StatisticsDatasetDisplay {
         }
         return attrs;
     }
+
     public String getResultName(String queryName, String value, DSpaceObject dso,
                                 int dsoType, int dsoLength, Context context) throws SQLException {
         if ("continent".equals(queryName)) {
@@ -243,6 +244,7 @@ public class StatisticsDatasetDisplay {
         }
         return value;
     }
+
     //create filter query for usage raport generator
     public String composeFilterQuery(String startDate, String endDate, boolean relation, int type) {
         StringBuilder filterQuery = new StringBuilder();
@@ -258,9 +260,23 @@ public class StatisticsDatasetDisplay {
             // even generator has inverse relation dates limit are added
             filterQuery.append(setStartDateEndDateFilterQuery(startDate, endDate));
         }
-        return filterQuery.toString();
 
+        // statistics view reports must not include download (view of a bitstream)
+        // of bitstream in bundle other than ORIGINAL
+        if (type == Constants.BITSTREAM) {
+            filterQuery.append(
+                      " AND -bundleName:LICENSE AND -bundleName:THUMBNAIL AND -bundleName:SWORD AND -bundleName:TEXT");
+        }
+
+        // statistics view reports MUST not include view performed by bots (isBot=true in the SOLR Statistics document)
+        boolean isBot = configurationService.getBooleanProperty("solr-statistics.query.filter.isBot", true);
+        if (isBot) {
+            filterQuery.append(" AND -isBot:true");
+        }
+
+        return filterQuery.toString();
     }
+
     //Creates query for usage raport generator
     public String composeQueryWithInverseRelation(DSpaceObject dSpaceObject, List<String> default_queries ) {
         StringBuilder query = new StringBuilder();
@@ -289,6 +305,7 @@ public class StatisticsDatasetDisplay {
     private String replacePlaceholderIfPresent(String defaultQuery, DSpaceObject dSpaceObject) {
         return new MessageFormat(defaultQuery).format(new String[] { dSpaceObject.getID().toString() });
     }
+
     // create filter in string format for start date and end date
     public String setStartDateEndDateFilterQuery(String startDate, String endDate) {
         if ((startDate != null && !startDate.equals("null")) || (endDate != null && !endDate.equals("null"))) {
@@ -314,4 +331,5 @@ public class StatisticsDatasetDisplay {
         }
         return "";
     }
+
 }

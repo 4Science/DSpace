@@ -14,11 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCDate;
-import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.core.Context;
 import org.dspace.versioning.ItemCorrectionService;
-import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
 import org.dspace.xmlworkflow.state.Step;
 import org.dspace.xmlworkflow.state.actions.ActionResult;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
@@ -57,7 +54,7 @@ public class FinalEditAction extends ProcessingAction {
             switch (Util.getSubmitButton(request, SUBMIT_CANCEL)) {
                 case SUBMIT_APPROVE:
                     //Delete the tasks
-                    addApprovedProvenance(c, wfi);
+                    super.addApprovedProvenance(c, wfi);
                     return new ActionResult(ActionResult.TYPE.TYPE_OUTCOME, ActionResult.OUTCOME_COMPLETE);
                 default:
                     //We pressed the leave button so return to our submissions page
@@ -72,31 +69,8 @@ public class FinalEditAction extends ProcessingAction {
         List<String> options = new ArrayList<>();
         options.add(SUBMIT_APPROVE);
         options.add(ProcessingAction.SUBMIT_EDIT_METADATA);
+        options.add(RETURN_TO_POOL);
         return options;
     }
-
-    private void addApprovedProvenance(Context c, XmlWorkflowItem wfi) throws SQLException, AuthorizeException {
-        //Add the provenance for the accept
-        String now = DCDate.getCurrent().toString();
-
-        // Get user's name + email address
-        String usersName = XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService()
-                .getEPersonName(c.getCurrentUser());
-
-        String provDescription;
-        if (itemCorrectionService.checkIfIsCorrectionItem(c, wfi.getItem())) {
-            provDescription = getProvenanceStartId() + " Correction approved for entry into archive by "
-                + usersName + " on " + now + " (GMT) ";
-        } else {
-            provDescription = getProvenanceStartId() + " Approved for entry into archive by "
-                + usersName + " on " + now + " (GMT) ";
-        }
-
-        // Add to item as a DC field
-        itemService.addMetadata(c, wfi.getItem(), MetadataSchemaEnum.DC.getName(), "description", "provenance", "en",
-                provDescription);
-        itemService.update(c, wfi.getItem());
-    }
-
 
 }

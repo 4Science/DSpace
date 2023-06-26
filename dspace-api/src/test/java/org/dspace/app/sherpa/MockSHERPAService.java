@@ -11,8 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.dspace.app.sherpa.v2.SHERPAFormat;
 import org.dspace.app.sherpa.v2.SHERPAPublisherResponse;
 import org.dspace.app.sherpa.v2.SHERPAResponse;
 
@@ -62,7 +66,13 @@ public class MockSHERPAService extends SHERPAService {
                 }
 
                 // Parse JSON input stream and return response for later evaluation
-                return new SHERPAResponse(content, SHERPAResponse.SHERPAFormat.JSON);
+                SHERPAResponse response = new SHERPAResponse(content, SHERPAFormat.JSON);
+
+                if (response != null) {
+                    applyStartAndLimit(response.getJournals(), start, limit);
+                }
+
+                return response;
 
             } catch (URISyntaxException e) {
                 // This object will be marked as having an error for later evaluation
@@ -112,7 +122,13 @@ public class MockSHERPAService extends SHERPAService {
                 content = getClass().getResourceAsStream("plos.json");
 
                 // Parse JSON input stream and return response for later evaluation
-                return new SHERPAPublisherResponse(content, SHERPAPublisherResponse.SHERPAFormat.JSON);
+                SHERPAPublisherResponse response = new SHERPAPublisherResponse(content, SHERPAFormat.JSON);
+
+                if (response != null) {
+                    applyStartAndLimit(response.getPublishers(), start, limit);
+                }
+
+                return response;
 
             } catch (URISyntaxException e) {
                 // This object will be marked as having an error for later evaluation
@@ -127,6 +143,34 @@ public class MockSHERPAService extends SHERPAService {
             // This object will be marked as having an error for later evaluation
             return new SHERPAPublisherResponse(e.getMessage());
         }
+    }
+
+    @Override
+    public int performCountRequest(String type, String field, String predicate, String value) {
+        SHERPAResponse sherpaResponse = performRequest(type, field, predicate, value, 0, 0);
+        if (sherpaResponse != null && CollectionUtils.isNotEmpty(sherpaResponse.getJournals())) {
+            return sherpaResponse.getJournals().size();
+        }
+        return 0;
+    }
+
+    private <T> void applyStartAndLimit(List<T> list, int start, int limit) {
+
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        start = start > 0 ? start : 0;
+        limit = limit > 0 ? limit : Integer.MAX_VALUE;
+
+        List<T> subList = list.stream()
+            .skip(start)
+            .limit(limit)
+            .collect(Collectors.toList());
+
+        list.clear();
+        list.addAll(subList);
+
     }
 
 }

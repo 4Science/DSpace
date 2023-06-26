@@ -23,6 +23,7 @@ import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
 import org.dspace.content.integration.crosswalks.csl.CSLGeneratorFactory;
+import org.dspace.content.integration.crosswalks.csl.CSLResult;
 import org.dspace.content.integration.crosswalks.csl.DSpaceListItemDataProvider;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
@@ -81,8 +82,8 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
             return;
         }
 
-        String citations = cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, format);
-        print(out, citations);
+        CSLResult result = cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, format);
+        print(out, result.getCitation());
 
     }
 

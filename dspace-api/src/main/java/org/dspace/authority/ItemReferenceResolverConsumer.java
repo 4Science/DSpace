@@ -54,6 +54,7 @@ public class ItemReferenceResolverConsumer implements Consumer {
     @Override
     public void end(Context ctx) throws Exception {
         itemsAlreadyProcessed.clear();
+        itemReferenceResolverService.clearResolversCache();
     }
 
     @Override

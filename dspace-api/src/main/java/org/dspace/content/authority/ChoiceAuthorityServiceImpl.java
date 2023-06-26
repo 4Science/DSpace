@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,8 +30,10 @@ import org.dspace.app.util.SubmissionConfig;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Collection;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
@@ -99,6 +104,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected UploadConfigurationService uploadConfigurationService;
     @Autowired(required = true)
     protected AuthorityServiceUtils authorityServiceUtils;
+    @Autowired(required = true)
+    protected ItemService itemService;
 
     final static String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
     final static String CHOICES_PRESENTATION_PREFIX = "choices.presentation.";
@@ -110,6 +117,13 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     // translate tail of configuration key (supposed to be schema.element.qual)
     // into field key
     protected String config2fkey(String field) {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean isAnOverride = field.contains(".override.");
+        if (isAnOverride) {
+            String[] split = field.split(".override.");
+            stringBuilder.append(split[0]).append("_");
+            field = split[1];
+        }
         // field is expected to be "schema.element.qualifier"
         int dot = field.indexOf('.');
         if (dot < 0) {
@@ -123,7 +137,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             qualifier = element.substring(dot + 1);
             element = element.substring(0, dot);
         }
-        return makeFieldKey(schema, element, qualifier);
+        return stringBuilder.append(makeFieldKey(schema, element, qualifier)).toString();
     }
 
     @Override
@@ -186,6 +200,11 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
+    public boolean isChoicesConfigured(String fieldKey, int dsoType, String formName) {
+        return getAuthorityByFieldKeyAndFormName(fieldKey, formName) != null;
+    }
+
+    @Override
     public String getPresentation(String fieldKey) {
         return getPresentationMap().get(fieldKey);
     }
@@ -218,13 +237,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         init();
         String fieldKey = makeFieldKey(schema, element, qualifier);
         // check if there is an authority configured for the metadata valid for all the collections
-        if (controller.containsKey(fieldKey)) {
-            for (Entry<String, List<String>> authority2md : authorities.entrySet()) {
-                if (authority2md.getValue().contains(fieldKey)) {
-                    return authority2md.getKey();
-                }
-            }
-        } else if (collection != null && controllerFormDefinitions.containsKey(fieldKey)) {
+        if (collection != null && controllerFormDefinitions.containsKey(fieldKey)) {
             // there is an authority configured for the metadata valid for some collections,
             // check if it is the requested collection
             Map<Integer, Map<String, ChoiceAuthority>> controllerFormDefTypes = controllerFormDefinitions.get(fieldKey);
@@ -240,6 +253,29 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                         return authority2defs2md.getKey();
                     }
                 }
+            }
+        } else if (controller.containsKey(fieldKey)) {
+            for (Entry<String, List<String>> authority2md : authorities.entrySet()) {
+                if (authority2md.getValue().contains(fieldKey)) {
+                    return authority2md.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getChoiceAuthorityName(String schema, String element, String qualifier, String formName) {
+        String fieldKey = makeFieldKey(schema, element, qualifier);
+        String keyOverriddenAuthority = formName + "_" + fieldKey;
+        for (Entry<String, List<String>> authority2md : authorities.entrySet()) {
+            if (authority2md.getValue().contains(keyOverriddenAuthority)) {
+                return authority2md.getKey();
+            }
+        }
+        for (Entry<String, List<String>> authority2md : authorities.entrySet()) {
+            if (authority2md.getValue().contains(fieldKey)) {
+                return authority2md.getKey();
             }
         }
         return null;
@@ -496,10 +532,25 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         return ma;
     }
 
+    public ChoiceAuthority getAuthorityByFieldAndCollection(String fieldKey, Collection collection) {
+        init();
+        String formName = getCollectionFormName(fieldKey, collection);
+        return getAuthorityByFieldKeyAndFormName(fieldKey, formName);
+    }
+
+    private ChoiceAuthority getAuthorityByFieldKeyAndFormName(String fieldKey, String formName) {
+        init();
+        ChoiceAuthority ma = controller.get(formName + "_" + fieldKey);
+        if (ma == null) {
+            ma = controller.get(fieldKey);
+        }
+        return ma;
+    }
+
     @Override
     public ChoiceAuthority getAuthorityByFieldKeyCollection(String fieldKey, int dsoType, Collection collection) {
         init();
-        ChoiceAuthority ma = controller.get(fieldKey);
+        ChoiceAuthority ma = getAuthorityByFieldAndCollection(fieldKey, collection);
         if (ma == null && collection != null) {
             String submissionName = authorityServiceUtils.getSubmissionOrFormName(itemSubmissionConfigReader,
                     dsoType, collection);
@@ -518,6 +569,19 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         }
         return ma;
     }
+
+    private String getCollectionFormName(String fieldKey, Collection collection) {
+
+        if (Objects.isNull(collection)) {
+            return "";
+        }
+
+        String submissionName = authorityServiceUtils.getSubmissionOrFormName(itemSubmissionConfigReader,
+            Constants.ITEM, collection);
+        return submissionName;
+
+    }
+
 
     /**
      * Wrapper that calls getChoicesByParent method of the plugin.
@@ -575,12 +639,50 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         init();
 
         if (StringUtils.isEmpty(entityType)) {
-            return new ArrayList<String>(controller.keySet());
+            return List.copyOf((controller.keySet().stream().map(field -> {
+                if (isOverrideMetadata(field)) {
+                    return removeOverrideFieldDef(field);
+                }
+                return field;
+            }).collect(Collectors.toSet())));
         }
 
-        return controller.keySet().stream()
+        return List.copyOf(controller.keySet().stream()
             .filter(field -> isLinkableToAnEntityWithEntityType(controller.get(field), entityType))
-            .collect(Collectors.toList());
+            .map(field -> {
+                if (isOverrideMetadata(field)) {
+                    return removeOverrideFieldDef(field);
+                }
+                return field;
+            })
+            .collect(Collectors.toSet()));
+    }
+
+    private String removeOverrideFieldDef(String field) {
+        int startingPos = field.indexOf("_") + 1;
+        return field.substring(startingPos, field.length());
+    }
+
+    private boolean isOverrideMetadata(String field) {
+        return StringUtils.countMatches(field, "_") == 3;
+    }
+
+    @Override
+    public void setReferenceWithAuthority(MetadataValue metadataValue, Item item) {
+
+        metadataValue.setAuthority(item.getID().toString());
+        metadataValue.setConfidence(Choices.CF_ACCEPTED);
+
+        String relatedItemTitle = itemService.getMetadata(item, "dc.title");
+
+        if (isNotBlank(relatedItemTitle) && isValueOverwritingEnabledOnReferenceResolution()) {
+            metadataValue.setValue(relatedItemTitle);
+        }
+
+    }
+
+    private boolean isValueOverwritingEnabledOnReferenceResolution() {
+        return configurationService.getBooleanProperty("cris.item-reference-resolution.override-metadata-value");
     }
 
     private boolean isLinkableToAnEntityWithEntityType(ChoiceAuthority choiceAuthority, String entityType) {

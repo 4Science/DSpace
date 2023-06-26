@@ -10,6 +10,7 @@ package org.dspace.versioning.dao.impl;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -88,6 +89,23 @@ public class VersionDAOImpl extends AbstractHibernateDAO<Version> implements Ver
                 + " AND  item_id IS NOT NULL");
         query.setParameter("versionhistoryId", versionHistory);
         return count(query);
+    }
+
+    @Override
+    public boolean areDifferentVersionsOfSameItem(Context context, UUID firstItemUuid, UUID secondItemUuid)
+        throws SQLException {
+
+        Query query = createQuery(context, ""
+            + " SELECT 1 "
+            + "   FROM Version v1, Version v2 "
+            + "  WHERE v1.item.id = :firstItemUuid "
+            + "    AND v2.item.id = :secondItemUuid "
+            + "    AND v1.versionHistory.id = v2.versionHistory.id");
+
+        query.setParameter("firstItemUuid", firstItemUuid);
+        query.setParameter("secondItemUuid", secondItemUuid);
+
+        return singleResult(query) != null;
     }
 
 }

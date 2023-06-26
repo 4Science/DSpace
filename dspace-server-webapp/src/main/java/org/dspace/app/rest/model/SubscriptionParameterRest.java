@@ -8,16 +8,20 @@
 
 package org.dspace.app.rest.model;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.dspace.eperson.Subscription;
 
+/**
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
+ */
 public class SubscriptionParameterRest {
+
+    @JsonIgnore
     private Integer id;
     private String name;
     private String value;
 
-    public SubscriptionParameterRest() {
-    }
+    public SubscriptionParameterRest() {}
 
     public SubscriptionParameterRest(Integer id, String name, String value, Subscription subscription) {
         this.id = id;

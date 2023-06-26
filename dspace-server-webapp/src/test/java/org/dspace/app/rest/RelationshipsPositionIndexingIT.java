@@ -7,8 +7,10 @@
  */
 package org.dspace.app.rest;
 
+import static org.dspace.builder.RelationshipBuilder.createRelationshipBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
@@ -858,6 +860,86 @@ public class RelationshipsPositionIndexingIT extends AbstractEntityIntegrationTe
                    nullValue());
 
         configurationService.setProperty("relationship.places.onlyleft", "");
+    }
+
+    @Test
+    public void testSelectedPublicationDeletion() throws IOException, SolrServerException, SQLException {
+
+        context.turnOffAuthorisationSystem();
+        createRelationshipBuilder(context, publication1, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication2, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication3, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication4, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication1, author2, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication3, author2, selectedResearchOutputByAuthor, -1, -1).build();
+        context.restoreAuthSystemState();
+
+        QueryResponse queryResponse = performQuery("search.resourceid:" + UUIDUtils.toString(author1.getID()));
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            containsInAnyOrder(
+                UUIDUtils.toString(publication1.getID()),
+                UUIDUtils.toString(publication2.getID()),
+                UUIDUtils.toString(publication3.getID()),
+                UUIDUtils.toString(publication4.getID())));
+
+        ItemBuilder.deleteItem(publication3.getID());
+
+        queryResponse = performQuery("search.resourceid:" + UUIDUtils.toString(author1.getID()));
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            containsInAnyOrder(
+                UUIDUtils.toString(publication1.getID()),
+                UUIDUtils.toString(publication2.getID()),
+                UUIDUtils.toString(publication4.getID())));
+
+        ItemBuilder.deleteItem(publication1.getID());
+
+        queryResponse = performQuery("search.resourceid:" + UUIDUtils.toString(author1.getID()));
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            containsInAnyOrder(
+                UUIDUtils.toString(publication2.getID()),
+                UUIDUtils.toString(publication4.getID())));
+
+        ItemBuilder.deleteItem(publication4.getID());
+
+        queryResponse = performQuery("search.resourceid:" + UUIDUtils.toString(author1.getID()));
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            containsInAnyOrder(UUIDUtils.toString(publication2.getID())));
+
+        ItemBuilder.deleteItem(publication2.getID());
+
+        queryResponse = performQuery("search.resourceid:" + UUIDUtils.toString(author1.getID()));
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            nullValue());
+
+    }
+
+    @Test
+    public void testAuthorThatSelectedPublicationsDeletion() throws IOException, SolrServerException, SQLException {
+
+        context.turnOffAuthorisationSystem();
+        createRelationshipBuilder(context, publication1, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication2, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication3, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication4, author1, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication1, author2, selectedResearchOutputByAuthor, -1, -1).build();
+        createRelationshipBuilder(context, publication3, author2, selectedResearchOutputByAuthor, -1, -1).build();
+        context.restoreAuthSystemState();
+
+        String authorId = UUIDUtils.toString(author1.getID());
+
+        QueryResponse queryResponse = performQuery("search.resourceid:" + authorId);
+        assertThat(queryResponse.getResults().get(0).getFieldValues("relation.hasSelectedResearchoutputs"),
+            containsInAnyOrder(
+                UUIDUtils.toString(publication1.getID()),
+                UUIDUtils.toString(publication2.getID()),
+                UUIDUtils.toString(publication3.getID()),
+                UUIDUtils.toString(publication4.getID())));
+
+        ItemBuilder.deleteItem(author1.getID());
+
+        queryResponse = performQuery("search.resourceid:" + authorId);
+        assertThat(queryResponse.getResults(), empty());
+
     }
 
     private QueryResponse performQuery(final String query, String... filterQuery)

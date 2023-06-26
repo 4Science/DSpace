@@ -25,7 +25,7 @@ public class CorrectItemMode implements AccessItemMode {
     /**
      * Defines the users enabled to use this correction configuration
      */
-    private CrisSecurity security;
+    private List<CrisSecurity> securities;
 
     /**
      * Contains the list of groups metadata for CUSTOM security or the groups
@@ -44,8 +44,8 @@ public class CorrectItemMode implements AccessItemMode {
     private List<String> items = new ArrayList<String>();
 
     @Override
-    public CrisSecurity getSecurity() {
-        return security;
+    public List<CrisSecurity> getSecurities() {
+        return securities;
     }
 
     @Override
@@ -64,7 +64,11 @@ public class CorrectItemMode implements AccessItemMode {
     }
 
     public void setSecurity(CrisSecurity security) {
-        this.security = security;
+        this.securities = List.of(security);
+    }
+
+    public void setSecurities(List<CrisSecurity> securities) {
+        this.securities = securities;
     }
 
     public void setGroups(List<String> groups) {
