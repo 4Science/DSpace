@@ -50,9 +50,9 @@ import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.junit.Assume;
 import org.dspace.storage.bitstore.DeleteOnCloseFileInputStream;
 import org.dspace.utils.DSpace;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
