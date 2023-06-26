@@ -74,7 +74,7 @@ public class DSpaceObjectMetadataAddOperation<R extends DSpaceObject> extends Pa
         if (dso instanceof Item) {
             if (!itemConverter.checkMetadataFieldVisibility(context, (Item) dso, metadataField)) {
                 throw new UnprocessableEntityException(
-                    "Current user has not permession to esecute patch peration on " + metadataField);
+                    "Current user has not permission to execute patch operation on " + metadataField);
             }
         }
         int indexInt = 0;

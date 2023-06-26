@@ -6,6 +6,9 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest;
+
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_QUERY_PARAM;
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_REGISTER;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -53,6 +56,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         registrationRest.setGroups(groupList);
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(post("/api/eperson/registrations")
+                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(registrationRest)))
                 .andExpect(status().isCreated());
@@ -66,6 +70,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         try {
             getClient(token).perform(post("/api/eperson/epersons/" + alreadyRegisteredPerson.getID() + "/groups")
                             .param("token", newRegisterToken)
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.uuid", is((alreadyRegisteredPerson.getID().toString()))))
@@ -105,6 +110,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(post("/api/eperson/registrations")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                         .content(mapper.writeValueAsBytes(registrationRest)))
                 .andExpect(status().isCreated());
         EPerson alreadyRegisteredPerson = EPersonBuilder.createEPerson(context)
@@ -117,6 +123,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         try {
             getClient(token).perform(post("/api/eperson/epersons/" + alreadyRegisteredPerson.getID() + "/groups")
                             .param("token", newRegisterToken)
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.uuid", is((alreadyRegisteredPerson.getID().toString()))))
@@ -155,6 +162,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(post("/api/eperson/registrations")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                         .content(mapper.writeValueAsBytes(registrationRest)))
                 .andExpect(status().isCreated());
         EPerson alreadyRegisteredPerson = EPersonBuilder.createEPerson(context)
@@ -167,6 +175,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         try {
             getClient(token).perform(post("/api/eperson/epersons/" + alreadyRegisteredPerson.getID() + "/groups")
                             .param("token", newRegisterToken)
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
             assertNotNull(registrationDataService.findByToken(context, newRegisterToken));
@@ -199,6 +208,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         try {
             getClient(token).perform(post("/api/eperson/epersons/" + alreadyRegisteredPerson.getID() + "/groups")
                             .param("token", "justToBeTested")
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         } finally {
@@ -216,6 +226,7 @@ public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationT
         registrationRest.setEmail(newRegisterEmail);
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(post("/api/eperson/registrations")
+                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(registrationRest)))
                 .andExpect(status().isCreated());

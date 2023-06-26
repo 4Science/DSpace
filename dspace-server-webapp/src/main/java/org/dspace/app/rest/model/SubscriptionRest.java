@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.app.rest.model;
 
 import java.util.ArrayList;
@@ -13,20 +12,23 @@ import java.util.List;
 
 import org.dspace.app.rest.RestResourceController;
 
-@LinksRest(links = {@LinkRest(name = SubscriptionRest.DSPACE_OBJECT,
-        method = "getDSpaceObject"), @LinkRest(
-        name = SubscriptionRest.EPERSON,
-        method = "getEPerson")
+
+@LinksRest(links = {
+    @LinkRest(name = SubscriptionRest.DSPACE_OBJECT, method = "getDSpaceObject"),
+    @LinkRest(name = SubscriptionRest.EPERSON, method = "getEPerson")
 })
 public class SubscriptionRest extends BaseObjectRest<Integer> {
+
+    private static final long serialVersionUID = 1L;
+
     public static final String NAME = "subscription";
     public static final String NAME_PLURAL = "subscriptions";
     public static final String CATEGORY = "core";
-    public static final String DSPACE_OBJECT = "dSpaceObject";
-    public static final String EPERSON = "ePerson";
+    public static final String DSPACE_OBJECT = "resource";
+    public static final String EPERSON = "eperson";
 
     private Integer id;
-    private String type;
+    private String subscriptionType;
     private List<SubscriptionParameterRest> subscriptionParameterList = new ArrayList<>();
 
     @Override
@@ -35,7 +37,7 @@ public class SubscriptionRest extends BaseObjectRest<Integer> {
     }
 
     @Override
-    public Class getController() {
+    public Class<RestResourceController> getController() {
         return RestResourceController.class;
     }
 
@@ -44,8 +46,8 @@ public class SubscriptionRest extends BaseObjectRest<Integer> {
         return NAME;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSubscriptionType(String type) {
+        this.subscriptionType = type;
     }
 
     public List<SubscriptionParameterRest> getSubscriptionParameterList() {
@@ -57,7 +59,7 @@ public class SubscriptionRest extends BaseObjectRest<Integer> {
     }
 
     public String getSubscriptionType() {
-        return this.type;
+        return this.subscriptionType;
     }
 
     @Override
@@ -69,4 +71,5 @@ public class SubscriptionRest extends BaseObjectRest<Integer> {
     public void setId(Integer id) {
         this.id = id;
     }
+
 }

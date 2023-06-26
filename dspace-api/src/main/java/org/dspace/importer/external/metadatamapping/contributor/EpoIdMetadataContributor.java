@@ -156,7 +156,7 @@ public class EpoIdMetadataContributor implements MetadataContributor<Element> {
      * Depending on the retrieved node (using the query), different types of values will be added to the MetadatumDTO
      * list
      *
-     * @param t A class to retrieve metadata from.
+     * @param element A class to retrieve metadata from.
      * @return a collection of import records. Only the identifier of the found records may be put in the record.
      */
     @Override
@@ -205,11 +205,9 @@ public class EpoIdMetadataContributor implements MetadataContributor<Element> {
         private String date;
         private List<Namespace> namespaces;
 
-
         public static final String DOCDB = "docdb";
         public static final String EPODOC = "epodoc";
         public static final String ORIGIN = "origin";
-
 
         public EpoDocumentId(Element documentId, List<Namespace> namespaces) throws JaxenException {
             this.namespaces = namespaces;

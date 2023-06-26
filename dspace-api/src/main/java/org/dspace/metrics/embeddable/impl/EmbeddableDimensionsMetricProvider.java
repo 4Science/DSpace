@@ -7,12 +7,12 @@
  */
 package org.dspace.metrics.embeddable.impl;
 
-import java.util.List;
-import java.util.Optional;
+import static java.util.Optional.ofNullable;
+import static org.dspace.content.Item.ANY;
 
 import com.google.gson.JsonObject;
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.core.Context;
 
 /*
@@ -20,40 +20,55 @@ import org.dspace.core.Context;
 */
 public class EmbeddableDimensionsMetricProvider extends AbstractEmbeddableMetricProvider {
 
-    protected String dataLegend;
+    private String dataLegend;
 
-    protected String dataStyle;
+    private String dataStyle;
 
-    protected boolean badgeInstalled;
+    private String doiField;
 
-    protected String doiField;
+    private String pmidField;
 
-    protected String pmidField;
+    private String listDataLegend;
 
-    protected String listDataLegend;
+    private String listDataStyle;
 
-    protected String listDataStyle;
+    private boolean hideZeroCitations;
 
-    protected boolean listBadgeInstalled;
+    private boolean detailViewEnabled;
+
+    private boolean listViewEnabled;
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        log.error("The enabled property is not used by " + this.getClass().getName()
+                + " please rely on the detail and list view enabled properties instead");
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.detailViewEnabled || this.listViewEnabled;
+    }
 
     @Override
     public String innerHtml(Context context, Item item) {
-        String doiValue = getValueFromMetadataField(item, doiField);
-        String pmidValue = getValueFromMetadataField(item, pmidField);
+        String doiValue = getMetadataFirstValue(item, doiField);
+        String pmidValue = getMetadataFirstValue(item, pmidField);
 
         JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("data-badge-enabled", this.detailViewEnabled);
+        jsonObject.addProperty("list-data-badge-enabled", this.listViewEnabled);
 
         jsonObject.addProperty("data-legend", this.dataLegend);
         jsonObject.addProperty("data-style", this.dataStyle);
-        jsonObject.addProperty("data-dimensions-badge-installed", this.badgeInstalled);
         jsonObject.addProperty("data-doi", doiValue);
         jsonObject.addProperty("data-pmid", pmidValue);
+        jsonObject.addProperty("data-hide-zero-citations", this.hideZeroCitations);
 
         jsonObject.addProperty("list-data-legend", this.listDataLegend);
         jsonObject.addProperty("list-data-style", this.listDataStyle);
-        jsonObject.addProperty("list-data-dimensions-badge-installed", this.listBadgeInstalled);
         jsonObject.addProperty("list-data-doi", doiValue);
         jsonObject.addProperty("list-data-pmid", pmidValue);
+        jsonObject.addProperty("list-data-hide-zero-citations", this.hideZeroCitations);
 
         return jsonObject.toString();
     }
@@ -63,16 +78,55 @@ public class EmbeddableDimensionsMetricProvider extends AbstractEmbeddableMetric
         return "dimensions";
     }
 
-    protected String getValueFromMetadataField(Item item, String field) {
-        if (field != null) {
-            List<MetadataValue> values = this.getItemService().getMetadataByMetadataString(item, field);
-            if (!values.isEmpty()) {
-                return Optional.ofNullable(values.get(0))
-                    .map(MetadataValue::getValue).orElse("");
-            }
-        }
+    private String getMetadataFirstValue(Item item, String metadataField) {
+        return ofNullable(metadataField)
+            .map(MetadataFieldName::new)
+            .flatMap(field -> ofNullable(getItemService().getMetadataFirstValue(item, field, ANY)))
+            .orElse("");
+    }
 
-        return "";
+    public boolean isDetailViewEnabled() {
+        return detailViewEnabled;
+    }
+
+    public void setDetailViewEnabled(boolean detailViewEnabled) {
+        this.detailViewEnabled = detailViewEnabled;
+    }
+
+    public boolean isListViewEnabled() {
+        return listViewEnabled;
+    }
+
+    public void setListViewEnabled(boolean listViewEnabled) {
+        this.listViewEnabled = listViewEnabled;
+    }
+
+    public String getDataLegend() {
+        return dataLegend;
+    }
+
+    public String getDataStyle() {
+        return dataStyle;
+    }
+
+    public String getDoiField() {
+        return doiField;
+    }
+
+    public String getPmidField() {
+        return pmidField;
+    }
+
+    public String getListDataLegend() {
+        return listDataLegend;
+    }
+
+    public String getListDataStyle() {
+        return listDataStyle;
+    }
+
+    public boolean isHideZeroCitations() {
+        return hideZeroCitations;
     }
 
     public void setDataLegend(String dataLegend) {
@@ -91,10 +145,6 @@ public class EmbeddableDimensionsMetricProvider extends AbstractEmbeddableMetric
         this.pmidField = pmidField;
     }
 
-    public void setBadgeInstalled(boolean badgeInstalled) {
-        this.badgeInstalled = badgeInstalled;
-    }
-
     public void setListDataLegend(String listDataLegend) {
         this.listDataLegend = listDataLegend;
     }
@@ -103,8 +153,7 @@ public class EmbeddableDimensionsMetricProvider extends AbstractEmbeddableMetric
         this.listDataStyle = listDataStyle;
     }
 
-    public void setListBadgeInstalled(boolean listBadgeInstalled) {
-        this.listBadgeInstalled = listBadgeInstalled;
+    public void setHideZeroCitations(boolean hideZeroCitations) {
+        this.hideZeroCitations = hideZeroCitations;
     }
-
 }

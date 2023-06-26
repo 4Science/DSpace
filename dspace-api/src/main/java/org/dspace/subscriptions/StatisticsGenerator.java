@@ -46,8 +46,7 @@ public class StatisticsGenerator implements SubscriptionGenerator<CrisMetrics> {
 
     @Override
     public void notifyForSubscriptions(Context c, EPerson ePerson, List<CrisMetrics> crisMetricsList,
-                                       List<CrisMetrics> crisMetricsList1,
-                                       List<CrisMetrics> crisMetricsList2) {
+        List<CrisMetrics> crisMetricsList1) {
         // find statistics for all the subscribed objects
         try {
             // send the notification to the user

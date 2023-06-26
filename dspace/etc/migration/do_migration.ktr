@@ -474,8 +474,7 @@
       <jsScript>
         <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>var filter = "crisid LIKE '" + entity_prefix + "%'";
-</jsScript_script>
+        <jsScript_script>var filter = "crisid ~ '^" + entity_prefix + "\\d+$'";</jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>

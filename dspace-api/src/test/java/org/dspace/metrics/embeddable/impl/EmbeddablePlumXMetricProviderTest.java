@@ -49,11 +49,9 @@ public class EmbeddablePlumXMetricProviderTest {
         provider.publicationPlumXScript = "//cdn.plu.mx/widget-popup.js";
         provider.publicationHref = "https://plu.mx/plum/a/";
         provider.personHref = "https://plu.mx/plum/u/";
-        provider.dataLang = "en";
         provider.dataNumArtifacts = 5;
         provider.dataWidth = "350px";
         provider.dataPopup = "left";
-        provider.listDataLang = "en";
         provider.listDataWidth = "350px";
         provider.listDataPopup = "left";
     }
@@ -102,53 +100,54 @@ public class EmbeddablePlumXMetricProviderTest {
 
     @Test
     public void innerHtmlForPersonItem() {
-        provider.orcid = "0000-0002-9029-1854";
         when(itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY)).thenReturn("Person");
+        when(itemService.getMetadataFirstValue(item, "person", "identifier", "orcid", Item.ANY))
+                .thenReturn("0000-0002-9029-1854");
         String template = provider.innerHtml(context, item);
 
-        assertEquals("{\"type\":\"Person\",\"list-type\":\"Person\",\"placeholder\":\"\",\"list-placeholder\":\"\"," +
-                         "\"src\":\"//cdn.plu.mx/widget-person.js\",\"href\":\"https://plu" +
-                         ".mx/plum/u/?orcid=0000-0002-9029-1854\",\"list-src\":\"//cdn.plu.mx/widget-person.js\"," +
-                         "\"list-href\":\"https://plu.mx/plum/u/?orcid=0000-0002-9029-1854\",\"data-lang\":\"en\"," +
-                         "\"data-no-name\":false,\"data-num-artifacts\":5,\"data-width\":\"350px\"," +
-                         "\"data-no-description\":false,\"data-no-stats\":false,\"data-no-thumbnail\":false," +
-                         "\"data-no-artifacts\":false,\"data-popup\":\"left\",\"data-hide-when-empty\":false," +
-                         "\"data-hide-usage\":false,\"data-hide-captures\":false,\"data-hide-mentions\":false," +
-                         "\"data-hide-socialmedia\":false,\"data-hide-citations\":false," +
-                         "\"data-pass-hidden-categories\":false,\"data-detail-same-page\":false," +
-                         "\"list-data-lang\":\"en\",\"list-data-no-name\":false,\"list-data-num-artifacts\":0," +
-                         "\"list-data-width\":\"350px\",\"list-data-no-description\":false," +
-                         "\"list-data-no-stats\":false,\"list-data-no-thumbnail\":false," +
-                         "\"list-data-no-artifacts\":false,\"list-data-popup\":\"left\"," +
-                         "\"list-data-hide-when-empty\":false,\"list-data-hide-usage\":false," +
-                         "\"list-data-hide-captures\":false,\"list-data-hide-mentions\":false," +
-                         "\"list-data-hide-socialmedia\":false,\"list-data-hide-citations\":false," +
-                         "\"list-data-pass-hidden-categories\":false,\"list-data-detail-same-page\":false}", template);
+        assertEquals("{\"data-person-badge-enabled\":false,\"list-data-person-badge-enabled\":false," +
+                "\"data-publication-badge-enabled\":false,\"list-data-publication-badge-enabled\":false," +
+                "\"type\":\"Person\",\"list-type\":\"Person\",\"placeholder\":\"\",\"list-placeholder\":\"\"," +
+                "\"src\":\"//cdn.plu.mx/widget-person.js\",\"href\":\"https://plu.mx/plum/u/?orcid=0000-0002-9029-1854\"," +
+                "\"list-src\":\"//cdn.plu.mx/widget-person.js\"," +
+                "\"list-href\":\"https://plu.mx/plum/u/?orcid=0000-0002-9029-1854\",\"data-no-name\":false," +
+                "\"data-num-artifacts\":5,\"data-width\":\"350px\",\"data-no-description\":false," +
+                "\"data-no-stats\":false,\"data-no-thumbnail\":false,\"data-no-artifacts\":false," +
+                "\"data-popup\":\"left\",\"data-hide-when-empty\":false,\"data-hide-usage\":false," +
+                "\"data-hide-captures\":false,\"data-hide-mentions\":false,\"data-hide-socialmedia\":false," +
+                "\"data-hide-citations\":false,\"data-pass-hidden-categories\":false,\"data-detail-same-page\":false," +
+                "\"list-data-no-name\":false,\"list-data-num-artifacts\":0,\"list-data-width\":\"350px\"," +
+                "\"list-data-no-description\":false,\"list-data-no-stats\":false,\"list-data-no-thumbnail\":false," +
+                "\"list-data-no-artifacts\":false,\"list-data-popup\":\"left\",\"list-data-hide-when-empty\":false," +
+                "\"list-data-hide-usage\":false,\"list-data-hide-captures\":false,\"list-data-hide-mentions\":false," +
+                "\"list-data-hide-socialmedia\":false,\"list-data-hide-citations\":false," +
+                "\"list-data-pass-hidden-categories\":false,\"list-data-detail-same-page\":false}", template);
     }
 
     @Test
     public void innerHtmlForPublicationItem() {
-        provider.doiIdentifier = "10.1016/j.gene.2009.04.019";
         when(itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY)).thenReturn("Publication");
+        when(itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY))
+                .thenReturn("10.1016/j.gene.2009.04.019");
         String template = provider.innerHtml(context, item);
 
-        assertEquals("{\"type\":\"Publication\",\"list-type\":\"Publication\",\"placeholder\":\"\"," +
-                         "\"list-placeholder\":\"\",\"src\":\"//cdn.plu.mx/widget-popup.js\"," +
-                         "\"href\":\"https://plu.mx/plum/a/?doi=10.1016/j.gene.2009.04.019\",\"list-src\":\"//cdn.plu" +
-                         ".mx/widget-popup.js\",\"list-href\":\"https://plu.mx/plum/a/?doi=10.1016/j.gene.2009.04" +
-                         ".019\",\"data-lang\":\"en\",\"data-no-name\":false,\"data-num-artifacts\":5," +
-                         "\"data-width\":\"350px\",\"data-no-description\":false,\"data-no-stats\":false," +
-                         "\"data-no-thumbnail\":false,\"data-no-artifacts\":false,\"data-popup\":\"left\"," +
-                         "\"data-hide-when-empty\":false,\"data-hide-usage\":false,\"data-hide-captures\":false," +
-                         "\"data-hide-mentions\":false,\"data-hide-socialmedia\":false,\"data-hide-citations\":false," +
-                         "\"data-pass-hidden-categories\":false,\"data-detail-same-page\":false," +
-                         "\"list-data-lang\":\"en\",\"list-data-no-name\":false,\"list-data-num-artifacts\":0," +
-                         "\"list-data-width\":\"350px\",\"list-data-no-description\":false," +
-                         "\"list-data-no-stats\":false,\"list-data-no-thumbnail\":false," +
-                         "\"list-data-no-artifacts\":false,\"list-data-popup\":\"left\"," +
-                         "\"list-data-hide-when-empty\":false,\"list-data-hide-usage\":false," +
-                         "\"list-data-hide-captures\":false,\"list-data-hide-mentions\":false," +
-                         "\"list-data-hide-socialmedia\":false,\"list-data-hide-citations\":false," +
-                         "\"list-data-pass-hidden-categories\":false,\"list-data-detail-same-page\":false}", template);
+        assertEquals("{\"data-person-badge-enabled\":false,\"list-data-person-badge-enabled\":false," +
+                "\"data-publication-badge-enabled\":false,\"list-data-publication-badge-enabled\":false," +
+                "\"type\":\"Publication\",\"list-type\":\"Publication\",\"placeholder\":\"\"," +
+                "\"list-placeholder\":\"\",\"src\":\"//cdn.plu.mx/widget-popup.js\"," +
+                "\"href\":\"https://plu.mx/plum/a/?doi=10.1016/j.gene.2009.04.019\"," +
+                "\"list-src\":\"//cdn.plu.mx/widget-popup.js\"," +
+                "\"list-href\":\"https://plu.mx/plum/a/?doi=10.1016/j.gene.2009.04.019\",\"data-no-name\":false," +
+                "\"data-num-artifacts\":5,\"data-width\":\"350px\",\"data-no-description\":false," +
+                "\"data-no-stats\":false,\"data-no-thumbnail\":false,\"data-no-artifacts\":false," +
+                "\"data-popup\":\"left\",\"data-hide-when-empty\":false,\"data-hide-usage\":false," +
+                "\"data-hide-captures\":false,\"data-hide-mentions\":false,\"data-hide-socialmedia\":false," +
+                "\"data-hide-citations\":false,\"data-pass-hidden-categories\":false,\"data-detail-same-page\":false," +
+                "\"list-data-no-name\":false,\"list-data-num-artifacts\":0,\"list-data-width\":\"350px\"," +
+                "\"list-data-no-description\":false,\"list-data-no-stats\":false,\"list-data-no-thumbnail\":false," +
+                "\"list-data-no-artifacts\":false,\"list-data-popup\":\"left\",\"list-data-hide-when-empty\":false," +
+                "\"list-data-hide-usage\":false,\"list-data-hide-captures\":false,\"list-data-hide-mentions\":false," +
+                "\"list-data-hide-socialmedia\":false,\"list-data-hide-citations\":false," +
+                "\"list-data-pass-hidden-categories\":false,\"list-data-detail-same-page\":false}", template);
     }
 }

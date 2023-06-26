@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.authorization.impl;
 
+import static org.dspace.core.Constants.READ;
+
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -19,26 +21,26 @@ import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Checks if the given user can subscribe to a dataspace object
+ * Checks if the given user can subscribe to a DSpace object
  *
  * @author Alba Aliu (alba.aliu at atis.al)
  */
 @Component
 @AuthorizationFeatureDocumentation(name = CanSubscribeFeature.NAME,
-        description = "Used to verify if the given user can subscribe to a dataspace object")
+        description = "Used to verify if the given user can subscribe to a DSpace object")
 public class CanSubscribeFeature implements AuthorizationFeature {
 
     public static final String NAME = "canSubscribeDso";
-    @Autowired
-    private AuthorizeService authorizeService;
+
     @Autowired
     private Utils utils;
+    @Autowired
+    private AuthorizeService authorizeService;
 
     @Override
     @SuppressWarnings("rawtypes")
@@ -47,8 +49,7 @@ public class CanSubscribeFeature implements AuthorizationFeature {
             return false;
         }
         DSpaceObject dSpaceObject = (DSpaceObject) utils.getDSpaceAPIObjectFromRest(context, object);
-        return authorizeService.authorizeActionBoolean(context, context.getCurrentUser(),
-                dSpaceObject, Constants.READ, true);
+        return authorizeService.authorizeActionBoolean(context, context.getCurrentUser(), dSpaceObject, READ, true);
     }
 
     @Override
@@ -59,4 +60,5 @@ public class CanSubscribeFeature implements AuthorizationFeature {
             ItemRest.CATEGORY + "." + ItemRest.NAME
         };
     }
+
 }

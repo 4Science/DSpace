@@ -43,7 +43,6 @@ public interface EditItemModeService {
     /**
      * Finds an edit mode by item and edit name, returns null if not exists
      * @param context DSpace context
-     * @param itemId UUID Item
      * @param name edit mode name
      * @return
      * @throws SQLException

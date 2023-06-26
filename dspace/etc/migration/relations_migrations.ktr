@@ -502,18 +502,8 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>search source item uuid</from>
-      <to>is item id not null</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>is item id not null</from>
       <to>search target item uuid by item_id</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>search target item uuid by item_id</from>
-      <to>Add target entity type</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -524,26 +514,6 @@
     <hop>
       <from>search target crisId</from>
       <to>search target item uuid by legacy id</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>search target item uuid by legacy id</from>
-      <to>search target item entity type</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Add target entity type</from>
-      <to>Append streams</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>search target item entity type</from>
-      <to>Select values</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Select values</from>
-      <to>Append streams</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -563,11 +533,11 @@
     </hop>
     <hop>
       <from>Calculate leftward and rigthward types</from>
-      <to>get target entity id</to>
+      <to>get source entity id</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>get target entity id</from>
+      <from>get source entity id</from>
       <to>count selected by source</to>
       <enabled>Y</enabled>
     </hop>
@@ -589,6 +559,31 @@
     <hop>
       <from>Add sequence</from>
       <to>insert into relationship</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>search source item uuid</from>
+      <to>search source item entity type</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>search source item entity type</from>
+      <to>is item id not null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>search target item uuid by legacy id</from>
+      <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>search target item uuid by item_id</from>
+      <to>Append streams</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>Append streams</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -628,45 +623,6 @@
     </GUI>
   </step>
   <step>
-    <name>Add target entity type</name>
-    <type>Constant</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>target_entity_type</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>Publication</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>848</xloc>
-      <yloc>368</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
     <name>Append streams</name>
     <type>Append</type>
     <description/>
@@ -677,8 +633,8 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <head_name>Select values</head_name>
-    <tail_name>Add target entity type</tail_name>
+    <head_name>search target item uuid by item_id</head_name>
+    <tail_name>Select values</tail_name>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -926,7 +882,7 @@ AND sourceuuid = ?</sql>
 FROM relationship_type
 WHERE rightward_type = ?
 AND leftward_type = ?
-AND left_type = ?</sql>
+AND right_type = ?</sql>
     <outer_join>N</outer_join>
     <replace_vars>N</replace_vars>
     <parameter>
@@ -958,7 +914,7 @@ AND left_type = ?</sql>
     </GUI>
   </step>
   <step>
-    <name>get target entity id</name>
+    <name>get source entity id</name>
     <type>DBJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -977,7 +933,7 @@ WHERE label = ?</sql>
     <replace_vars>N</replace_vars>
     <parameter>
       <field>
-        <name>target_entity_type</name>
+        <name>source_entity_type</name>
         <type>String</type>
       </field>
     </parameter>
@@ -1048,6 +1004,14 @@ WHERE label = ?</sql>
         <column_name>left_place</column_name>
         <stream_name>left_place</stream_name>
       </field>
+      <field>
+        <column_name>leftward_value</column_name>
+        <stream_name>leftward_type</stream_name>
+      </field>
+      <field>
+        <column_name>rightward_value</column_name>
+        <stream_name>rightward_type</stream_name>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -1094,7 +1058,7 @@ WHERE label = ?</sql>
     </remotesteps>
     <GUI>
       <xloc>496</xloc>
-      <yloc>176</yloc>
+      <yloc>256</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1567,7 +1531,7 @@ where uuid = ?</sql>
     </GUI>
   </step>
   <step>
-    <name>search target item entity type</name>
+    <name>search source item entity type</name>
     <type>DBJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1579,7 +1543,7 @@ where uuid = ?</sql>
     </partitioning>
     <connection>dspace</connection>
     <rowlimit>0</rowlimit>
-    <sql>select metadata_value.text_value as target_entity_type
+    <sql>select metadata_value.text_value as source_entity_type
 from Item item, metadatavalue metadata_value, metadatafieldregistry metadata_field, metadataschemaregistry metadata_schema
 where metadata_value.dspace_object_id = item.uuid
 AND metadata_value.metadata_field_id = metadata_field.metadata_field_id
@@ -1592,7 +1556,7 @@ AND item.uuid = ?;</sql>
     <replace_vars>N</replace_vars>
     <parameter>
       <field>
-        <name>target_item_uuid</name>
+        <name>source_item_uuid</name>
         <type>Binary</type>
       </field>
     </parameter>
@@ -1605,8 +1569,8 @@ AND item.uuid = ?;</sql>
       </output>
     </remotesteps>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>368</yloc>
+      <xloc>496</xloc>
+      <yloc>144</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

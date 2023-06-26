@@ -7,8 +7,10 @@
  */
 package org.dspace.app.rest.converter;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.dspace.app.rest.model.CrisLayoutSectionRest;
@@ -34,16 +36,26 @@ public class CrisLayoutSectionConverter implements DSpaceConverter<CrisLayoutSec
     @Override
     public CrisLayoutSectionRest convert(CrisLayoutSection modelObject, Projection projection) {
         CrisLayoutSectionRest rest = new CrisLayoutSectionRest();
+        List<CrisLayoutSectionRest> crisLayoutSectionRests = new ArrayList<>();
 
         rest.setProjection(projection);
         rest.setId(modelObject.getId());
 
-        for (List<CrisLayoutSectionComponent> components : modelObject.getSectionComponents()) {
-            List<CrisLayoutSectionComponentRest> componentsRest = new LinkedList<>();
-            for (CrisLayoutSectionComponent component : components) {
-                convertComponent(component).ifPresent(componentsRest::add);
+        if (!Objects.isNull(modelObject.getSectionComponents())) {
+            for (List<CrisLayoutSectionComponent> components : modelObject.getSectionComponents()) {
+                List<CrisLayoutSectionComponentRest> componentsRest = new LinkedList<>();
+                for (CrisLayoutSectionComponent component : components) {
+                    convertComponent(component).ifPresent(componentsRest::add);
+                }
+                rest.getComponentRows().add(componentsRest);
             }
-            rest.getComponentRows().add(componentsRest);
+        }
+
+        if (!Objects.isNull(modelObject.getNestedSections())) {
+            for (CrisLayoutSection crisLayoutSection : modelObject.getNestedSections()) {
+                crisLayoutSectionRests.add(this.convert(crisLayoutSection, projection));
+            }
+            rest.setNestedSections(crisLayoutSectionRests);
         }
 
         return rest;

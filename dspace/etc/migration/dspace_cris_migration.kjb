@@ -444,6 +444,16 @@
           <variable_value>old_cris_pj_no_pdef</variable_value>
           <variable_type>JVM</variable_type>
         </field>
+        <field>
+          <variable_name>PLACEHOLDER_TP</variable_name>
+          <variable_value>cris_pj_no_tp_id</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_PDEF</variable_name>
+          <variable_value>cris_pj_no_pdef_id</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
       </fields>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -532,12 +542,22 @@
         </field>
         <field>
           <variable_name>NESTED_PROP</variable_name>
-          <variable_value>old_cris_ou_prop</variable_value>
+          <variable_value>old_cris_ou_no_prop</variable_value>
           <variable_type>JVM</variable_type>
         </field>
         <field>
           <variable_name>NESTED_PROP_DEF</variable_name>
-          <variable_value>old_cris_ou_pdef</variable_value>
+          <variable_value>old_cris_ou_no_pdef</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_TP</variable_name>
+          <variable_value>cris_ou_no_tp_id</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_PDEF</variable_name>
+          <variable_value>cris_ou_no_pdef_id</variable_value>
           <variable_type>JVM</variable_type>
         </field>
       </fields>
@@ -595,6 +615,16 @@
         <field>
           <variable_name>NESTED_PROP_DEF</variable_name>
           <variable_value>old_cris_rp_no_pdef</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_TP</variable_name>
+          <variable_value>cris_rp_no_tp_id</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_PDEF</variable_name>
+          <variable_value>cris_rp_no_pdef_id</variable_value>
           <variable_type>JVM</variable_type>
         </field>
       </fields>
@@ -691,6 +721,16 @@
         <field>
           <variable_name>NESTED_PROP_DEF</variable_name>
           <variable_value>old_cris_do_no_pdef</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_TP</variable_name>
+          <variable_value>cris_do_no_tp_id</variable_value>
+          <variable_type>JVM</variable_type>
+        </field>
+        <field>
+          <variable_name>PLACEHOLDER_PDEF</variable_name>
+          <variable_value>cris_do_no_pdef_id</variable_value>
           <variable_type>JVM</variable_type>
         </field>
       </fields>

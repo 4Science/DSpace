@@ -68,6 +68,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
     protected String eperson = null;
     protected String[] collections = null;
     protected boolean isTest = false;
+    protected boolean isExcludeContent = false;
     protected boolean isResume = false;
     protected boolean useWorkflow = false;
     protected boolean useWorkflowSendEmail = false;
@@ -120,6 +121,8 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
             isTest = true;
             handler.logInfo("**Test Run** - not actually importing items.");
         }
+
+        isExcludeContent = commandLine.hasOption('x');
 
         if (commandLine.hasOption('p')) {
             template = true;
@@ -206,6 +209,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
                 .getItemImportService();
         try {
             itemImportService.setTest(isTest);
+            itemImportService.setExcludeContent(isExcludeContent);
             itemImportService.setResume(isResume);
             itemImportService.setUseWorkflow(useWorkflow);
             itemImportService.setUseWorkflowSendEmail(useWorkflowSendEmail);

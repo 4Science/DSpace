@@ -41,6 +41,8 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private boolean showAllResults;
 
+    private Boolean showThumbnails;
+
     /**
      * @return the discoveryConfigurationName
      */
@@ -234,5 +236,13 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
         public String toString() {
             return name().toLowerCase();
         }
+    }
+
+    public Boolean getShowThumbnails() {
+        return showThumbnails;
+    }
+
+    public void setShowThumbnails(Boolean showThumbnails) {
+        this.showThumbnails = showThumbnails;
     }
 }

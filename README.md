@@ -25,23 +25,16 @@ Past releases and future releases are documented in the [RoadMap page](https://w
 
 Documentation is available on our [Documentation Wiki](https://wiki.lyrasis.org/display/DSPACECRIS/Technical+and+User+documentation) please check also the documentation from the parent DSpace project as basic features and principle are common and only described in the [DSpace documentation](https://wiki.lyrasis.org/display/DSDOC/).
 
-The latest DSpace Installation instructions are available at:
-https://wiki.lyrasis.org/display/DSDOC7x/Installing+DSpace
-
-some extra step to initialize te DSpace-CRIS with proper default can be found in our documentation (see above)
-
-Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL)
-and a servlet container (usually Tomcat) in order to function.
-More information about these and all other prerequisites can be found in the Installation instructions above.
-
-## Running DSpace-CRIS 7 in Docker
-
-NOTE: At this time, we do not have production-ready Docker images for DSpace-CRIS.
-That said, we do have quick-start Docker Compose scripts for development or testing purposes.
+The latest DSpace Installation instructions are available [here](https://wiki.lyrasis.org/display/DSDOC7x/Installing+DSpace). Some extra step to initialize the DSpace-CRIS with proper default can be found in our documentation (see above).
 
 Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL or Oracle), a servlet container (usually Tomcat) and a SOLR instance in order to function.
 
 More information about these and all other prerequisites can be found in the Installation instructions above.
+
+## Running DSpace-CRIS 7 in Docker
+
+**NOTE**: At this time, we do not have production-ready Docker images for DSpace-CRIS.
+That said, we do have quick-start Docker Compose scripts for development or testing purposes.
 
 ## Getting Help
 DSpace-CRIS has a [dedicated slack channel](https://dspace-org.slack.com/messages/dspace-cris/) in the DSpace.org workspace.

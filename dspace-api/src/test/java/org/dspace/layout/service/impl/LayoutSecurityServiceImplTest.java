@@ -33,11 +33,11 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.EPersonAuthority;
 import org.dspace.content.authority.GroupAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
-import org.dspace.content.security.service.CrisSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.layout.LayoutSecurity;
 import org.junit.Before;
@@ -59,7 +59,7 @@ public class LayoutSecurityServiceImplTest {
     @Mock
     private GroupService groupService;
     @Mock
-    private CrisSecurityService crisSecurityService;
+    private EPersonService ePersonService;
     @Mock
     private ChoiceAuthorityService choiceAuthorityService;
 
@@ -68,7 +68,7 @@ public class LayoutSecurityServiceImplTest {
     @Before
     public void setUp() throws Exception {
         securityService = new LayoutSecurityServiceImpl(authorizeService, itemService, groupService,
-                crisSecurityService, choiceAuthorityService);
+            ePersonService, choiceAuthorityService);
     }
 
     /**
@@ -102,7 +102,7 @@ public class LayoutSecurityServiceImplTest {
         Item item = mock(Item.class);
         EPerson ownerEperson = ePerson(userUuid);
 
-        when(crisSecurityService.isOwner(ownerEperson, item))
+        when(ePersonService.isOwnerOfItem(ownerEperson, item))
             .thenReturn(true);
 
         boolean granted =
@@ -129,7 +129,7 @@ public class LayoutSecurityServiceImplTest {
         Item item = mock(Item.class);
 
         EPerson userEperson = ePerson(userUuid);
-        when(crisSecurityService.isOwner(userEperson, item))
+        when(ePersonService.isOwnerOfItem(userEperson, item))
             .thenReturn(false);
 
         boolean granted =
@@ -179,7 +179,7 @@ public class LayoutSecurityServiceImplTest {
         Item item = mock(Item.class);
 
         when(authorizeService.isAdmin(context)).thenReturn(false);
-        when(crisSecurityService.isOwner(ownerEperson, item))
+        when(ePersonService.isOwnerOfItem(ownerEperson, item))
             .thenReturn(true);
 
         boolean granted =
@@ -204,7 +204,7 @@ public class LayoutSecurityServiceImplTest {
         Item item = mock(Item.class);
 
         when(authorizeService.isAdmin(context)).thenReturn(false);
-        when(crisSecurityService.isOwner(userEperson, item))
+        when(ePersonService.isOwnerOfItem(userEperson, item))
             .thenReturn(false);
 
         boolean granted =

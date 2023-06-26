@@ -31,7 +31,7 @@ public class EditItemMode implements AccessItemMode {
     /**
      * Defines the users enabled to use this edit configuration
      */
-    private CrisSecurity security;
+    private List<CrisSecurity> securities;
     /**
      * Defines the Submission Definition used from this edit configuration
      */
@@ -50,35 +50,19 @@ public class EditItemMode implements AccessItemMode {
      */
     private List<String> items;
 
-    public EditItemMode() {}
-
-    /**
-     * builds an EditItemMode Object from configuration values.
-     * The configuration values must be enclosed in an array with this order:
-     * - [X, SUBMISSION_CONFIG]
-     * where:
-     * - X is the security configuration (1 = Admin, 2 = Owner, 3 = Admin+Owner, 4 = Custom)
-     * - SUBMISSION_CONFIG is the submission configuration to use
-     * @param name string that represent the name of edit configuration
-     * @param config string array that contains the edit configuration parameters
-     */
-    public EditItemMode(String name, String[] config) {
-        this.setName(name);
-        if (config != null && config.length == 2) {
-            // set the security mode
-            this.setSecurity(CrisSecurity.getByValue(config[0]));
-            // set the submissionDefinition name
-            this.setSubmissionDefinition(config[1]);
-        }
-    }
-
-    public CrisSecurity getSecurity() {
-        return security;
+    @Override
+    public List<CrisSecurity> getSecurities() {
+        return securities;
     }
 
     public void setSecurity(CrisSecurity security) {
-        this.security = security;
+        this.securities = List.of(security);
     }
+
+    public void setSecurities(List<CrisSecurity> securities) {
+        this.securities = securities;
+    }
+
     public String getSubmissionDefinition() {
         return submissionDefinition;
     }
@@ -123,8 +107,8 @@ public class EditItemMode implements AccessItemMode {
 
     @Override
     public String toString() {
-        return "EditItemMode [name=" + name + ", label=" + label + ", security=" + security + ", submissionDefinition="
-                + submissionDefinition + "]";
+        return "EditItemMode [name=" + name + ", label=" + label + ", securities=" + securities
+            + ", submissionDefinition=" + submissionDefinition + "]";
     }
 
 }

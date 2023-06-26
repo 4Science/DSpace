@@ -511,7 +511,6 @@ public interface RelationshipService extends DSpaceCRUDService<Relationship> {
      * by this relationship to the left and/or right item
      * @param context               The relevant DSpace context
      * @param relationship          The relationship to be deleted
-     * @param forceBypassValidation A boolean indicating whether we should force by-pass validation
      */
     void delete(Context context, Relationship relationship, boolean bypassValidation)
             throws SQLException, AuthorizeException;

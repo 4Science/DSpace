@@ -50,35 +50,43 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
     private EPersonService ePersonService;
 
     @Override
-    public boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode)
-        throws SQLException {
+    public boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode) throws SQLException {
+        return accessMode.getSecurities().stream()
+            .anyMatch(security -> hasAccess(context, item, user, accessMode, security));
+    }
 
-        switch (accessMode.getSecurity()) {
-            case ADMIN:
-                return authorizeService.isAdmin(context, user);
-            case ADMIN_OWNER:
-                return authorizeService.isAdmin(context, user) || isOwner(user, item);
-            case CUSTOM:
-                return hasAccessByCustomPolicy(context, item, user, accessMode);
-            case GROUP:
-                return hasAccessByGroup(context, user, accessMode.getGroups());
-            case ITEM_ADMIN:
-                return authorizeService.isAdmin(context, user, item);
-            case OWNER:
-                return isOwner(user, item);
-            case SUBMITTER:
-                return user != null && user.equals(item.getSubmitter());
-            case SUBMITTER_GROUP:
-                return isUserInSubmitterGroup(context, item, user);
-            case NONE:
-            default:
-                return false;
+    private boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode,
+        CrisSecurity crisSecurity) {
+
+        try {
+
+            switch (crisSecurity) {
+                case ADMIN:
+                    return authorizeService.isAdmin(context, user);
+                case CUSTOM:
+                    return hasAccessByCustomPolicy(context, item, user, accessMode);
+                case GROUP:
+                    return hasAccessByGroup(context, user, accessMode.getGroups());
+                case ITEM_ADMIN:
+                    return authorizeService.isAdmin(context, user, item);
+                case OWNER:
+                    return isOwner(user, item);
+                case SUBMITTER:
+                    return user != null && user.equals(item.getSubmitter());
+                case SUBMITTER_GROUP:
+                    return isUserInSubmitterGroup(context, item, user);
+                case NONE:
+                default:
+                    return false;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
-    @Override
-    public boolean isOwner(EPerson eperson, Item item) {
+    private boolean isOwner(EPerson eperson, Item item) {
         return ePersonService.isOwnerOfItem(eperson, item);
     }
 
@@ -168,16 +176,6 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
             return false;
         }
 
-        try {
-            for (Group group : context.getSpecialGroups()) {
-                if (groupService.isMember(context, user, group)) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e.getMessage(), e);
-        }
-
         List<Group> userGroups = user.getGroups();
         if (CollectionUtils.isEmpty(userGroups)) {
             return false;
@@ -186,7 +184,23 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
         return groups.stream()
                      .map(group -> findGroupByNameOrUUID(context, group))
                      .filter(group -> Objects.nonNull(group))
-                     .anyMatch(group -> userGroups.contains(group));
+                     .anyMatch(group -> userGroups.contains(group) || isSpecialGroup(context, group));
+    }
+
+    private boolean isSpecialGroup(Context context, Group group) {
+        return findInSpecialGroups(context, group) != null;
+    }
+
+    private Group findInSpecialGroups(Context context, Group group) {
+        try {
+            return context.getSpecialGroups()
+                .stream()
+                .filter(specialGroup -> specialGroup != null && specialGroup.equals(group))
+                .findFirst()
+                .orElse(null);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e.getMessage(), e);
+        }
     }
 
     private Group findGroupByNameOrUUID(Context context, String group) {

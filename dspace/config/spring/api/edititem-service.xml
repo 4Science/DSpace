@@ -5,6 +5,7 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean class="org.dspace.content.edit.service.impl.EditItemServiceImpl"/>
+    <bean class="org.dspace.content.edit.service.impl.EditItemModeValidatorImpl"/>
 
     <bean class="org.dspace.content.edit.service.impl.EditItemModeServiceImpl">
         <property name="editModesMap">

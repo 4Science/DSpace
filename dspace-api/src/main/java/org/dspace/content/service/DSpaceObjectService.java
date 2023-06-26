@@ -12,7 +12,6 @@ import static org.dspace.content.MetadataSchemaEnum.DC;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -573,12 +572,11 @@ public interface DSpaceObjectService<T extends DSpaceObject> {
      */
     public void setMetadataModified(T dso);
 
-    default public List<MetadataValue> addSecuredMetadata(Context context, T dso, String schema, String element,
-                                String qualifier, String lang,
-                                String value, String authority, int confidence, Integer securityLevel)
-            throws SQLException {
-        return Collections.emptyList();
-    }
+    public MetadataValue addSecuredMetadata(Context context, T dso, String schema, String element, String qualifier,
+        String lang, String value, String authority, int confidence, Integer securityLevel) throws SQLException;
+
+    public MetadataValue addSecuredMetadata(Context context, T dso, MetadataField metadataField, String lang,
+        String value, String authority, int confidence, Integer securityLevel) throws SQLException;
 
     default void addAndShiftRightSecuredMetadata(Context context, T dso, String schema, String element,
                                                  String qualifier, String lang, String value,

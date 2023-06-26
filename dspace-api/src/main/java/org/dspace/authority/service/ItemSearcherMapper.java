@@ -31,12 +31,12 @@ public class ItemSearcherMapper {
         return this.itemSearcherMap.keySet();
     }
 
-    public Item search(Context context, String searchType, String searchParam) {
+    public Item search(Context context, String searchType, String searchParam, Item source) {
         ItemSearcher itemSearcher = this.itemSearcherMap.get(searchType);
         if (itemSearcher == null) {
             itemSearcher = this.defaultItemSearcher;
         }
-        return itemSearcher.searchBy(context, searchParam);
+        return itemSearcher.searchBy(context, searchParam, source);
     }
 
 }

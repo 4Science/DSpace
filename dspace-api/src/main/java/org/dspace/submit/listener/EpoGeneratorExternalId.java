@@ -7,9 +7,12 @@
  */
 package org.dspace.submit.listener;
 
-import java.util.List;
-import java.util.Objects;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.dspace.importer.external.epo.service.EpoImportMetadataSourceServiceImpl.APP_NO_DATE_SEPARATOR;
 
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -21,32 +24,49 @@ import org.dspace.importer.external.epo.service.EpoImportMetadataSourceServiceIm
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * Class used to generate identifire to query EPO provider.
+ * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class EpoGeneratorExternalId implements ExternalIdGenerator {
 
+    public static final String PATENT_METADATA = "dc.identifier.patentno";
+
     @Autowired
     private ItemService itemService;
 
+    /**
+     * This method handles two cases to generate an identifier.
+     * First one: when Application Number and Filled Date are not empty and generate the following ID:
+     *            ApplicationNumber$$$FilledDate (ex:202013003816$$$2013-01-24).
+     * Second one: if Patent Numeber is not empty, it returns this as an identifier.
+     * Otherwise, it returns the empty string.
+     */
     @Override
     public String generateExternalId(Context context, ExternalDataProvider provider, Item item, String metadata) {
         EpoImportMetadataSourceServiceImpl epoProv = (EpoImportMetadataSourceServiceImpl)
                 ((LiveImportDataProvider) provider).getQuerySource();
-        String dateFiledMd = epoProv.getDateFiled().getField();
-        String applicationNumberMd = epoProv.getApplicationNumber().getField();
-        if (StringUtils.equals(metadata, dateFiledMd)
-                || StringUtils.equals(metadata, applicationNumberMd)) {
-            List<MetadataValue> dateFiled = itemService.getMetadataByMetadataString(item, dateFiledMd);
-            List<MetadataValue> applicNo = itemService.getMetadataByMetadataString(item, applicationNumberMd);
-            if (Objects.nonNull(dateFiled) && dateFiled.size() == 1 &&
-                Objects.nonNull(applicNo) && applicNo.size() == 1) {
-                return applicNo.get(0).getValue() + EpoImportMetadataSourceServiceImpl.APP_NO_DATE_SEPARATOR
-                        + dateFiled.get(0).getValue();
-            } else {
-                return StringUtils.EMPTY;
-            }
+        String dateFilled = epoProv.getDateFilled().getField();
+        String applicationNumber = epoProv.getApplicationNumber().getField();
+        // first case
+        if (StringUtils.equals(metadata, dateFilled) || StringUtils.equals(metadata, applicationNumber)) {
+            return generateApplicationNumberAndFilledDateID(item, dateFilled, applicationNumber);
         }
-        return StringUtils.EMPTY;
+        // second case
+        if (StringUtils.equals(metadata, PATENT_METADATA)) {
+            List<MetadataValue> patentNumberValue = itemService.getMetadataByMetadataString(item, PATENT_METADATA);
+            return CollectionUtils.isNotEmpty(patentNumberValue) ? patentNumberValue.get(0).getValue() : EMPTY;
+        }
+        return EMPTY;
+    }
+
+    private String generateApplicationNumberAndFilledDateID(Item item, String dateFilled, String applicationNumber) {
+        List<MetadataValue> dateFilledValue = itemService.getMetadataByMetadataString(item, dateFilled);
+        List<MetadataValue> applicationNumberValue = itemService.getMetadataByMetadataString(item, applicationNumber);
+        if (CollectionUtils.isNotEmpty(dateFilledValue) && CollectionUtils.isNotEmpty(applicationNumberValue)) {
+            return applicationNumberValue.get(0).getValue() + APP_NO_DATE_SEPARATOR + dateFilledValue.get(0).getValue();
+        }
+        return EMPTY;
     }
 
     @Override

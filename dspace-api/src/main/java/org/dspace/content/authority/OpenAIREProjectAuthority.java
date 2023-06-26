@@ -113,7 +113,7 @@ public class OpenAIREProjectAuthority extends ItemAuthority {
 
     private String getAuthorityPrefix() {
         return configurationService.getProperty("openaire-project.authority.prefix",
-            GENERATE + "openAireProject" + SPLIT);
+            GENERATE + "OPENAIRE-PROJECT-ID" + SPLIT);
     }
 
     private Map<String, String> getOpenAireExtra(String value) {

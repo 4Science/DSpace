@@ -126,7 +126,7 @@
     </bean>
 
     <bean id="update-item-references" class="org.dspace.authority.script.UpdateItemReferenceCliScriptConfiguration">
-        <property name="description" value="Perform the resolutrion of authority references"/>
+        <property name="description" value="Perform the resolution of authority references"/>
         <property name="dspaceRunnableClass" value="org.dspace.authority.script.UpdateItemReferenceCli"/>
     </bean>
 
@@ -149,6 +149,11 @@
     <bean id="export" class="org.dspace.app.itemexport.ItemExportCLIScriptConfiguration" primary="true">
         <property name="description" value="Batch Export to Simple Archive Format (SAF)"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExportCLI"/>
+    </bean>
+
+    <bean id="export-cris-layout-tool" class="org.dspace.layout.script.ExportCrisLayoutToolCliScriptConfiguration">
+        <property name="description" value="Script to export CRIS layout configuration into excel file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.layout.script.ExportCrisLayoutToolScriptCli"/>
     </bean>
 
 </beans>

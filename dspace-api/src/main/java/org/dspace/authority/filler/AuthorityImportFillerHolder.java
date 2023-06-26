@@ -7,6 +7,8 @@
  */
 package org.dspace.authority.filler;
 
+import static org.dspace.authority.filler.AuthorityImportFillerService.SOURCE_INTERNAL;
+
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -26,7 +28,7 @@ public class AuthorityImportFillerHolder {
             return null;
         }
 
-        return fillers.getOrDefault(authorityType, fillers.get("default"));
+        return fillers.getOrDefault(authorityType, fillers.get(SOURCE_INTERNAL));
     }
 
     public void setFillers(Map<String, AuthorityImportFiller> fillers) {

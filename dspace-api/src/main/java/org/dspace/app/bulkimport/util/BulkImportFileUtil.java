@@ -53,7 +53,7 @@ public class BulkImportFileUtil {
 
         if (UNKNOWN.equals(fileLocationType)) {
             handler.logWarning("File path is of UNKNOWN type: [" + path + "]");
-            return Optional.ofNullable(null);
+            return Optional.empty();
         }
 
         return getInputStream(path, fileLocationType);
@@ -90,7 +90,7 @@ public class BulkImportFileUtil {
             handler.logError(e.getMessage());
         }
 
-        return Optional.ofNullable(null);
+        return Optional.empty();
     }
 
 
@@ -104,11 +104,11 @@ public class BulkImportFileUtil {
         }
         File file = new File(path);
         String canonicalPath = file.getCanonicalPath();
+        if (!StringUtils.startsWith(canonicalPath, bulkUploadFolder)) {
+            throw new IOException("Access to the specified file " + orginalPath + " is not allowed");
+        }
         if (!file.exists()) {
             throw new IOException("file " + orginalPath + " is not found");
-        }
-        if (!StringUtils.startsWith(canonicalPath, bulkUploadFolder)) {
-            throw new IOException("Access to the specified file " + orginalPath + " is not allowed ");
         }
         return FileUtils.openInputStream(file);
     }

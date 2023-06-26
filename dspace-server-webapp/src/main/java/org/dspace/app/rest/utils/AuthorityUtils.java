@@ -58,14 +58,13 @@ public class AuthorityUtils {
      * @param qualifier
      * @return
      */
-    @Deprecated
-    public boolean isChoice(String schema, String element, String qualifier) {
+    public boolean isChoice(String schema, String element, String qualifier, String formname) {
         return cas.isChoicesConfigured(org.dspace.core.Utils.standardize(schema, element, qualifier, "_"),
-                Constants.ITEM, null);
+                Constants.ITEM, formname);
     }
 
-    public String getAuthorityName(String schema, String element, String qualifier) {
-        return cas.getChoiceAuthorityName(schema, element, qualifier, Constants.ITEM, null);
+    public String getAuthorityName(String schema, String element, String qualifier, String formName) {
+        return cas.getChoiceAuthorityName(schema, element, qualifier, formName);
     }
 
     public boolean isClosed(String schema, String element, String qualifier) {

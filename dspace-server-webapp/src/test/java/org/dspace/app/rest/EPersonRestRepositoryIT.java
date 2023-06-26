@@ -11,6 +11,8 @@ import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_QUERY_PARAM;
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_REGISTER;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -71,6 +73,7 @@ import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.Item;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -166,7 +169,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
                 .andDo(result -> idRefNoEmbeds
-                        .set(UUID.fromString(read(result.getResponse().getContentAsString(), "$.id"))));;
+                        .set(UUID.fromString(read(result.getResponse().getContentAsString(), "$.id"))));
 
         } finally {
             EPersonBuilder.deleteEPerson(idRef.get());
@@ -1256,7 +1259,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .content(patchBody)
                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.canLogIn", Matchers.is(true)));;
+                        .andExpect(jsonPath("$.canLogIn", Matchers.is(true)));
 
 
         List<Operation> ops2 = new ArrayList<Operation>();
@@ -1334,7 +1337,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .content(patchBody)
                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.requireCertificate", Matchers.is(true)));;
+                        .andExpect(jsonPath("$.requireCertificate", Matchers.is(true)));
 
         List<Operation> ops2 = new ArrayList<Operation>();
         ReplaceOperation replaceOperation2 = new ReplaceOperation("/certificate",null);
@@ -1898,6 +1901,78 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void patchMultipleReplaceMetadataByAdmin() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        String first = "First";
+        String second = "Second";
+        String third = "Third";
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withEmail("Johndoe@example.com")
+            .build();
+
+        this.ePersonService
+            .addMetadata(context, ePerson, "eperson", "firstname", null, Item.ANY, List.of(first, second, third));
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        // The replacement of the eperson.firstname value is persisted
+        getClient(token).perform(get("/api/eperson/epersons/" + ePerson.getID()))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.metadata",
+                Matchers.allOf(
+                    MetadataMatcher.matchMetadata("eperson.firstname", first, 0),
+                    MetadataMatcher.matchMetadata("eperson.firstname", second, 1),
+                    MetadataMatcher.matchMetadata("eperson.firstname", third, 2)
+                )
+            )
+        );
+
+        List<Operation> ops = new ArrayList<Operation>();
+
+        ReplaceOperation replaceFirst = new ReplaceOperation("/metadata/eperson.firstname/0", third);
+        ReplaceOperation replaceSecond = new ReplaceOperation("/metadata/eperson.firstname/1", second);
+        ReplaceOperation replaceThird = new ReplaceOperation("/metadata/eperson.firstname/2", first);
+
+        ops.add(replaceFirst);
+        ops.add(replaceSecond);
+        ops.add(replaceThird);
+
+        String patchBody = getPatchContent(ops);
+
+        getClient(token).perform(patch("/api/eperson/epersons/" + ePerson.getID())
+            .content(patchBody)
+            .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.metadata",
+                Matchers.allOf(
+                    MetadataMatcher.matchMetadata("eperson.firstname", third, 0),
+                    MetadataMatcher.matchMetadata("eperson.firstname", second, 1),
+                    MetadataMatcher.matchMetadata("eperson.firstname", first, 2)
+                )
+            )
+        );
+
+        getClient(token).perform(get("/api/eperson/epersons/" + ePerson.getID()))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.metadata",
+                Matchers.allOf(
+                    MetadataMatcher.matchMetadata("eperson.firstname", third, 0),
+                    MetadataMatcher.matchMetadata("eperson.firstname", second, 1),
+                    MetadataMatcher.matchMetadata("eperson.firstname", first, 2)
+                )
+            )
+        );
+    }
+
+    @Test
     public void patchOwnMetadataByNonAdminUser() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -2219,6 +2294,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2267,6 +2343,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2331,6 +2408,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2393,6 +2471,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2459,6 +2538,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2468,6 +2548,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRestTwo = new RegistrationRest();
         registrationRestTwo.setEmail(newRegisterEmailTwo);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRestTwo)))
                    .andExpect(status().isCreated());
@@ -2518,6 +2599,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2566,6 +2648,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2615,6 +2698,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2682,6 +2766,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2750,6 +2835,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2797,6 +2883,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -2846,6 +2933,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
         getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -3178,6 +3266,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         registrationRest.setEmail(newRegisterEmail);
 
         getClient().perform(post("/api/eperson/registrations")
+                   .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                    .contentType(MediaType.APPLICATION_JSON)
                    .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());
@@ -3223,6 +3312,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         registrationRest.setEmail(newRegisterEmail);
 
         getClient().perform(post("/api/eperson/registrations")
+                   .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                    .contentType(MediaType.APPLICATION_JSON)
                    .content(mapper.writeValueAsBytes(registrationRest)))
                    .andExpect(status().isCreated());

@@ -122,7 +122,7 @@ public class SharedWorkspaceSolrIndexPlugin implements SolrServiceIndexPlugin, S
 
     private Optional<EPerson> findOwner(Context context, Item source) throws SQLException {
         List<MetadataValue> metadata =
-            itemService.getMetadata(source, "dspace", "object", "owner", null);
+            itemService.getMetadata(source, "dspace", "object", "owner", Item.ANY);
         if (metadata.isEmpty()) {
             return Optional.empty();
         }

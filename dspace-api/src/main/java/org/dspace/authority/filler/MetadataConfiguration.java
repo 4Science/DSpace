@@ -9,6 +9,7 @@ package org.dspace.authority.filler;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.core.Utils;
 
 /**
@@ -54,6 +55,8 @@ public class MetadataConfiguration {
         private String targetMetadataElement;
         private String targetMetadataQualifier;
 
+        private String constantValue;
+
         public boolean isAppendMode() {
             return appendMode;
         }
@@ -85,9 +88,9 @@ public class MetadataConfiguration {
         public void setTargetMetadata(String targetMetadata) {
             this.targetMetadata = targetMetadata;
             String[] tokens = Utils.tokenize(targetMetadata);
-            this.targetMetadataSchema = tokens[0];
-            this.targetMetadataElement = tokens[1];
-            this.targetMetadataQualifier = tokens[2];
+            this.targetMetadataSchema = StringUtils.stripToNull(tokens[0]);
+            this.targetMetadataElement = StringUtils.stripToNull(tokens[1]);
+            this.targetMetadataQualifier = StringUtils.stripToNull(tokens[2]);
         }
 
         public String getTargetMetadataSchema() {
@@ -100,6 +103,14 @@ public class MetadataConfiguration {
 
         public String getTargetMetadataQualifier() {
             return targetMetadataQualifier;
+        }
+
+        public String getConstantValue() {
+            return constantValue;
+        }
+
+        public void setConstantValue(String constantValue) {
+            this.constantValue = constantValue;
         }
     }
 

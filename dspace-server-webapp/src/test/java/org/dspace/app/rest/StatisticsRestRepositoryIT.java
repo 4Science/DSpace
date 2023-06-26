@@ -52,10 +52,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -93,6 +98,7 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
+import org.dspace.util.MultiFormatDateParser;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -687,7 +693,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 .contentType(contentType))
                 .andExpect(status().isCreated());
 
-        List<UsageReportPointRest> expectedPoints = this.getListOfVisitsPerMonthsPoints(1);
+        List<UsageReportPointRest> expectedPoints = getLastMonthVisitPoints(1);
 
         // And request that item's TotalVisitsPerMonth stat report
         getClient(adminToken).perform(
@@ -751,7 +757,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                        UsageReportMatcher.matchUsageReport(
                                itemNotVisitedWithBitstreams.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                                TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                               this.getListOfVisitsPerMonthsPoints(0)
+                               getLastMonthVisitPoints(0)
                        )
                    )));
     }
@@ -785,7 +791,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                        UsageReportMatcher.matchUsageReport(
                            collectionVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                            TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                           this.getListOfVisitsPerMonthsPoints(2)
+                           getLastMonthVisitPoints(2)
                        )
                    )));
     }
@@ -1424,7 +1430,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
                 matchUsageReport(site.getID() + "_" + TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID, List.of(pointCity)),
                 matchUsageReport(site.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getListOfVisitsPerMonthsPoints(5, 12)),
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(5)),
                 matchUsageReport(site.getID() + "_" + TOP_CONTINENTS_REPORT_ID, TOP_CONTINENTS_REPORT_ID,
                     List.of(pointContinent)),
                 matchUsageReport(site.getID() + "_" + TOP_CATEGORIES_REPORT_ID, TOP_CATEGORIES_REPORT_ID, categories),
@@ -1525,7 +1531,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 matchUsageReport(site.getID() + "_" + TOP_DOWNLOAD_CITIES_REPORT_ID,
                     TOP_CITIES_REPORT_ID, List.of(pointCity)),
                 matchUsageReport(site.getID() + "_" + TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID,
-                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getListOfVisitsPerMonthsPoints(8, 12)),
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(8)),
                 matchUsageReport(site.getID() + "_" + TOP_DOWNLOAD_CONTINENTS_REPORT_ID,
                     TOP_CONTINENTS_REPORT_ID, List.of(pointContinent)),
                 matchUsageReport(site.getID() + "_" + TOP_DOWNLOAD_COUNTRIES_REPORT_ID,
@@ -1585,7 +1591,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 UsageReportMatcher.matchUsageReport(
                     communityVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    this.getListOfVisitsPerMonthsPoints(1)
+                    getLastMonthVisitPoints(1)
                 ),
                 UsageReportMatcher.matchUsageReport(
                     communityVisited.getID() + "_" + TOP_CITIES_REPORT_ID,
@@ -1626,7 +1632,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 UsageReportMatcher.matchUsageReport(
                     collectionNotVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    this.getListOfVisitsPerMonthsPoints(0)
+                    getLastMonthVisitPoints(0)
                 ),
                 UsageReportMatcher.matchUsageReport(
                     collectionNotVisited.getID() + "_" + TOP_CITIES_REPORT_ID,
@@ -1700,7 +1706,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 UsageReportMatcher.matchUsageReport(
                     itemVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    this.getListOfVisitsPerMonthsPoints(1)
+                    getLastMonthVisitPoints(1)
                 ),
                 UsageReportMatcher.matchUsageReport(
                     itemVisited.getID() + "_" + TOP_CITIES_REPORT_ID,
@@ -1835,7 +1841,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 UsageReportMatcher.matchUsageReport(
                     itemVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    getListOfVisitsPerMonthsPoints(1)
+                    getLastMonthVisitPoints(1)
                 ),
                 UsageReportMatcher.matchUsageReport(
                     itemVisited.getID() + "_" + TOP_CITIES_REPORT_ID,
@@ -1897,7 +1903,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 UsageReportMatcher.matchUsageReport(
                     bitstreamVisited.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                    this.getListOfVisitsPerMonthsPoints(1)
+                    getLastMonthVisitPoints(1)
                 ),
                 UsageReportMatcher.matchUsageReport(
                     bitstreamVisited.getID() + "_" + TOP_CITIES_REPORT_ID,
@@ -1919,30 +1925,6 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                     expectedTotalVisits
                 )
             )));
-    }
-
-    // Create expected points from -6 months to now, with given number of views in current month
-    private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth) {
-        return getListOfVisitsPerMonthsPoints(viewsLastMonth, 6);
-    }
-
-    private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth, int nrOfMonthsBack) {
-        List<UsageReportPointRest> expectedPoints = new ArrayList<>();
-        Calendar cal = Calendar.getInstance(context.getCurrentLocale());
-        for (int i = 0; i <= nrOfMonthsBack; i++) {
-            UsageReportPointDateRest expectedPoint = new UsageReportPointDateRest();
-            if (i > 0) {
-                expectedPoint.addValue("views", 0);
-            } else {
-                expectedPoint.addValue("views", viewsLastMonth);
-            }
-            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, context.getCurrentLocale());
-            expectedPoint.setId(month + " " + cal.get(Calendar.YEAR));
-
-            expectedPoints.add(expectedPoint);
-            cal.add(Calendar.MONTH, -1);
-        }
-        return expectedPoints;
     }
 
     // This test search for statistics before the moment in which item is visited
@@ -1996,6 +1978,12 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         List<UsageReportPointRest> categories = List.of(articleCategory, thesisCategory, otherCategory, bookCategory,
             bookChapterCategory, datasetCategory);
 
+        UsageReportPointRest pointPerMonth = new UsageReportPointDateRest();
+        pointPerMonth.setId("June 2019");
+        pointPerMonth.addValue("views", 0);
+
+        List<UsageReportPointRest> pointsPerMonth = List.of(pointPerMonth);
+
         // And request the sites global usage report (show top most popular items) for a specific date range
         // we expect no points becase we are searching in a moment before the view of item happened
         getClient(adminToken)
@@ -2008,7 +1996,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                     matchUsageReport(site.getID() + "_" + TOTAL_VISITS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
                     matchUsageReport(site.getID() + "_" + TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID, List.of()),
                     matchUsageReport(site.getID() + "_" + TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                        TOTAL_VISITS_PER_MONTH_REPORT_ID, getListOfVisitsPerMonthsPoints(0, 12)),
+                        TOTAL_VISITS_PER_MONTH_REPORT_ID, pointsPerMonth),
                     matchUsageReport(site.getID() + "_" + TOP_CONTINENTS_REPORT_ID,
                         TOP_CONTINENTS_REPORT_ID,List.of()),
                     matchUsageReport(site.getID() + "_" + TOP_CATEGORIES_REPORT_ID,
@@ -2060,7 +2048,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                         UsageReportMatcher.matchUsageReport(communityVisited.getID() + "_" +
                                                                 TOTAL_VISITS_PER_MONTH_REPORT_ID,
                                                             TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                                            this.getListOfVisitsPerMonthsPoints(1)),
+                                                            getListOfVisitsPerMonthsPoints(1, "2019-06-01")),
                         UsageReportMatcher.matchUsageReport(communityVisited.getID() + "_" +
                                                                 TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID,
                                                             Arrays.asList(expectedPointCity)),
@@ -2126,7 +2114,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                         UsageReportMatcher.matchUsageReport(bitstreamVisited.getID() + "_" +
                                                                 TOTAL_VISITS_PER_MONTH_REPORT_ID,
                                                             TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                                            this.getListOfVisitsPerMonthsPoints(1)),
+                                                            getListOfVisitsPerMonthsPoints(1, "2019-05-01")),
                         UsageReportMatcher.matchUsageReport(bitstreamVisited.getID() + "_" +
                                                                 TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID,
                                                             Arrays.asList(expectedPointCity)),
@@ -2254,15 +2242,15 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                    this.getListOfVisitsPerMonthsPoints(1)),
+                                    getLastMonthVisitPoints(1)),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS,
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                    this.getListOfVisitsPerMonthsPoints(3)),
+                                    getLastMonthVisitPoints(3)),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_PROJECTS,
                                     TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                    this.getListOfVisitsPerMonthsPoints(0)),
+                                    getLastMonthVisitPoints(0)),
                         UsageReportMatcher.matchUsageReport(person.getID() + "_" +
                                     TOP_CITIES_REPORT_ID, TOP_CITIES_REPORT_ID,
                                     Arrays.asList(expectedPointCity)),
@@ -2425,7 +2413,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                         UsageReportMatcher.matchUsageReport(orgUnit.getID() + "_" +
                                         TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS,
                                         TOTAL_VISITS_PER_MONTH_REPORT_ID,
-                                        this.getListOfVisitsPerMonthsPoints(3)),
+                                        getLastMonthVisitPoints(3)),
                         UsageReportMatcher.matchUsageReport(orgUnit.getID() + "_" +
                                         TOP_CITIES_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS,
                                         TOP_CITIES_REPORT_ID,
@@ -2445,6 +2433,42 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                                         TOTAL_VISITS_TOTAL_DOWNLOADS,
                                         totalDownloadsAndViewsPoints)
                 )));
+    }
+
+    private List<UsageReportPointRest> getLastMonthVisitPoints(int viewsLastMonth) {
+        return getListOfVisitsPerMonthsPoints(viewsLastMonth, 0);
+    }
+
+    private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth, String monthsBack) {
+        LocalDate startDate = toLocalDate(MultiFormatDateParser.parse(monthsBack)).with(ChronoField.DAY_OF_MONTH, 1L);
+        LocalDate endDate = LocalDate.now().with(ChronoField.DAY_OF_MONTH, 1L);
+        int nrOfMonthsBack = (int) ChronoUnit.MONTHS.between(startDate, endDate);
+        return getListOfVisitsPerMonthsPoints(viewsLastMonth, nrOfMonthsBack);
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        return date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
+    }
+
+    private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth, int nrOfMonthsBack) {
+        List<UsageReportPointRest> expectedPoints = new ArrayList<>();
+        Calendar cal = Calendar.getInstance(context.getCurrentLocale());
+        for (int i = 0; i <= nrOfMonthsBack; i++) {
+            UsageReportPointDateRest expectedPoint = new UsageReportPointDateRest();
+            if (i > 0) {
+                expectedPoint.addValue("views", 0);
+            } else {
+                expectedPoint.addValue("views", viewsLastMonth);
+            }
+            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, context.getCurrentLocale());
+            expectedPoint.setId(month + " " + cal.get(Calendar.YEAR));
+
+            expectedPoints.add(expectedPoint);
+            cal.add(Calendar.MONTH, -1);
+        }
+        return expectedPoints;
     }
 
     private UsageReportPointDsoTotalVisitsRest getExpectedDsoViews(DSpaceObject dso, int views) {

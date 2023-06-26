@@ -277,6 +277,13 @@ public class OrcidClientImpl implements OrcidClient {
             .build();
     }
 
+    private HttpUriRequest buildPutUriRequest(String accessToken, String baseUrl, String relativePath) {
+        return put(baseUrl + relativePath.trim())
+            .addHeader("Content-Type", "application/vnd.orcid+xml")
+            .addHeader("Authorization", "Bearer " + accessToken)
+            .build();
+    }
+
     private HttpUriRequest buildDeleteUriRequest(String accessToken, String relativePath) {
         return delete(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Authorization", "Bearer " + accessToken)

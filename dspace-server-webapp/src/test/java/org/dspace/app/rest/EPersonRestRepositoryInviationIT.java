@@ -9,6 +9,8 @@ package org.dspace.app.rest;
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_QUERY_PARAM;
+import static org.dspace.app.rest.repository.RegistrationRestRepository.TYPE_REGISTER;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -81,6 +83,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(post("/api/eperson/registrations")
+                             .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                              .contentType(MediaType.APPLICATION_JSON)
                              .content(mapper.writeValueAsBytes(registrationRest)))
                              .andExpect(status().isCreated());
@@ -105,6 +108,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         try {
             getClient().perform(post("/api/eperson/epersons")
                        .param("token", newRegisterToken)
+                       .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                        .content(mapper.writeValueAsBytes(ePersonRest))
                        .contentType(MediaType.APPLICATION_JSON))
                        .andExpect(status().isCreated())
@@ -160,6 +164,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         String tokenEPerson = getAuthToken(eperson.getEmail(), password);
         getClient(tokenEPerson).perform(post("/api/eperson/registrations")
                                .contentType(MediaType.APPLICATION_JSON)
+                               .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                .content(mapper.writeValueAsBytes(registrationRest)))
                                .andExpect(status().isForbidden());
 
@@ -189,6 +194,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         String tokenEPerson = getAuthToken(eperson.getEmail(), password);
         getClient(tokenEPerson).perform(post("/api/eperson/registrations")
                                .contentType(MediaType.APPLICATION_JSON)
+                               .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                .content(mapper.writeValueAsBytes(registrationRest)))
                                .andExpect(status().isForbidden());
 
@@ -217,6 +223,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(post("/api/eperson/registrations")
                                .contentType(MediaType.APPLICATION_JSON)
+                               .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                .content(mapper.writeValueAsBytes(registrationRest)))
                                .andExpect(status().isUnprocessableEntity());
 
@@ -246,6 +253,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(post("/api/eperson/registrations")
                              .contentType(MediaType.APPLICATION_JSON)
+                             .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                              .content(mapper.writeValueAsBytes(registrationRest)))
                              .andExpect(status().isCreated());
 
@@ -271,6 +279,7 @@ public class EPersonRestRepositoryInviationIT extends AbstractControllerIntegrat
         try {
             getClient().perform(post("/api/eperson/epersons")
                        .param("token", newRegisterToken)
+                       .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                        .content(mapper.writeValueAsBytes(ePersonRest))
                        .contentType(MediaType.APPLICATION_JSON))
                        .andExpect(status().isCreated())

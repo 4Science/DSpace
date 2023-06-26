@@ -221,7 +221,7 @@ public class DCInput {
             || "yes".equalsIgnoreCase(closedVocabularyStr);
 
         // parsing of the <type-bind> element (using the colon as split separator)
-        typeBind = new ArrayList<>();
+        typeBind = new ArrayList<String>();
         String typeBindDef = fieldMap.get("type-bind");
         if (typeBindDef != null && typeBindDef.trim().length() > 0) {
             String[] types = typeBindDef.split(",");
@@ -619,7 +619,7 @@ public class DCInput {
         if (StringUtils.isNotBlank(value)) {
             try {
                 if (this.pattern != null) {
-                    if (!this.pattern.matcher(value).matches()) {
+                    if (!pattern.matcher(value).matches()) {
                         return false;
                     }
                 }

@@ -19,7 +19,6 @@
         </description>
         <entry key-ref="scopus.doi" value-ref="scopusDoiContrib"/>
         <entry key-ref="scopus.title" value-ref="scopusTitleContrib"/>
-        <entry key-ref="scopus.type" value-ref="scopusTypeContrib"/>
         <entry key-ref="scopus.isbn" value-ref="scopusIsbnContrib"/>
         <entry key-ref="scopus.issn" value-ref="scopusIssnContrib"/>
         <entry key-ref="scopus.date" value-ref="scopusDateContrib"/>
@@ -27,11 +26,12 @@
         <entry key-ref="scopus.volume" value-ref="scopusVolumeContrib"/>
         <entry key-ref="scopus.issueIdentifier" value-ref="scopusIssueIdentifierContrib"/>
         <entry key-ref="scopus.authkeywords" value-ref="scopusAuthkeywordsContrib"/>        
-        <entry key-ref="scopus.creator" value-ref="scopusCreatorContrib"/>
         <entry key-ref="scopus.openaccessFlag" value-ref="scopusOpenaccessFlagContrib"/>
         <entry key-ref="scopus.ispartof" value-ref="scopusIspartofContrib"/>
         <entry key-ref="scopus.ispartofseries" value-ref="scopusIspartofseriesContrib"/>
         <entry key-ref="scopus.authname" value-ref="scopusAuthorMetadataContrib"/>
+        <entry key-ref="scopus.mappedtype" value-ref="typeContrib"/>
+        <!--   <entry key-ref="scopus.type" value-ref="scopusTypeContrib"/>                -->
         <!--   <entry key-ref="scopus.source" value-ref="scopusSourceContrib"/>            -->
         <!--   <entry key-ref="scopus.abstract" value-ref="scopusAbstractContrib"/>        -->
         <!--   <entry key-ref="scopus.author" value-ref="scopusAuthorsContrib"/>           -->
@@ -199,6 +199,22 @@
         <constructor-arg value="dc.relation.ispartof"/>
     </bean>
 
+    <bean id="innerTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="scopus.mappedtype"/>
+        <property name="query" value="ns:subtype"/>
+        <property name="prefixToNamespaceMapping" ref="scopusNs"/>
+        <property name="metadataFieldMapping" ref="pubmedMetadataFieldMapping"/>
+    </bean>
+
+    <bean id="typeContrib" class="org.dspace.importer.external.metadatamapping.contributor.MappedMetadataContributor">
+        <constructor-arg name="innerContributor" ref="innerTypeContrib"/>
+        <constructor-arg name="mapConverter" ref="mapConverterScopusToCoarPublicationTypes"/>
+    </bean>
+
+    <bean id="scopus.mappedtype" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.type"/>
+    </bean>
+
     <bean id="scopusIspartofseriesContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="scopus.ispartofseries"/>
         <property name="query" value="prism:publicationName"/>
@@ -216,6 +232,7 @@
         <property name="scopusId" ref="scopus.scopusId"/>
         <property name="affiliation" ref="scopus.affiliation"/>
         <property name="query" value=""/>
+        <property name="creatorMetadataContributor" ref="scopusCreatorContrib"/>
         <property name="prefixToNamespaceMapping" ref="scopusNs"/>
     </bean>
 

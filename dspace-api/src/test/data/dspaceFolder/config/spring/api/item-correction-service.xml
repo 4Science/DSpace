@@ -14,13 +14,18 @@
 
     <!-- Correction Item Provider, defines behavior for replicating Item, Metadata, Budles and Bitstreams. Autowired at this time. -->
     <bean class="org.dspace.versioning.ItemCorrectionProvider">
-        <property name="ignoredMetadataFields" >
-            <set>
+		<property name="ignoredMetadataFields" >
+			<set>
 				<value>dc.date.accessioned</value>
 				<value>dc.date.available</value>
 				<value>dspace.entity.type</value>
-            </set>
-        </property>
+			</set>
+		</property>
+		<property name="bundles" >
+			<set>
+				<value>ORIGINAL</value>
+			</set>
+		</property>
     </bean>
     
 	<util:map id="correctItemModesMap" map-class="java.util.HashMap" key-type="java.lang.String" value-type="java.util.List"> 

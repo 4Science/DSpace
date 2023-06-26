@@ -48,17 +48,17 @@ public class OpenAIREProjectAuthorityIT extends AbstractControllerIntegrationTes
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
                 ItemAuthorityMatcher.matchItemAuthorityProperties(
-                    "will be generated::openAireProject::777541",
+                    "will be generated::OPENAIRE-PROJECT-ID::777541",
                     "OpenAIRE Advancing Open Scholarship",
                     "OpenAIRE Advancing Open Scholarship(777541)",
                     "vocabularyEntry"),
                 ItemAuthorityMatcher.matchItemAuthorityProperties(
-                    "will be generated::openAireProject::731011",
+                    "will be generated::OPENAIRE-PROJECT-ID::731011",
                     "OpenAIRE - CONNECTing scientific results in support of Open Science",
                     "OpenAIRE - CONNECTing scientific results in support of Open Science(731011)",
                     "vocabularyEntry"),
                 ItemAuthorityMatcher.matchItemAuthorityProperties(
-                    "will be generated::openAireProject::101017452",
+                    "will be generated::OPENAIRE-PROJECT-ID::101017452",
                     "OpenAIRE-Nexus Scholarly Communication Services for EOSC users",
                     "OpenAIRE-Nexus Scholarly Communication Services for EOSC users(101017452)",
                     "vocabularyEntry"))))
