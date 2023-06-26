@@ -317,6 +317,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         public void setShowThumbnails(boolean showThumbnails) {
             this.showThumbnails = showThumbnails;
         }
+
     }
 
     public static class CrisLayoutFacetComponentRest implements CrisLayoutSectionComponentRest {
@@ -714,7 +715,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         /**
          * Initializes the rest component using the
          * CrisLayoutCarouselComponent component
-         * 
+         *
          * @param component
          */
         public CrisLayoutCarouselComponentRest(CrisLayoutCarouselComponent component) {

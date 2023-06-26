@@ -164,9 +164,9 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true , false),
                      VocabularyMatcher.matchProperties("publication-coar-types", "publication-coar-types", false , true)
                  )))
-        .andExpect(jsonPath("$._links.self.href",
-            Matchers.containsString("api/submission/vocabularies")))
-        .andExpect(jsonPath("$.page.totalElements", is(12)));
+                .andExpect(jsonPath("$._links.self.href",
+                    Matchers.containsString("api/submission/vocabularies")))
+                .andExpect(jsonPath("$.page.totalElements", is(12)));
     }
 
     @Test

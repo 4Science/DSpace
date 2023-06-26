@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.servlet.Filter;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.dspace.app.rest.filter.DSpaceRequestContextFilter;
 import org.dspace.app.rest.model.hateoas.DSpaceLinkRelationProvider;
 import org.dspace.app.rest.parameter.resolver.SearchFilterResolver;
@@ -187,6 +188,8 @@ public class Application extends SpringBootServletInitializer {
                     .getCorsAllowedOrigins(configuration.getCorsAllowedOriginsConfig());
                 String[] iiifAllowedOrigins = configuration
                     .getCorsAllowedOrigins(configuration.getIiifAllowedOriginsConfig());
+                String[] bitstreamAllowedOrigins = configuration
+                    .getCorsAllowedOrigins(configuration.getBitstreamAllowedOriginsConfig());
 
                 boolean corsAllowCredentials = configuration.getCorsAllowCredentials();
                 boolean iiifAllowCredentials = configuration.getIiifAllowCredentials();
@@ -214,6 +217,28 @@ public class Application extends SpringBootServletInitializer {
                                 "x-recaptcha-token")
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
+                }
+                if (!ArrayUtils.isEmpty(bitstreamAllowedOrigins)) {
+                    registry.addMapping("/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
+                            // Set Access-Control-Allow-Credentials to "true" and specify which origins are valid
+                            // for our Access-Control-Allow-Origin header
+                            .allowCredentials(iiifAllowCredentials).allowedOrigins(iiifAllowedOrigins)
+                            // Allow list of request preflight headers allowed to be sent to us from the client
+                            .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
+                                "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                                "x-recaptcha-token")
+                            // Allow list of response headers allowed to be sent by us (the server) to the client
+                            .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
+                } else {
+                    registry.addMapping("/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
+                        // Allow all orgin patterns by default
+                        .allowedOriginPatterns(CorsConfiguration.ALL)
+                        // Allow list of request preflight headers allowed to be sent to us from the client
+                        .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
+                            "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                            "x-recaptcha-token")
+                        // Allow list of response headers allowed to be sent by us (the server) to the client
+                        .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }
             }
 

@@ -1,0 +1,101 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace Audio/Video Addon Schema</title>
+        <contributor.author>Stefano Maffei</contributor.author>
+    </dspace-header>
+
+    <dc-schema>
+        <name>bitstream</name>
+        <namespace>https://4science.it/audiovideo</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>dash</name>
+        <namespace>https://4science.it/dash</namespace>
+    </dc-schema>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>dashbundle</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>dash</schema>
+		<element>manifest</element>
+		<qualifier></qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>height</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>width</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>duration</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>format</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>codec</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>fps</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>audioformat</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>video</element>
+		<qualifier>audiocodec</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>audio</element>
+		<qualifier>peaks</qualifier>
+		<scope_note></scope_note>
+	</dc-type>	
+	
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>scene</element>
+		<qualifier>timestamp</qualifier>
+		<scope_note></scope_note>
+	</dc-type>	
+</dspace-dc-types>

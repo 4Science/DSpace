@@ -63,6 +63,7 @@
         <!--=== ADDON DEPENDENCIES ===-->
         <addon-iiif.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
         <addon-ocr.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
+        <addon-video.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-video.version>
         <addon-docviewer.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-docviewer.version>
         <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
 
@@ -893,6 +894,27 @@
                          <groupId>it.4science.dspace</groupId>
                          <artifactId>addon-ocr-api</artifactId>
                          <version>${addon-ocr.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-video</artifactId>
+                         <version>${addon-video.version}</version>
                          <type>jar</type>
                     </dependency>
                 </dependencies>

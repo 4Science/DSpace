@@ -430,7 +430,7 @@
             <step id="upload" />
             <step id="license" />
         </submission-process>
-        
+
         <submission-process name="controlled-vocabulary-test">
             <step id="collection"/>
             <step id="controlled-vocabulary-test"/>

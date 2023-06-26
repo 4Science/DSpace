@@ -42,11 +42,11 @@ public class VocabularyEntryDetailsParentLinkRepository extends AbstractDSpaceRe
     @Autowired
     private AuthorityUtils authorityUtils;
 
-    @PreAuthorize("@vocabularySecurity.isQualifiedVocabularyPublic(#childId) || hasAuthority('AUTHENTICATED')")
-    public VocabularyEntryDetailsRest getParent(@Nullable HttpServletRequest request, String childId,
+    @PreAuthorize("permitAll()")
+    public VocabularyEntryDetailsRest getParent(@Nullable HttpServletRequest request, String name,
             @Nullable Pageable optionalPageable, Projection projection) {
         Context context = obtainContext();
-        String[] parts = StringUtils.split(childId, ":", 2);
+        String[] parts = StringUtils.split(name, ":", 2);
         if (parts.length != 2) {
             return null;
         }

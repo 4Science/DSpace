@@ -69,12 +69,12 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     @Autowired
     private ItemService itemService;
 
+    private BitstreamService bitstreamService;
+
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
 
     private final Logger log = org.apache.logging.log4j.LogManager.getLogger(CrisLayoutBoxServiceImpl.class);
-
-    private BitstreamService bitstreamService;
 
     public CrisLayoutBoxServiceImpl() {
     }
