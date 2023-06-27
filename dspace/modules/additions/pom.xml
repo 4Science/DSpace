@@ -248,6 +248,27 @@
          </dependencies>
       </profile>
 
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-video</artifactId>
+                         <version>${addon-video.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
       <profile>
          <id>addon-document-viewer</id>
          <activation>
