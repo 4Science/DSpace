@@ -261,7 +261,7 @@
                 <dependencies>
                     <dependency>
                          <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-video</artifactId>
+                         <artifactId>addon-video-api</artifactId>
                          <version>${addon-video.version}</version>
                          <type>jar</type>
                     </dependency>
