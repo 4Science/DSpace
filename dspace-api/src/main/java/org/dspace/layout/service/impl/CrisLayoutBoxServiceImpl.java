@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
@@ -170,6 +171,8 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
                 return isIiifEnabled(item);
             case "HIERARCHY":
                 return hasHierarchicBoxContent(context, box, item);
+            case "VIDEOVIEWER":
+                return hasMediaResources(context, box, item);
             case "METADATA":
             default:
                 return hasMetadataBoxContent(context, box, item);
@@ -263,6 +266,16 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         }
 
         return false;
+    }
+
+    private boolean hasMediaResources(Context context, CrisLayoutBox box, Item item) {
+        List<Bundle> bundles = item.getBundles();
+        try {
+            boolean hasRes = bundles.stream().anyMatch(bundle -> bundle.getName().startsWith("VIDEO-ACCESS"));
+            return hasRes;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isIiifEnabled(Item item) {
