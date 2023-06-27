@@ -70,6 +70,7 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
     private BitstreamService bitstreamService;
 
     @Autowired
