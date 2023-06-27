@@ -252,22 +252,22 @@
         <!--
             Builds Audio Video addon for DSpace
         -->
-        <profile>
-            <id>addon-video</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-video-api</artifactId>
-                         <version>${addon-video.version}</version>
-                         <type>jar</type>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
+	<profile>
+		<id>addon-video</id>
+		<activation>
+			<property>
+				<name>audiovideo.on</name>
+			</property>
+		</activation>
+		<dependencies>
+			<dependency>
+				<groupId>it.4science.dspace</groupId>
+				<artifactId>addon-video-api</artifactId>
+				<version>${addon-video.version}</version>
+				<type>jar</type>
+			</dependency>
+		</dependencies>
+	</profile>
 
       <profile>
          <id>addon-document-viewer</id>
