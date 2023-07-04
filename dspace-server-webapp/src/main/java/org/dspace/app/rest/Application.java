@@ -219,7 +219,7 @@ public class Application extends SpringBootServletInitializer {
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }
                 if (!ArrayUtils.isEmpty(bitstreamAllowedOrigins)) {
-                    registry.addMapping("/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
+                    registry.addMapping("/api/core/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
                             // Set Access-Control-Allow-Credentials to "true" and specify which origins are valid
                             // for our Access-Control-Allow-Origin header
                             .allowCredentials(iiifAllowCredentials).allowedOrigins(iiifAllowedOrigins)
@@ -230,7 +230,7 @@ public class Application extends SpringBootServletInitializer {
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 } else {
-                    registry.addMapping("/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
+                    registry.addMapping("/api/core/bitstreams/**").allowedMethods(CorsConfiguration.ALL)
                         // Allow all orgin patterns by default
                         .allowedOriginPatterns(CorsConfiguration.ALL)
                         // Allow list of request preflight headers allowed to be sent to us from the client
