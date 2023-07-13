@@ -51,6 +51,11 @@ public class ApplicationConfig {
     @Value("${iiif.cors.allow-credentials:true}")
     private boolean iiifCorsAllowCredentials;
 
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${bitstream.cors.allow-credentials:true}")
+    private boolean bitstreamsCorsAllowCredentials;
+
     // Configured User Interface URL (default: http://localhost:4000)
     @Value("${dspace.ui.url:http://localhost:4000}")
     private String uiURL;
@@ -120,5 +125,14 @@ public class ApplicationConfig {
      */
     public boolean getIiifAllowCredentials() {
         return iiifCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on IIIF requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getBitstreamsAllowCredentials() {
+        return bitstreamsCorsAllowCredentials;
     }
 }
