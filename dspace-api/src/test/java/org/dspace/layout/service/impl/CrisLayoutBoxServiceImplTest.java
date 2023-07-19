@@ -177,12 +177,14 @@ public class CrisLayoutBoxServiceImplTest {
         box.setShortname("Main Box");
         box.setType("METADATA");
 
-        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of("dc.type", "thumbnail")))
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL",
+            Map.of("dc.type", "thumbnail"), false))
             .thenReturn(List.of(bitstream));
 
         assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
 
-        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of("dc.type", "thumbnail"));
+        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL",
+            Map.of("dc.type", "thumbnail"), false);
 
     }
 
@@ -205,12 +207,14 @@ public class CrisLayoutBoxServiceImplTest {
         box.setShortname("Main Box");
         box.setType("METADATA");
 
-        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of("dc.type", "thumbnal")))
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL",
+            Map.of("dc.type", "thumbnal"), false))
             .thenReturn(List.of());
 
         assertThat(crisLayoutBoxService.hasContent(context, box, item), is(false));
 
-        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of("dc.type", "thumbnail"));
+        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL",
+            Map.of("dc.type", "thumbnail"), false);
 
     }
 
