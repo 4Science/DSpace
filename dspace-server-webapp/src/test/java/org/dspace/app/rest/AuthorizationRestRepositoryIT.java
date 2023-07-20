@@ -25,7 +25,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +66,7 @@ import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
@@ -81,8 +84,13 @@ import org.dspace.content.service.SiteService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
+import org.dspace.xmlworkflow.storedcomponents.PoolTask;
+import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
+import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
+import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +124,12 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
     private ConfigurationService configurationService;
     @Autowired
     private ItemConverter itemConverter;
+
+    @Autowired
+    private PoolTaskService poolTaskService;
+
+    @Autowired
+    private XmlWorkflowItemService xmlWorkflowItemService;
 
     @Autowired
     private Utils utils;
@@ -173,6 +187,14 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
         trueForUsersInGroupTest = authorizationFeatureService.find(TrueForUsersInGroupTestFeature.NAME);
 
         configurationService.setProperty("webui.user.assumelogin", true);
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        context.turnOffAuthorisationSystem();
+        poolTaskService.findAll(context).forEach(this::deletePoolTask);
+        xmlWorkflowItemService.findAll(context).forEach(this::deleteWorkflowItem);
+        context.restoreAuthSystemState();
     }
 
     @Test
@@ -2824,7 +2846,17 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$.errors").doesNotExist());
 
-        getClient(epersonToken).perform(get("/api/submission/workspaceitems/" + workspaceItemIdRef.get()))
+        AtomicReference<Integer> workflowItemIdRef = new AtomicReference<Integer>();
+
+        getClient(epersonToken).perform(post("/api/workflow/workflowitems")
+            .content("/api/submission/workspaceitems/" + workspaceItemIdRef.get())
+            .contentType(textUriContentType))
+            .andExpect(status().isCreated())
+            .andDo(result -> workflowItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        getClient(tokenAdmin).perform(get("/api/workflow/workflowitems/" + workflowItemIdRef.get()))
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$.sections.correction.metadata", hasSize(equalTo(3))))
                                .andExpect(jsonPath("$.sections.correction.empty", is(false)))
@@ -2931,5 +2963,20 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
                 + id.toString();
     }
 
+    private void deletePoolTask(PoolTask poolTask) {
+        try {
+            poolTaskService.delete(context, poolTask);
+        } catch (SQLException | AuthorizeException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void deleteWorkflowItem(XmlWorkflowItem workflowItem) {
+        try {
+            xmlWorkflowItemService.delete(context, workflowItem);
+        } catch (SQLException | AuthorizeException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

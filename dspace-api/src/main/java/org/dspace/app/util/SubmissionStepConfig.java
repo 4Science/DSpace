@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
+import org.hibernate.proxy.HibernateProxyHelper;
 
 /**
  * Class representing configuration for a single step within an Item Submission
@@ -177,6 +180,45 @@ public class SubmissionStepConfig implements Serializable {
 
     public String getVisibilityOutside() {
         return visibilityOutside;
+    }
+
+    public boolean isHiddenForInProgressSubmission(InProgressSubmission<?> obj) {
+
+        String scopeToCheck = getScope(obj);
+
+        if (scope == null || scopeToCheck == null) {
+            return false;
+        }
+
+        String visibility = getVisibility();
+        String visibilityOutside = getVisibilityOutside();
+
+        if (scope.equalsIgnoreCase(scopeToCheck)) {
+            return "hidden".equalsIgnoreCase(visibility);
+        } else {
+            return visibilityOutside == null || "hidden".equalsIgnoreCase(visibilityOutside);
+        }
+
+    }
+
+    public boolean isReadOnlyForInProgressSubmission(InProgressSubmission<?> obj) {
+
+        String scopeToCheck = getScope(obj);
+
+        if (scope == null || scopeToCheck == null) {
+            return false;
+        }
+
+        String visibility = scope.equalsIgnoreCase(scopeToCheck) ? getVisibility() : getVisibilityOutside();
+        return "read-only".equalsIgnoreCase(visibility);
+
+    }
+
+    private String getScope(InProgressSubmission<?> obj) {
+        if (HibernateProxyHelper.getClassWithoutInitializingProxy(obj).equals(WorkspaceItem.class)) {
+            return "submission";
+        }
+        return "workflow";
     }
 
     /**
