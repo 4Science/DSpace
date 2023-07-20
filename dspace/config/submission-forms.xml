@@ -168,6 +168,54 @@
         </field>
       </row>
     </form>
+    <form name="patent-crispatent-document-kind">
+      <row>
+        <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>document</dc-element>
+          <dc-qualifier>kind</dc-qualifier>
+          <label>Kind Code</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>You must enter the kind code.</required>
+          <style>col-xs-12 col-md-6</style>
+          <hint />
+        </field>
+        <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>document</dc-element>
+          <dc-qualifier>issueDate</dc-qualifier>
+          <label>Publication Date</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>You must enter the publication date.</required>
+          <style>col-xs-12 col-md-6</style>
+          <hint />
+        </field>
+        <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>document</dc-element>
+          <dc-qualifier>title</dc-qualifier>
+          <label>Title</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <style>col-12</style>
+          <hint />
+        </field>
+        <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>document</dc-element>
+          <dc-qualifier>description</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <style>col-12</style>
+          <hint />
+        </field>
+      </row>
+    </form>
     <form name="person-oairecerif-person-affiliation">
       <row>
         <field>
@@ -1382,6 +1430,15 @@
       </row>
       <row>
         <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>kind</dc-element>
+          <label>Kind Code</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The kind code</hint>
+        </field>
+        <field>
           <dc-schema>dc</dc-schema>
           <dc-element>identifier</dc-element>
           <dc-qualifier>applicationnumber</dc-qualifier>
@@ -1392,10 +1449,10 @@
           <required />
         </field>
         <field>
-          <dc-schema>dcterms</dc-schema>
-          <dc-element>dateSubmitted</dc-element>
-          <repeatable>false</repeatable>
-          <label>Registration Date</label>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>issued</dc-qualifier>
+          <label>Publication Date</label>
           <input-type>date</input-type>
           <hint>Date on which the application was physically received at the Patent Authority. Also named Filling Date</hint>
           <required />
@@ -1425,11 +1482,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>date</dc-element>
-          <dc-qualifier>issued</dc-qualifier>
-          <repeatable>false</repeatable>
-          <label>Publication Date</label>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>dateSubmitted</dc-element>
+          <label>Registration Date</label>
           <input-type>date</input-type>
           <hint>Date of making available to the public by printing or similar process of a patent document on which grant has taken place on or before the said date</hint>
           <required />
@@ -1479,6 +1534,18 @@
           <hint>Select the type of content of the patent.</hint>
           <required>You must select a patent type</required>
           <vocabulary>patent-coar-types</vocabulary>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crispatent</dc-schema>
+          <dc-element>document</dc-element>
+          <dc-qualifier>kind</dc-qualifier>
+          <label>Patent History</label>
+          <input-type>inline-group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
     </form>

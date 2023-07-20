@@ -16,7 +16,6 @@ import java.io.InputStream;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
-import org.dspace.authorize.ResourcePolicy;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -757,7 +756,8 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
         // Verify the general admin has this feature on item 1
         getClient(adminToken).perform(
             get("/api/authz/authorizations/search/object?embed=feature&uri="
-                + "http://localhost/api/core/items/" + item1.getID()))
+                + "http://localhost/api/core/items/" + item1.getID())
+            .param("size", "30"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='"
                 + feature + "')]").exists());
@@ -798,7 +798,7 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
         // grant item 1 admin REMOVE permissions on the item’s owning collection
         // verify item 1 admin has this feature on item 1
         context.turnOffAuthorisationSystem();
-        ResourcePolicy removePermission = ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context)
             .withDspaceObject(collectionX)
             .withAction(Constants.REMOVE)
             .withUser(item1Writer)
@@ -820,7 +820,7 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
 
         // grant item 1 write REMOVE permissions on the item’s owning collection
         context.turnOffAuthorisationSystem();
-        ResourcePolicy removePermission = ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context)
             .withDspaceObject(collectionX)
             .withAction(Constants.REMOVE)
             .withUser(item1Writer)

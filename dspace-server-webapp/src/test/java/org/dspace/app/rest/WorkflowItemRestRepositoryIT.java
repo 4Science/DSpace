@@ -69,6 +69,7 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
+import org.dspace.workflow.WorkflowItem;
 import org.dspace.xmlworkflow.factory.XmlWorkflowFactory;
 import org.dspace.xmlworkflow.state.Step;
 import org.dspace.xmlworkflow.storedcomponents.ClaimedTask;
@@ -2646,4 +2647,64 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             WorkflowItemBuilder.deleteWorkflowItem(idRef.get());
         }
     }
+
+    @Test
+    public void testWorkflowWithHiddenSections() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withSubmissionDefinition("test-hidden")
+            .withWorkflowGroup(1, eperson)
+            .build();
+
+        WorkflowItem workflowItem = WorkflowItemBuilder.createWorkflowItem(context, collection)
+            .withTitle("Workflow Item")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/workflow/workflowitems/" + workflowItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.test-outside-workflow-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-outside-submission-hidden").doesNotExist())
+            .andExpect(jsonPath("$.sections.test-never-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-always-hidden").doesNotExist());
+
+    }
+
+    @Test
+    public void testValidationWithHiddenSteps() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withSubmissionDefinition("test-hidden")
+            .withWorkflowGroup(1, eperson)
+            .build();
+
+        WorkflowItem workflowItem = WorkflowItemBuilder.createWorkflowItem(context, collection)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/workflow/workflowitems/" + workflowItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors", hasSize(1)))
+            .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+            .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
+    }
+
 }
