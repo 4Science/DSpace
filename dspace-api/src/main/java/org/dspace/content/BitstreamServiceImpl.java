@@ -505,11 +505,22 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
-            Map<String, String> filterMetadata) throws SQLException {
+            Map<String, String> filterMetadata, boolean filterNonRestricted) throws SQLException {
 
-        return streamOf(bitstreamDAO.findShowableByItem(context, itemId, bundleName))
-            .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
-            .collect(Collectors.toList());
+        Stream<Bitstream> stream = streamOf(bitstreamDAO.findShowableByItem(context, itemId, bundleName))
+            .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata));
+        if (filterNonRestricted) {
+            stream = stream.filter(bitstream -> {
+                try {
+                    return authorizeService.authorizeActionBoolean(context, bitstream, Constants.READ);
+                } catch (SQLException e) {
+                    log.error(e);
+                }
+                return true;
+            });
+        }
+
+        return stream.collect(Collectors.toList());
 
     }
 
