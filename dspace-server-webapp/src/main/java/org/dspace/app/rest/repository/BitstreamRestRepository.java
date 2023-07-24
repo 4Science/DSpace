@@ -246,6 +246,7 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
         @Parameter(value = "name", required = true) String bundleName,
         @Parameter(value = "filterMetadata") String[] filterMetadataFields,
         @Parameter(value = "filterMetadataValue") String[] filterMetadataValues,
+        @Parameter(value = "filterNonRestricted") String filterNonRestricted,
         @Nullable Pageable optionalPageable
     ) {
         try {
@@ -255,7 +256,9 @@ public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstrea
             final Map<String, String> filterMetadata =
                 composeFilterMetadata(filterMetadataFields, filterMetadataValues);
             return converter.toRestPage(
-                    this.bs.findShowableByItem(obtainContext(), item.getID(), bundleName, filterMetadata), pageable,
+                    this.bs.findShowableByItem(obtainContext(), item.getID(),
+                        bundleName, filterMetadata, Boolean.valueOf(filterNonRestricted)),
+                        pageable,
                     utils.obtainProjection()
             );
         } catch (SQLException e) {

@@ -9,7 +9,6 @@
       <heading>submit.progressbar.collection</heading>
       <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
       <type>collection</type>
-      <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
     </step-definition>
     <step-definition id="upload" mandatory="true">
       <heading>submit.progressbar.upload</heading>

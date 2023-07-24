@@ -273,6 +273,9 @@ public class ADSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             uriBuilder.addParameter("fl", this.resultFieldList);
 
             String resp = liveImportClient.executeHttpGetRequest(timeout, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(resp)) {
+                return 0;
+            }
             JsonNode jsonNode = convertStringJsonToJsonNode(resp);
             return jsonNode.at("/response/numFound").asInt();
         } catch (URISyntaxException e) {
@@ -296,6 +299,9 @@ public class ADSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             uriBuilder.addParameter("fl", this.resultFieldList);
 
             String resp = liveImportClient.executeHttpGetRequest(timeout, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(resp)) {
+                return adsResults;
+            }
 
             JsonNode jsonNode = convertStringJsonToJsonNode(resp);
             JsonNode docs = jsonNode.at("/response/docs");

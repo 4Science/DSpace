@@ -289,6 +289,9 @@ public class CiniiImportMetadataSourceServiceImpl extends AbstractImportMetadata
             URIBuilder uriBuilder = new URIBuilder(this.url + id + ".rdf?appid=" + appId);
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isBlank(response)) {
+                return records;
+            }
             List<Element> elements = splitToRecords(response);
             for (Element record : elements) {
                 records.add(transformSourceRecords(record));
@@ -416,6 +419,9 @@ public class CiniiImportMetadataSourceServiceImpl extends AbstractImportMetadata
 
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(response)) {
+                return 0;
+            }
 
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(response));

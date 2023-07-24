@@ -1158,9 +1158,6 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         handler.logInfo("Row " + entityRow.getRow() + " - Item updated successfully - ID: " + item.getID());
 
         switch (entityRow.getAction()) {
-            case UPDATE:
-                itemService.update(context, item);
-                break;
             case UPDATE_WORKFLOW:
                 startWorkflow(entityRow, item);
                 break;
@@ -1168,6 +1165,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
                 installItem(entityRow, item);
                 break;
             default:
+                itemService.update(context, item);
                 break;
         }
 

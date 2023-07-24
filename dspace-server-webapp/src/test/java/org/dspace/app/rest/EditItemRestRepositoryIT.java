@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -1904,6 +1905,50 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
             .andExpect(jsonPath("$._embedded.edititemmodes[0].id", is("MODE-A")))
             .andExpect(jsonPath("$._embedded.edititemmodes[1].id", is("MODE-B")));
 
+    }
+
+    @Test
+    public void testEditWithHiddenSections() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withEntityType("Publication")
+            .build();
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Item")
+            .build();
+        context.restoreAuthSystemState();
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-TEST-HIDDEN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.test-outside-workflow-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-outside-submission-hidden").doesNotExist())
+            .andExpect(jsonPath("$.sections.test-never-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-always-hidden").doesNotExist());
+    }
+
+    @Test
+    public void testValidationWithHiddenSteps() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withEntityType("Publication")
+            .build();
+        Item item = ItemBuilder.createItem(context, collection)
+            .build();
+        context.restoreAuthSystemState();
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-TEST-HIDDEN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors", hasSize(1)))
+            .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+            .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
     }
 
     private Bitstream getBitstream(Item item, String name) throws SQLException {

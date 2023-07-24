@@ -225,7 +225,8 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             filters.put(field.getMetadataField().toString('.'), field.getMetadataValue());
         }
         try {
-            return bitstreamService.findShowableByItem(context, item.getID(), field.getBundle(), filters).size() > 0;
+            return bitstreamService.findShowableByItem(context, item.getID(), field.getBundle(),
+                filters, false).size() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
