@@ -119,5 +119,7 @@
         <mapping class="org.dspace.app.metrics.CrisMetrics"/>
         <mapping class="org.dspace.supervision.SupervisionOrder"/>
 
+        <mapping class="org.dspace.unpaywall.model.Unpaywall" />
+
     </session-factory>
 </hibernate-configuration>

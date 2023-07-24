@@ -243,7 +243,13 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
+
+        <step-definition id="unpaywall" mandatory="true">
+            <heading>submit.progressbar.unpaywall</heading>
+            <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
+            <type>unpaywall</type>
+        </step-definition>
+
 	    <step-definition id="correction" mandatory="true">
 			<heading>submit.progressbar.correction-step</heading>
 			<processing-class>org.dspace.app.rest.submit.step.CorrectionStep</processing-class>
@@ -343,7 +349,15 @@
             <step id="traditionalpagetwo"/>
             <step id="custom-url"/>
         </submission-process>
-        
+
+        <submission-process name="traditional-with-unpaywall">
+            <step id="collection"/>
+            <step id="extraction" />
+            <step id="traditionalpageone"/>"
+            <step id="traditionalpagetwo"/>
+            <step id="unpaywall"/>
+        </submission-process>
+
         <submission-process name="traditional-with-correction">
             <step id="collection"/>
             <step id="extraction" />
@@ -464,7 +478,7 @@
             <step id="upload" />
             <step id="license" />
         </submission-process>
-            
+
         <submission-process name="controlled-vocabulary-test">
             <step id="collection"/>
             <step id="controlled-vocabulary-test"/>
