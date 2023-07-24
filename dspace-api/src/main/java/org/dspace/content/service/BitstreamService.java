@@ -238,7 +238,7 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
     Long getLastModified(Bitstream bitstream) throws IOException;
 
     List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
-        Map<String, String> filterMetadata) throws SQLException;
+        Map<String, String> filterMetadata, boolean filterNonRestricted) throws SQLException;
 
     List<Bitstream> findByItemAndBundleAndMetadata(Context context, Item item, String bundleName,
         Map<String, String> filterMetadata);
