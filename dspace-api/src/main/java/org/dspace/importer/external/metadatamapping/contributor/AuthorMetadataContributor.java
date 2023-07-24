@@ -111,10 +111,16 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
 
         addMetadatum(metadatums, getMetadata(getElementValue(surname) + ", " +
             getElementValue(givenName), this.authname));
-        addMetadatum(metadatums, getMetadata(getElementValue(scopusId), this.scopusId));
-        addMetadatum(metadatums, getMetadata(getElementValue(orcid), this.orcid));
-        addMetadatum(metadatums, getMetadata(StringUtils.isNotBlank(afid.getValue())
-                                 ? this.affId2affName.get(afid.getValue()) : null, this.affiliation));
+        if (this.scopusId != null) {
+            addMetadatum(metadatums, getMetadata(getElementValue(scopusId), this.scopusId));
+        }
+        if (this.orcid != null) {
+            addMetadatum(metadatums, getMetadata(getElementValue(orcid), this.orcid));
+        }
+        if (this.affiliation != null) {
+            addMetadatum(metadatums, getMetadata(StringUtils.isNotBlank(afid.getValue())
+                    ? this.affId2affName.get(afid.getValue()) : null, this.affiliation));
+        }
         return metadatums;
     }
 

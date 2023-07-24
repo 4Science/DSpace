@@ -33,7 +33,7 @@ public class SimpleXpathMetadatumAndAttributeContributor extends SimpleXpathMeta
 
     private final static Logger log = LogManager.getLogger();
 
-    private String attribute;
+    protected String attribute;
 
     @Override
     public Collection<MetadatumDTO> contributeMetadata(Element t) {

@@ -275,19 +275,19 @@ metadata.extraction.grobid.url =
 # LOOKUP SUBMISSION PROVIDER CONFIGURATION #
 ############################################
 # In order to use the Astrophysics Data System services you need to obtain an API Key from Astrophysics Data System. Once you get it, add it to the following configuration value.
-# Note that when apikey is configured by default the service is enabled, see bte.xml for further configuration
-submission.lookup.ads.apikey =
+# Note that when apikey is configured by default the service is enabled, see spring-dspace-addon-import-services.xml for further configuration
+ads.key =
 
 # In order to use the EPO services you need to obtain an API Key from https://developers.epo.org. Once you get it, add it to the
 # following configuration value.
-# Note that when apikey is configured by default the service is enabled, see bte.xml for further configuration
+# Note that when apikey is configured by default the service is enabled, see spring-dspace-addon-import-services.xml for further configuration
 epo.consumerKey=
 epo.consumerSecretKey=
 
 # VuFind endpoints (i.e. https://vufind.org/demo/api/v1/...)
 # please note that VuFind API are IP protected so you need to configure it to grant access from the DSpace Server IP
-vufind.api-search =
-vufind.api-record =
+vufind.url.search =
+vufind.url =
 
 ##########################################
 # ORCID Integration                      #

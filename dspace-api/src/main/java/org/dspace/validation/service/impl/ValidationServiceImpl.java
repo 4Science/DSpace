@@ -9,6 +9,7 @@ package org.dspace.validation.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.dspace.app.util.SubmissionConfig;
@@ -54,23 +55,51 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj) {
 
-        List<ValidationError> errors = new ArrayList<ValidationError>();
-
         SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByInProgressSubmission(obj);
 
-        for (SubmissionStepConfig stepConfig : submissionConfig) {
-            stepValidators.stream()
-                .filter(validation -> validation.getName().equals(stepConfig.getType()))
-                .flatMap(validation -> validation.validate(context, obj, stepConfig).stream())
-                .forEach(errors::add);
-        }
+        List<ValidationError> errors = new ArrayList<ValidationError>();
 
-        globalValidators.stream()
-            .flatMap(validator -> validator.validate(context, obj, submissionConfig).stream())
-            .forEach(errors::add);
+        errors.addAll(notHiddenStepsValidations(context, obj, submissionConfig));
+        errors.addAll(globalValidations(context, obj, submissionConfig));
 
         return errors;
 
     }
+
+    private List<ValidationError> notHiddenStepsValidations(Context context, InProgressSubmission<?> obj,
+        SubmissionConfig submissionConfig) {
+
+        List<ValidationError> errors = new ArrayList<ValidationError>();
+
+        for (SubmissionStepConfig stepConfig : submissionConfig) {
+
+            if (isStepHiddenOrReadOnly(stepConfig, obj)) {
+                continue;
+            }
+
+            stepValidators.stream()
+                .filter(validation -> validation.getName().equals(stepConfig.getType()))
+                .flatMap(validation -> validation.validate(context, obj, stepConfig).stream())
+                .forEach(errors::add);
+
+        }
+
+        return errors;
+
+    }
+
+    private List<ValidationError> globalValidations(Context context, InProgressSubmission<?> obj,
+        SubmissionConfig submissionConfig) {
+
+        return globalValidators.stream()
+            .flatMap(validator -> validator.validate(context, obj, submissionConfig).stream())
+            .collect(Collectors.toList());
+
+    }
+
+    private boolean isStepHiddenOrReadOnly(SubmissionStepConfig stepConfig, InProgressSubmission<?> obj) {
+        return stepConfig.isHiddenForInProgressSubmission(obj) || stepConfig.isReadOnlyForInProgressSubmission(obj);
+    }
+
 
 }
