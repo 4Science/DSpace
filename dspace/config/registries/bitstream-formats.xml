@@ -819,4 +819,40 @@
         <extension>vtt</extension>
     </bitstream-type>
 
+    <bitstream-type>
+        <mimetype>audio/aac</mimetype>
+        <short_description>AAC</short_description>
+        <description>AAC - Advanced Audio Coding</description>
+        <support_level>1</support_level>
+        <internal>false</internal>
+        <extension>aac</extension>
+    </bitstream-type>
+
+    <bitstream-type>
+        <mimetype>audio/flac</mimetype>
+        <short_description>FLAC</short_description>
+        <description>FLAC - Free Lossless Audio Codec</description>
+        <support_level>1</support_level>
+        <internal>false</internal>
+        <extension>flac</extension>
+    </bitstream-type>
+
+    <bitstream-type>
+        <mimetype>video/avi</mimetype>
+        <short_description>AVI</short_description>
+        <description>AVI - Audio Video Interleave</description>
+        <support_level>1</support_level>
+        <internal>false</internal>
+        <extension>avi</extension>
+    </bitstream-type>
+
+    <bitstream-type>
+        <mimetype>video/x-flv</mimetype>
+        <short_description>FLV</short_description>
+        <description>FLV - Flash Video</description>
+        <support_level>1</support_level>
+        <internal>false</internal>
+        <extension>flv</extension>
+    </bitstream-type>
+
 </dspace-bitstream-types>
