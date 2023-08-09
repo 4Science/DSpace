@@ -8,6 +8,7 @@
 package org.dspace.app.packager;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.dspace.content.packager.PackageDisseminator;
 import org.dspace.content.packager.PackageIngester;
@@ -76,6 +77,16 @@ public class PackagerCLI extends Packager {
     }
 
     @Override
+    public void setSourceFile(Context context, boolean isGiven) {
+        if (commandLine.hasOption('z')) {
+            sourceFile = commandLine.getOptionValue('z');
+        } else {
+            handler.logError("Missing source file");
+            throw new UnsupportedOperationException("Missing source file");
+        }
+    }
+
+    @Override
     public void setUserInteraction() {
         if (commandLine.hasOption('u')) {
             userInteractionEnabled = false;
@@ -95,4 +106,7 @@ public class PackagerCLI extends Packager {
 
         return epersonService.findByEmail(context, eperson);
     }
+
+    @Override
+    public void attachOutput(Context context, UUID itemUuid) {}
 }

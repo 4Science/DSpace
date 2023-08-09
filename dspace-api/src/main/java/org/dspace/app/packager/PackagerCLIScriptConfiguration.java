@@ -60,6 +60,7 @@ public class PackagerCLIScriptConfiguration extends PackagerScriptConfiguration<
                           "Skips over all user interaction (i.e. [y/n] question prompts) within this script. This " +
                               "flag can be used if you want to save (pipe) a report of all changes to a file, and " +
                               "therefore need to bypass all user interaction.");
+        options.addOption("z", "file-path", true, "The path to the file");
 
         return options;
     }

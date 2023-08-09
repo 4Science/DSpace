@@ -9,13 +9,18 @@ package org.dspace.app.packager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.crosswalk.CrosswalkException;
@@ -120,6 +125,9 @@ import org.dspace.workflow.WorkflowException;
  * @version $Revision$
  */
 public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
+
+    public static String PACKAGER_FILENAME_PREFIX = "packager";
+
     /* Various private global settings/options */
     protected String packageType = null;
     protected boolean submit = true;
@@ -460,10 +468,6 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
             // in case it helps with packaging or ingestion process
             pkgParams.setRecursiveModeEnabled(true);
         }
-        String files[] = commandLine.getArgs();
-        if (files.length > 0) {
-            sourceFile = files[files.length - 1];
-        }
         if (commandLine.hasOption('d')) {
             submit = false;
         }
@@ -480,10 +484,6 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
         if (packageType == null) {
             handler.logError("Missing package type parameter");
             throw new UnsupportedOperationException("Missing package type parameter");
-        }
-        if (sourceFile == null) {
-            handler.logError("Missing source file");
-            throw new UnsupportedOperationException("Missing source file");
         }
 
         if (commandLine.hasOption('o')) {
@@ -502,13 +502,12 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
         }
 
         // find the EPerson, assign to context
-        Context context = new Context();
+        Context context = new Context(Context.Mode.BATCH_EDIT);
         EPerson eperson = getEPerson(context);
         context.setCurrentUser(eperson);
 
         //If we are in REPLACE mode
         if (pkgParams.replaceModeEnabled()) {
-            context.setMode(Context.Mode.BATCH_EDIT);
             PackageIngester sip = (PackageIngester) pluginService
                 .getNamedPlugin(PackageIngester.class, packageType);
             if (sip == null) {
@@ -548,6 +547,8 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
                 handler.logInfo("Beginning replacement process...");
 
                 try {
+                    setSourceFile(context, true);
+
                     //replace the object from the source file
                     replace(context, sip, pkgParams, sourceFile, objToReplace);
 
@@ -561,7 +562,6 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
 
         } else if (submit || pkgParams.restoreModeEnabled()) {
             //else if normal SUBMIT mode (or basic RESTORE mode -- which is a special type of submission)
-            context.setMode(Context.Mode.BATCH_EDIT);
 
             PackageIngester sip = (PackageIngester) pluginService
                 .getNamedPlugin(PackageIngester.class, packageType);
@@ -592,6 +592,8 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
             }
 
             try {
+                setSourceFile(context, true);
+
                 //ingest the object from the source file
                 ingest(context, sip, pkgParams, sourceFile, parentObjs);
 
@@ -603,7 +605,6 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
             }
         } else {
             // else, if DISSEMINATE mode
-            context.setMode(Context.Mode.READ_ONLY);
 
             //retrieve specified package disseminator
             PackageDisseminator dip = (PackageDisseminator) pluginService
@@ -620,8 +621,20 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
                                                        + "Cannot resolve handle \"" + identifier + "\"");
             }
 
-            //disseminate the requested object
-            disseminate(context, dip, dso, pkgParams, sourceFile);
+            try {
+                setSourceFile(context, false);
+
+                //disseminate the requested object
+                disseminate(context, dip, dso, pkgParams, sourceFile);
+
+                attachOutput(context, dso.getID());
+
+                //commit all changes & exit successfully
+                context.complete();
+            } catch (Exception e) {
+                context.abort();
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -675,6 +688,31 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
         handler.logInfo(helpString.toString());
     }
 
+    public void setSourceFile(Context context, boolean isGiven)
+            throws IOException, AuthorizeException {
+        if (isGiven) {
+            if (!commandLine.hasOption('z')) {
+                handler.logError("Missing source file");
+                throw new UnsupportedOperationException("Missing source file");
+            }
+            String attachedFile = commandLine.getOptionValue('z');
+            Optional<InputStream> optionalFileStream = Optional.empty();
+            // manage zip via upload
+            optionalFileStream = handler.getFileStream(context, attachedFile);
+            if (optionalFileStream.isPresent()) {
+                sourceFile = FileUtils.getTempDirectoryPath() + File.separator
+                        + attachedFile + "-" + UUID.randomUUID();
+                FileUtils.copyInputStreamToFile(optionalFileStream.get(), new File(sourceFile));
+            } else {
+                throw new IllegalArgumentException(
+                        "Error reading file, the file couldn't be found for filename: " + sourceFile);
+            }
+        } else {
+            sourceFile = FileUtils.getTempDirectoryPath() + File.separator
+                    + PACKAGER_FILENAME_PREFIX + "-" + UUID.randomUUID();
+        }
+    }
+
     public void setUserInteraction() {
         // from UI the user interaction is disabled
         userInteractionEnabled = false;
@@ -687,5 +725,17 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
             throw new UnsupportedOperationException("EPerson cannot be found: " + this.getEpersonIdentifier());
         }
         return eperson;
+    }
+
+    public void attachOutput(Context context, UUID itemUuid)
+            throws FileNotFoundException, IOException, SQLException, AuthorizeException {
+        // write input stream on handler
+        File source = new File(sourceFile);
+        try (InputStream sourceInputStream = new FileInputStream(source)) {
+            handler.writeFilestream(context, PACKAGER_FILENAME_PREFIX + "-" + itemUuid,
+                    sourceInputStream, packageType.toLowerCase());
+        } finally {
+            source.delete();
+        }
     }
 }
