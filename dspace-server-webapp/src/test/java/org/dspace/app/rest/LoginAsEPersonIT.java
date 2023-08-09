@@ -162,6 +162,54 @@ public class LoginAsEPersonIT extends AbstractControllerIntegrationTest {
 
     }
 
+    @Test
+    public void loggedInAdminImpersonateAnotherAdminTest() throws Exception {
+
+        configurationService.setProperty("webui.user.assumelogin.admin", true);
+
+        try {
+            context.turnOffAuthorisationSystem();
+
+            EPerson testEperson = EPersonBuilder.createEPerson(context)
+                                                .withEmail("loginasuseradmin@test.com")
+                                                .build();
+
+            Group adminGroup = groupService.findByName(context, Group.ADMIN);
+            groupService.addMember(context, adminGroup, testEperson);
+            context.restoreAuthSystemState();
+
+            String token = getAuthToken(admin.getEmail(), password);
+
+            getClient(token).perform(get("/api/authn/status")
+                                .header("X-On-Behalf-Of", testEperson.getID()))
+                            .andExpect(status().isOk());
+        } finally {
+            configurationService.setProperty("webui.user.assumelogin.admin", false);
+        }
+    }
+
+    @Test
+    public void loggedInAdminCanNotImpersonateAnotherAdminTest() throws Exception {
+
+        configurationService.setProperty("webui.user.assumelogin.admin", false);
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson testEperson = EPersonBuilder.createEPerson(context)
+                                            .withEmail("loginasuseradmin@test.com")
+                                            .build();
+
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        groupService.addMember(context, adminGroup, testEperson);
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(get("/api/authn/status")
+                                     .header("X-On-Behalf-Of", testEperson.getID()))
+                        .andExpect(status().isBadRequest());
+    }
+
     /**
      * This test will try to create an empty Workspace item whilst using the LoginOnBehalfOf feature
      * It'll then check that the submitter of that workspace item is indeed the eperson that was being

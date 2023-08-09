@@ -7,8 +7,6 @@
  */
 package org.dspace.app.rest.authorization;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,19 +15,19 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.authorization.impl.CanSubscribeFeature;
 import org.dspace.app.rest.converter.CollectionConverter;
 import org.dspace.app.rest.converter.CommunityConverter;
 import org.dspace.app.rest.converter.ItemConverter;
+import org.dspace.app.rest.matcher.AuthorizationMatcher;
 import org.dspace.app.rest.model.CollectionRest;
 import org.dspace.app.rest.model.CommunityRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
-import org.dspace.app.rest.utils.Utils;
-import org.dspace.app.suggestion.SolrSuggestionProvider;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.ResourcePolicyService;
@@ -47,289 +45,255 @@ import org.dspace.core.Constants;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 /**
  * Test of Subscribe Dso Feature implementation.
  *
- * @author Alba Aliu (alba.aliu at 4science.it)
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
 public class CanSubscribeFeatureIT extends AbstractControllerIntegrationTest {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SolrSuggestionProvider.class);
+
+    private static final Logger log = LogManager.getLogger(CanSubscribeFeatureIT.class);
 
     @Autowired
     private ItemConverter itemConverter;
     @Autowired
     private CollectionConverter collectionConverter;
     @Autowired
-    private Utils utils;
-    @Autowired
     private CommunityConverter communityConverter;
-    private Collection collectionAuthorized;
-    private Community communityAuthorized;
-    private AuthorizationFeature canSubscribeFeature;
     @Autowired
     private AuthorizationFeatureService authorizationFeatureService;
     @Autowired
     private ResourcePolicyService resourcePolicyService;
+
+    private Community communityAuthorized;
+    private Collection collectionAuthorized;
+    private AuthorizationFeature canSubscribeFeature;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context).withName("Community").build();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .build();
         communityAuthorized = CommunityBuilder.createCommunity(context)
-                .withName("communityA")
-                .withAdminGroup(admin).build();
-
+                                              .withName("communityA")
+                                              .build();
         collectionAuthorized = CollectionBuilder.createCollection(context, communityAuthorized)
-                .withName("Collection A")
-                .withAdminGroup(admin).build();
+                                                .withName("Collection A")
+                                                .build();
         context.restoreAuthSystemState();
         canSubscribeFeature = authorizationFeatureService.find(CanSubscribeFeature.NAME);
     }
 
     @Test
-    public void testCanSubscribeCommunity() throws Exception {
-        context.turnOffAuthorisationSystem();
-        EPerson ePersonAuthorized = EPersonBuilder.createEPerson(context)
-                .withCanLogin(true)
-                .withPassword(password)
-                .withEmail("test@email.it")
-                .build();
-        String token = getAuthToken(ePersonAuthorized.getEmail(), password);
-        CommunityRest comRest = communityConverter.convert(parentCommunity, DefaultProjection.DEFAULT);
-        String comUri = utils.linkToSingleResource(comRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded").exists())
-                .andExpect(jsonPath("$.page.totalElements", greaterThan(0)));
-
-    }
-
-    @Test
-    public void anonymousCanSubscribeCommunityTest() throws Exception {
+    public void canSubscribeCommunityAndCollectionTest() throws Exception {
         context.turnOffAuthorisationSystem();
         CommunityRest comRest = communityConverter.convert(parentCommunity, DefaultProjection.DEFAULT);
-        String comUri = utils.linkToSingleResource(comRest, "self").getHref();
+        CollectionRest colRest = collectionConverter.convert(collectionAuthorized, DefaultProjection.DEFAULT);
+
+        // define authorizations that we know must exists
+        Authorization epersonToCommunity = new Authorization(eperson, canSubscribeFeature, comRest);
+        Authorization adminToCommunity = new Authorization(admin, canSubscribeFeature, comRest);
+        Authorization epersonToCollection = new Authorization(eperson, canSubscribeFeature, colRest);
+        Authorization adminToCollection = new Authorization(admin, canSubscribeFeature, colRest);
+
+        // define authorization that we know not exists
+        Authorization anonymousToCommunity = new Authorization(null, canSubscribeFeature, comRest);
+        Authorization anonymousToCollection = new Authorization(null, canSubscribeFeature, colRest);
         context.restoreAuthSystemState();
-        getClient().perform(get("/api/authz/authorizations/search/object")
-                       .param("uri", comUri)
-                       .param("feature", canSubscribeFeature.getName())
-                       .param("embed", "feature"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded").doesNotExist())
-                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+
+        getClient(tokenEPerson).perform(get("/api/authz/authorizations/" + epersonToCommunity.getID()))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$", Matchers.is(
+                                          AuthorizationMatcher.matchAuthorization(epersonToCommunity))));
+
+        getClient(tokenAdmin).perform(get("/api/authz/authorizations/" + adminToCommunity.getID()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", Matchers.is(
+                                        AuthorizationMatcher.matchAuthorization(adminToCommunity))));
+
+        getClient(tokenEPerson).perform(get("/api/authz/authorizations/" + epersonToCollection.getID()))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$", Matchers.is(
+                                          AuthorizationMatcher.matchAuthorization(epersonToCollection))));
+
+        getClient(tokenAdmin).perform(get("/api/authz/authorizations/" + adminToCollection.getID()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", Matchers.is(
+                                        AuthorizationMatcher.matchAuthorization(adminToCollection))));
+
+        getClient().perform(get("/api/authz/authorizations/" + anonymousToCommunity.getID()))
+                   .andExpect(status().isNotFound());
+
+        getClient().perform(get("/api/authz/authorizations/" + anonymousToCollection.getID()))
+                   .andExpect(status().isNotFound());
     }
 
     @Test
-    public void anonymousCanSubscribeCollectionTest() throws Exception {
+    public void canNotSubscribeItemTest() throws Exception {
         context.turnOffAuthorisationSystem();
-        Collection collectionWithReadPermission = CollectionBuilder.createCollection(context, communityAuthorized)
-                                                                   .build();
-        context.restoreAuthSystemState();
-        CollectionRest collectionRest = collectionConverter.convert(collectionWithReadPermission, Projection.DEFAULT);
-        String comUri = utils.linkToSingleResource(collectionRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient().perform(get("/api/authz/authorizations/search/object")
-                      .param("uri", comUri)
-                      .param("feature", canSubscribeFeature.getName())
-                      .param("embed", "feature"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded").doesNotExist())
-                   .andExpect(jsonPath("$.page.totalElements", is(0)));
-    }
-
-    @Test
-    public void anonymousCanSubscribeItemTest() throws Exception {
-        context.turnOffAuthorisationSystem();
+        EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)
+                                                              .withCanLogin(true)
+                                                              .withPassword(password)
+                                                              .withEmail("test@email.it")
+                                                              .build();
+        // the user to be tested is not part of the group with read permission
+        Group groupWithReadPermission = GroupBuilder.createGroup(context)
+                                                    .withName("Group A")
+                                                    .addMember(eperson)
+                                                    .build();
         Item item = ItemBuilder.createItem(context, collectionAuthorized)
                                .withTitle("Test item")
                                .build();
-        context.restoreAuthSystemState();
-        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
-        String comUri = utils.linkToSingleResource(itemRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient().perform(get("/api/authz/authorizations/search/object")
-                      .param("uri", comUri)
-                      .param("feature", canSubscribeFeature.getName())
-                      .param("embed", "feature"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded").doesNotExist())
-                   .andExpect(jsonPath("$.page.totalElements", is(0)));
-    }
 
-    @Test
-    public void testCanNotSubscribeItem() throws Exception {
-        context.turnOffAuthorisationSystem();
-        EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)
-                .withCanLogin(true)
-                .withPassword(password)
-                .withEmail("test@email.it")
-                .build();
-        // the user to be tested is not part of the group with read permission
-        Group groupWithReadPermission = GroupBuilder.createGroup(context)
-                .withName("Group A")
-                .addMember(admin)
-                .build();
-        Item item = ItemBuilder.createItem(context, collectionAuthorized)
-                .withTitle("Test item")
-                .build();
         cleanUpPermissions(resourcePolicyService.find(context, item));
         setPermissions(item, groupWithReadPermission, Constants.READ);
-        item.setSubmitter(eperson);
-        context.restoreAuthSystemState();
+
         ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
-        String token = getAuthToken(ePersonNotSubscribePermission.getEmail(), password);
-        String comUri = utils.linkToSingleResource(itemRest, "self").getHref();
+
+        // define authorization that we know not exists
+        Authorization anonymousToItem = new Authorization(null, canSubscribeFeature, itemRest);
+        Authorization epersonToItem = new Authorization(eperson, canSubscribeFeature, itemRest);
+        Authorization adminToItem = new Authorization(admin, canSubscribeFeature, itemRest);
+        Authorization ePersonNotSubscribePermissionToItem = new Authorization(ePersonNotSubscribePermission,
+                                                                              canSubscribeFeature, itemRest);
+
         context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.page.totalElements", is(0)))
-                .andExpect(jsonPath("$.page.totalPages", is(0)))
-                .andExpect(jsonPath("$.page.number", is(0)))
-                // default value of page size
-                .andExpect(jsonPath("$.page.size", is(20)));
+
+        String token1 = getAuthToken(eperson.getEmail(), password);
+        String token2 = getAuthToken(admin.getEmail(), password);
+        String token3 = getAuthToken(ePersonNotSubscribePermission.getEmail(), password);
+
+        getClient(token1).perform(get("/api/authz/authorizations/" + epersonToItem.getID()))
+                         .andExpect(status().isOk())
+                         .andExpect(jsonPath("$", Matchers.is(AuthorizationMatcher.matchAuthorization(epersonToItem))));
+
+        getClient(token2).perform(get("/api/authz/authorizations/" + adminToItem.getID()))
+                         .andExpect(status().isOk())
+                         .andExpect(jsonPath("$", Matchers.is(AuthorizationMatcher.matchAuthorization(adminToItem))));
+
+        getClient(token3).perform(get("/api/authz/authorizations/" + ePersonNotSubscribePermissionToItem.getID()))
+                         .andExpect(status().isNotFound());
+
+        getClient().perform(get("/api/authz/authorizations/" + anonymousToItem.getID()))
+                   .andExpect(status().isNotFound());
     }
 
     @Test
-    public void testCanNotSubscribeCollection() throws Exception {
+    public void canNotSubscribeCollectionTest() throws Exception {
         context.turnOffAuthorisationSystem();
-        Collection collectionWithReadPermission = CollectionBuilder.createCollection(context, communityAuthorized)
-                .withAdminGroup(admin).build();
+
+        EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)
+                                                              .withCanLogin(true)
+                                                              .withPassword(password)
+                                                              .withEmail("test@email.it")
+                                                              .build();
+
+        // the user to be tested is not part of the group with read permission
+        Group groupWithReadPermission = GroupBuilder.createGroup(context)
+                                                    .withName("Group A")
+                                                    .addMember(eperson)
+                                                    .build();
+
+        cleanUpPermissions(resourcePolicyService.find(context, collectionAuthorized));
+        setPermissions(collectionAuthorized, groupWithReadPermission, Constants.READ);
+
+        CollectionRest collectionRest = collectionConverter.convert(collectionAuthorized, Projection.DEFAULT);
+
+        // define authorizations that we know must exists
+        Authorization epersonToCollection = new Authorization(eperson, canSubscribeFeature, collectionRest);
+        Authorization adminToCollection = new Authorization(admin, canSubscribeFeature, collectionRest);
+
+        // define authorization that we know not exists
+        Authorization ePersonNotSubscribePermissionToColl = new Authorization(ePersonNotSubscribePermission,
+                                                                              canSubscribeFeature, collectionRest);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+        String token = getAuthToken(ePersonNotSubscribePermission.getEmail(), password);
+
+        getClient(tokenEPerson).perform(get("/api/authz/authorizations/" + epersonToCollection.getID()))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$", Matchers.is(
+                                          AuthorizationMatcher.matchAuthorization(epersonToCollection))));
+
+        getClient(tokenAdmin).perform(get("/api/authz/authorizations/" + adminToCollection.getID()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", Matchers.is(
+                                        AuthorizationMatcher.matchAuthorization(adminToCollection))));
+
+        getClient(token).perform(get("/api/authz/authorizations/" + ePersonNotSubscribePermissionToColl.getID()))
+                        .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void canNotSubscribeCommunityTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
         EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)
                 .withCanLogin(true)
                 .withPassword(password)
                 .withEmail("test@email.it")
                 .build();
+
         // the user to be tested is not part of the group with read permission
         Group groupWithReadPermission = GroupBuilder.createGroup(context)
                 .withName("Group A")
                 .addMember(eperson)
                 .build();
-        cleanUpPermissions(resourcePolicyService.find(context, collectionWithReadPermission));
-        setPermissions(collectionWithReadPermission, groupWithReadPermission, Constants.READ);
+
+        cleanUpPermissions(resourcePolicyService.find(context, communityAuthorized));
+        setPermissions(communityAuthorized, groupWithReadPermission, Constants.READ);
+
+        CommunityRest communityRest = communityConverter.convert(communityAuthorized, Projection.DEFAULT);
+
+        // define authorizations that we know must exists
+        Authorization epersonToComm = new Authorization(eperson, canSubscribeFeature, communityRest);
+        Authorization adminToComm = new Authorization(admin, canSubscribeFeature, communityRest);
+
+        // define authorization that we know not exists
+        Authorization ePersonNotSubscribePermissionToComm = new Authorization(ePersonNotSubscribePermission,
+                                                                              canSubscribeFeature, communityRest);
+
         context.restoreAuthSystemState();
-        CollectionRest collectionRest = collectionConverter.convert(collectionWithReadPermission, Projection.DEFAULT);
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
         String token = getAuthToken(ePersonNotSubscribePermission.getEmail(), password);
-        String comUri = utils.linkToSingleResource(collectionRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.page.totalElements", is(0)))
-                .andExpect(jsonPath("$.page.totalPages", is(0)))
-                .andExpect(jsonPath("$.page.number", is(0)))
-                // default value of page size
-                .andExpect(jsonPath("$.page.size", is(20)));
-    }
 
-    @Test
-    public void testCanNotSubscribeCommunity() throws Exception {
-        context.turnOffAuthorisationSystem();
-        Community communityWithReadPermissions = CommunityBuilder.createCommunity(context).build();
-        EPerson ePersonNotSubscribePermission = EPersonBuilder.createEPerson(context)
-                .withCanLogin(true)
-                .withPassword(password)
-                .withEmail("test@email.it")
-                .build();
-        // the user to be tested is not part of the group with read permission
-        Group groupWithReadPermission = GroupBuilder.createGroup(context)
-                .withName("Group A")
-                .addMember(admin)
-                .addMember(eperson)
-                .build();
-        cleanUpPermissions(resourcePolicyService.find(context, communityWithReadPermissions));
-        setPermissions(communityWithReadPermissions, groupWithReadPermission, Constants.READ);
-        context.restoreAuthSystemState();
-        CommunityRest communityRest = communityConverter.convert(communityWithReadPermissions, Projection.DEFAULT);
-        String token = getAuthToken(ePersonNotSubscribePermission.getEmail(), password);
-        String comUri = utils.linkToSingleResource(communityRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.page.totalElements", is(0)))
-                .andExpect(jsonPath("$.page.totalPages", is(0)))
-                .andExpect(jsonPath("$.page.number", is(0)))
-                // default value of page size
-                .andExpect(jsonPath("$.page.size", is(20)));
-    }
+        getClient(tokenEPerson).perform(get("/api/authz/authorizations/" + epersonToComm.getID()))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$", Matchers.is(
+                                          AuthorizationMatcher.matchAuthorization(epersonToComm))));
 
-    @Test
-    public void testCanSubscribeCollection() throws Exception {
-        context.turnOffAuthorisationSystem();
-        Collection collectionWithReadPermission = CollectionBuilder.createCollection(context, communityAuthorized)
-                .withAdminGroup(admin).build();
-        EPerson ePersonSubscribePermission = EPersonBuilder.createEPerson(context)
-                .withCanLogin(true)
-                .withPassword(password)
-                .withEmail("test@email.it")
-                .build();
-        context.restoreAuthSystemState();
-        CollectionRest collectionRest = collectionConverter.convert(collectionWithReadPermission, Projection.DEFAULT);
-        String token = getAuthToken(ePersonSubscribePermission.getEmail(), password);
-        String comUri = utils.linkToSingleResource(collectionRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded").exists())
-                .andExpect(jsonPath("$.page.totalElements", greaterThan(0)));
-    }
+        getClient(tokenAdmin).perform(get("/api/authz/authorizations/" + adminToComm.getID()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", Matchers.is(
+                                        AuthorizationMatcher.matchAuthorization(adminToComm))));
 
-    @Test
-    public void testCanSubscribeItem() throws Exception {
-        context.turnOffAuthorisationSystem();
-        EPerson ePersonSubscribePermission = EPersonBuilder.createEPerson(context)
-                .withCanLogin(true)
-                .withPassword(password)
-                .withEmail("test@email.it")
-                .build();
-        Item item = ItemBuilder.createItem(context, collectionAuthorized)
-                .withTitle("Test item")
-                .build();
-        context.restoreAuthSystemState();
-        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
-        String token = getAuthToken(ePersonSubscribePermission.getEmail(), password);
-        String comUri = utils.linkToSingleResource(itemRest, "self").getHref();
-        context.restoreAuthSystemState();
-        getClient(token).perform(get("/api/authz/authorizations/search/object")
-                        .param("uri", comUri)
-                        .param("feature", canSubscribeFeature.getName())
-                        .param("embed", "feature"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded").exists())
-                .andExpect(jsonPath("$.page.totalElements", greaterThan(0)));
+        getClient(token).perform(get("/api/authz/authorizations/" + ePersonNotSubscribePermissionToComm.getID()))
+                        .andExpect(status().isNotFound());
     }
 
     private void setPermissions(DSpaceObject dSpaceObject, Group group, Integer permissions) {
         try {
             ResourcePolicyBuilder.createResourcePolicy(context)
-                    .withDspaceObject(dSpaceObject)
-                    .withAction(permissions)
-                    .withGroup(group)
-                    .build();
+                                 .withDspaceObject(dSpaceObject)
+                                 .withAction(permissions)
+                                 .withGroup(group)
+                                 .build();
         } catch (SQLException | AuthorizeException sqlException) {
             log.error(sqlException.getMessage());
         }
@@ -340,9 +304,9 @@ public class CanSubscribeFeatureIT extends AbstractControllerIntegrationTest {
             for (ResourcePolicy resourcePolicy : resourcePolicies) {
                 ResourcePolicyBuilder.delete(resourcePolicy.getID());
             }
-
         } catch (SQLException | SearchServiceException | IOException sqlException) {
             log.error(sqlException.getMessage());
         }
     }
+
 }

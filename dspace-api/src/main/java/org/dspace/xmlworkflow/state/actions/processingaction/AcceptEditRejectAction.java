@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCDate;
-import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.core.Context;
 import org.dspace.versioning.ItemCorrectionService;
 import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
@@ -36,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class AcceptEditRejectAction extends ProcessingAction {
 
-    private static final String SUBMIT_APPROVE = "submit_approve";
-    private static final String SUBMIT_REJECT = "submit_reject";
     private static final String SUBMITTER_IS_DELETED_PAGE = "submitter_deleted";
 
     //TODO: rename to AcceptAndEditMetadataAction
@@ -58,7 +54,7 @@ public class AcceptEditRejectAction extends ProcessingAction {
                 case SUBMIT_APPROVE:
                     return processAccept(c, wfi);
                 case SUBMIT_REJECT:
-                    return processRejectPage(c, wfi, request);
+                    return super.processRejectPage(c, wfi, request);
                 case SUBMITTER_IS_DELETED_PAGE:
                     return processSubmitterIsDeletedPage(c, wfi, request);
                 default:
@@ -74,31 +70,16 @@ public class AcceptEditRejectAction extends ProcessingAction {
         options.add(SUBMIT_APPROVE);
         options.add(SUBMIT_REJECT);
         options.add(ProcessingAction.SUBMIT_EDIT_METADATA);
+        options.add(RETURN_TO_POOL);
         return options;
     }
 
     public ActionResult processAccept(Context c, XmlWorkflowItem wfi)
             throws SQLException, AuthorizeException {
         //Delete the tasks
-        addApprovedProvenance(c, wfi);
+        super.addApprovedProvenance(c, wfi);
 
         return new ActionResult(ActionResult.TYPE.TYPE_OUTCOME, ActionResult.OUTCOME_COMPLETE);
-    }
-
-    public ActionResult processRejectPage(Context c, XmlWorkflowItem wfi, HttpServletRequest request)
-            throws SQLException, AuthorizeException, IOException {
-        String reason = request.getParameter("reason");
-        if (reason == null || 0 == reason.trim().length()) {
-            addErrorField(request, "reason");
-            return new ActionResult(ActionResult.TYPE.TYPE_ERROR);
-        }
-
-        // We have pressed reject, so remove the task the user has & put it back
-        // to a workspace item
-        XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService().sendWorkflowItemBackSubmission(c, wfi,
-                c.getCurrentUser(), this.getProvenanceStartId(), reason);
-
-        return new ActionResult(ActionResult.TYPE.TYPE_SUBMISSION_PAGE);
     }
 
     public ActionResult processSubmitterIsDeletedPage(Context c, XmlWorkflowItem wfi, HttpServletRequest request)
@@ -117,26 +98,4 @@ public class AcceptEditRejectAction extends ProcessingAction {
         }
     }
 
-    private void addApprovedProvenance(Context c, XmlWorkflowItem wfi) throws SQLException, AuthorizeException {
-        //Add the provenance for the accept
-        String now = DCDate.getCurrent().toString();
-
-        // Get user's name + email address
-        String usersName = XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService()
-                .getEPersonName(c.getCurrentUser());
-
-        String provDescription;
-        if (itemCorrectionService.checkIfIsCorrectionItem(c, wfi.getItem())) {
-            provDescription = getProvenanceStartId() + " Correction approved for entry into archive by "
-                + usersName + " on " + now + " (GMT) ";
-        } else {
-            provDescription = getProvenanceStartId() + " Approved for entry into archive by "
-                + usersName + " on " + now + " (GMT) ";
-        }
-
-        // Add to item as a DC field
-        itemService.addMetadata(c, wfi.getItem(), MetadataSchemaEnum.DC.getName(), "description", "provenance", "en",
-                provDescription);
-        itemService.update(c, wfi.getItem());
-    }
 }

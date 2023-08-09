@@ -360,7 +360,7 @@ public class Email {
             repo.putStringResource(contentName, content);
             // Turn content into a template.
             template = templateEngine.getTemplate(contentName);
-            templateHeaders = new String[] {};
+            templateHeaders = new String[] {"subject"};
         }
 
         StringWriter writer = new StringWriter();
@@ -398,7 +398,7 @@ public class Email {
         for (String headerName : templateHeaders) {
             String headerValue = (String) vctx.get(headerName);
             if ("subject".equalsIgnoreCase(headerName)) {
-                if (null != subject) {
+                if (null != headerValue) {
                     subject = headerValue;
                 }
             } else if ("charset".equalsIgnoreCase(headerName)) {

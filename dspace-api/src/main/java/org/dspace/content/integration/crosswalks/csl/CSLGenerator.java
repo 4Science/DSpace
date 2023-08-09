@@ -23,6 +23,6 @@ public interface CSLGenerator {
      * @param  format           the citation format
      * @return                  the generated citations
      */
-    String generate(DSpaceListItemDataProvider itemDataProvider, String style, String format);
+    CSLResult generate(DSpaceListItemDataProvider itemDataProvider, String style, String format);
 
 }

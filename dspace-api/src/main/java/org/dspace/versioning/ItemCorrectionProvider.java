@@ -10,8 +10,12 @@ package org.dspace.versioning;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -20,10 +24,11 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.RelationshipMetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
@@ -37,6 +42,12 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
 
     Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemCorrectionProvider.class);
 
+    private Set<String> ignoredMetadataFieldsOfCreation;
+
+    private Set<String> ignoredMetadataFieldsOfMerging;
+
+    private Set<String> bundles;
+
     @Autowired(required = true)
     protected WorkspaceItemService workspaceItemService;
 
@@ -46,10 +57,13 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
     public WorkspaceItem createNewItemAndAddItInWorkspace(Context context, Collection collection, Item nativeItem)
             throws AuthorizeException, IOException, SQLException {
 
+        Set<String> ignoredMetadataFieldsOfCreation =
+            Sets.union(getIgnoredMetadataFields(), getIgnoredMetadataFieldsOfCreation());
+
         WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
         Item itemNew = workspaceItem.getItem();
         // copy metadata from native item to corrected item
-        copyMetadata(context, itemNew, nativeItem);
+        copyMetadata(context, itemNew, nativeItem, ignoredMetadataFieldsOfCreation);
         context.turnOffAuthorisationSystem();
         // copy bundles and bitstreams from native item
         createBundlesAndAddBitstreams(context, itemNew, nativeItem);
@@ -67,15 +81,15 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
     public XmlWorkflowItem updateNativeItemWithCorrection(Context context, XmlWorkflowItem workflowItem,
             Item correctionItem, Item nativeItem) throws AuthorizeException, IOException, SQLException {
 
-        // save entity type
-        MetadataValue entityType = itemService.getMetadata(nativeItem, "dspace", "entity", "type", Item.ANY).get(0);
-        // clear all metadata entries from native item
-        itemService.clearMetadata(context, nativeItem, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        Set<String> ignoredMetadataFieldsOfCreation =
+                Sets.union(getIgnoredMetadataFields(), getIgnoredMetadataFieldsOfCreation());
+        Set<String> ignoredMetadataFieldsOfMerging =
+            Sets.union(getIgnoredMetadataFields(), getIgnoredMetadataFieldsOfMerging());
+
+        // clear all metadata that are not ignored inside the nativeItem
+        clearMetadataNotInSet(context, nativeItem, ignoredMetadataFieldsOfCreation);
         // copy metadata from corrected item to native item
-        copyMetadata(context, nativeItem, correctionItem);
-        // restore entity type
-        itemService.addMetadata(context, nativeItem, entityType.getMetadataField(), entityType.getLanguage(),
-                entityType.getValue(), entityType.getAuthority(), entityType.getConfidence());
+        copyMetadata(context, nativeItem, correctionItem, ignoredMetadataFieldsOfMerging);
 
         context.turnOffAuthorisationSystem();
         // copy bundles and bitstreams of native item
@@ -96,33 +110,119 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
 
         context.restoreAuthSystemState();
 
-
-
-
         return workflowItem;
+    }
+
+    private void clearMetadataNotInSet(Context context, Item nativeItem, Set<String> ignoredMetadata) {
+        Set<MetadataField> metadatasToClear = new HashSet<>();
+        Iterator<MetadataValue> metadata = nativeItem.getMetadata().iterator();
+        MetadataValue metadataValue = null;
+        while (!ignoredMetadata.isEmpty() && metadata.hasNext() && (metadataValue = metadata.next()) != null) {
+            if (!isIgnored(ignoredMetadata, metadataValue)) {
+                metadatasToClear.add(metadataValue.getMetadataField());
+            }
+        }
+        if (!metadatasToClear.isEmpty()) {
+            for (MetadataField metadataField : metadatasToClear) {
+                try {
+                    this.itemService.clearMetadata(
+                        context, nativeItem,
+                        metadataField.getMetadataSchema().getName(),
+                        metadataField.getElement(),
+                        metadataField.getQualifier(),
+                        Item.ANY
+                    );
+                } catch (SQLException e) {
+                    throw new RuntimeException(
+                        "Cannot clear not ignored Metadata: " + metadataField.toString(), e
+                    );
+                }
+            }
+        }
+    }
+
+    private void copyMetadata(Context context, Item itemNew, Item nativeItem, Set<String> ignoredMetadataFields)
+        throws SQLException {
+        List<MetadataValue> metadataList = itemService.getMetadata(nativeItem, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        for (MetadataValue metadataValue : metadataList) {
+            if (isRelationshipOrIgnored(ignoredMetadataFields, metadataValue)) {
+                //Skip this metadata field (ignored and/or virtual)
+                continue;
+            }
+            MetadataField metadataField = metadataValue.getMetadataField();
+            itemService.addMetadata(
+                context,
+                itemNew,
+                metadataField.getMetadataSchema().getName(),
+                metadataField.getElement(),
+                metadataField.getQualifier(),
+                metadataValue.getLanguage(),
+                metadataValue.getValue(),
+                metadataValue.getAuthority(),
+                metadataValue.getConfidence(),
+                metadataValue.getPlace()
+            );
+        }
+    }
+
+    protected boolean isRelationshipOrIgnored(Set<String> ignoredMetadataFields, MetadataValue metadataValue) {
+        return metadataValue instanceof RelationshipMetadataValue || isIgnored(ignoredMetadataFields, metadataValue);
+    }
+
+    protected boolean isIgnored(Set<String> ignoredMetadataFields, MetadataValue metadataValue) {
+        return isIgnoredWithQualifier(ignoredMetadataFields, metadataValue.getMetadataField()) ||
+            isIgnoredAnyQualifier(ignoredMetadataFields, metadataValue.getMetadataField());
+    }
+
+    private boolean isIgnoredAnyQualifier(Set<String> ignoredMetadataFields, MetadataField metadataField) {
+        return ignoredMetadataFields.contains(getUnqualifiedMetadata(metadataField));
+    }
+
+    private String getUnqualifiedMetadata(MetadataField metadataField) {
+        return metadataField.getMetadataSchema().getName() + "." + metadataField.getElement() + "." + Item.ANY;
+    }
+
+    private boolean isIgnoredWithQualifier(Set<String> ignoredMetadataFields, MetadataField metadataField) {
+        return ignoredMetadataFields.contains(metadataField.toString('.'));
     }
 
     protected void updateBundlesAndBitstreams(Context c, Item itemNew, Item nativeItem)
             throws SQLException, AuthorizeException, IOException {
 
-        // Update only default bundle
-        List<Bundle> nativeBundles = nativeItem.getBundles(Constants.DEFAULT_BUNDLE_NAME);
-        Bundle nativeDefaultBundle = CollectionUtils.isNotEmpty(nativeBundles) ? nativeBundles.get(0) : null;
+        for (String bundleName : bundles) {
+            List<Bundle> nativeBundles = nativeItem.getBundles(bundleName);
+            List<Bundle> correctedBundles = itemNew.getBundles(bundleName);
 
-        List<Bundle> correctedBundles = itemNew.getBundles(Constants.DEFAULT_BUNDLE_NAME);
-        Bundle correctedDefaultBundle = CollectionUtils.isNotEmpty(correctedBundles) ? correctedBundles.get(0) : null;
+            if (CollectionUtils.isEmpty(nativeBundles) && CollectionUtils.isEmpty(correctedBundles)) {
+                continue;
+            }
 
-        if (correctedDefaultBundle == null || nativeDefaultBundle == null) {
-            return;
+            Bundle nativeBundle;
+            if (CollectionUtils.isEmpty(nativeBundles)) {
+                nativeBundle = bundleService.create(c, nativeItem, bundleName);
+            } else {
+                nativeBundle = nativeBundles.get(0);
+            }
+
+            Bundle correctedBundle;
+            if (CollectionUtils.isEmpty(correctedBundles)) {
+                correctedBundle = bundleService.create(c, nativeItem, bundleName);
+            } else {
+                correctedBundle = correctedBundles.get(0);
+            }
+
+            updateBundleAndBitstreams(c, nativeBundle, correctedBundle);
         }
+    }
 
-        List<Bitstream> nativeBitstreams = nativeDefaultBundle.getBitstreams();
-        for (Bitstream bitstreamCorrected : correctedDefaultBundle.getBitstreams()) {
+    protected void updateBundleAndBitstreams(Context c, Bundle nativeBundle, Bundle correctedBundle)
+            throws SQLException, AuthorizeException, IOException {
+
+        for (Bitstream bitstreamCorrected : correctedBundle.getBitstreams()) {
             // check if new bitstream exists in native bundle
-            Bitstream nativeBitstream = findBitstreamByChecksum(nativeDefaultBundle, bitstreamCorrected.getChecksum());
+            Bitstream nativeBitstream = findBitstreamByChecksum(nativeBundle, bitstreamCorrected.getChecksum());
             if (nativeBitstream != null) {
                 // update native bitstream metadata
-                nativeBitstream.getMetadata();
                 bitstreamService.clearMetadata(c, nativeBitstream, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
                 List<MetadataValue> metadataValues = bitstreamService
                         .getMetadata(bitstreamCorrected, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
@@ -140,7 +240,7 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
                 // and respectively bitstreamService.clone(...) method.
                 Bitstream bitstreamNew =  bitstreamStorageService.clone(c, bitstreamCorrected);
 
-                bundleService.addBitstream(c, nativeDefaultBundle, bitstreamNew);
+                bundleService.addBitstream(c, nativeBundle, bitstreamNew);
 
                 // NOTE: bundle.addBitstream() causes Bundle policies to be inherited by default.
                 // So, we need to REMOVE any inherited TYPE_CUSTOM policies before copying over the correct ones.
@@ -152,16 +252,35 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
                     authorizeService.findPoliciesByDSOAndType(c, nativeBitstream, ResourcePolicy.TYPE_CUSTOM);
                 authorizeService.addPolicies(c, bitstreamPolicies, bitstreamNew);
 
-                if (correctedDefaultBundle.getPrimaryBitstream() != null && correctedDefaultBundle.getPrimaryBitstream()
+                if (correctedBundle.getPrimaryBitstream() != null && correctedBundle.getPrimaryBitstream()
                                                                               .equals(nativeBitstream)) {
-                    nativeDefaultBundle.setPrimaryBitstreamID(bitstreamNew);
+                    nativeBundle.setPrimaryBitstreamID(bitstreamNew);
                 }
 
                 bitstreamService.update(c, bitstreamNew);
             }
 
         }
-        bundleService.update(c, nativeDefaultBundle);
+        deleteBitstreams(nativeBundle, correctedBundle);
+        bundleService.update(c, nativeBundle);
+        if (nativeBundle.getItems().isEmpty()) {
+            bundleService.delete(c, nativeBundle);
+        }
+    }
+
+    private void deleteBitstreams(Bundle nativeBundle, Bundle correctedBundle) {
+        for (Bitstream bitstream : nativeBundle.getBitstreams()) {
+            if (contains(correctedBundle, bitstream)) {
+                continue;
+            }
+            nativeBundle.removeBitstream(bitstream);
+        }
+    }
+
+    private boolean contains(Bundle bundle, Bitstream bitstream) {
+        return bundle.getBitstreams().stream()
+                     .map(Bitstream::getChecksum)
+                     .anyMatch(cs -> bitstream.getChecksum().equals(cs));
     }
 
     protected Bitstream findBitstreamByChecksum(Bundle bundle, String bitstreamChecksum) {
@@ -173,5 +292,35 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
         }
 
         return null;
+    }
+
+    public Set<String> getIgnoredMetadataFieldsOfCreation() {
+        if (ignoredMetadataFieldsOfCreation == null) {
+            return new HashSet<>();
+        }
+        return ignoredMetadataFieldsOfCreation;
+    }
+
+    public void setIgnoredMetadataFieldsOfCreation(Set<String> ignoredMetadataFieldsOfCreation) {
+        this.ignoredMetadataFieldsOfCreation = ignoredMetadataFieldsOfCreation;
+    }
+
+    public Set<String> getIgnoredMetadataFieldsOfMerging() {
+        if (ignoredMetadataFieldsOfMerging == null) {
+            return new HashSet<>();
+        }
+        return ignoredMetadataFieldsOfMerging;
+    }
+
+    public void setIgnoredMetadataFieldsOfMerging(Set<String> ignoredMetadataFieldsOfMerging) {
+        this.ignoredMetadataFieldsOfMerging = ignoredMetadataFieldsOfMerging;
+    }
+
+    public Set<String> getBundles() {
+        return bundles;
+    }
+
+    public void setBundles(Set<String> bundles) {
+        this.bundles = bundles;
     }
 }

@@ -11,18 +11,30 @@
 	<bean id="itemAuthorityServiceFactory"
 		  class="org.dspace.content.authority.factory.ItemAuthorityServiceFactory">
 
-		<property name="itemAthorityEntityTypeMap">
+		<property name="authorityServiceImplMap">
 			<map>
-			    <!-- Specify here any services to use with the relative entity type -->
-				<entry key="person" value-ref="personItemAuthorityService" />
-				<entry key="default" value-ref="itemAuthorityService" />
+			    <!-- Specify here any services to use with the relative authority name -->
+				<entry key="AuthorAuthority" value-ref="personItemAuthorityFilter" />
+				<entry key="EditorAuthority" value-ref="personItemAuthorityFilter" />
+				<entry key="AuthorCoarseMatchAuthority" value-ref="personItemAuthorityCoarseMatchFilter" />
+				<entry key="AuthorStrictMatchAuthority" value-ref="personItemAuthorityStrictMatchFilter" />
+				<entry key="default" value-ref="itemAuthorityFilter" />
 			</map>
 		</property>
-
 	</bean>
 
-	<bean name="personItemAuthorityService" class="org.dspace.content.authority.PersonItemAuthorityService" />
-	<bean name="itemAuthorityService" class="org.dspace.content.authority.ItemAuthorityServiceImpl" />
+	<bean name="personItemAuthorityFilter" class="org.dspace.content.authority.ItemAuthorityServiceImpl" >
+		<property name="customAuthorityFilter" ref="personAuthoritySolrFilter" />
+	</bean>
+	<bean name="personItemAuthorityCoarseMatchFilter" class="org.dspace.content.authority.ItemAuthorityServiceImpl" >
+		<property name="customAuthorityFilter" ref="personCoarseCustomSolrFilter" />
+	</bean>
+	<bean name="personItemAuthorityStrictMatchFilter" class="org.dspace.content.authority.ItemAuthorityServiceImpl" >
+		<property name="customAuthorityFilter" ref="personStrictCustomSolrFilter" />
+	</bean>
+	<bean name="itemAuthorityFilter" class="org.dspace.content.authority.ItemAuthorityServiceImpl">
+		<property name="customAuthorityFilter" ref="itemAuthorityCustomSolrFilter" />
+	</bean>
 
 	<bean id="itemControlledVocabularyFactory"
 		  class="org.dspace.content.authority.factory.ItemControlledVocabularyFactory">
@@ -130,5 +142,10 @@
 			</map>
 		</property>
 	</bean>
+
+	<bean name="itemAuthorityCustomSolrFilter" class="org.dspace.content.authority.ItemAuthorityCustomSolrFilterImpl" />
+	<bean name="personAuthoritySolrFilter" class="org.dspace.content.authority.PersonAuthoritySolrFilterImpl" />
+	<bean name="personStrictCustomSolrFilter" class="org.dspace.content.authority.PersonStrictCustomSolrFilterImpl" />
+	<bean name="personCoarseCustomSolrFilter" class="org.dspace.content.authority.PersonCoarseCustomSolrFilterImpl" />
 
 </beans>

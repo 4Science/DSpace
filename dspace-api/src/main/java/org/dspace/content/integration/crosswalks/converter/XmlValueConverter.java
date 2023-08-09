@@ -20,6 +20,9 @@ public class XmlValueConverter implements Converter<String, String> {
 
     @Override
     public String convert(String source) {
+        if (source != null && source.contains("fo:block")) {
+            return source;
+        }
         return StringEscapeUtils.escapeXml11(source);
     }
 

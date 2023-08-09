@@ -151,8 +151,9 @@ public class S3BitStoreService extends BaseBitStoreService {
      *
      * @param s3Service AmazonS3 service
      */
-    protected S3BitStoreService(AmazonS3 s3Service) {
+    protected S3BitStoreService(AmazonS3 s3Service, TransferManager tm) {
         this.s3Service = s3Service;
+        this.tm = tm;
     }
 
     @Override

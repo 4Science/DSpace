@@ -172,6 +172,7 @@
                  </bean>
              </list>
           </list>
+
         </constructor-arg>
     </bean>
     <bean class="org.dspace.layout.CrisLayoutSection" id="sectionsite">

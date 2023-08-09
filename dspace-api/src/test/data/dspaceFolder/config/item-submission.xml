@@ -57,7 +57,6 @@
             <heading></heading>
             <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
             <type>collection</type>
-            <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
         </step-definition>
         <step-definition id="traditionalpageone" mandatory="true">
             <heading>submit.progressbar.describe.stepone</heading>
@@ -244,13 +243,59 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
+
+        <step-definition id="unpaywall" mandatory="true">
+            <heading>submit.progressbar.unpaywall</heading>
+            <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
+            <type>unpaywall</type>
+        </step-definition>
+
 	    <step-definition id="correction" mandatory="true">
 			<heading>submit.progressbar.correction-step</heading>
 			<processing-class>org.dspace.app.rest.submit.step.CorrectionStep</processing-class>
 			<type>correction</type>
 			<scope visibilityOutside="hidden">workflow</scope>
 	    </step-definition>
+
+	    <step-definition id="controlled-vocabulary-test" mandatory="true">
+            <heading>submit.progressbar.describe.stepone</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+
+        <step-definition id="identifiers">
+            <heading>submit.progressbar.identifiers</heading>
+            <processing-class>org.dspace.app.rest.submit.step.ShowIdentifiersStep</processing-class>
+            <type>identifiers</type>
+        </step-definition>
+
+        <step-definition id="test-outside-workflow-hidden" mandatory="true">
+            <heading>submit.progressbar.describe.stepone</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+            <scope visibilityOutside="hidden">workflow</scope>
+        </step-definition>
+
+        <step-definition id="test-outside-submission-hidden" mandatory="true">
+            <heading>submit.progressbar.describe.stepone</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+            <scope visibilityOutside="hidden">submission</scope>
+        </step-definition>
+
+        <step-definition id="test-never-hidden" mandatory="true">
+            <heading></heading>
+            <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
+            <type>collection</type>
+        </step-definition>
+
+        <step-definition id="test-always-hidden" mandatory="true">
+            <heading></heading>
+            <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
+            <type>collection</type>
+            <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
+        </step-definition>
+
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -278,6 +323,8 @@
             <step id="collection"/>
             <step id="extraction" />
 
+            <step id="identifiers"/>
+
             <!--Step will be to Describe the item. -->
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
@@ -302,7 +349,15 @@
             <step id="traditionalpagetwo"/>
             <step id="custom-url"/>
         </submission-process>
-        
+
+        <submission-process name="traditional-with-unpaywall">
+            <step id="collection"/>
+            <step id="extraction" />
+            <step id="traditionalpageone"/>"
+            <step id="traditionalpagetwo"/>
+            <step id="unpaywall"/>
+        </submission-process>
+
         <submission-process name="traditional-with-correction">
             <step id="collection"/>
             <step id="extraction" />
@@ -310,6 +365,13 @@
             <step id="traditionalpagetwo"/>
             <step id="correction"/>
             <step id="license"/>
+        </submission-process>
+
+        <submission-process name="test-hidden">
+            <step id="test-outside-workflow-hidden"/>
+            <step id="test-outside-submission-hidden"/>
+            <step id="test-never-hidden"/>
+            <step id="test-always-hidden"/>
         </submission-process>
 
         <!--This "traditional" process defines the DEFAULT item submission process -->
@@ -379,6 +441,11 @@
         <submission-process name="modeB">
            <step id="onlyTitle"/>
         </submission-process>
+        <submission-process name="modeC">
+           <step id="collection" />
+           <step id="onlyTitle"/>
+           <step id="upload" />
+        </submission-process>
 
         <submission-process name="extractiontestprocess">
             <step id="collection"/>
@@ -410,6 +477,11 @@
             <step id="detect-duplicate" />
             <step id="upload" />
             <step id="license" />
+        </submission-process>
+
+        <submission-process name="controlled-vocabulary-test">
+            <step id="collection"/>
+            <step id="controlled-vocabulary-test"/>
         </submission-process>
 
     </submission-definitions>

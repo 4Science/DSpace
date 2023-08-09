@@ -1,0 +1,67 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>MIX Types</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>mix</name>
+        <namespace>https://www.loc.gov/standards/mix</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>samplingfrequencyunit</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>samplingfrequencyplane</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>xsamplingfrequency</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>ysamplingfrequency</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>colorSpace</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>bitsPerSampleValue</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>compressionScheme</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>captureDevice</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>scannerManufacturer</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>scannerModelName</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>mix</schema>
+        <element>scanningSoftwareName</element>
+    </dc-type>
+
+</dspace-dc-types>

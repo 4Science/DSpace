@@ -159,8 +159,12 @@ public class DedupUtils {
         findDuplicateBySignature.addFilterQuery(SolrDedupServiceImpl.RESOURCE_RESOURCETYPE_FIELD + ":" + resourceType);
         String filter = "";
         if (isInWorkflow == null) {
-            filter = SolrDedupServiceImpl.RESOURCE_FLAG_FIELD + ":"
-                    + SolrDedupServiceImpl.DeduplicationFlag.MATCH.getDescription();
+            filter = SolrDedupServiceImpl.RESOURCE_FLAG_FIELD + ":("
+                + SolrDedupServiceImpl.DeduplicationFlag.REJECTWS.getDescription() + " OR "
+                + SolrDedupServiceImpl.DeduplicationFlag.VERIFYWS.getDescription() + " OR "
+                + SolrDedupServiceImpl.DeduplicationFlag.REJECTWF.getDescription() + " OR "
+                + SolrDedupServiceImpl.DeduplicationFlag.VERIFYWF.getDescription() + " OR "
+                + SolrDedupServiceImpl.DeduplicationFlag.MATCH.getDescription() + ")";
         } else if (isInWorkflow) {
             filter = SolrDedupServiceImpl.RESOURCE_FLAG_FIELD + ":("
                     + SolrDedupServiceImpl.DeduplicationFlag.REJECTWF.getDescription() + " OR "

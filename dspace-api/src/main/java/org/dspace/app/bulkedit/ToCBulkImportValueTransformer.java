@@ -32,7 +32,8 @@ public class ToCBulkImportValueTransformer implements BulkImportValueTransformer
         if (StringUtils.isNotBlank(value)) {
             return new MetadataValueVO(
                     StringUtils.replace(value, ">>>", IIIFSharedUtils.TOC_SEPARATOR),
-                    metadataValue.getAuthority(), metadataValue.getConfidence());
+                    metadataValue.getAuthority(), metadataValue.getConfidence(),
+                    metadataValue.getSecurityLevel());
         }
 
         return metadataValue;

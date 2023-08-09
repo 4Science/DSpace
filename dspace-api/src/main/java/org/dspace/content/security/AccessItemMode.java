@@ -18,11 +18,11 @@ import java.util.List;
 public interface AccessItemMode {
 
     /**
-     * Returns the configured security.
+     * Returns the configured securities.
      *
-     * @return the configured security
+     * @return the configured securities
      */
-    public CrisSecurity getSecurity();
+    public List<CrisSecurity> getSecurities();
 
     /**
      * Returns the configured group metadata fields for the CUSTOM security.

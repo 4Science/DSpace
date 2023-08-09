@@ -144,6 +144,9 @@ public class VuFindImportMetadataSourceServiceImpl extends AbstractImportMetadat
             uriBuilder.addParameter("lookfor", query.getParameterAsClass("query", String.class));
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(responseString)) {
+                return 0;
+            }
             JsonNode node = convertStringJsonToJsonNode(responseString);
             JsonNode resultCountNode = node.get("resultCount");
             return resultCountNode.intValue();
@@ -182,8 +185,7 @@ public class VuFindImportMetadataSourceServiceImpl extends AbstractImportMetadat
                 }
             }
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
-            String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
-            return response;
+            return liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
         }
     }
 
@@ -309,6 +311,9 @@ public class VuFindImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     private List<ImportRecord> extractMetadataFromRecordList(String records) {
         List<ImportRecord> recordsResult = new ArrayList<>();
+        if (StringUtils.isEmpty(records)) {
+            return recordsResult;
+        }
         JsonNode jsonNode = convertStringJsonToJsonNode(records);
         JsonNode node = jsonNode.get("records");
         if (Objects.nonNull(node) && node.isArray()) {

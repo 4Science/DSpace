@@ -9,7 +9,6 @@
       <heading>submit.progressbar.collection</heading>
       <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
       <type>collection</type>
-      <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
     </step-definition>
     <step-definition id="upload" mandatory="true">
       <heading>submit.progressbar.upload</heading>
@@ -78,6 +77,11 @@
     </step-definition>
     <step-definition id="orgunit" mandatory="true">
       <heading>submit.progressbar.describe.orgunit</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="owner" mandatory="true">
+      <heading>submit.progressbar.describe.owner</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -186,6 +190,11 @@
       <heading>submit.progressbar.describe.picture-glam-bibliography</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
+    </step-definition>
+    <step-definition id="unpaywall" mandatory="true">
+      <heading>submit.progressbar.unpaywall</heading>
+      <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
+      <type>unpaywall</type>
     </step-definition>
   </step-definitions>
   <submission-definitions>

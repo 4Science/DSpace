@@ -68,8 +68,7 @@ public class SubmissionSectionsControllerIT extends AbstractControllerIntegratio
 
         getClient(token).perform(get("/api/config/submissionsections/collection"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", matches("collection", true, "collection",
-                of("submission", "hidden", "workflow", "hidden", "edit", "hidden"))));
+            .andExpect(jsonPath("$", matches("collection", true, "collection")));
 
         getClient(token).perform(get("/api/config/submissionsections/traditionalpageone"))
             .andExpect(status().isOk())

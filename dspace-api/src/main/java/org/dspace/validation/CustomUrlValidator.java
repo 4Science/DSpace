@@ -13,10 +13,8 @@ import static java.util.stream.StreamSupport.stream;
 import static org.dspace.validation.service.ValidationService.OPERATION_PATH_SECTIONS;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -59,17 +57,9 @@ public class CustomUrlValidator implements SubmissionStepValidator {
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionStepConfig config) {
         Item item = obj.getItem();
-
-        List<ValidationError> errors = new ArrayList<>();
-        Optional<String> customUrl = customUrlService.getCustomUrl(item);
-        if (customUrl.isPresent()) {
-            errors.addAll(validateUrl(context, item, customUrl.get(), config));
-        } else if (config.isMandatory()) {
-            errors.addAll(urlValidationError(ERROR_VALIDATION_EMPTY, config));
-        }
-
-        return errors;
-
+        return customUrlService.getCustomUrl(item)
+            .map(customUrl -> validateUrl(context, item, customUrl, config))
+            .orElse(List.of());
     }
 
     private List<ValidationError> validateUrl(Context context, Item item, String customUrl,

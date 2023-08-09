@@ -7,17 +7,24 @@
  */
 package org.dspace.app.rest.statistics;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.rest.model.UsageReportPointDateRest;
 import org.dspace.app.rest.model.UsageReportRest;
 import org.dspace.app.rest.utils.UsageReportUtils;
@@ -27,41 +34,38 @@ import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.statistics.ObjectCount;
-import org.dspace.statistics.content.DatasetTimeGenerator;
+import org.dspace.statistics.SolrLoggerServiceImpl;
 import org.dspace.statistics.content.StatisticsDatasetDisplay;
-import org.dspace.statistics.content.filter.StatisticsSolrDateFilter;
-import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
+import org.dspace.util.MultiFormatDateParser;
 import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 
 /**
  * This report generator provides usage data aggregated over a specific period
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
+ * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  */
 public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
+
     private static final String POINT_VIEWS_KEY = "views";
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Autowired
+    private SolrLoggerService solrLoggerService;
+
+    @Autowired
+    private DiscoveryConfigurationService discoveryConfigurationService;
 
     private String periodType = "month";
 
     private int increment = 1;
 
+    private String defaultStartDate;
+
     private Integer dsoType;
-
-    protected final SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
-
-    public void setPeriodType(String periodType) {
-        this.periodType = periodType;
-    }
-
-    public void setIncrement(int increment) {
-        this.increment = increment;
-    }
-
-    @Autowired
-    private DiscoveryConfigurationService discoveryConfigurationService;
 
     /**
      * Create a stat usage report for the amount of TotalVisitPerMonth on a DSO, containing one point for each month
@@ -76,7 +80,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
      */
     public UsageReportRest createUsageReport(Context context, DSpaceObject dso, String startDate, String endDate)
         throws IOException, SolrServerException {
-        boolean showTotal = new DatasetTimeGenerator().isIncludeTotal();
+
         boolean hasValidRelation = false;
         StatisticsDatasetDisplay statisticsDatasetDisplay = new StatisticsDatasetDisplay();
         StringBuilder query = new StringBuilder();
@@ -110,110 +114,210 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
             }
         }
 
-        //add date facets to filter query
-        StringBuilder filterQuery = new StringBuilder("");
-        String startStr = "-" + (increment * getMaxResults());
-        String endStr = "+" + increment;
-        StatisticsSolrDateFilter solrDateFilter = new StatisticsSolrDateFilter(startStr, endStr, periodType);
-        String dateQueryFilter = solrDateFilter.toQuery();
+        boolean startDateProvided = !isBlankDate(startDate);
 
-        filterQuery
-            .append("(")
-            .append(dateQueryFilter)
-            .append(")")
-            .append(" AND ")
-            .append(
-                statisticsDatasetDisplay
-                    .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso))
-            );
+        startDate = isBlankDate(startDate) ? getDefaultStartDate() : startDate;
+        endDate = isBlankDate(endDate) ? formatDate(new Date()) : endDate;
 
-        Consumer<Calendar> mapper = createConsumerFrom(periodType.toUpperCase());
-        String dateformatString = SolrUtils.getDateformatFrom(periodType.toUpperCase());
+        validateStartAndEndDates(startDate, endDate);
 
-        Map<String, Pair<Integer, UsageReportPointDateRest>> reportValues =
-                generateStatisticsRange(context, solrDateFilter.getStartDate(), mapper, dateformatString);
+        if (isBlank(startDate) || isAfterToday(startDate)) {
+            return buildEmptyDataReport(context, endDate);
+        }
+
+        String rangeStart = calculateRangeStart(startDate);
+        String rangeEnd = calculateRangeEnd(endDate);
+
+        String filterQuery = statisticsDatasetDisplay
+            .composeFilterQuery(startDate, endDate, hasValidRelation, getDsoType(dso));
 
         // execute query
         ObjectCount[] dateFacetResult = solrLoggerService.queryFacetDateField(context, "id", null, query.toString(),
-                filterQuery.toString(), periodType.toUpperCase(), startStr, endStr, showTotal, 1, getMaxResults());
+            filterQuery.toString(), periodType.toUpperCase(), rangeStart, rangeEnd, false, 0, increment);
 
-        for (ObjectCount maxDateFacetCount : dateFacetResult) {
-            Pair<Integer, UsageReportPointDateRest> pair =
-                    Optional.ofNullable(reportValues.get(maxDateFacetCount.getValue()))
-                            .orElse(Pair.of(reportValues.size(), new UsageReportPointDateRest()));
-            UsageReportPointDateRest monthPoint = pair.getSecond();
-            monthPoint.setId(maxDateFacetCount.getValue());
-            monthPoint.addValue(POINT_VIEWS_KEY, (int) maxDateFacetCount.getCount());
-            reportValues.put(maxDateFacetCount.getValue(), pair);
+        List<UsageReportPointDateRest> usageReportPoints = convertToReportPoints(dateFacetResult, startDateProvided);
+
+        if (CollectionUtils.isEmpty(usageReportPoints)) {
+            return buildEmptyDataReport(context, endDate);
         }
 
         UsageReportRest usageReportRest = new UsageReportRest();
-        ArrayList<Pair<Integer, UsageReportPointDateRest>> pairs = new ArrayList<>(reportValues.values());
-        pairs
-            .stream()
-            .sorted((a, b) -> Integer.compare(a.getFirst(), b.getFirst()))
-            .map(Pair::getSecond)
-            .forEach(usageReportRest::addPoint);
+        usageReportPoints.forEach(usageReportRest::addPoint);
 
         return usageReportRest;
     }
 
-    protected Consumer<Calendar> createConsumerFrom(String periodType) {
-        Consumer<Calendar> mapper = null;
-        if ("DAY".equalsIgnoreCase(periodType)) {
-            mapper = (cal) -> cal.add(Calendar.DAY_OF_YEAR, 1);
-        } else if ("MONTH".equalsIgnoreCase(periodType)) {
-            mapper = (cal) -> cal.add(Calendar.MONTH, 1);
-        } else if ("YEAR".equalsIgnoreCase(periodType)) {
-            mapper = (cal) -> cal.add(Calendar.YEAR, 1);
+    private String calculateRangeStart(String startDate) {
+
+        long period = calculatePeriodFromToday(startDate);
+
+        if (period == 0L) {
+            return "";
         }
-        return mapper;
+
+        return "-" + period;
+
     }
 
-    protected Map<String, Pair<Integer, UsageReportPointDateRest>> generateStatisticsRange(Context context,
-            Date startDate, Consumer<Calendar> mapper, String dateformatString) {
-        Calendar calendar = Calendar.getInstance(context.getCurrentLocale());
-        calendar.setTime(startDate);
-        Map<String, Pair<Integer, UsageReportPointDateRest>> reportValues = new HashMap<>();
-        SimpleDateFormat simpleFormat = new SimpleDateFormat(dateformatString, context.getCurrentLocale());
-        String id = simpleFormat.format(calendar.getTime());
-        UsageReportPointDateRest usageReportPointDateRest = new UsageReportPointDateRest();
-        usageReportPointDateRest.setId(id);
-        usageReportPointDateRest.setLabel(id);
-        usageReportPointDateRest.addValue(POINT_VIEWS_KEY, 0);
-        reportValues.put(id, Pair.of(0, usageReportPointDateRest));
-        for (int i = 1; i <= increment * getMaxResults(); i++) {
-            mapper.accept(calendar);
-            usageReportPointDateRest = new UsageReportPointDateRest();
-            id = simpleFormat.format(calendar.getTime());
-            usageReportPointDateRest.setId(id);
-            usageReportPointDateRest.addValue(POINT_VIEWS_KEY, 0);
-            reportValues.put(id, Pair.of(i, usageReportPointDateRest));
+    private String calculateRangeEnd(String endDate) {
+
+        long period = calculatePeriodFromToday(endDate);
+
+        if (period == 0L || isAfterToday(endDate)) {
+            return "+1";
         }
-        return reportValues;
+
+        return "-" + (--period);
+
+    }
+
+    private long calculatePeriodFromToday(String date) {
+        Date startDate = MultiFormatDateParser.parse(date);
+        Date endDate = new Date();
+        return calculatePeriodBetweenDates(startDate, endDate);
+    }
+
+    private long calculatePeriodBetweenDates(Date startDate, Date endDate) {
+
+        ChronoUnit chronoUnit = getConfiguredChronoUnit();
+
+        LocalDate startLocalDate = toLocalDate(startDate);
+        LocalDate endLocalDate = toLocalDate(endDate);
+
+        if (chronoUnit == ChronoUnit.MONTHS) {
+            startLocalDate = startLocalDate.with(ChronoField.DAY_OF_MONTH, 1L);
+            endLocalDate = endLocalDate.with(ChronoField.DAY_OF_MONTH, 1L);
+        } else if (chronoUnit == ChronoUnit.YEARS) {
+            startLocalDate = startLocalDate.with(ChronoField.DAY_OF_YEAR, 1L);
+            endLocalDate = endLocalDate.with(ChronoField.DAY_OF_YEAR, 1L);
+        }
+
+        return chronoUnit.between(startLocalDate, endLocalDate);
+    }
+
+    private ChronoUnit getConfiguredChronoUnit() {
+        switch (periodType.toUpperCase()) {
+            case "MONTH":
+                return ChronoUnit.MONTHS;
+            case "YEAR":
+                return ChronoUnit.YEARS;
+            case "DAY":
+                return ChronoUnit.DAYS;
+            default:
+                throw new IllegalStateException("Unsupported period type " + periodType);
+        }
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        return date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
+    }
+
+    private List<UsageReportPointDateRest> convertToReportPoints(ObjectCount[] countResult, boolean startDateProvided) {
+
+        List<UsageReportPointDateRest> points = new ArrayList<>();
+        boolean pointWithDataFound = false;
+
+        for (ObjectCount dateCount : countResult) {
+            UsageReportPointDateRest reportPoint = convertToUsageReportPoint(dateCount);
+            pointWithDataFound = pointWithDataFound || dateCount.getCount() > 0;
+            if (startDateProvided || pointWithDataFound) {
+                points.add(reportPoint);
+            }
+        }
+
+        return points;
+    }
+
+    private UsageReportPointDateRest convertToUsageReportPoint(ObjectCount objectCount) {
+        UsageReportPointDateRest point = new UsageReportPointDateRest();
+        point.setId(objectCount.getValue());
+        point.addValue(POINT_VIEWS_KEY, (int) objectCount.getCount());
+        return point;
+    }
+
+    private UsageReportRest buildEmptyDataReport(Context context, String endDate) {
+        UsageReportRest usageReportRest = new UsageReportRest();
+
+        String format = SolrUtils.getDateformatFrom(periodType.toUpperCase());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, context.getCurrentLocale());
+
+        UsageReportPointDateRest point = new UsageReportPointDateRest();
+        point.addValue(POINT_VIEWS_KEY, 0);
+        point.setId(simpleDateFormat.format(MultiFormatDateParser.parse(endDate)));
+        usageReportRest.addPoint(point);
+
+        return usageReportRest;
+    }
+
+    public void setDefaultStartDate(String date) {
+        Date parsedDate = MultiFormatDateParser.parse(date);
+        if (parsedDate == null) {
+            throw new IllegalStateException("Unsupported date " + date + " provided to TotalVisitPerPeriodGenerator");
+        }
+        this.defaultStartDate = formatDate(parsedDate);
+    }
+
+    private String getDefaultStartDate() throws SolrServerException, IOException {
+
+        if (StringUtils.isNotBlank(defaultStartDate)) {
+            return defaultStartDate;
+        }
+
+        String query = "statistics_type:" + SolrLoggerServiceImpl.StatisticsType.VIEW.text();
+
+        QueryResponse queryResponse = solrLoggerService.query(query, null, null, 1, 1, null,
+            null, null, null, "time", true, -1);
+
+        SolrDocumentList results = queryResponse.getResults();
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        defaultStartDate = formatDate((Date) results.get(0).get("time"));
+        return defaultStartDate;
+
+    }
+
+    private void validateStartAndEndDates(String startDate, String endDate) {
+        if (!isBlankDate(startDate) && isNotValidDate(startDate)) {
+            throw new IllegalArgumentException("The start date is not valid " + startDate + ", expected yyyy-MM-dd");
+        }
+
+        if (!isBlankDate(startDate) && isNotValidDate(endDate)) {
+            throw new IllegalArgumentException("The end date is not valid " + endDate + ", expected yyyy-MM-dd");
+        }
+    }
+
+    private boolean isNotValidDate(String date) {
+        try {
+            DATE_FORMAT.parse(date);
+            return false;
+        } catch (ParseException e) {
+            return true;
+        }
+    }
+
+    private boolean isBlankDate(String date) {
+        return isBlank(date) || "null".equalsIgnoreCase(date);
+    }
+
+    private boolean isAfterToday(String date) {
+        return MultiFormatDateParser.parse(date).after(new Date());
+    }
+
+    private String formatDate(Date date) {
+        return DATE_FORMAT.format(date);
+    }
+
+    private boolean isNotSiteObject(DSpaceObject dso) {
+        return dso.getType() != Constants.SITE;
     }
 
     @Override
     public String getReportType() {
         return UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID;
-    }
-
-    public UsageReportRest returnEmptyDataReport(Context context) {
-        UsageReportRest usageReportRest = new UsageReportRest();
-        Calendar cal = Calendar.getInstance(context.getCurrentLocale());
-        for (int k = 0; k <= increment * getMaxResults(); k++) {
-            UsageReportPointDateRest monthPoint = new UsageReportPointDateRest();
-            monthPoint.addValue(POINT_VIEWS_KEY, 0);
-            String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, context.getCurrentLocale());
-            monthPoint.setId(month + " " + cal.get(Calendar.YEAR));
-            usageReportRest.addPoint(monthPoint);
-            cal.add(Calendar.MONTH, -1);
-        }
-        return usageReportRest;
-    }
-
-    private boolean isNotSiteObject(DSpaceObject dso) {
-        return dso.getType() != Constants.SITE;
     }
 
     private Integer getDsoType(DSpaceObject dso) {
@@ -223,4 +327,25 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     public void setDsoType(Integer dsoType) {
         this.dsoType = dsoType;
     }
+
+    public void setPeriodType(String periodType) {
+        this.periodType = periodType;
+    }
+
+    public void setIncrement(int increment) {
+        this.increment = increment;
+    }
+
+    public void setSolrLoggerService(SolrLoggerService solrLoggerService) {
+        this.solrLoggerService = solrLoggerService;
+    }
+
+    public void setDiscoveryConfigurationService(DiscoveryConfigurationService discoveryConfigurationService) {
+        this.discoveryConfigurationService = discoveryConfigurationService;
+    }
+
+    public void setMaxResults(int maxResults) {
+        throw new IllegalStateException("Max results not supported by TotalVisitPerPeriodGenerator");
+    }
+
 }

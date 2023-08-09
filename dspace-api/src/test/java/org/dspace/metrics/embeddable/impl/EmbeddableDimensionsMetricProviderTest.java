@@ -9,15 +9,16 @@
 package org.dspace.metrics.embeddable.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import org.dspace.content.Item;
+import org.dspace.content.MetadataFieldName;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -28,39 +29,55 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EmbeddableDimensionsMetricProviderTest {
 
-    @Mock
+    @InjectMocks
     private EmbeddableDimensionsMetricProvider provider;
 
     @Mock
-    Context context;
+    private ItemService itemService;
 
     @Mock
-    Item item;
+    private Context context;
+
+    @Mock
+    private Item item;
 
     @Before
     public void setUp() {
-        when(provider.innerHtml(any(), any())).thenCallRealMethod();
-        when(provider.getValueFromMetadataField(eq(item), eq("dc.identifier.doi"))).thenReturn("doi-test");
-        when(provider.getValueFromMetadataField(eq(item), eq("dc.identifier.pmid"))).thenReturn("pmid-test");
 
-        provider.dataStyle = "small_circle";
-        provider.dataLegend = "hover-right";
-        provider.listDataStyle = "list-small_circle";
-        provider.listDataLegend = "list-hover-right";
-        provider.doiField = "dc.identifier.doi";
-        provider.pmidField = "dc.identifier.pmid";
-        provider.badgeInstalled = true;
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dc.identifier.doi"), Item.ANY))
+            .thenReturn("doi-test");
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dc.identifier.pmid"), Item.ANY))
+            .thenReturn("pmid-test");
+
+        provider.setDetailViewEnabled(true);
+        provider.setListViewEnabled(false);
+        provider.setDataStyle("small_circle");
+        provider.setDataLegend("hover-right");
+        provider.setListDataStyle("list-small_circle");
+        provider.setListDataLegend("list-hover-right");
+        provider.setDoiField("dc.identifier.doi");
+        provider.setPmidField("dc.identifier.pmid");
+
     }
 
     @Test
-    public void innerHtml() {
+    public void testInnerHtml() {
         String innerHtml = provider.innerHtml(context, item);
-
-        assertEquals("{\"data-legend\":\"hover-right\",\"data-style\":\"small_circle\"," +
-                         "\"data-dimensions-badge-installed\":true,\"data-doi\":\"doi-test\"," +
-                         "\"data-pmid\":\"pmid-test\",\"list-data-legend\":\"list-hover-right\"," +
-                         "\"list-data-style\":\"list-small_circle\",\"list-data-dimensions-badge-installed\":false," +
-                         "\"list-data-doi\":\"doi-test\",\"list-data-pmid\":\"pmid-test\"}", innerHtml);
+        assertEquals("{"
+            + "\"data-badge-enabled\":true,"
+            + "\"list-data-badge-enabled\":false,"
+            + "\"data-legend\":\"hover-right\","
+            + "\"data-style\":\"small_circle\","
+            + "\"data-doi\":\"doi-test\","
+            + "\"data-pmid\":\"pmid-test\","
+            + "\"data-hide-zero-citations\":false,"
+            + "\"list-data-legend\":\"list-hover-right\","
+            + "\"list-data-style\":\"list-small_circle\","
+            + "\"list-data-doi\":\"doi-test\","
+            + "\"list-data-pmid\":\"pmid-test\","
+            + "\"list-data-hide-zero-citations\":false"
+            + "}", innerHtml);
     }
 
 }

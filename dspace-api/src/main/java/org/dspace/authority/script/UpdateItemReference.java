@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
@@ -24,15 +23,12 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.ItemServiceImpl;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.kernel.ServiceManager;
 import org.dspace.scripts.DSpaceRunnable;
-import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
@@ -52,7 +48,7 @@ public class UpdateItemReference
 
     private ItemService itemService;
     private ItemSearcherMapper itemSearcherMapper;
-    private ConfigurationService configurationService;
+
     private ChoiceAuthorityService choiceAuthorityService;
 
     @Override
@@ -60,7 +56,6 @@ public class UpdateItemReference
         context = new Context();
         ServiceManager serviceManager = new DSpace().getServiceManager();
         itemSearcherMapper = new DSpace().getSingletonService(ItemSearcherMapper.class);
-        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         choiceAuthorityService = ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
         itemService = serviceManager.getServiceByName(ItemServiceImpl.class.getName(), ItemServiceImpl.class);
         onlyArchived = commandLine.hasOption("a") ? null : true;
@@ -98,8 +93,8 @@ public class UpdateItemReference
 
     private void resolveReferences(Item item, List<String> referencesResolved, List<String> referencesNotResolved)
             throws SQLException, AuthorizeException {
-        List<MetadataValue> metadataValues = item.getMetadata();
-        for (MetadataValue metadata : metadataValues) {
+
+        for (MetadataValue metadata : item.getMetadata()) {
 
             String authority = metadata.getAuthority();
             if (isAuthorityAlreadySet(authority) || StringUtils.isBlank(authority)) {
@@ -108,56 +103,64 @@ public class UpdateItemReference
 
             String fieldKey = getFieldKey(metadata);
             String entityType = choiceAuthorityService.getLinkedEntityType(fieldKey);
+
             String [] providerAndId = getProviderAndId(authority);
 
-            if (Objects.nonNull(providerAndId)) {
-                Item searchedItem = itemSearcherMapper.search(context, providerAndId[1], providerAndId[2]);
-                if (Objects.nonNull(searchedItem)) {
-                    String searchedItemEntityType = itemService.getMetadataFirstValue(searchedItem,
-                            "dspace", "entity", "type", Item.ANY);
-                    if (StringUtils.equals(entityType, searchedItemEntityType)) {
-                        setReferences(metadata, searchedItem, checkWhetherTitleNeedsToBeSet());
-                        referencesResolved.add("The starting item with uuid: " + item.getID() + " and reference value "
-                                + providerAndId[1] + ":" + providerAndId[2] + " was resolved for item with uuid: "
-                                + searchedItem.getID());
-                    } else {
-                        referencesNotResolved.add("The item with uuid: " + item.getID() + " and reference value: "
-                                + authority + " on metadata " + fieldKey
-                                + " was not risolved, because the linked EntityType and EntityType of referenced item("
-                                + searchedItem.getID() + ") are different (" + entityType + ", "
-                                + searchedItemEntityType + ")");
-                    }
-                    context.uncacheEntity(searchedItem);
-                } else {
-                    referencesNotResolved.add("The item with uuid: " + item.getID() + " and reference value: "
-                            + authority + " because item with " + providerAndId[1] + ":" + providerAndId[2]
-                            + " does not found on database");
-                }
-            } else {
-                referencesNotResolved.add("The item with uuid: " + item.getID() + " and reference value: " + authority
-                        + " has not been solved!");
+            if (providerAndId == null) {
+                referencesNotResolved.add(getAuthorityNotResolvedMessage(item, authority));
+                continue;
             }
+
+            Item searchedItem = itemSearcherMapper.search(context, providerAndId[1], providerAndId[2], item);
+            if (searchedItem == null) {
+                referencesNotResolved.add(getItemNotFoundMessage(item, authority, providerAndId));
+                continue;
+            }
+
+            String searchedItemEntityType = itemService.getEntityType(searchedItem);
+
+            if (StringUtils.equals(entityType, searchedItemEntityType)) {
+                choiceAuthorityService.setReferenceWithAuthority(metadata, searchedItem);
+                referencesResolved.add(getReferenceResolvedMessage(item, providerAndId, searchedItem));
+            } else {
+                referencesNotResolved.add(getReferenceNotResolvedForDifferentEntityTypeMessage(item, authority,
+                    fieldKey, entityType, searchedItem, searchedItemEntityType));
+            }
+
+            context.uncacheEntity(searchedItem);
+
         }
         context.uncacheEntity(item);
+
+    }
+
+    private String getAuthorityNotResolvedMessage(Item item, String authority) {
+        return "The item with uuid: " + item.getID() + " and reference value: " + authority + " has not been solved!";
+    }
+
+    private String getItemNotFoundMessage(Item item, String authority, String[] providerAndId) {
+        return "The item with uuid: " + item.getID() + " and reference value: "
+            + authority + " because item with " + providerAndId[1] + ":" + providerAndId[2]
+            + " does not found on database";
+    }
+
+    private String getReferenceResolvedMessage(Item item, String[] providerAndId, Item searchedItem) {
+        return "The starting item with uuid: " + item.getID() + " and reference value "
+            + providerAndId[1] + ":" + providerAndId[2] + " was resolved for item with uuid: "
+            + searchedItem.getID();
+    }
+
+    private String getReferenceNotResolvedForDifferentEntityTypeMessage(Item item, String authority, String fieldKey,
+        String entityType, Item searchedItem, String searchedItemEntityType) {
+        return "The item with uuid: " + item.getID() + " and reference value: "
+            + authority + " on metadata " + fieldKey
+            + " was not resolved, because the linked EntityType and EntityType of referenced item("
+            + searchedItem.getID() + ") are different (" + entityType + ", "
+            + searchedItemEntityType + ")";
     }
 
     private String getFieldKey(MetadataValue metadata) {
         return metadata.getMetadataField().toString('_');
-    }
-
-    private boolean checkWhetherTitleNeedsToBeSet() {
-        return configurationService.getBooleanProperty("cris.item-reference-resolution.override-metadata-value", false);
-    }
-
-    private void setReferences(MetadataValue metadataValue, Item item, boolean isValueToUpdate)
-            throws SQLException, AuthorizeException {
-        metadataValue.setAuthority(item.getID().toString());
-        metadataValue.setConfidence(Choices.CF_ACCEPTED);
-        String newMetadataValue = itemService.getMetadata(item, "dc.title");
-        if (isValueToUpdate && StringUtils.isNotBlank(newMetadataValue)) {
-            metadataValue.setValue(newMetadataValue);
-        }
-        itemService.update(context, item);
     }
 
     private String[] getProviderAndId(String authority) {

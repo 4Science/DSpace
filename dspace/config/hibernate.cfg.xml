@@ -54,6 +54,7 @@
         <mapping class="org.dspace.content.EntityType"/>
 
         <mapping class="org.dspace.scripts.Process"/>
+        <mapping class="org.dspace.alerts.SystemWideAlert"/>
 
         <mapping class="org.dspace.content.MetadataField"/>
         <mapping class="org.dspace.content.MetadataSchema"/>
@@ -116,6 +117,9 @@
         <mapping class="org.dspace.orcid.OrcidToken"/>
 
         <mapping class="org.dspace.app.metrics.CrisMetrics"/>
+        <mapping class="org.dspace.supervision.SupervisionOrder"/>
+
+        <mapping class="org.dspace.unpaywall.model.Unpaywall" />
 
     </session-factory>
 </hibernate-configuration>

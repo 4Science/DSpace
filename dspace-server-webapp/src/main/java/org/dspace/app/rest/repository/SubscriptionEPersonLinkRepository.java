@@ -8,19 +8,19 @@
 package org.dspace.app.rest.repository;
 
 import java.sql.SQLException;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.SubscriptionRest;
 import org.dspace.app.rest.projection.Projection;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.core.Context;
 import org.dspace.eperson.Subscription;
 import org.dspace.eperson.service.SubscribeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,24 +30,20 @@ import org.springframework.stereotype.Component;
 public class SubscriptionEPersonLinkRepository extends AbstractDSpaceRestRepository implements LinkRestRepository {
 
     @Autowired
-    SubscribeService subscribeService;
+    private SubscribeService subscribeService;
 
-    public EPersonRest getEPerson(@Nullable HttpServletRequest request,
-                                  Integer subscriptionId,
-                                  @Nullable Pageable optionalPageable,
-                                  Projection projection) throws AuthorizeException {
+    @PreAuthorize("hasPermission(#subscriptionId, 'subscription', 'READ')")
+    public EPersonRest getEPerson(@Nullable HttpServletRequest request, Integer subscriptionId,
+                                  @Nullable Pageable optionalPageable, Projection projection) {
         try {
-            Context context = obtainContext();
-            Subscription subscription = subscribeService.findById(context, subscriptionId);
-            if (subscription == null) {
+            Subscription subscription = subscribeService.findById(obtainContext(), subscriptionId);
+            if (Objects.isNull(subscription)) {
                 throw new ResourceNotFoundException("No such subscription: " + subscriptionId);
             }
-
-            return converter.toRest(subscription.getePerson(),  projection);
+            return converter.toRest(subscription.getEPerson(),  projection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (AuthorizeException e) {
-            throw new AuthorizeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
+
 }

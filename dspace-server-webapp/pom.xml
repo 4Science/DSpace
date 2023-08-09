@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2022.03.01-SNAPSHOT</version>
+        <version>cris-2023.01.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -259,6 +259,27 @@
             </dependencies>
         </profile>
 
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+	<profile>
+		<id>addon-video</id>
+		<activation>
+			<property>
+				<name>audiovideo.on</name>
+			</property>
+		</activation>
+		<dependencies>
+			<dependency>
+				<groupId>it.4science.dspace</groupId>
+				<artifactId>addon-video-api</artifactId>
+				<version>${addon-video.version}</version>
+				<type>jar</type>
+			</dependency>
+		</dependencies>
+	</profile>
+
         <profile>
             <id>addon-document-viewer</id>
             <activation>
@@ -275,6 +296,23 @@
                 </dependency>
             </dependencies>
         </profile>
+        
+	   	<profile>
+			<id>addon-analytics</id>
+	         <activation>
+	            <property>
+	               <name>analytics.on</name>
+	            </property>
+	         </activation>
+			<dependencies>
+				<dependency>
+					<groupId>it.4science.dspace</groupId>
+					<artifactId>addon-analytics-api</artifactId>
+					<version>${addon-analytics.version}</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>
     </profiles>
 
 
@@ -487,11 +525,6 @@
             <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.9</version>
-        </dependency>
-        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
@@ -584,13 +617,6 @@
             <artifactId>solr-core</artifactId>
             <version>${solr.client.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <!-- Newer version brought in by opencsv -->
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-text</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -612,6 +638,10 @@
             <artifactId>hamcrest-date</artifactId>
             <version>2.0.7</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax.annotation-api</artifactId>
         </dependency>
     </dependencies>
 

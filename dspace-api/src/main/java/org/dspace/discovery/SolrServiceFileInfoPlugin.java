@@ -9,6 +9,8 @@ package org.dspace.discovery;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -36,6 +38,8 @@ import org.dspace.discovery.indexobject.IndexableItem;
  * @author Martin Walk
  */
 public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
+    private static final Logger log = LogManager.getLogger(SolrServiceFileInfoPlugin.class);
+
     private static final String BUNDLE_NAME = "ORIGINAL";
     private static final String SOLR_FIELD_NAME_FOR_FILENAMES = "original_bundle_filenames";
     private static final String SOLR_FIELD_NAME_FOR_DESCRIPTIONS = "original_bundle_descriptions";
@@ -52,11 +56,15 @@ public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
                         List<Bitstream> bitstreams = bundle.getBitstreams();
                         if (bitstreams != null) {
                             for (Bitstream bitstream : bitstreams) {
-                                document.addField(SOLR_FIELD_NAME_FOR_FILENAMES, bitstream.getName());
+                                try {
+                                    document.addField(SOLR_FIELD_NAME_FOR_FILENAMES, bitstream.getName());
 
-                                String description = bitstream.getDescription();
-                                if ((description != null) && !description.isEmpty()) {
-                                    document.addField(SOLR_FIELD_NAME_FOR_DESCRIPTIONS, description);
+                                    String description = bitstream.getDescription();
+                                    if ((description != null) && !description.isEmpty()) {
+                                        document.addField(SOLR_FIELD_NAME_FOR_DESCRIPTIONS, description);
+                                    }
+                                } catch (Exception e) {
+                                    log.warn("Error occurred during update index for item {}", item.getID());
                                 }
                             }
                         }

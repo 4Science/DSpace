@@ -36,6 +36,11 @@ public class ApplicationConfig {
     @Value("${iiif.cors.allowed-origins}")
     private String[] iiifCorsAllowedOrigins;
 
+    // Allowed IIIF CORS origins ("Access-Control-Allow-Origin" header)
+    // Can be overridden in DSpace configuration
+    @Value("${bitstream.cors.allowed-origins}")
+    private String[] bitstreamCorsAllowedOrigins;
+
     // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
     // Defaults to true. Can be overridden in DSpace configuration
     @Value("${rest.cors.allow-credentials:true}")
@@ -45,6 +50,11 @@ public class ApplicationConfig {
     // Defaults to true. Can be overridden in DSpace configuration
     @Value("${iiif.cors.allow-credentials:true}")
     private boolean iiifCorsAllowCredentials;
+
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${bitstream.cors.allow-credentials:true}")
+    private boolean bitstreamsCorsAllowCredentials;
 
     // Configured User Interface URL (default: http://localhost:4000)
     @Value("${dspace.ui.url:http://localhost:4000}")
@@ -92,6 +102,14 @@ public class ApplicationConfig {
     }
 
     /**
+     * Returns the bitstream.cors.allowed-origins (for Bitstream access) defined in DSpace configuration.
+     * @return allowed origins
+     */
+    public String[] getBitstreamAllowedOriginsConfig() {
+        return this.bitstreamCorsAllowedOrigins;
+    }
+
+    /**
      * Return whether to allow credentials (cookies) on CORS requests. This is used to set the
      * CORS "Access-Control-Allow-Credentials" header in Application class.
      * @return true or false
@@ -107,5 +125,14 @@ public class ApplicationConfig {
      */
     public boolean getIiifAllowCredentials() {
         return iiifCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on IIIF requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getBitstreamsAllowCredentials() {
+        return bitstreamsCorsAllowCredentials;
     }
 }

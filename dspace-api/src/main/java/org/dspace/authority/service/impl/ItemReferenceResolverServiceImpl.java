@@ -37,4 +37,9 @@ public class ItemReferenceResolverServiceImpl implements ItemReferenceResolverSe
         resolvers.forEach(resolver -> resolver.resolveReferences(context, item));
     }
 
+    @Override
+    public void clearResolversCache() {
+        resolvers.forEach(ItemReferenceResolver::clearCache);
+    }
+
 }

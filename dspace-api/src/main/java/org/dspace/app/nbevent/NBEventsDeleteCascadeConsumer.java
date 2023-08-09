@@ -26,7 +26,6 @@ public class NBEventsDeleteCascadeConsumer implements Consumer {
     private NBEventService nbEventService;
 
     @Override
-    @SuppressWarnings("unchecked")
     public void initialize() throws Exception {
         nbEventService = new DSpace().getSingletonService(NBEventService.class);
     }

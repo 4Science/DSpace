@@ -14,16 +14,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.dspace.app.rest.authorization.impl.LoginOnBehalfOfFeature;
 import org.dspace.app.rest.converter.CommunityConverter;
+import org.dspace.app.rest.converter.EPersonConverter;
 import org.dspace.app.rest.converter.SiteConverter;
 import org.dspace.app.rest.matcher.AuthorizationMatcher;
 import org.dspace.app.rest.model.CommunityRest;
+import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.SiteRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.EPersonBuilder;
 import org.dspace.content.Site;
 import org.dspace.content.service.SiteService;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -34,6 +40,9 @@ public class LoginOnBehalfOfFeatureRestIT extends AbstractControllerIntegrationT
 
     @Autowired
     private SiteConverter siteConverter;
+
+    @Autowired
+    private EPersonConverter ePersonConverter;
 
     @Autowired
     private CommunityConverter communityConverter;
@@ -49,6 +58,9 @@ public class LoginOnBehalfOfFeatureRestIT extends AbstractControllerIntegrationT
 
     @Autowired
     private AuthorizationFeatureService authorizationFeatureService;
+
+    @Autowired
+    private GroupService groupService;
 
     private AuthorizationFeature loginOnBehalfOf;
 
@@ -164,4 +176,80 @@ public class LoginOnBehalfOfFeatureRestIT extends AbstractControllerIntegrationT
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
+
+    @Test
+    public void loginOnBehalfOfAdminUserAssumeLoginAdminPropertyFalseNotFoundTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson adminUser = EPersonBuilder.createEPerson(context)
+                                          .withEmail("loginasuseradmin@test.com")
+                                          .build();
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        groupService.addMember(context, adminGroup, adminUser);
+        context.restoreAuthSystemState();
+
+        EPersonRest ePersonRest = ePersonConverter.convert(adminUser, Projection.DEFAULT);
+        String epersonUri = utils.linkToSingleResource(ePersonRest, "self").getHref();
+
+        configurationService.setProperty("org.dspace.app.rest.authorization.AlwaysThrowExceptionFeature.turnoff", true);
+        configurationService.setProperty("webui.user.assumelogin", true);
+        configurationService.setProperty("webui.user.assumelogin.admin", false);
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+                            .param("uri", epersonUri)
+                            .param("feature", loginOnBehalfOf.getName()))
+                        .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void loginOnBehalfOfAdminUserAssumeLoginAdminPropertyNotExistTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson adminUser = EPersonBuilder.createEPerson(context)
+                                          .withEmail("loginasuseradmin@test.com")
+                                          .build();
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        groupService.addMember(context, adminGroup, adminUser);
+        context.restoreAuthSystemState();
+
+        EPersonRest ePersonRest = ePersonConverter.convert(adminUser, Projection.DEFAULT);
+        String epersonUri = utils.linkToSingleResource(ePersonRest, "self").getHref();
+
+        configurationService.setProperty("org.dspace.app.rest.authorization.AlwaysThrowExceptionFeature.turnoff", true);
+        configurationService.setProperty("webui.user.assumelogin", true);
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+                            .param("uri", epersonUri)
+                            .param("feature", loginOnBehalfOf.getName()))
+                        .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void loginOnBehalfOfAdminUserTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson adminUser = EPersonBuilder.createEPerson(context)
+                                          .withEmail("loginasuseradmin@test.com")
+                                          .build();
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        groupService.addMember(context, adminGroup, adminUser);
+        context.restoreAuthSystemState();
+
+        EPersonRest ePersonRest = ePersonConverter.convert(adminUser, Projection.DEFAULT);
+        String epersonUri = utils.linkToSingleResource(ePersonRest, "self").getHref();
+
+        configurationService.setProperty("org.dspace.app.rest.authorization.AlwaysThrowExceptionFeature.turnoff", true);
+        configurationService.setProperty("webui.user.assumelogin", true);
+        configurationService.setProperty("webui.user.assumelogin.admin", true);
+
+        Authorization loginOnBehalfOfAuthorization = new Authorization(admin, loginOnBehalfOf, ePersonRest);
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+                            .param("uri", epersonUri)
+                            .param("feature", loginOnBehalfOf.getName()))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.authorizations", Matchers.hasItem(
+                            AuthorizationMatcher.matchAuthorization(loginOnBehalfOfAuthorization))));
+    }
+
 }

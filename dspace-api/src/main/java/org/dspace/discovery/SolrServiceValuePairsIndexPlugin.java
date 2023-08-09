@@ -10,6 +10,7 @@ package org.dspace.discovery;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.dspace.discovery.SearchUtils.AUTHORITY_SEPARATOR;
 import static org.dspace.discovery.SearchUtils.FILTER_SEPARATOR;
+import static org.dspace.discovery.SolrServiceImpl.SOLR_FIELD_SUFFIX_FACET_PREFIXES;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -127,10 +128,12 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         String keywordField = appendAuthorityIfNotBlank(value, authority);
         String acidField = appendAuthorityIfNotBlank(valueLowerCase + separator + value, authority);
         String filterField = appendAuthorityIfNotBlank(valueLowerCase + separator + value, authority);
+        String prefixField = appendAuthorityIfNotBlank(valueLowerCase + separator + value, authority);
 
         document.addField(fieldNameWithLanguage + "_keyword", keywordField);
         document.addField(fieldNameWithLanguage + "_acid", acidField);
         document.addField(fieldNameWithLanguage + "_filter", filterField);
+        document.addField(fieldNameWithLanguage + SOLR_FIELD_SUFFIX_FACET_PREFIXES, prefixField);
         document.addField(fieldNameWithLanguage + "_ac", valueLowerCase + separator + value);
         if (document.containsKey(searchFilter.getIndexFieldName() + "_authority")) {
             document.addField(fieldNameWithLanguage + "_authority", authority);

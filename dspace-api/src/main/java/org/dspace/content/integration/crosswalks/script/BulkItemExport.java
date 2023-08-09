@@ -149,7 +149,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
 
     @Override
     public void internalRun() throws Exception {
-        context = new Context();
+        context = new Context(Context.Mode.READ_ONLY);
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
         assignHandlerLocaleInContext();
@@ -222,6 +222,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
         crosswalk.disseminate(context, itemsIterator, out);
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         String name = getFileName(crosswalk);
+        context.setMode(Context.Mode.READ_WRITE);
         handler.writeFilestream(context, name, in, crosswalk.getMIMEType(), crosswalk.isPubliclyReadable());
         handler.logInfo("Items exported successfully into file named " + name);
     }

@@ -9,9 +9,11 @@ package org.dspace.layout.service.impl;
 
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,13 +23,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -67,6 +70,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private BitstreamService bitstreamService;
 
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
@@ -154,7 +160,7 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         String boxType = box.getType();
 
         if (StringUtils.isEmpty(boxType)) {
-            return hasMetadataBoxContent(box, item);
+            return hasMetadataBoxContent(context, box, item);
         }
 
         switch (boxType.toUpperCase()) {
@@ -167,9 +173,11 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
                 return isIiifEnabled(item);
             case "HIERARCHY":
                 return hasHierarchicBoxContent(context, box, item);
+            case "VIDEOVIEWER":
+                return hasMediaResources(context, box, item);
             case "METADATA":
             default:
-                return hasMetadataBoxContent(box, item);
+                return hasMetadataBoxContent(context, box, item);
         }
 
     }
@@ -184,7 +192,7 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         return new CrisLayoutBoxConfiguration(box);
     }
 
-    private boolean hasMetadataBoxContent(CrisLayoutBox box, Item item) {
+    private boolean hasMetadataBoxContent(Context context, CrisLayoutBox box, Item item) {
 
         List<CrisLayoutField> boxFields = box.getLayoutFields();
         if (CollectionUtils.isEmpty(boxFields)) {
@@ -195,7 +203,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
 
             if (field.isMetadataField() && isMetadataFieldPresent(item, field.getMetadataField())) {
                 return true;
-            } else if (field.isBitstreamField() && isBitstreamPresent(item, (CrisLayoutFieldBitstream) field)) {
+            }
+
+            if (field.isBitstreamField() && isBitstreamPresent(context, item, (CrisLayoutFieldBitstream) field)) {
                 return true;
             }
 
@@ -209,18 +219,17 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
             .anyMatch(metadataValue -> Objects.equals(metadataField, metadataValue.getMetadataField()));
     }
 
-    private boolean isBitstreamPresent(Item item, CrisLayoutFieldBitstream field) {
-
-        return item.getBundles(field.getBundle()).stream()
-            .flatMap(bundle -> bundle.getBitstreams().stream())
-            .anyMatch(bitstream -> isMetadataPresent(bitstream, field.getMetadataField(), field.getMetadataValue()));
-
-    }
-
-    private boolean isMetadataPresent(Bitstream bitstream, MetadataField metadataField, String value) {
-        return (Objects.isNull(metadataField) && StringUtils.isBlank(value)) || bitstream.getMetadata().stream()
-            .filter(metadataValue -> Objects.equals(metadataField, metadataValue.getMetadataField()))
-            .anyMatch(metadataValue -> Objects.equals(value, metadataValue.getValue()));
+    private boolean isBitstreamPresent(Context context, Item item, CrisLayoutFieldBitstream field) {
+        Map<String, String> filters = new HashMap<>();
+        if (field.getMetadataField() != null && StringUtils.isNotBlank(field.getMetadataValue())) {
+            filters.put(field.getMetadataField().toString('.'), field.getMetadataValue());
+        }
+        try {
+            return bitstreamService.findShowableByItem(context, item.getID(), field.getBundle(),
+                filters, false).size() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean hasRelationBoxContent(Context context, CrisLayoutBox box, Item item) {
@@ -263,6 +272,16 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
         }
 
         return false;
+    }
+
+    private boolean hasMediaResources(Context context, CrisLayoutBox box, Item item) {
+        List<Bundle> bundles = item.getBundles();
+        try {
+            boolean hasRes = bundles.stream().anyMatch(bundle -> bundle.getName().startsWith("VIDEO-ACCESS"));
+            return hasRes;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isIiifEnabled(Item item) {

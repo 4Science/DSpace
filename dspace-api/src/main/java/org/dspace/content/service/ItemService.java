@@ -29,6 +29,7 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.Thumbnail;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -754,6 +755,27 @@ public interface ItemService
     int countWithdrawnItems(Context context) throws SQLException;
 
     /**
+     * finds all items for which the current user has editing rights
+     * @param context DSpace context object
+     * @param offset page offset
+     * @param limit  page size limit
+     * @return list of items for which the current user has editing rights
+     * @throws SQLException
+     * @throws SearchServiceException
+     */
+    public List<Item> findItemsWithEdit(Context context, int offset, int limit)
+        throws SQLException, SearchServiceException;
+
+    /**
+     * counts all items for which the current user has editing rights
+     * @param context DSpace context object
+     * @return list of items for which the current user has editing rights
+     * @throws SQLException
+     * @throws SearchServiceException
+     */
+    public int countItemsWithEdit(Context context) throws SQLException, SearchServiceException;
+
+    /**
      * Check if the supplied item is an inprogress submission
      *
      * @param context DSpace context object
@@ -815,8 +837,6 @@ public interface ItemService
                                            String lang, boolean enableVirtualMetadata);
 
     /**
-<<<<<<< HEAD
-=======
      * Returns the item's entity type, if any.
      *
      * @param  item    the item
@@ -833,7 +853,6 @@ public interface ItemService
     public void setEntityType(Context context, Item item, String entityType);
 
     /**
->>>>>>> 4science-bitbucket/dspace-cris-7
      * Find all the items in the archive or not with a given authority key value in LIKE format.
      * 
      * @param context         DSpace context object
@@ -889,5 +908,18 @@ public interface ItemService
      */
     void addDefaultPoliciesNotInPlace(Context context, DSpaceObject dso, List<ResourcePolicy> defaultCollectionPolicies)
         throws SQLException, AuthorizeException;
+
+    public Iterator<Item> findRelatedItemsByAuthorityControlledFields(Context context,
+                                                                      Item item, List<String> authorities);
+
+    /**
+     * Check whether the given item is the latest version. If the latest item cannot
+     * be determined, because either the version history or the latest version is
+     * not present, assume the item is latest.
+     * @param  context the DSpace context.
+     * @param  item    the item that should be checked.
+     * @return         true if the item is the latest version, false otherwise.
+     */
+    public boolean isLatestVersion(Context context, Item item) throws SQLException;
 
 }

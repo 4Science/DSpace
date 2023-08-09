@@ -48,6 +48,7 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
 import org.dspace.core.service.LicenseService;
 import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
@@ -961,8 +962,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);
         discoverQuery.setMaxResults(limit);
-        DiscoverResult resp = retrieveCollectionsWithSubmit(context, discoverQuery,
-                entityType, community, q);
+        discoverQuery.setSortField(SOLR_SORT_FIELD, SORT_ORDER.asc);
+        DiscoverResult resp = retrieveCollectionsWithSubmit(context, discoverQuery, entityType, community, q);
         for (IndexableObject solrCollections : resp.getIndexableObjects()) {
             Collection c = ((IndexableCollection) solrCollections).getIndexedObject();
             collections.add(c);

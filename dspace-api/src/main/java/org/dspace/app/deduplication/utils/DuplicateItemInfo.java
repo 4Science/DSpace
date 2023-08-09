@@ -9,6 +9,7 @@ package org.dspace.app.deduplication.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
 import org.dspace.app.deduplication.model.DuplicateDecisionValue;
@@ -53,6 +54,10 @@ public class DuplicateItemInfo {
 
     public DuplicateDecisionValue getDecision(DuplicateDecisionType type) {
         return decisions.get(type);
+    }
+
+    public Set<DuplicateDecisionType> getDecisionTypes() {
+        return decisions.keySet();
     }
 
     public void setDecision(DuplicateDecisionType type, DuplicateDecisionValue decision) {

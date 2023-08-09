@@ -35,13 +35,14 @@ import org.dspace.eperson.dao.SubscriptionDAO;
  * @author kevinvandevelde at atmire.com
  */
 public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> implements SubscriptionDAO {
+
     protected SubscriptionDAOImpl() {
         super();
     }
 
     @Override
-    public List<Subscription> findByEPerson(Context context, EPerson eperson,
-                                            Integer limit, Integer offset) throws SQLException {
+    public List<Subscription> findByEPerson(Context context, EPerson eperson, Integer limit, Integer offset)
+            throws SQLException {
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         javax.persistence.criteria.CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, Subscription.class);
         Root<Subscription> subscriptionRoot = criteriaQuery.from(Subscription.class);
@@ -51,7 +52,6 @@ public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> impl
         orderList.add(criteriaBuilder.asc(subscriptionRoot.get(Subscription_.dSpaceObject)));
         criteriaQuery.orderBy(orderList);
         return list(context, criteriaQuery, false, Subscription.class, limit, offset);
-
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> impl
         Root<Subscription> subscriptionRoot = criteriaQuery.from(Subscription.class);
         criteriaQuery.select(subscriptionRoot);
         criteriaQuery.where(criteriaBuilder.and(criteriaBuilder.equal(
-                        subscriptionRoot.get(Subscription_.ePerson), eperson),
+                            subscriptionRoot.get(Subscription_.ePerson), eperson),
                 criteriaBuilder.equal(subscriptionRoot.get(Subscription_.dSpaceObject), dSpaceObject)
         ));
         List<javax.persistence.criteria.Order> orderList = new LinkedList<>();
@@ -132,14 +132,16 @@ public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> impl
     }
 
     @Override
-    public List<Subscription> findAllSubscriptionsByTypeAndFrequency(Context context,
-                        String type, String frequencyValue) throws SQLException {
+    public List<Subscription> findAllSubscriptionsBySubscriptionTypeAndFrequency(Context context,
+                        String subscriptionType, String frequencyValue) throws SQLException {
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, Subscription.class);
         Root<Subscription> subscriptionRoot = criteriaQuery.from(Subscription.class);
         criteriaQuery.select(subscriptionRoot);
         Join<Subscription, SubscriptionParameter> childJoin = subscriptionRoot.join("subscriptionParameterList");
-        criteriaQuery.where(criteriaBuilder.and(criteriaBuilder.equal(subscriptionRoot.get(Subscription_.TYPE), type),
+        criteriaQuery.where(
+                criteriaBuilder.and(
+                criteriaBuilder.equal(subscriptionRoot.get(Subscription_.SUBSCRIPTION_TYPE), subscriptionType),
                 criteriaBuilder.equal(childJoin.get(SubscriptionParameter_.name), "frequency"),
                 criteriaBuilder.equal(childJoin.get(SubscriptionParameter_.value), frequencyValue)
                 ));
@@ -182,4 +184,5 @@ public class SubscriptionDAOImpl extends AbstractHibernateDAO<Subscription> impl
         Query query = this.getHibernateSession(context).createQuery(cq);
         return (Long) query.getSingleResult();
     }
+
 }

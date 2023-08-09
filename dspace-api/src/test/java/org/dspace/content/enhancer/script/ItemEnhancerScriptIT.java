@@ -56,8 +56,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
     /**
      * This method will be run before the first test as per @BeforeClass. It will
-     * configure the event.dispatcher.default.consumers property to add the
-     * CrisConsumer.
+     * configure the event.dispatcher.default.consumers property to remove the
+     * ItemEnhancerConsumer.
      */
     @BeforeClass
     public static void initConsumers() {

@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,12 +30,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
+import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -61,7 +64,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 /**
  * Test suite for the EditItem endpoint
- * 
+ *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest {
@@ -292,6 +295,62 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         List<Operation> operations = new ArrayList<Operation>();
         List<Map<String, String>> values = new ArrayList<Map<String, String>>();
         Map<String, String> value1 = new HashMap<String, String>();
+        value1.put("value", "First Subject");
+        Map<String, String> value2 = new HashMap<String, String>();
+        value2.put("value", "Second Subject");
+        values.add(value1);
+        values.add(value2);
+
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.subject", values));
+
+        String patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("Title of item A")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("First Subject")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Second Subject")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2015-06-25"))
+                                     )));
+
+        // verify that the patch changes have been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("Title of item A")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("First Subject")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Second Subject")),
+                                     hasJsonPath("$['dc.date.issued'][0].value", is("2015-06-25"))
+                                     )));
+    }
+
+    @Test
+    public void notRepeatableFiledValidationErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1").build();
+
+        Item itemA = ItemBuilder.createItem(context, col1)
+                                .withTitle("Title of item A")
+                                .withIssueDate("2015-06-25").build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> operations = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<Map<String, String>>();
+        Map<String, String> value1 = new HashMap<String, String>();
         value1.put("value", "First Title");
         Map<String, String> value2 = new HashMap<String, String>();
         value2.put("value", "Second Title");
@@ -304,21 +363,13 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":SECOND")
                              .content(patchBody)
                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.sections.onlyTitle", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("First Title")),
-                                     hasJsonPath("$['dc.title'][1].value", is("Second Title"))
-                                     )))
-                             .andExpect(jsonPath("$.sections.onlyTitle['dc.date.issued']").doesNotExist());
+                             .andExpect(status().isUnprocessableEntity());
 
-        // verify that the patch changes have been persisted
+        // verify that the patch changes haven't been persisted
         getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":SECOND"))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.sections.onlyTitle", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("First Title")),
-                                     hasJsonPath("$['dc.title'][1].value", is("Second Title"))
-                                     )))
-                             .andExpect(jsonPath("$.sections.onlyTitle['dc.date.issued']").doesNotExist());
+                             .andExpect(jsonPath("$.sections.onlyTitle['dc.title'][0].value", is("Title of item A")))
+                             .andExpect(jsonPath("$.sections.onlyTitle['dc.title'][1].value").doesNotExist());
     }
 
     @Test
@@ -691,6 +742,65 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         getClient().perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST-OWNER"))
                    .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testFindOneWithModeWithManySecurities() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson author = EPersonBuilder.createEPerson(context)
+            .withEmail("author@example.com")
+            .withPassword(password)
+            .build();
+
+        EPerson user = EPersonBuilder.createEPerson(context)
+            .withEmail("user@example.com")
+            .withPassword(password)
+            .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .build();
+
+        Item person = ItemBuilder.createItem(context, collection)
+            .withTitle("Author")
+            .withDspaceObjectOwner(author)
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Title item")
+            .withIssueDate("2015-06-25")
+            .withAuthor("Author", person.getID().toString())
+            .withDspaceObjectOwner(eperson)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/edititems/" + item.getID() + ":MODE-WITH-MANY-SECURITIES"))
+            .andExpect(status().isUnauthorized());
+
+        getClient(getAuthToken(user.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-WITH-MANY-SECURITIES"))
+            .andExpect(status().isForbidden());
+
+        getClient(getAuthToken(author.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-WITH-MANY-SECURITIES"))
+            .andExpect(status().isOk());
+
+        getClient(getAuthToken(eperson.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-WITH-MANY-SECURITIES"))
+            .andExpect(status().isOk());
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-WITH-MANY-SECURITIES"))
+            .andExpect(status().isOk());
+
     }
 
     @Test
@@ -1216,6 +1326,91 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
     }
 
     @Test
+    public void patchReplaceAllMetadataTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("item.enable-virtual-metadata", false);
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType("Publication")
+                                           .withSubmissionDefinition("modeA")
+                                           .withName("Collection 1")
+                                           .build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                               .withTitle("My Title")
+                               .withIssueDate("2023-03-23")
+                               .withAuthor("Wayne, Bruce")
+                               .build();
+
+        EditItem editItem = new EditItem(context, item);
+        context.restoreAuthSystemState();
+
+        List<Operation> operations = new ArrayList<Operation>();
+
+        List<Map.Entry<String, String>> subjectValues = new ArrayList<>();
+
+        Entry<String, String> subject1 = Map.entry("value", "Subject 1");
+        Entry<String, String> subject2 = Map.entry("value", "Subject 2");
+        Entry<String, String> subject3 = Map.entry("value", "Subject 3");
+
+        subjectValues.add(subject1);
+        subjectValues.add(subject2);
+        subjectValues.add(subject3);
+
+        List<Map.Entry<String, String>> titleValues = new ArrayList<>();
+
+        titleValues.add(Map.entry("value", "TITLE 1"));
+
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.subject", subjectValues));
+        operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", titleValues));
+
+        String patchBody = getPatchContent(operations);
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 1")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 3"))
+                                     )));
+
+        // verify that the patch changes have been persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItem.getID() + ":FIRST"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.title'][0].value", is("TITLE 1")),
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 1")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 3"))
+                                     )));
+
+        operations.clear();
+
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/0", subject2));
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/1", subject3));
+        operations.add(new ReplaceOperation("/sections/titleAndIssuedDate/dc.subject/2", subject1));
+
+        patchBody = getPatchContent(operations);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.sections.titleAndIssuedDate", Matchers.allOf(
+                                     hasJsonPath("$['dc.subject'][0].value", is("Subject 2")),
+                                     hasJsonPath("$['dc.subject'][1].value", is("Subject 3")),
+                                     hasJsonPath("$['dc.subject'][2].value", is("Subject 1"))
+                                     )));
+    }
+
+    @Test
     public void testPatchWithValidationErrors() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -1672,6 +1867,88 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         assertThat(authorizeService.getPolicies(context, bitstream),
             contains(matches(Constants.READ, anonymousGroup, ResourcePolicy.TYPE_INHERITED)));
 
+    }
+
+    @Test
+    public void testEditItemModeConfigurationWithEntityTypeAndSubmission() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Publication")
+            .withName("Collection 1")
+            .withSubmissionDefinition("modeC")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Title item A")
+            .withIssueDate("2015-06-25")
+            .withAuthor("Smith, Maria")
+            .withDspaceObjectOwner(admin)
+            .build();
+
+        EditItem editItem = new EditItem(context, item);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        getClient(tokenAdmin).perform(get("/api/core/edititems/search/findModesById")
+            .param("uuid", editItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded").exists())
+            .andExpect(jsonPath("$.page.totalElements", is(2)))
+            .andExpect(jsonPath("$._embedded.edititemmodes[0].id", is("MODE-A")))
+            .andExpect(jsonPath("$._embedded.edititemmodes[1].id", is("MODE-B")));
+
+    }
+
+    @Test
+    public void testEditWithHiddenSections() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withEntityType("Publication")
+            .build();
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Item")
+            .build();
+        context.restoreAuthSystemState();
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-TEST-HIDDEN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.test-outside-workflow-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-outside-submission-hidden").doesNotExist())
+            .andExpect(jsonPath("$.sections.test-never-hidden").exists())
+            .andExpect(jsonPath("$.sections.test-always-hidden").doesNotExist());
+    }
+
+    @Test
+    public void testValidationWithHiddenSteps() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection 1")
+            .withEntityType("Publication")
+            .build();
+        Item item = ItemBuilder.createItem(context, collection)
+            .build();
+        context.restoreAuthSystemState();
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/core/edititems/" + item.getID() + ":MODE-TEST-HIDDEN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors", hasSize(1)))
+            .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+            .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
     }
 
     private Bitstream getBitstream(Item item, String name) throws SQLException {

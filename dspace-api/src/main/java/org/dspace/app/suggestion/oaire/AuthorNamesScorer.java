@@ -54,7 +54,6 @@ public class AuthorNamesScorer implements EvidenceScorer {
 
     /**
      * set the metadata key of the Item which to base the filter on
-     * @return metadata key
      */
     public void setContributorMetadata(List<String> contributorMetadata) {
         this.contributorMetadata = contributorMetadata;

@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withFacetComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndBrowseComponent;
@@ -18,9 +19,12 @@ import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndText
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withSearchComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withTopComponent;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +38,7 @@ import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.layout.CrisLayoutSection;
 import org.dspace.layout.CrisLayoutSectionComponent;
 import org.dspace.layout.service.impl.CrisLayoutSectionServiceImpl;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -72,6 +77,8 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndFacetComponent("sectiondocuments", 1, 0, "col-md-12", "documents"))))
 
+            .andExpect(jsonPath("$._embedded.sections",
+                hasItem(withIdAndSearchComponent("site", 0, 0, "col-md-12", "site"))))
 
             .andExpect(jsonPath("$._embedded.sections",
                         hasItem(withIdAndTextRowComponent("site", 0, 0 , "style", "text-metadata"))))
@@ -167,4 +174,82 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
         getClient().perform(get("/api/layout/sections/{id}", "unknown-section-id"))
             .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void testFindAllWithExistingOfNestedSections() throws Exception {
+
+        List<CrisLayoutSection> originalSections = new LinkedList<>();
+        originalSections.addAll(crisLayoutSectionService.getComponents());
+
+        List<List<CrisLayoutSectionComponent>> components = new ArrayList<>();
+
+        components.add(new ArrayList<>());
+        components.get(0).add(new org.dspace.layout.CrisLayoutSearchComponent());
+
+        List<CrisLayoutSection> sectionsForMock = new LinkedList<>();
+        CrisLayoutSection sectionOne = new CrisLayoutSection("CasualIdForTestingPurposes1", true, components);
+        CrisLayoutSection sectionTwo = new CrisLayoutSection("CasualIdForTestingPurposes2", true, null);
+        sectionTwo.setNestedSections(List.of(sectionOne));
+        CrisLayoutSection sectionThree = new CrisLayoutSection("CasualIdForTestingPurposes3", true, null);
+        sectionThree.setNestedSections(List.of(sectionOne, sectionTwo));
+
+        sectionsForMock.add(sectionOne);
+        sectionsForMock.add(sectionTwo);
+        sectionsForMock.add(sectionThree);
+
+        crisLayoutSectionService.getComponents().clear();
+        crisLayoutSectionService.getComponents().addAll(sectionsForMock);
+
+        try {
+            getClient().perform(get("/api/layout/sections"))
+                       .andExpect(status().isOk())
+                       .andExpect(jsonPath("$._embedded.sections", hasSize(3)))
+                       .andExpect(jsonPath("$._embedded.sections[0].id", is("CasualIdForTestingPurposes1")))
+                       .andExpect(jsonPath("$._embedded.sections[0].nestedSections", empty()))
+                       .andExpect(jsonPath("$._embedded.sections[1].id", is("CasualIdForTestingPurposes2")))
+                       .andExpect(jsonPath("$._embedded.sections[1].componentRows", empty()))
+                       .andExpect(jsonPath("$._embedded.sections[1].nestedSections",
+                           Matchers.containsInAnyOrder(
+                               hasJsonPath("$.id", is(sectionOne.getId()))
+                           )))
+                       .andExpect(jsonPath("$._embedded.sections[2].id", is("CasualIdForTestingPurposes3")))
+                       .andExpect(jsonPath("$._embedded.sections[2].componentRows", empty()))
+                       .andExpect(jsonPath("$._embedded.sections[2].nestedSections",
+                           Matchers.containsInAnyOrder(
+                               hasJsonPath("$.id", is(sectionOne.getId())),
+                               hasJsonPath("$.id", is(sectionTwo.getId()))
+                           )));
+        } catch (Exception e) {
+            // Test Failed
+        } finally {
+            // Restoring situation previous to mock
+            crisLayoutSectionService.getComponents().clear();
+            crisLayoutSectionService.getComponents().addAll(originalSections);
+            // end restoring
+        }
+    }
+
+    @Test
+    public void testCreateCrisLayoutSectionWithNestedSectionsAndComponents() throws Exception {
+
+        List<List<CrisLayoutSectionComponent>> components = new ArrayList<>();
+
+        components.add(new ArrayList<>());
+        components.get(0).add(new org.dspace.layout.CrisLayoutSearchComponent());
+
+        CrisLayoutSection sectionOne =
+            new CrisLayoutSection("CasualIdForTestingPurposes1", true, components);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            sectionOne.setNestedSections(
+                List.of(new CrisLayoutSection("CasualIdForTestingPurposes2", true, components))
+            );
+        });
+
+        assertTrue(exception.getMessage().contains(
+            "cris layout section with id " + sectionOne.getId()
+                + " accepts only sectionComponents or nestedSections"
+            ));
+    }
+
 }
