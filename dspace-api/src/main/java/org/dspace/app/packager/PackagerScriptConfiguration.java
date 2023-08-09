@@ -7,8 +7,10 @@
  */
 package org.dspace.app.packager;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
@@ -82,6 +84,10 @@ public class PackagerScriptConfiguration<T extends Packager> extends ScriptConfi
         options.addOption("h", "help", false,
                           "help (you may also specify '-h -t [type]' for additional help with a specific type of " +
                               "packager)");
+        options.addOption(Option.builder("z").longOpt("file-path")
+                .desc("The path to the file")
+                .type(InputStream.class)
+                .hasArg().build());
 
         return options;
     }
