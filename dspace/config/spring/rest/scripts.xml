@@ -108,4 +108,9 @@
         <property name="description" value="Batch Export to Simple Archive Format (SAF)"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExport"/>
     </bean>
+
+    <bean id="packager" class="org.dspace.app.packager.PackagerScriptConfiguration" primary="true">
+        <property name="description" value="Packager Ingestion and Dissemination" />
+        <property name="dspaceRunnableClass" value="org.dspace.app.packager.Packager"/>
+    </bean>
 </beans>
