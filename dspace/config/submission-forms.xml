@@ -255,7 +255,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>publication</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
