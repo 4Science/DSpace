@@ -267,7 +267,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>haspart</dc-qualifier>
+          <dc-qualifier>ispublishedin</dc-qualifier>
           <label>Contiene</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -3797,7 +3797,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispublishedin</dc-qualifier>
+          <dc-qualifier>haspart</dc-qualifier>
           <label>Contiene</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
