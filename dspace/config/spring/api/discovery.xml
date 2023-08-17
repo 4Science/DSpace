@@ -142,6 +142,7 @@
                 <entry key="RELATION.OrgUnit.people" value-ref="relationOrgunitPersonsConfiguration"/>
                 <entry key="RELATION.OrgUnit.projects" value-ref="relationOrgunitProjectsConfiguration"/>
                 <entry key="RELATION.OrgUnit.organizations" value-ref="relationOrgunitOrgunitsConfiguration"/>
+                <entry key="RELATION.OrgUnit.orgunitfonds" value-ref="relationOrgunitFondsConfiguration"/>
                 <!-- Project Related items -->
                 <entry key="RELATION.Project.projects" value-ref="relationProjectProjectsConfiguration"/>
                 <entry key="RELATION.Project.fundings" value-ref="relationProjectFundingsConfiguration"/>
@@ -1344,6 +1345,32 @@
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
                 <value>dc.contributor.author_authority:{0} AND entityType_keyword:Fonds AND -glamfonds.parent:[* TO *]</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- fonds of a OrgUnit -->
+    <bean id="relationOrgunitFondsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortByFondsSelection" />
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+                queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
+                <value>dc.contributor.corporatebody_authority:{0} AND entityType_keyword:Fonds AND -glamfonds.parent:[* TO *]</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
