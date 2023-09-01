@@ -9,8 +9,10 @@ package org.dspace.content.security;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +35,7 @@ import org.dspace.content.security.service.MetadataSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataSecurityEvaluation;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
@@ -106,7 +109,21 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
                                                                               boolean preventBoxSecurityCheck) {
         String language = context != null ? context.getCurrentLocale().getLanguage() : Item.ANY;
 
-        List<MetadataValue> values = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, language, true);
+        List<String> locales = new ArrayList<String>();
+        locales.addAll(Arrays.asList(configurationService.getArrayProperty("webui.supported.locales")));
+
+        if (locales.isEmpty()) {
+            locales.add(I18nUtil.getDefaultLocale().toString());
+        }
+
+        List<MetadataValue> values = new LinkedList<MetadataValue>();
+        for (MetadataValue mv : itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY, true)) {
+            if (language == Item.ANY ||
+                    (StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage()))) {
+                values.add(mv);
+            }
+        }
+
         return getPermissionFilteredMetadata(context, item, values, preventBoxSecurityCheck);
     }
 

@@ -9,8 +9,10 @@ package org.dspace.app.rest.converter;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.MetadataValueList;
@@ -24,6 +26,8 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
+import org.dspace.services.ConfigurationService;
 import org.dspace.services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -54,6 +58,9 @@ public abstract class DSpaceObjectConverter<M extends DSpaceObject, R extends or
 
     @Autowired
     RequestService requestService;
+
+    @Autowired
+    ConfigurationService configService;
 
     @Override
     public R convert(M obj, Projection projection) {
@@ -86,23 +93,29 @@ public abstract class DSpaceObjectConverter<M extends DSpaceObject, R extends or
         List<MetadataValue> visibleMetadata = new ArrayList<MetadataValue>();
         String language = Item.ANY;
 
+        List<String> locales = new ArrayList<String>();
+        locales.addAll(Arrays.asList(configService.getArrayProperty("webui.supported.locales")));
+
+        if (locales.isEmpty()) {
+            locales.add(I18nUtil.getDefaultLocale().toString());
+        }
+
         if (context != null && !projection.isAllLanguages()) {
             language = context.getCurrentLocale().getLanguage();
         }
 
         List<MetadataValue> metadata = ContentServiceFactory.getInstance().getDSpaceObjectService(obj.getType())
-            .getMetadata(obj, Item.ANY, Item.ANY, Item.ANY, language);
+            .getMetadata(obj, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
         try {
-            if (context != null && authorizeService.isAdmin(context)) {
-                return new MetadataValueList(metadata);
-            }
+            boolean isAdmin = (context != null && authorizeService.isAdmin(context)) ? true : false;
             for (MetadataValue mv : metadata) {
                 MetadataField metadataField = mv.getMetadataField();
-                if (!metadataExposureService
-                        .isHidden(context, metadataField.getMetadataSchema().getName(),
-                                  metadataField.getElement(),
-                                  metadataField.getQualifier())) {
+                if ( (StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage())) &&
+                        (isAdmin || !metadataExposureService
+                            .isHidden(context, metadataField.getMetadataSchema().getName(),
+                                      metadataField.getElement(),
+                                      metadataField.getQualifier()))) {
                     visibleMetadata.add(mv);
                 }
             }
