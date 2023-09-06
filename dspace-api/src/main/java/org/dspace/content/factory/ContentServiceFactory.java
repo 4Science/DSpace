@@ -34,6 +34,7 @@ import org.dspace.content.service.SiteService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.eperson.service.SubscribeService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.unpaywall.service.UnpaywallService;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 
 /**
@@ -104,6 +105,8 @@ public abstract class ContentServiceFactory {
     public abstract EntityService getEntityService();
 
     public abstract RelationshipMetadataService getRelationshipMetadataService();
+
+    public abstract UnpaywallService getUnpaywallService();
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission) {
         if (inProgressSubmission instanceof WorkspaceItem) {

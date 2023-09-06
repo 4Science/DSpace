@@ -1346,4 +1346,25 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>ispublishedin</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>source</element>
+    <qualifier>content</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>rights</element>
+    <qualifier>holder</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 </dspace-dc-types>

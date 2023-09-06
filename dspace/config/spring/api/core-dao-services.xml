@@ -86,5 +86,6 @@
 
     <bean class="org.dspace.supervision.dao.impl.SupervisionOrderDaoImpl"/>
 
+    <bean class="org.dspace.unpaywall.dao.impl.UnpaywallDAOImpl" />
 
 </beans>
