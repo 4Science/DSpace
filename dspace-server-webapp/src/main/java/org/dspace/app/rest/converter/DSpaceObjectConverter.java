@@ -84,6 +84,7 @@ public abstract class DSpaceObjectConverter<M extends DSpaceObject, R extends or
     /**
      * Retrieves the metadata list filtered according to the hidden metadata configuration
      * When the context is null, it will return the metadatalist as for an anonymous user
+     * It is also filtered based on the context's language + any language not in "webui.supported.locales"
      * @param context   The context
      * @param obj       The object of which the filtered metadata will be retrieved
      * @param projection The projection(s) used into current request
@@ -111,7 +112,8 @@ public abstract class DSpaceObjectConverter<M extends DSpaceObject, R extends or
             boolean isAdmin = (context != null && authorizeService.isAdmin(context)) ? true : false;
             for (MetadataValue mv : metadata) {
                 MetadataField metadataField = mv.getMetadataField();
-                if ( (StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage())) &&
+                if ( (language == Item.ANY || StringUtils.equals(language, mv.getLanguage()) ||
+                        !locales.contains(mv.getLanguage())) &&
                         (isAdmin || !metadataExposureService
                             .isHidden(context, metadataField.getMetadataSchema().getName(),
                                       metadataField.getElement(),

@@ -119,7 +119,7 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         List<MetadataValue> values = new LinkedList<MetadataValue>();
         for (MetadataValue mv : itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY, true)) {
             if (language == Item.ANY ||
-                    (StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage()))) {
+                    StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage())) {
                 values.add(mv);
             }
         }
