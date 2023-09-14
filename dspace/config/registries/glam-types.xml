@@ -767,4 +767,11 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glam</schema>
+        <element>aggregation</element>
+        <qualifier>enabled</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
