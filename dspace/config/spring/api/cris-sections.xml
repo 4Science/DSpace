@@ -146,8 +146,8 @@
                      <property name="discoveryConfigurationName" value="documents" />
                      <property name="sortField" value="dc.date.accessioned" />
                      <property name="order" value="desc" />
-                     <property name="style" value="col-md-6"/>
-                     <property name="numberOfItems" value="5"/>
+                     <property name="style" value="col-md-12"/>
+                     <property name="numberOfItems" value="4"/>
                      <property name="showAsCard" value="false"/>
                      <property name="showLayoutSwitch" value="false"/>
                      <property name="defaultLayoutMode" value="LIST"/>
@@ -160,8 +160,8 @@
                      <property name="discoveryConfigurationName" value="documents" />
                      <property name="sortField" value="metric.view" />
                      <property name="order" value="desc" />
-                     <property name="style" value="col-md-6"/>
-                     <property name="numberOfItems" value="5"/>
+                     <property name="style" value="col-md-12"/>
+                     <property name="numberOfItems" value="4"/>
                      <property name="showAsCard" value="false"/>
                      <property name="showLayoutSwitch" value="false"/>
                      <property name="defaultLayoutMode" value="LIST"/>
@@ -278,5 +278,5 @@
           </list>
         </constructor-arg>
     </bean>
-                
+
 </beans>
