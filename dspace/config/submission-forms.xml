@@ -307,7 +307,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required>false</required>
+          <required />
           <hint>Inserire il nome del detentore dei diritti della risorsa</hint>
         </field>
       </row>
