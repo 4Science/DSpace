@@ -232,11 +232,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
-          <label>Descrizione</label>
+          <label>Descrizione fisica</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Descrivere le caratteristiche della risorsa.</hint>
+          <hint>Descrivere le caratteristiche fisiche della risorsa.</hint>
         </field>
       </row>
       <row>
@@ -307,7 +307,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required>false</required>
+          <required />
           <hint>Inserire il nome del detentore dei diritti della risorsa</hint>
         </field>
       </row>
@@ -2742,6 +2742,17 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Tipo</label>
+          <input-type value-pairs-name="aggregation_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il tipo</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <label>Descrizione</label>
           <input-type>textarea</input-type>
@@ -2781,6 +2792,29 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>aggregation</dc-element>
+          <dc-qualifier>enabled</dc-qualifier>
+          <label>Visibile in Home Page</label>
+          <input-type value-pairs-name="truefalse">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Scegliere se da mostrare in home page</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>priority</dc-element>
+          <label>Ordine</label>
+          <input-type>number</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'ordine</hint>
         </field>
       </row>
     </form>
@@ -6474,6 +6508,16 @@ it, please enter the types and the actual numbers or codes.</hint>
       <pair>
         <displayed-value>album</displayed-value>
         <stored-value>album</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="aggregation_types" dc-term="aggregation_types">
+      <pair>
+        <displayed-value>collection</displayed-value>
+        <stored-value>collection</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>topic</displayed-value>
+        <stored-value>topic</stored-value>
       </pair>
     </value-pairs>
   </form-value-pairs>
