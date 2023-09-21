@@ -48,6 +48,12 @@ public class ResourceProxyController {
 
     private static String getFileName(URL url) {
         String path = url.getPath();
-        return path.substring(path.lastIndexOf('/') + 1);
+        String filename = path.endsWith("/pdf")
+            ? path.substring(path.lastIndexOf('/') + 1)
+            : path.substring(path.lastIndexOf('/') + 1, path.length() - 4);
+
+        return path.contains("/pdf")
+            ? filename + ".pdf"
+            : filename;
     }
 }
