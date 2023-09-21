@@ -11,6 +11,7 @@ import static java.net.URLDecoder.decode;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -30,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/resource-proxy")
 public class ResourceProxyController {
 
+    private static final String LOCATION_HEADER = "Location";
+
     /**
      * Endpoint for downloading resources from external sources (Solves CORS issues).
      *
@@ -38,7 +41,19 @@ public class ResourceProxyController {
     @GetMapping
     public ResponseEntity<byte[]> proxyRequest(@RequestParam String externalSourceUrl) throws IOException {
         URL remoteUrl = new URL(decode(externalSourceUrl, StandardCharsets.UTF_8));
-        InputStream inputStream = remoteUrl.openStream();
+        HttpURLConnection connection = (HttpURLConnection) remoteUrl.openConnection();
+
+        // If request returns 301, then get new url from headers and repeat
+        while (connection.getResponseCode() == 301) {
+            remoteUrl = new URL(connection.getHeaderField(LOCATION_HEADER));
+            connection = (HttpURLConnection) remoteUrl.openConnection();
+        }
+
+        if (connection.getResponseCode() == 403) {
+            throw new RuntimeException("Unable to download file, forbidden access");
+        }
+
+        InputStream inputStream = connection.getInputStream();
         byte[] fileBytes = StreamUtils.copyToByteArray(inputStream);
 
         HttpHeaders headers = new HttpHeaders();
