@@ -1,0 +1,58 @@
+{
+	"title": "@dc.title@",
+	"type": "@virtual.mapConverter.eventTypes.dc-type@",
+	"subtitle": "@dc.title.alternative@",
+	"authors": [
+	    @group.dc-contributor-author.start@
+    	{
+    		"name": "@dc.contributor.author@"
+    	},
+    	@group.dc-contributor-author.end@
+	],
+	"keyword": "@dc.subject@",
+	"commonData": "@dc.coverage.temporal@",
+	"fonds": [
+        @group.dc-relation-fonds.start@
+        {
+            "name": "@dc.relation.fonds@"
+        },
+        @group.dc-relation-fonds.end@
+    ],
+	"description": "@dc.description@",
+	"collectionDescription": "@dc.description.collection@",
+	"holderDescription": "@dc.description.collectionholder@",
+	"aggregations": [
+        @group.dc.relation.aggregation.start@
+        {
+            "name": "@dc.relation.aggregation@"
+        },
+        @group.dc.relation.aggregation.end@
+    ],
+	"identifier": "@dc.identifier@",
+	"formType": "@dc.type.form@",
+	"nation": "@dc.coverage.spatialpvcs@",
+	"common": "@dc.coverage.spatialpvcc@",
+	"storagePlace": "@dc.coverage.shelfmark@",
+	"materials": [
+        @group.dc.type.materialandtechnique.start@
+        {
+            "name": "@dc.type.materialandtechnique@"
+        },
+        @group.dc.type.materialandtechnique.end@
+    ],
+    "formats": [
+        @group.dc.format.start@
+        {
+            "name": "@dc.format@"
+        },
+        @group.dc.format.end@
+    ],
+    "bibliographies": [
+        @group.glam.bibliography.start@
+        {
+            "name": "@glam.bibliography@"
+        },
+        @group.glam.bibliography.end@
+    ],
+	"reservationDescription": "@dc.description.preservationstate@"
+}
