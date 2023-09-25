@@ -206,6 +206,42 @@
                 </bean>
             </list>
             <list>
+                <bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/twitter"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dev"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+            <list>
+                <bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/4ScienceIT"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dspaceCRIS"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+            <list>
 	            <bean class="org.dspace.layout.CrisLayoutCarouselComponent">
 				    <property name="discoveryConfigurationName" value="person" />
 				    <property name="style" value="col-md-12" />
