@@ -255,7 +255,7 @@
             <list>
                 <bean class="org.dspace.layout.CrisLayoutTopComponent">
                     <property name="discoveryConfigurationName" value="additions" />
-                    <property name="sortField" value="dc.date.accessioned" />
+                    <property name="sortField" value="lastModified" />
                     <property name="order" value="desc" />
                     <property name="style" value="col-md-12 pad-left pad-right bg-light"/>
                     <property name="numberOfItems" value="8"/>
