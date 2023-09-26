@@ -627,8 +627,8 @@
         <property name="sidebarFacets">
             <list>
                 <ref bean="searchFilterType" />
-                <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
+                <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDateDemoLTR" />
                 <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterAuthor" />
