@@ -629,8 +629,6 @@
                 <ref bean="searchFilterType" />
                 <ref bean="graphPublicationByDate" />
                 <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterAggregation" />
                 <ref bean="searchFilterSubject" />
