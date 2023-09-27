@@ -286,7 +286,7 @@
 		<property name="templateFileName" value="crosswalks/template/archival-xml.template"/>
 		<property name="mimeType" value="application/xml; charset=UTF-8"/>
 		<property name="fileName" value="archival.xml"/>
-		<property name="entityType" value="Archival"/>
+		<property name="entityType" value="ArchivalMaterial"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/archivals-xml.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="xmlValueConverter" />
@@ -296,7 +296,7 @@
 		<property name="templateFileName" value="crosswalks/template/archival-json.template"/>
 		<property name="mimeType" value="application/json; charset=UTF-8"/>
 		<property name="fileName" value="archival.json"/>
-		<property name="entityType" value="Archival"/>
+		<property name="entityType" value="ArchivalMaterial"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/archivals-json.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="jsonValueConverter" />
@@ -307,7 +307,7 @@
 		<property name="templateFileName" value="crosswalks/template/archival-template.xsl"/>
 		<property name="fileName" value="archival.pdf"/>
 		<property name="mimeType" value="application/pdf"/>
-		<property name="entityType" value="Archival"/>
+		<property name="entityType" value="ArchivalMaterial"/>
 		<property name="referCrosswalk" ref="referCrosswalkArchivalXml"/>
 	</bean>
 
@@ -344,7 +344,7 @@
 		<property name="templateFileName" value="crosswalks/template/fond-xml.template"/>
 		<property name="mimeType" value="application/xml; charset=UTF-8"/>
 		<property name="fileName" value="fond.xml"/>
-		<property name="entityType" value="Fond"/>
+		<property name="entityType" value="Fonds"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/fonds-xml.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="xmlValueConverter" />
@@ -354,7 +354,7 @@
 		<property name="templateFileName" value="crosswalks/template/fond-json.template"/>
 		<property name="mimeType" value="application/json; charset=UTF-8"/>
 		<property name="fileName" value="fond.json"/>
-		<property name="entityType" value="Fond"/>
+		<property name="entityType" value="Fonds"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/fonds-json.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="jsonValueConverter" />
@@ -365,7 +365,7 @@
 		<property name="templateFileName" value="crosswalks/template/fond-template.xsl"/>
 		<property name="fileName" value="fond.pdf"/>
 		<property name="mimeType" value="application/pdf"/>
-		<property name="entityType" value="Fond"/>
+		<property name="entityType" value="Fonds"/>
 		<property name="referCrosswalk" ref="referCrosswalkFondXml"/>
 	</bean>
 
@@ -460,7 +460,7 @@
 		<property name="templateFileName" value="crosswalks/template/journalFond-xml.template"/>
 		<property name="mimeType" value="application/xml; charset=UTF-8"/>
 		<property name="fileName" value="journalFond.xml"/>
-		<property name="entityType" value="JournalFond"/>
+		<property name="entityType" value="JournalFonds"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/journalFonds-xml.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="xmlValueConverter" />
@@ -470,7 +470,7 @@
 		<property name="templateFileName" value="crosswalks/template/journalFond-json.template"/>
 		<property name="mimeType" value="application/json; charset=UTF-8"/>
 		<property name="fileName" value="journalFond.json"/>
-		<property name="entityType" value="JournalFond"/>
+		<property name="entityType" value="JournalFonds"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/journalFonds-json.template"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="converter" ref="jsonValueConverter" />
@@ -481,7 +481,7 @@
 		<property name="templateFileName" value="crosswalks/template/journalFond-template.xsl"/>
 		<property name="fileName" value="journalFond.pdf"/>
 		<property name="mimeType" value="application/pdf"/>
-		<property name="entityType" value="JournalFond"/>
+		<property name="entityType" value="JournalFonds"/>
 		<property name="referCrosswalk" ref="referCrosswalkJournalFondXml"/>
 	</bean>
 
