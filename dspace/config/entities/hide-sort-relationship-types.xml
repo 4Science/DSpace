@@ -245,6 +245,50 @@
         </rightCardinality>
     </type>
     <type>
+        <rightType>OrgUnit</rightType>
+        <leftwardType>isOrgunitfondsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingOrgunitfonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>OrgUnit</rightType>
+        <leftwardType>isOrgunitfondsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedOrgunitfonds</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>OrgUnit</rightType>
+        <leftwardType>isArchivalmaterialHiddenFor</leftwardType>
+        <rightwardType>notDisplayingArchivalmaterial</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>OrgUnit</rightType>
+        <leftwardType>isArchivalmaterialSelectedFor</leftwardType>
+        <rightwardType>hasSelectedArchivalmaterial</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
         <rightType>Project</rightType>
         <leftwardType>isProjectsHiddenFor</leftwardType>
         <rightwardType>notDisplayingProjects</rightwardType>
