@@ -1,4 +1,4 @@
-<Fond id="@virtual.id@">
+<Fonds id="@virtual.id@">
     <Name>@dc.title@</Name>
 	<NameAlternative>@dc.title.alternative@</NameAlternative>
 	<Authors>
@@ -12,7 +12,7 @@
         @group.dc-contributor-corporatebody.start@
         <Organization>
             <DisplayName>@dc.contributor.corporatebody@</DisplayName>
-        </Organizations>
+        </Organization>
         @group.dc-contributor-corporatebody.end@
     </Organizations>
     <Families>
@@ -51,4 +51,4 @@
    	  	</Editor>
    	    @group.glamfonds-editor.end@
 	</Editors>
-</Fond>
+</Fonds>

@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="picture">
+    <xsl:template match="Picture">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -42,7 +42,7 @@
                     <xsl:if test="Authors/Author">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Author(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Authors/Author">
@@ -66,7 +66,7 @@
                     <xsl:if test="Fonds/Fond">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Fond(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Fonds/Fond">
@@ -87,47 +87,20 @@
                         <xsl:with-param name="value" select="CollectionDescription" />
                     </xsl:call-template>
 
-                    <xsl:if test="Holders/Holder">
-                        <fo:block font-size="10pt" margin-top="2mm">
-                            <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
-                            </fo:inline >
-                            <fo:inline>
-                                <xsl:for-each select="Holders/Holder">
-                                    <xsl:value-of select="DisplayName" />
-                                    <xsl:if test="position() != last()">, </xsl:if>
-                                </xsl:for-each>
-                            </fo:inline >
-                        </fo:block>
-                    </xsl:if>
+                    <xsl:call-template name="print-values">
+                        <xsl:with-param name="label" select="'Holder'" />
+                        <xsl:with-param name="values" select="Holder" />
+                    </xsl:call-template>
 
-                    <xsl:if test="Aggregations/Aggregation">
-                        <fo:block font-size="10pt" margin-top="2mm">
-                            <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
-                            </fo:inline >
-                            <fo:inline>
-                                <xsl:for-each select="Aggregations/Aggregation">
-                                    <xsl:value-of select="DisplayName" />
-                                    <xsl:if test="position() != last()">, </xsl:if>
-                                </xsl:for-each>
-                            </fo:inline >
-                        </fo:block>
-                    </xsl:if>
+                    <xsl:call-template name="print-values">
+                        <xsl:with-param name="label" select="'Aggregation'" />
+                        <xsl:with-param name="values" select="Aggregation" />
+                    </xsl:call-template>
 
-                    <xsl:if test="Identifiers/Identifier">
-                        <fo:block font-size="10pt" margin-top="2mm">
-                            <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
-                            </fo:inline >
-                            <fo:inline>
-                                <xsl:for-each select="Identifiers/Identifier">
-                                    <xsl:value-of select="DisplayName" />
-                                    <xsl:if test="position() != last()">, </xsl:if>
-                                </xsl:for-each>
-                            </fo:inline >
-                        </fo:block>
-                    </xsl:if>
+                    <xsl:call-template name="print-values">
+                        <xsl:with-param name="label" select="'Identifier'" />
+                        <xsl:with-param name="values" select="Identifier" />
+                    </xsl:call-template>
 
                     <xsl:call-template name="print-value">
                         <xsl:with-param name="label" select="'Tipo di scheda'" />
@@ -152,7 +125,7 @@
                     <xsl:if test="Materials/Material">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Materiale: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Materials/Material">
@@ -166,7 +139,7 @@
                     <xsl:if test="Formats/Format">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Formato: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Formats/Format">
@@ -180,7 +153,7 @@
                     <xsl:if test="Bibliographies/Bibliography">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Bibliografia: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Bibliographies/Bibliography">
@@ -212,6 +185,25 @@
                 <xsl:text>: </xsl:text>
                 <fo:inline>
                     <xsl:value-of select="$value" />
+                </fo:inline >
+            </fo:block>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name = "print-values" >
+        <xsl:param name = "label" />
+        <xsl:param name = "values" />
+        <xsl:if test="$values">
+            <fo:block font-size="10pt" margin-top="2mm">
+                <fo:inline font-weight="bold" text-align="right"  >
+                    <xsl:value-of select="$label" />
+                </fo:inline >
+                <xsl:text>: </xsl:text>
+                <fo:inline>
+                    <xsl:for-each select="$values">
+                        <xsl:value-of select="current()" />
+                        <xsl:if test="position() != last()">, </xsl:if>
+                    </xsl:for-each>
                 </fo:inline >
             </fo:block>
         </xsl:if>

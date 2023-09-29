@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="fond">
+    <xsl:template match="Fonds">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -42,7 +42,7 @@
                     <xsl:if test="Authors/Author">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Author(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Authors/Author">
@@ -56,7 +56,7 @@
                     <xsl:if test="Organizations/Organization">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Organizzazione: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Organizations/Organization">
@@ -70,7 +70,7 @@
                     <xsl:if test="Families/Family">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Famiglia: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Families/Family">
@@ -109,7 +109,7 @@
                     <xsl:if test="Documents/Document">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Document: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Documents/Document">
@@ -123,7 +123,7 @@
                     <xsl:if test="Bibliographics/Bibliographic">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Abbreviazione: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Bibliographics/Bibliographic">
@@ -142,7 +142,7 @@
                     <xsl:if test="Editors/Editor">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Curatore: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Editors/Editor">

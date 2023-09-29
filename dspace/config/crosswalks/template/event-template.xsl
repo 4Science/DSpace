@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="event">
+    <xsl:template match="Event">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />

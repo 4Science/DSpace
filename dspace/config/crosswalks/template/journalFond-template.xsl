@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="jornalFound">
+    <xsl:template match="JournalFond">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -72,7 +72,7 @@
                     <xsl:if test="FondsHistory/FondHistory">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Storia: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="FondsHistory/FondHistory">

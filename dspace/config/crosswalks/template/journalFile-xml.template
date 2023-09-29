@@ -25,5 +25,5 @@
             <DisplayName>@dc.relation.aggregation@</DisplayName>
         </Aggregation>
         @group.dc-relation-aggregation.end@
-    </Aggregation>
+    </Aggregations>
 </JournalFile>
