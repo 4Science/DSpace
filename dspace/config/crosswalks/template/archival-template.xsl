@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="archival">
+    <xsl:template match="Archival">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -50,7 +50,7 @@
                     <xsl:if test="Authors/Author">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Author(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Authors/Author">
@@ -64,7 +64,7 @@
                     <xsl:if test="Organizations/Organization">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Organizzazione: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Organizations/Organization">
@@ -78,7 +78,7 @@
                     <xsl:if test="Families/Family">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Soggettto produttore/Famiglia: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Families/Family">
@@ -107,7 +107,7 @@
                     <xsl:if test="Identifiers/Identifier">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Numero: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Identifiers/Identifier">
@@ -132,7 +132,7 @@
                     <xsl:if test="BibliographicLinks/BibliographicLink">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Citazioni bibliografiche: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="BibliographicLinks/BibliographicLink">
@@ -161,7 +161,7 @@
                     <xsl:if test="LanguagesIso/LanguageIso">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Lingua: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="LanguagesIso/LanguageIso">

@@ -12,7 +12,7 @@
         @group.dc-contributor-corporatebody.start@
         <Organization>
             <DisplayName>@dc.contributor.corporatebody@</DisplayName>
-        </Organizations>
+        </Organization>
         @group.dc-contributor-corporatebody.end@
     </Organizations>
     <Families>

@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="family">
+    <xsl:template match="Family">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -47,7 +47,7 @@
                     <xsl:if test="Events/Event">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Event(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Events/Event">
@@ -61,7 +61,7 @@
                     <xsl:if test="Editors/Editor">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Compilatore: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Editors/Editor">
@@ -75,7 +75,7 @@
                     <xsl:if test="Aggregations/Aggregation">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Aggregazione: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Aggregations/Aggregation">

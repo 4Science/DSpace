@@ -20,39 +20,39 @@
     ],
 	"description": "@dc.description@",
 	"collectionDescription": "@dc.description.collection@",
-	"holderDescription": "@dc.description.collectionholder@",
-	"aggregations": [
-        @group.dc.relation.aggregation.start@
-        {
-            "name": "@dc.relation.aggregation@"
-        },
-        @group.dc.relation.aggregation.end@
-    ],
-	"identifier": "@dc.identifier@",
+	"holderDescription": [
+	    "@dc.description.collectionholder@",
+	],
+	"aggregation": [
+	    "@dc.relation.aggregation@",
+	],
+	"identifier": [
+	    "@dc.identifier@",
+	],
 	"formType": "@dc.type.form@",
 	"nation": "@dc.coverage.spatialpvcs@",
 	"common": "@dc.coverage.spatialpvcc@",
 	"storagePlace": "@dc.coverage.shelfmark@",
 	"materials": [
-        @group.dc.type.materialandtechnique.start@
+        @group.dc-type-materialandtechnique.start@
         {
             "name": "@dc.type.materialandtechnique@"
         },
-        @group.dc.type.materialandtechnique.end@
+        @group.dc-type-materialandtechnique.end@
     ],
     "formats": [
-        @group.dc.format.start@
+        @group.dc-format.start@
         {
             "name": "@dc.format@"
         },
-        @group.dc.format.end@
+        @group.dc-format.end@
     ],
     "bibliographies": [
-        @group.glam.bibliography.start@
+        @group.glam-bibliography.start@
         {
             "name": "@glam.bibliography@"
         },
-        @group.glam.bibliography.end@
+        @group.glam-bibliography.end@
     ],
 	"reservationDescription": "@dc.description.preservationstate@"
 }

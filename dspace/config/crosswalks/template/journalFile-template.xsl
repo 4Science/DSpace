@@ -7,7 +7,7 @@
     <xsl:param name="imageDir" />
     <xsl:param name="fontFamily" />
 
-    <xsl:template match="family">
+    <xsl:template match="JournalFile">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <xsl:attribute name="font-family">
                 <xsl:value-of select="$fontFamily" />
@@ -63,7 +63,7 @@
                     <xsl:if test="JournalFonds/JournalFond">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Testata: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="JournalFonds/JournalFond">
@@ -77,7 +77,7 @@
                     <xsl:if test="Documents/Document">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Document(s): </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Documents/Document">
@@ -91,7 +91,7 @@
                     <xsl:if test="Aggregations/Aggregation">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Inventor(s): </xsl:text>
+                                <xsl:text>Aggregazione: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Aggregations/Aggregation">
