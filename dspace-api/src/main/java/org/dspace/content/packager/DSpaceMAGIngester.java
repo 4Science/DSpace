@@ -360,7 +360,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private void addOriginalBitstreamMetadata(Context context, Element fileElement,
                                               Bitstream bitstream, MAGManifest manifest)
             throws MetadataValidationException, SQLException {
-        addOriginalBitstreamTitleMetadata(context, fileElement, bitstream, manifest);
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "tiff");
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "tiff");
         addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "thumbs");
@@ -420,7 +419,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private void addThumbnailBitstreamMetadata(Context context, Element originalFileElement,
                                                Bitstream bitstream, MAGManifest manifest)
             throws MetadataValidationException, SQLException {
-        addThumbnailBitstreamTitleMetadata(context, originalFileElement, bitstream, manifest);
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "thumbs");
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "thumbs");
         addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "thumbs");
@@ -487,26 +485,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return Optional.empty();
     }
 
-    private void addOriginalBitstreamTitleMetadata(Context context, Element fileElement,
-                                                   Bitstream bitstream, MAGManifest manifest)
-            throws SQLException {
-        String filePath = manifest.getOriginalFileName(fileElement);
-        if (isNotBlank(filePath)) {
-            bitstreamService.addMetadata(context, bitstream, "dc", "title", null,
-                    "en", filePath, null, CF_ACCEPTED);
-        }
-    }
-
-    private void addThumbnailBitstreamTitleMetadata(Context context, Element file,
-                                                    Bitstream bitstream, MAGManifest manifest)
-            throws SQLException {
-        String filePath = manifest.getThumbnailFileName(file);
-        if (isNotBlank(filePath)) {
-            bitstreamService.addMetadata(context, bitstream, "dc", "title", null,
-                    "en", filePath, null, CF_ACCEPTED);
-        }
-    }
-
     private void addBitstreams(Context context, Item item, MAGManifest manifest, File pkgFile,
                                PackageParameters params)
             throws SQLException, AuthorizeException, MetadataValidationException, IOException {
@@ -566,8 +544,9 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private Bitstream createBitstream(Context context, Bundle bundle, InputStream fileStream,
                                       String path, Integer sequenceId)
             throws IOException, SQLException, AuthorizeException {
+        String fileName = path.substring(path.lastIndexOf('/') + 1);
         Bitstream bitstream = bitstreamService.create(context, bundle, fileStream);
-        bitstream.setName(context, path);
+        bitstream.setName(context, fileName);
         bitstream.setSequenceID(sequenceId);
 
         BitstreamFormat bitstreamFormat = bitstreamFormatService.guessFormat(context, bitstream);
