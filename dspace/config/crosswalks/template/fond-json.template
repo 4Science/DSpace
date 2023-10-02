@@ -1,0 +1,59 @@
+{
+	"name": "@dc.title@",
+	"nameAlternative": "@dc.title.alternative@",
+	"authors": [
+	    @group.dc-contributor-author.start@
+    	{
+    		"name": "@dc.contributor.author@"
+    	},
+    	@group.dc-contributor-author.end@
+	],
+	"organizations": [
+    	@group.dc-contributor-corporatebody.start@
+        {
+        	"name": "@dc.contributor.corporatebody@"
+        },
+        @group.dc-contributor-corporatebody.end@
+    ],
+	"families": [
+    	@group.dc-contributor-family.start@
+        {
+        	"name": "@dc.contributor.family@"
+        },
+        @group.dc-contributor-family.end@
+    ],
+    "custodian": "@glamfonds.custodian@",
+    "shelfmark": "@glamfonds.shelfmark@",
+    "description": "@dc.description.abstract@",
+    "DocumentQuantity": "@glamfonds.quantity@",
+    "note": [
+        @group.glamfonds-arrangement-note.start@
+        {
+            "name": "@glamfonds.arrangement.note@"
+        },
+        @group.glamfonds-arrangement-note.end@
+    ],
+	"documents": [
+    	@group.glamfonds-relation-materials.start@
+        {
+        	"name": "@glamfonds.relation.materials@"
+        },
+        @group.glamfonds-relation-materials.end@
+    ],
+    "storageStatus": "@glamfonds.preservation@",
+	"bibliographics": [
+    	@group.glamfonds-bibliography.start@
+        {
+        	"name": "@glamfonds.bibliography@"
+        },
+        @group.glamfonds-bibliography.end@
+    ],
+    "IdentifierUri": "@dc.identifier.uri@",
+	"editors": [
+        @group.glamfonds-editor.start@
+        {
+            "name": "@glamfonds.editor@"
+        },
+        @group.glamfonds-editor.end@
+    ]
+}

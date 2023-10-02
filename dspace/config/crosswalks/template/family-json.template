@@ -1,0 +1,27 @@
+{
+	"name": "@dc.title@",
+	"nameAlternative": "@dc.title.alternative@",
+	"description": "@dc.description@",
+	"national": "@glamfamily.nationality@",
+	"event": [
+	    @group.dc-relation-event.start@
+    	{
+    		"name": "@dc.relation.event.author@"
+    	},
+    	@group.dc-relation-event.end@
+	],
+	"editor": [
+    	@group.glamfamily-editor.start@
+        {
+        	"name": "@glamfamily.editor@"
+        },
+        @group.glamfamily-editor.end@
+    ],
+	"aggregation": [
+    	@group.dc-relation-aggregation.start@
+        {
+        	"name": "@dc.relation.aggregation@"
+        },
+        @group.dc-relation-aggregation.end@
+    ]
+}

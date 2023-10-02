@@ -1,5 +1,5 @@
 {
-	"equipments": [
+	"fonds": [
 		@item.template@,
 	]
 }
