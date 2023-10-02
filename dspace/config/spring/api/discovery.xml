@@ -1350,7 +1350,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByFondsSelection" />
+                        <ref bean="sortByOrgunitfondsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -1376,7 +1376,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByFondsSelection" />
+                        <ref bean="sortByArchivalMaterialSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -2065,7 +2065,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfond.parent:*</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfonds.parent:*</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -4496,6 +4496,30 @@
         <property name="arguments">
             <list>
                 <value>relation.isFondsSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByArchivalMaterialSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isArchivalmaterialSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByOrgunitfondsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isOrgunitfondsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>
