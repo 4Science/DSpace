@@ -28,6 +28,10 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Test;
 
 /**
@@ -39,6 +43,12 @@ import org.junit.Test;
 public class PatchWithAuthorityIT extends AbstractControllerIntegrationTest {
 
     private WorkspaceItem workspaceItem;
+
+    private final ConfigurationService configurationService = DSpaceServicesFactory
+            .getInstance().getConfigurationService();
+
+    private final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+            .getInstance().getMetadataAuthorityService();
 
     @Override
     public void setUp() throws Exception {
@@ -62,22 +72,30 @@ public class PatchWithAuthorityIT extends AbstractControllerIntegrationTest {
     public void addValueFromControlledVocabularyHasAuthorityStored() throws Exception {
         String authToken = getAuthToken(admin.getEmail(), password);
 
-        MetadataValueRest value = new MetadataValueRest("dataset");
-        value.setAuthority("c_ddb1");
-        value.setConfidence(600);
-        List<Operation> operations =
-            singletonList(new AddOperation("/sections/publication/dc.type",
-                singletonList(value)));
+        try {
+            configurationService.setProperty("authority.controlled.dc.type", "true");
+            metadataAuthorityService.clearCache();
 
-        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(getPatchContent(operations)))
-            .andExpect(status().isOk());
+            MetadataValueRest value = new MetadataValueRest("dataset");
+            value.setAuthority("c_ddb1");
+            value.setConfidence(600);
+            List<Operation> operations =
+                singletonList(new AddOperation("/sections/publication/dc.type",
+                    singletonList(value)));
 
-        Item item = context.reloadEntity(workspaceItem).getItem();
+            getClient(authToken).perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getPatchContent(operations)))
+                .andExpect(status().isOk());
 
-        assertThat(item.getMetadata(), hasItem(with("dc.type", "dataset", null,
-            "c_ddb1", 0, 600)));
+            Item item = context.reloadEntity(workspaceItem).getItem();
+
+            assertThat(item.getMetadata(), hasItem(with("dc.type", "dataset", null,
+                "c_ddb1", 0, 600)));
+        } finally {
+            configurationService.setProperty("authority.controlled.dc.type", "false");
+            metadataAuthorityService.clearCache();
+        }
     }
 
     @Test

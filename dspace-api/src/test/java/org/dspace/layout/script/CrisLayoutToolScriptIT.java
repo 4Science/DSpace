@@ -77,8 +77,10 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
     public void testConfigurationToolFile() throws Exception {
 
         context.turnOffAuthorisationSystem();
-        List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event",
-            "Equipment", "Funding", "Product", "Project").forEach(this::createEntityType);
+        List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event", "Aggregation", "News",
+            "Equipment", "Funding", "Product", "Project", "Fonds", "JournalFonds", "Place", "JournalFile",
+                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture"
+        ).forEach(this::createEntityType);
         context.restoreAuthSystemState();
 
         assertThat(tabService.findAll(context), empty());
