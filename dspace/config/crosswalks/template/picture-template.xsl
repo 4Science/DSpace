@@ -28,10 +28,6 @@
                     </fo:block>
 
                     <fo:block font-size="10pt" space-after="5mm" text-align="justify" margin-top="5mm" >
-                        <xsl:value-of select="Description" />
-                    </fo:block>
-
-                    <fo:block font-size="10pt" space-after="5mm" text-align="justify" margin-top="5mm" >
                         <xsl:value-of select="Type" />
                     </fo:block>
 
