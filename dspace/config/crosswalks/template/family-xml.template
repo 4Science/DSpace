@@ -1,0 +1,27 @@
+<Family id="@virtual.id@">
+	<Name>@dc.title@</Name>
+	<NameAlternative>@dc.title.alternative@</NameAlternative>
+	<Description>@dc.description@</Description>
+	<National>@glamfamily.nationality@</National>
+	<Events>
+        @group.dc-relation-event.start@
+        <Event>
+            <DisplayName>@dc.relation.event@</DisplayName>
+        </Event>
+        @group.dc-relation-event.end@
+    </Events>
+	<Editors>
+       	@group.glamfamily-editor.start@
+        <Editor>
+            <DisplayName>@glamfamily.editor@</DisplayName>
+        </Editor>
+       	@group.glamfamily-editor.end@
+    </Editors>
+    <Aggregations>
+        @group.dc-relation-aggregation.start@
+        <Aggregation>
+            <DisplayName>@dc.relation.aggregation@</DisplayName>
+        </Aggregation>
+        @group.dc-relation-aggregation.end@
+    </Aggregation>
+</Family>

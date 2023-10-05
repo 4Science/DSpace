@@ -1,5 +1,5 @@
-<Event xmlns="https://www.openaire.eu/cerif-profile/1.1/" id="@virtual.id@">
-	<Type scheme="https://w3id.org/cerif/vocab/EventTypes">@virtual.mapConverter.eventTypes.dc-type@</Type>
+<Event id="@virtual.id@">
+	<Type>@virtual.mapConverter.eventTypes.dc-type@</Type>
 	<Acronym>@oairecerif.acronym@</Acronym>
 	<Name>@dc.title@</Name>
 	<Place>@oairecerif.event.place@</Place>
