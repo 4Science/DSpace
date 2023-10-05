@@ -1223,8 +1223,6 @@
             <list>
                 <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
 	            <ref bean="searchFilterEditor" />
