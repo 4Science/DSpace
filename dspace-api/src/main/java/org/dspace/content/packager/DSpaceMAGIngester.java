@@ -225,35 +225,35 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addMetadata(Context context, Item item, MAGManifest manifest) throws SQLException {
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:creator",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:creator",
                 "dc", "contributor", "author");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:publisher",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:publisher",
                 "dc", "publisher", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:subject",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:subject",
                 "dc", "subject", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:description",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:description",
                 "dc", "description", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:contributor",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:contributor",
                 "dc", "contributor", "contributor");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:type",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:type",
                 "dc", "type", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:format",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:format",
                 "dc", "format", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:coverage",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:coverage",
                 "dc", "relation", "place");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:source",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:source",
                 "dc", "source", "content");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:rights",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:rights",
                 "dc", "rights", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:library",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/holdings/library",
                 "dc", "rights", "holder");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:inventorynumber",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/holdings/inventory_number",
                 "dc", "identifier", "inventorynumber");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:shelfmark",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/holdings/shelfmark",
                 "dc", "identifier", "shelfmark");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:relation",
                 "dc", "relation", "ispartof");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/bib/dc:relation",
                 "dc", "relation", "references");
         addTitleMetadata(context, item, manifest);
         addDateMetadata(context, item, manifest);
@@ -263,7 +263,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private void addLanguageMetadata(Context context, Item item, MAGManifest manifest) throws SQLException {
         Optional<SimpleMapConverter> converter = mapConverters.getConverter("iso639");
         if (converter.isPresent()) {
-            List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/mag:bib/dc:language", true);
+            List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/bib/dc:language", true);
             if (nonNull(elements)) {
                 for (Element tag : elements) {
                     if (isNotBlank(tag.getValue())) {
@@ -283,7 +283,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         String dateRegex = "^(\\d{4})(-(\\d{2})(-(\\d{2}))?)?$"; // (YYYY) OR (YYYY-mm) OR (YYYY-mm-DD)
         Pattern datePattern = Pattern.compile(dateRegex);
 
-        List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/mag:bib/dc:date", true);
+        List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/bib/dc:date", true);
         if (nonNull(elements)) {
 
             for (Element tag : elements) {
@@ -301,7 +301,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addTitleMetadata(Context context, Item item, MAGManifest manifest) throws SQLException {
-        List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/mag:bib/dc:title", true);
+        List<Element> elements = manifest.getElementsByXPath("/mag:metadigit/bib/dc:title", true);
         if (nonNull(elements)) {
 
             for (int i = 0; i < elements.size(); i++) {
@@ -360,23 +360,23 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private void addOriginalBitstreamMetadata(Context context, Element fileElement,
                                               Bitstream bitstream, MAGManifest manifest)
             throws MetadataValidationException, SQLException {
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "tiff");
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "tiff");
-        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "thumbs");
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "TIFF600");
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "TIFF600");
+        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "TIFF600");
+        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "TIFF600");
         addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
-                "mix", "colorSpace", null, "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "thumbs");
-        addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
-                "mix", "compressionScheme", null, "tiff");
+                "mix", "colorSpace", null, "TIFF600");
+        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "TIFF600");
+        addImgGroupMetadata(context, bitstream, manifest, "format/niso:compression",
+                "mix", "compressionScheme", null, "TIFF600");
         addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:devicesource", "mix", "captureDevice", null, "tiff");
-        addImgGroupMetadata(context, bitstream, manifest, "mag:scanning/niso:scanningsystem/niso:scanner_manufacturer",
-                "mix", "scannerManufacturer", null, "tiff");
+                "scanning/niso:devicesource", "mix", "captureDevice", null, "TIFF600");
+        addImgGroupMetadata(context, bitstream, manifest, "scanning/niso:scanningsystem/niso:scanner_manufacturer",
+                "mix", "scannerManufacturer", null, "TIFF600");
         addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:scanningsystem/niso:scanner_model", "mix", "scannerModelName", null, "tiff");
+                "scanning/niso:scanningsystem/niso:scanner_model", "mix", "scannerModelName", null, "TIFF600");
         addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:scanningsystem/niso:capture_software", "mix", "scanningSoftwareName", null, "tiff");
+                "scanning/niso:scanningsystem/niso:capture_software", "mix", "scanningSoftwareName", null, "TIFF600");
         bitstreamService.addMetadata(context, bitstream, "bitstream", "viewer",
                 "hidenotprimary", "en", "true", null, CF_ACCEPTED);
         addIiifTocMetadata(context, bitstream, manifest, fileElement);
@@ -386,15 +386,15 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             throws SQLException {
         String nomenclature = getNomenclature(manifest, fileElement);
         Integer sequenceNumber = getSequenceNumber(manifest, fileElement);
-        List<Element> strus = manifest.getElementsByXPath("/mag:metadigit/mag:stru", true);
+        List<Element> strus = manifest.getElementsByXPath("/mag:metadigit/stru", true);
 
         if (isNotBlank(nomenclature) && nonNull(sequenceNumber) && nonNull(strus)) {
             for (Element stru : strus) {
 
                 Integer start = null;
                 Integer stop = null;
-                Element startTag = manifest.getElementByXPath("mag:element/mag:start", true, stru);
-                Element stopTag = manifest.getElementByXPath("mag:element/mag:stop", true, stru);
+                Element startTag = manifest.getElementByXPath("element/start", true, stru);
+                Element stopTag = manifest.getElementByXPath("element/stop", true, stru);
                 if (nonNull(startTag) && nonNull(startTag.getAttributeValue("sequence_number"))) {
                     start = Integer.valueOf(startTag.getAttributeValue("sequence_number"));
                 }
@@ -403,7 +403,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 }
 
                 if ((isNull(start) || sequenceNumber >= start) && (isNull(stop) || sequenceNumber <= stop)) {
-                    Element struNomenclatureTag = manifest.getElementByXPath("mag:nomenclature", true, stru);
+                    Element struNomenclatureTag = manifest.getElementByXPath("nomenclature", true, stru);
 
                     if (nonNull(struNomenclatureTag) && isNotBlank(struNomenclatureTag.getValue())) {
                         String value = "Indice del Documento|||"
@@ -419,15 +419,15 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private void addThumbnailBitstreamMetadata(Context context, Element originalFileElement,
                                                Bitstream bitstream, MAGManifest manifest)
             throws MetadataValidationException, SQLException {
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "thumbs");
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "JPEG150");
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "JPEG150");
+        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "JPEG150");
+        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "JPEG150");
         addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
-                "mix", "colorSpace", null, "thumbs");
-        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "thumbs");
-        addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
-                "mix", "compressionScheme", null, "thumbs");
+                "mix", "colorSpace", null, "JPEG150");
+        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "JPEG150");
+        addImgGroupMetadata(context, bitstream, manifest, "format/niso:compression",
+                "mix", "compressionScheme", null, "TIFF600");
         bitstreamService.addMetadata(context, bitstream, "bitstream", "viewer",
                 "hidenotprimary", "en", "true", null, CF_ACCEPTED);
     }
@@ -455,7 +455,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                                    String metadataSchema, String metadataElement,
                                    String metadataQualifier, String imgGroupId)
             throws MetadataValidationException, SQLException {
-        addImgGroupMetadata(context, bitstream, manifest, "mag:image_metrics/ niso:" + metricName,
+        addImgGroupMetadata(context, bitstream, manifest, "image_metrics/niso:" + metricName,
                 metadataSchema, metadataElement, metadataQualifier, imgGroupId);
     }
 
@@ -465,7 +465,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         Optional<Element> tiffImgGroup = getImgGroupElement(manifest, imgGroupId);
         if (tiffImgGroup.isPresent()) {
             Element metric = manifest
-                    .getElementByXPath("mag:image_metrics/niso:" + metricName, true, tiffImgGroup.get());
+                    .getElementByXPath("image_metrics/niso:" + metricName, true, tiffImgGroup.get());
             if (nonNull(metric) && nonNull(metric.getValue())
                     && metric.getValue().equalsIgnoreCase(metricMatchValue)) {
                 bitstreamService.addMetadata(context, bitstream, "mix", metricName,
@@ -476,7 +476,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private static Optional<Element> getImgGroupElement(MAGManifest manifest, String imgGroupId)
             throws MetadataValidationException {
-        List<Element> imgGroups = manifest.getElementsByXPath("/mag:metadigit/mag:gen/mag:img_group", true);
+        List<Element> imgGroups = manifest.getElementsByXPath("/mag:metadigit/gen/img_group", true);
         if (nonNull(imgGroups)) {
             return imgGroups.stream()
                     .filter(imgGroup -> imgGroup.getAttributeValue("ID", EMPTY).equalsIgnoreCase(imgGroupId))
@@ -606,7 +606,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private String inventoryNumber(MAGManifest manifest) throws PackageValidationException {
         Element inventoryNumber = manifest
-                .getElementByXPath("/mag:metadigit/mag:bib/mag:holdings/mag:inventory_number", true);
+                .getElementByXPath("/mag:metadigit/bib/holdings/inventory_number", true);
         if (isNull(inventoryNumber) || isBlank(inventoryNumber.getValue())) {
             throw new PackageValidationException("Manifest is missing the required inventory number.");
         }
@@ -629,7 +629,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private static String getNomenclature(MAGManifest manifest, Element fileElement) {
         String nomenclature = null;
-        Element nomenclatureTag = manifest.getElementByXPath("mag:nomenclature", true, fileElement);
+        Element nomenclatureTag = manifest.getElementByXPath("nomenclature", true, fileElement);
         if (nonNull(nomenclatureTag) && nonNull(nomenclatureTag.getValue())) {
             nomenclature = nomenclatureTag.getValue();
         }
@@ -638,7 +638,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private static Integer getSequenceNumber(MAGManifest manifest, Element fileElement) {
         Integer sequenceNumber = null;
-        Element sequenceNumberTag = manifest.getElementByXPath("mag:sequence_number", true, fileElement);
+        Element sequenceNumberTag = manifest.getElementByXPath("sequence_number", true, fileElement);
         if (nonNull(sequenceNumberTag) && nonNull(sequenceNumberTag.getValue())) {
             sequenceNumber = Integer.valueOf(sequenceNumberTag.getValue());
         }
