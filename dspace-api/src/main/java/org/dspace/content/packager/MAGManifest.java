@@ -8,7 +8,6 @@
 package org.dspace.content.packager;
 
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.dspace.content.crosswalk.MetadataValidationException;
 import org.eclipse.jetty.util.StringUtil;
@@ -37,6 +35,7 @@ import org.jdom2.xpath.XPathFactory;
 public class MAGManifest {
 
     public static final String MANIFEST_FILE = "mag.xml";
+    private static final List<Character> PATH_CHARS_TO_TRUNCATE = List.of('.', '/');
 
     public static final Namespace magNS = Namespace.getNamespace("mag", "http://www.iccu.sbn.it/metaAG1.pdf");
     public static final Namespace xlinkNS = Namespace.getNamespace("xlink", "http://www.w3.org/TR/xlink");
@@ -74,38 +73,49 @@ public class MAGManifest {
     }
 
     public List<Element> getFiles() {
-        List<Element> elements = getElementsByXPath("/mag:metadigit/mag:img", true);
+        List<Element> elements = getElementsByXPath("/mag:metadigit/img", true);
         if (nonNull(elements)) {
-            return elements.stream()
-                    .filter(element -> element.getAttributeValue("imggroupID", EMPTY).equalsIgnoreCase("tiff"))
-                    .collect(Collectors.toList());
+            return elements;
         }
         return new ArrayList<>();
     }
 
     public String getOriginalFileName(Element file) {
-        Element element = getElementByXPath("mag:file", false, file);
+        Element element = getElementByXPath("file", false, file);
         String filePath = element.getAttributeValue("href", xlinkNS);
         if (StringUtil.isBlank(filePath)) {
             throw new RuntimeException(
-                    "Invalid MAG Manifest: /mag:file does not have xlink:href=\"URL\" attribute.");
+                    "Invalid MAG Manifest: /file does not have xlink:href=\"URL\" attribute.");
         }
-        return filePath;
+        return fixFilePath(filePath);
     }
 
     public String getThumbnailFileName(Element file) {
-        Element element = getElementByXPath("mag:altimg[@imggroupID=\"thumbs\"]/mag:file", false, file);
+        Element element = getElementByXPath("altimg/file", false, file);
         String filePath = element.getAttributeValue("href", xlinkNS);
         if (StringUtil.isBlank(filePath)) {
             throw new RuntimeException(
-                    "Invalid MAG Manifest: /mag:altimg[@imggroupID=\"thumbs\"]/mag:file does not have" +
+                    "Invalid MAG Manifest: /altimg/file does not have" +
                             " xlink:href=\"URL\" attribute.");
         }
-        return filePath;
+        return fixFilePath(filePath);
+    }
+
+    private static String fixFilePath(String path) {
+        String fixedPath = path.replace('\\', '/');
+        int truncateIndex = -1;
+        for (int i = 0; i < fixedPath.length(); i++) {
+            if (PATH_CHARS_TO_TRUNCATE.contains(fixedPath.charAt(i))) {
+                truncateIndex = i;
+            } else {
+                break;
+            }
+        }
+        return fixedPath.substring(truncateIndex + 1);
     }
 
     public Integer getOriginalSequenceId(Element file) {
-        Element seqID = getElementByXPath("mag:sequence_number", true, file);
+        Element seqID = getElementByXPath("sequence_number", true, file);
         return nonNull(seqID) && nonNull(seqID.getValue()) ? Integer.parseInt(seqID.getValue()) : null;
     }
 
