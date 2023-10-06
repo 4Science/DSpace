@@ -1221,8 +1221,6 @@
             <list>
                 <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
 	            <ref bean="searchFilterEditor" />
@@ -2065,7 +2063,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfond.parent:*</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfonds.parent:*</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>

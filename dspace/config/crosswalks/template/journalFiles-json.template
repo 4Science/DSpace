@@ -1,5 +1,5 @@
 {
-	"patents": [
+	"journalFiles": [
 		@item.template@,
 	]
 }
