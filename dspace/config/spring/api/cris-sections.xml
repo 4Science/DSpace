@@ -192,7 +192,8 @@
                     <property name="discoveryConfigurationName" value="news" />
                     <property name="style" value="col-md-12" />
                     <property name="title" value="dc.title" />
-                    <property name="link" value="cris.news.url" />
+                    <property name="bundle" value="ORIGINAL" />
+				    <property name="link" value="cris.news.url" />
                     <property name="description" value="dc.description.abstract" />
                     <property name="sortField" value="cris.priority" />
                     <property name="order" value="asc" />
