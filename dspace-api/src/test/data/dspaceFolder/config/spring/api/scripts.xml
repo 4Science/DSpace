@@ -157,4 +157,14 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExportCLI"/>
     </bean>
 
+    <bean id="export-cris-layout-tool" class="org.dspace.layout.script.ExportCrisLayoutToolCliScriptConfiguration">
+        <property name="description" value="Script to export CRIS layout configuration into excel file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.layout.script.ExportCrisLayoutToolScriptCli"/>
+    </bean>
+
+    <bean id="export-schema" class="org.dspace.app.metadata.export.MetadataSchemaExportCliScriptConfiguration">
+        <property name="description" value="Export target metadata schema"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.metadata.export.MetadataSchemaExportCliScript"/>
+    </bean>
+
 </beans>
