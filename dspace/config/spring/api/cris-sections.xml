@@ -246,6 +246,7 @@
 				    <property name="discoveryConfigurationName" value="person" />
 				    <property name="style" value="col-md-12" />
 				    <property name="title" value="dc.title" />
+				    <property name="bundle" value="ORIGINAL" />
 				    <property name="link" value="oairecerif.identifier.url" />
 				    <property name="description" value="dc.description.abstract" />
 				    <property name="order" value="desc" />

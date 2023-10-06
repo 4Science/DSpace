@@ -787,6 +787,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         private String titleStyle;
 
+        private String bundle;
+
         /**
          * Initializes the rest component using the
          * CrisLayoutCarouselComponent component
@@ -810,6 +812,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             carouselHeightPx = component.getCarouselHeightPx();
             captionStyle = component.getCaptionStyle();
             titleStyle = component.getTitleStyle();
+            bundle = component.getBundle();
         }
 
         /**
@@ -925,6 +928,13 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
          */
         public String getTitleStyle() {
             return titleStyle;
+        }
+
+        /**
+         * @return the bundle
+         */
+        public String getBundle() {
+            return bundle;
         }
 
     }
