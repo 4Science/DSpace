@@ -1,0 +1,29 @@
+{
+	"title": "@dc.title@",
+	"details": "@dc.relation.issue@",
+	"detailsOther": "@dc.relation.issueother@",
+	"date": "@dc.date.issued@",
+	"edition": "@dc.relation.edition@",
+	"description": "@dc.description@",
+	"journalFond": [
+	    @group.dc-relation-journalfonds.start@
+    	{
+    		"name": "@dc.relation.journalfonds@"
+    	},
+    	@group.dc-relation-journalfonds.end@
+	],
+	"document": [
+    	@group.dc-relation-isreferencedby.start@
+        {
+        	"name": "@dc.relation.isreferencedby@"
+        },
+        @group.dc-relation-isreferencedby.end@
+    ],
+	"aggregation": [
+    	@group.dc-relation-aggregation.start@
+        {
+        	"name": "@dc.relation.aggregation@"
+        },
+        @group.dc-relation-aggregation.end@
+    ]
+}

@@ -1,0 +1,20 @@
+<JournalFond id="@virtual.id@">
+    <Type>@virtual.mapConverter.eventTypes.dc-type@</Type>
+	<Title>@dc.title@</Title>
+	<History>@glamfonds.history@</History>
+	<Language>@dc.language.iso@</Language>
+	<Description>@dc.description.abstract@</Description>
+	<Signature>@glamfonds.shelfmark@</Signature>
+	<Identifier>@dc.identifier.other@</Identifier>
+	<Opac>@dc.relation.opac@</Opac>
+	<Link>@dc.relation.otherlinks@</Link>
+	<FondsHistory>
+        @group.glamjournalfonds-history.start@
+        <FondHistory>
+            <DisplayName>@glamjournalfonds.history@</DisplayName>
+        </FondHistory>
+        @group.glamjournalfonds-history.end@
+    </FondsHistory>
+    <Editor>@dc.publisher@</Editor>
+    <Format>@dc.format@</Format>
+</JournalFond>
