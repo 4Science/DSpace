@@ -2055,7 +2055,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
+                        <ref bean="glamfondsSortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2127,7 +2127,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
+                        <ref bean="glamjournalfondsSortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2199,7 +2199,6 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -4375,6 +4374,18 @@
 
     <bean id="sortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="glam.index"/>
+        <property name="defaultSortOrder" value="asc"/>
+        <property name="type" value="integer"/>
+    </bean>
+
+    <bean id="glamfondsSortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="glamfonds.index"/>
+        <property name="defaultSortOrder" value="asc"/>
+        <property name="type" value="integer"/>
+    </bean>
+
+    <bean id="glamjournalfondsSortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="glamjournalfonds.index"/>
         <property name="defaultSortOrder" value="asc"/>
         <property name="type" value="integer"/>
     </bean>

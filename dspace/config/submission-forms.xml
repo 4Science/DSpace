@@ -126,9 +126,8 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -663,9 +662,8 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -2382,7 +2380,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
@@ -2786,17 +2784,6 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>glam</dc-schema>
-          <dc-element>index</dc-element>
-          <label>Numero di corda</label>
-          <input-type>number</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il numero di corda</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
           <dc-element>aggregation</dc-element>
           <dc-qualifier>enabled</dc-qualifier>
           <label>Visibile in Home Page</label>
@@ -3161,9 +3148,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamjournalfonds</dc-schema>
+          <dc-element>index</dc-element>
+          <dc-qualifier></dc-qualifier>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -3419,7 +3406,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
@@ -3864,9 +3851,8 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
