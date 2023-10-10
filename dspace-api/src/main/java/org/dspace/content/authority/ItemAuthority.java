@@ -59,7 +59,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     /** the name assigned to the specific instance by the PluginService, @see {@link NameAwarePlugin} **/
     private String authorityName;
 
-    private DSpace dspace = new DSpace();
+    protected DSpace dspace = new DSpace();
 
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 

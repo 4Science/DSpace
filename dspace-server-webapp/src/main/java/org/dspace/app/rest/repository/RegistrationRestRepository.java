@@ -14,10 +14,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +29,9 @@ import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.RegistrationRest;
+import org.dspace.app.rest.model.patch.Patch;
+import org.dspace.app.rest.repository.patch.ResourcePatch;
+import org.dspace.app.rest.utils.Utils;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authenticate.service.AuthenticationService;
 import org.dspace.authorize.AuthorizeException;
@@ -39,6 +42,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.InvalidReCaptchaException;
 import org.dspace.eperson.RegistrationData;
+import org.dspace.eperson.RegistrationTypeEnum;
 import org.dspace.eperson.service.AccountService;
 import org.dspace.eperson.service.CaptchaService;
 import org.dspace.eperson.service.EPersonService;
@@ -61,9 +65,10 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
 
     private static Logger log = LogManager.getLogger(RegistrationRestRepository.class);
 
+    public static final String TOKEN_QUERY_PARAM = "token";
     public static final String TYPE_QUERY_PARAM = "accountRequestType";
-    public static final String TYPE_REGISTER = "register";
-    public static final String TYPE_FORGOT = "forgot";
+    public static final String TYPE_REGISTER = RegistrationTypeEnum.REGISTER.toString().toLowerCase();
+    public static final String TYPE_FORGOT = RegistrationTypeEnum.FORGOT.toString().toLowerCase();
 
     @Autowired
     private EPersonService ePersonService;
@@ -91,6 +96,12 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private Utils utils;
+
+    @Autowired
+    private ResourcePatch<RegistrationData> resourcePatch;
 
     @Override
     public RegistrationRest findOne(Context context, Integer integer) {
@@ -132,7 +143,7 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
             try {
                 if (Objects.isNull(context.getCurrentUser())
                     || (!authorizeService.isAdmin(context)
-                        && !hasPermission(context, registrationRest.getGroups()))) {
+                    && !hasPermission(context, registrationRest.getGroups()))) {
                     throw new AccessDeniedException("Only admin users can invite new users to join groups");
                 }
             } catch (SQLException e) {
@@ -143,7 +154,8 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         if (StringUtils.isBlank(accountType) ||
             (!accountType.equalsIgnoreCase(TYPE_FORGOT) && !accountType.equalsIgnoreCase(TYPE_REGISTER))) {
             throw new IllegalArgumentException(String.format("Needs query param '%s' with value %s or %s indicating " +
-                "what kind of registration request it is", TYPE_QUERY_PARAM, TYPE_FORGOT, TYPE_REGISTER));
+                                                                 "what kind of registration request it is",
+                                                             TYPE_QUERY_PARAM, TYPE_FORGOT, TYPE_REGISTER));
         }
         EPerson eperson = null;
         try {
@@ -155,32 +167,32 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
             try {
                 if (!AuthorizeUtil.authorizeUpdatePassword(context, eperson.getEmail())) {
                     throw new DSpaceBadRequestException("Password cannot be updated for the given EPerson with email: "
-                        + eperson.getEmail());
+                                                            + eperson.getEmail());
                 }
                 accountService.sendForgotPasswordInfo(context, registrationRest.getEmail(),
-                        registrationRest.getGroups());
+                                                      registrationRest.getGroups());
             } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
                 log.error("Something went wrong with sending forgot password info email: "
-                    + registrationRest.getEmail(), e);
+                              + registrationRest.getEmail(), e);
             }
         } else if (accountType.equalsIgnoreCase(TYPE_REGISTER)) {
             try {
                 String email = registrationRest.getEmail();
                 if (!AuthorizeUtil.authorizeNewAccountRegistration(context, request)) {
                     throw new AccessDeniedException(
-                            "Registration is disabled, you are not authorized to create a new Authorization");
+                        "Registration is disabled, you are not authorized to create a new Authorization");
                 }
 
                 if (!authenticationService.canSelfRegister(context, request, registrationRest.getEmail())) {
                     throw new UnprocessableEntityException(
                         String.format("Registration is not allowed with email address" +
-                            " %s", email));
+                                          " %s", email));
                 }
 
                 accountService.sendRegistrationInfo(context, registrationRest.getEmail(), registrationRest.getGroups());
             } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
                 log.error("Something went wrong with sending registration info email: "
-                    + registrationRest.getEmail(), e);
+                              + registrationRest.getEmail(), e);
             }
         }
         return null;
@@ -201,16 +213,12 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         return true;
     }
 
-    @Override
-    public Class<RegistrationRest> getDomainClass() {
-        return RegistrationRest.class;
-    }
-
     /**
      * This method will find the RegistrationRest object that is associated with the token given
+     *
      * @param token The token to be found and for which a RegistrationRest object will be found
-     * @return      A RegistrationRest object for the given token
-     * @throws SQLException If something goes wrong
+     * @return A RegistrationRest object for the given token
+     * @throws SQLException       If something goes wrong
      * @throws AuthorizeException If something goes wrong
      */
     @SearchRestMethod(name = "findByToken")
@@ -221,22 +229,55 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         if (registrationData == null) {
             throw new ResourceNotFoundException("The token: " + token + " couldn't be found");
         }
-        RegistrationRest registrationRest = new RegistrationRest();
-        registrationRest.setEmail(registrationData.getEmail());
-        EPerson ePerson = accountService.getEPerson(context, token);
-        if (ePerson != null) {
-            registrationRest.setUser(ePerson.getID());
+        return converter.toRest(registrationData, utils.obtainProjection());
+    }
+
+    @Override
+    public RegistrationRest patch(
+        HttpServletRequest request, String apiCategory, String model, Integer id, Patch patch
+    ) throws UnprocessableEntityException, DSpaceBadRequestException {
+        if (id == null || id <= 0) {
+            throw new BadRequestException("The id of the registration cannot be null or negative");
         }
-        List<String> groupNames = registrationData.getGroups()
-                .stream().map(Group::getName).collect(Collectors.toList());
-        registrationRest.setGroupNames(groupNames);
-        registrationRest.setGroups(registrationData
-                .getGroups().stream().map(Group::getID).collect(Collectors.toList()));
-        return registrationRest;
+        if (patch == null || patch.getOperations() == null || patch.getOperations().isEmpty()) {
+            throw new BadRequestException("Patch request is incomplete: cannot find operations");
+        }
+        String token = request.getParameter("token");
+        if (token == null || token.trim().isBlank()) {
+            throw new AccessDeniedException("The token is required");
+        }
+        Context context = obtainContext();
+
+        validateToken(context, token);
+
+        try {
+            resourcePatch.patch(context, registrationDataService.find(context, id), patch.getOperations());
+            context.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    private void validateToken(Context context, String token) {
+        try {
+            RegistrationData registrationData =
+                registrationDataService.findByToken(context, token);
+            if (registrationData == null || !registrationDataService.isValid(registrationData)) {
+                throw new AccessDeniedException("The token is invalid");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setCaptchaService(CaptchaService captchaService) {
         this.captchaService = captchaService;
+    }
+
+    @Override
+    public Class<RegistrationRest> getDomainClass() {
+        return RegistrationRest.class;
     }
 
 }
