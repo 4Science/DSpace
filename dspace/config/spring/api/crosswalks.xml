@@ -19,6 +19,7 @@
 				<entry key="publication-xls" value-ref="xlsCrosswalkPublication"></entry>
 				<entry key="publication-apa" value-ref="cslItemDataCrosswalkApa"></entry>
 				<entry key="publication-chicago" value-ref="cslItemDataCrosswalkChicago"></entry>
+				<entry key="publication-datacite-xml" value-ref="referCrosswalkPublicationDataciteXml"></entry>
 
 				<entry key="person-xml" value-ref="referCrosswalkPersonXml"></entry>
 				<entry key="person-cerif-xml" value-ref="referCrosswalkPersonCerifXml"></entry>
@@ -59,8 +60,10 @@
 				<entry key="patent-pdf" value-ref="pdfCrosswalkPatent"></entry>
 				<entry key="patent-csv" value-ref="csvCrosswalkPatent"></entry>
 				<entry key="patent-xls" value-ref="xlsCrosswalkPatent"></entry>
+                <entry key="patent-datacite-xml" value-ref="referCrosswalkPatentDataciteXml"></entry>
 				
 				<entry key="product-cerif-xml" value-ref="referCrosswalkDatasetCerifXml"></entry>
+                <entry key="product-datacite-xml" value-ref="referCrosswalkDatasetDataciteXml"></entry>
 				
 				<entry key="event-cerif-xml" value-ref="referCrosswalkEventCerifXml"></entry>
 				
@@ -283,6 +286,15 @@
 		<property name="converter" ref="xmlValueConverter" />
 	</bean>
 
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkDatasetDataciteXml">
+        <property name="templateFileName" value="crosswalks/template/product-datacite-xml.template"/>
+        <property name="mimeType" value="application/xml; charset=UTF-8"/>
+        <property name="fileName" value="datacite44.xml"/>
+        <property name="entityType" value="Product"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="xmlValueConverter" />
+    </bean>
+
 	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkEventCerifXml">
 		<property name="templateFileName" value="crosswalks/template/event-cerif-xml.template"/>
 		<property name="mimeType" value="application/xml; charset=UTF-8"/>
@@ -332,6 +344,24 @@
 		<property name="entityType" value="Project"/>
 		<property name="referCrosswalk" ref="referCrosswalkProjectCerifXml"/>
 	</bean>
+	
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPublicationDataciteXml">
+        <property name="templateFileName" value="crosswalks/template/publication-datacite-xml.template"/>
+        <property name="mimeType" value="application/xml; charset=UTF-8"/>
+        <property name="fileName" value="datacite44.xml"/>
+        <property name="entityType" value="Publication"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="xmlValueConverter" />
+    </bean>
+
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPatentDataciteXml">
+        <property name="templateFileName" value="crosswalks/template/patent-datacite-xml.template"/>
+        <property name="mimeType" value="application/xml; charset=UTF-8"/>
+        <property name="fileName" value="datacite44.xml"/>
+        <property name="entityType" value="Patent"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="xmlValueConverter" />
+    </bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.DocumentCrosswalk" id="pdfCrosswalkEquipment">
 		<property name="templateFileName" value="crosswalks/template/equipment-template.xsl"/>
@@ -492,6 +522,8 @@
 			<map>
 				<entry key="id" value-ref="virtualFieldId" />
 				<entry key="authority" value-ref="virtualFieldAuthority" />
+				<entry key="primary-doi" value-ref="virtualFieldPrimaryDOI" />
+				<entry key="alternative-doi" value-ref="virtualFieldAlternativeDOI" />
 				<entry key="reftype" value-ref="virtualFieldRefererType" />
 				<entry key="authors" value-ref="virtualFieldAuthors" />
 				<entry key="fullpage" value-ref="virtualFieldPageNumber" />
@@ -508,6 +540,8 @@
 	
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldId" id="virtualFieldId"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAuthority" id="virtualFieldAuthority"/>
+	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldPrimaryDOI" id="virtualFieldPrimaryDOI"/>
+	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAlternativeDOI" id="virtualFieldAlternativeDOI"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldRefererType" id="virtualFieldRefererType"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAuthors" id="virtualFieldAuthors"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldPageNumber" id="virtualFieldPageNumber"/>	
@@ -568,6 +602,9 @@
 				<entry key="pubmedToCoarPublicationTypes" value-ref="mapConverterPubmedToCoarPublicationTypes" />
 				<entry key="cerifToOrgUnitTypes" value-ref="mapConverterCerifToOrgUnitTypes" />
 				<entry key="cerifToFundingTypes" value-ref="mapConverterCerifToFundingTypes" />
+                <entry key="type2datacite" value-ref="mapConverterDataciteToPublicationTypes" />
+                <entry key="right2licenseUrl" value-ref="mapConverterDataciteToPublicationLicense" />
+                <entry key="right2conceptUrl" value-ref="mapConverterDataciteToPublicationAccessRights" />
 			</map>
 		</constructor-arg>
 	</bean>
@@ -643,6 +680,24 @@
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value=""/>
 	</bean>
+
+    <bean name="mapConverterDataciteToPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-datacitePublicationTypes.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value="Text"/>
+    </bean>
+
+    <bean name="mapConverterDataciteToPublicationLicense" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-datacitePublicationLicense.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value=""/>
+    </bean>
+
+    <bean name="mapConverterDataciteToPublicationAccessRights" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-datacitePublicationRights.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value=""/>
+    </bean>
 
 	<!-- CONDITION EVALUATORS CONFIGURATION -->
 	

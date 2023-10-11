@@ -69,6 +69,7 @@ import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.LayoutSecurity;
+import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
 import org.json.JSONObject;
 import org.junit.After;
@@ -82,6 +83,7 @@ import org.junit.Test;
  *
  */
 public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
+    static final String CFG_PREFIX = "identifier.doi.prefix";
 
     private static final String BASE_OUTPUT_DIR_PATH = "./target/testing/dspace/assetstore/crosswalk/";
 
@@ -98,6 +100,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     private Collection collection;
 
     private VirtualField virtualFieldId;
+
+    private ConfigurationService configurationService;
 
     @Before
     public void setup() throws SQLException, AuthorizeException {
@@ -116,6 +120,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         VirtualField mockedVirtualFieldId = mock(VirtualField.class);
         when(mockedVirtualFieldId.getMetadata(any(), any(), any())).thenReturn(new String[] { "mock-id" });
         this.virtualFieldMapper.setVirtualField("id", mockedVirtualFieldId);
+
+        this.configurationService = new DSpace().getSingletonService(ConfigurationService.class);
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
@@ -2529,6 +2535,82 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(resultLines[54].trim(), equalTo("</project>"));
     }
+
+    @Test
+    public void testExportToDataciteFormatItemWithThreeDOI() throws Exception {
+        String prefix;
+        prefix = this.configurationService.getProperty(CFG_PREFIX);
+        if (null == prefix) {
+            throw new RuntimeException("Unable to load DOI prefix from "
+                    + "configuration. Cannot find property " +
+                    CFG_PREFIX + ".");
+        }
+
+        context.turnOffAuthorisationSystem();
+
+        Item publication = createItem(context, collection)
+                .withEntityType("Publication")
+                .withTitle("publication title")
+                .withDoiIdentifier("test doi")
+                .withDoiIdentifier("test doi2")
+                .withDoiIdentifier("test" + prefix + "test")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+                .getServiceByName("referCrosswalkVirtualFieldDOI", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, publication, out);
+
+        String[] resultLines = out.toString().split("\n");
+
+        assertThat(resultLines.length, is(5));
+        assertThat(resultLines[0].trim(), is("{"));
+        assertThat(resultLines[1].trim(), is("\"primary-doi\": \"test" + prefix + "test\","));
+        assertThat(resultLines[2].trim(), is("\"alternative-doi\": \"test doi\","));
+        assertThat(resultLines[3].trim(), is("\"alternative-doi\": \"test doi2\""));
+        assertThat(resultLines[4].trim(), is("}"));
+    }
+
+    @Test
+    public void testExportToDataciteFormatItemWithSingleDOINotMatchingPrefix() throws Exception {
+        String prefix;
+        prefix = this.configurationService.getProperty(CFG_PREFIX);
+        if (null == prefix) {
+            throw new RuntimeException("Unable to load DOI prefix from "
+                    + "configuration. Cannot find property " +
+                    CFG_PREFIX + ".");
+        }
+
+        context.turnOffAuthorisationSystem();
+
+        Item publication = createItem(context, collection)
+                .withEntityType("Publication")
+                .withTitle("publication title")
+                .withDoiIdentifier("test doi")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+                .getServiceByName("referCrosswalkVirtualFieldDOI", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, publication, out);
+
+        String[] resultLines = out.toString().split("\n");
+
+        assertThat(resultLines.length, is(3));
+        assertThat(resultLines[0].trim(), is("{"));
+        assertThat(resultLines[1].trim(), is("\"primary-doi\": \"test doi\""));
+        assertThat(resultLines[2].trim(), is("}"));
+    }
+
+
 
 
     private void createSelectedRelationship(Item author, Item publication, RelationshipType selectedRelationshipType) {

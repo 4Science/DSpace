@@ -630,7 +630,7 @@ public class DatabaseUtils {
 
         try (Connection connection = dataSource.getConnection()) {
             // Upgrade database to the latest version of our schema
-                updateDatabase(dataSource, connection);
+            updateDatabase(dataSource, connection);
         }
     }
 
