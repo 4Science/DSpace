@@ -759,6 +759,7 @@
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
             <list>
+                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
@@ -767,6 +768,7 @@
         <!--The search filters which can be used on the discovery search page -->
         <property name="searchFilters">
             <list>
+                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
@@ -1221,8 +1223,6 @@
             <list>
                 <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
 	            <ref bean="searchFilterEditor" />

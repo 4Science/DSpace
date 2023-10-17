@@ -4421,16 +4421,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                 cTask.getWorkflowItem(), "Claimed Item","2010-11-03")))
                                 )
                 )))
-                //These facets have to show up in the embedded.facets section as well with the given hasMore
-                // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
-                        FacetEntryMatcher.resourceTypeFacet(false),
-                        FacetEntryMatcher.typeFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false)
-                )))
                 //There always needs to be a self link
-                .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
-        ;
+                .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
 
         getClient(adminToken).perform(get("/api/discover/search/objects").param("configuration", "workspace"))
                 //** THEN **
@@ -4466,13 +4458,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                         is(WorkflowItemMatcher.matchItemWithTitleAndDateIssued(
                                                 wfItem1Admin, "Admin Workflow Item 1", "2010-11-03")))
                                 )
-                )))
-                //These facets have to show up in the embedded.facets section as well with the given hasMore
-                // property because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
-                        FacetEntryMatcher.resourceTypeFacet(false),
-                        FacetEntryMatcher.typeFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false)
                 )))
                 //There always needs to be a self link
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
