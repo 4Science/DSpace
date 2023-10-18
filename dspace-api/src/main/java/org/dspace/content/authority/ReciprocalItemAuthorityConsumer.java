@@ -38,26 +38,15 @@ import org.dspace.utils.DSpace;
 public class ReciprocalItemAuthorityConsumer implements Consumer {
     private static final Logger log = LogManager.getLogger(ReciprocalItemAuthorityConsumer.class);
 
-    private final Map<String, String> reciprocalMetadata = new ConcurrentHashMap<>();
+    private final ConfigurationService configurationService = new DSpace().getConfigurationService();
+    private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
+    private final Map<String, String> reciprocalMetadataMap = new ConcurrentHashMap<>();
     private final transient Set<UUID> processedHandles = new HashSet<>();
-
-    private final ItemService itemService;
-
-    public ReciprocalItemAuthorityConsumer() {
-        ConfigurationService confService = new DSpace().getConfigurationService();
-        itemService = ContentServiceFactory.getInstance().getItemService();
-        for (String conf : confService.getPropertyKeys("ItemAuthority.reciprocalMetadata")) {
-            reciprocalMetadata.put(conf.substring("ItemAuthority.reciprocalMetadata.".length()),
-                    confService.getProperty(conf));
-            reciprocalMetadata.put(confService.getProperty(conf),
-                    conf.substring("ItemAuthority.reciprocalMetadata.".length()));
-        }
-    }
 
     @Override
     public void initialize() throws Exception {
-        // nothing
+        iniReciprocalMetadata();
     }
 
     @Override
@@ -73,11 +62,11 @@ public class ReciprocalItemAuthorityConsumer implements Consumer {
             } else {
                 processedHandles.add(item.getID());
             }
-            if (!reciprocalMetadata.isEmpty()) {
-                for (String k : reciprocalMetadata.keySet()) {
+            if (!reciprocalMetadataMap.isEmpty()) {
+                for (String k : reciprocalMetadataMap.keySet()) {
                     String entityType = k.split("\\.", 2)[0];
                     String metadata = k.split("\\.", 2)[1];
-                    checkItemRefs(ctx, item, entityType, metadata, reciprocalMetadata.get(k));
+                    checkItemRefs(ctx, item, entityType, metadata, reciprocalMetadataMap.get(k));
                 }
             }
         } finally {
@@ -127,6 +116,16 @@ public class ReciprocalItemAuthorityConsumer implements Consumer {
 
         itemService.addMetadata(ctx, target, mdSplit[0], mdSplit[1], mdSplit.length > 2 ? mdSplit[2] : null, null,
                 name, sourceUuid, Choices.CF_ACCEPTED);
+    }
+
+    private void iniReciprocalMetadata() {
+        List<String> properties = configurationService.getPropertyKeys("ItemAuthority.reciprocalMetadata");
+        for (String conf : properties) {
+            reciprocalMetadataMap.put(conf.substring("ItemAuthority.reciprocalMetadata.".length()),
+                    configurationService.getProperty(conf));
+            reciprocalMetadataMap.put(configurationService.getProperty(conf),
+                    conf.substring("ItemAuthority.reciprocalMetadata.".length()));
+        }
     }
 
     @Override
