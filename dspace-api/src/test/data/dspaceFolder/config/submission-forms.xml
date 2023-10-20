@@ -79,7 +79,7 @@
          <input-type>onebox</input-type>
          <hint>Enter the main title of the item.</hint>
          <required>You must enter a main title for this item.</required>
-         <!--    <language value-pairs-name="common_iso_languages">true</language> -->
+         <language value-pairs-name="common_iso_languages">true</language>
        </field>
      </row>
      <row>
@@ -1774,6 +1774,190 @@ You can leave out the day and/or month if they aren't applicable.</hint>
           <hint>Select a subject from the vocabulary.</hint>
         </field>
       </row>
+     <row>
+       <field>
+         <dc-schema>glam</dc-schema>
+         <dc-element>leaf</dc-element>
+         <label>Accetta record</label>
+         <input-type value-pairs-name="truefalse">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>Indicare se si tratta del livello inferiore delle gerarchia archivistica</required>
+         <hint>Indicare se si tratta del livello inferiore delle gerarchia archivistica</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <label>Tipologia della risorsa</label>
+         <input-type value-pairs-name="book_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire la tipologia della risorsa</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <label>Tipo di progetto</label>
+         <input-type value-pairs-name="project_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire il tipo di progetto</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>rights</dc-element>
+         <dc-qualifier>license</dc-qualifier>
+         <label>Licenza</label>
+         <input-type value-pairs-name="license_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire le condizioni d'uso attribuite alla risorsa digitale.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>glamfonds</dc-schema>
+         <dc-element>photographictype</dc-element>
+         <label>Tipologia fondo fotografico</label>
+         <input-type value-pairs-name="fonds_photographictype">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire la tipologia del fondo fotografico</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>glamfonds</dc-schema>
+         <dc-element>enddate</dc-element>
+         <dc-qualifier>valid</dc-qualifier>
+         <label>Validità dell'estremo recente</label>
+         <input-type value-pairs-name="end_date_valid">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire la validità dell'estremo recente</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>glamfonds</dc-schema>
+         <dc-element>startdate</dc-element>
+         <dc-qualifier>valid</dc-qualifier>
+         <label>Validita dell'estremo remoto</label>
+         <input-type value-pairs-name="start_date_valid">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire la validità dell'estremo remoto</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <label>Tipologia della risorsa</label>
+         <input-type value-pairs-name="unit_of_description_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Inserire la tipologia della risorsa</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>physical</dc-qualifier>
+         <label>Tipologia fisica</label>
+         <input-type value-pairs-name="archival_material_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Indicare la tipologia fisica della risorsa.</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>issue</dc-qualifier>
+         <label>Dettagli del fascicolo</label>
+         <input-type value-pairs-name="issue_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>tipo di fascicolo (supplemento, numero speciale, allegato)</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>color</dc-qualifier>
+         <label>Colore</label>
+         <input-type value-pairs-name="picture_color_types">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>Inserire il dato</required>
+         <hint>E' il campo in cui indicare se si tratta di fotografia in bianco/nero, colori, misto (per fotografie colorate a mano)</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>materialandtechnique</dc-qualifier>
+         <label>Materiale e tecnica</label>
+         <input-type value-pairs-name="picture_material_and_technique">dropdown</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>Il campo fornisce indicazioni sul procedimento utilizzato per l'esecuzione dell'opera fotografica</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>glampicture</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>framing</dc-qualifier>
+         <label>Integrazione al titolo della fotografia</label>
+         <input-type value-pairs-name="framing_type">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>Indicare il tipo di innquadratura</required>
+         <hint>E' il campo in cui descrivere l'inquadratura dell'immagine</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>format</dc-element>
+         <label>Formato</label>
+         <input-type value-pairs-name="picture_format">dropdown</input-type>
+         <repeatable>true</repeatable>
+         <required />
+         <hint>E' il campo in cui indicare il "formato". Per la scheda F si fa riferimento con formato alla dimensione standardizzata dei materiali fotografici (negativi, positivi)</hint>
+       </field>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>description</dc-element>
+         <dc-qualifier>preservationstate</dc-qualifier>
+         <label>Stato di conservazione</label>
+         <input-type value-pairs-name="common_preservation_state">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required>Inserire lo stato di conservazione</required>
+         <hint>Inserire la stato di conservazione della fotografia</hint>
+       </field>
+     </row>
+     <row>
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>type</dc-element>
+         <dc-qualifier>relation</dc-qualifier>
+         <label>Tipo relazione</label>
+         <input-type value-pairs-name="relation_type">dropdown</input-type>
+         <repeatable>false</repeatable>
+         <required />
+         <hint>Indicare il tipo di relazione</hint>
+       </field>
+     </row>
    </form>
 
    <form name="sampleauthority">
@@ -2603,7 +2787,526 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         <stored-value>n/a</stored-value>
       </pair>
     </value-pairs>
-
+   <value-pairs value-pairs-name="relation_type" dc-term="relation_type">
+     <pair>
+       <displayed-value>fa parte di</displayed-value>
+       <stored-value>fa parte di</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>comprende</displayed-value>
+       <stored-value>comprende</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>supplemento di</displayed-value>
+       <stored-value>supplemento di</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>continuazione di</displayed-value>
+       <stored-value>continuazione di</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>continua con</displayed-value>
+       <stored-value>continua con</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>assorbe</displayed-value>
+       <stored-value>assorbe</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>si fonde con</displayed-value>
+       <stored-value>si fonde con</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="common_preservation_state" dc-term="common_preservation_state">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>buono</displayed-value>
+       <stored-value>buono</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>discreto</displayed-value>
+       <stored-value>discreto</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>mediocre</displayed-value>
+       <stored-value>mediocre</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>cattivo</displayed-value>
+       <stored-value>cattivo</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="framing_type" dc-term="framing_type">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>dettaglio</displayed-value>
+       <stored-value>dettaglio</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>primo piano</displayed-value>
+       <stored-value>primo piano</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>primissimo piano</displayed-value>
+       <stored-value>primissimo piano</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>medio primo piano</displayed-value>
+       <stored-value>medio primo piano</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>piano medio</displayed-value>
+       <stored-value>piano medio</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>piano americano</displayed-value>
+       <stored-value>piano americano</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>totale</displayed-value>
+       <stored-value>totale</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>campo medio</displayed-value>
+       <stored-value>campo medio</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>campo lungo</displayed-value>
+       <stored-value>campo lungo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>campo lunghissimo</displayed-value>
+       <stored-value>campo lunghissimo</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="picture_material_and_technique" dc-term="picture_material_and_technique">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>allumina/carta</displayed-value>
+       <stored-value>allumina/carta</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>ambrotipo</displayed-value>
+       <stored-value>ambrotipo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>aristotipo</displayed-value>
+       <stored-value>aristotipo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>autocromia</displayed-value>
+       <stored-value>autocromia</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>calotipo</displayed-value>
+       <stored-value>calotipo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>carbone/carta</displayed-value>
+       <stored-value>carbone/carta</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>carta salata</displayed-value>
+       <stored-value>carta salata</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>collodio/vetro</displayed-value>
+       <stored-value>collodio/vetro</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>dagherrotipo</displayed-value>
+       <stored-value>dagherrotipo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>diapositiva b/n</displayed-value>
+       <stored-value>diapositiva b/n</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>diapositiva a colori</displayed-value>
+       <stored-value>diapositiva a colori</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>fax/carta</displayed-value>
+       <stored-value>fax/carta</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>fotocopia/acetato</displayed-value>
+       <stored-value>fotocopia/acetato</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>gelatina bromuro d'argento</displayed-value>
+       <stored-value>gelatina bromuro d'argento</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="truefalse" dc-term="truefalse">
+     <pair>
+       <displayed-value>sì</displayed-value>
+       <stored-value>true</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>no</displayed-value>
+       <stored-value>false</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="project_types" dc-term="project_types">
+     <pair>
+       <displayed-value>Unspecified</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>basic research</displayed-value>
+       <stored-value>basic research</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>applied research</displayed-value>
+       <stored-value>applied research</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>experimental development</displayed-value>
+       <stored-value>experimental development</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="book_types" dc-term="book_types">
+     <pair>
+       <displayed-value>Volume a stampa</displayed-value>
+       <stored-value>Volume a stampa</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="license_types" dc-term="license_types">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>Tutti i diritti riservati</displayed-value>
+       <stored-value>Tutti i diritti riservati</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC0</displayed-value>
+       <stored-value>CC0</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY</displayed-value>
+       <stored-value>CC BY</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-SA</displayed-value>
+       <stored-value>CC BY-SA</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-ND</displayed-value>
+       <stored-value>CC BY-ND</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC</displayed-value>
+       <stored-value>CC BY-NC</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-SA</displayed-value>
+       <stored-value>CC BY-NC-SA</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>CC BY-NC-ND</displayed-value>
+       <stored-value>CC BY-NC-ND</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="fonds_photographictype" dc-term="fonds_photographictype">
+     <pair>
+       <displayed-value>Scegli un valore</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>accumulo</displayed-value>
+       <stored-value>accumulo</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>archivio</displayed-value>
+       <stored-value>archivio</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>collezione</displayed-value>
+       <stored-value>collezione</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>complesso di fondi</displayed-value>
+       <stored-value>complesso di fondi</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>diateca</displayed-value>
+       <stored-value>diateca</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>fototeca</displayed-value>
+       <stored-value>fototeca</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>raccolta</displayed-value>
+       <stored-value>raccolta</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>album</displayed-value>
+       <stored-value>album</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="end_date_valid" dc-term="end_date_valid">
+     <pair>
+       <displayed-value>C</displayed-value>
+       <stored-value>0</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>U</displayed-value>
+       <stored-value>1</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Q</displayed-value>
+       <stored-value>2</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>UQ</displayed-value>
+       <stored-value>3</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="start_date_valid" dc-term="start_date_valid">
+     <pair>
+       <displayed-value>C</displayed-value>
+       <stored-value>0</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Y</displayed-value>
+       <stored-value>1</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>YM</displayed-value>
+       <stored-value>2</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>YMD</displayed-value>
+       <stored-value>3</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="unit_of_description_types" dc-term="unit_of_description_types">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>Registro o altra unità rilegata</displayed-value>
+       <stored-value>registry</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Fascicolo o altra unità complessa</displayed-value>
+       <stored-value>file</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Unità  documentaria</displayed-value>
+       <stored-value>item</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="archival_material_types" dc-term="archival_material_types">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>Album</displayed-value>
+       <stored-value>album</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Busta</displayed-value>
+       <stored-value>envelope</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Cartella</displayed-value>
+       <stored-value>folder</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Faldone</displayed-value>
+       <stored-value>binder</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Fascicolo</displayed-value>
+       <stored-value>file</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Filza</displayed-value>
+       <stored-value>string</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Foglio</displayed-value>
+       <stored-value>sheet of paper</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Manifesto</displayed-value>
+       <stored-value>manifest</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Mappa</displayed-value>
+       <stored-value>map</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Mazzo</displayed-value>
+       <stored-value>deck</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Opuscolo</displayed-value>
+       <stored-value>brochure</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Pacco</displayed-value>
+       <stored-value>package</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Plico</displayed-value>
+       <stored-value>bundle</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Quaderno</displayed-value>
+       <stored-value>notebook</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registro</displayed-value>
+       <stored-value>registry&gt;</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Rivista</displayed-value>
+       <stored-value>magazine</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Rotolo</displayed-value>
+       <stored-value>scroll</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Scatola</displayed-value>
+       <stored-value>box</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Scheda</displayed-value>
+       <stored-value>card</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Taccuino</displayed-value>
+       <stored-value>pocketbook</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Volume</displayed-value>
+       <stored-value>volume</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione sonora</displayed-value>
+       <stored-value>Recording, acoustical</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione musicale</displayed-value>
+       <stored-value>Recording, musical</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione vocale</displayed-value>
+       <stored-value>Recording, oral</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Registrazione video</displayed-value>
+       <stored-value>Video</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Altro</displayed-value>
+       <stored-value>Other</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="issue_types" dc-term="issue_types">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>supplemento</displayed-value>
+       <stored-value>supplemento</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>numero speciale</displayed-value>
+       <stored-value>numero speciale</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>allegato</displayed-value>
+       <stored-value>allegato</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="picture_color_types" dc-term="picture_color_types">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>b/n</displayed-value>
+       <stored-value>b/n</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>colore</displayed-value>
+       <stored-value>colore</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>misto</displayed-value>
+       <stored-value>misto</stored-value>
+     </pair>
+   </value-pairs>
+   <value-pairs value-pairs-name="picture_format" dc-term="picture_format">
+     <pair>
+       <displayed-value>N/A</displayed-value>
+       <stored-value />
+     </pair>
+     <pair>
+       <displayed-value>6x6</displayed-value>
+       <stored-value>6x6</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>6x4,5</displayed-value>
+       <stored-value>6x4,5</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>6x9</displayed-value>
+       <stored-value>6x9</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>6x7</displayed-value>
+       <stored-value>6x7</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>9x12</displayed-value>
+       <stored-value>9x12</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>10x15</displayed-value>
+       <stored-value>10x15</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>13x18</displayed-value>
+       <stored-value>13x18</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>18x24</displayed-value>
+       <stored-value>18x24</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>20x25</displayed-value>
+       <stored-value>20x25</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>24x30</displayed-value>
+       <stored-value>24x30</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>2,4x3,6 (35mm)</displayed-value>
+       <stored-value>2,4x3,6 (35mm)</stored-value>
+     </pair>
+   </value-pairs>
    <value-pairs value-pairs-name="orgunit_identifiers" dc-term="orgunit_identifiers">
      <pair>
        <displayed-value>CrossRef Funder ID</displayed-value>
