@@ -255,7 +255,7 @@ public class CrisConsumer implements Consumer {
     private Item buildRelatedItem(Context context, Item item, Collection collection, MetadataValue metadata,
         String entityType, String crisSourceId) throws Exception {
 
-        WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
+        WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, useOfTemplate(metadata));
         Item relatedItem = workspaceItem.getItem();
         itemService.addMetadata(context, relatedItem, CRIS.getName(), "sourceId", null, null, crisSourceId);
         if (!hasEntityType(relatedItem, entityType)) {
@@ -297,6 +297,17 @@ public class CrisConsumer implements Consumer {
         } else {
             return configurationService.getBooleanProperty(property, true);
         }
+    }
+
+    private boolean useOfTemplate(MetadataValue value) {
+
+        String useOfTemplateByMetadata = "cris.import.submission.enabled.entity."
+                + getFieldKey(value) + ".use-template";
+        if (configurationService.hasProperty(useOfTemplateByMetadata)) {
+            return configurationService.getBooleanProperty(useOfTemplateByMetadata);
+        }
+
+        return configurationService.getBooleanProperty("cris.import.submission.enabled.entity.use-template");
     }
 
     private void fillRelatedItem(Context context, MetadataValue metadata, Item relatedItem, boolean alreadyPresent)

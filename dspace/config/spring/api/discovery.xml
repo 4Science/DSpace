@@ -3655,4 +3655,55 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
     </bean>
+
+    <bean id="searchFilterDoiAsString" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="doi_s"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.identifier.doi</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+    </bean>
+
+    <bean id="searchFilterDataciteAvailable" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="original_bundle_datacite_available"/>
+        <property name="metadataFields">
+            <list/>
+        </property>
+        <property name="type" value="date"/>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+    <bean id="searchFilterOaireLicense" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="original_bundle_oaire_licenseCondition"/>
+        <property name="metadataFields">
+            <list/>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
+    <bean id="searchFilterDataciteRights" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="original_bundle_datacite_rights"/>
+        <property name="metadataFields">
+            <list/>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
+    <bean id="searchFilterFileType" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="original_bundle_mime_type"/>
+        <property name="metadataFields">
+            <list/>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
 </beans>

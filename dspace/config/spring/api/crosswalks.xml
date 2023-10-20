@@ -532,6 +532,7 @@
 				<entry key="personName" value-ref="virtualFieldPersonName" />
 				<entry key="date" value-ref="virtualFieldDateFormatter" />
 				<entry key="vocabulary" value-ref="virtualFieldVocabulary" />
+				<entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
                 <entry key="metric" value-ref="virtualFieldMetric" />
                 <entry key="citations" value-ref="virtualFieldCitations" />
 			</map>
@@ -583,6 +584,7 @@
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldVocabulary" id="virtualFieldVocabulary"/>
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMetric" id="virtualFieldMetric"/>
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldCitations" id="virtualFieldCitations"/>
+    <bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldVocabularyI18nValuePair" id="virtualFieldVocabularyI18n"/>
     
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.FirstSelectedCitationsPostProcessor" />
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.GroupByTypeCitationsPostProcessor" />
