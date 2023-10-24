@@ -78,25 +78,6 @@
 				<entry key="journalFond-xml" value-ref="referCrosswalkJournalFondXml"></entry>
 				<entry key="journalFond-json" value-ref="referCrosswalkJournalFondJson"></entry>
 				<entry key="journalFond-pdf" value-ref="pdfCrosswalkJournalFond"></entry>
-				<!-- below from UX-plus -->
-				<entry key="funding-cerif-xml" value-ref="referCrosswalkFundingCerifXml"></entry>
-				<entry key="funding-json" value-ref="referCrosswalkFundingJson"></entry>
-				<entry key="funding-pdf" value-ref="pdfCrosswalkFunding"></entry>
-				<entry key="funding-csv" value-ref="csvCrosswalkFunding"></entry>
-				<entry key="funding-xls" value-ref="xlsCrosswalkFunding"></entry>
-				
-				<entry key="patent-cerif-xml" value-ref="referCrosswalkPatentCerifXml"></entry>
-				<entry key="patent-json" value-ref="referCrosswalkPatentJson"></entry>
-				<entry key="patent-pdf" value-ref="pdfCrosswalkPatent"></entry>
-				<entry key="patent-csv" value-ref="csvCrosswalkPatent"></entry>
-				<entry key="patent-xls" value-ref="xlsCrosswalkPatent"></entry>
-                <entry key="patent-datacite-xml" value-ref="referCrosswalkPatentDataciteXml"></entry>
-				
-				<entry key="product-cerif-xml" value-ref="referCrosswalkDatasetCerifXml"></entry>
-                <entry key="product-datacite-xml" value-ref="referCrosswalkDatasetDataciteXml"></entry>
-				
-				<entry key="event-cerif-xml" value-ref="referCrosswalkEventCerifXml"></entry>
-				<!-- above from UX-PLUS -->
 				
 				<entry key="collection-xls" value-ref="xlsCrosswalkCollection"></entry>
 			</map>
@@ -244,79 +225,8 @@
 		<property name="linesPostProcessor" ref="jsonPostProcessor" />
 	</bean>
 
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkFundingCerifXml">
-		<property name="templateFileName" value="crosswalks/template/funding-cerif-xml.template"/>
-		<property name="mimeType" value="application/xml; charset=UTF-8"/>
-		<property name="fileName" value="funding.xml"/>
-		<property name="entityType" value="Funding"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/fundings-xml.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="xmlValueConverter" />
-	</bean>
-
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkFundingJson">
-		<property name="templateFileName" value="crosswalks/template/funding-json.template"/>
-		<property name="mimeType" value="application/json; charset=UTF-8"/>
-		<property name="fileName" value="funding.json"/>
-		<property name="entityType" value="Funding"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/fundings-json.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="jsonValueConverter" />
-		<property name="linesPostProcessor" ref="jsonPostProcessor" />
-	</bean>
-
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPatentCerifXml">
-		<property name="templateFileName" value="crosswalks/template/patent-cerif-xml.template"/>
-		<property name="mimeType" value="application/xml; charset=UTF-8"/>
-		<property name="fileName" value="patent.xml"/>
-		<property name="entityType" value="Patent"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/patents-xml.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="xmlValueConverter" />
-	</bean>
-
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPatentJson">
-		<property name="templateFileName" value="crosswalks/template/patent-json.template"/>
-		<property name="mimeType" value="application/json; charset=UTF-8"/>
-		<property name="fileName" value="patent.json"/>
-		<property name="entityType" value="Patent"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/patents-json.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="jsonValueConverter" />
-		<property name="linesPostProcessor" ref="jsonPostProcessor" />
-	</bean>
-
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkDatasetCerifXml">
-		<property name="templateFileName" value="crosswalks/template/product-cerif-xml.template"/>
-		<property name="mimeType" value="application/xml; charset=UTF-8"/>
-		<property name="fileName" value="product.xml"/>
-		<property name="entityType" value="Product"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/products-xml.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="xmlValueConverter" />
-	</bean>
-
-    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkDatasetDataciteXml">
-        <property name="templateFileName" value="crosswalks/template/product-datacite-xml.template"/>
-        <property name="mimeType" value="application/xml; charset=UTF-8"/>
-        <property name="fileName" value="datacite44.xml"/>
-        <property name="entityType" value="Product"/>
-        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
-        <property name="converter" ref="xmlValueConverter" />
-    </bean>
-
 	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkEventXml">
 		<property name="templateFileName" value="crosswalks/template/event-xml.template"/>
-		<property name="mimeType" value="application/xml; charset=UTF-8"/>
-		<property name="fileName" value="event.xml"/>
-		<property name="entityType" value="Event"/>
-		<property name="multipleItemsTemplateFileName" value="crosswalks/template/events-xml.template"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
-		<property name="converter" ref="xmlValueConverter" />
-	</bean>
-
-	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkEventCerifXml">
-		<property name="templateFileName" value="crosswalks/template/event-cerif-xml.template"/>
 		<property name="mimeType" value="application/xml; charset=UTF-8"/>
 		<property name="fileName" value="event.xml"/>
 		<property name="entityType" value="Event"/>
@@ -621,15 +531,6 @@
         <property name="mimeType" value="application/xml; charset=UTF-8"/>
         <property name="fileName" value="datacite44.xml"/>
         <property name="entityType" value="Publication"/>
-        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
-        <property name="converter" ref="xmlValueConverter" />
-    </bean>
-
-    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPatentDataciteXml">
-        <property name="templateFileName" value="crosswalks/template/patent-datacite-xml.template"/>
-        <property name="mimeType" value="application/xml; charset=UTF-8"/>
-        <property name="fileName" value="datacite44.xml"/>
-        <property name="entityType" value="Patent"/>
         <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
         <property name="converter" ref="xmlValueConverter" />
     </bean>
