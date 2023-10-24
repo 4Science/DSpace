@@ -44,8 +44,6 @@
       <property name='disseminationCrosswalkByEntityType'>
           <map>
               <entry key="Publication" value-ref="referCrosswalkPublicationDataciteXml"></entry>
-              <entry key="Patent" value-ref="referCrosswalkPatentDataciteXml"></entry>
-              <entry key="Product" value-ref="referCrosswalkDatasetDataciteXml"></entry>
           </map>
       </property>
     </bean>
