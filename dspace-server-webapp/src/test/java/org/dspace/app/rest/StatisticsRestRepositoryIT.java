@@ -1296,20 +1296,21 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         context.turnOffAuthorisationSystem();
         Site site = SiteBuilder.createSite(context).build();
         Item item = ItemBuilder.createItem(context, collectionNotVisited)
-            .withEntityType("Publication")
             .withTitle("My item")
+            .withType("Controlled Vocabulary for Resource Type Genres::image")
             .build();
         Item item2 = ItemBuilder.createItem(context, collectionNotVisited)
-            .withEntityType("Patent")
             .withTitle("My item 2")
+            .withType("Controlled Vocabulary for Resource Type Genres::thesis")
             .build();
         Item item3 = ItemBuilder.createItem(context, collectionNotVisited)
-            .withEntityType("Funding")
             .withTitle("My item 3")
+            .withType("Controlled Vocabulary for Resource Type Genres::thesis::bachelor thesis")
             .build();
         Item item4 = ItemBuilder.createItem(context, collectionNotVisited)
-            .withEntityType("Project")
             .withTitle("My item 4")
+            .withEntityType("OrgUnit")
+            .withType("department")
             .build();
         context.restoreAuthSystemState();
 
@@ -1394,49 +1395,85 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         pointCountry.addValue("views", 5);
         pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
-        UsageReportPointCategoryRest publicationCategory = new UsageReportPointCategoryRest();
-        publicationCategory.addValue("views", 1);
-        publicationCategory.setId("publication");
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
 
-        UsageReportPointCategoryRest patentCategory = new UsageReportPointCategoryRest();
-        patentCategory.addValue("views", 2);
-        patentCategory.setId("patent");
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
 
-        UsageReportPointCategoryRest fundingCategory = new UsageReportPointCategoryRest();
-        fundingCategory.addValue("views", 1);
-        fundingCategory.setId("funding");
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
 
-        UsageReportPointCategoryRest projectCategory = new UsageReportPointCategoryRest();
-        projectCategory.addValue("views", 1);
-        projectCategory.setId("project");
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
 
-        UsageReportPointCategoryRest productCategory = new UsageReportPointCategoryRest();
-        productCategory.addValue("views", 0);
-        productCategory.setId("product");
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
 
-        UsageReportPointCategoryRest journalCategory = new UsageReportPointCategoryRest();
-        journalCategory.addValue("views", 0);
-        journalCategory.setId("journal");
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 0);
+        project.setId("project");
 
-        UsageReportPointCategoryRest personCategory = new UsageReportPointCategoryRest();
-        personCategory.addValue("views", 0);
-        personCategory.setId("person");
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
 
-        UsageReportPointCategoryRest orgUnitCategory = new UsageReportPointCategoryRest();
-        orgUnitCategory.addValue("views", 0);
-        orgUnitCategory.setId("orgunit");
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
 
-        UsageReportPointCategoryRest equipmentCategory = new UsageReportPointCategoryRest();
-        equipmentCategory.addValue("views", 0);
-        equipmentCategory.setId("equipment");
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
 
-        UsageReportPointCategoryRest eventCategory = new UsageReportPointCategoryRest();
-        eventCategory.addValue("views", 0);
-        eventCategory.setId("event");
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
 
-        List<UsageReportPointRest> categories = List.of(publicationCategory, patentCategory, fundingCategory,
-            projectCategory, productCategory, journalCategory, personCategory, orgUnitCategory,
-            equipmentCategory, eventCategory);
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 1);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 0);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
 
         // And request the sites global usage report (show top most popular items)
         getClient(adminToken)
@@ -1973,49 +2010,85 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         points.add(expectedPoint1);
 
 
-        UsageReportPointCategoryRest publicationCategory = new UsageReportPointCategoryRest();
-        publicationCategory.addValue("views", 0);
-        publicationCategory.setId("publication");
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
 
-        UsageReportPointCategoryRest patentCategory = new UsageReportPointCategoryRest();
-        patentCategory.addValue("views", 0);
-        patentCategory.setId("patent");
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
 
-        UsageReportPointCategoryRest fundingCategory = new UsageReportPointCategoryRest();
-        fundingCategory.addValue("views", 0);
-        fundingCategory.setId("funding");
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
 
-        UsageReportPointCategoryRest projectCategory = new UsageReportPointCategoryRest();
-        projectCategory.addValue("views", 0);
-        projectCategory.setId("project");
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
 
-        UsageReportPointCategoryRest productCategory = new UsageReportPointCategoryRest();
-        productCategory.addValue("views", 0);
-        productCategory.setId("product");
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
 
-        UsageReportPointCategoryRest journalCategory = new UsageReportPointCategoryRest();
-        journalCategory.addValue("views", 0);
-        journalCategory.setId("journal");
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 0);
+        project.setId("project");
 
-        UsageReportPointCategoryRest personCategory = new UsageReportPointCategoryRest();
-        personCategory.addValue("views", 0);
-        personCategory.setId("person");
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
 
-        UsageReportPointCategoryRest orgUnitCategory = new UsageReportPointCategoryRest();
-        orgUnitCategory.addValue("views", 0);
-        orgUnitCategory.setId("orgunit");
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
 
-        UsageReportPointCategoryRest equipmentCategory = new UsageReportPointCategoryRest();
-        equipmentCategory.addValue("views", 0);
-        equipmentCategory.setId("equipment");
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
 
-        UsageReportPointCategoryRest eventCategory = new UsageReportPointCategoryRest();
-        eventCategory.addValue("views", 0);
-        eventCategory.setId("event");
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
 
-        List<UsageReportPointRest> categories = List.of(publicationCategory, patentCategory, fundingCategory,
-            projectCategory, productCategory, journalCategory, personCategory, orgUnitCategory,
-            equipmentCategory, eventCategory);
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 0);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 0);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
 
         UsageReportPointRest pointPerMonth = new UsageReportPointDateRest();
         pointPerMonth.setId("June 2019");
@@ -2838,49 +2911,87 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         pointCountry.addValue("views", 5);
         pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
-        UsageReportPointCategoryRest publicationCategory = new UsageReportPointCategoryRest();
-        publicationCategory.addValue("views", 1);
-        publicationCategory.setId("publication");
 
-        UsageReportPointCategoryRest patentCategory = new UsageReportPointCategoryRest();
-        patentCategory.addValue("views", 2);
-        patentCategory.setId("patent");
 
-        UsageReportPointCategoryRest fundingCategory = new UsageReportPointCategoryRest();
-        fundingCategory.addValue("views", 1);
-        fundingCategory.setId("funding");
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
 
-        UsageReportPointCategoryRest projectCategory = new UsageReportPointCategoryRest();
-        projectCategory.addValue("views", 1);
-        projectCategory.setId("project");
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
 
-        UsageReportPointCategoryRest productCategory = new UsageReportPointCategoryRest();
-        productCategory.addValue("views", 0);
-        productCategory.setId("product");
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
 
-        UsageReportPointCategoryRest journalCategory = new UsageReportPointCategoryRest();
-        journalCategory.addValue("views", 0);
-        journalCategory.setId("journal");
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
 
-        UsageReportPointCategoryRest personCategory = new UsageReportPointCategoryRest();
-        personCategory.addValue("views", 0);
-        personCategory.setId("person");
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
 
-        UsageReportPointCategoryRest orgUnitCategory = new UsageReportPointCategoryRest();
-        orgUnitCategory.addValue("views", 0);
-        orgUnitCategory.setId("orgunit");
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 1);
+        project.setId("project");
 
-        UsageReportPointCategoryRest equipmentCategory = new UsageReportPointCategoryRest();
-        equipmentCategory.addValue("views", 0);
-        equipmentCategory.setId("equipment");
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
 
-        UsageReportPointCategoryRest eventCategory = new UsageReportPointCategoryRest();
-        eventCategory.addValue("views", 0);
-        eventCategory.setId("event");
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
 
-        List<UsageReportPointRest> categories = List.of(publicationCategory, patentCategory, fundingCategory,
-            projectCategory, productCategory, journalCategory, personCategory, orgUnitCategory,
-            equipmentCategory, eventCategory);
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
+
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
+
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 0);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 1);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
         // And request the collections global usage report (show top most popular items)
         getClient(adminToken)
             .perform(get("/api/statistics/usagereports/search/object")
