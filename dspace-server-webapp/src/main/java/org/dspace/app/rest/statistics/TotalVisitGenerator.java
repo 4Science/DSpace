@@ -118,7 +118,7 @@ public class TotalVisitGenerator extends AbstractUsageReportGenerator {
             } else {
                 hasValidRelation = true;
                 query = statisticsDatasetDisplay.composeQueryWithInverseRelation(
-                    dso, discoveryConfiguration.getDefaultFilterQueries());
+                    dso, discoveryConfiguration.getDefaultFilterQueries(), dso.getType());
                 type_of_dso = dso.getType();
             }
         }
