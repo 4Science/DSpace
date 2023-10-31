@@ -66,8 +66,8 @@ public abstract class AbstractTopSolrStatsFieldGenerator extends AbstractUsageRe
 
             } else {
                 hasValidRelation = true;
-                query = statisticsDatasetDisplay
-                            .composeQueryWithInverseRelation(dso, discoveryConfiguration.getDefaultFilterQueries());
+                query = statisticsDatasetDisplay.composeQueryWithInverseRelation(
+                    dso, discoveryConfiguration.getDefaultFilterQueries(), getDsoType(dso));
             }
         }
 

@@ -17,6 +17,7 @@
                 <entry key="ORCID" value-ref="orcidImportFiller" />
                 <entry key="ISSN" value-ref="sherpaImportFiller" />
                 <entry key="OPENAIRE-PROJECT-ID" value-ref="openaireProjectImportFiller" />
+                <entry key="ROR-ID" value-ref="rorOrgUnitImportFiller" />
 			</map>
 		</property>
 	</bean>
@@ -117,6 +118,11 @@
        <constructor-arg name="externalDataProvider" ref="openaireLiveImportDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="OPENAIRE-PROJECT-ID"/>
     </bean>
+    
+    <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="rorOrgUnitImportFiller" >
+       <constructor-arg name="externalDataProvider" ref="rorDataProvider"/>
+       <constructor-arg name="authorityIdentifier" value="ROR-ID"/>
+    </bean>
 
 	<bean class="org.dspace.authority.service.ItemSearcherMapper" name="org.dspace.authority.service.ItemSearcherMapper">
 		<constructor-arg index="0">
@@ -133,6 +139,7 @@
                 <entry key="OPENAIRE-PROJECT-ID" value-ref="itemSearcherByOpenaireProjectId"/>
 				<entry key="LEGACY-ID" value-ref="itemSearcherByLegacyId"/>
 				<entry key="SCOPUS-AUTHOR-ID" value-ref="itemSearcherByScopusAuthorId"/>
+				<entry key="ROR-ID" value-ref="itemSearcherByRorId"></entry>
 			</map>
 		</constructor-arg>
 		<constructor-arg index="1">
@@ -183,6 +190,11 @@
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByScopusAuthorId">
         <constructor-arg value="person.identifier.scopus-author-id"></constructor-arg>
         <constructor-arg value="SCOPUS-AUTHOR-ID"></constructor-arg>
+    </bean>
+    
+    <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByRorId">
+        <constructor-arg value="organization.identifier.ror"></constructor-arg>
+        <constructor-arg value="ROR-ID"></constructor-arg>
     </bean>
 	
 	<bean class="org.dspace.authority.service.impl.ItemSearchServiceImpl" name="org.dspace.authority.service.ItemSearchService"/>

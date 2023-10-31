@@ -316,6 +316,9 @@ public class DCInputsReader {
 
         // cache miss - construct new DCInputSet
         List<List<Map<String, String>>> pages = formDefns.get(formName);
+        if (pages == null) {
+            return results;
+        }
 
         Iterator<List<Map<String, String>>> iterator = pages.iterator();
 

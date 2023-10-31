@@ -43,9 +43,9 @@ public class OrcidAuthority extends ItemAuthority {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrcidAuthority.class);
 
-    public static final String ORCID_EXTRA = "data-person_identifier_orcid";
+    public static final String DEFAULT_ORCID_KEY = "person_identifier_orcid";
 
-    public static final String INSTITUTION_EXTRA = "institution-affiliation-name";
+    public static final String DEFAULT_INSTITUTION_KEY = "institution-affiliation-name";
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -131,11 +131,24 @@ public class OrcidAuthority extends ItemAuthority {
 
     private Map<String, String> composeExtras(ExpandedResult result) {
         Map<String, String> extras = new HashMap<>();
-        extras.put(ORCID_EXTRA, result.getOrcidId());
-
+        String orcidIdKey = getOrcidIdKey();
+        String orcidId = result.getOrcidId();
+        if (StringUtils.isNotBlank(orcidId)) {
+            if (useOrcidIDAsData()) {
+                extras.put("data-" + orcidIdKey, orcidId);
+            }
+            if (useOrcidIDForDisplaying()) {
+                extras.put(orcidIdKey, orcidId);
+            }
+        }
+        String institutionKey = getInstitutionKey();
         String[] institutionNames = result.getInstitutionNames();
-        if (ArrayUtils.isNotEmpty(institutionNames)) {
-            extras.put(INSTITUTION_EXTRA, String.join(", ", institutionNames));
+
+        if (ArrayUtils.isNotEmpty(institutionNames) && useInstitutionAsData()) {
+            extras.put("data-" + institutionKey, String.join(", ", institutionNames));
+        }
+        if (ArrayUtils.isNotEmpty(institutionNames) && useInstitutionForDisplaying()) {
+            extras.put(institutionKey, String.join(", ", institutionNames));
         }
 
         return extras;
@@ -163,6 +176,43 @@ public class OrcidAuthority extends ItemAuthority {
 
     public static void setAccessToken(String accessToken) {
         OrcidAuthority.accessToken = accessToken;
+    }
+
+    public String getOrcidIdKey() {
+        return configurationService.getProperty("cris.OrcidAuthority."
+            + getPluginInstanceName() + ".orcid-id.key",
+            DEFAULT_ORCID_KEY);
+    }
+
+    public String getInstitutionKey() {
+        return configurationService.getProperty("cris.OrcidAuthority."
+            + getPluginInstanceName() + ".institution.key",
+            DEFAULT_INSTITUTION_KEY);
+    }
+
+    public boolean useInstitutionAsData() {
+        return configurationService
+            .getBooleanProperty("cris.OrcidAuthority."
+                + getPluginInstanceName() + ".institution.as-data", true);
+    }
+
+    public boolean useInstitutionForDisplaying() {
+        return configurationService
+            .getBooleanProperty("cris.OrcidAuthority."
+                + getPluginInstanceName() + ".institution.display", true);
+    }
+
+    public boolean useOrcidIDAsData() {
+        return configurationService
+            .getBooleanProperty("cris.OrcidAuthority."
+                + getPluginInstanceName() + ".orcid-id.as-data", true);
+    }
+
+    public boolean useOrcidIDForDisplaying() {
+        return configurationService
+            .getBooleanProperty("cris.OrcidAuthority."
+                + getPluginInstanceName() + ".orcid-id.display", true);
+
     }
 
 }

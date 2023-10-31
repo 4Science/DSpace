@@ -243,6 +243,8 @@ db.schema = public
 # avoid trouble for such browsers (i.e.  rest.cors.allowed-origins = ${dspace.ui.url}, https://samltest.id )
 #rest.cors.allowed-origins = ${dspace.ui.url}
 
+#rest.cors.bitstream-allowed-origins = ${dspace.ui.url}
+
 #################################################
 # SPRING BOOT SETTINGS (Used by Server Webapp)  #
 #################################################

@@ -108,4 +108,9 @@
         <property name="description" value="Batch Export to Simple Archive Format (SAF)"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExport"/>
     </bean>
+
+    <bean id="export-schema" class="org.dspace.app.metadata.export.MetadataSchemaExportScriptConfiguration" primary="true">
+        <property name="description" value="Exports a given schema into a registry xml-format file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.metadata.export.MetadataSchemaExportScript"/>
+    </bean>
 </beans>

@@ -8,6 +8,7 @@
 package org.dspace.unpaywall.service.impl;
 
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static com.rometools.utils.Strings.isBlank;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -16,6 +17,7 @@ import static java.util.Optional.of;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.copy;
+import static org.dspace.unpaywall.model.UnpaywallStatus.SUCCESSFUL;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +34,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
@@ -42,9 +48,13 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.dspace.content.Item;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
 import org.dspace.unpaywall.dao.UnpaywallDAO;
+import org.dspace.unpaywall.dto.UnpaywallApiResponse;
+import org.dspace.unpaywall.dto.UnpaywallItemVersionDto;
 import org.dspace.unpaywall.model.Unpaywall;
 import org.dspace.unpaywall.model.UnpaywallStatus;
 import org.dspace.unpaywall.service.UnpaywallService;
@@ -55,11 +65,16 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
     private final CloseableHttpClient client;
 
+    private final ObjectMapper objectMapper = new ObjectMapper().configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
     private UnpaywallDAO unpaywallDAO;
+
+    @Autowired
+    private ItemService itemService;
 
     private int timeout;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -118,6 +133,27 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<UnpaywallItemVersionDto> getItemVersions(Context context, UUID itemId) {
+        Item item = getItem(context, itemId);
+        return getItemVersions(context, item);
+    }
+
+    @Override
+    public List<UnpaywallItemVersionDto> getItemVersions(Context context, Item item) {
+        String doi = itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
+        return findUnpaywall(context, doi, item.getID())
+                .filter(unpaywall -> SUCCESSFUL.equals(unpaywall.getStatus()))
+                .map(unpaywall -> {
+                    String unpaywallApiJson = unpaywall.getJsonRecord();
+                    UnpaywallApiResponse unpaywallApiResponse = mapJsonResponse(unpaywallApiJson);
+                    return unpaywallApiResponse.getOaLocations();
+                })
+                .stream().flatMap(List::stream)
+                .map(UnpaywallServiceImpl::mapUnpaywallItemVersionDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -191,7 +227,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
     private Optional<String> callUnpaywallApi(String doi) {
         String endpoint = configurationService.getProperty("unpaywall.url");
-        String email = configurationService.getProperty("unpaywall.email");
+        String email = getEmail();
         HttpGet method = null;
 
         try {
@@ -221,5 +257,39 @@ public class UnpaywallServiceImpl implements UnpaywallService {
                 method.releaseConnection();
             }
         }
+    }
+
+    private String getEmail() {
+        String email = configurationService.getProperty("unpaywall.email");
+        if (StringUtils.isBlank(email)) {
+            throw new RuntimeException("\"unpaywall.email\" property cannot be empty.");
+        }
+        return email;
+    }
+
+    private UnpaywallApiResponse mapJsonResponse(String unpaywallApiJson) {
+        try {
+            return objectMapper.readValue(unpaywallApiJson, UnpaywallApiResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Item getItem(Context context, UUID itemId) {
+        try {
+            return itemService.find(context, itemId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static UnpaywallItemVersionDto mapUnpaywallItemVersionDto(UnpaywallApiResponse.OaLocation itemVersion) {
+        return new UnpaywallItemVersionDto(
+                itemVersion.getVersion(),
+                itemVersion.getLicense(),
+                itemVersion.getUrlForLandingPage(),
+                itemVersion.getUrlToPdf(),
+                itemVersion.getHostType()
+        );
     }
 }

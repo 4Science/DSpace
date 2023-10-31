@@ -93,6 +93,14 @@
             <!-- CREATIVE COMMON LICENSE -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='others']/doc:element[@name='cc']" mode="oaire" />
+            <!-- primary doi identifier -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='primary']"
+                    mode="datacite" />
+<!--            alternative doi identifiers-->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='alternative']"
+                    mode="datacite_altid" />
         </oaire:resource>
     </xsl:template>
 
@@ -1666,6 +1674,26 @@
             </xsl:attribute>
             <xsl:value-of select="./doc:field[@name='name']/text()" />
         </oaire:licenseCondition>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='primary']"
+                  mode="datacite">
+        <!-- only process the first element -->
+        <datacite:identifier>
+            <xsl:attribute name="identifierType">doi</xsl:attribute>
+            <xsl:value-of select="./doc:field[@name='doi']/text()"/>
+        </datacite:identifier>
+    </xsl:template>
+
+    <!-- for each alternative doi -->
+    <xsl:template match="doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='alternative']" mode="datacite_altid">
+        <xsl:for-each select="./doc:field[@name='doi']">
+
+                <datacite:alternateIdentifier>
+                    <xsl:attribute name="alternateIdentifierType">doi</xsl:attribute>
+                    <xsl:value-of select="./text()"/>
+                </datacite:alternateIdentifier>
+        </xsl:for-each>
     </xsl:template>
 
     <!-- ignore all non specified text values or attributes -->

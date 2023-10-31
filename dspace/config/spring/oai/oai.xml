@@ -31,6 +31,8 @@
         the fulltext access condition -->
     <bean class="org.dspace.xoai.app.FulltextAccessElementItemCompilePlugin"/>
 
+    <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
+
         <!--
          This is no longer needed as the orcid information are consolidated in the publication's metadata via an Item Enhancer
          see metadata-enancers.xml

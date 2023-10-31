@@ -13,7 +13,7 @@
         <schema>dspace</schema>
         <element>process</element>
         <qualifier>filetype</qualifier>
-        <scope_note></scope_note>
+        <scope_note/>
     </dc-type>
 
     <dc-type>
@@ -50,6 +50,13 @@
         <element>iiif</element>
         <qualifier>enabled</qualifier>
         <scope_note>Stores a boolean text value (true or false) to indicate if the iiif feature is enabled or not for the dspace object. If absent the value is derived from the parent dspace object</scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>dspace</schema>
+        <element>file</element>
+        <qualifier>type</qualifier>
+        <scope_note>Stores the bitstream's children file type inside the item it self</scope_note>
     </dc-type>
 
     <dc-type>
@@ -105,7 +112,14 @@
         <schema>dspace</schema>
         <element>orcid</element>
         <qualifier>webhook</qualifier>
-        <scope_note></scope_note>
+        <scope_note/>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>legacy</element>
+        <qualifier>oai-identifier</qualifier>
+        <scope_note/>
     </dc-type>
 
 </dspace-dc-types>
