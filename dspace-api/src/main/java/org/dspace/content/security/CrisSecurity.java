@@ -23,6 +23,7 @@ public enum CrisSecurity {
     ITEM_ADMIN,
     SUBMITTER,
     SUBMITTER_GROUP,
-    GROUP;
+    GROUP,
+    ALL;
 
 }

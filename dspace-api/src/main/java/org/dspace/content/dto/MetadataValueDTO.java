@@ -69,6 +69,14 @@ public class MetadataValueDTO {
         this.confidence = confidence;
     }
 
+    public MetadataValueDTO(String metadataField, String value) {
+        MetadataFieldName fieldName = new MetadataFieldName(metadataField);
+        this.schema = fieldName.schema;
+        this.element = fieldName.element;
+        this.qualifier = fieldName.qualifier;
+        this.value = value;
+    }
+
     /**
      * Constructor for the MetadataValueDTO class
      * @param schema    The schema to be assigned to this MetadataValueDTO object

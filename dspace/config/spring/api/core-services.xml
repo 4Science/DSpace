@@ -40,6 +40,7 @@
     <bean class="org.dspace.content.BitstreamFormatServiceImpl"/>
     <bean class="org.dspace.content.BitstreamServiceImpl"/>
     <bean class="org.dspace.content.BundleServiceImpl"/>
+    <bean class="org.dspace.content.integration.crosswalks.virtualfields.ItemDOIService"/>
     <bean class="org.dspace.content.CommunityServiceImpl"/>
     <bean class="org.dspace.content.InstallItemServiceImpl"/>
     <bean class="org.dspace.content.ItemServiceImpl"/>
@@ -106,6 +107,7 @@
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
+    <bean class="org.dspace.eperson.RegistrationDataMetadataServiceImpl"/>
     <bean class="org.dspace.eperson.SubscribeServiceImpl"/>
     
     <bean class="org.dspace.eperson.SubscribeParameterServiceImpl"/>
@@ -133,6 +135,8 @@
     <bean id="clientInfoService" class="org.dspace.service.impl.ClientInfoServiceImpl"/>
 
     <bean class="org.dspace.versioning.VersionHistoryServiceImpl"/>
+
+    <bean class="org.dspace.util.FrontendUrlService"/>
 
     <bean class="org.dspace.content.security.MetadataSecurityServiceImpl"/>
     <bean class="org.dspace.metricsSecurity.BoxMetricsLayoutConfigurationService"/>
@@ -195,6 +199,9 @@
     <bean class="org.dspace.authorize.RegexPasswordValidator" />
 
     <bean class="org.dspace.supervision.SupervisionOrderServiceImpl"/>
+
+    <bean class="org.dspace.ror.client.RORApiClientImpl" />
+    <bean class="org.dspace.ror.service.RORApiServiceImpl" />
 
 </beans>
 

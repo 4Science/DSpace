@@ -56,8 +56,8 @@ import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedSearch;
  */
 public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
 
-    private static final String ORCID_INFO = OrcidAuthority.ORCID_EXTRA;
-    private static final String ORCID_INSTITUTION = OrcidAuthority.INSTITUTION_EXTRA;
+    private static final String ORCID_INFO = OrcidAuthority.DEFAULT_ORCID_KEY;
+    private static final String ORCID_INSTITUTION = OrcidAuthority.DEFAULT_INSTITUTION_KEY;
 
     private static final String READ_PUBLIC_TOKEN = "062d9f30-7e11-47ef-bd95-eaa2f2452565";
 
@@ -600,8 +600,8 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
                 orcidEntry("Author From Orcid 1", REFERENCE, "0000-1111-2222-3333"),
-                orcidEntryWithInstitution("Author From Orcid 2", REFERENCE, "0000-2222-3333-4444", "Org1, Org2"),
-                orcidEntryWithInstitution("Author From Orcid 3", REFERENCE, "0000-5555-6666-7777", "Organization"))))
+                orcidEntryWithAffiliation("Author From Orcid 2", REFERENCE, "0000-2222-3333-4444", "Org1, Org2"),
+                orcidEntryWithAffiliation("Author From Orcid 3", REFERENCE, "0000-5555-6666-7777", "Organization"))))
             .andExpect(jsonPath("$.page.size", Matchers.is(20)))
             .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
             .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
@@ -679,11 +679,18 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
             title, "vocabularyEntry", ORCID_INFO, orcid);
     }
 
-    private Matcher<? super Object> orcidEntryWithInstitution(String title, String authorityPrefix,
-        String orcid, String institutions) {
+    private Matcher<? super Object> orcidEntryWithAffiliation(String title, String authorityPrefix,
+        String orcid, String affiliation) {
         String authority = authorityPrefix + "ORCID::" + orcid;
-        return ItemAuthorityMatcher.matchItemAuthorityWithTwoMetadataInOtherInformations(authority, title,
-            title, "vocabularyEntry", ORCID_INFO, orcid, ORCID_INSTITUTION, institutions);
+        return ItemAuthorityMatcher.matchItemAuthorityWithTwoMetadataInOtherInformations(
+            authority, title, title, "vocabularyEntry",
+            Map.of(
+                "data-" + ORCID_INFO, orcid,
+                ORCID_INFO, orcid,
+                "data-oairecerif_author_affiliation", affiliation,
+                "oairecerif_author_affiliation", affiliation
+            )
+        );
     }
 
     private String id(Item item) {

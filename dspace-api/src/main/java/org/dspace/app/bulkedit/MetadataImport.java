@@ -1369,8 +1369,8 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
      * is the field is defined as authority controlled
      */
     private boolean isAuthorityControlledField(String md) {
-        String mdf = StringUtils.substringAfter(md, ":");
-        mdf = StringUtils.substringBefore(mdf, "[");
+        String mdf = md.contains(":") ? StringUtils.substringAfter(md, ":") : md;
+        mdf = mdf.contains("[") ? StringUtils.substringBefore(mdf, "[") : mdf;
         return metadataAuthorityService.isAuthorityAllowed(mdf.replaceAll("\\.", "_"), Constants.ITEM, null);
     }
 
