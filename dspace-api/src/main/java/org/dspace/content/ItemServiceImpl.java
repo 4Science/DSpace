@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.requestitem.RequestItem;
 import org.dspace.app.requestitem.service.RequestItemService;
@@ -98,6 +99,7 @@ import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.utils.DSpace;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.VersionHistory;
 import org.dspace.versioning.service.VersionHistoryService;
@@ -943,8 +945,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         authorizeService.authorizeAction(context, item, Constants.REMOVE);
 
+        ArrayList<String> identifiers = getIdentifiers(context, item);
+        // cannot autowire it as this would generate a cyclic dependency
+        CustomUrlService customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
+        if (customUrlService != null) {
+            customUrlService.getCustomUrl(item).ifPresent(url -> identifiers.add("customurl:" + url));
+        }
         context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(),
-                item.getHandle(), getIdentifiers(context, item)));
+                item.getHandle(), identifiers));
 
         log.info(LogHelper.getHeader(context, "delete_item", "item_id="
             + item.getID()));
