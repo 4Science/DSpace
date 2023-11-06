@@ -36,8 +36,11 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         if (subject instanceof Community || subject instanceof Collection) {
             urls.add(handleUrl(subject.getHandle()));
         } else if (subject instanceof Item) {
-            customUrlService.getCustomUrl((Item) subject).ifPresentOrElse(url -> urls.add(url),
-                    () -> urls.add(itemUuid(subject.getID())));
+            Item item = (Item) subject;
+            if (item.isArchived() || item.isWithdrawn()) {
+                customUrlService.getCustomUrl((Item) subject).ifPresentOrElse(url -> urls.add(url),
+                        () -> urls.add(itemUuid(subject.getID())));
+            }
         }
         return urls;
     }

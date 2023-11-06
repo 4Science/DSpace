@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PreDestroy;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -27,16 +28,24 @@ import org.dspace.core.Context;
 public class NGinxWebServerCache extends AbstractWebServerCache {
     private static Logger log = org.apache.logging.log4j.LogManager.getLogger(NGinxWebServerCache.class);
     private CloseableHttpClient client;
+    private CloseableHttpClient clientRenew;
     private ExecutorService executor;
+    private ExecutorService executorRenew;
     private int timeout = 1000;
+    private int timeoutRenew = 5000;
     private int threads = 5;
+    private int threadsRenew = 1;
 
     public void initialize () {
         HttpClientBuilder custom = HttpClients.custom();
         client = custom.disableAutomaticRetries().setMaxConnTotal(threads)
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build())
                 .build();
+        clientRenew = custom.disableAutomaticRetries().setMaxConnTotal(threadsRenew)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutRenew).build())
+                .build();
         executor = Executors.newFixedThreadPool(threads);
+        executorRenew = Executors.newFixedThreadPool(threadsRenew);
     }
 
     @PreDestroy
@@ -46,31 +55,35 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
 
     @Override
     public void invalidateAndRenew(Context ctx, Set<String> urlsToUpdate, Set<String> urlsToRemove) {
-        urlsToUpdate
-            .stream()
-            .forEach(
-                    url ->
-                        CompletableFuture.runAsync(() -> invalidateUrl(url), executor)
-                            .thenRun(() -> generateCache(url))
-                            .exceptionally(throwable -> {
-                                log.error("Failure renewing url in cache " + url, throwable);
-                                return null;
-                            }));
+        urlsToUpdate.stream().forEach(url -> {
+            log.debug("Renewing url {}", url);
+            CompletableFuture.runAsync(() -> invalidateUrl(url), executor).thenRun(() -> {
+                CompletableFuture.runAsync(() -> generateCache(url), executorRenew).exceptionally(throwable -> {
+                    log.error("Failure renewing url in cache " + url, throwable);
+                    return null;
+                });
+            }).exceptionally(throwable -> {
+                log.error("Failure removing url in cache (not refreshed)" + url, throwable);
+                return null;
+            });
+        });
 
-        urlsToRemove
-            .stream()
-            .forEach(
-                    url ->
-                        CompletableFuture.runAsync(() -> invalidateUrl(url), executor)
-                            .exceptionally(throwable -> {
-                                log.error("Failure removing url from cache " + url, throwable);
-                                return null;
-                            }));
+        urlsToRemove.stream().forEach(url -> {
+            log.debug("Removing from cache url {}", url);
+            CompletableFuture.runAsync(() -> invalidateUrl(url), executor).exceptionally(throwable -> {
+                log.error("Failure removing url from cache {}", url);
+                return null;
+            });
+        });
     }
 
     private void generateCache(String url) {
         try {
-            client.execute(new HttpGet(url));
+            CloseableHttpResponse response = clientRenew.execute(new HttpGet(url));
+            if (log.isDebugEnabled()) {
+                log.debug("Generate new cache response code {}", response.getStatusLine().getStatusCode());
+            }
+            response.close();
         } catch (IOException e) {
             throw new RuntimeException("Error generating the new cache");
         }
@@ -79,7 +92,11 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
     private void invalidateUrl(String url) {
         try {
             HttpUriRequest httpPurge = RequestBuilder.create("PURGE").setUri(url).build();
-            client.execute(httpPurge);
+            CloseableHttpResponse response = client.execute(httpPurge);
+            if (log.isDebugEnabled()) {
+                log.debug("Invalidate cache response code {}", response.getStatusLine().getStatusCode());
+            }
+            response.close();
         } catch (IOException e) {
             throw new RuntimeException("Error invalidating the cache");
         }
@@ -91,5 +108,13 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    public void setThreadsRenew(int threadsRenew) {
+        this.threadsRenew = threadsRenew;
+    }
+
+    public void setTimeoutRenew(int timeoutRenew) {
+        this.timeoutRenew = timeoutRenew;
     }
 }
