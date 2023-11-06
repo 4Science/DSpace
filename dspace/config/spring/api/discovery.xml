@@ -1948,11 +1948,13 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
-	            <ref bean="searchFilterEntityType"/>
 	            <ref bean="searchFilterPath"/>
 	            <ref bean="searchFilterAggregation"/>
 	            <ref bean="searchFilterJournalFonds"/>
 	            <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace"/>
+                <ref bean="searchFilterEvent"/>
+                <ref bean="searchFilterOrganizationalUnit"/>
 	        </list>
 	    </property>
 	    <!-- Set TagCloud configuration per discovery configuration -->
@@ -1965,13 +1967,14 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
-	            <ref bean="searchFilterFileNameInOriginalBundle" />
-	            <ref bean="searchFilterFileDescriptionInOriginalBundle" />
-	            <ref bean="searchFilterEntityType"/>
 	            <ref bean="searchFilterPath"/>
                 <ref bean="searchFilterAggregation"/>
                 <ref bean="searchFilterJournalFonds"/>
                 <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterLicense"/>
+                <ref bean="searchFilterPlace"/>
+                <ref bean="searchFilterEvent"/>
+                <ref bean="searchFilterOrganizationalUnit"/>
 	        </list>
 	    </property>
 	    <!--The sort filters for the discovery search-->
@@ -2024,10 +2027,12 @@
         <property name="sidebarFacets">
             <list>
                 <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterOrganizationalUnit"/>
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterProject"/>
+                <ref bean="searchFilterFamily"/>
+                <ref bean="searchFilterPath"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2037,12 +2042,12 @@
             <list>
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterOrganizationalUnit"/>
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterProject"/>
+                <ref bean="searchFilterFamily"/>
+                <ref bean="searchFilterPath"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2095,11 +2100,11 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterPersonJournalFonds"/>
+                <ref bean="searchFilterJournalFoundsDate"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2108,13 +2113,11 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTitle" />
-                <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterPersonJournalFonds"/>
+                <ref bean="searchFilterJournalFoundsDate"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2167,11 +2170,9 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
-                <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterType" />
+                <ref bean="searchFilterParent" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2180,13 +2181,10 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTitle" />
-                <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterEditor" />
-                <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterType" />
+                <ref bean="searchFilterParent" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3421,7 +3419,7 @@
         <property name="indexFieldName" value="editor"/>
         <property name="metadataFields">
             <list>
-                <value>dc.contributor.editor</value>
+                <value>dc.publisher</value>
                 <value>dc.creator</value>
             </list>
         </property>
@@ -4188,7 +4186,143 @@
         <property name="pageSize" value="10"/>
     </bean>
 
-    <!-- Configurations for GraphDiscoverSearchFilterFacet -->
+    <bean id="searchFilterLicense" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="license"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.rights.license</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+    </bean>
+
+    <bean id="searchFilterPlace" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="place"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.relation.place</value>
+                <value>oairecerif.event.place</value>
+                <value>glam.bibliography.place</value>
+                <value>glamperson.birthPlace</value>
+                <value>glamperson.deathPlace</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterEvent" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="event"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.relation.event</value>
+                <value>dc.relation.conference</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterOrganizationalUnit" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="corporate"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.contributor.corporatebody</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterParent" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="parent"/>
+        <property name="metadataFields">
+            <list>
+                <value>glamaggregation.parent</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterPersonJournalFonds" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="jornalfoundperson"/>
+        <property name="metadataFields">
+            <list>
+                <value>glamjournalfonds.relation.person</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterJournalFoundsDate" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="jornalfounddate"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.coverage.temporal</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterProject" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="project"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.relation.project</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterFamily" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="family"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.contributor.family</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+            <!-- Configurations for GraphDiscoverSearchFilterFacet -->
     <bean id="graphPublicationByDate" class="org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet">
     	<property name="facetLimit" value="10"/>
         <property name="sortOrderSidebar" value="VALUE"/>
