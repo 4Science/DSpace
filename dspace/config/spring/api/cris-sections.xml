@@ -28,7 +28,6 @@
                              <value>titleF</value>
                              <value>typeF</value>
                              <value>dateissuedF</value>
-                             <value>subjectF</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -60,7 +59,6 @@
                              <value>titleJF</value>
                              <value>typeJF</value>
                              <value>dateissuedJF</value>
-                             <value>subjectJF</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -91,8 +89,7 @@
                          <list>
                              <value>titleA</value>
                              <value>typeA</value>
-                             <value>dateissuedA</value>
-                             <value>subjectA</value>
+                             <value>parentA</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
