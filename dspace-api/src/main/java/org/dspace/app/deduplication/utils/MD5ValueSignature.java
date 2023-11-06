@@ -6,6 +6,7 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.deduplication.utils;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -22,12 +24,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Context;
+import org.dspace.external.model.ExternalDataObject;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowItemService;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
@@ -73,6 +78,37 @@ public class MD5ValueSignature implements Signature {
                 for (String value : values) {
                     if (StringUtils.isNotEmpty(value)) {
                         String valueNorm = normalize(item, context, value);
+                        digester.update(valueNorm.getBytes("UTF-8"));
+                        byte[] signature = digester.digest();
+                        char[] arr = new char[signature.length << 1];
+                        for (int i = 0; i < signature.length; i++) {
+                            int b = signature[i];
+                            int idx = i << 1;
+                            arr[idx] = HEX_DIGITS[(b >> 4) & 0xf];
+                            arr[idx + 1] = HEX_DIGITS[b & 0xf];
+                        }
+                        String sigString = new String(arr);
+                        result.add(sigString);
+                    }
+                }
+            }
+            return result;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public List<String> getPlainSignature(DSpaceObject item, Context context) {
+        List<String> result = new ArrayList<String>();
+        try {
+            MessageDigest digester = MessageDigest.getInstance("MD5");
+            List<String> values = getMultiValue(item, metadata);
+            if (values != null) {
+                for (String value : values) {
+                    if (StringUtils.isNotEmpty(value)) {
+                        String valueNorm = normalize(item, value);
                         digester.update(valueNorm.getBytes("UTF-8"));
                         byte[] signature = digester.digest();
                         char[] arr = new char[signature.length << 1];
@@ -208,6 +244,70 @@ public class MD5ValueSignature implements Signature {
             retValue.add(v.getValue());
         }
         return retValue;
+    }
+
+    public List<String> getSignature(ExternalDataObject object) {
+        List<String> result = new ArrayList<String>();
+        try {
+            MessageDigest digester = MessageDigest.getInstance("MD5");
+            List<String> values = getMultiValue(object, metadata);
+            if (values != null) {
+                for (String value : values) {
+                    if (StringUtils.isNotEmpty(value)) {
+                        String valueNorm = normalize(object, value);
+                        digester.update(valueNorm.getBytes("UTF-8"));
+                        byte[] signature = digester.digest();
+                        char[] arr = new char[signature.length << 1];
+                        for (int i = 0; i < signature.length; i++) {
+                            int b = signature[i];
+                            int idx = i << 1;
+                            arr[idx] = HEX_DIGITS[(b >> 4) & 0xf];
+                            arr[idx + 1] = HEX_DIGITS[b & 0xf];
+                        }
+                        String sigString = new String(arr);
+                        result.add(sigString);
+                    }
+                }
+            }
+            return result;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    protected List<String> getMultiValue(ExternalDataObject object, String metadata) {
+        return object.getMetadata()
+                     .stream()
+                     .filter(metadataValueDTO ->
+                         new MetadataFieldName(metadataValueDTO.getSchema(), metadataValueDTO.getElement(),
+                             metadataValueDTO.getQualifier()).toString().equals(metadata))
+                     .map(MetadataValueDTO::getValue)
+                     .collect(Collectors.toList());
+    }
+
+    protected String normalize(ExternalDataObject object, String value) {
+        String result = value;
+        if (StringUtils.isEmpty(value)) {
+            if (StringUtils.isNotEmpty(prefix)) {
+                result = prefix + object.getId();
+            } else {
+                result = "entity:" + object.getId();
+            }
+        } else {
+            for (String prefix : ignorePrefix) {
+                if (value.startsWith(prefix)) {
+                    result = value.substring(prefix.length());
+                    break;
+                }
+            }
+            if (StringUtils.isNotEmpty(prefix)) {
+                result = prefix + result;
+            }
+        }
+
+        return result;
     }
 
     public String getMetadata() {

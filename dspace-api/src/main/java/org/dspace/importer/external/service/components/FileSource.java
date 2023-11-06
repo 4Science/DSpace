@@ -52,7 +52,7 @@ public interface FileSource extends MetadataSource {
 
     /**
      * This method is used to decide if the FileSource manage the file format
-     * 
+     *
      * @param originalName the file file original name
      * @return true if the FileSource can parse the file, false otherwise
      */
@@ -64,6 +64,15 @@ public interface FileSource extends MetadataSource {
         if (originalName != null && originalName.contains(".")) {
             return getSupportedExtensions().contains(FilenameUtils.getExtension(originalName));
         }
+        return false;
+    }
+
+    /**
+     * This method is used to determine if we can import multiple records at once placed in the same source file.
+     *
+     * @return true if allowed to import multiple records in the same file, false otherwise
+     */
+    public default boolean canImportMultipleRecords() {
         return false;
     }
 

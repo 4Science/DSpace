@@ -317,9 +317,9 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
             for (MultipartFile mpFile : uploadfiles) {
                 File file = Utils.getFile(mpFile, "upload-loader", "filedataloader");
                 try {
-                    ImportRecord record = importService.getRecord(file, mpFile.getOriginalFilename());
-                    if (record != null) {
-                        records.add(record);
+                    List<ImportRecord> recordsFound = importService.getRecords(file, mpFile.getOriginalFilename());
+                    if (recordsFound != null && !recordsFound.isEmpty()) {
+                        records.addAll(recordsFound);
                         break;
                     }
                 } catch (Exception e) {
@@ -334,11 +334,15 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
         } catch (Exception e) {
             log.error("Error importing metadata", e);
         }
-        WorkspaceItem source = submissionService.
-            createWorkspaceItem(context, getRequestService().getCurrentRequest());
-        merge(context, records, source);
-        result = new ArrayList<>();
-        result.add(source);
+        result = new ArrayList<>(records.size());
+        for (ImportRecord importRecord : records) {
+            WorkspaceItem source = submissionService.
+                createWorkspaceItem(context, getRequestService().getCurrentRequest());
+
+            merge(context, importRecord, source);
+
+            result.add(source);
+        }
 
         //perform upload of bitstream if there is exact one result and convert workspaceitem to entity rest
         if (!result.isEmpty()) {
@@ -348,18 +352,17 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                 //load bitstream into bundle ORIGINAL only if there is one result (approximately this is the
                 // right behaviour for pdf file but not for other bibliographic format e.g. bibtex)
                 if (result.size() == 1) {
+                    ClassLoader loader = this.getClass().getClassLoader();
                     for (int i = 0; i < submissionConfig.getNumberOfSteps(); i++) {
                         SubmissionStepConfig stepConfig = submissionConfig.getStep(i);
-                        ClassLoader loader = this.getClass().getClassLoader();
-                        Class stepClass;
                         try {
-                            stepClass = loader.loadClass(stepConfig.getProcessingClassName());
-                            Object stepInstance = stepClass.newInstance();
+                            Class<?> stepClass = loader.loadClass(stepConfig.getProcessingClassName());
+                            Object stepInstance = stepClass.getConstructor().newInstance();
                             if (UploadableStep.class.isAssignableFrom(stepClass)) {
                                 UploadableStep uploadableStep = (UploadableStep) stepInstance;
                                 for (MultipartFile mpFile : uploadfiles) {
-                                    ErrorRest err = uploadableStep.upload(context,
-                                        submissionService, stepConfig, wi, mpFile);
+                                    ErrorRest err =
+                                        uploadableStep.upload(context, submissionService, stepConfig, wi, mpFile);
                                     if (err != null) {
                                         errors.add(err);
                                     }
@@ -449,7 +452,7 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
         return authorizationRestUtil.getObject(context, objectId);
     }
 
-    private void merge(Context context, List<ImportRecord> records, WorkspaceItem item) throws SQLException {
+    private void merge(Context context, ImportRecord record, WorkspaceItem item) throws SQLException {
         for (MetadataValue metadataValue : itemService.getMetadata(
             item.getItem(), Item.ANY, Item.ANY, Item.ANY, Item.ANY)) {
             itemService.clearMetadata(context, item.getItem(),
@@ -458,13 +461,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                 metadataValue.getMetadataField().getQualifier(),
                 metadataValue.getLanguage());
         }
-        for (ImportRecord record : records) {
-            if (record != null && record.getValueList() != null) {
-                for (MetadatumDTO metadataValue : record.getValueList()) {
-                    itemService.addMetadata(context, item.getItem(), metadataValue.getSchema(),
-                        metadataValue.getElement(), metadataValue.getQualifier(), null,
-                        metadataValue.getValue());
-                }
+        if (record != null && record.getValueList() != null) {
+            for (MetadatumDTO metadataValue : record.getValueList()) {
+                itemService.addMetadata(context, item.getItem(), metadataValue.getSchema(),
+                    metadataValue.getElement(), metadataValue.getQualifier(), null,
+                    metadataValue.getValue());
             }
         }
     }

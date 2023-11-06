@@ -31,6 +31,17 @@
      </bean>
 
     <bean class="org.dspace.content.authority.ItemSimpleAuthorityMetadataGenerator">
+        <property name="authorityName" value="AuthorAuthority"/>
+        <property name="keyId" value="person_identifier_orcid"/>
+        <property name="useForDisplay" value="true"/>
+        <property name="useAsData" value="true"/>
+        <property name="schema" value="person"/>
+        <property name="element" value="identifier"/>
+        <property name="qualifier" value="orcid"/>
+        <property name="singleResultOnAggregate" value="true"/>
+    </bean>
+
+    <bean class="org.dspace.content.authority.ItemSimpleAuthorityMetadataGenerator">
         <property name="authorityName" value="EditorAuthority"/>
         <property name="keyId" value="oairecerif_editor_affiliation"/>
         <property name="schema" value="person"/>

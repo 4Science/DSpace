@@ -19,15 +19,18 @@ import java.util.UUID;
 import org.dspace.app.rest.matcher.EntityTypeMatcher;
 import org.dspace.app.rest.matcher.ExternalSourceEntryMatcher;
 import org.dspace.app.rest.matcher.ExternalSourceMatcher;
+import org.dspace.app.rest.matcher.ItemMatcher;
 import org.dspace.app.rest.matcher.PageMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EntityTypeBuilder;
+import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
+import org.dspace.content.Item;
 import org.dspace.core.CrisConstants;
 import org.dspace.external.provider.AbstractExternalDataProvider;
 import org.dspace.external.provider.ExternalDataProvider;
@@ -483,6 +486,62 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
                     .setSupportedEntityTypes(mockSupportedEntityTypes);
         }
+    }
+
+    @Test
+    public void findOneExternalSourceEntriesDuplicationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+
+        // create item withDoiIdentifier equals 10.1016/j.procs.2017.03.031
+        Item itemOne = ItemBuilder.createItem(context, col1)
+                                  .withFullName("Public item one")
+                                  .withIssueDate("2023-10-17")
+                                  .withDoiIdentifier("10.1016/j.procs.2017.03.031")
+                                  .withEntityType("Publication")
+                                  .build();
+
+        // create another item withDoiIdentifier equals 10.1016/j.procs.2017.03.031
+        Item itemTwo = ItemBuilder.createItem(context, col1)
+                                  .withFullName("Public item two")
+                                  .withIssueDate("2023-10-17")
+                                  .withDoiIdentifier("10.1016/j.procs.2017.03.031")
+                                  .withEntityType("Publication")
+                                  .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/integration/externalsources/mock/entries")
+                       .param("query", "one").param("size", "1"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(
+                       ExternalSourceEntryMatcher.matchExternalSourceEntry("onetwo", "onetwo", "onetwo", "mock")
+                   )))
+                   .andExpect(jsonPath("$._embedded.externalSourceEntries[0].matchObjects", containsInAnyOrder(
+                       ItemMatcher.matchItemProperties(itemOne),
+                       ItemMatcher.matchItemProperties(itemTwo)
+                   )))
+                   .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(0, 1, 2, 2)));
+
+        getClient().perform(get("/api/integration/externalsources/mock/entries")
+                       .param("query", "one").param("size", "1").param("page", "1"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(
+                       ExternalSourceEntryMatcher.matchExternalSourceEntry("one", "one", "one", "mock")
+                   )))
+                   .andExpect(jsonPath("$._embedded.externalSourceEntries[0].matchObjects", containsInAnyOrder(
+                       ItemMatcher.matchItemProperties(itemOne),
+                       ItemMatcher.matchItemProperties(itemTwo)
+                   )))
+                   .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(1, 1, 2, 2)));
     }
 
 }

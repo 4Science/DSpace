@@ -154,7 +154,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         }
 
         String[] args = new String[] { "bulk-import", "-c", collection.getID().toString(),
-            "-f", tempWorkbookFile.getAbsolutePath() };
+            "-f", tempWorkbookFile.getAbsolutePath(), "-e", admin.getEmail()};
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 

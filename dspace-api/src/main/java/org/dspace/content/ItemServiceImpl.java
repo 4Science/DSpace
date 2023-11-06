@@ -298,9 +298,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param context
      * @param item
      * @param bundle
-     * @param metadata
      * @param value
-     * @param requireOriginal
      * @throws SQLException
      * @return Bitstream
      */
@@ -2136,6 +2134,14 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         return item.equals(latestVersion.getItem());
 
+    }
+
+    @Override
+    public void addResourcePolicy(Context context, Item item, int actionID, EPerson eperson)
+        throws SQLException, AuthorizeException {
+        ResourcePolicy resourcePolicy =
+            this.authorizeService.createResourcePolicy(context, item, null, eperson, actionID, null);
+        item.getResourcePolicies().add(resourcePolicy);
     }
 
 }
