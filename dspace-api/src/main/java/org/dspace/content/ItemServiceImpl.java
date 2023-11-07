@@ -48,6 +48,7 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
@@ -951,8 +952,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         if (customUrlService != null) {
             customUrlService.getCustomUrl(item).ifPresent(url -> identifiers.add("customurl:" + url));
         }
+        List<MetadataValueDTO> typeMetadata = getMetadata(item, "dspace", "entity", "type", Item.ANY).stream()
+                .map(MetadataValueDTO::new)
+                .collect(Collectors.toList());
         context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(),
-                item.getHandle(), identifiers));
+                item.getHandle(), identifiers, new ArrayList<>(typeMetadata)));
 
         log.info(LogHelper.getHeader(context, "delete_item", "item_id="
             + item.getID()));

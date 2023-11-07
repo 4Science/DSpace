@@ -7,14 +7,23 @@
  */
 package com.science4.webcache;
 
+import static java.util.Objects.nonNull;
+
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -35,9 +44,13 @@ public class StaleWebDataConsumer implements Consumer {
     // collect the set of url that need to be invalidated without forcing a new caching
     private Set<String> urlsToRemove = new HashSet<>();
 
-    WebServerCache webServerCache = DSpaceServicesFactory.getInstance().getServiceManager()
+    private final WebServerCache webServerCache = DSpaceServicesFactory.getInstance().getServiceManager()
             .getServiceByName(WebServerCache.class.getName(),
                               WebServerCache.class);
+
+    private final AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+
+    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     @Override
     public void initialize() throws Exception {
@@ -98,8 +111,7 @@ public class StaleWebDataConsumer implements Consumer {
             case Event.MODIFY:
             case Event.MODIFY_METADATA:
                 if (subject != null) {
-                    urlsToUpdate.addAll(webServerCache.getURLsToCache(ctx, subject));
-                    urlsToRemove.addAll(webServerCache.getURLsToDontCache(ctx, subject));
+                    updateUrlLists(ctx, subject);
                 }
                 break;
 
@@ -107,8 +119,7 @@ public class StaleWebDataConsumer implements Consumer {
             case Event.ADD:
             case Event.INSTALL:
                 if (subject != null && st == Constants.ITEM) {
-                    urlsToUpdate.addAll(webServerCache.getURLsToCache(ctx, subject));
-                    urlsToRemove.addAll(webServerCache.getURLsToDontCache(ctx, subject));
+                    updateUrlLists(ctx, subject);
                 }
                 break;
 
@@ -117,7 +128,8 @@ public class StaleWebDataConsumer implements Consumer {
                     log.warn("got null subject type and/or ID on DELETE event, skipping it.");
                 } else {
                     urlsToRemove.addAll(webServerCache.getURLsEventuallyInCacheForDeletedObject(ctx,
-                            event.getSubjectType(), event.getSubjectID(), event.getDetail(), event.getIdentifiers()));
+                            event.getSubjectType(), event.getSubjectID(), event.getDetail(), event.getIdentifiers(),
+                            event.getMetadataValues()));
                 }
                 break;
             default:
@@ -155,4 +167,19 @@ public class StaleWebDataConsumer implements Consumer {
 
     }
 
+    private boolean isSubjectPublic(Context ctx, DSpaceObject subject) throws SQLException {
+        Group anonymousGroup = groupService.findByName(ctx, Group.ANONYMOUS);
+        ResourcePolicy anonymousRead
+                = authorizeService.findByTypeGroupAction(ctx, subject, anonymousGroup, Constants.READ);
+        return nonNull(anonymousRead);
+    }
+
+    private void updateUrlLists(Context ctx, DSpaceObject subject) throws SQLException {
+        if (isSubjectPublic(ctx, subject)) {
+            urlsToUpdate.addAll(webServerCache.getURLsToCache(ctx, subject));
+            urlsToRemove.addAll(webServerCache.getURLsToDontCache(ctx, subject));
+        } else {
+            urlsToRemove.addAll(webServerCache.getAllURLs(ctx, subject));
+        }
+    }
 }

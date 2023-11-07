@@ -37,6 +37,7 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
     private int threadsRenew = 1;
 
     public void initialize () {
+        super.initialize();
         HttpClientBuilder custom = HttpClients.custom();
         client = custom.disableAutomaticRetries().setMaxConnTotal(threads)
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build())
