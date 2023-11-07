@@ -97,6 +97,7 @@ services:
     - ./dspace/solr/oai:/opt/solr/server/solr/configsets/oai
     - ./dspace/solr/search:/opt/solr/server/solr/configsets/search
     - ./dspace/solr/statistics:/opt/solr/server/solr/configsets/statistics
+    - ./dspace/solr/dedup:/opt/solr/server/solr/configsets/dedup
     # Keep Solr data directory between reboots
     - solr_data:/var/solr/data
     # Initialize all DSpace Solr cores using the mounted local configsets (see above), then start Solr
@@ -116,6 +117,8 @@ services:
       cp -r -u /opt/solr/server/solr/configsets/search/* search
       precreate-core statistics /opt/solr/server/solr/configsets/statistics
       cp -r -u /opt/solr/server/solr/configsets/statistics/* statistics
+      precreate-core dedup /opt/solr/server/solr/configsets/dedup
+      cp -r -u /opt/solr/server/solr/configsets/dedup/* dedup
       exec solr -f
 volumes:
   assetstore:
