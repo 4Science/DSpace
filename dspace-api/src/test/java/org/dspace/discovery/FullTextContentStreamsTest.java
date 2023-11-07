@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.dspace.content.Bitstream;
@@ -88,7 +89,7 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithNoBundles() throws Exception {
-        when(item.getBundles()).thenReturn(null);
+        when(item.getBundles()).thenReturn(List.of());
 
         streams.init(item);
 
@@ -121,7 +122,7 @@ public class FullTextContentStreamsTest {
     @Test
     public void testItemWithEmptyTextBundle() throws Exception {
         when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
-        when(textBundle.getBitstreams()).thenReturn(null);
+        when(textBundle.getBitstreams()).thenReturn(List.of());
 
         streams.init(item);
 
