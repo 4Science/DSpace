@@ -1645,7 +1645,7 @@
           <label>Preferred Name</label>
           <input-type>name</input-type>
           <hint />
-          <required>You must enter least at the Surname.</required>
+          <required>You must enter at least the surname.</required>
         </field>
       </row>
       <row>
