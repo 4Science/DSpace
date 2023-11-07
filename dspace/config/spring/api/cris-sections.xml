@@ -271,6 +271,8 @@
                     <property name="discoveryConfigurationName" value="path"/>
                     <property name="style" value="pad-left-title pad-right-title m-auto"/>
                     <property name="mainContentLink" value="/search?f.entityType=Path,equals&amp;spc.page=1&amp;view=grid"/>
+                    <property name="sortField" value="glam.index" />
+                    <property name="order" value="asc" />
                 </bean>
             </list>
             <list>
