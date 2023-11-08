@@ -23,12 +23,15 @@ import java.util.UUID;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.crosswalk.CrosswalkException;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.packager.PackageDisseminator;
 import org.dspace.content.packager.PackageException;
 import org.dspace.content.packager.PackageIngester;
 import org.dspace.content.packager.PackageParameters;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
@@ -37,6 +40,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.handle.service.HandleService;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowException;
@@ -145,6 +149,12 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
     protected static final PluginService pluginService =
             CoreServiceFactory.getInstance().getPluginService();
 
+    protected static final CollectionService collectionService =
+            ContentServiceFactory.getInstance().getCollectionService();
+
+    protected static final HandleService handleService =
+            HandleServiceFactory.getInstance().getHandleService();
+
     /**
      * Ingest one or more DSpace objects from package(s) based on the
      * options passed to the 'packager' script.  This method is called
@@ -215,8 +225,7 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
                     // Provide detailed report if user answered 'yes'
                     if (choiceString.equalsIgnoreCase("y")) {
                         for (String result : hdlResults) {
-                            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                                   .resolveToObject(context, result);
+                            DSpaceObject dso = handleService.resolveToObject(context, result);
 
                             if (dso != null) {
 
@@ -404,8 +413,7 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
                     // Provide detailed report if user answered 'yes'
                     if (choiceString.equalsIgnoreCase("y")) {
                         for (String result : hdlResults) {
-                            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                                   .resolveToObject(context, result);
+                            DSpaceObject dso = handleService.resolveToObject(context, result);
 
                             if (dso != null) {
                                 handler.logInfo("REPLACED DSpace " + Constants.typeText[dso.getType()] +
@@ -520,8 +528,7 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
 
             //if a specific identifier was specified, make sure it is valid
             if (identifier != null && identifier.length() > 0) {
-                objToReplace = HandleServiceFactory.getInstance().getHandleService()
-                                                   .resolveToObject(context, identifier);
+                objToReplace = handleService.resolveToObject(context, identifier);
                 if (objToReplace == null) {
                     throw new IllegalArgumentException("Bad identifier/handle -- "
                                                            + "Cannot resolve handle \"" + identifier + "\"");
@@ -578,9 +585,17 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
 
                 parentObjs = new DSpaceObject[parents.length];
                 for (int i = 0; i < parents.length; i++) {
-                    // sanity check: did handle resolve?
-                    parentObjs[i] = HandleServiceFactory.getInstance().getHandleService().resolveToObject(context,
-                                                                                                          parents[i]);
+                    // is the ID a handle?
+                    if (parents[i].indexOf('/') != -1) {
+                        // string has a / so it must be a handle - try and resolve it
+                        parentObjs[i] = ((Collection) handleService.resolveToObject(
+                                context, parents[i]));
+                    } else {
+                        // not a handle, try via UUID
+                        parentObjs[i] = collectionService.find(
+                                context, UUID.fromString(parents[i]));
+                    }
+
                     if (parentObjs[i] == null) {
                         throw new IllegalArgumentException(
                             "Bad parent list -- "
@@ -615,8 +630,7 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
                 throw new RuntimeException("Unknown package type: " + packageType);
             }
 
-            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                   .resolveToObject(context, identifier);
+            DSpaceObject dso = handleService.resolveToObject(context, identifier);
             if (dso == null) {
                 throw new IllegalArgumentException("Bad identifier/handle -- "
                                                        + "Cannot resolve handle \"" + identifier + "\"");
