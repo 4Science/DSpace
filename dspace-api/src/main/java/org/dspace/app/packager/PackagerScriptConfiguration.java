@@ -88,6 +88,10 @@ public class PackagerScriptConfiguration<T extends Packager> extends ScriptConfi
                 .desc("The path to the file")
                 .type(InputStream.class)
                 .hasArg().build());
+        options.addOption(Option.builder("u").longOpt("url")
+                .desc("url of zip file")
+                .type(InputStream.class)
+                .hasArg().build());
 
         return options;
     }

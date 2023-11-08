@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -691,17 +692,23 @@ public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
     public void setSourceFile(Context context, boolean isGiven)
             throws IOException, AuthorizeException {
         if (isGiven) {
-            if (!commandLine.hasOption('z')) {
+            if (!commandLine.hasOption('z') && !commandLine.hasOption('u')) {
                 handler.logError("Missing source file");
                 throw new UnsupportedOperationException("Missing source file");
             }
-            String attachedFile = commandLine.getOptionValue('z');
             Optional<InputStream> optionalFileStream = Optional.empty();
-            // manage zip via upload
-            optionalFileStream = handler.getFileStream(context, attachedFile);
+            if (commandLine.hasOption('z')) {
+                // manage zip via upload
+                String fileName = commandLine.getOptionValue('z');
+                optionalFileStream = handler.getFileStream(context, fileName);
+            } else {
+                // manage zip via remote url
+                String remoteUrl = commandLine.getOptionValue('u');
+                optionalFileStream = Optional.ofNullable(new URL(remoteUrl).openStream());
+            }
             if (optionalFileStream.isPresent()) {
                 sourceFile = FileUtils.getTempDirectoryPath() + File.separator
-                        + attachedFile + "-" + UUID.randomUUID();
+                        + UUID.randomUUID();
                 FileUtils.copyInputStreamToFile(optionalFileStream.get(), new File(sourceFile));
             } else {
                 throw new IllegalArgumentException(
