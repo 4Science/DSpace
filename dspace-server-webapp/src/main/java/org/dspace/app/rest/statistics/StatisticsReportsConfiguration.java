@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.UsageReportCategoryRest;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
@@ -40,6 +41,13 @@ public class StatisticsReportsConfiguration {
         } else if (dso instanceof Community) {
             return mapping.get("community");
         } else if (dso instanceof Collection) {
+            String entityType = getEntityType(dso);
+            if (StringUtils.isNotEmpty(entityType)) {
+                List<UsageReportCategoryRest> result = mapping.get("collection-" + entityType);
+                if (result != null) {
+                    return result;
+                }
+            }
             return mapping.get("collection");
         } else if (dso instanceof Item) {
             Item item = (Item) dso;
@@ -57,6 +65,16 @@ public class StatisticsReportsConfiguration {
             return mapping.get("bitstream");
         }
         return null;
+    }
+
+    private String getEntityType(DSpaceObject dso) {
+        return dso.getMetadata()
+                  .stream()
+                  .filter(metadataValue ->
+                      "dspace.entity.type".equals(metadataValue.getMetadataField().toString('.')))
+                  .map(MetadataValue::getValue)
+                  .findFirst()
+                  .orElse("");
     }
 
     public UsageReportGenerator getReportGenerator(DSpaceObject dso, String reportId) {

@@ -161,6 +161,11 @@
                 <entry key="RELATION.Place.publications" value-ref="relationPlacePublicationsConfiguration"/>
                 <entry key="RELATION.Place.people" value-ref="relationPlacePeopleConfiguration"/>
                 <entry key="RELATION.Place.events" value-ref="relationPlaceEventsConfiguration"/>
+                <entry key="RELATION.Project.researchoutputs" value-ref="relationProjectPublicationConfiguration"/>
+                <!-- Collection items -->
+                <entry key="RELATION.Collection.items" value-ref="relationCollectionItemsConfiguration"/>
+                <!-- Community items -->
+                <entry key="RELATION.Community.items" value-ref="relationCommunityItemsConfiguration"/>
                 <!-- Edit Configurations -->
                 <entry key="editCommunity" value-ref="editCommunityConfiguration"/>
                 <entry key="editCollection" value-ref="editCollectionConfiguration"/>
@@ -759,6 +764,7 @@
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
             <list>
+                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
@@ -767,6 +773,7 @@
         <!--The search filters which can be used on the discovery search page -->
         <property name="searchFilters">
             <list>
+                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
@@ -1221,8 +1228,6 @@
             <list>
                 <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
 	            <ref bean="searchFilterEditor" />
@@ -1350,7 +1355,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByFondsSelection" />
+                        <ref bean="sortByOrgunitfondsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -1376,7 +1381,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByFondsSelection" />
+                        <ref bean="sortByArchivalMaterialSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -2065,7 +2070,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfond.parent:*</value>
+                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfonds.parent:*</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -3125,6 +3130,28 @@
         <property name="defaultRpp" value="100"/>
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="false"/>
+    </bean>
+
+    <!-- items of a collection -->
+    <bean id="relationCollectionItemsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="indexAlways" value="true"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <!--find collection items. The placeholder {0} will be replaced with scope (UUID of collection)-->
+                <value>location.coll:{0}</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- items of a community -->
+    <bean id="relationCommunityItemsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="indexAlways" value="true"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <!--find community items. The placeholder {0} will be replaced with scope (UUID of community)-->
+                <value>location.comm:{0}</value>
+            </list>
+        </property>
     </bean>
 
 
@@ -4496,6 +4523,30 @@
         <property name="arguments">
             <list>
                 <value>relation.isFondsSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByArchivalMaterialSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isArchivalmaterialSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByOrgunitfondsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isOrgunitfondsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>

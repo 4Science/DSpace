@@ -42,6 +42,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.ItemAuthorityUtils;
 import org.dspace.util.UUIDUtils;
 import org.dspace.utils.DSpace;
+import org.dspace.web.ContextUtil;
 
 /**
  * Sample authority to link a dspace item with another (i.e a publication with
@@ -181,9 +182,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     public String getLabel(String key, String locale) {
         String title = key;
         if (key != null) {
-            Context context = null;
+            Context context = getContext();
             try {
-                context = new Context();
                 DSpaceObject dso = itemService.find(context, UUIDUtils.fromString(key));
                 if (dso != null) {
                     title = dso.getName();
@@ -290,6 +290,11 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             return (externalsource != null);
         }
         return false;
+    }
+
+    private Context getContext() {
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return context != null ? context : new Context();
     }
 
 }

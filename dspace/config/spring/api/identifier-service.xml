@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Identifier Service Application Interface.  Will be autowired with
          any Identifier Providers present in Spring context.
@@ -100,7 +103,13 @@
         <property name='DATACITE_HOST' value='mds.test.datacite.org'/>
         <property name='DATACITE_DOI_PATH' value='/doi/' />
         <property name='DATACITE_METADATA_PATH' value='/metadata/' />
-        <property name='disseminationCrosswalkName' value="DataCite" />
+        <property name='disseminationCrosswalkByEntityType'>
+            <map>
+                <entry key="Publication" value-ref="referCrosswalkPublicationDataciteXml"></entry>
+                <entry key="Patent" value-ref="referCrosswalkPatentDataciteXml"></entry>
+                <entry key="Product" value-ref="referCrosswalkDatasetDataciteXml"></entry>
+            </map>
+        </property>
     </bean>
     -->
 
