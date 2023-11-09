@@ -355,7 +355,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                         String value = tag.getValue().toLowerCase();
                         String isoLanguage = converter.get().getValue(value);
                         if (isNotBlank(isoLanguage) && !isoLanguage.equalsIgnoreCase(value)) {
-                            itemService.addMetadata(context, item, "dc", "language", "iso", "it",
+                            itemService.addMetadata(context, item, "dc", "language", "iso", null,
                                     isoLanguage, null, CF_ACCEPTED);
                         }
                     }
@@ -378,7 +378,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                     Matcher dateMatcher = datePattern.matcher(value);
                     String element = dateMatcher.matches() ? "date" : "coverage";
                     String qualifier = dateMatcher.matches() ? "issued" : "temporal";
-                    itemService.addMetadata(context, item, "dc", element, qualifier, "it",
+                    itemService.addMetadata(context, item, "dc", element, qualifier, null,
                             value, null, CF_ACCEPTED);
                 }
             }
@@ -394,7 +394,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 if (isNotBlank(tag.getValue())) {
                     // First title goes as dc.title, other titles as dc.title.alternative
                     String qualifier = i == 0 ? null : "alternative";
-                    itemService.addMetadata(context, item, "dc", "title", qualifier, "it",
+                    itemService.addMetadata(context, item, "dc", "title", qualifier, null,
                             tag.getValue(), null, CF_ACCEPTED);
                 }
             }
@@ -408,7 +408,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
             for (Element tag : elements) {
                 if (isNotBlank(tag.getValue())) {
-                    itemService.addMetadata(context, item, schema, element, qualifier, "it",
+                    itemService.addMetadata(context, item, schema, element, qualifier, null,
                             tag.getValue(), null, CF_ACCEPTED);
                 }
             }
@@ -464,8 +464,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         addImgGroupMetadata(context, bitstream, manifest,
                 "mag:scanning/niso:scanningsystem/niso:capture_software", "mix", "scanningSoftwareName",
                 null, "TIFF600");
-        bitstreamService.addMetadata(context, bitstream, "bitstream", "viewer",
-                "hidenotprimary", "en", "true", null, CF_ACCEPTED);
         addIiifTocMetadata(context, bitstream, manifest, fileElement);
     }
 
@@ -495,7 +493,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                     if (nonNull(struNomenclatureTag) && isNotBlank(struNomenclatureTag.getValue())) {
                         String value = "Indice del Documento|||"
                                 + struNomenclatureTag.getValue() + "|||" + nomenclature;
-                        bitstreamService.addMetadata(context, bitstream, "iiif", "toc", null, "en",
+                        bitstreamService.addMetadata(context, bitstream, "iiif", "toc", null, null,
                                 value, null, CF_ACCEPTED);
                     }
                 }
@@ -515,8 +513,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "JPEG150");
         addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
                 "mix", "compressionScheme", null, "TIFF600");
-        bitstreamService.addMetadata(context, bitstream, "bitstream", "viewer",
-                "hidenotprimary", "en", "true", null, CF_ACCEPTED);
     }
 
     private void addImgGroupMetadata(Context context, Bitstream bitstream, MAGManifest manifest, String path,
@@ -527,7 +523,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             Element pathElement = manifest.getElementByXPath(path, true, tiffImgGroupElement.get());
             if (nonNull(pathElement) && nonNull(pathElement.getValue())) {
                 bitstreamService.addMetadata(context, bitstream, schema, element, qualifier,
-                        "en", pathElement.getValue(), null, CF_ACCEPTED);
+                        null, pathElement.getValue(), null, CF_ACCEPTED);
             }
         }
     }
@@ -556,7 +552,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             if (nonNull(metric) && nonNull(metric.getValue())
                     && metric.getValue().equalsIgnoreCase(metricMatchValue)) {
                 bitstreamService.addMetadata(context, bitstream, "mix", metricName,
-                        null, "en", metadataValue, null, CF_ACCEPTED);
+                        null, null, metadataValue, null, CF_ACCEPTED);
             }
         }
     }
