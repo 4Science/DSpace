@@ -18,11 +18,13 @@ import static org.dspace.content.MetadataSchemaEnum.DC;
 import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import static org.dspace.core.Constants.ITEM;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -34,6 +36,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -81,6 +85,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private final static String THUMBNAIL = "THUMBNAIL";
     private final static String MAG = "MAG";
     private final static String XML_FORMAT = ".xml";
+    private final static String MAG_DIR = "MagXML";
 
     @Override
     public DSpaceObject ingest(Context context, DSpaceObject parent,
@@ -91,14 +96,15 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         log.info(LogHelper.getHeader(context, "package_parse",
                 "Parsing package for ingest, file=" + pkgFile.getName()));
 
-        MAGManifest manifest = parsePackage(context, pkgFile, params);
+        String sourceDir = unzip(pkgFile);
+        MAGManifest manifest = parsePackage(context, sourceDir, params);
 
         if (manifest == null) {
             throw new PackageValidationException(
                     "No Manifest found (extension=" + XML_FORMAT + ").  Package is unacceptable!");
         }
 
-        return ingestObject(context, parent, manifest, pkgFile, params, license);
+        return ingestObject(context, parent, manifest, sourceDir, params, license);
     }
 
     @Override
@@ -112,10 +118,11 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         log.info(LogHelper.getHeader(context, "package_parse",
                 "Parsing package for replace, file=" + pkgFile.getName()));
 
-        MAGManifest manifest = parsePackage(context, pkgFile, params);
+        String sourceDir = unzip(pkgFile);
+        MAGManifest manifest = parsePackage(context, sourceDir, params);
         if (manifest == null) {
             throw new PackageValidationException(
-                    "No MAG Manifest found (filename=" + MAGManifest.MANIFEST_FILE + ").  Package is unacceptable!");
+                    "No MAG Manifest found.  Package is unacceptable!");
         }
 
         if (isNull(dsoToReplace)) {
@@ -126,7 +133,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
 
         if (dsoToReplace == null) {
-            dso = ingestObject(context, null, manifest, pkgFile, params, null);
+            dso = ingestObject(context, null, manifest, sourceDir, params, null);
             if (dso != null) {
                 log.info(LogHelper.getHeader(context, "package_replace",
                         "Created new Object, type="
@@ -135,7 +142,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                                 + String.valueOf(dso.getID())));
             }
         } else {
-            dso = replaceObject(context, dsoToReplace, manifest, pkgFile, params, null);
+            dso = replaceObject(context, dsoToReplace, manifest, sourceDir, params, null);
             log.info(LogHelper.getHeader(context, "package_replace",
                     "Replaced Object, type="
                             + Constants.typeText[dso.getType()]
@@ -155,28 +162,106 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 "If true, enable XML validation of MAG file using schemas in document (default is true).";
     }
 
-    private MAGManifest parsePackage(Context context, File pkgFile, PackageParameters params)
+    private String unzip(File pkgFile) throws IOException {
+        // does the zip file exist and can we write to the temp directory
+        if (!pkgFile.canRead()) {
+            log.error("Zip file '" + pkgFile.getAbsolutePath() + "' does not exist, or is not readable.");
+        }
+
+        String zipDir = Files.createTempDirectory(pkgFile.getName() + "-")
+                .toFile().getAbsolutePath() + File.separator;
+        String magDir = zipDir;
+        ZipFile zf = new ZipFile(pkgFile);
+        ZipEntry entry;
+        Enumeration<? extends ZipEntry> entries = zf.entries();
+        try {
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    if (!new File(zipDir + entry.getName()).mkdirs()) {
+                        log.error("Unable to create contents directory: " + zipDir + entry.getName());
+                    }
+                } else {
+                    String entryName = entry.getName();
+                    File outFile = new File(zipDir + entryName);
+                    // Verify that this file will be extracted into our zipDir (and not somewhere else!)
+                    if (!outFile.toPath().normalize().startsWith(zipDir)) {
+                        throw new IOException("Bad zip entry: '" + entryName
+                                                  + "' in file '" + zipDir + "'!"
+                                                  + " Cannot process this file.");
+                    } else {
+                        log.info("Extracting file: " + entryName);
+
+                        int index = entryName.lastIndexOf('/');
+                        if (index > 0) {
+                            File dir = new File(zipDir + entryName.substring(0, index));
+                            if (!dir.exists() && !dir.mkdirs()) {
+                                log.error("Unable to create directory: " + dir.getAbsolutePath());
+                            }
+                        }
+
+                        //Entries could have too many directories, and we need to adjust the sourcedir
+                        // file1.zip (MAGArchive / item1 / ...
+                        //            MAGArchive / item2 / ...
+                        // or
+                        // file2.zip (item1 / ...
+                        //            item2 / ...
+
+                        //regex supports either windows or *nix file paths
+                        String[] entryChunks = entryName.split("/|\\\\");
+                        if (entryChunks.length > 2) {
+                            // found the first level
+                            if (StringUtils.equals(magDir, zipDir)) {
+                                magDir = zipDir + entryChunks[0];
+                            }
+                        }
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        InputStream in = zf.getInputStream(entry);
+                        BufferedOutputStream out = new BufferedOutputStream(
+                            new FileOutputStream(outFile));
+                        while ((len = in.read(buffer)) >= 0) {
+                            out.write(buffer, 0, len);
+                        }
+                        in.close();
+                        out.close();
+                    }
+                }
+            }
+        } finally {
+            //Close zip file
+            zf.close();
+        }
+
+        return magDir;
+    }
+
+    private MAGManifest parsePackage(Context context, String sourceDir, PackageParameters params)
             throws IOException, MetadataValidationException {
 
         boolean validate = params.getBooleanProperty("validate", false);
-        MAGManifest manifest = null;
 
-        try (ZipFile zip = new ZipFile(pkgFile)) {
-            Enumeration<? extends ZipEntry> entries = zip.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.toString().endsWith(XML_FORMAT)) {
-                    manifest = MAGManifest.create(zip.getInputStream(entry), validate);
-                }
-            }
+        boolean hasMagDir = FileUtils.listFiles(new File(sourceDir), new String[] {"xml"}, true)
+                .stream()
+                .anyMatch(file -> MAG_DIR.equals(file.getParent()));
+        if (hasMagDir) {
+            sourceDir = sourceDir + File.separator + MAG_DIR;
         }
-        return manifest;
+        Optional<File> manifestFile = FileUtils.listFiles(new File(sourceDir), new String[] {"xml"}, false)
+                .stream()
+                .filter(file -> StringUtils.endsWith(file.getName(), ".xml")).findFirst();
+        if (manifestFile.isEmpty()) {
+            throw new RuntimeException("The MAG manifest does not exist into " + sourceDir);
+        }
+
+        return MAGManifest.create(new FileInputStream(manifestFile.get()), validate);
     }
 
-    private DSpaceObject ingestObject(Context context, DSpaceObject parent, MAGManifest manifest, File pkgFile,
-                                      PackageParameters params, String license)
-            throws IOException, SQLException, AuthorizeException, CrosswalkException,
-            PackageValidationException, WorkflowException {
+    private DSpaceObject ingestObject(Context context, DSpaceObject parent, MAGManifest manifest,
+            String sourceDir, PackageParameters params, String license)
+                    throws IOException, SQLException, AuthorizeException, CrosswalkException,
+                    PackageValidationException, WorkflowException {
         Optional<Item> existingItem = getExistingItem(context, manifest);
 
         Item item;
@@ -184,7 +269,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             UUID existingItemUUID = existingItem.map(DSpaceObject::getID).orElse(null);
             item = (Item) PackageUtils.createDSpaceObject(context, parent, ITEM, null, existingItemUUID, params);
         } catch (SQLException exception) {
-            throw new PackageValidationException("Exception while ingesting " + pkgFile.getPath(), exception);
+            throw new PackageValidationException("Exception while ingesting " + sourceDir, exception);
         }
 
         if (item == null) {
@@ -204,7 +289,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
 
         addMetadata(context, item, manifest);
-        addBitstreams(context, item, manifest, pkgFile, params);
+        addBitstreams(context, item, manifest, sourceDir, params);
         addManifestBitstream(context, item, manifest);
         addLicense(context, item, license, collection);
 
@@ -330,9 +415,9 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private DSpaceObject replaceObject(Context context, DSpaceObject dso, MAGManifest manifest, File pkgFile,
-                                       PackageParameters params, String license)
-            throws IOException, SQLException, AuthorizeException, CrosswalkException {
+    private DSpaceObject replaceObject(Context context, DSpaceObject dso, MAGManifest manifest,
+            String sourceDir, PackageParameters params, String license)
+                    throws IOException, SQLException, AuthorizeException, CrosswalkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Object to be replaced (handle=" + dso.getHandle()
@@ -347,7 +432,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             Item item = (Item) dso;
 
             addMetadata(context, item, manifest);
-            addBitstreams(context, item, manifest, pkgFile, params);
+            addBitstreams(context, item, manifest, sourceDir, params);
             addManifestBitstream(context, item, manifest);
 
             Collection owningCollection = getOwningCollection(context, dso, item);
@@ -487,17 +572,17 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return Optional.empty();
     }
 
-    private void addBitstreams(Context context, Item item, MAGManifest manifest, File pkgFile,
-                               PackageParameters params)
-            throws SQLException, AuthorizeException, MetadataValidationException, IOException {
+    private void addBitstreams(Context context, Item item, MAGManifest manifest,
+            String sourceDir, PackageParameters params)
+                    throws SQLException, AuthorizeException, MetadataValidationException, IOException {
         List<Element> files = manifest.getFiles();
         Bundle originalBundle = getBundleElseCreate(context, item, ORIGINAL);
         Bundle thumbnailsBundle = getBundleElseCreate(context, item, THUMBNAIL);
 
         for (Element file : files) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(file);
-            addOriginalBitstream(context, manifest, pkgFile, params, file, originalBundle, originalSequenceId);
-            addThumbnailBitstream(context, manifest, pkgFile, params, file, thumbnailsBundle, originalSequenceId);
+            addOriginalBitstream(context, manifest, sourceDir, params, file, originalBundle, originalSequenceId);
+            addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle, originalSequenceId);
         }
 
         updatePrimaryBitstream(context, originalBundle);
@@ -513,11 +598,12 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addThumbnailBitstream(Context context, MAGManifest manifest, File pkgFile, PackageParameters params,
-                                       Element file, Bundle thumbnailsBundle, Integer originalSequenceId
-    ) throws IOException, SQLException, AuthorizeException, MetadataValidationException {
-        String thumbnailPath = manifest.getThumbnailFileName(file);
-        Optional<InputStream> thumbnailFileStream = getFileInputStream(pkgFile, params, thumbnailPath);
+    private void addThumbnailBitstream(Context context, MAGManifest manifest,
+            String sourceDir, PackageParameters params,
+            Element file, Bundle thumbnailsBundle, Integer originalSequenceId)
+                    throws IOException, SQLException, AuthorizeException, MetadataValidationException {
+        String thumbnailPath = manifest.getThumbnailFileName(sourceDir, file);
+        Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(thumbnailPath));
         if (thumbnailFileStream.isPresent()) {
             Bitstream bitstream = createBitstream(context, thumbnailsBundle,
                     thumbnailFileStream.get(), thumbnailPath, originalSequenceId);
@@ -527,11 +613,11 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addOriginalBitstream(Context context, MAGManifest manifest, File pkgFile, PackageParameters params,
-                                      Element file, Bundle originalBundle, Integer originalSequenceId)
-            throws IOException, SQLException, AuthorizeException, MetadataValidationException {
-        String originalPath = manifest.getOriginalFileName(file);
-        Optional<InputStream> originalFileStream = getFileInputStream(pkgFile, params, originalPath);
+    private void addOriginalBitstream(Context context, MAGManifest manifest, String sourceDir,
+            PackageParameters params, Element file, Bundle originalBundle, Integer originalSequenceId)
+                    throws IOException, SQLException, AuthorizeException, MetadataValidationException {
+        String originalPath = manifest.getOriginalFileName(sourceDir, file);
+        Optional<InputStream> originalFileStream = Optional.of(new FileInputStream(originalPath));
         if (originalFileStream.isPresent()) {
             Bitstream bitstream = createBitstream(context, originalBundle,
                     originalFileStream.get(), originalPath, originalSequenceId);
@@ -575,31 +661,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 .findOrCreateBitstreamFormat(context, MAG, "application/xml", "MAG package manifest");
         manifestBitstream.setFormat(context, manifestFormat);
         bitstreamService.update(context, manifestBitstream);
-    }
-
-    private static Optional<InputStream> getFileInputStream(File pkgFile, PackageParameters params, String path)
-            throws IOException {
-
-        if (params.getBooleanProperty("manifestOnly", false)) {
-            try {
-                URL fileURL = new URL(path);
-                URLConnection connection = fileURL.openConnection();
-                return Optional.of(connection.getInputStream());
-            } catch (IOException io) {
-                log.error("Unable to retrieve external file from URL '" + path
-                        + "' for manifest-only MAG package.  All externally referenced files must be " +
-                        "retrievable via URLs.");
-                throw io;
-            }
-        } else {
-            ZipFile zipPackage = new ZipFile(pkgFile);
-            ZipEntry entry = zipPackage.getEntry(path);
-            if (isNull(entry)) {
-                String fixedPath = path.substring(path.indexOf('/') + 1);
-                entry = zipPackage.getEntry(fixedPath);
-            }
-            return entry != null ? Optional.of(zipPackage.getInputStream(entry)) : Optional.empty();
-        }
     }
 
     private void addLicense(Context context, Item item, String license,
