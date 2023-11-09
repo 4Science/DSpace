@@ -67,6 +67,13 @@ public interface EmbeddableMetricProvider {
     String getMetricType();
 
     /**
+     * @param context context
+     * @param item item
+     * @return optional of metric count.
+     */
+    Optional<Double> getMetricCount(Context context, Item item);
+
+    /**
      * Unique identifier of metric, composed with references to item and metric type.
      * @param context
      * @param item

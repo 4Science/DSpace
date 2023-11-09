@@ -38,7 +38,7 @@ public class ApplicationConfig {
 
     // Allowed IIIF CORS origins ("Access-Control-Allow-Origin" header)
     // Can be overridden in DSpace configuration
-    @Value("${bitstream.cors.allowed-origins}")
+    @Value("${rest.cors.bitstream-allowed-origins}")
     private String[] bitstreamCorsAllowedOrigins;
 
     // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
@@ -53,7 +53,7 @@ public class ApplicationConfig {
 
     // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
     // Defaults to true. Can be overridden in DSpace configuration
-    @Value("${bitstream.cors.allow-credentials:true}")
+    @Value("${rest.cors.bitstream-allow-credentials:true}")
     private boolean bitstreamsCorsAllowCredentials;
 
     // Configured User Interface URL (default: http://localhost:4000)
