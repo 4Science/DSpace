@@ -142,7 +142,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                         Matchers.containsString("/iiif/" + publicItem1.getID() + "/canvas/"
                                 + bitstream1.getID().toString())))
                 .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("1")))
-                .andExpect(jsonPath("$.sequences[0].canvases[0].width", is(2200)))
+                .andExpect(jsonPath("$.sequences[0].canvases[0].width", is(64)))
                 .andExpect(jsonPath("$.sequences[0].canvases[0].images[0].resource.service.@id",
                         Matchers.endsWith(bitstream1.getID().toString())))
                 .andExpect(jsonPath("$.sequences[0].canvases[0].metadata[0].label", is("File name")))

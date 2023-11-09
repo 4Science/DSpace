@@ -134,6 +134,8 @@
 
     <bean class="org.dspace.versioning.VersionHistoryServiceImpl"/>
 
+    <bean class="org.dspace.util.FrontendUrlService"/>
+
     <bean class="org.dspace.content.security.MetadataSecurityServiceImpl"/>
     <bean class="org.dspace.metricsSecurity.BoxMetricsLayoutConfigurationService"/>
 

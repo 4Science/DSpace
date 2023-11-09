@@ -161,6 +161,11 @@
                 <entry key="RELATION.Place.publications" value-ref="relationPlacePublicationsConfiguration"/>
                 <entry key="RELATION.Place.people" value-ref="relationPlacePeopleConfiguration"/>
                 <entry key="RELATION.Place.events" value-ref="relationPlaceEventsConfiguration"/>
+                <entry key="RELATION.Project.researchoutputs" value-ref="relationProjectPublicationConfiguration"/>
+                <!-- Collection items -->
+                <entry key="RELATION.Collection.items" value-ref="relationCollectionItemsConfiguration"/>
+                <!-- Community items -->
+                <entry key="RELATION.Community.items" value-ref="relationCommunityItemsConfiguration"/>
                 <!-- Edit Configurations -->
                 <entry key="editCommunity" value-ref="editCommunityConfiguration"/>
                 <entry key="editCollection" value-ref="editCollectionConfiguration"/>
@@ -3125,6 +3130,28 @@
         <property name="defaultRpp" value="100"/>
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="false"/>
+    </bean>
+
+    <!-- items of a collection -->
+    <bean id="relationCollectionItemsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="indexAlways" value="true"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <!--find collection items. The placeholder {0} will be replaced with scope (UUID of collection)-->
+                <value>location.coll:{0}</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- items of a community -->
+    <bean id="relationCommunityItemsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="indexAlways" value="true"/>
+        <property name="defaultFilterQueries">
+            <list>
+                <!--find community items. The placeholder {0} will be replaced with scope (UUID of community)-->
+                <value>location.comm:{0}</value>
+            </list>
+        </property>
     </bean>
 
 
