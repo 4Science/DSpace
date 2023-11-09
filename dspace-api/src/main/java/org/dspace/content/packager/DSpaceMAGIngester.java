@@ -192,7 +192,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                     } else {
                         log.info("Extracting file: " + entryName);
 
-                        int index = entryName.lastIndexOf('/');
+                        int index = entryName.lastIndexOf(File.separator);
                         if (index > 0) {
                             File dir = new File(zipDir + entryName.substring(0, index));
                             if (!dir.exists() && !dir.mkdirs()) {
@@ -577,8 +577,12 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
         for (Element file : files) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(file);
-            addOriginalBitstream(context, manifest, sourceDir, params, file, originalBundle, originalSequenceId);
-            addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle, originalSequenceId);
+            String originalName = addOriginalBitstream(context, manifest, sourceDir,
+                    params, file, originalBundle, originalSequenceId);
+            if (originalName != null) {
+                addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle,
+                        originalSequenceId, originalName);
+            }
         }
 
         updatePrimaryBitstream(context, originalBundle);
@@ -596,20 +600,21 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private void addThumbnailBitstream(Context context, MAGManifest manifest,
             String sourceDir, PackageParameters params,
-            Element file, Bundle thumbnailsBundle, Integer originalSequenceId)
+            Element file, Bundle thumbnailsBundle, Integer originalSequenceId, String originalName)
                     throws IOException, SQLException, AuthorizeException, MetadataValidationException {
         String thumbnailPath = manifest.getThumbnailFileName(sourceDir, file);
+        String thumbnailExtension = thumbnailPath.substring(thumbnailPath.lastIndexOf("."));
         Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(thumbnailPath));
         if (thumbnailFileStream.isPresent()) {
             Bitstream bitstream = createBitstream(context, thumbnailsBundle,
-                    thumbnailFileStream.get(), thumbnailPath, originalSequenceId);
+                    thumbnailFileStream.get(), thumbnailPath, originalSequenceId, originalName + thumbnailExtension);
             addThumbnailBitstreamMetadata(context, file, bitstream, manifest);
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", thumbnailPath);
         }
     }
 
-    private void addOriginalBitstream(Context context, MAGManifest manifest, String sourceDir,
+    private String addOriginalBitstream(Context context, MAGManifest manifest, String sourceDir,
             PackageParameters params, Element file, Bundle originalBundle, Integer originalSequenceId)
                     throws IOException, SQLException, AuthorizeException, MetadataValidationException {
         String originalPath = manifest.getOriginalFileName(sourceDir, file);
@@ -618,9 +623,11 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             Bitstream bitstream = createBitstream(context, originalBundle,
                     originalFileStream.get(), originalPath, originalSequenceId);
             addOriginalBitstreamMetadata(context, file, bitstream, manifest);
+            return bitstream.getName();
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", originalPath);
         }
+        return null;
     }
 
     private Bundle getBundleElseCreate(Context context, Item item, String name)
@@ -632,7 +639,13 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private Bitstream createBitstream(Context context, Bundle bundle, InputStream fileStream,
                                       String path, Integer sequenceId)
             throws IOException, SQLException, AuthorizeException {
-        String fileName = path.substring(path.lastIndexOf('/') + 1);
+        String fileName = path.substring(path.lastIndexOf(File.separator) + 1);
+        return createBitstream(context, bundle, fileStream, path, sequenceId, fileName);
+    }
+
+    private Bitstream createBitstream(Context context, Bundle bundle, InputStream fileStream,
+                                      String path, Integer sequenceId, String fileName)
+            throws IOException, SQLException, AuthorizeException {
         Bitstream bitstream = bitstreamService.create(context, bundle, fileStream);
         bitstream.setName(context, fileName);
         bitstream.setSequenceID(sequenceId);
