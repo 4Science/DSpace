@@ -242,10 +242,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
         boolean validate = params.getBooleanProperty("validate", false);
 
-        boolean hasMagDir = FileUtils.listFiles(new File(sourceDir), new String[] {"xml"}, true)
-                .stream()
-                .anyMatch(file -> MAG_DIR.equals(file.getParent()));
-        if (hasMagDir) {
+        File magDir = new File(sourceDir + File.separator + MAG_DIR);
+        if (magDir.exists() && magDir.isDirectory()) {
             sourceDir = sourceDir + File.separator + MAG_DIR;
         }
         Optional<File> manifestFile = FileUtils.listFiles(new File(sourceDir), new String[] {"xml"}, false)
