@@ -78,8 +78,13 @@ public class PackagerCLI extends Packager {
 
     @Override
     public void setSourceFile(Context context, boolean isGiven) {
-        if (commandLine.hasOption('z')) {
-            sourceFile = commandLine.getOptionValue('z');
+        String files[] = commandLine.getArgs();
+        if (files.length > 0) {
+            if (PACKAGER_FILENAME_PREFIX.equals(files[0]) && files.length > 1) {
+                sourceFile = files[1];
+            } else {
+                sourceFile = files[0];
+            }
         } else {
             handler.logError("Missing source file");
             throw new UnsupportedOperationException("Missing source file");
