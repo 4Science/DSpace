@@ -31,8 +31,8 @@
     <bean id="solrServicePrivateItemPlugin" class="org.dspace.discovery.SolrServicePrivateItemPlugin" scope="prototype"/>
     <bean id="SolrServiceParentObjectIndexingPlugin" class="org.dspace.discovery.SolrServiceParentObjectIndexingPlugin" scope="prototype"/>
     <bean id="SolrServiceIndexCollectionSubmittersPlugin" class="org.dspace.discovery.SolrServiceIndexCollectionSubmittersPlugin" scope="prototype"/>
-	<bean id="solrServiceIndexCollectionAdministratorsPlugin" class="org.dspace.discovery.SolrServiceIndexCollectionAdministratorsPlugin"/>
-	<bean id="solrServiceIndexRelationshipsPlugin" class="org.dspace.discovery.SolrServiceIndexRelationshipsPlugin"/>
+    <bean id="solrServiceIndexCollectionAdministratorsPlugin" class="org.dspace.discovery.SolrServiceIndexCollectionAdministratorsPlugin"/>
+    <bean id="solrServiceIndexRelationshipsPlugin" class="org.dspace.discovery.SolrServiceIndexRelationshipsPlugin"/>
     <bean id="solrServiceHiddenRelationsRestrictionPlugin" class="org.dspace.discovery.SolrServiceHiddenRelationsRestrictionPlugin"/>
     <bean id="SolrServiceIndexItemEditorsPlugin" class="org.dspace.discovery.SolrServiceIndexItemEditorsPlugin" scope="prototype"/>
     <bean id="solrServiceMetricsIndexPlugin" class="org.dspace.discovery.SolrServiceMetricsIndexPlugin"/>
@@ -40,15 +40,15 @@
     <bean id="solrServiceCustomUrlIndexPlugin" class="org.dspace.discovery.SolrServiceCustomUrlIndexPlugin"/>
     <bean id="solrServiceLastImportIndexPlugin" class="org.dspace.discovery.SolrServiceLastImportIndexPlugin"/>
     <bean id="itemAuthorityLookupIndexPlugin" class="org.dspace.discovery.ItemAuthorityLookupIndexPlugin">
-    	<property name="additionalFields">
-    		<list>
-        		<value>crisrp.name</value>
-        		<value>crisrp.name.variant</value>
-        		<value>crisrp.name.translated</value>
-        		<value>person.givenName</value>
-        		<value>person.familyName</value>
-    		</list>
-    	</property>
+          <property name="additionalFields">
+              <list>
+                  <value>crisrp.name</value>
+                  <value>crisrp.name.variant</value>
+                  <value>crisrp.name.translated</value>
+                  <value>person.givenName</value>
+                  <value>person.familyName</value>
+              </list>
+          </property>
     </bean>
     <bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>
     <bean id="solrServiceBestMatchStrictIndexingPlugin" class="org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin"/>
@@ -171,6 +171,9 @@
                 <entry key="editCollection" value-ref="editCollectionConfiguration"/>
                 <entry key="lucky-search" value-ref="lucky"/>
                 <entry key="multilanguage-types" value-ref="multilanguage-types"/>
+
+                <entry key="RELATION.Aggregation.aggregationchildren" value-ref="relationAggregationAggregationChildrenConfiguration"/>
+                <entry key="RELATION.Aggregation.aggregationitems" value-ref="relationAggregationItemsConfiguration"/>
             </map>
         </property>
         <property name="toIgnoreMetadataFields">
@@ -3339,6 +3342,57 @@
         </property>
     </bean>
 
+    <!-- aggregation related to an aggregation -->
+    <bean id="relationAggregationAggregationChildrenConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortByAggregationChildrenSelection" />
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+                queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
+                <value>glamaggregation.parent_authority:{0} </value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
+    </bean>
+    <!-- aggregation related to items -->
+    <bean id="relationAggregationItemsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortByReferencedItemsSelection" />
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+                queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
+                <value>glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0}</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
+    </bean>
+
     <!--Search filter configuration beans-->
 
     <bean id="searchFilterDiscoverable" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -4811,6 +4865,30 @@
         <property name="arguments">
             <list>
                 <value>relation.isCoPublicationsSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByAggregationChildrenSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isAggregationSelectedFor. The placeholder {0} will be replaced with scope (UUID of aggregation)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isAggregationchildrenSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByReferencedItemsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isAggregationSelectedFor. The placeholder {0} will be replaced with scope (UUID of aggregation)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isAggregationitemsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>

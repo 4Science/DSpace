@@ -662,5 +662,49 @@
             <min>0</min>
         </rightCardinality>
     </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isAggregationchildrenHiddenFor</leftwardType>
+        <rightwardType>notDisplayingAggregationchildren</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isAggregationchildrenSelectedFor</leftwardType>
+        <rightwardType>hasSelectedAggregationchildren</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isAggregationitemsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingAggregationitems</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isAggregationitemsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedAggregationitems</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
 
 </relationships>
