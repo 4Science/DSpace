@@ -704,6 +704,7 @@
                 <entry key="type2datacite" value-ref="mapConverterDataciteToPublicationTypes" />
                 <entry key="right2licenseUrl" value-ref="mapConverterDataciteToPublicationLicense" />
                 <entry key="right2conceptUrl" value-ref="mapConverterDataciteToPublicationAccessRights" />
+				<entry key="iso639" value-ref="mapConverterIso639" />
 			</map>
 		</constructor-arg>
 	</bean>
@@ -718,6 +719,12 @@
 		<property name="converterNameFile" value="mapConverter-fundingTypes.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value="https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Funding_Types"/>
+	</bean>
+
+	<bean name="mapConverterIso639" class="org.dspace.util.SimpleMapConverter" init-method="init">
+		<property name="converterNameFile" value="mapConverter-iso639.properties" />
+		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+		<property name="defaultValue" value=""/>
 	</bean>
 
 	<bean name="mapConverterOrgUnitTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">
