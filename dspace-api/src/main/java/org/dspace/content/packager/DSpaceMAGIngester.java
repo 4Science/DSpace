@@ -573,20 +573,23 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                     throws SQLException, AuthorizeException, MetadataValidationException, IOException {
         List<Element> files = manifest.getFiles();
         Bundle originalBundle = getBundleElseCreate(context, item, ORIGINAL);
-        Bundle thumbnailsBundle = getBundleElseCreate(context, item, THUMBNAIL);
+        // removed because they will be handled by the filter-media script
+        // Bundle thumbnailsBundle = getBundleElseCreate(context, item, THUMBNAIL);
 
         for (Element file : files) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(file);
             String originalName = addOriginalBitstream(context, manifest, sourceDir,
                     params, file, originalBundle, originalSequenceId);
             if (originalName != null) {
-                addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle,
-                        originalSequenceId, originalName);
+                // removed because they will be handled by the filter-media script
+                // addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle,
+                //         originalSequenceId, originalName);
             }
         }
 
         updatePrimaryBitstream(context, originalBundle);
-        updatePrimaryBitstream(context, thumbnailsBundle);
+        // removed because they will be handled by the filter-media script
+        // updatePrimaryBitstream(context, thumbnailsBundle);
     }
 
     private void updatePrimaryBitstream(Context context, Bundle bundle) throws SQLException, AuthorizeException {
