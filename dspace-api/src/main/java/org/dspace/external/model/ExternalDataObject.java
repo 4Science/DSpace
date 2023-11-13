@@ -9,6 +9,7 @@ package org.dspace.external.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.content.dto.MetadataValueDTO;
 
@@ -37,6 +38,8 @@ public class ExternalDataObject {
      * The display value of the ExternalDataObject
      */
     private String displayValue;
+
+    private List<UUID> matchUUIDs;
 
     /**
      * Default constructor
@@ -142,5 +145,17 @@ public class ExternalDataObject {
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public List<UUID> getMatchUUIDs() {
+        return matchUUIDs;
+    }
+
+    public void setMatchUUIDs(List<UUID> matchUUIDs) {
+        this.matchUUIDs = matchUUIDs;
+    }
+
+    public boolean isDuplicated() {
+        return !matchUUIDs.isEmpty();
     }
 }

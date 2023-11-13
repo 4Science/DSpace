@@ -12,8 +12,10 @@ import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutBoxMatcher.matchBox;
 import static org.dspace.app.rest.matcher.CrisLayoutTabMatcher.matchRest;
 import static org.dspace.app.rest.matcher.CrisLayoutTabMatcher.matchTab;
+import static org.dspace.builder.RelationshipTypeBuilder.createRelationshipTypeBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -56,6 +58,7 @@ import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.EntityTypeBuilder;
 import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.RelationshipBuilder;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -63,9 +66,13 @@ import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.Relationship;
+import org.dspace.content.RelationshipType;
+import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
+import org.dspace.content.service.RelationshipService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.layout.CrisLayoutBox;
@@ -104,6 +111,12 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
 
     @Autowired
     private CrisLayoutTabService crisLayoutTabService;
+
+    @Autowired
+    protected EntityTypeService entityTypeService;
+
+    @Autowired
+    protected RelationshipService relationshipService;
 
     private final String METADATASECURITY_URL = "http://localhost:8080/api/core/metadatafield/";
 
@@ -1926,6 +1939,196 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                            .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box1))))
                            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes", hasSize(1)))
                            .andExpect(jsonPath("$._embedded.tabs[0].rows[1].cells[0].boxes", contains(matchBox(box2))));
+    }
+
+    @Test
+    public void findByItemTabsWithHiddenRelationshipsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        EPerson userA =
+            EPersonBuilder.createEPerson(context)
+                          .withNameInMetadata("Mecca", "Vincenzo")
+                          .withEmail("vins@4science.com")
+                          .withPassword(password)
+                          .build();
+
+        Community community =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Test Community")
+                            .withTitle("Title test community")
+                            .build();
+
+        Collection col1 =
+            CollectionBuilder.createCollection(context, community)
+                             .withName("Test Publications")
+                             .build();
+
+        Collection people =
+            CollectionBuilder.createCollection(context, community)
+                             .withName("People")
+                             .withEntityType("Person")
+                             .build();
+
+        Item firstPerson =
+            ItemBuilder.createItem(context, people)
+                       .withTitle("4Science, Vins")
+                       .build();
+
+        // RELATION.Person.researchoutputs
+        CrisLayoutBoxBuilder.createBuilder(context, eType, CrisLayoutBoxTypes.RELATION.name(), true, true)
+                            .withShortname("box-shortname-one")
+                            .build();
+
+        CrisLayoutBox box1 =
+            CrisLayoutBoxBuilder.createBuilder(context, eType, CrisLayoutBoxTypes.RELATION.name(), true, true)
+                                .withShortname("researchoutputs")
+                                .withHeader("Publications")
+                                .withSecurity(LayoutSecurity.PUBLIC)
+                                .withType(CrisLayoutBoxTypes.RELATION.name())
+                                .build();
+
+
+        CrisLayoutBox box2 =
+            CrisLayoutBoxBuilder.createBuilder(context, eType, true, true)
+                                .withShortname("box-shortname-two")
+                                .withSecurity(LayoutSecurity.PUBLIC)
+                                .build();
+
+        CrisLayoutFieldBuilder.createMetadataField(context, "dc.title", 0, 0)
+                              .withLabel("LABEL TITLE")
+                              .withRendering("RENDERIGN TITLE")
+                              .withRowStyle("STYLE")
+                              .withBox(box2)
+                              .build();
+
+        CrisLayoutTab tab =
+            CrisLayoutTabBuilder.createTab(context, eType, 0)
+                                .withShortName("details")
+                                .withHeader("Profile")
+                                .addBoxIntoNewRow(box2)
+                                .withSecurity(LayoutSecurity.PUBLIC)
+                                .build();
+
+        CrisLayoutTab tab1 =
+            CrisLayoutTabBuilder.createTab(context, eType, 0)
+                                .withShortName("publications")
+                                .withHeader("Publications")
+                                .addBoxIntoNewRow(box1)
+                                .withSecurity(LayoutSecurity.PUBLIC)
+                                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/layout/tabs/search/findByItem")
+                                .param("uuid", firstPerson.getID().toString()))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                   .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+                   .andExpect(jsonPath("$._embedded.tabs", not(contains(matchTab(tab1)))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist());
+
+        String tokenUserA = getAuthToken(userA.getEmail(), password);
+        getClient(tokenUserA).perform(get("/api/layout/tabs/search/findByItem")
+                                          .param("uuid", firstPerson.getID().toString()))
+                             .andExpect(status().isOk())
+                             .andExpect(content().contentType(contentType))
+                             .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                             .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+                             .andExpect(jsonPath("$._embedded.tabs", not(contains(matchTab(tab1)))))
+                             .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                             .andExpect(
+                                 jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2)))
+                             )
+                             .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist());
+
+        context.turnOffAuthorisationSystem();
+
+        Item publication1 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Title Of Item")
+                       .withIssueDate("2015-06-25")
+                       .withAuthor("4Science, Vins", firstPerson.getID().toString())
+                       .withEntityType("Publication")
+                       .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/layout/tabs/search/findByItem")
+                                .param("uuid", firstPerson.getID().toString()))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)))
+                   .andExpect(jsonPath("$._embedded.tabs", containsInAnyOrder(matchTab(tab), matchTab(tab1))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2))))
+                   .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", hasSize(1)))
+                   .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(box1))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist())
+                   .andExpect(jsonPath("$._embedded.tabs[1].rows[1]").doesNotExist());
+
+        getClient(tokenUserA).perform(get("/api/layout/tabs/search/findByItem")
+                                          .param("uuid", firstPerson.getID().toString()))
+                             .andExpect(status().isOk())
+                             .andExpect(content().contentType(contentType))
+                             .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)))
+                             .andExpect(jsonPath("$._embedded.tabs", containsInAnyOrder(matchTab(tab), matchTab(tab1))))
+                             .andExpect(
+                                 jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                             .andExpect(
+                                 jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2)))
+                             )
+                             .andExpect(jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", hasSize(1)))
+                             .andExpect(
+                                 jsonPath("$._embedded.tabs[1].rows[0].cells[0].boxes", contains(matchBox(box1)))
+                             )
+                             .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist())
+                             .andExpect(jsonPath("$._embedded.tabs[1].rows[1]").doesNotExist());
+
+        context.turnOffAuthorisationSystem();
+
+        RelationshipType hiddenResearchOutput =
+            createRelationshipTypeBuilder(
+                context, null, entityTypeService.findByEntityType(context, "Person"), "isResearchoutputsHiddenFor",
+                "notDisplayingResearchoutputs", 0, null, 0, null
+            ).build();
+
+        final Relationship publicationOneHiddenByFirstPerson =
+            RelationshipBuilder.createRelationshipBuilder(
+                context, publication1, firstPerson, hiddenResearchOutput
+            ).build();
+
+        context.restoreAuthSystemState();
+        try {
+            getClient().perform(get("/api/layout/tabs/search/findByItem")
+                                    .param("uuid", firstPerson.getID().toString()))
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(contentType))
+                       .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                       .andExpect(jsonPath("$._embedded.tabs", not(contains(matchTab(tab1)))))
+                       .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                       .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2))))
+                       .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist());
+
+            getClient(tokenUserA).perform(get("/api/layout/tabs/search/findByItem")
+                                              .param("uuid", firstPerson.getID().toString()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(content().contentType(contentType))
+                                 .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                                 .andExpect(jsonPath("$._embedded.tabs", not(contains(matchTab(tab1)))))
+                                 .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", hasSize(1)))
+                                 .andExpect(
+                                     jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(box2))))
+                                 .andExpect(jsonPath("$._embedded.tabs[0].rows[1]").doesNotExist());
+
+        } finally {
+            RelationshipBuilder.deleteRelationship(publicationOneHiddenByFirstPerson.getID());
+        }
+
     }
 
     @Test

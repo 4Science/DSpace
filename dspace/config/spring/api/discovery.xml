@@ -3026,6 +3026,7 @@
         <property name="metadataFields">
             <list>
                 <value>organization.legalName</value>
+                <value>dc.title</value>
             </list>
         </property>
         <property name="isOpenByDefault" value="false"/>

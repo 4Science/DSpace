@@ -176,7 +176,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         String tempLocation = storeInTempLocation(workbook);
 
-        String[] args = new String[] { "bulk-import", "-c", publications.getID().toString(), "-f", tempLocation };
+        String[] args = new String[] { "bulk-import", "-c", publications.getID().toString(), "-f", tempLocation,
+        "-e", admin.getEmail()};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);

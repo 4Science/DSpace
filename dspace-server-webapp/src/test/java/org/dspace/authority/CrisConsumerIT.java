@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -92,7 +93,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     @Value("classpath:org/dspace/app/rest/simple-article.pdf")
     private Resource simpleArticle;
 
-    @Value("classpath:org/dspace/authority/orcid/orcid-person-record.xml")
+    @Value("classpath:org/dspace/authority/orcid/orcid-record.xml")
     private Resource orcidPersonRecord;
 
     private EPerson submitter;
@@ -1058,7 +1059,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String orcid = "0000-0002-9029-1854";
 
-        when(mockOrcidConnector.get(eq(orcid + "/person"), any()))
+        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), any()))
             .thenAnswer(i -> orcidPersonRecord.getInputStream());
 
         try {
@@ -1076,7 +1077,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
             context.restoreAuthSystemState();
 
-            verify(mockOrcidConnector).get(eq(orcid + "/person"), any());
+            verify(mockOrcidConnector).get(eq(orcid), any());
             verifyNoMoreInteractions(mockOrcidConnector);
 
             String authToken = getAuthToken(submitter.getEmail(), password);

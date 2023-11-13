@@ -7,9 +7,19 @@
  */
 package org.dspace.app.rest.converter;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.dspace.app.rest.model.ExternalSourceEntryRest;
+import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.projection.Projection;
+import org.dspace.content.service.ItemService;
+import org.dspace.core.Context;
 import org.dspace.external.model.ExternalDataObject;
+import org.dspace.web.ContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +32,12 @@ public class ExternalSourceEntryRestConverter implements DSpaceConverter<Externa
     @Autowired
     private MetadataValueDTOListConverter metadataConverter;
 
+    @Autowired
+    private ItemService itemService;
+
+    @Autowired
+    private ItemConverter itemConverter;
+
     public ExternalSourceEntryRest convert(ExternalDataObject modelObject, Projection projection) {
         ExternalSourceEntryRest externalSourceEntryRest = new ExternalSourceEntryRest();
         externalSourceEntryRest.setId(modelObject.getId());
@@ -30,7 +46,28 @@ public class ExternalSourceEntryRestConverter implements DSpaceConverter<Externa
         externalSourceEntryRest.setValue(modelObject.getValue());
         externalSourceEntryRest.setExternalSource(modelObject.getSource());
         externalSourceEntryRest.setMetadata(metadataConverter.convert(modelObject.getMetadata()));
+        externalSourceEntryRest.setMatchObjects(convertToItemRests(modelObject.getMatchUUIDs(), projection));
         return externalSourceEntryRest;
+    }
+
+    private List<ItemRest> convertToItemRests(List<UUID> uuids, Projection projection) {
+
+        if (uuids == null) {
+            return List.of();
+        }
+
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return uuids.stream()
+                    .map(uuid -> {
+                        try {
+                            return itemService.find(context, uuid);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(item -> Objects.nonNull(item))
+                    .map(item -> itemConverter.convert(item, projection))
+                    .collect(Collectors.toList());
     }
 
     public Class<ExternalDataObject> getModelClass() {

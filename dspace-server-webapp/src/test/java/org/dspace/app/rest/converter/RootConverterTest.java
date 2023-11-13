@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import org.dspace.app.rest.model.RootRest;
 import org.dspace.app.util.Util;
+import org.dspace.core.CrisConstants;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,8 @@ public class RootConverterTest {
         assertEquals("dspaceurl", rootRest.getDspaceUI());
         assertEquals("dspacename", rootRest.getDspaceName());
         assertEquals(restUrl, rootRest.getDspaceServer());
-        assertEquals("DSpace " + Util.getSourceVersion(), rootRest.getDspaceVersion());
+        assertEquals(CrisConstants.DSPACE_BASE_VERSION, rootRest.getDspaceVersion());
+        assertEquals(Util.getSourceVersion(), rootRest.getCrisVersion());
     }
 
     @Test

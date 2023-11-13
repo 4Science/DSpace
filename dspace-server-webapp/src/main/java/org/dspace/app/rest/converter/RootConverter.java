@@ -10,6 +10,7 @@ package org.dspace.app.rest.converter;
 import static org.dspace.app.util.Util.getSourceVersion;
 
 import org.dspace.app.rest.model.RootRest;
+import org.dspace.core.CrisConstants;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,8 @@ public class RootConverter {
         rootRest.setDspaceName(configurationService.getProperty("dspace.name"));
         rootRest.setDspaceUI(configurationService.getProperty("dspace.ui.url"));
         rootRest.setDspaceServer(configurationService.getProperty("dspace.server.url"));
-        rootRest.setDspaceVersion("DSpace " + getSourceVersion());
+        rootRest.setDspaceVersion(CrisConstants.DSPACE_BASE_VERSION);
+        rootRest.setCrisVersion(getSourceVersion());
         return rootRest;
     }
 }

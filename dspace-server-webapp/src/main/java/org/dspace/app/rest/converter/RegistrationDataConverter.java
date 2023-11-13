@@ -66,6 +66,9 @@ public class RegistrationDataConverter implements DSpaceConverter<RegistrationDa
         EPerson ePerson = null;
         try {
             ePerson = accountService.getEPerson(context, registrationData.getToken());
+            if (ePerson == null && registrationData.getRegistrationType().equals(RegistrationTypeEnum.ORCID)) {
+                ePerson = context.getCurrentUser();
+            }
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }

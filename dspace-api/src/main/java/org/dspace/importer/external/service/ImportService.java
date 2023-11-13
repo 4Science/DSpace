@@ -311,7 +311,7 @@ public class ImportService implements Destroyable {
     /*
      * Get a collection of record from File,
      * The first match will be return.
-     * 
+     *
      * @param file  The file from which will read records
      * @param originalName The original file name or full path
      * @return a single record contains the metadatum
@@ -319,28 +319,83 @@ public class ImportService implements Destroyable {
      */
     public ImportRecord getRecord(File file, String originalName)
         throws FileMultipleOccurencesException, FileSourceException {
-        ImportRecord importRecords = null;
-        for (MetadataSource metadataSource : importSources.values()) {
-            try (InputStream fileInputStream = new FileInputStream(file)) {
-                if (metadataSource instanceof FileSource) {
-                    FileSource fileSource = (FileSource)metadataSource;
-                    if (fileSource.isValidSourceForFile(originalName)) {
-                        importRecords = fileSource.getRecord(fileInputStream);
-                        break;
-                    }
+        try (InputStream fileInputStream = new FileInputStream(file)) {
+            FileSource fileSource = this.getFileSource(fileInputStream, originalName);
+            try {
+                if (fileSource.isValidSourceForFile(originalName)) {
+                    return fileSource.getRecord(fileInputStream);
                 }
+            } catch (FileSourceException e) {
+                log.debug(fileSource.getImportSource() + " isn't a valid parser for file", e);
+            }
+        //catch statements is required because we could have supported format (i.e. XML)
+        //which fail on schema validation
+        } catch (FileMultipleOccurencesException e) {
+            log.debug("File contains multiple metadata, return with error");
+            throw e;
+        } catch (IOException e1) {
+            throw new FileSourceException("File cannot be read, may be null");
+        }
+        return null;
+    }
+
+    /**
+     * Get a collection of record from File,
+     *
+     * @param file  The file from which will read records
+     * @param originalName The original file name or full path
+     * @return records containing metdatum
+     * @throws FileMultipleOccurencesException if the import configured for the {@code file}
+     * doesn't allow multiple records import.
+     * @throws FileSourceException if the file cannot be read.
+     */
+    public List<ImportRecord> getRecords(File file, String originalName)
+        throws FileMultipleOccurencesException, FileSourceException {
+        try (InputStream fileInputStream = new FileInputStream(file)) {
+            FileSource fileSource = this.getFileSource(fileInputStream, originalName);
+            try {
+                if (fileSource.isValidSourceForFile(originalName)) {
+                    List<ImportRecord> records = fileSource.getRecords(fileInputStream);
+                    if (!fileSource.canImportMultipleRecords() && records.size() > 1) {
+                        throw new FileMultipleOccurencesException(
+                            "Found " + records.size() + " entries in file ( " +
+                            originalName +
+                            " ) but import source ( " +
+                            fileSource.getImportSource() +
+                            " ) not allowed to import multiple records"
+                        );
+                    }
+                    return records;
+                }
+            } catch (FileSourceException e) {
+                log.debug(fileSource.getImportSource() + " isn't a valid parser for file", e);
+            }
             //catch statements is required because we could have supported format (i.e. XML)
             //which fail on schema validation
-            } catch (FileSourceException e) {
-                log.debug(metadataSource.getImportSource() + " isn't a valid parser for file");
-            } catch (FileMultipleOccurencesException e) {
-                log.debug("File contains multiple metadata, return with error");
-                throw e;
-            } catch (IOException e1) {
-                throw new FileSourceException("File cannot be read, may be null");
+        } catch (IOException e1) {
+            throw new FileSourceException("File cannot be read, may be null");
+        }
+        return null;
+    }
+
+    protected FileSource getFileSource(File file, String originalName) throws FileSourceException {
+        try (InputStream fileInputStream = new FileInputStream(file)) {
+            return getFileSource(file, originalName);
+        } catch (IOException e1) {
+            throw new FileSourceException("File cannot be read, may be null");
+        }
+    }
+
+    protected FileSource getFileSource(InputStream fileInputStream, String originalName) {
+        for (MetadataSource metadataSource : importSources.values()) {
+            if (metadataSource instanceof FileSource) {
+                FileSource fileSource = (FileSource)metadataSource;
+                if (fileSource.isValidSourceForFile(originalName)) {
+                    return fileSource;
+                }
             }
         }
-        return importRecords;
+        return null;
     }
 
     /**

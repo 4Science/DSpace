@@ -7,12 +7,24 @@
  */
 package org.dspace.external.service.impl;
 
+import static org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl.RESOURCE_FLAG_FIELD;
+import static org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl.RESOURCE_IDS_FIELD;
+import static org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl.RESOURCE_SIGNATURE_FIELD;
+
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.dspace.app.deduplication.service.DedupService;
+import org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl;
+import org.dspace.app.deduplication.utils.Signature;
 import org.dspace.app.suggestion.SuggestionProvider;
 import org.dspace.app.suggestion.SuggestionService;
 import org.dspace.authorize.AuthorizeException;
@@ -22,11 +34,14 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.external.model.ExternalDataObject;
 import org.dspace.external.provider.ExternalDataProvider;
 import org.dspace.external.service.ExternalDataService;
+import org.dspace.utils.DSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -49,6 +64,9 @@ public class ExternalDataServiceImpl implements ExternalDataService {
     @Autowired
     private SuggestionService suggestionService;
 
+    @Autowired
+    private DedupService dedupService;
+
     @Override
     public Optional<ExternalDataObject> getExternalDataObject(String source, String id) {
         ExternalDataProvider provider = getExternalDataProvider(source);
@@ -64,9 +82,53 @@ public class ExternalDataServiceImpl implements ExternalDataService {
         if (provider == null) {
             throw new IllegalArgumentException("Provider for: " + source + " couldn't be found");
         }
-        return provider.searchExternalDataObjects(query, start, limit);
+
+        List<ExternalDataObject> externalDataObjects = provider.searchExternalDataObjects(query, start, limit);
+        appendMatchedUUIDs(externalDataObjects);
+
+        return externalDataObjects;
     }
 
+    private void appendMatchedUUIDs(List<ExternalDataObject> externalDataObjects) {
+        for (ExternalDataObject externalDataObject : externalDataObjects) {
+            List<UUID> uuids = new ArrayList<>();
+            try {
+                QueryResponse response = dedupService.find("*:*", buildFilters(externalDataObject));
+                for (SolrDocument resultDoc : response.getResults()) {
+                    uuids.addAll(resultDoc.getFieldValues(RESOURCE_IDS_FIELD)
+                                          .stream()
+                                          .map(id ->
+                                              UUID.fromString(String.valueOf(id)))
+                                          .collect(Collectors.toList()));
+                }
+                externalDataObject.setMatchUUIDs(uuids);
+            } catch (SearchServiceException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private String[] buildFilters(ExternalDataObject object) {
+        List<String> filters = new ArrayList<>();
+        List<String> allSignatures = getAllSignatures(object);
+
+        if (!allSignatures.isEmpty()) {
+            filters.add(RESOURCE_FLAG_FIELD + ":" + SolrDedupServiceImpl.DeduplicationFlag.FAKE.getDescription());
+            filters.add(RESOURCE_SIGNATURE_FIELD + ":(" +
+                StringUtils.joinWith(" OR ", allSignatures.stream().toArray(String[]::new)) + ")");
+        }
+
+        return filters.toArray(new String[filters.size()]);
+    }
+
+    private List<String> getAllSignatures(ExternalDataObject iu) {
+        List<Signature> signAlgo = new DSpace().getServiceManager().getServicesByType(Signature.class);
+        return signAlgo.stream()
+                       .filter(algo -> Constants.ITEM == algo.getResourceTypeID())
+                       .flatMap(algo -> algo.getSignature(iu).stream())
+                       .filter(signature -> StringUtils.isNotEmpty(signature))
+                       .collect(Collectors.toList());
+    }
 
     @Override
     public List<ExternalDataProvider> getExternalDataProviders() {

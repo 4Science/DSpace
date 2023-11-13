@@ -193,7 +193,7 @@ public class CrisConsumer implements Consumer {
             return true;
         }
 
-        if (isBlank(authority) && isMetadataWithEmptyAuthoritySkippable(metadata)) {
+        if (isBlank(authority) && (isBlank(metadata.getValue()) || isMetadataWithEmptyAuthoritySkippable(metadata))) {
             return true;
         }
 

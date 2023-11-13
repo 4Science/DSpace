@@ -314,6 +314,22 @@ public class SolrDedupServiceImpl implements DedupService {
                         }
                     }
                 }
+
+                List<String> plainSignatures = algo.getPlainSignature(iu, ctx);
+                for (String signature : plainSignatures) {
+                    if (StringUtils.isNotEmpty(signature)) {
+                        String key = "plain_" + algo.getSignatureType() + "_signature";
+                        if (tmpMapFilter.containsKey(key)) {
+                            List<String> obj = tmpMapFilter.get(key);
+                            obj.add(signature);
+                            tmpMapFilter.put(key, obj);
+                        } else {
+                            List<String> obj = new ArrayList<String>();
+                            obj.add(signature);
+                            tmpMapFilter.put(key, obj);
+                        }
+                    }
+                }
             }
         }
 

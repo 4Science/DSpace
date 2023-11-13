@@ -922,4 +922,17 @@ public interface ItemService
      */
     public boolean isLatestVersion(Context context, Item item) throws SQLException;
 
+    /**
+     * Adds a resource policy to the specified item for the given action and EPerson.
+     *
+     * @param  context   the DSpace context
+     * @param  item      the item to add the policy to
+     * @param  actionID  the ID of the action to add the policy for
+     * @param  eperson   the EPerson to add the policy for
+     * @throws SQLException        if a database error occurs
+     * @throws AuthorizeException  if the current user is not authorized to perform this action
+     */
+    void addResourcePolicy(Context context, Item item, int actionID, EPerson eperson)
+        throws SQLException, AuthorizeException;
+
 }
