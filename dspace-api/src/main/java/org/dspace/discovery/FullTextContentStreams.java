@@ -33,6 +33,7 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 
@@ -50,6 +51,7 @@ public class FullTextContentStreams extends ContentStreamBase {
     protected List<FullTextBitstream> fullTextVideoStreams;
     protected List<FullTextBitstream> fullTextAllStreams;
     protected BitstreamService bitstreamService;
+    protected ItemService itemService;
 
     private String OCR_FILENAME = "extracted_text.txt";
 
@@ -80,9 +82,8 @@ public class FullTextContentStreams extends ContentStreamBase {
         List<Bundle> textBundles = parentItem.getBundles(FULLTEXT_BUNDLE);
         List<Bundle> originalBundles = parentItem.getBundles(Constants.CONTENT_BUNDLE_NAME);
 
-        final boolean isOcrProcessed = textBundles.stream()
-            .flatMap(bundle -> bundle.getBitstreams().stream())
-            .anyMatch(bitstream -> OCR_FILENAME.equals(bitstream.getName()));
+        final boolean isOcrProcessed =
+            Boolean.valueOf(getItemService().getMetadata(parentItem, "iiif.search.enabled"));
 
         textBundles.stream()
             .flatMap(bundle -> bundle.getBitstreams().stream())
@@ -92,13 +93,13 @@ public class FullTextContentStreams extends ContentStreamBase {
                 String viewer = getViewerProvider(originalBitstream);
                 boolean isSubtitleExtracted = isOriginalBitstreamSubtitle(originalBitstream);
 
-                if ((StringUtils.equals(viewer, "iiif") && !isOcrProcessed) ||
-                    OCR_FILENAME.equals(textBitstream.getName())) {
+                if (isOcrProcessed && OCR_FILENAME.equals(textBitstream.getName())) {
                     fullTextMiradorStreams.add(fullTextBitstream);
                 } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")
                     || isSubtitleExtracted) {
                     fullTextVideoStreams.add(fullTextBitstream);
-                } else {
+                } else if (!isOcrProcessed ||
+                    !StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming", "iiif")) {
                     fullTextStreams.add(fullTextBitstream);
                 }
 
@@ -237,6 +238,13 @@ public class FullTextContentStreams extends ContentStreamBase {
             bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
         }
         return bitstreamService;
+    }
+
+    private ItemService getItemService() {
+        if (itemService == null) {
+            itemService = ContentServiceFactory.getInstance().getItemService();
+        }
+        return itemService;
     }
 
     private class FullTextBitstream {
