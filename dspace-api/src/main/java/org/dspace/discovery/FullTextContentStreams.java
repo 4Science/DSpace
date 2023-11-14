@@ -51,6 +51,8 @@ public class FullTextContentStreams extends ContentStreamBase {
     protected List<FullTextBitstream> fullTextAllStreams;
     protected BitstreamService bitstreamService;
 
+    private String OCR_FILENAME = "extracted_text.txt";
+
     public FullTextContentStreams(Context context, Item parentItem) throws SQLException {
         this.context = context;
         init(parentItem);
@@ -75,34 +77,36 @@ public class FullTextContentStreams extends ContentStreamBase {
     private void buildFullTextList(Item parentItem) {
         // now get full text of any bitstreams in the TEXT bundle
         // trundle through the bundles
-        List<Bundle> myBundles = parentItem.getBundles();
+        List<Bundle> textBundles = parentItem.getBundles(FULLTEXT_BUNDLE);
         List<Bundle> originalBundles = parentItem.getBundles(Constants.CONTENT_BUNDLE_NAME);
 
-        myBundles.stream()
-                 .filter(bundle ->
-                     StringUtils.equals(FULLTEXT_BUNDLE, bundle.getName()))
-                 .flatMap(bundle -> bundle.getBitstreams().stream())
-                 .forEach(textBitstream -> {
-                     FullTextBitstream fullTextBitstream = new FullTextBitstream(sourceInfo, textBitstream);
-                     Bitstream originalBitstream = getOriginalBitstream(originalBundles, textBitstream);
-                     String viewer = getViewerProvider(originalBitstream);
+        final boolean isOcrProcessed = textBundles.stream()
+            .flatMap(bundle -> bundle.getBitstreams().stream())
+            .anyMatch(bitstream -> OCR_FILENAME.equals(bitstream.getName()));
 
-                     if (StringUtils.equals(viewer, "iiif") ||
-                         "extracted_text.txt".equals(textBitstream.getName())) {
-                         fullTextMiradorStreams.add(fullTextBitstream);
-                     } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")) {
-                         fullTextVideoStreams.add(fullTextBitstream);
-                     } else {
-                         fullTextStreams.add(fullTextBitstream);
-                     }
+        textBundles.stream()
+            .flatMap(bundle -> bundle.getBitstreams().stream())
+            .forEach(textBitstream -> {
+                FullTextBitstream fullTextBitstream = new FullTextBitstream(sourceInfo, textBitstream);
+                Bitstream originalBitstream = getOriginalBitstream(originalBundles, textBitstream);
+                String viewer = getViewerProvider(originalBitstream);
 
-                     fullTextAllStreams.add(fullTextBitstream);
+                if ((StringUtils.equals(viewer, "iiif") && !isOcrProcessed) ||
+                    OCR_FILENAME.equals(textBitstream.getName())) {
+                    fullTextMiradorStreams.add(fullTextBitstream);
+                } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")) {
+                    fullTextVideoStreams.add(fullTextBitstream);
+                } else {
+                    fullTextStreams.add(fullTextBitstream);
+                }
 
-                     log.debug("Added BitStream: "
-                         + textBitstream.getStoreNumber() + " "
-                         + textBitstream.getSequenceID() + " "
-                         + textBitstream.getName());
-                 });
+                fullTextAllStreams.add(fullTextBitstream);
+
+                log.debug("Added BitStream: "
+                    + textBitstream.getStoreNumber() + " "
+                    + textBitstream.getSequenceID() + " "
+                    + textBitstream.getName());
+            });
 
     }
 
