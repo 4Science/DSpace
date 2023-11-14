@@ -2,6 +2,9 @@
 	<Name>@dc.title@</Name>
 	<Name>@organization.legalName@</Name>
 	<Acronym>@oairecerif.acronym@</Acronym>
+	<Description>@dc.description.abstract@</Description>
+	<AddressLocality>@organization.address.addressLocality@</AddressLocality>
+	<AddressCountry>@organization.address.addressCountry@</AddressCountry>
 	<Type scheme="https://w3id.org/cerif/vocab/OrganisationTypes">@virtual.mapConverter.orgUnitTypes.dc-type@</Type>
 	<PartOf>
 		@relation.organization-parentOrganization.start@
@@ -15,10 +18,32 @@
 		@if.not.authority.organization-parentOrganization.end@
 	</PartOf>
 	<Identifier>@organization.identifier@</Identifier>
+	<FoundingDate>@organization.foundingDate@</FoundingDate>
 	<Identifier type="URL">@oairecerif.identifier.url@</Identifier>
 	<People>
 		@relation.people.start@
 		<Person displayName="@dc.title@"/>
 		@relation.people.end@
 	</People>
+	<Directors>
+        @group.crisou-director.start@
+           <Director>
+                <DisplayName>@crisou.director@</DisplayName>
+           </Director>
+        @group.crisou-director.end@
+    </Directors>
+	<Services>
+        @group.glamou-services.start@
+           <Service>
+                <DisplayName>@glamou.services@</DisplayName>
+           </Service>
+        @group.glamou-services.end@
+    </Services>
+    <Aggregations>
+          @group.dc-relation-aggregation.start@
+              <Aggregation>
+                  <DisplayName>@dc.relation.aggregation@</DisplayName>
+              </Aggregation>
+          @group.dc-relation-aggregation.end@
+    </Aggregations>
 </OrgUnit>

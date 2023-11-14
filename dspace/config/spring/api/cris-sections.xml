@@ -146,8 +146,8 @@
                      <property name="discoveryConfigurationName" value="documents" />
                      <property name="sortField" value="dc.date.accessioned" />
                      <property name="order" value="desc" />
-                     <property name="style" value="col-md-6"/>
-                     <property name="numberOfItems" value="5"/>
+                     <property name="style" value="col-md-12"/>
+                     <property name="numberOfItems" value="4"/>
                      <property name="showAsCard" value="false"/>
                      <property name="showLayoutSwitch" value="false"/>
                      <property name="defaultLayoutMode" value="LIST"/>
@@ -160,8 +160,8 @@
                      <property name="discoveryConfigurationName" value="documents" />
                      <property name="sortField" value="metric.view" />
                      <property name="order" value="desc" />
-                     <property name="style" value="col-md-6"/>
-                     <property name="numberOfItems" value="5"/>
+                     <property name="style" value="col-md-12"/>
+                     <property name="numberOfItems" value="4"/>
                      <property name="showAsCard" value="false"/>
                      <property name="showLayoutSwitch" value="false"/>
                      <property name="defaultLayoutMode" value="LIST"/>
@@ -255,7 +255,7 @@
             <list>
                 <bean class="org.dspace.layout.CrisLayoutTopComponent">
                     <property name="discoveryConfigurationName" value="additions" />
-                    <property name="sortField" value="dc.date.accessioned" />
+                    <property name="sortField" value="lastModified" />
                     <property name="order" value="desc" />
                     <property name="style" value="col-md-12 pad-left pad-right bg-light"/>
                     <property name="numberOfItems" value="8"/>
@@ -275,8 +275,44 @@
                     <property name="mainContentLink" value="/search?f.entityType=Path,equals&amp;spc.page=1&amp;view=grid"/>
                 </bean>
             </list>
+            <list>
+           		<bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/twitter"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dev"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+           	</list>
+           	 <list>
+                <bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/4ScienceIT"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dspaceCRIS"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
           </list>
         </constructor-arg>
     </bean>
-                
+
 </beans>

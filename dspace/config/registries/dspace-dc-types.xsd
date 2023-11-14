@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DSpace Schema Fields definition language -->
+<!---->
+<!-- This DTD defines the format for the DSpace -->
+<!-- 'config/registries/*-types.xml' configuration files -->
+<!-- Root element is 'dspace-dc-types' -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="dspace-dc-types">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="dspace-header"/>
+                <xs:element ref="dc-schema"/>
+                <xs:element ref="dc-type"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dspace-header">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="title"/>
+                <xs:element ref="contributor.author"/>
+                <xs:element ref="contributor.editor"/>
+                <xs:element ref="date.created"/>
+                <xs:element ref="description"/>
+                <xs:element ref="description.version"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dc-schema">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="name"/>
+                <xs:element ref="namespace"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dc-type">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="schema"/>
+                <xs:element ref="element"/>
+                <xs:element ref="qualifier"/>
+                <xs:element ref="scope_note"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="title" type="xs:string"/>
+    <xs:element name="contributor.author" type="xs:string"/>
+    <xs:element name="contributor.editor" type="xs:string"/>
+    <xs:element name="date.created" type="xs:string"/>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="description.version" type="xs:string"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="namespace" type="xs:string"/>
+    <xs:element name="schema" type="xs:string"/>
+    <xs:element name="element" type="xs:string"/>
+    <xs:element name="qualifier" type="xs:string"/>
+    <xs:element name="scope_note" type="xs:string"/>
+</xs:schema>

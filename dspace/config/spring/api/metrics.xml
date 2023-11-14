@@ -69,6 +69,13 @@
         <property name="fallbackField" value="${google-scholar.fallbackField}" />
     </bean>
 
+    <bean class="org.dspace.metrics.embeddable.impl.EmbeddableUnpaywallApiProvider">
+        <property name="filterService">
+            <ref bean="unpaywall-api-filter"/>
+        </property>
+        <property name="enabled" value="${unpaywall.enabled}" />
+    </bean>
+
     <bean class="org.dspace.metrics.embeddable.impl.EmbeddableAltmetricsProvider">
         <property name="filterService">
             <ref bean="item-has-altmetrics"/>
@@ -303,6 +310,8 @@
             </bean>
         </property>
     </bean>
+
+    <bean id="unpaywall-api-filter" class="org.dspace.content.logic.filter.UnpaywallApiFilter"/>
 
     <bean id="item-has-gscholar-field"
           class="org.dspace.content.logic.condition.RequiredMetadataCondition">

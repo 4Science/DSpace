@@ -1,8 +1,0 @@
-{
-	"name": "@dc.title@",
-	"acronym": "@oairecerif.acronym@",
-	"identifier": "@oairecerif.internalid@",
-	"description": "@dc.description@",
-	"ownerOrgUnit": "@crisequipment.ownerou@",
-	"ownerPerson": "@crisequipment.ownerrp@"
-}
