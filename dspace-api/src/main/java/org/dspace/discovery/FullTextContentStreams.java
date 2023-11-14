@@ -82,6 +82,10 @@ public class FullTextContentStreams extends ContentStreamBase {
         List<Bundle> textBundles = parentItem.getBundles(FULLTEXT_BUNDLE);
         List<Bundle> originalBundles = parentItem.getBundles(Constants.CONTENT_BUNDLE_NAME);
 
+        if (CollectionUtils.isEmpty(textBundles)) {
+            return;
+        }
+
         final boolean isOcrProcessed =
             Boolean.valueOf(getItemService().getMetadata(parentItem, "iiif.search.enabled"));
 
