@@ -7,8 +7,6 @@
  */
 package org.dspace.discovery;
 
-import static org.dspace.core.Utils.emptyIfNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +33,7 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 
 /**
@@ -47,7 +46,12 @@ public class FullTextContentStreams extends ContentStreamBase {
 
     protected final Context context;
     protected List<FullTextBitstream> fullTextStreams;
+    protected List<FullTextBitstream> fullTextMiradorStreams;
+    protected List<FullTextBitstream> fullTextVideoStreams;
+    protected List<FullTextBitstream> fullTextAllStreams;
     protected BitstreamService bitstreamService;
+
+    private String OCR_FILENAME = "extracted_text.txt";
 
     public FullTextContentStreams(Context context, Item parentItem) throws SQLException {
         this.context = context;
@@ -56,6 +60,9 @@ public class FullTextContentStreams extends ContentStreamBase {
 
     protected void init(Item parentItem) {
         fullTextStreams = new ArrayList<>();
+        fullTextMiradorStreams = new ArrayList<>();
+        fullTextVideoStreams = new ArrayList<>();
+        fullTextAllStreams = new ArrayList<>();
 
         if (parentItem != null) {
             sourceInfo = parentItem.getHandle();
@@ -70,28 +77,69 @@ public class FullTextContentStreams extends ContentStreamBase {
     private void buildFullTextList(Item parentItem) {
         // now get full text of any bitstreams in the TEXT bundle
         // trundle through the bundles
-        List<Bundle> myBundles = parentItem.getBundles();
+        List<Bundle> textBundles = parentItem.getBundles(FULLTEXT_BUNDLE);
+        List<Bundle> originalBundles = parentItem.getBundles(Constants.CONTENT_BUNDLE_NAME);
 
-        for (Bundle myBundle : emptyIfNull(myBundles)) {
-            if (StringUtils.equals(FULLTEXT_BUNDLE, myBundle.getName())) {
-                // a-ha! grab the text out of the bitstreams
-                List<Bitstream> bitstreams = myBundle.getBitstreams();
+        final boolean isOcrProcessed = textBundles.stream()
+            .flatMap(bundle -> bundle.getBitstreams().stream())
+            .anyMatch(bitstream -> OCR_FILENAME.equals(bitstream.getName()));
 
-                for (Bitstream fulltextBitstream : emptyIfNull(bitstreams)) {
-                    fullTextStreams.add(new FullTextBitstream(sourceInfo, fulltextBitstream));
+        textBundles.stream()
+            .flatMap(bundle -> bundle.getBitstreams().stream())
+            .forEach(textBitstream -> {
+                FullTextBitstream fullTextBitstream = new FullTextBitstream(sourceInfo, textBitstream);
+                Bitstream originalBitstream = getOriginalBitstream(originalBundles, textBitstream);
+                String viewer = getViewerProvider(originalBitstream);
 
-                    log.debug("Added BitStream: "
-                                  + fulltextBitstream.getStoreNumber() + " "
-                                  + fulltextBitstream.getSequenceID() + " "
-                                  + fulltextBitstream.getName());
+                if ((StringUtils.equals(viewer, "iiif") && !isOcrProcessed) ||
+                    OCR_FILENAME.equals(textBitstream.getName())) {
+                    fullTextMiradorStreams.add(fullTextBitstream);
+                } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")) {
+                    fullTextVideoStreams.add(fullTextBitstream);
+                } else {
+                    fullTextStreams.add(fullTextBitstream);
                 }
-            }
+
+                fullTextAllStreams.add(fullTextBitstream);
+
+                log.debug("Added BitStream: "
+                    + textBitstream.getStoreNumber() + " "
+                    + textBitstream.getSequenceID() + " "
+                    + textBitstream.getName());
+            });
+
+    }
+
+    private Bitstream getOriginalBitstream(List<Bundle> originalBundles, Bitstream textBitstream) {
+        return originalBundles.stream()
+                              .flatMap(bundle ->
+                                  bundle.getBitstreams().stream())
+                              .filter(bitstream ->
+                                  isMatchedBitstreams(bitstream, textBitstream))
+                              .findFirst()
+                              .orElse(null);
+    }
+
+    private boolean isMatchedBitstreams(Bitstream originalBitstream, Bitstream textBitstream) {
+        return originalBitstream.getName().equals(textBitstream.getName().replace(".txt", ""));
+    }
+
+    private String getBitstreamNameWithoutExtension(String bitstreamName) {
+        return bitstreamName.substring(0, bitstreamName.lastIndexOf('.'));
+    }
+
+    private String getViewerProvider(Bitstream bitstream) {
+        if (bitstream == null) {
+            return "";
         }
+        String value = getBitstreamService().getMetadataFirstValue(bitstream,
+            "bitstream", "viewer", "provider", Item.ANY);
+        return value == null ? "" : value;
     }
 
     @Override
     public String getName() {
-        return StringUtils.join(Iterables.transform(fullTextStreams, new Function<FullTextBitstream, String>() {
+        return StringUtils.join(Iterables.transform(fullTextAllStreams, new Function<FullTextBitstream, String>() {
             @Nullable
             @Override
             public String apply(@Nullable FullTextBitstream input) {
@@ -104,9 +152,9 @@ public class FullTextContentStreams extends ContentStreamBase {
     public Long getSize() {
         long result = 0;
 
-        if (CollectionUtils.isNotEmpty(fullTextStreams)) {
+        if (CollectionUtils.isNotEmpty(fullTextAllStreams)) {
             Iterable<Long> individualSizes = Iterables
-                .transform(fullTextStreams, new Function<FullTextBitstream, Long>() {
+                .transform(fullTextAllStreams, new Function<FullTextBitstream, Long>() {
                     @Nullable
                     @Override
                     public Long apply(@Nullable FullTextBitstream input) {
@@ -130,15 +178,45 @@ public class FullTextContentStreams extends ContentStreamBase {
     @Override
     public InputStream getStream() throws IOException {
         try {
-            return new SequenceInputStream(new FullTextEnumeration(fullTextStreams.iterator()));
+            return new SequenceInputStream(new FullTextEnumeration(fullTextAllStreams.iterator()));
         } catch (Exception e) {
             log.error("Unable to add full text bitstreams to SOLR for item " + sourceInfo + ": " + e.getMessage(), e);
             return new ByteArrayInputStream((e.getClass() + ": " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
     }
 
+    public InputStream getFullTextStreamStream() {
+        try {
+            return new SequenceInputStream(new FullTextEnumeration(fullTextStreams.iterator()));
+        } catch (Exception e) {
+            log.error("Unable to add full text bitstreams to SOLR for item " +
+                sourceInfo + ": " + e.getMessage(), e);
+            return new ByteArrayInputStream((e.getClass() + ": " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    public InputStream getMiradorStream() {
+        try {
+            return new SequenceInputStream(new FullTextEnumeration(fullTextMiradorStreams.iterator()));
+        } catch (Exception e) {
+            log.error("Unable to add full text mirador bitstreams to SOLR for item " +
+                sourceInfo + ": " + e.getMessage(), e);
+            return new ByteArrayInputStream((e.getClass() + ": " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    public InputStream getVideoStream() {
+        try {
+            return new SequenceInputStream(new FullTextEnumeration(fullTextVideoStreams.iterator()));
+        } catch (Exception e) {
+            log.error("Unable to add full text video bitstreams to SOLR for item " +
+                sourceInfo + ": " + e.getMessage(), e);
+            return new ByteArrayInputStream((e.getClass() + ": " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
     public boolean isEmpty() {
-        return CollectionUtils.isEmpty(fullTextStreams);
+        return CollectionUtils.isEmpty(fullTextAllStreams);
     }
 
     private BitstreamService getBitstreamService() {
