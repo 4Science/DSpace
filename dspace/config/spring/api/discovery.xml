@@ -1138,7 +1138,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByPathSelection" />
+                        <ref bean="sortByPathPublicationsSelection" />
                     </list>
                 </property>
             </bean>
@@ -4407,14 +4407,14 @@
     </bean>
 
     <!-- functional sorting -->
-    <bean name="sortByPathSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+    <bean name="sortByPathPublicationsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
         <property name="function" value="termfreq"/>
         <property name="id" value="ownerselection"/>
         <property name="arguments">
             <list>
-                <value>relation.isPathSelectedFor</value>
+                <value>relation.isPathPublicationsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>
