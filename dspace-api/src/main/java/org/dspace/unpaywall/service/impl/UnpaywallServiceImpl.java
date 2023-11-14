@@ -211,7 +211,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             );
             unpaywallDAO.save(context, unpaywall);
             context.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
             throw new RuntimeException(e);
         }
     }
