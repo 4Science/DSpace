@@ -90,11 +90,13 @@ public class FullTextContentStreams extends ContentStreamBase {
                 FullTextBitstream fullTextBitstream = new FullTextBitstream(sourceInfo, textBitstream);
                 Bitstream originalBitstream = getOriginalBitstream(originalBundles, textBitstream);
                 String viewer = getViewerProvider(originalBitstream);
+                boolean isSubtitleExtracted = isOriginalBitstreamSubtitle(originalBitstream);
 
                 if ((StringUtils.equals(viewer, "iiif") && !isOcrProcessed) ||
                     OCR_FILENAME.equals(textBitstream.getName())) {
                     fullTextMiradorStreams.add(fullTextBitstream);
-                } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")) {
+                } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")
+                    || isSubtitleExtracted) {
                     fullTextVideoStreams.add(fullTextBitstream);
                 } else {
                     fullTextStreams.add(fullTextBitstream);
@@ -108,6 +110,14 @@ public class FullTextContentStreams extends ContentStreamBase {
                     + textBitstream.getName());
             });
 
+    }
+
+    private boolean isOriginalBitstreamSubtitle(Bitstream originalBitstream) {
+        String name = originalBitstream.getName();
+        if (name == null) {
+            return false;
+        }
+        return name.endsWith(".vtt");
     }
 
     private Bitstream getOriginalBitstream(List<Bundle> originalBundles, Bitstream textBitstream) {
