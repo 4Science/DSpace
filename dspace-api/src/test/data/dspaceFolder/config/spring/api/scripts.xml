@@ -161,4 +161,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.metadata.export.MetadataSchemaExportCliScript"/>
     </bean>
 
+    <bean id="packager" class="org.dspace.app.packager.PackagerCLIScriptConfiguration" primary="true">
+        <property name="description" value="Packager Ingestion and Dissemination" />
+        <property name="dspaceRunnableClass" value="org.dspace.app.packager.PackagerCLI"/>
+    </bean>
+
 </beans>
