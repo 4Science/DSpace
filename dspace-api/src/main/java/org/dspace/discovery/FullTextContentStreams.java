@@ -113,6 +113,9 @@ public class FullTextContentStreams extends ContentStreamBase {
     }
 
     private boolean isOriginalBitstreamSubtitle(Bitstream originalBitstream) {
+        if (originalBitstream == null) {
+            return false;
+        }
         String name = originalBitstream.getName();
         if (name == null) {
             return false;
