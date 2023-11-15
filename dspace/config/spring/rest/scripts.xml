@@ -113,4 +113,9 @@
         <property name="description" value="Exports a given schema into a registry xml-format file"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.metadata.export.MetadataSchemaExportScript"/>
     </bean>
+
+    <bean id="packager" class="org.dspace.app.packager.PackagerScriptConfiguration" primary="true">
+        <property name="description" value="Packager Ingestion and Dissemination" />
+        <property name="dspaceRunnableClass" value="org.dspace.app.packager.Packager"/>
+    </bean>
 </beans>
