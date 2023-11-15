@@ -1638,7 +1638,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         </field>
       </row>
     </form>
-    
+
     <form name="qualdroptest">
      <row>
        <field>
@@ -1654,7 +1654,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
+
    <form name="typebindtest">
      <row>
        <field>
@@ -1723,7 +1723,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
+
    <form name="languagetest">
       <row>
         <field>
@@ -1769,9 +1769,9 @@ You can leave out the day and/or month if they aren't applicable.</hint>
           <label>Type</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <vocabulary>srsc</vocabulary>
-          <required />
-          <hint>Select a subject from the vocabulary.</hint>
+          <required>You must select a publication type</required>
+          <hint>Select the type(s) of content of the item.</hint>
+          <vocabulary>publication-coar-types</vocabulary>
         </field>
       </row>
    </form>
@@ -1878,7 +1878,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
 	</form>
-	
+
 	<form name="testVisibility">
 		<row>
 			<field>

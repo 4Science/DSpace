@@ -13,6 +13,7 @@ import static org.dspace.storage.bitstore.S3BitStoreService.CSA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -27,6 +28,8 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
@@ -84,7 +87,7 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
 
         amazonS3Client = createAmazonS3Client();
 
-        s3BitStoreService = new S3BitStoreService(amazonS3Client, null);
+        s3BitStoreService = new S3BitStoreService(amazonS3Client);
 
         context.turnOffAuthorisationSystem();
 
@@ -122,7 +125,7 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
 
         s3BitStoreService.put(bitstream, toInputStream(content));
 
-        String expectedChecksum = generateChecksum(content);
+        String expectedChecksum = Utils.toHex(generateChecksum(content));
 
         assertThat(bitstream.getSizeBytes(), is((long) content.length()));
         assertThat(bitstream.getChecksum(), is(expectedChecksum));
@@ -153,7 +156,7 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
 
         s3BitStoreService.put(bitstream, toInputStream(content));
 
-        String expectedChecksum = generateChecksum(content);
+        String expectedChecksum = Utils.toHex(generateChecksum(content));
 
         assertThat(bitstream.getSizeBytes(), is((long) content.length()));
         assertThat(bitstream.getChecksum(), is(expectedChecksum));
@@ -211,6 +214,47 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         IOException exception = assertThrows(IOException.class, () -> s3BitStoreService.get(bitstream));
         assertThat(exception.getCause(), instanceOf(AmazonS3Exception.class));
         assertThat(((AmazonS3Exception) exception.getCause()).getStatusCode(), is(404));
+
+    }
+
+    @Test
+    public void testAbout() throws IOException {
+
+        s3BitStoreService.init();
+
+        context.turnOffAuthorisationSystem();
+        String content = "Test bitstream content";
+        Bitstream bitstream = createBitstream(content);
+        context.restoreAuthSystemState();
+
+        s3BitStoreService.put(bitstream, toInputStream(content));
+
+        Map<String, Object> about = s3BitStoreService.about(bitstream, List.of());
+        assertThat(about.size(), is(0));
+
+        about = s3BitStoreService.about(bitstream, List.of("size_bytes"));
+        assertThat(about, hasEntry("size_bytes", 22L));
+        assertThat(about.size(), is(1));
+
+        about = s3BitStoreService.about(bitstream, List.of("size_bytes", "modified"));
+        assertThat(about, hasEntry("size_bytes", 22L));
+        assertThat(about, hasEntry(is("modified"), notNullValue()));
+        assertThat(about.size(), is(2));
+
+        String expectedChecksum = Utils.toHex(generateChecksum(content));
+
+        about = s3BitStoreService.about(bitstream, List.of("size_bytes", "modified", "checksum"));
+        assertThat(about, hasEntry("size_bytes", 22L));
+        assertThat(about, hasEntry(is("modified"), notNullValue()));
+        assertThat(about, hasEntry("checksum", expectedChecksum));
+        assertThat(about.size(), is(3));
+
+        about = s3BitStoreService.about(bitstream, List.of("size_bytes", "modified", "checksum", "checksum_algorithm"));
+        assertThat(about, hasEntry("size_bytes", 22L));
+        assertThat(about, hasEntry(is("modified"), notNullValue()));
+        assertThat(about, hasEntry("checksum", expectedChecksum));
+        assertThat(about, hasEntry("checksum_algorithm", CSA));
+        assertThat(about.size(), is(4));
 
     }
 
@@ -338,11 +382,11 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(computedPath, Matchers.not(Matchers.containsString(File.separator)));
     }
 
-    private String generateChecksum(String content) {
+    private byte[] generateChecksum(String content) {
         try {
             MessageDigest m = MessageDigest.getInstance("MD5");
             m.update(content.getBytes());
-            return Utils.toHex(m.digest());
+            return m.digest();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

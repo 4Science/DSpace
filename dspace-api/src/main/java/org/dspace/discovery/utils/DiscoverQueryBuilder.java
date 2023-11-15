@@ -384,7 +384,7 @@ public class DiscoverQueryBuilder implements InitializingBean {
 
     private String getDefaultSortDirection(DiscoverySortConfiguration searchSortConfiguration, String sortOrder) {
         if (Objects.nonNull(searchSortConfiguration.getSortFields()) &&
-                !searchSortConfiguration.getSortFields().isEmpty()) {
+            !searchSortConfiguration.getSortFields().isEmpty()) {
             sortOrder = searchSortConfiguration.getSortFields().get(0).getDefaultSortOrder().name();
         }
         return sortOrder;

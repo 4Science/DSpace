@@ -99,7 +99,7 @@
 		          <repeatable>false</repeatable>
 		          <required>Ви повинні вибрати тип публікації</required>
 		          <hint>Виберіть тип вмісту публікації.</hint>
-		          <vocabulary>srsc_uk</vocabulary>
+		          <vocabulary>publication-coar-types_uk</vocabulary>
 		        </field>
             </row>
         </form>

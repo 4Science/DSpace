@@ -100,7 +100,7 @@
             <type>utils</type>
             <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
         </step-definition>
-        
+
         <step-definition id="qualdroptest">
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
@@ -115,7 +115,7 @@
             <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
             <type>accessCondition</type>
         </step-definition>
-        
+
         <step-definition id="notDiscoverable">
             <heading>submit.progressbar.accessCondition</heading>
             <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
@@ -146,7 +146,7 @@
             <type>detect-duplicate</type>
         </step-definition>
 
-        <step-definition id="extractionstep"> 
+        <step-definition id="extractionstep">
             <heading>submit.progressbar.ExtractMetadataStep</heading>
             <processing-class>org.dspace.app.rest.submit.step.ExtractMetadataStep</processing-class>
             <type>extract</type>
@@ -214,7 +214,7 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
+
         <step-definition id="sherpaPolicies" mandatory="true">
             <heading>submit.progressbar.sherpapolicy</heading>
             <processing-class>org.dspace.app.rest.submit.step.SherpaPolicyStep</processing-class>
@@ -231,8 +231,8 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
-        <step-definition id="custom-url" mandatory="false"> 
+
+        <step-definition id="custom-url" mandatory="false">
             <heading>submit.progressbar.CustomUrlStep</heading>
             <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
             <type>custom-url</type>
@@ -341,7 +341,7 @@
             <step id="license"/>
             <step id="cclicense"/>
         </submission-process>
-        
+
         <submission-process name="traditional-with-custom-url">
             <step id="collection"/>
             <step id="extraction" />
@@ -434,7 +434,7 @@
             <step id="collection"/>
             <step id="languagetest"/>
         </submission-process>
-        
+
         <submission-process name="modeA">
            <step id="titleAndIssuedDate"/>
         </submission-process>
@@ -456,11 +456,11 @@
             <step id="license"/>
             <step id="cclicense"/>
         </submission-process>
-        
+
         <submission-process name="qualdroptest">
             <step id="qualdroptest" />
         </submission-process>
-        
+
         <submission-process name="typebindtest">
             <step id="typebindtest" />
         </submission-process>

@@ -298,7 +298,10 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                    .withTitle("Test 1")
                    .withIssueDate("2010-10-17")
                    .withAuthor("Testing, Works")
-                   .withType("Research Subject Categories::MATEMATICA", "srsc:SCB14")
+                   .withType(
+                       "Resource Types::text::journal::journal article::software paper",
+                       "publication-coar-types:c_7bab"
+                   )
                    .build();
 
         context.restoreAuthSystemState();
@@ -306,24 +309,35 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
         getClient().perform(get("/api/discover/facets/types")
                    .header("Accept-Language", Locale.ITALIAN.getLanguage())
                    .param("configuration", "multilanguage-types")
-                   .param("prefix", "matem"))
+                   .param("prefix", "art"))
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$.name", is("types")))
                    .andExpect(jsonPath("$.facetType", is("text")))
                    .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/types")))
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                              FacetValueMatcher.entryTypes("MATEMATICA","srsc:SCB14"))));
+                   .andExpect(jsonPath("$._embedded.values",
+                       containsInAnyOrder(
+                              FacetValueMatcher.entryTypes(
+                                  "articolo sul software","publication-coar-types:c_7bab"
+                              )
+                       )
+                   ));
 
         getClient().perform(get("/api/discover/facets/types")
                    .header("Accept-Language", "uk")
                    .param("configuration", "multilanguage-types")
-                   .param("prefix", "мат"))
+                   .param("prefix", "про"))
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$.name", is("types")))
                    .andExpect(jsonPath("$.facetType", is("text")))
                    .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/types")))
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                              FacetValueMatcher.entryTypes("МАТЕМАТИКА","srsc:SCB14"))));
+                   .andExpect(jsonPath("$._embedded.values",
+                       containsInAnyOrder(
+                           FacetValueMatcher.entryTypes(
+                               "програмна стаття",
+                               "publication-coar-types:c_7bab"
+                           )
+                       )
+                   ));
 
     }
 

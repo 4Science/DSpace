@@ -397,6 +397,8 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             }
 
             SAXBuilder saxBuilder = new SAXBuilder();
+            // disallow DTD parsing to ensure no XXE attacks can occur
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
             Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
 
@@ -437,6 +439,8 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
             }
 
             SAXBuilder saxBuilder = new SAXBuilder();
+            // disallow DTD parsing to ensure no XXE attacks can occur
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
             Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
 
@@ -491,6 +495,8 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     private List<Element> splitToRecords(String recordsSrc) {
         try {
             SAXBuilder saxBuilder = new SAXBuilder();
+            // disallow DTD parsing to ensure no XXE attacks can occur
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
             List<Namespace> namespaces = Arrays.asList(Namespace.getNamespace("ns", "http://www.epo.org/exchange"));

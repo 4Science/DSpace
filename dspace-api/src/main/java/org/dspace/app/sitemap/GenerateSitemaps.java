@@ -17,10 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,29 +25,26 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.dspace.app.customurl.CustomUrlService;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.content.Item;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.CollectionService;
-import org.dspace.content.service.CommunityService;
-import org.dspace.content.service.ItemService;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
-import org.dspace.discovery.DiscoverQuery;
-import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchService;
-import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.SolrSearchCore;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.utils.DSpace;
 
 /**
  * Command-line utility for generating HTML and Sitemaps.org protocol Sitemaps.
@@ -64,15 +58,11 @@ public class GenerateSitemaps {
      */
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(GenerateSitemaps.class);
 
-    private static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-    private static final CollectionService collectionService =
-        ContentServiceFactory.getInstance().getCollectionService();
-    private static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private static final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private static final SearchService searchService = SearchUtils.getSearchService();
-
-    private static final CustomUrlService customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
+    private static final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private static final int PAGE_SIZE = 1000;
 
     /**
      * Default constructor
@@ -213,112 +203,127 @@ public class GenerateSitemaps {
         }
 
         Context c = new Context(Context.Mode.READ_ONLY);
+        SolrSearchCore solrSearchCore = searchService.getSolrSearchCore();
+        SolrClient solr = solrSearchCore.getSolr();
+        Group anonymousGroup = groupService.findByName(c, Group.ANONYMOUS);
+        String anonGroupId = "";
+        if (anonymousGroup != null) {
+            anonGroupId = anonymousGroup.getID().toString();
+        }
 
-        List<Community> comms = communityService.findAll(c);
+        try {
+            SolrQuery solrQuery = new SolrQuery(SearchUtils.RESOURCE_TYPE_FIELD + ":Community");
+            solrQuery.addFilterQuery("read:g" + anonGroupId);
+            solrQuery.setFields(SearchUtils.RESOURCE_ID_FIELD);
+            solrQuery.setRows(PAGE_SIZE);
+            int offset = 0;
+            long commsCount = 0;
+            QueryResponse rsp;
+            do {
+                solrQuery.setStart(offset);
+                rsp = solr.query(solrQuery, solrSearchCore.REQUEST_METHOD);
+                SolrDocumentList docs = rsp.getResults();
+                commsCount = docs.getNumFound();
+                Iterator iter = docs.iterator();
 
-        for (Community comm : comms) {
-            String url = uiURLStem + "/communities/" + comm.getID();
+                while (iter.hasNext()) {
+                    SolrDocument doc = (SolrDocument) iter.next();
+                    String url = uiURLStem + "/communities/" + doc.getFieldValue(SearchUtils.RESOURCE_ID_FIELD);
+
+                    if (makeHTMLMap) {
+                        html.addURL(url, null);
+                    }
+                    if (makeSitemapOrg) {
+                        sitemapsOrg.addURL(url, null);
+                    }
+                }
+                offset += PAGE_SIZE;
+            } while (offset < commsCount);
+
+            solrQuery = new SolrQuery(SearchUtils.RESOURCE_TYPE_FIELD + ":Collection");
+            solrQuery.addFilterQuery("read:g" + anonGroupId);
+            solrQuery.setFields(SearchUtils.RESOURCE_ID_FIELD);
+            solrQuery.setRows(PAGE_SIZE);
+            offset = 0;
+            long collsCount = 0;
+            do {
+                solrQuery.setStart(offset);
+                rsp = solr.query(solrQuery, solrSearchCore.REQUEST_METHOD);
+                SolrDocumentList docs = rsp.getResults();
+                collsCount = docs.getNumFound();
+                Iterator iter = docs.iterator();
+
+                while (iter.hasNext()) {
+                    SolrDocument doc = (SolrDocument) iter.next();
+                    String url = uiURLStem + "/collections/" + doc.getFieldValue(SearchUtils.RESOURCE_ID_FIELD);
+
+                    if (makeHTMLMap) {
+                        html.addURL(url, null);
+                    }
+                    if (makeSitemapOrg) {
+                        sitemapsOrg.addURL(url, null);
+                    }
+                }
+                offset += PAGE_SIZE;
+            } while (offset < collsCount);
+
+            solrQuery = new SolrQuery(SearchUtils.RESOURCE_TYPE_FIELD + ":Item");
+            solrQuery.setFields(SearchUtils.RESOURCE_ID_FIELD, "customurl", "search.entitytype");
+            solrQuery.addFilterQuery("read:g" + anonGroupId);
+            solrQuery.addFilterQuery("-discoverable:false");
+            solrQuery.setRows(PAGE_SIZE);
+            offset = 0;
+            long itemsCount = 0;
+            do {
+                solrQuery.setStart(offset);
+                rsp = solr.query(solrQuery, solrSearchCore.REQUEST_METHOD);
+                SolrDocumentList docs = rsp.getResults();
+                itemsCount = docs.getNumFound();
+                Iterator iter = docs.iterator();
+
+                while (iter.hasNext()) {
+                    SolrDocument doc = (SolrDocument) iter.next();
+                    String uuid = (String) doc.getFirstValue(SearchUtils.RESOURCE_ID_FIELD);
+                    String entityType  = (String) doc.getFirstValue("search.entitytype");
+                    String customUrl  = (String) doc.getFirstValue("customUrl");
+                    String url = uiURLStem + "/items/" + uuid;
+
+                    if (StringUtils.isNotBlank(customUrl)) {
+                        url = uiURLStem + "/entities/" + StringUtils.lowerCase(entityType) + "/" + customUrl;
+                    } else if (StringUtils.isNoneBlank(entityType)) {
+                        url = uiURLStem + "/entities/" + StringUtils.lowerCase(entityType) + "/" + uuid;
+                    }
+                    if (makeHTMLMap) {
+                        html.addURL(url, null);
+                    }
+                    if (makeSitemapOrg) {
+                        sitemapsOrg.addURL(url, null);
+                    }
+
+                }
+                offset += PAGE_SIZE;
+            } while (offset < itemsCount);
 
             if (makeHTMLMap) {
-                html.addURL(url, null);
+                int files = html.finish();
+                log.info(LogHelper.getHeader(c, "write_sitemap",
+                                              "type=html,num_files=" + files + ",communities="
+                                                  + commsCount + ",collections=" + collsCount
+                                                  + ",items=" + itemsCount));
             }
+
             if (makeSitemapOrg) {
-                sitemapsOrg.addURL(url, null);
+                int files = sitemapsOrg.finish();
+                log.info(LogHelper.getHeader(c, "write_sitemap",
+                                              "type=html,num_files=" + files + ",communities="
+                                                  + commsCount + ",collections=" + collsCount
+                                                  + ",items=" + itemsCount));
             }
-
-            c.uncacheEntity(comm);
+        } catch (SolrServerException e) {
+            throw new RuntimeException(e);
+        } finally {
+            c.abort();
         }
-
-        List<Collection> colls = collectionService.findAll(c);
-
-        for (Collection coll : colls) {
-            String url = uiURLStem + "/collections/" + coll.getID();
-
-            if (makeHTMLMap) {
-                html.addURL(url, null);
-            }
-            if (makeSitemapOrg) {
-                sitemapsOrg.addURL(url, null);
-            }
-
-            c.uncacheEntity(coll);
-        }
-
-        Iterator<Item> allItems = itemService.findAll(c);
-        int itemCount = 0;
-
-        while (allItems.hasNext()) {
-            Item i = allItems.next();
-
-            Optional<String> customUrl = customUrlService.getCustomUrl(i);
-            if (customUrl.isPresent()) {
-
-                String url = uiURLStem + "/entities/" + StringUtils.lowerCase(itemService.getEntityTypeLabel(i))
-                    + "/" + customUrl.get();
-
-                if (makeHTMLMap) {
-                    html.addURL(url, null);
-                }
-                if (makeSitemapOrg) {
-                    sitemapsOrg.addURL(url, null);
-                }
-
-            }
-
-            DiscoverQuery entityQuery = new DiscoverQuery();
-            entityQuery.setQuery("search.uniqueid:\"Item-" + i.getID() + "\" and entityType:*");
-            entityQuery.addSearchField("entityType");
-
-            try {
-                DiscoverResult discoverResult = searchService.search(c, entityQuery);
-
-                String url;
-                if (CollectionUtils.isNotEmpty(discoverResult.getIndexableObjects())
-                    && CollectionUtils.isNotEmpty(discoverResult.getSearchDocument(
-                        discoverResult.getIndexableObjects().get(0)).get(0).getSearchFieldValues("entityType"))
-                    && StringUtils.isNotBlank(discoverResult.getSearchDocument(
-                        discoverResult.getIndexableObjects().get(0)).get(0).getSearchFieldValues("entityType").get(0))
-                ) {
-                    url = uiURLStem + "/entities/" + StringUtils.lowerCase(discoverResult.getSearchDocument(
-                            discoverResult.getIndexableObjects().get(0))
-                        .get(0).getSearchFieldValues("entityType").get(0)) + "/" + i.getID();
-                } else {
-                    url = uiURLStem + "/items/" + i.getID();
-                }
-                Date lastMod = i.getLastModified();
-
-                if (makeHTMLMap) {
-                    html.addURL(url, lastMod);
-                }
-                if (makeSitemapOrg) {
-                    sitemapsOrg.addURL(url, lastMod);
-                }
-            } catch (SearchServiceException e) {
-                log.error("Failed getting entitytype through solr for item " + i.getID() + ": " + e.getMessage());
-            }
-
-            c.uncacheEntity(i);
-
-            itemCount++;
-        }
-
-        if (makeHTMLMap) {
-            int files = html.finish();
-            log.info(LogHelper.getHeader(c, "write_sitemap",
-                                          "type=html,num_files=" + files + ",communities="
-                                              + comms.size() + ",collections=" + colls.size()
-                                              + ",items=" + itemCount));
-        }
-
-        if (makeSitemapOrg) {
-            int files = sitemapsOrg.finish();
-            log.info(LogHelper.getHeader(c, "write_sitemap",
-                                          "type=html,num_files=" + files + ",communities="
-                                              + comms.size() + ",collections=" + colls.size()
-                                              + ",items=" + itemCount));
-        }
-
-        c.abort();
     }
 
     /**

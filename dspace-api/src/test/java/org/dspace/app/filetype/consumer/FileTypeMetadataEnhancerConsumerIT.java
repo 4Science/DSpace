@@ -16,9 +16,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.curator.shaded.com.google.common.base.Objects;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
@@ -36,9 +38,11 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class FileTypeMetadataEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase {
 
@@ -231,7 +235,7 @@ public class FileTypeMetadataEnhancerConsumerIT extends AbstractIntegrationTestW
                 .filter(metadataFilter(FileTypeMetadataEnhancerConsumer.entityTypeMetadata))
                 .findFirst()
                 .orElseThrow();
-        bitstream.getMetadata().remove(entityType);
+        bitstreamService.removeMetadataValues(context, bitstream, List.of(entityType));
         context.turnOffAuthorisationSystem();
 
         this.bitstreamService.update(context, bitstream);
@@ -242,8 +246,8 @@ public class FileTypeMetadataEnhancerConsumerIT extends AbstractIntegrationTestW
         bitstream = context.reloadEntity(bitstream);
         item = context.reloadEntity(item);
 
-        assertThat(bitstream.getMetadata(), not(hasItem(with("dc.type", Mockito.any()))));
-        assertThat(item.getMetadata(), not(hasItem(with("dspace.file.type", Mockito.any()))));
+        assertThat(bitstream.getMetadata(), not(hasItem(withField("dc.type"))));
+        assertThat(item.getMetadata(),not(hasItem(withField("dspace.file.type"))));
     }
 
     @Test
@@ -428,5 +432,25 @@ public class FileTypeMetadataEnhancerConsumerIT extends AbstractIntegrationTestW
                 StringUtils.equals(metadataField.schema, metadata.getSchema()) &&
                 StringUtils.equals(metadataField.element, metadata.getElement()) &&
                 StringUtils.equals(metadataField.qualifier, metadata.getQualifier());
+    }
+
+    public static Matcher<MetadataValue> withField(final String field) {
+        return new TypeSafeMatcher<MetadataValue>() {
+
+            @Override
+            protected void describeMismatchSafely(MetadataValue metadataValue, Description description) {
+                description.appendText("was ").appendValue(metadataValue.getMetadataField().toString('.'));
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("MetadataValue with id ").appendValue(field);
+            }
+
+            @Override
+            protected boolean matchesSafely(MetadataValue metadataValue) {
+                return Objects.equal(field, metadataValue.getMetadataField().toString('.'));
+            }
+        };
     }
 }

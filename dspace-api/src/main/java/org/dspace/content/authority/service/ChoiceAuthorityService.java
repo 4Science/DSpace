@@ -16,6 +16,7 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DSpaceControlledVocabularyIndex;
 import org.dspace.core.Constants;
 
 /**
@@ -242,4 +243,7 @@ public interface ChoiceAuthorityService {
      * @param item          the item to be linked to the metadata value
      */
     void setReferenceWithAuthority(MetadataValue metadataValue, Item item);
+
+    public DSpaceControlledVocabularyIndex getVocabularyIndex(String nameVocab);
+
 }

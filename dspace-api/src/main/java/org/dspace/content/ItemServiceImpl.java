@@ -79,7 +79,9 @@ import org.dspace.eperson.service.SubscribeService;
 import org.dspace.event.Event;
 import org.dspace.harvest.HarvestedItem;
 import org.dspace.harvest.service.HarvestedItemService;
+import org.dspace.identifier.DOI;
 import org.dspace.identifier.IdentifierException;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.identifier.service.IdentifierService;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutField;
@@ -145,6 +147,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected CollectionService collectionService;
     @Autowired(required = true)
     protected IdentifierService identifierService;
+    @Autowired(required = true)
+    protected DOIService doiService;
     @Autowired(required = true)
     protected VersioningService versioningService;
     @Autowired(required = true)
@@ -960,6 +964,16 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // Remove any Handle
         handleService.unbindHandle(context, item);
 
+        // Delete a DOI if linked to the item.
+        // If no DOI consumer or provider is configured, but a DOI remains linked to this item's uuid,
+        // hibernate will throw a foreign constraint exception.
+        // Here we use the DOI service directly as it is able to manage DOIs even without any configured
+        // consumer or provider.
+        DOI doi = doiService.findDOIByDSpaceObject(context, item);
+        if (doi != null) {
+            doi.setDSpaceObject(null);
+        }
+
         // remove version attached to the item
         removeVersion(context, item);
 
@@ -1194,16 +1208,23 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Override
     public void adjustBundleBitstreamPolicies(Context context, Item item, Collection collection)
             throws SQLException, AuthorizeException {
-        List<ResourcePolicy> defaultCollectionPolicies = authorizeService
-                .getPoliciesActionFilter(context, collection, Constants.DEFAULT_BITSTREAM_READ);
+        // Bundles should inherit from DEFAULT_ITEM_READ so that if the item is readable, the files
+        // can be listed (even if they are themselves not readable as per DEFAULT_BITSTREAM_READ or other
+        // policies or embargos applied
+        List<ResourcePolicy> defaultCollectionBundlePolicies = authorizeService
+                .getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
+        // Bitstreams should inherit from DEFAULT_BITSTREAM_READ
+        List<ResourcePolicy> defaultCollectionBitstreamPolicies = authorizeService
+            .getPoliciesActionFilter(context, collection, Constants.DEFAULT_BITSTREAM_READ);
 
         List<ResourcePolicy> defaultItemPolicies = authorizeService.findPoliciesByDSOAndType(context, item,
                 ResourcePolicy.TYPE_CUSTOM);
-        if (defaultCollectionPolicies.size() < 1) {
+        if (defaultCollectionBitstreamPolicies.size() < 1) {
             throw new SQLException("Collection " + collection.getID()
                     + " (" + collection.getHandle() + ")"
                     + " has no default bitstream READ policies");
         }
+        // TODO: should we also throw an exception if no DEFAULT_ITEM_READ?
 
         // remove all policies from bundles, add new ones
         // Remove bundles
@@ -1214,16 +1235,42 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
             addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
-            addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionPolicies);
+            addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionBundlePolicies);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // if come from InstallItem: remove all submission/workflow policies
-                authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
-                authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
-                addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
-                addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
+                removeAllPoliciesAndAddDefault(context, bitstream, defaultItemPolicies,
+                                               defaultCollectionBitstreamPolicies);
             }
         }
+    }
+
+    @Override
+    public void adjustBitstreamPolicies(Context context, Item item, Collection collection , Bitstream bitstream)
+        throws SQLException, AuthorizeException {
+        List<ResourcePolicy> defaultCollectionPolicies = authorizeService
+            .getPoliciesActionFilter(context, collection, Constants.DEFAULT_BITSTREAM_READ);
+
+        List<ResourcePolicy> defaultItemPolicies = authorizeService.findPoliciesByDSOAndType(context, item,
+                ResourcePolicy.TYPE_CUSTOM);
+        if (defaultCollectionPolicies.size() < 1) {
+            throw new SQLException("Collection " + collection.getID()
+                                       + " (" + collection.getHandle() + ")"
+                                       + " has no default bitstream READ policies");
+        }
+
+        // remove all policies from bitstream, add new ones
+        removeAllPoliciesAndAddDefault(context, bitstream, defaultItemPolicies, defaultCollectionPolicies);
+    }
+
+    private void removeAllPoliciesAndAddDefault(Context context, Bitstream bitstream,
+                                            List<ResourcePolicy> defaultItemPolicies,
+                                            List<ResourcePolicy> defaultCollectionPolicies)
+        throws SQLException, AuthorizeException {
+        authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
+        addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
+        addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
     }
 
     @Override
@@ -1442,9 +1489,18 @@ prevent the generation of resource policy entry values with null dspace_object a
 
     */
 
-    @Override
+    /**
+     * Add the default policies, which have not been already added to the given DSpace object
+     *
+     * @param context                   The relevant DSpace Context.
+     * @param dso                       The DSpace Object to add policies to
+     * @param defaultCollectionPolicies list of policies
+     * @throws SQLException       An exception that provides information on a database access error or other errors.
+     * @throws AuthorizeException Exception indicating the current user of the context does not have permission
+     *                            to perform a particular action.
+     */
     public void addDefaultPoliciesNotInPlace(Context context, DSpaceObject dso,
-        List<ResourcePolicy> defaultCollectionPolicies) throws SQLException, AuthorizeException {
+         List<ResourcePolicy> defaultCollectionPolicies) throws SQLException, AuthorizeException {
         boolean appendMode = configurationService
                 .getBooleanProperty("core.authorization.installitem.inheritance-read.append-mode", false);
         for (ResourcePolicy defaultPolicy : defaultCollectionPolicies) {

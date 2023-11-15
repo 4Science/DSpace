@@ -13,18 +13,32 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * This class provides extra configuration for our Spring Boot Application
+ * This class provides extra configuration for our Spring Boot Application.
  * <p>
- * NOTE: @ComponentScan on "org.dspace.app.configuration" provides a way for other DSpace modules or plugins
- * to "inject" their own Spring configurations / subpaths into our Spring Boot webapp.
+ * NOTE: @ComponentScan on "org.dspace.app.configuration" provides a way for
+ * other DSpace modules or plugins to "inject" their own Spring configurations /
+ * subpaths into our Spring Boot webapp.
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  * @author Tim Donohue
  */
 @Configuration
-@ComponentScan( {"org.dspace.app.rest.converter", "org.dspace.app.rest.repository", "org.dspace.app.rest.utils",
-    "org.dspace.app.configuration", "org.dspace.iiif", "org.dspace.app.iiif", "org.dspace.app.rest.link",
-    "org.dspace.app.rest.converter.factory", "org.dspace.app.scheduler" })
+// Component scanning ignores any parent {@code ApplicationContext}s, so any
+// bean which is in the scope of both will be duplicated.  dspace-services makes
+// its context the parent of this one.  If a bean is explicitly configured in
+// the parent, it won't be so configured in this context and you may have
+// trouble.  Be careful what you add here.
+@ComponentScan( {
+    "org.dspace.app.rest.converter",
+    "org.dspace.app.rest.repository",
+    "org.dspace.app.rest.utils",
+    "org.dspace.app.configuration",
+    "org.dspace.iiif",
+    "org.dspace.app.iiif",
+    "org.dspace.app.rest.link",
+    "org.dspace.app.rest.converter.factory",
+    "org.dspace.app.scheduler"
+})
 public class ApplicationConfig {
     // Allowed CORS origins ("Access-Control-Allow-Origin" header)
     // Can be overridden in DSpace configuration
@@ -41,6 +55,11 @@ public class ApplicationConfig {
     @Value("${rest.cors.bitstream-allowed-origins}")
     private String[] bitstreamCorsAllowedOrigins;
 
+    // Allowed Signposting CORS origins ("Access-Control-Allow-Origin" header)
+    // Can be overridden in DSpace configuration
+    @Value("${signposting.cors.allowed-origins}")
+    private String[] signpostingCorsAllowedOrigins;
+
     // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
     // Defaults to true. Can be overridden in DSpace configuration
     @Value("${rest.cors.allow-credentials:true}")
@@ -55,6 +74,11 @@ public class ApplicationConfig {
     // Defaults to true. Can be overridden in DSpace configuration
     @Value("${rest.cors.bitstream-allow-credentials:true}")
     private boolean bitstreamsCorsAllowCredentials;
+
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${signposting.cors.allow-credentials:true}")
+    private boolean signpostingCorsAllowCredentials;
 
     // Configured User Interface URL (default: http://localhost:4000)
     @Value("${dspace.ui.url:http://localhost:4000}")
@@ -110,6 +134,14 @@ public class ApplicationConfig {
     }
 
     /**
+     * Returns the signposting.cors.allowed-origins (for Signposting access) defined in DSpace configuration.
+     * @return allowed origins
+     */
+    public String[] getSignpostingAllowedOriginsConfig() {
+        return this.signpostingCorsAllowedOrigins;
+    }
+
+    /**
      * Return whether to allow credentials (cookies) on CORS requests. This is used to set the
      * CORS "Access-Control-Allow-Credentials" header in Application class.
      * @return true or false
@@ -134,5 +166,14 @@ public class ApplicationConfig {
      */
     public boolean getBitstreamsAllowCredentials() {
         return bitstreamsCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on Signposting requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getSignpostingAllowCredentials() {
+        return signpostingCorsAllowCredentials;
     }
 }

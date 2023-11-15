@@ -539,7 +539,7 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         getClient(tokenParentAdmin).perform(get("/api/core/collections/" + col1.getID()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",
-                        Matchers.is(CollectionMatcher.matchCollection(col1))));
+                        Matchers.is((CollectionMatcher.matchCollection(col1)))));
 
         String tokenCol1Admin = getAuthToken(col1Admin.getEmail(), "qwerty02");
         getClient(tokenCol1Admin).perform(get("/api/core/collections/" + col1.getID()))
@@ -3646,6 +3646,7 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
                 )
             );
     }
+
 
     @Test
     public void patchMetadataCheckReindexingTest() throws Exception {

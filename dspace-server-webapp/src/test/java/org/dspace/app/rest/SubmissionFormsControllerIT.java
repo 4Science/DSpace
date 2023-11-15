@@ -767,7 +767,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
             .andExpect(jsonPath("$.rows[0].fields", contains(
                 matchFormWithoutVisibility("Title"),
                 matchFormWithVisibility("Date of Issue",
-                    Map.of("submission", "read-only", "workflow", "hidden", "edit", "hidden")),
+                                        Map.of("submission", "read-only", "workflow", "hidden", "edit", "hidden")),
                 matchFormWithVisibility("Type", Map.of("workflow", "hidden", "edit", "hidden")),
                 matchFormWithVisibility("Language",
                     Map.of("submission", "read-only", "workflow", "read-only", "edit", "read-only")),

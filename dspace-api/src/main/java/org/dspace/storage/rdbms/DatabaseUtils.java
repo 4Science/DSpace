@@ -413,11 +413,10 @@ public class DatabaseUtils {
         DatabaseMetaData meta = connection.getMetaData();
         String dbType = getDbType(connection);
         System.out.println("\nDatabase Type: " + dbType);
-        if (dbType.equals(DBMS_ORACLE)) {
-            System.out.println("====================================");
-            System.out.println("WARNING: Oracle support is deprecated!");
-            System.out.println("See https://github.com/DSpace/DSpace/issues/8214");
-            System.out.println("=====================================");
+        if (!dbType.equals(DBMS_POSTGRES) && !dbType.equals(DBMS_H2)) {
+            System.err.println("====================================");
+            System.err.println("ERROR: Database type " + dbType + " is UNSUPPORTED!");
+            System.err.println("=====================================");
         }
         System.out.println("Database URL: " + meta.getURL());
         System.out.println("Database Schema: " + getSchemaName(connection));
@@ -551,10 +550,6 @@ public class DatabaseUtils {
             // Migration scripts are based on DBMS Keyword (see full path below)
             String dbType = getDbType(connection);
             connection.close();
-
-            if (dbType.equals(DBMS_ORACLE)) {
-                log.warn("ORACLE SUPPORT IS DEPRECATED! See https://github.com/DSpace/DSpace/issues/8214");
-            }
 
             // Determine location(s) where Flyway will load all DB migrations
             ArrayList<String> scriptLocations = new ArrayList<>();
@@ -791,26 +786,6 @@ public class DatabaseUtils {
             // First, run Flyway's clean command on database.
             // For MOST database types, this takes care of everything
             flyway.clean();
-
-            try (Connection connection = dataSource.getConnection()) {
-                // Get info about which database type we are using
-                String dbType = getDbType(connection);
-
-                // If this is Oracle, the only way to entirely clean the database
-                // is to also purge the "Recyclebin". See:
-                // http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9018.htm
-                if (dbType.equals(DBMS_ORACLE)) {
-                    PreparedStatement statement = null;
-                    try {
-                        statement = connection.prepareStatement("PURGE RECYCLEBIN");
-                        statement.executeQuery();
-                    } finally {
-                        if (statement != null && !statement.isClosed()) {
-                            statement.close();
-                        }
-                    }
-                }
-            }
         } catch (FlywayException fe) {
             // If any FlywayException (Runtime) is thrown, change it to a SQLException
             throw new SQLException("Flyway clean error occurred", fe);
@@ -1059,11 +1034,6 @@ public class DatabaseUtils {
                     // We need to filter by schema in PostgreSQL
                     schemaFilter = true;
                     break;
-                case DBMS_ORACLE:
-                    // Oracle specific query for a sequence owned by our current DSpace user
-                    // NOTE: No need to filter by schema for Oracle, as Schema = User
-                    sequenceSQL = "SELECT COUNT(1) FROM user_sequences WHERE sequence_name=?";
-                    break;
                 case DBMS_H2:
                     // In H2, sequences are listed in the "information_schema.sequences" table
                     // SEE: http://www.h2database.com/html/grammar.html#information_schema
@@ -1167,11 +1137,6 @@ public class DatabaseUtils {
                 // For PostgreSQL, the default schema is named "public"
                 // See: http://www.postgresql.org/docs/9.0/static/ddl-schemas.html
                 schema = "public";
-            } else if (dbType.equals(DBMS_ORACLE)) {
-                // For Oracle, default schema is actually the user account
-                // See: http://stackoverflow.com/a/13341390
-                DatabaseMetaData meta = connection.getMetaData();
-                schema = meta.getUserName();
             } else {
                 // For H2 (in memory), there is no such thing as a schema
                 schema = null;
@@ -1369,8 +1334,6 @@ public class DatabaseUtils {
         String dbms_lc = prodName.toLowerCase(Locale.ROOT);
         if (dbms_lc.contains("postgresql")) {
             return DBMS_POSTGRES;
-        } else if (dbms_lc.contains("oracle")) {
-            return DBMS_ORACLE;
         } else if (dbms_lc.contains("h2")) {
             // Used for unit testing only
             return DBMS_H2;

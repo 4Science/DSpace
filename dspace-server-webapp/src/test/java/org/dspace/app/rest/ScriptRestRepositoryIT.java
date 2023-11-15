@@ -15,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -321,14 +322,73 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void findAllScriptsWithNoAdminTest() throws Exception {
+    public void findAllScriptsGenericLoggedInUserTest() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.page",
-                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4))));
+                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 2))));
+    }
 
+    @Test
+    public void findAllScriptsAnonymousUserTest() throws Exception {
+        // this should be changed once we allow anonymous user to execute some scripts
+        getClient().perform(get("/api/system/scripts"))
+                   .andExpect(status().isOk());
+    }
+
+    @Test
+    public void findAllScriptsLocalAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration curateScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("curate"))
+            .findAny().get();
+
+        // the local admins have at least access to the curate script
+        // and not access to process-cleaner script
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        getClient(colAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(itemAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
     }
 
     @Test
@@ -374,14 +434,22 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(token).perform(get("/api/system/scripts").param("size", "1").param("page", "1"))
                         .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.scripts",
+                                not(
+                                    hasItem(
+                                        ScriptMatcher.matchScript(
+                                            scriptConfigurations.get(10).getName(),
+                                            scriptConfigurations.get(10).getDescription()
+                                        )
+                                    )
+                                )
+                            )
+                        )
                         .andExpect(jsonPath("$._embedded.scripts", hasItem(
-                ScriptMatcher.matchScript(scriptConfigurations.get(10).getName(),
-                    scriptConfigurations.get(10).getDescription())
+                                ScriptMatcher.matchScript(alphabeticScripts.get(1).getName(),
+                                                          alphabeticScripts.get(1).getDescription())
                         )))
-                        .andExpect(jsonPath("$._embedded.scripts", Matchers.not(hasItem(
-                                ScriptMatcher.matchScript(alphabeticScripts.get(0).getName(),
-                                                          alphabeticScripts.get(0).getDescription())
-                        ))))
                         .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                             Matchers.containsString("/api/system/scripts?"),
                             Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -423,6 +491,63 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void findOneScriptByNameLocalAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration curateScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("curate"))
+            .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findOneScriptByNameNotAuthenticatedTest() throws Exception {
+        getClient().perform(get("/api/system/scripts/mock-script"))
+                        .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void findOneScriptByNameTestAccessDenied() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
 
@@ -433,14 +558,50 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void findOneScriptByInvalidNameBadRequestExceptionTest() throws Exception {
         getClient().perform(get("/api/system/scripts/mock-script-invalid"))
-                   .andExpect(status().isBadRequest());
+                   .andExpect(status().isNotFound());
     }
 
+    /**
+     * This test will create a basic structure of communities, collections and items with some local admins at each
+     * level and verify that the local admins, nor generic users can run scripts reserved to administrator
+     * (i.e. default one that don't override the default
+     * {@link ScriptConfiguration#isAllowedToExecute(org.dspace.core.Context, List)} method implementation
+     */
     @Test
     public void postProcessNonAdminAuthorizeException() throws Exception {
-        String token = getAuthToken(eperson.getEmail(), password);
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        Item item = ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
 
+        String token = getAuthToken(eperson.getEmail(), password);
+        String comAdmin_token = getAuthToken(eperson.getEmail(), password);
+        String colAdmin_token = getAuthToken(eperson.getEmail(), password);
+        String itemAdmin_token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(comAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(colAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(itemAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
                         .andExpect(status().isForbidden());
     }
 
@@ -474,16 +635,6 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postProcessAdminNoOptionsFailedStatus() throws Exception {
-
-//        List<ParameterValueRest> list = new LinkedList<>();
-//
-//        ParameterValueRest parameterValueRest = new ParameterValueRest();
-//        parameterValueRest.setName("-z");
-//        parameterValueRest.setValue("test");
-//        ParameterValueRest parameterValueRest1 = new ParameterValueRest();
-//        parameterValueRest1.setName("-q");
-//        list.add(parameterValueRest);
-//        list.add(parameterValueRest1);
 
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
@@ -520,7 +671,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(multipart("/api/system/scripts/mock-script-invalid/processes"))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -631,12 +782,19 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
 
+
+
     @Test
     public void postProcessAdminWithWrongContentTypeBadRequestException() throws Exception {
 
         String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token)
+                .perform(post("/api/system/scripts/mock-script/processes"))
+                .andExpect(status().isBadRequest());
+
         getClient(token).perform(post("/api/system/scripts/mock-script-invalid/processes"))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1412,6 +1570,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Override
     @After
     public void destroy() throws Exception {
+        context.turnOffAuthorisationSystem();
         CollectionUtils.emptyIfNull(processService.findAll(context)).stream().forEach(process -> {
             try {
                 processService.delete(context, process);
@@ -1419,6 +1578,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                 throw new RuntimeException(e);
             }
         });
+        context.restoreAuthSystemState();
         super.destroy();
     }
 

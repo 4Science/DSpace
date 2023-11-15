@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.DCInput;
 import org.dspace.app.util.DCInputSet;
@@ -39,6 +38,8 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
+import org.dspace.discovery.configuration.DiscoveryConfigurationService;
+import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.services.ConfigurationService;
 import org.dspace.submit.model.UploadConfiguration;
 import org.dspace.submit.model.UploadConfigurationService;
@@ -66,7 +67,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @see ChoiceAuthority
  */
 public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService {
-    private Logger log = LogManager.getLogger(ChoiceAuthorityServiceImpl.class);
+    private Logger log = org.apache.logging.log4j.LogManager.getLogger(ChoiceAuthorityServiceImpl.class);
 
     // map of field key to authority plugin
     protected Map<String, ChoiceAuthority> controller = new HashMap<String, ChoiceAuthority>();
@@ -95,6 +96,9 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected Map<String, Map<String, List<String>>> authoritiesFormDefinitions =
             new HashMap<String, Map<String, List<String>>>();
 
+    // Map of vocabulary authorities to and their index info equivalent
+    protected Map<String, DSpaceControlledVocabularyIndex> vocabularyIndexMap = new HashMap<>();
+
     // the item submission reader
     private SubmissionConfigReader itemSubmissionConfigReader;
 
@@ -108,6 +112,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected AuthorityServiceUtils authorityServiceUtils;
     @Autowired(required = true)
     protected ItemService itemService;
+    @Autowired
+    private DiscoveryConfigurationService searchConfigurationService;
 
     final static String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
     final static String CHOICES_PRESENTATION_PREFIX = "choices.presentation.";
@@ -700,5 +706,51 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
 
         return choiceAuthority instanceof LinkableEntityAuthority
             && entityType.equals(((LinkableEntityAuthority) choiceAuthority).getLinkedEntityType());
+    }
+
+    @Override
+    public DSpaceControlledVocabularyIndex getVocabularyIndex(String nameVocab) {
+        if (this.vocabularyIndexMap.containsKey(nameVocab)) {
+            return this.vocabularyIndexMap.get(nameVocab);
+        } else {
+            init();
+            ChoiceAuthority source = this.getChoiceAuthorityByAuthorityName(nameVocab);
+            if (source != null && source instanceof DSpaceControlledVocabulary) {
+                Set<String> metadataFields = new HashSet<>();
+                Map<String, List<String>> formsToFields = this.authoritiesFormDefinitions.get(nameVocab);
+                for (Map.Entry<String, List<String>> formToField : formsToFields.entrySet()) {
+                    metadataFields.addAll(formToField.getValue().stream().map(value ->
+                                    StringUtils.replace(value, "_", "."))
+                            .collect(Collectors.toList()));
+                }
+                DiscoverySearchFilterFacet matchingFacet = null;
+                for (DiscoverySearchFilterFacet facetConfig : searchConfigurationService.getAllFacetsConfig()) {
+                    boolean coversAllFieldsFromVocab = true;
+                    for (String fieldFromVocab: metadataFields) {
+                        boolean coversFieldFromVocab = false;
+                        for (String facetMdField: facetConfig.getMetadataFields()) {
+                            if (facetMdField.startsWith(fieldFromVocab)) {
+                                coversFieldFromVocab = true;
+                                break;
+                            }
+                        }
+                        if (!coversFieldFromVocab) {
+                            coversAllFieldsFromVocab = false;
+                            break;
+                        }
+                    }
+                    if (coversAllFieldsFromVocab) {
+                        matchingFacet = facetConfig;
+                        break;
+                    }
+                }
+                DSpaceControlledVocabularyIndex vocabularyIndex =
+                        new DSpaceControlledVocabularyIndex((DSpaceControlledVocabulary) source, metadataFields,
+                                matchingFacet);
+                this.vocabularyIndexMap.put(nameVocab, vocabularyIndex);
+                return vocabularyIndex;
+            }
+            return null;
+        }
     }
 }
