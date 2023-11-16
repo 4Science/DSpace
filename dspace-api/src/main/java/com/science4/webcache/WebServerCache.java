@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.core.Context;
 
 /**
@@ -58,11 +57,10 @@ public interface WebServerCache {
      * @param subjectID      subject id
      * @param handle         subject handle
      * @param identifiers    subject identifiers
-     * @param metadataValues metadata values
      * @return collection of urls.
      */
     public Collection<? extends String> getURLsEventuallyInCacheForDeletedObject(Context ctx, int subjectType,
-            UUID subjectID, String handle, List<String> identifiers, List<MetadataValueDTO> metadataValues);
+            UUID subjectID, String handle, List<String> identifiers);
 
     /**
      * Invalidates and renews passed urls.

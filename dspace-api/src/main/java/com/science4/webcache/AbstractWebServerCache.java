@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,7 +21,6 @@ import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
@@ -74,15 +72,20 @@ public abstract class AbstractWebServerCache implements WebServerCache {
     }
 
     @Override
-    public Collection<? extends String> getURLsEventuallyInCacheForDeletedObject(Context ctx, int subjectType,
-                                                                                 UUID subjectID, String handle, List<String> identifiers, List<MetadataValueDTO> metadataValues) {
+    public Collection<? extends String> getURLsEventuallyInCacheForDeletedObject(
+            Context ctx,
+            int subjectType,
+            UUID subjectID,
+            String handle,
+            List<String> identifiers
+    ) {
         switch (subjectType) {
             case Constants.COMMUNITY:
                 return getCommunityUrls(subjectID, handle);
             case Constants.COLLECTION:
                 return getCollectionUrls(subjectID, handle);
             case Constants.ITEM:
-                return getItemUrls(subjectID, handle, identifiers, metadataValues);
+                return getItemUrls(subjectID, handle, identifiers);
             default:
                 return Collections.emptyList();
         }
@@ -106,17 +109,15 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         return urls;
     }
 
-    private List<String> getItemUrls(UUID itemId, String handle, List<String> identifiers,
-            List<MetadataValueDTO> metadataValues) {
+    private List<String> getItemUrls(UUID itemId, String handle, List<String> identifiers) {
         List<String> urls = new ArrayList<>();
 
-        metadataValues.stream()
-                .filter(metadataValue -> matchMetadataValue(metadataValue, "dspace", "entity", "type"))
-                .map(MetadataValueDTO::getValue)
-                .findFirst().ifPresent(entityType -> {
-                    String url = baseURL + "/entities/" + entityType.toLowerCase() + "/" + itemId.toString();
-                    urls.add(url);
-                });
+        String[] entityTypes = configurationService.getArrayProperty("cris.entity-type");
+        if (nonNull(entityTypes)) {
+            for (String entityType : entityTypes) {
+                urls.add(baseURL + "/entities/" + entityType.toLowerCase() + "/" + itemId.toString());
+            }
+        }
 
         if (isNotBlank(handle)) {
             urls.add(handleUrl(handle));
@@ -155,10 +156,4 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         return new StringBuilder(baseURL).append("/handle/").append(handle).toString();
     }
 
-    private boolean matchMetadataValue(MetadataValueDTO metadataValue, String schema,
-                                       String element, String qualifier) {
-        return Objects.equals(metadataValue.getSchema(), schema)
-                && Objects.equals(metadataValue.getElement(), element)
-                && Objects.equals(metadataValue.getQualifier(), qualifier);
-    }
 }

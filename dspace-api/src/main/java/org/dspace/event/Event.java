@@ -19,7 +19,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -202,14 +201,6 @@ public class Event implements Serializable {
     private ArrayList<String> identifiers;
 
     /**
-     * Can contain metadata values.
-     *
-     * After creation of DELETE event, during handling of that event item is going
-     * to be already deleted, so we can use metadata passed with event.
-     */
-    private ArrayList<MetadataValueDTO> metadataValues;
-
-    /**
      * unique key to bind together events from one context's transaction
      */
     private String transactionID;
@@ -258,28 +249,12 @@ public class Event implements Serializable {
      * @param identifiers array containing all identifiers of the dso or an empty array
      */
     public Event(int eventType, int subjectType, UUID subjectID, String detail, ArrayList<String> identifiers) {
-        this(eventType, subjectType, subjectID, detail, identifiers, new ArrayList<MetadataValueDTO>());
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param eventType      action type, e.g. Event.ADD.
-     * @param subjectType    DSpace Object Type of subject e.g. Constants.ITEM.
-     * @param subjectID      database ID of subject instance.
-     * @param detail         detail information that depends on context.
-     * @param identifiers    array containing all identifiers of the dso or an empty array
-     * @param metadataValues array containing metadata values
-     */
-    public Event(int eventType, int subjectType, UUID subjectID, String detail, ArrayList<String> identifiers,
-                 ArrayList<MetadataValueDTO> metadataValues) {
         this.eventType = eventType;
         this.subjectType = coreTypeToMask(subjectType);
         this.subjectID = subjectID;
         timeStamp = System.currentTimeMillis();
         this.detail = detail;
         this.identifiers = (ArrayList<String>) identifiers.clone();
-        this.metadataValues = (ArrayList<MetadataValueDTO>) metadataValues.clone();
     }
 
     /**
@@ -565,10 +540,6 @@ public class Event implements Serializable {
     public List<String> getIdentifiers() {
         // don't return a reference to our private array, clone it.
         return (List<String>) identifiers.clone();
-    }
-
-    public List<MetadataValueDTO> getMetadataValues() {
-        return (List<MetadataValueDTO>) metadataValues.clone();
     }
 
     /**

@@ -128,8 +128,7 @@ public class StaleWebDataConsumer implements Consumer {
                     log.warn("got null subject type and/or ID on DELETE event, skipping it.");
                 } else {
                     urlsToRemove.addAll(webServerCache.getURLsEventuallyInCacheForDeletedObject(ctx,
-                            event.getSubjectType(), event.getSubjectID(), event.getDetail(), event.getIdentifiers(),
-                            event.getMetadataValues()));
+                            event.getSubjectType(), event.getSubjectID(), event.getDetail(), event.getIdentifiers()));
                 }
                 break;
             default:
