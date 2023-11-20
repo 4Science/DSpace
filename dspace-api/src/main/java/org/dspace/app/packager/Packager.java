@@ -9,31 +9,40 @@ package org.dspace.app.packager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.crosswalk.CrosswalkException;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.packager.PackageDisseminator;
 import org.dspace.content.packager.PackageException;
 import org.dspace.content.packager.PackageIngester;
 import org.dspace.content.packager.PackageParameters;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.handle.service.HandleService;
+import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowException;
 
 /**
@@ -120,326 +129,31 @@ import org.dspace.workflow.WorkflowException;
  * @author Tim Donohue
  * @version $Revision$
  */
-public class Packager {
+public class Packager extends DSpaceRunnable<PackagerScriptConfiguration> {
+
+    public static String PACKAGER_FILENAME_PREFIX = "packager";
+
     /* Various private global settings/options */
     protected String packageType = null;
     protected boolean submit = true;
     protected boolean userInteractionEnabled = true;
 
-    // die from illegal command line
-    protected static void usageError(String msg) {
-        System.out.println(msg);
-        System.out.println(" (run with -h flag for details)");
-        System.exit(1);
-    }
+    protected String sourceFile = null;
+    protected String[] parents = null;
+    protected String identifier = null;
+    protected PackageParameters pkgParams = new PackageParameters();
 
-    public static void main(String[] argv) throws Exception {
-        Options options = new Options();
-        options.addOption("p", "parent", true,
-                          "Handle(s) of parent Community or Collection into which to ingest object (repeatable)");
-        options.addOption("e", "eperson", true,
-                          "email address of eperson doing importing");
-        options
-            .addOption(
-                "w",
-                "install",
-                false,
-                "disable workflow; install immediately without going through collection's workflow");
-        options.addOption("r", "restore", false,
-                          "ingest in \"restore\" mode.  Restores a missing object based on the contents in a package.");
-        options.addOption("k", "keep-existing", false,
-                          "if an object is found to already exist during a restore (-r), then keep the existing " +
-                              "object and continue processing.  Can only be used with '-r'.  This avoids " +
-                              "object-exists errors which are thrown by -r by default.");
-        options.addOption("f", "force-replace", false,
-                          "if an object is found to already exist during a restore (-r), then remove it and replace " +
-                              "it with the contents of the package.  Can only be used with '-r'.  This REPLACES the " +
-                              "object(s) in the repository with the contents from the package(s).");
-        options.addOption("t", "type", true, "package type or MIMEtype");
-        options
-            .addOption("o", "option", true,
-                       "Packager option to pass to plugin, \"name=value\" (repeatable)");
-        options.addOption("d", "disseminate", false,
-                          "Disseminate package (output); default is to submit.");
-        options.addOption("s", "submit", false,
-                          "Submission package (Input); this is the default. ");
-        options.addOption("i", "identifier", true, "Handle of object to disseminate.");
-        options.addOption("a", "all", false,
-                          "also recursively ingest/disseminate any child packages, e.g. all Items within a Collection" +
-                              " (not all packagers may support this option!)");
-        options.addOption("h", "help", false,
-                          "help (you may also specify '-h -t [type]' for additional help with a specific type of " +
-                              "packager)");
-        options.addOption("u", "no-user-interaction", false,
-                          "Skips over all user interaction (i.e. [y/n] question prompts) within this script. This " +
-                              "flag can be used if you want to save (pipe) a report of all changes to a file, and " +
-                              "therefore need to bypass all user interaction.");
+    protected static final EPersonService epersonService =
+            EPersonServiceFactory.getInstance().getEPersonService();
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine line = parser.parse(options, argv);
+    protected static final PluginService pluginService =
+            CoreServiceFactory.getInstance().getPluginService();
 
-        String sourceFile = null;
-        String eperson = null;
-        String[] parents = null;
-        String identifier = null;
-        PackageParameters pkgParams = new PackageParameters();
-        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+    protected static final CollectionService collectionService =
+            ContentServiceFactory.getInstance().getCollectionService();
 
-        //initialize a new packager -- we'll add all our current params as settings
-        Packager myPackager = new Packager();
-
-        if (line.hasOption('h')) {
-            HelpFormatter myhelp = new HelpFormatter();
-            myhelp.printHelp("Packager  [options]  package-file|-\n",
-                             options);
-            //If user specified a type, also print out the SIP and DIP options
-            // that are specific to that type of packager
-            if (line.hasOption('t')) {
-                System.out.println("\n--------------------------------------------------------------");
-                System.out.println("Additional options for the " + line.getOptionValue('t') + " packager:");
-                System.out.println("--------------------------------------------------------------");
-                System.out.println("(These options may be specified using --option as described above)");
-
-                PackageIngester sip = (PackageIngester) pluginService
-                    .getNamedPlugin(PackageIngester.class, line.getOptionValue('t'));
-
-                if (sip != null) {
-                    System.out.println("\n\n" + line.getOptionValue('t') + " Submission (SIP) plugin options:\n");
-                    System.out.println(sip.getParameterHelp());
-                } else {
-                    System.out.println("\nNo valid Submission plugin found for " + line.getOptionValue('t') + " type.");
-                }
-
-                PackageDisseminator dip = (PackageDisseminator) pluginService
-                    .getNamedPlugin(PackageDisseminator.class, line.getOptionValue('t'));
-
-                if (dip != null) {
-                    System.out.println("\n\n" + line.getOptionValue('t') + " Dissemination (DIP) plugin options:\n");
-                    System.out.println(dip.getParameterHelp());
-                } else {
-                    System.out
-                        .println("\nNo valid Dissemination plugin found for " + line.getOptionValue('t') + " type.");
-                }
-
-            } else {
-                //otherwise, display list of valid packager types
-                System.out.println("\nAvailable Submission Package (SIP) types:");
-                String pn[] = pluginService
-                    .getAllPluginNames(PackageIngester.class);
-                for (int i = 0; i < pn.length; ++i) {
-                    System.out.println("  " + pn[i]);
-                }
-                System.out
-                    .println("\nAvailable Dissemination Package (DIP) types:");
-                pn = pluginService.getAllPluginNames(PackageDisseminator.class);
-                for (int i = 0; i < pn.length; ++i) {
-                    System.out.println("  " + pn[i]);
-                }
-            }
-            System.exit(0);
-        }
-
-        //look for flag to disable all user interaction
-        if (line.hasOption('u')) {
-            myPackager.userInteractionEnabled = false;
-        }
-        if (line.hasOption('w')) {
-            pkgParams.setWorkflowEnabled(false);
-        }
-        if (line.hasOption('r')) {
-            pkgParams.setRestoreModeEnabled(true);
-        }
-        //keep-existing is only valid in restoreMode (-r) -- otherwise ignore -k option.
-        if (line.hasOption('k') && pkgParams.restoreModeEnabled()) {
-            pkgParams.setKeepExistingModeEnabled(true);
-        }
-        //force-replace is only valid in restoreMode (-r) -- otherwise ignore -f option.
-        if (line.hasOption('f') && pkgParams.restoreModeEnabled()) {
-            pkgParams.setReplaceModeEnabled(true);
-        }
-        if (line.hasOption('e')) {
-            eperson = line.getOptionValue('e');
-        }
-        if (line.hasOption('p')) {
-            parents = line.getOptionValues('p');
-        }
-        if (line.hasOption('t')) {
-            myPackager.packageType = line.getOptionValue('t');
-        }
-        if (line.hasOption('i')) {
-            identifier = line.getOptionValue('i');
-        }
-        if (line.hasOption('a')) {
-            //enable 'recursiveMode' param to packager implementations, in case it helps with packaging or ingestion
-            // process
-            pkgParams.setRecursiveModeEnabled(true);
-        }
-        String files[] = line.getArgs();
-        if (files.length > 0) {
-            sourceFile = files[0];
-        }
-        if (line.hasOption('d')) {
-            myPackager.submit = false;
-        }
-        if (line.hasOption('o')) {
-            String popt[] = line.getOptionValues('o');
-            for (int i = 0; i < popt.length; ++i) {
-                String pair[] = popt[i].split("\\=", 2);
-                if (pair.length == 2) {
-                    pkgParams.addProperty(pair[0].trim(), pair[1].trim());
-                } else if (pair.length == 1) {
-                    pkgParams.addProperty(pair[0].trim(), "");
-                } else {
-                    System.err
-                        .println("Warning: Illegal package option format: \""
-                                     + popt[i] + "\"");
-                }
-            }
-        }
-
-        // Sanity checks on arg list: required args
-        // REQUIRED: sourceFile, ePerson (-e), packageType (-t)
-        if (sourceFile == null || eperson == null || myPackager.packageType == null) {
-            System.err.println("Error - missing a REQUIRED argument or option.\n");
-            HelpFormatter myhelp = new HelpFormatter();
-            myhelp.printHelp("PackageManager  [options]  package-file|-\n", options);
-            System.exit(0);
-        }
-
-        // find the EPerson, assign to context
-        Context context = new Context();
-        EPerson myEPerson = null;
-        myEPerson = EPersonServiceFactory.getInstance().getEPersonService().findByEmail(context, eperson);
-        if (myEPerson == null) {
-            usageError("Error, eperson cannot be found: " + eperson);
-        }
-        context.setCurrentUser(myEPerson);
-
-
-        //If we are in REPLACE mode
-        if (pkgParams.replaceModeEnabled()) {
-            context.setMode(Context.Mode.BATCH_EDIT);
-            PackageIngester sip = (PackageIngester) pluginService
-                .getNamedPlugin(PackageIngester.class, myPackager.packageType);
-            if (sip == null) {
-                usageError("Error, Unknown package type: " + myPackager.packageType);
-            }
-
-            DSpaceObject objToReplace = null;
-
-            //if a specific identifier was specified, make sure it is valid
-            if (identifier != null && identifier.length() > 0) {
-                objToReplace = HandleServiceFactory.getInstance().getHandleService()
-                                                   .resolveToObject(context, identifier);
-                if (objToReplace == null) {
-                    throw new IllegalArgumentException("Bad identifier/handle -- "
-                                                           + "Cannot resolve handle \"" + identifier + "\"");
-                }
-            }
-
-            String choiceString = null;
-            if (myPackager.userInteractionEnabled) {
-                BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("\n\nWARNING -- You are running the packager in REPLACE mode.");
-                System.out.println(
-                    "\nREPLACE mode may be potentially dangerous as it will automatically remove and replace contents" +
-                        " within DSpace.");
-                System.out.println(
-                    "We highly recommend backing up all your DSpace contents (files & database) before continuing.");
-                System.out.print("\nWould you like to continue? [y/n]: ");
-                choiceString = input.readLine();
-            } else {
-                //user interaction disabled -- default answer to 'yes', otherwise script won't continue
-                choiceString = "y";
-            }
-
-            if (choiceString.equalsIgnoreCase("y")) {
-                System.out.println("Beginning replacement process...");
-
-                try {
-                    //replace the object from the source file
-                    myPackager.replace(context, sip, pkgParams, sourceFile, objToReplace);
-
-                    //commit all changes & exit successfully
-                    context.complete();
-                    System.exit(0);
-                } catch (Exception e) {
-                    // abort all operations
-                    e.printStackTrace();
-                    context.abort();
-                    System.out.println(e);
-                    System.exit(1);
-                }
-            }
-
-        } else if (myPackager.submit || pkgParams.restoreModeEnabled()) {
-            //else if normal SUBMIT mode (or basic RESTORE mode -- which is a special type of submission)
-            context.setMode(Context.Mode.BATCH_EDIT);
-
-            PackageIngester sip = (PackageIngester) pluginService
-                .getNamedPlugin(PackageIngester.class, myPackager.packageType);
-            if (sip == null) {
-                usageError("Error, Unknown package type: " + myPackager.packageType);
-            }
-
-            // validate each parent arg (if any)
-            DSpaceObject parentObjs[] = null;
-            if (parents != null) {
-                System.out.println("Destination parents:");
-
-                parentObjs = new DSpaceObject[parents.length];
-                for (int i = 0; i < parents.length; i++) {
-                    // sanity check: did handle resolve?
-                    parentObjs[i] = HandleServiceFactory.getInstance().getHandleService().resolveToObject(context,
-                                                                                                          parents[i]);
-                    if (parentObjs[i] == null) {
-                        throw new IllegalArgumentException(
-                            "Bad parent list -- "
-                                + "Cannot resolve parent handle \""
-                                + parents[i] + "\"");
-                    }
-                    System.out.println((i == 0 ? "Owner: " : "Parent: ")
-                                           + parentObjs[i].getHandle());
-                }
-            }
-
-            try {
-                //ingest the object from the source file
-                myPackager.ingest(context, sip, pkgParams, sourceFile, parentObjs);
-
-                //commit all changes & exit successfully
-                context.complete();
-                System.exit(0);
-            } catch (Exception e) {
-                // abort all operations
-                e.printStackTrace();
-                context.abort();
-                System.out.println(e);
-                System.exit(1);
-            }
-        } else {
-            // else, if DISSEMINATE mode
-            context.setMode(Context.Mode.READ_ONLY);
-
-            //retrieve specified package disseminator
-            PackageDisseminator dip = (PackageDisseminator) pluginService
-                .getNamedPlugin(PackageDisseminator.class, myPackager.packageType);
-            if (dip == null) {
-                usageError("Error, Unknown package type: " + myPackager.packageType);
-            }
-
-            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                   .resolveToObject(context, identifier);
-            if (dso == null) {
-                throw new IllegalArgumentException("Bad identifier/handle -- "
-                                                       + "Cannot resolve handle \"" + identifier + "\"");
-            }
-
-            //disseminate the requested object
-            myPackager.disseminate(context, dip, dso, pkgParams, sourceFile);
-        }
-        System.exit(0);
-    }
+    protected static final HandleService handleService =
+            HandleServiceFactory.getInstance().getHandleService();
 
     /**
      * Ingest one or more DSpace objects from package(s) based on the
@@ -468,11 +182,11 @@ public class Packager {
         File pkgFile = new File(sourceFile);
 
         if (!pkgFile.exists()) {
-            System.out.println("\nERROR: Package located at " + sourceFile + " does not exist!");
-            System.exit(1);
+            handler.logError("Package located at " + sourceFile + " does not exist!");
+            throw new RuntimeException("Package located at " + sourceFile + " does not exist!");
         }
 
-        System.out.println("\nIngesting package located at " + sourceFile);
+        handler.logInfo("Ingesting package located at " + sourceFile);
 
         //find first parent (if specified) -- this will be the "owner" of the object
         DSpaceObject parent = null;
@@ -485,22 +199,22 @@ public class Packager {
         try {
             //If we are doing a recursive ingest, call ingestAll()
             if (pkgParams.recursiveModeEnabled()) {
-                System.out.println("\nAlso ingesting all referenced packages (recursive mode)..");
-                System.out.println(
-                    "This may take a while, please check your logs for ongoing status while we process each package.");
+                handler.logInfo("Also ingesting all referenced packages (recursive mode)..");
+                handler.logInfo("This may take a while," +
+                        " please check your logs for ongoing status while we process each package.");
 
                 //ingest first package & recursively ingest anything else that package references (child packages, etc)
                 List<String> hdlResults = sip.ingestAll(context, parent, pkgFile, pkgParams, null);
 
                 if (hdlResults != null) {
                     //Report total objects created
-                    System.out.println("\nCREATED a total of " + hdlResults.size() + " DSpace Objects.");
+                    handler.logInfo("CREATED a total of " + hdlResults.size() + " DSpace Objects.");
 
                     String choiceString = null;
                     //Ask if user wants full list printed to command line, as this may be rather long.
                     if (this.userInteractionEnabled) {
                         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                        System.out.print("\nWould you like to view a list of all objects that were created? [y/n]: ");
+                        handler.logInfo("Would you like to view a list of all objects that were created? [y/n]: ");
                         choiceString = input.readLine();
                     } else {
                         // user interaction disabled -- default answer to 'yes', as
@@ -510,19 +224,17 @@ public class Packager {
 
                     // Provide detailed report if user answered 'yes'
                     if (choiceString.equalsIgnoreCase("y")) {
-                        System.out.println("\n\n");
                         for (String result : hdlResults) {
-                            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                                   .resolveToObject(context, result);
+                            DSpaceObject dso = handleService.resolveToObject(context, result);
 
                             if (dso != null) {
 
                                 if (pkgParams.restoreModeEnabled()) {
-                                    System.out.println("RESTORED DSpace " + Constants.typeText[dso.getType()] +
+                                    handler.logInfo("RESTORED DSpace " + Constants.typeText[dso.getType()] +
                                                            " [ hdl=" + dso.getHandle() + ", dbID=" + dso
                                         .getID() + " ] ");
                                 } else {
-                                    System.out.println("CREATED new DSpace " + Constants.typeText[dso.getType()] +
+                                    handler.logInfo("CREATED new DSpace " + Constants.typeText[dso.getType()] +
                                                            " [ hdl=" + dso.getHandle() + ", dbID=" + dso
                                         .getID() + " ] ");
                                 }
@@ -538,10 +250,10 @@ public class Packager {
 
                     if (dso != null) {
                         if (pkgParams.restoreModeEnabled()) {
-                            System.out.println("RESTORED DSpace " + Constants.typeText[dso.getType()] +
+                            handler.logInfo("RESTORED DSpace " + Constants.typeText[dso.getType()] +
                                                    " [ hdl=" + dso.getHandle() + ", dbID=" + dso.getID() + " ] ");
                         } else {
-                            System.out.println("CREATED new DSpace " + Constants.typeText[dso.getType()] +
+                            handler.logInfo("CREATED new DSpace " + Constants.typeText[dso.getType()] +
                                                    " [ hdl=" + dso.getHandle() + ", dbID=" + dso.getID() + " ] ");
                         }
                     }
@@ -551,8 +263,8 @@ public class Packager {
 
                     //if we are skipping over (i.e. keeping) existing objects
                     if (pkgParams.keepExistingModeEnabled()) {
-                        System.out.println(
-                            "\nSKIPPED processing package '" + pkgFile + "', as an Object already exists with this " +
+                        handler.logInfo(
+                            "SKIPPED processing package '" + pkgFile + "', as an Object already exists with this " +
                                 "handle.");
                     } else {
                         // Pass this exception on -- which essentially causes a full rollback of all changes (this
@@ -591,27 +303,27 @@ public class Packager {
         // initialize output file
         File pkgFile = new File(outputFile);
 
-        System.out.println("\nDisseminating DSpace " + Constants.typeText[dso.getType()] +
+        handler.logInfo("Disseminating DSpace " + Constants.typeText[dso.getType()] +
                                " [ hdl=" + dso.getHandle() + " ] to " + outputFile);
 
         //If we are doing a recursive dissemination of this object & all its child objects, call disseminateAll()
         if (pkgParams.recursiveModeEnabled()) {
-            System.out.println("\nAlso disseminating all child objects (recursive mode)..");
-            System.out.println(
-                "This may take a while, please check your logs for ongoing status while we process each package.");
+            handler.logInfo("Also disseminating all child objects (recursive mode)..");
+            handler.logInfo("This may take a while," +
+                    " please check your logs for ongoing status while we process each package.");
 
             //disseminate initial object & recursively disseminate all child objects as well
             List<File> fileResults = dip.disseminateAll(context, dso, pkgParams, pkgFile);
 
             if (fileResults != null) {
                 //Report total files created
-                System.out.println("\nCREATED a total of " + fileResults.size() + " dissemination package files.");
+                handler.logInfo("CREATED a total of " + fileResults.size() + " dissemination package files.");
 
                 String choiceString = null;
                 //Ask if user wants full list printed to command line, as this may be rather long.
                 if (this.userInteractionEnabled) {
                     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                    System.out.print("\nWould you like to view a list of all files that were created? [y/n]: ");
+                    handler.logInfo("Would you like to view a list of all files that were created? [y/n]: ");
                     choiceString = input.readLine();
                 } else {
                     // user interaction disabled -- default answer to 'yes', as
@@ -621,9 +333,8 @@ public class Packager {
 
                 // Provide detailed report if user answered 'yes'
                 if (choiceString.equalsIgnoreCase("y")) {
-                    System.out.println("\n\n");
                     for (File result : fileResults) {
-                        System.out.println("CREATED package file: " + result.getCanonicalPath());
+                        handler.logInfo("CREATED package file: " + result.getCanonicalPath());
                     }
                 }
             }
@@ -632,7 +343,7 @@ public class Packager {
             dip.disseminate(context, dso, pkgParams, pkgFile);
 
             if (pkgFile.exists()) {
-                System.out.println("\nCREATED package file: " + pkgFile.getCanonicalPath());
+                handler.logInfo("CREATED package file: " + pkgFile.getCanonicalPath());
             }
         }
     }
@@ -664,13 +375,13 @@ public class Packager {
         File pkgFile = new File(sourceFile);
 
         if (!pkgFile.exists()) {
-            System.out.println("\nPackage located at " + sourceFile + " does not exist!");
-            System.exit(1);
+            handler.logError("Package located at " + sourceFile + " does not exist!");
+            throw new RuntimeException("Package located at " + sourceFile + " does not exist!");
         }
 
-        System.out.println("\nReplacing DSpace object(s) with package located at " + sourceFile);
+        handler.logInfo("Replacing DSpace object(s) with package located at " + sourceFile);
         if (objToReplace != null) {
-            System.out.println("Will replace existing DSpace " + Constants.typeText[objToReplace.getType()] +
+            handler.logInfo("Will replace existing DSpace " + Constants.typeText[objToReplace.getType()] +
                                    " [ hdl=" + objToReplace.getHandle() + " ]");
         }
         // NOTE: At this point, objToReplace may be null.  If it is null, it is up to the PackageIngester
@@ -685,13 +396,13 @@ public class Packager {
 
                 if (hdlResults != null) {
                     //Report total objects replaced
-                    System.out.println("\nREPLACED a total of " + hdlResults.size() + " DSpace Objects.");
+                    handler.logInfo("REPLACED a total of " + hdlResults.size() + " DSpace Objects.");
 
                     String choiceString = null;
                     //Ask if user wants full list printed to command line, as this may be rather long.
                     if (this.userInteractionEnabled) {
                         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                        System.out.print("\nWould you like to view a list of all objects that were replaced? [y/n]: ");
+                        handler.logInfo("Would you like to view a list of all objects that were replaced? [y/n]: ");
                         choiceString = input.readLine();
                     } else {
                         // user interaction disabled -- default answer to 'yes', as
@@ -701,13 +412,11 @@ public class Packager {
 
                     // Provide detailed report if user answered 'yes'
                     if (choiceString.equalsIgnoreCase("y")) {
-                        System.out.println("\n\n");
                         for (String result : hdlResults) {
-                            DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService()
-                                                                   .resolveToObject(context, result);
+                            DSpaceObject dso = handleService.resolveToObject(context, result);
 
                             if (dso != null) {
-                                System.out.println("REPLACED DSpace " + Constants.typeText[dso.getType()] +
+                                handler.logInfo("REPLACED DSpace " + Constants.typeText[dso.getType()] +
                                                        " [ hdl=" + dso.getHandle() + " ] ");
                             }
                         }
@@ -720,12 +429,334 @@ public class Packager {
                 DSpaceObject dso = sip.replace(context, objToReplace, pkgFile, pkgParams);
 
                 if (dso != null) {
-                    System.out.println("REPLACED DSpace " + Constants.typeText[dso.getType()] +
+                    handler.logInfo("REPLACED DSpace " + Constants.typeText[dso.getType()] +
                                            " [ hdl=" + dso.getHandle() + " ] ");
                 }
             }
         } catch (WorkflowException e) {
             throw new PackageException(e);
+        }
+    }
+
+    @Override
+    public PackagerScriptConfiguration getScriptConfiguration() {
+        return new DSpace().getServiceManager()
+                .getServiceByName("packager", PackagerScriptConfiguration.class);
+    }
+
+    @Override
+    public void setup() throws ParseException {
+        // look for flag to disable all user interaction
+        setUserInteraction();
+
+        if (commandLine.hasOption('w')) {
+            pkgParams.setWorkflowEnabled(false);
+        }
+        if (commandLine.hasOption('r')) {
+            pkgParams.setRestoreModeEnabled(true);
+        }
+        // keep-existing is only valid in restoreMode (-r) -- otherwise ignore -k option.
+        if (commandLine.hasOption('k') && pkgParams.restoreModeEnabled()) {
+            pkgParams.setKeepExistingModeEnabled(true);
+        }
+        // force-replace is only valid in restoreMode (-r) -- otherwise ignore -f option.
+        if (commandLine.hasOption('f') && pkgParams.restoreModeEnabled()) {
+            pkgParams.setReplaceModeEnabled(true);
+        }
+        if (commandLine.hasOption('p')) {
+            parents = commandLine.getOptionValues('p');
+        }
+        if (commandLine.hasOption('t')) {
+            packageType = commandLine.getOptionValue('t');
+        }
+        if (commandLine.hasOption('i')) {
+            identifier = commandLine.getOptionValue('i');
+        }
+        if (commandLine.hasOption('a')) {
+            // enable 'recursiveMode' param to packager implementations,
+            // in case it helps with packaging or ingestion process
+            pkgParams.setRecursiveModeEnabled(true);
+        }
+        if (commandLine.hasOption('d')) {
+            submit = false;
+        }
+    }
+
+    @Override
+    public void internalRun() throws Exception {
+        if (commandLine.hasOption('h')) {
+            printCustomHelp();
+            return;
+        }
+
+        // sanity checks on arg list: required args
+        if (packageType == null) {
+            handler.logError("Missing package type parameter");
+            throw new UnsupportedOperationException("Missing package type parameter");
+        }
+
+        if (commandLine.hasOption('o')) {
+            String popt[] = commandLine.getOptionValues('o');
+            for (int i = 0; i < popt.length; ++i) {
+                String pair[] = popt[i].split("\\=", 2);
+                if (pair.length == 2) {
+                    pkgParams.addProperty(pair[0].trim(), pair[1].trim());
+                } else if (pair.length == 1) {
+                    pkgParams.addProperty(pair[0].trim(), "");
+                } else {
+                    handler.logError("Illegal package option format: \"" + popt[i] + "\"");
+                    throw new UnsupportedOperationException("Illegal package option format: \"" + popt[i] + "\"");
+                }
+            }
+        }
+
+        // find the EPerson, assign to context
+        Context context = new Context(Context.Mode.BATCH_EDIT);
+        EPerson eperson = getEPerson(context);
+        context.setCurrentUser(eperson);
+
+        //If we are in REPLACE mode
+        if (pkgParams.replaceModeEnabled()) {
+            PackageIngester sip = (PackageIngester) pluginService
+                .getNamedPlugin(PackageIngester.class, packageType);
+            if (sip == null) {
+                handler.logError("Unknown package type: " + packageType);
+                throw new RuntimeException("Unknown package type: " + packageType);
+            }
+
+            DSpaceObject objToReplace = null;
+
+            //if a specific identifier was specified, make sure it is valid
+            if (identifier != null && identifier.length() > 0) {
+                objToReplace = handleService.resolveToObject(context, identifier);
+                if (objToReplace == null) {
+                    throw new IllegalArgumentException("Bad identifier/handle -- "
+                                                           + "Cannot resolve handle \"" + identifier + "\"");
+                }
+            }
+
+            String choiceString = null;
+            if (userInteractionEnabled) {
+                BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+                handler.logWarning("You are running the packager in REPLACE mode.");
+                handler.logWarning(
+                    "REPLACE mode may be potentially dangerous as it will automatically remove and replace contents" +
+                        " within DSpace.");
+                handler.logWarning(
+                    "We highly recommend backing up all your DSpace contents (files & database) before continuing.");
+                handler.logInfo("Would you like to continue? [y/n]: ");
+                choiceString = input.readLine();
+            } else {
+                //user interaction disabled -- default answer to 'yes', otherwise script won't continue
+                choiceString = "y";
+            }
+
+            if (choiceString.equalsIgnoreCase("y")) {
+                handler.logInfo("Beginning replacement process...");
+
+                try {
+                    setSourceFile(context, true);
+
+                    //replace the object from the source file
+                    replace(context, sip, pkgParams, sourceFile, objToReplace);
+
+                    //commit all changes & exit successfully
+                    context.complete();
+                } catch (Exception e) {
+                    context.abort();
+                    throw new RuntimeException(e);
+                }
+            }
+
+        } else if (submit || pkgParams.restoreModeEnabled()) {
+            //else if normal SUBMIT mode (or basic RESTORE mode -- which is a special type of submission)
+
+            PackageIngester sip = (PackageIngester) pluginService
+                .getNamedPlugin(PackageIngester.class, packageType);
+            if (sip == null) {
+                handler.logError("Unknown package type: " + packageType);
+                throw new RuntimeException("Unknown package type: " + packageType);
+            }
+
+            // validate each parent arg (if any)
+            DSpaceObject parentObjs[] = null;
+            if (parents != null) {
+                handler.logInfo("Destination parents:");
+
+                parentObjs = new DSpaceObject[parents.length];
+                for (int i = 0; i < parents.length; i++) {
+                    // is the ID a handle?
+                    if (parents[i].indexOf('/') != -1) {
+                        // string has a / so it must be a handle - try and resolve it
+                        parentObjs[i] = ((Collection) handleService.resolveToObject(
+                                context, parents[i]));
+                    } else {
+                        // not a handle, try via UUID
+                        parentObjs[i] = collectionService.find(
+                                context, UUID.fromString(parents[i]));
+                    }
+
+                    if (parentObjs[i] == null) {
+                        throw new IllegalArgumentException(
+                            "Bad parent list -- "
+                                + "Cannot resolve parent handle \""
+                                + parents[i] + "\"");
+                    }
+                    handler.logInfo((i == 0 ? "Owner: " : "Parent: ")
+                                           + parentObjs[i].getHandle());
+                }
+            }
+
+            try {
+                setSourceFile(context, true);
+
+                //ingest the object from the source file
+                ingest(context, sip, pkgParams, sourceFile, parentObjs);
+
+                //commit all changes & exit successfully
+                context.complete();
+            } catch (Exception e) {
+                context.abort();
+                throw new RuntimeException(e);
+            }
+        } else {
+            // else, if DISSEMINATE mode
+
+            //retrieve specified package disseminator
+            PackageDisseminator dip = (PackageDisseminator) pluginService
+                .getNamedPlugin(PackageDisseminator.class, packageType);
+            if (dip == null) {
+                handler.logError("Unknown package type: " + packageType);
+                throw new RuntimeException("Unknown package type: " + packageType);
+            }
+
+            DSpaceObject dso = handleService.resolveToObject(context, identifier);
+            if (dso == null) {
+                throw new IllegalArgumentException("Bad identifier/handle -- "
+                                                       + "Cannot resolve handle \"" + identifier + "\"");
+            }
+
+            try {
+                setSourceFile(context, false);
+
+                //disseminate the requested object
+                disseminate(context, dip, dso, pkgParams, sourceFile);
+
+                attachOutput(context, dso.getID());
+
+                //commit all changes & exit successfully
+                context.complete();
+            } catch (Exception e) {
+                context.abort();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void printCustomHelp() {
+        printHelp();
+
+        StringBuilder helpString = new StringBuilder();
+        if (commandLine.hasOption('t')) {
+            helpString.append("--------------------------------------------------------------\n");
+            helpString.append("Additional options for the " + commandLine.getOptionValue('t') + " packager:\n");
+            helpString.append("--------------------------------------------------------------\n");
+            helpString.append("(These options may be specified using --option as described above)\n");
+
+            PackageIngester sip = (PackageIngester) pluginService
+                .getNamedPlugin(PackageIngester.class, commandLine.getOptionValue('t'));
+
+            if (sip != null) {
+                helpString.append("\n\n" + commandLine.getOptionValue('t')
+                    + " Submission (SIP) plugin options:\n");
+                helpString.append(sip.getParameterHelp() + "\n");
+            } else {
+                helpString.append("\nNo valid Submission plugin found for "
+                        + commandLine.getOptionValue('t') + " type.\n");
+            }
+
+            PackageDisseminator dip = (PackageDisseminator) pluginService
+                .getNamedPlugin(PackageDisseminator.class, commandLine.getOptionValue('t'));
+
+            if (dip != null) {
+                helpString.append("\n\n" + commandLine.getOptionValue('t')
+                    + " Dissemination (DIP) plugin options:\n");
+                helpString.append(dip.getParameterHelp() + "\n");
+            } else {
+                helpString.append("\nNo valid Dissemination plugin found for "
+                            + commandLine.getOptionValue('t') + " type.\n");
+            }
+        } else {
+            //otherwise, display list of valid packager types
+            helpString.append("\nAvailable Submission Package (SIP) types:\n");
+            String pn[] = pluginService
+                .getAllPluginNames(PackageIngester.class);
+            for (int i = 0; i < pn.length; ++i) {
+                helpString.append("  " + pn[i] + "\n");
+            }
+            helpString.append("\nAvailable Dissemination Package (DIP) types:\n");
+            pn = pluginService.getAllPluginNames(PackageDisseminator.class);
+            for (int i = 0; i < pn.length; ++i) {
+                helpString.append("  " + pn[i] + "\n");
+            }
+        }
+        handler.logInfo(helpString.toString());
+    }
+
+    public void setSourceFile(Context context, boolean isGiven)
+            throws IOException, AuthorizeException {
+        if (isGiven) {
+            if (!commandLine.hasOption('z') && !commandLine.hasOption('u')) {
+                handler.logError("Missing source file");
+                throw new UnsupportedOperationException("Missing source file");
+            }
+            Optional<InputStream> optionalFileStream = Optional.empty();
+            if (commandLine.hasOption('z')) {
+                // manage zip via upload
+                String fileName = commandLine.getOptionValue('z');
+                optionalFileStream = handler.getFileStream(context, fileName);
+            } else {
+                // manage zip via remote url
+                String remoteUrl = commandLine.getOptionValue('u');
+                optionalFileStream = Optional.ofNullable(new URL(remoteUrl).openStream());
+            }
+            if (optionalFileStream.isPresent()) {
+                sourceFile = FileUtils.getTempDirectoryPath() + File.separator
+                        + UUID.randomUUID();
+                FileUtils.copyInputStreamToFile(optionalFileStream.get(), new File(sourceFile));
+            } else {
+                throw new IllegalArgumentException(
+                        "Error reading file, the file couldn't be found for filename: " + sourceFile);
+            }
+        } else {
+            sourceFile = FileUtils.getTempDirectoryPath() + File.separator
+                    + PACKAGER_FILENAME_PREFIX + "-" + UUID.randomUUID();
+        }
+    }
+
+    public void setUserInteraction() {
+        // from UI the user interaction is disabled
+        userInteractionEnabled = false;
+    }
+
+    public EPerson getEPerson(Context context) throws SQLException {
+        EPerson eperson = epersonService.find(context, this.getEpersonIdentifier());
+        if (eperson == null) {
+            handler.logError("EPerson cannot be found: " + this.getEpersonIdentifier());
+            throw new UnsupportedOperationException("EPerson cannot be found: " + this.getEpersonIdentifier());
+        }
+        return eperson;
+    }
+
+    public void attachOutput(Context context, UUID itemUuid)
+            throws FileNotFoundException, IOException, SQLException, AuthorizeException {
+        // write input stream on handler
+        File source = new File(sourceFile);
+        try (InputStream sourceInputStream = new FileInputStream(source)) {
+            handler.writeFilestream(context, PACKAGER_FILENAME_PREFIX + "-" + itemUuid,
+                    sourceInputStream, packageType.toLowerCase());
+        } finally {
+            source.delete();
         }
     }
 }
