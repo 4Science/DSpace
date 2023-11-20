@@ -7,6 +7,8 @@
  */
 package com.science4.webcache;
 
+import static org.apache.http.HttpHeaders.CACHE_CONTROL;
+
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -92,8 +94,11 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
 
     private void invalidateUrl(String url) {
         try {
-            HttpUriRequest httpPurge = RequestBuilder.create("PURGE").setUri(url).build();
-            CloseableHttpResponse response = client.execute(httpPurge);
+            HttpUriRequest refreshCacheRequest = RequestBuilder.create("HEAD")
+                    .setUri(url)
+                    .setHeader(CACHE_CONTROL, "refresh")
+                    .build();
+            CloseableHttpResponse response = client.execute(refreshCacheRequest);
             if (log.isDebugEnabled()) {
                 log.debug("Invalidate cache response code {}", response.getStatusLine().getStatusCode());
             }
