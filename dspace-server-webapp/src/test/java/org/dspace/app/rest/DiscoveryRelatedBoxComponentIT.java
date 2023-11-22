@@ -251,8 +251,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                         FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
 //                        FacetEntryMatcher.anyFacet("subject", "hierarchical"),
                         FacetEntryMatcher.subjectFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                        FacetEntryMatcher.dateIssuedFacet(false)
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
@@ -292,8 +291,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                         FacetEntryMatcher.anyFacet("funding", "text"),
                         FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
                         FacetEntryMatcher.subjectFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                        FacetEntryMatcher.dateIssuedFacet(false)
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
@@ -335,8 +333,7 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                         FacetEntryMatcher.anyFacet("funding", "text"),
                         FacetEntryMatcher.subjectFacet(false),
                         FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                        FacetEntryMatcher.dateIssuedFacet(false)
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))

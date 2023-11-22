@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -107,7 +108,12 @@ public final class BulkImportSheet {
             throw new IllegalArgumentException("Unknown header '" + header + "'");
         }
         String cellContent = WorkbookUtils.getCellValue(lastRow, column);
-        createCell(lastRow, column, isEmpty(cellContent) ? value : cellContent + separator + value);
+        createCell(lastRow, column,
+                getValueLimitedByLength(isEmpty(cellContent) ? value : cellContent + separator + value));
+    }
+
+    private String getValueLimitedByLength(String value) {
+        return StringUtils.length(value) > 32726 ? value.substring(0, 32725) + "…" : value;
     }
 
 }

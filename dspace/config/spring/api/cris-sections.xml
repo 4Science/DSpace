@@ -28,7 +28,6 @@
                              <value>titleF</value>
                              <value>typeF</value>
                              <value>dateissuedF</value>
-                             <value>subjectF</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -60,7 +59,6 @@
                              <value>titleJF</value>
                              <value>typeJF</value>
                              <value>dateissuedJF</value>
-                             <value>subjectJF</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -91,8 +89,7 @@
                          <list>
                              <value>titleA</value>
                              <value>typeA</value>
-                             <value>dateissuedA</value>
-                             <value>subjectA</value>
+                             <value>parentA</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -273,6 +270,42 @@
                     <property name="discoveryConfigurationName" value="path"/>
                     <property name="style" value="pad-left-title pad-right-title m-auto"/>
                     <property name="mainContentLink" value="/search?f.entityType=Path,equals&amp;spc.page=1&amp;view=grid"/>
+                </bean>
+            </list>
+            <list>
+           		<bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/twitter"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dev"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/XDevelopers/lists/national-parks"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+           	</list>
+           	 <list>
+                <bean class="org.dspace.layout.CrisLayoutTwitterComponent">
+                    <property name="style" value="col-12"/>
+                    <property name="twitterSettings">
+                        <list>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/4ScienceIT"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutTwitterComponent.TwitterSettings">
+                                <property name="url" value="https://twitter.com/search?q=%23dspaceCRIS"/>
+                            </bean>
+                        </list>
+                    </property>
                 </bean>
             </list>
           </list>

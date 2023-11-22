@@ -251,6 +251,8 @@
     <field name="search_text" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="fulltext" type="text" indexed="true" stored="true" multiValued="true"/>
+    <field name="fulltext.mirador" type="text" indexed="true" stored="true" multiValued="true"/>
+    <field name="fulltext.video" type="text" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Internal DSpace Object ID -->
     <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" />
@@ -295,6 +297,8 @@
     <field name="a_spell" type="textSpell" />
     <copyField source="fulltext" dest="a_spell" />
     <copyField source="fulltext" dest="fulltext_hl" />
+    <copyField source="fulltext.mirador" dest="fulltext.mirador_hl" />
+    <copyField source="fulltext.video" dest="fulltext.video_hl" />
 
     <!-- used by the DSpace Discovery Solr Indexer to track the last time a document was indexed -->
     <field name="SolrIndexer.lastIndexed" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" />

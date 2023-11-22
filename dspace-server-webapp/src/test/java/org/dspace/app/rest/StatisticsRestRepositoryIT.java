@@ -25,24 +25,27 @@ import static org.dspace.app.rest.utils.UsageReportUtils.TOP_COUNTRIES_REPORT_ID
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_CITIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_CONTINENTS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_DOWNLOAD_COUNTRIES_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_CATEGORIES_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_CITIES_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_CONTINENTS_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_COUNTRIES_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOP_ITEMS_REPORT_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID;
-//import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_DOWNLOADS_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_ITEMS_VISITS_PER_MONTH_REPORT_ID;
+import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_ITEMS_VISITS_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_PER_MONTH_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID;
-//import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID_RELATION_ORGUNIT_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID_RELATION_PERSON_PROJECTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_REPORT_ID_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_TOTAL_DOWNLOADS;
 import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_TOTAL_DOWNLOADS_RELATION_ORGUNIT_RP_RESEARCHOUTPUTS;
-//import static org.dspace.app.rest.utils.UsageReportUtils.TOTAL_VISITS_TOTAL_DOWNLOADS_RELATION_PERSON_RESEARCHOUTPUTS;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -921,10 +924,10 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-    public void TotalDownloadsReport_NotSupportedDSO_Collection() throws Exception {
+    public void TotalDownloadsReport_SupportedDSO_Collection() throws Exception {
         getClient(adminToken)
             .perform(get("/api/statistics/usagereports/" + collectionVisited.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isOk());
     }
 
     /**
@@ -1306,8 +1309,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
             .build();
         Item item4 = ItemBuilder.createItem(context, collectionNotVisited)
             .withTitle("My item 4")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::"
-                + "journal::contribution to journal::journal article")
+            .withEntityType("OrgUnit")
+            .withType("department")
             .build();
         context.restoreAuthSystemState();
 
@@ -1392,32 +1395,85 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         pointCountry.addValue("views", 5);
         pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
 
-        UsageReportPointCategoryRest articleCategory = new UsageReportPointCategoryRest();
-        articleCategory.addValue("views", 1);
-        articleCategory.setId("article");
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
 
-        UsageReportPointCategoryRest thesisCategory = new UsageReportPointCategoryRest();
-        thesisCategory.addValue("views", 3);
-        thesisCategory.setId("thesis");
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
 
-        UsageReportPointCategoryRest otherCategory = new UsageReportPointCategoryRest();
-        otherCategory.addValue("views", 1);
-        otherCategory.setId("other");
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
 
-        UsageReportPointCategoryRest bookCategory = new UsageReportPointCategoryRest();
-        bookCategory.addValue("views", 0);
-        bookCategory.setId("book");
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
 
-        UsageReportPointCategoryRest bookChapterCategory = new UsageReportPointCategoryRest();
-        bookChapterCategory.addValue("views", 0);
-        bookChapterCategory.setId("bookChapter");
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
 
-        UsageReportPointCategoryRest datasetCategory = new UsageReportPointCategoryRest();
-        datasetCategory.addValue("views", 0);
-        datasetCategory.setId("dataset");
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 0);
+        project.setId("project");
 
-        List<UsageReportPointRest> categories = List.of(articleCategory, thesisCategory, otherCategory, bookCategory,
-            bookChapterCategory, datasetCategory);
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
+
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
+
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
+
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
+
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 1);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 0);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
 
         // And request the sites global usage report (show top most popular items)
         getClient(adminToken)
@@ -1575,7 +1631,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
 
         // And request the community usage reports
         getClient(adminToken)
-            .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
+            .perform(get("/api/statistics/usagereports/search/object?category=community-mainReports" +
+                         "&uri=http://localhost:8080/server/api/core" +
                          "/communities/" + communityVisited.getID()))
             // ** THEN **
             .andExpect(status().isOk())
@@ -1616,7 +1673,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         // Collection is not visited
         // And request the collection's usage reports
         getClient(adminToken)
-            .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
+            .perform(get("/api/statistics/usagereports/search/object?category=collection-mainReports" +
+                         "&uri=http://localhost:8080/server/api/core" +
                          "/collections/" + collectionNotVisited.getID()))
             // ** THEN **
             .andExpect(status().isOk())
@@ -1951,32 +2009,86 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         expectedPoint1.setType("item");
         points.add(expectedPoint1);
 
-        UsageReportPointCategoryRest articleCategory = new UsageReportPointCategoryRest();
-        articleCategory.addValue("views", 0);
-        articleCategory.setId("article");
 
-        UsageReportPointCategoryRest thesisCategory = new UsageReportPointCategoryRest();
-        thesisCategory.addValue("views", 0);
-        thesisCategory.setId("thesis");
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
 
-        UsageReportPointCategoryRest otherCategory = new UsageReportPointCategoryRest();
-        otherCategory.addValue("views", 0);
-        otherCategory.setId("other");
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
 
-        UsageReportPointCategoryRest bookCategory = new UsageReportPointCategoryRest();
-        bookCategory.addValue("views", 0);
-        bookCategory.setId("book");
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
 
-        UsageReportPointCategoryRest bookChapterCategory = new UsageReportPointCategoryRest();
-        bookChapterCategory.addValue("views", 0);
-        bookChapterCategory.setId("bookChapter");
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
 
-        UsageReportPointCategoryRest datasetCategory = new UsageReportPointCategoryRest();
-        datasetCategory.addValue("views", 0);
-        datasetCategory.setId("dataset");
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
 
-        List<UsageReportPointRest> categories = List.of(articleCategory, thesisCategory, otherCategory, bookCategory,
-            bookChapterCategory, datasetCategory);
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 0);
+        project.setId("project");
+
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
+
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
+
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
+
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
+
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 0);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 0);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
 
         UsageReportPointRest pointPerMonth = new UsageReportPointDateRest();
         pointPerMonth.setId("June 2019");
@@ -2035,7 +2147,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
         String endDate = dateFormat.format(cal.getTime());
         // And request the community usage reports
         getClient(adminToken)
-                .perform(get("/api/statistics/usagereports/search/object?uri=http://localhost:8080/server/api/core" +
+                .perform(get("/api/statistics/usagereports/search/object?category=community-mainReports" +
+                        "&uri=http://localhost:8080/server/api/core" +
                         "/communities/" + communityVisited.getID() + "&startDate=2019-06-01&endDate=" + endDate))
                 // ** THEN **
                 .andExpect(status().isOk())
@@ -2433,6 +2546,573 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                                         TOTAL_VISITS_TOTAL_DOWNLOADS,
                                         totalDownloadsAndViewsPoints)
                 )));
+    }
+
+    @Test
+    public void usageReportsSearch_Collection_ItemReports() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).build();
+        collectionNotVisited = CollectionBuilder.createCollection(context, community)
+                                                .withEntityType("Publication")
+                                                .build();
+
+        Item item = ItemBuilder.createItem(context, collectionNotVisited)
+                               .withTitle("My item")
+                               .withType("Controlled Vocabulary for Resource Type Genres::image")
+                               .build();
+        Item item2 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("My item 2")
+                                .withType("Controlled Vocabulary for Resource Type Genres::thesis")
+                                .build();
+        Item item3 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("My item 3")
+                                .withType("Controlled Vocabulary for Resource Type Genres::thesis::bachelor thesis")
+                                .build();
+        Item item4 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("My item 4")
+                                .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::"
+                                    + "journal::contribution to journal::journal article")
+                                .build();
+        context.restoreAuthSystemState();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ViewEventRest viewEventRest = new ViewEventRest();
+        viewEventRest.setTargetType("item");
+        viewEventRest.setTargetId(item.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest2 = new ViewEventRest();
+        viewEventRest2.setTargetType("item");
+        viewEventRest2.setTargetId(item2.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest2))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest2))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest3 = new ViewEventRest();
+        viewEventRest3.setTargetType("item");
+        viewEventRest3.setTargetId(item3.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest3))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest4 = new ViewEventRest();
+        viewEventRest4.setTargetType("item");
+        viewEventRest4.setTargetId(item4.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest4))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint1 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint1.addValue("views", 1);
+        expectedPoint1.setType("item");
+        expectedPoint1.setLabel("My item");
+        expectedPoint1.setId(item.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint2 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint2.addValue("views", 2);
+        expectedPoint2.setType("item");
+        expectedPoint2.setLabel("My item 2");
+        expectedPoint2.setId(item2.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint3 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint3.addValue("views", 1);
+        expectedPoint3.setType("item");
+        expectedPoint3.setLabel("My item 3");
+        expectedPoint3.setId(item3.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint4 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint4.addValue("views", 1);
+        expectedPoint4.setType("item");
+        expectedPoint4.setLabel("My item 4");
+        expectedPoint4.setId(item4.getID().toString());
+
+        List<UsageReportPointRest> points = List.of(expectedPoint1, expectedPoint2, expectedPoint3, expectedPoint4);
+
+        UsageReportPointCityRest pointCity = new UsageReportPointCityRest();
+        pointCity.addValue("views", 5);
+        pointCity.setId("New York");
+
+        UsageReportPointContinentRest pointContinent = new UsageReportPointContinentRest();
+        pointContinent.addValue("views", 5);
+        pointContinent.setId("North America");
+
+        UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
+        pointCountry.addValue("views", 5);
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
+
+        UsageReportPointCategoryRest articleCategory = new UsageReportPointCategoryRest();
+        articleCategory.addValue("views", 1);
+        articleCategory.setId("article");
+
+        UsageReportPointCategoryRest thesisCategory = new UsageReportPointCategoryRest();
+        thesisCategory.addValue("views", 3);
+        thesisCategory.setId("thesis");
+
+        UsageReportPointCategoryRest otherCategory = new UsageReportPointCategoryRest();
+        otherCategory.addValue("views", 1);
+        otherCategory.setId("other");
+
+        UsageReportPointCategoryRest bookCategory = new UsageReportPointCategoryRest();
+        bookCategory.addValue("views", 0);
+        bookCategory.setId("book");
+
+        UsageReportPointCategoryRest bookChapterCategory = new UsageReportPointCategoryRest();
+        bookChapterCategory.addValue("views", 0);
+        bookChapterCategory.setId("bookChapter");
+
+        UsageReportPointCategoryRest datasetCategory = new UsageReportPointCategoryRest();
+        datasetCategory.addValue("views", 0);
+        datasetCategory.setId("dataset");
+
+        List<UsageReportPointRest> categories = List.of(articleCategory, thesisCategory, otherCategory, bookCategory,
+            bookChapterCategory, datasetCategory);
+
+        // And request the collections global usage report (show top most popular items)
+        getClient(adminToken)
+            .perform(get("/api/statistics/usagereports/search/object")
+                .param("category", "publicationCollection-itemReports")
+                .param("uri", "http://localhost:8080/server/api/core/collections/" + collectionNotVisited.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
+            .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOTAL_ITEMS_VISITS_REPORT_ID,
+                    TOP_ITEMS_REPORT_ID, points),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_ITEMS_CITIES_REPORT_ID,
+                    TOP_CITIES_REPORT_ID, List.of(pointCity)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOTAL_ITEMS_VISITS_PER_MONTH_REPORT_ID,
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(5)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_ITEMS_CONTINENTS_REPORT_ID,
+                    TOP_CONTINENTS_REPORT_ID, List.of(pointContinent)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_ITEMS_CATEGORIES_REPORT_ID,
+                    TOP_CATEGORIES_REPORT_ID, categories),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_ITEMS_COUNTRIES_REPORT_ID,
+                    TOP_COUNTRIES_REPORT_ID, List.of(pointCountry)))));
+    }
+
+    @Test
+    public void usageReportsSearch_Collection_DownloadReports() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item item1 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 1")
+                                .build();
+
+        Item item2 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 2")
+                                .build();
+
+        Item item3 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 3")
+                                .build();
+
+        Bitstream bitstream1 = createBitstream(item1, "Bitstream 1");
+        Bitstream bitstream2 = createBitstream(item1, "Bitstream 2");
+        Bitstream bitstream3 = createBitstream(item2, "Bitstream 3");
+        Bitstream bitstream4 = createBitstream(item3, "Bitstream 4");
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream1.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream1.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream2.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream4.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream4.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        context.restoreAuthSystemState();
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint1 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint1.addValue("views", 3);
+        expectedPoint1.setType("item");
+        expectedPoint1.setLabel("Item 1");
+        expectedPoint1.setId(item1.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint2 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint2.addValue("views", 3);
+        expectedPoint2.setType("item");
+        expectedPoint2.setLabel("Item 2");
+        expectedPoint2.setId(item2.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint3 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint3.addValue("views", 2);
+        expectedPoint3.setType("item");
+        expectedPoint3.setLabel("Item 3");
+        expectedPoint3.setId(item3.getID().toString());
+
+        List<UsageReportPointRest> points = List.of(expectedPoint1, expectedPoint2, expectedPoint3);
+
+        UsageReportPointCityRest pointCity = new UsageReportPointCityRest();
+        pointCity.addValue("views", 8);
+        pointCity.setId("New York");
+
+        UsageReportPointContinentRest pointContinent = new UsageReportPointContinentRest();
+        pointContinent.addValue("views", 8);
+        pointContinent.setId("North America");
+
+        UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
+        pointCountry.addValue("views", 8);
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
+
+        getClient(adminToken)
+            .perform(get("/api/statistics/usagereports/search/object")
+                .param("category", "collection-downloadReports")
+                .param("uri", "http://localhost:8080/server/api/core/collections/" + collectionNotVisited.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
+            .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID,
+                    TOP_ITEMS_REPORT_ID, points),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_DOWNLOAD_CITIES_REPORT_ID,
+                    TOP_CITIES_REPORT_ID, List.of(pointCity)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID,
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(8)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_DOWNLOAD_CONTINENTS_REPORT_ID,
+                    TOP_CONTINENTS_REPORT_ID, List.of(pointContinent)),
+                matchUsageReport(collectionNotVisited.getID() + "_" + TOP_DOWNLOAD_COUNTRIES_REPORT_ID,
+                    TOP_COUNTRIES_REPORT_ID, List.of(pointCountry)))));
+    }
+
+    @Test
+    public void usageReportsSearch_Community_ItemReports() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).build();
+        collectionNotVisited = CollectionBuilder.createCollection(context, community).build();
+
+        Item item = ItemBuilder.createItem(context, collectionNotVisited)
+                               .withEntityType("Publication")
+                               .withTitle("My item")
+                               .build();
+        Item item2 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withEntityType("Patent")
+                                .withTitle("My item 2")
+                                .build();
+        Item item3 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withEntityType("Funding")
+                                .withTitle("My item 3")
+                                .build();
+        Item item4 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withEntityType("Project")
+                                .withTitle("My item 4")
+                                .build();
+        context.restoreAuthSystemState();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ViewEventRest viewEventRest = new ViewEventRest();
+        viewEventRest.setTargetType("item");
+        viewEventRest.setTargetId(item.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest2 = new ViewEventRest();
+        viewEventRest2.setTargetType("item");
+        viewEventRest2.setTargetId(item2.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest2))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest2))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest3 = new ViewEventRest();
+        viewEventRest3.setTargetType("item");
+        viewEventRest3.setTargetId(item3.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest3))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        ViewEventRest viewEventRest4 = new ViewEventRest();
+        viewEventRest4.setTargetType("item");
+        viewEventRest4.setTargetId(item4.getID());
+
+        getClient().perform(post("/api/statistics/viewevents")
+                       .content(mapper.writeValueAsBytes(viewEventRest4))
+                       .contentType(contentType))
+                   .andExpect(status().isCreated());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint1 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint1.addValue("views", 1);
+        expectedPoint1.setType("item");
+        expectedPoint1.setLabel("My item");
+        expectedPoint1.setId(item.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint2 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint2.addValue("views", 2);
+        expectedPoint2.setType("item");
+        expectedPoint2.setLabel("My item 2");
+        expectedPoint2.setId(item2.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint3 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint3.addValue("views", 1);
+        expectedPoint3.setType("item");
+        expectedPoint3.setLabel("My item 3");
+        expectedPoint3.setId(item3.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint4 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint4.addValue("views", 1);
+        expectedPoint4.setType("item");
+        expectedPoint4.setLabel("My item 4");
+        expectedPoint4.setId(item4.getID().toString());
+
+        List<UsageReportPointRest> points = List.of(expectedPoint1, expectedPoint2, expectedPoint3, expectedPoint4);
+
+        UsageReportPointCityRest pointCity = new UsageReportPointCityRest();
+        pointCity.addValue("views", 5);
+        pointCity.setId("New York");
+
+        UsageReportPointContinentRest pointContinent = new UsageReportPointContinentRest();
+        pointContinent.addValue("views", 5);
+        pointContinent.setId("North America");
+
+        UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
+        pointCountry.addValue("views", 5);
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
+
+
+
+        UsageReportPointCategoryRest news = new UsageReportPointCategoryRest();
+        news.addValue("views", 0);
+        news.setId("news");
+
+        UsageReportPointCategoryRest journalfonds = new UsageReportPointCategoryRest();
+        journalfonds.addValue("views", 0);
+        journalfonds.setId("journalfonds");
+
+        UsageReportPointCategoryRest opera = new UsageReportPointCategoryRest();
+        opera.addValue("views", 0);
+        opera.setId("opera");
+
+        UsageReportPointCategoryRest staticpage = new UsageReportPointCategoryRest();
+        staticpage.addValue("views", 0);
+        staticpage.setId("staticpage");
+
+        UsageReportPointCategoryRest fonds = new UsageReportPointCategoryRest();
+        fonds.addValue("views", 0);
+        fonds.setId("fonds");
+
+        UsageReportPointCategoryRest project = new UsageReportPointCategoryRest();
+        project.addValue("views", 1);
+        project.setId("project");
+
+        UsageReportPointCategoryRest aggregation = new UsageReportPointCategoryRest();
+        aggregation.addValue("views", 0);
+        aggregation.setId("aggregation");
+
+        UsageReportPointCategoryRest picture = new UsageReportPointCategoryRest();
+        picture.addValue("views", 0);
+        picture.setId("picture");
+
+        UsageReportPointCategoryRest path = new UsageReportPointCategoryRest();
+        path.addValue("views", 0);
+        path.setId("path");
+
+        UsageReportPointCategoryRest archivalmaterial = new UsageReportPointCategoryRest();
+        archivalmaterial.addValue("views", 0);
+        archivalmaterial.setId("archivalmaterial");
+
+        UsageReportPointCategoryRest person = new UsageReportPointCategoryRest();
+        person.addValue("views", 0);
+        person.setId("person");
+
+        UsageReportPointCategoryRest orgunit = new UsageReportPointCategoryRest();
+        orgunit.addValue("views", 0);
+        orgunit.setId("orgunit");
+
+        UsageReportPointCategoryRest publication = new UsageReportPointCategoryRest();
+        publication.addValue("views", 1);
+        publication.setId("publication");
+
+        UsageReportPointCategoryRest place = new UsageReportPointCategoryRest();
+        place.addValue("views", 0);
+        place.setId("place");
+
+        UsageReportPointCategoryRest event = new UsageReportPointCategoryRest();
+        event.addValue("views", 0);
+        event.setId("event");
+
+        UsageReportPointCategoryRest family = new UsageReportPointCategoryRest();
+        family.addValue("views", 0);
+        family.setId("family");
+
+        UsageReportPointCategoryRest journalfile = new UsageReportPointCategoryRest();
+        journalfile.addValue("views", 0);
+        journalfile.setId("journalfile");
+
+        UsageReportPointCategoryRest coin = new UsageReportPointCategoryRest();
+        coin.addValue("views", 0);
+        coin.setId("coin");
+
+        UsageReportPointCategoryRest scientificmaterial = new UsageReportPointCategoryRest();
+        scientificmaterial.addValue("views", 0);
+        scientificmaterial.setId("scientificmaterial");
+
+        List<UsageReportPointRest> categories = List.of(news, journalfonds, opera, staticpage,
+            fonds, project, aggregation, picture, path, archivalmaterial, person, orgunit,
+            publication, place, event, family, journalfile, coin, scientificmaterial);
+        // And request the collections global usage report (show top most popular items)
+        getClient(adminToken)
+            .perform(get("/api/statistics/usagereports/search/object")
+                .param("category", "community-itemReports")
+                .param("uri", "http://localhost:8080/server/api/core/communities/" + community.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
+            .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
+                matchUsageReport(community.getID() + "_" + TOTAL_ITEMS_VISITS_REPORT_ID,
+                    TOP_ITEMS_REPORT_ID, points),
+                matchUsageReport(community.getID() + "_" + TOP_ITEMS_CITIES_REPORT_ID,
+                    TOP_CITIES_REPORT_ID, List.of(pointCity)),
+                matchUsageReport(community.getID() + "_" + TOTAL_ITEMS_VISITS_PER_MONTH_REPORT_ID,
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(5)),
+                matchUsageReport(community.getID() + "_" + TOP_ITEMS_CONTINENTS_REPORT_ID,
+                    TOP_CONTINENTS_REPORT_ID, List.of(pointContinent)),
+                matchUsageReport(community.getID() + "_" + TOP_ITEMS_CATEGORIES_REPORT_ID,
+                    TOP_CATEGORIES_REPORT_ID, categories),
+                matchUsageReport(community.getID() + "_" + TOP_ITEMS_COUNTRIES_REPORT_ID,
+                    TOP_COUNTRIES_REPORT_ID, List.of(pointCountry)))));
+    }
+
+    @Test
+    public void usageReportsSearch_Community_DownloadReports() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context).build();
+        collectionNotVisited = CollectionBuilder.createCollection(context, community).build();
+
+        Item item1 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 1")
+                                .build();
+
+        Item item2 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 2")
+                                .build();
+
+        Item item3 = ItemBuilder.createItem(context, collectionNotVisited)
+                                .withTitle("Item 3")
+                                .build();
+
+        Bitstream bitstream1 = createBitstream(item1, "Bitstream 1");
+        Bitstream bitstream2 = createBitstream(item1, "Bitstream 2");
+        Bitstream bitstream3 = createBitstream(item2, "Bitstream 3");
+        Bitstream bitstream4 = createBitstream(item3, "Bitstream 4");
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream1.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream1.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream2.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream3.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream4.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream4.getID() + "/content"))
+                   .andExpect(status().isOk());
+
+        context.restoreAuthSystemState();
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint1 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint1.addValue("views", 3);
+        expectedPoint1.setType("item");
+        expectedPoint1.setLabel("Item 1");
+        expectedPoint1.setId(item1.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint2 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint2.addValue("views", 3);
+        expectedPoint2.setType("item");
+        expectedPoint2.setLabel("Item 2");
+        expectedPoint2.setId(item2.getID().toString());
+
+        UsageReportPointDsoTotalVisitsRest expectedPoint3 = new UsageReportPointDsoTotalVisitsRest();
+        expectedPoint3.addValue("views", 2);
+        expectedPoint3.setType("item");
+        expectedPoint3.setLabel("Item 3");
+        expectedPoint3.setId(item3.getID().toString());
+
+        List<UsageReportPointRest> points = List.of(expectedPoint1, expectedPoint2, expectedPoint3);
+
+        UsageReportPointCityRest pointCity = new UsageReportPointCityRest();
+        pointCity.addValue("views", 8);
+        pointCity.setId("New York");
+
+        UsageReportPointContinentRest pointContinent = new UsageReportPointContinentRest();
+        pointContinent.addValue("views", 8);
+        pointContinent.setId("North America");
+
+        UsageReportPointCountryRest pointCountry = new UsageReportPointCountryRest();
+        pointCountry.addValue("views", 8);
+        pointCountry.setIdAndLabel(Locale.US.getCountry(), Locale.US.getDisplayCountry(context.getCurrentLocale()));
+
+        getClient(adminToken)
+            .perform(get("/api/statistics/usagereports/search/object")
+                .param("category", "community-downloadReports")
+                .param("uri", "http://localhost:8080/server/api/core/communities/" + community.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.usagereports", not(empty())))
+            .andExpect(jsonPath("$._embedded.usagereports", Matchers.containsInAnyOrder(
+                matchUsageReport(community.getID() + "_" + TOTAL_DOWNLOADS_REPORT_ID, TOP_ITEMS_REPORT_ID, points),
+                matchUsageReport(community.getID() + "_" + TOP_DOWNLOAD_CITIES_REPORT_ID,
+                    TOP_CITIES_REPORT_ID, List.of(pointCity)),
+                matchUsageReport(community.getID() + "_" + TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID,
+                    TOTAL_VISITS_PER_MONTH_REPORT_ID, getLastMonthVisitPoints(8)),
+                matchUsageReport(community.getID() + "_" + TOP_DOWNLOAD_CONTINENTS_REPORT_ID,
+                    TOP_CONTINENTS_REPORT_ID, List.of(pointContinent)),
+                matchUsageReport(community.getID() + "_" + TOP_DOWNLOAD_COUNTRIES_REPORT_ID,
+                    TOP_COUNTRIES_REPORT_ID, List.of(pointCountry)))));
     }
 
     private List<UsageReportPointRest> getLastMonthVisitPoints(int viewsLastMonth) {

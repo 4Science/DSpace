@@ -68,6 +68,7 @@ public abstract class AbstractEmbeddableMetricProvider implements EmbeddableMetr
         metric.setEmbeddableId(this.getId(context, item));
         metric.setMetricType(this.getMetricType());
         metric.setRemark(this.innerHtml(context, item));
+        this.getMetricCount(context, item).ifPresent(metric::setMetricCount);
         return Optional.of(metric);
     }
 
@@ -95,6 +96,11 @@ public abstract class AbstractEmbeddableMetricProvider implements EmbeddableMetr
     @Override
     public boolean fallbackOf(final String metricType) {
         return false;
+    }
+
+    @Override
+    public Optional<Double> getMetricCount(Context context, Item item) {
+        return Optional.empty();
     }
 
     public boolean isEnabled() {
