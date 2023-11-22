@@ -170,6 +170,27 @@ public class DiscoveryConfigurationService {
         return result;
     }
 
+    /**
+     * Retrieve the Discovery configuration for the provided name or IndexableObject. The configuration will first be
+     * checked for the provided name. When no match is found for the name, the configuration will be retrieved for the
+     * IndexableObject
+     *
+     * @param context           - The database context
+     * @param configurationName - The name of the configuration to be retrieved
+     * @param indexableObject   - The indexable object to retrieve the configuration for
+     * @return the Discovery configuration for the provided name, or when not found for the provided IndexableObject
+     */
+    public DiscoveryConfiguration getDiscoveryConfigurationByNameOrIndexableObject(Context context,
+                                                                                   String configurationName,
+                                                                                   IndexableObject indexableObject) {
+        if (StringUtils.isNotBlank(configurationName) && getMap().containsKey(configurationName)) {
+            return getMap().get(configurationName);
+        } else {
+            return getDiscoveryConfiguration(context, indexableObject);
+        }
+    }
+
+
     public DiscoveryConfiguration getDiscoveryConfigurationByNameOrDefault(final String name) {
         return this.getDiscoveryConfiguration(name, true);
     }

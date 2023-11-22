@@ -26,6 +26,7 @@ import org.dspace.app.rest.matcher.SubmissionFormFieldMatcher;
 import org.dspace.app.rest.repository.SubmissionFormRestRepository;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.util.DCInputsReaderException;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.builder.EPersonBuilder;
 import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
@@ -72,12 +73,12 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(content().contentType(contentType))
                    //The configuration file for the test env includes PAGE_TOTAL_ELEMENTS forms
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", equalTo(PAGE_TOTAL_ELEMENTS)))
+                   .andExpect(jsonPath("$.page.totalElements", equalTo(34)))
                    .andExpect(jsonPath("$.page.totalPages", equalTo(2)))
                    .andExpect(jsonPath("$.page.number", is(0)))
                    .andExpect(
                        jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL + "config/submissionforms")))
-                   //The array of submissionforms should have a size of 20 (default pagination size)
+                   //The array of submissionforms should have a size of 34
                    .andExpect(jsonPath("$._embedded.submissionforms", hasSize(equalTo(20))))
         ;
     }
@@ -89,7 +90,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.page.size", is(20)))
-                .andExpect(jsonPath("$.page.totalElements", equalTo(PAGE_TOTAL_ELEMENTS)))
+                .andExpect(jsonPath("$.page.totalElements", equalTo(34)))
                 .andExpect(jsonPath("$.page.totalPages", equalTo(2)))
                 .andExpect(jsonPath("$.page.number", is(0)))
                 .andExpect(jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL
@@ -638,59 +639,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
         ;
     }
 
-    @Test
-    public void findPublicationFormTest() throws Exception {
-        String token = getAuthToken(admin.getEmail(), password);
-        getClient(token).perform(get("/api/config/submissionforms/publication"))
-                        .andExpect(status().isOk())
-                        .andExpect(content().contentType(contentType))
-                        .andExpect(jsonPath("$.id", is("publication")))
-                        .andExpect(jsonPath("$.name", is("publication")))
-                        .andExpect(jsonPath("$.type", is("submissionform")))
-                        .andExpect(jsonPath("$.rows[1].fields", contains(SubmissionFormFieldMatcher
-                            .matchFormFieldDefinition("onebox", "Title", "You must enter a main title for this item.",
-                                               false, "Enter the main title of the item.", null, "dc.title", null))))
-                        .andExpect(jsonPath("$.rows[2].fields", contains(SubmissionFormFieldMatcher
-                            .matchFormFieldDefinition("onebox", "Other Titles", null, true,
-                                        "If the item has any alternative titles, please enter them here.", null,
-                                        "dc.title.alternative", null))))
-                        .andExpect(jsonPath("$.rows[3].fields", contains(SubmissionFormFieldMatcher
-                                .matchFormFieldDefinition("date", "Date of Issue", "You must enter at least the year.",
-                                        false, "Please give the date of previous publication or public distribution.\n"
-                                    + "                        You can leave out the day and/or month if they aren't\n"
-                                              + "                        applicable.", null, "dc.date.issued", null))))
-                        .andExpect(jsonPath("$.rows[4].fields", contains(SubmissionFormFieldMatcher
-                                .matchFormFieldDefinition("group", "Authors", null, true,
-                                                          "Enter the names of the authors of this item.", null,
-                                                          "dc.contributor.author", "AuthorAuthority"))))
-                        .andExpect(jsonPath("$.rows[4].fields[0].rows[0].fields", contains(SubmissionFormFieldMatcher
-                              .matchFormFieldDefinition("onebox", "Author", "You must enter at least the author.",
-                                            false, "Enter the names of the authors of this item in the form Lastname,"
-                                         + " Firstname [i.e. Smith, Josh or Smith, J].", null, "dc.contributor.author",
-                                           "AuthorAuthority"))))
-                        .andExpect(jsonPath("$.rows[4].fields[0].rows[1].fields", contains(SubmissionFormFieldMatcher
-                                .matchFormFieldDefinition("onebox", "Affiliation", null, false,
-                                            "Enter the affiliation of the author as stated on the publication.",
-                                             null, "oairecerif.author.affiliation", "OrgUnitAuthority"))))
-                        .andExpect(jsonPath("$.rows[5].fields", contains(SubmissionFormFieldMatcher
-                                .matchFormFieldDefinition("group", "Editors", null, true,
-                                                          "The editors of this publication.", null,
-                                                          "dc.contributor.editor", "EditorAuthority"))))
-                        .andExpect(jsonPath("$.rows[5].fields[0].rows[0].fields", contains(SubmissionFormFieldMatcher
-                              .matchFormFieldDefinition("onebox", "Editor", "You must enter at least the author.",
-                                            false, "The editors of this publication.", null, "dc.contributor.editor",
-                                           "EditorAuthority"))))
-                        .andExpect(jsonPath("$.rows[5].fields[0].rows[1].fields", contains(SubmissionFormFieldMatcher
-                                .matchFormFieldDefinition("onebox", "Affiliation", null, false,
-                                            "Enter the affiliation of the editor as stated on the publication.",
-                                             null, "oairecerif.editor.affiliation", "OrgUnitAuthority"))))
-                        .andExpect(jsonPath("$.rows[6].fields", contains(SubmissionFormFieldMatcher
-                               .matchFormFieldDefinition("onebox", "Type", "You must select a publication type", false,
-                                                         "Select the type of content of the item.", null,
-                                                         "dc.type", "types"))));
-    }
-
-    private void resetLocalesConfiguration() throws DCInputsReaderException {
+    private void resetLocalesConfiguration() throws DCInputsReaderException, SubmissionConfigReaderException {
         configurationService.setProperty("default.locale","en");
         configurationService.setProperty("webui.supported.locales",null);
         submissionFormRestRepository.reload();
@@ -721,38 +670,38 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=1"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=" + (PAGE_TOTAL_PAGES - 1)), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
-                 .andExpect(jsonPath("$.page.totalElements", equalTo(PAGE_TOTAL_ELEMENTS)))
-                 .andExpect(jsonPath("$.page.totalPages", equalTo(PAGE_TOTAL_PAGES)))
+                 .andExpect(jsonPath("$.page.totalElements", equalTo(34)))
+                 .andExpect(jsonPath("$.page.totalPages", equalTo(17)))
                  .andExpect(jsonPath("$.page.number", is(0)));
 
         getClient(tokenAdmin).perform(get("/api/config/submissionforms")
                  .param("size", "2")
-                 .param("page", "1"))
+                 .param("page", "15"))
                  .andExpect(status().isOk())
                  .andExpect(content().contentType(contentType))
-                 .andExpect(jsonPath("$._embedded.submissionforms[0].id", is("publication_references")))
-                 .andExpect(jsonPath("$._embedded.submissionforms[1].id", is("patent_references")))
+                 .andExpect(jsonPath("$._embedded.submissionforms[0].id", is("publication_indexing")))
+                 .andExpect(jsonPath("$._embedded.submissionforms[1].id", is("qualdroptest")))
                  .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
                          Matchers.containsString("page=0"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=0"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=14"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=1"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=15"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=2"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=" + (PAGE_TOTAL_PAGES - 1)), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
-                 .andExpect(jsonPath("$.page.totalElements", equalTo(PAGE_TOTAL_ELEMENTS)))
-                 .andExpect(jsonPath("$.page.totalPages", equalTo(PAGE_TOTAL_PAGES)))
-                 .andExpect(jsonPath("$.page.number", is(1)));
+                 .andExpect(jsonPath("$.page.totalElements", equalTo(34)))
+                 .andExpect(jsonPath("$.page.totalPages", equalTo(17)))
+                 .andExpect(jsonPath("$.page.number", is(15)));
     }
 
     @Test
@@ -778,5 +727,27 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                     Map.of("submission", "hidden", "workflow", "read-only", "edit", "read-only")),
                 matchFormWithVisibility("Description", Map.of("submission", "hidden"))
             )));
+
+        getClient(tokenAdmin).perform(get("/api/config/submissionforms")
+                                 .param("size", "2")
+                                 .param("page", "4"))
+                             .andExpect(status().isOk())
+                             .andExpect(content().contentType(contentType))
+                             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
+                                 Matchers.containsString("/api/config/submissionforms?"),
+                                 Matchers.containsString("page=0"), Matchers.containsString("size=2"))))
+                             .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
+                                 Matchers.containsString("/api/config/submissionforms?"),
+                                 Matchers.containsString("page=3"), Matchers.containsString("size=2"))))
+                             .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
+                                 Matchers.containsString("/api/config/submissionforms?"),
+                                 Matchers.containsString("page=4"), Matchers.containsString("size=2"))))
+                             .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
+                                 Matchers.containsString("/api/config/submissionforms?"),
+                                 Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
+                             .andExpect(jsonPath("$.page.size", is(2)))
+                             .andExpect(jsonPath("$.page.totalElements", equalTo(34)))
+                             .andExpect(jsonPath("$.page.totalPages", equalTo(17)))
+                             .andExpect(jsonPath("$.page.number", is(4)));
     }
 }

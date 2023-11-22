@@ -87,6 +87,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
 
         parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
         parameters.add(new DSpaceCommandLineParameter("-t", "invalidTaskOption"));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
@@ -110,6 +111,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
         parameters.add(new DSpaceCommandLineParameter("-t", CurationClientOptions.getTaskOptions().get(0)));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
@@ -131,6 +133,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
         parameters.add(new DSpaceCommandLineParameter("-i", "invalidhandle"));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
         parameters.add(new DSpaceCommandLineParameter("-t", CurationClientOptions.getTaskOptions().get(0)));
 
         List<ParameterValueRest> list = parameters.stream()
@@ -170,6 +173,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
         parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
@@ -215,6 +219,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
         parameters.add(new DSpaceCommandLineParameter("-i", "all"));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
         parameters.add(new DSpaceCommandLineParameter("-T", "invalidTaskFile"));
 
         List<ParameterValueRest> list = parameters.stream()
@@ -255,6 +260,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
         parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
         parameters.add(new DSpaceCommandLineParameter("-t", CurationClientOptions.getTaskOptions().get(0)));
 
         List<ParameterValueRest> list = parameters.stream()
@@ -306,6 +312,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
 
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
         parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
         parameters.add(new DSpaceCommandLineParameter("-T", taskFile.getAbsolutePath()));
 
         List<ParameterValueRest> list = parameters.stream()
@@ -356,6 +363,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
 
         parameters.add(new DSpaceCommandLineParameter("-e", eperson.getEmail()));
         parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
         parameters.add(new DSpaceCommandLineParameter("-t", CurationClientOptions.getTaskOptions().get(0)));
 
         List<ParameterValueRest> list = parameters.stream()

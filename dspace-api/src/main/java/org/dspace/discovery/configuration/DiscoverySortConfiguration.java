@@ -7,9 +7,7 @@
  */
 package org.dspace.discovery.configuration;
 
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +38,9 @@ public class DiscoverySortConfiguration {
         this.sortFields = sortFields;
     }
 
+    public DiscoverySortFieldConfiguration getDefaultSortField() {
+        return defaultSortField;
+    }
 
     public void setDefaultSortField(DiscoverySortFieldConfiguration configuration) {
         this.defaultSortField = configuration;
@@ -66,16 +67,5 @@ public class DiscoverySortConfiguration {
 
     public String getDefaultSortDirection() {
         return isNotEmpty(getSortFields()) ? getSortFields().get(0).getDefaultSortOrder().name() : null;
-    }
-
-    public String getDefaultSortField() {
-        if (isEmpty(getSortFields())) {
-            return SCORE;
-        }
-        DiscoverySortFieldConfiguration defaultSort = getSortFields().get(0);
-        if (isBlank(defaultSort.getMetadataField())) {
-            return SCORE;
-        }
-        return defaultSort.getMetadataField();
     }
 }

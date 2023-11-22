@@ -31,6 +31,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.core.Utils;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.submit.factory.SubmissionServiceFactory;
 import org.dspace.submit.model.UploadConfiguration;
 import org.dspace.submit.model.UploadConfigurationService;
 import org.dspace.utils.DSpace;
@@ -167,7 +168,8 @@ public class DCInputsReader {
         throws DCInputsReaderException {
         SubmissionConfig config;
         try {
-            config = new SubmissionConfigReader().getSubmissionConfigByCollection(collection);
+            config = SubmissionServiceFactory.getInstance().getSubmissionConfigService()
+                        .getSubmissionConfigByCollection(collection);
             String formName = config.getSubmissionName();
             if (formName == null) {
                 throw new DCInputsReaderException("No form designated as default");
@@ -238,7 +240,8 @@ public class DCInputsReader {
         throws DCInputsReaderException {
         SubmissionConfig config;
         try {
-            config = new SubmissionConfigReader().getSubmissionConfigByName(name);
+            config = SubmissionServiceFactory.getInstance().getSubmissionConfigService()
+                        .getSubmissionConfigByName(name);
             String formName = config.getSubmissionName();
             if (formName == null) {
                 throw new DCInputsReaderException("No form designated as default");

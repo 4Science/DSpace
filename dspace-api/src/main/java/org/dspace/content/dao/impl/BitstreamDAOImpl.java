@@ -69,9 +69,9 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
 
     @Override
     public List<Bitstream> findBitstreamsWithNoRecentChecksum(Context context) throws SQLException {
-        Query query = createQuery(context,
-                                  "select b from Bitstream b where b not in (select c.bitstream from " +
-                                      "MostRecentChecksum c)");
+        Query query = createQuery(context, "SELECT b FROM MostRecentChecksum c RIGHT JOIN Bitstream b " +
+            "ON c.bitstream = b WHERE c IS NULL" );
+
         return query.getResultList();
     }
 
@@ -86,7 +86,7 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
 
         query.setParameter("community", community);
 
-        return iterate(query);
+        return iterate(context, query, Bitstream.class);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
 
         query.setParameter("collection", collection);
 
-        return iterate(query);
+        return iterate(context, query, Bitstream.class);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
 
         query.setParameter("item", item);
 
-        return iterate(query);
+        return iterate(context, query, Bitstream.class);
     }
 
     @Override
@@ -151,14 +151,14 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
         query.setParameter("itemId", itemId);
         query.setParameter("bundleName", bundleName);
 
-        return iterate(query);
+        return iterate(context, query, Bitstream.class);
     }
 
     @Override
     public Iterator<Bitstream> findByStoreNumber(Context context, Integer storeNumber) throws SQLException {
         Query query = createQuery(context, "select b from Bitstream b where b.storeNumber = :storeNumber");
         query.setParameter("storeNumber", storeNumber);
-        return iterate(query);
+        return iterate(context, query, Bitstream.class);
     }
 
     @Override

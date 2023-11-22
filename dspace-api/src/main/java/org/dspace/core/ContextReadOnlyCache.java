@@ -95,4 +95,8 @@ public class ContextReadOnlyCache {
                                    eperson == null ? "" : eperson.getID().toString());
     }
 
+    protected void clearAllMembershipGroupCache(EPerson eperson) {
+        allMemberGroupsCache.remove(buildAllMembersGroupKey(eperson));
+    }
+
 }

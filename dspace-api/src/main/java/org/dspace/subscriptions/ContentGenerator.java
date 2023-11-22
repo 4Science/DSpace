@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
@@ -38,6 +39,7 @@ public class ContentGenerator {
     private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
                                                                                    .getConfigurationService();
 
+    private Map<String, StreamDisseminationCrosswalk> entityType2Disseminator;
 
     public void notifyForSubscriptions(EPerson ePerson,
                                        List<SubscriptionItem> indexableComm,
@@ -48,9 +50,17 @@ public class ContentGenerator {
                 Locale supportedLocale = I18nUtil.getEPersonLocale(ePerson);
                 Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "subscriptions_content"));
                 email.addRecipient(ePerson.getEmail());
+
+                String bodyCommunities = generateBodyMail("Community", indexableComm);
+                String bodyCollections = generateBodyMail("Collection", indexableColl);
+                if (bodyCommunities.equals(EMPTY) && bodyCollections.equals(EMPTY)) {
+                    log.debug("subscription(s) of eperson {} do(es) not match any new items: nothing to send" +
+                                  " - exit silently", ePerson::getID);
+                    return;
+                }
                 email.addArgument(configurationService.getProperty("subscription.url"));
-                email.addArgument(generateBodyMail("Community", indexableComm));
-                email.addArgument(generateBodyMail("Collection", indexableColl));
+                email.addArgument(bodyCommunities);
+                email.addArgument(bodyCollections);
                 email.addArgument(
                     indexableEntityByType.entrySet().stream()
                                          .map(entry -> generateBodyMail(entry.getKey(), entry.getValue()))
@@ -65,31 +75,36 @@ public class ContentGenerator {
     }
 
     private String generateBodyMail(String type, List<SubscriptionItem> subscriptionItems) {
+        if (subscriptionItems == null || subscriptionItems.isEmpty()) {
+            return EMPTY;
+        }
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            if (!subscriptionItems.isEmpty()) {
-                out.write(("\nYou have " + subscriptionItems.size() + " subscription(s) active to type " + type + "\n")
+            out.write(("\nYou have " + subscriptionItems.size() + " subscription(s) active to type " + type + "\n")
+                          .getBytes(UTF_8));
+            for (SubscriptionItem item : subscriptionItems) {
+                out.write("\n".getBytes(UTF_8));
+                out.write("List of new content for the\n".getBytes(UTF_8));
+                out.write((type + " " + item.getName() + " - " + item.getUrl() + "\n")
                               .getBytes(UTF_8));
-                for (SubscriptionItem item : subscriptionItems) {
-                    out.write("\n".getBytes(UTF_8));
-                    out.write("List of new content for the\n".getBytes(UTF_8));
-                    out.write((type + " " + item.getName() + " - " + item.getUrl() + "\n")
-                                  .getBytes(UTF_8));
 
-                    for (Entry<String, String> entry : item.getItemUrlsByItemName().entrySet()) {
-                        out.write("\n".getBytes(UTF_8));
-                        out.write((entry.getKey() + " - " + entry.getValue()).getBytes(UTF_8));
-                    }
+                for (Entry<String, String> entry : item.getItemUrlsByItemName().entrySet()) {
+                    out.write("\n".getBytes(UTF_8));
+                    out.write((entry.getKey() + " - " + entry.getValue()).getBytes(UTF_8));
                 }
-                return out.toString();
-            } else {
-                out.write("No items".getBytes(UTF_8));
+                //Optional.ofNullable(entityType2Disseminator.get(type))
+                //        .orElseGet(() -> entityType2Disseminator.get("Item"))
+                //        .disseminate(context, item, out);
             }
             return out.toString();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return EMPTY;
+    }
+
+    public void setEntityType2Disseminator(Map<String, StreamDisseminationCrosswalk> entityType2Disseminator) {
+        this.entityType2Disseminator = entityType2Disseminator;
     }
 
 }

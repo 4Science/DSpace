@@ -2796,7 +2796,6 @@ public class AuthorizationRestRepositoryIT extends AbstractControllerIntegration
                                                            simpleArticle.getInputStream())
                                             .withIssueDate("2022-07-15")
                                             .withSubject("Entry")
-                                            .withEntityType("Publication")
                                             .grantLicense()
                                             .build();
 

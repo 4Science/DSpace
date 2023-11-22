@@ -213,7 +213,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
     @Override
     public void removeBitstream(Context context, Bundle bundle, Bitstream bitstream)
-            throws AuthorizeException, SQLException, IOException {
+        throws AuthorizeException, SQLException, IOException {
         // Check authorisation
         authorizeService.authorizeAction(context, bundle, Constants.REMOVE);
 

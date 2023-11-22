@@ -73,7 +73,6 @@ public class DatabaseUtils {
 
     // Types of databases supported by DSpace. See getDbType()
     public static final String DBMS_POSTGRES = "postgres";
-    public static final String DBMS_ORACLE = "oracle";
     public static final String DBMS_H2 = "h2";
 
     // Name of the table that Flyway uses for its migration history
@@ -323,9 +322,7 @@ public class DatabaseUtils {
                     System.out
                         .println("\nWARNING: ALL DATA AND TABLES IN YOUR DATABASE WILL BE PERMANENTLY DELETED.\n");
                     System.out.println("There is NO turning back from this action. Backup your DB before continuing.");
-                    if (dbType.equals(DBMS_ORACLE)) {
-                        System.out.println("\nORACLE WARNING: your RECYCLEBIN will also be PURGED.\n");
-                    } else if (dbType.equals(DBMS_POSTGRES)) {
+                    if (dbType.equals(DBMS_POSTGRES)) {
                         System.out.println(
                             "\nPOSTGRES WARNING: the '" + PostgresUtils.PGCRYPTO + "' extension will be dropped if it" +
                                 " is in the same schema as the DSpace database.\n");
@@ -1285,6 +1282,7 @@ public class DatabaseUtils {
                     Context context = null;
                     try {
                         context = new Context();
+                        context.setMode(Context.Mode.READ_ONLY);
                         context.turnOffAuthorisationSystem();
                         log.info(
                             "Post database migration, reindexing all content in Discovery search and browse engine");

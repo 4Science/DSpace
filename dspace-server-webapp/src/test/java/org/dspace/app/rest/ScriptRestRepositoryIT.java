@@ -54,6 +54,7 @@ import org.dspace.app.rest.matcher.ScriptMatcher;
 import org.dspace.app.rest.model.ParameterValueRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.CollectionBuilder;
@@ -116,7 +117,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     private ChoiceAuthorityService choiceAuthorityService;
 
     @After
-    public void after() {
+    public void after() throws SubmissionConfigReaderException {
         DSpaceServicesFactory.getInstance().getConfigurationService().reloadConfig();
         metadataAuthorityService.clearCache();
         choiceAuthorityService.clearCache();

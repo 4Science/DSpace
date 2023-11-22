@@ -41,7 +41,6 @@ import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.rest.submit.UploadableStep;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.app.util.SubmissionConfig;
-import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.authorize.AuthorizeException;
@@ -66,6 +65,8 @@ import org.dspace.importer.external.exception.FileMultipleOccurencesException;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.service.ImportService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.submit.factory.SubmissionServiceFactory;
+import org.dspace.submit.service.SubmissionConfigService;
 import org.dspace.util.UUIDUtils;
 import org.dspace.validation.service.ValidationService;
 import org.dspace.versioning.ItemCorrectionService;
@@ -137,10 +138,10 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
     @Autowired
     private UriListHandlerService uriListHandlerService;
 
-    private SubmissionConfigReader submissionConfigReader;
+    private SubmissionConfigService submissionConfigService;
 
     public WorkspaceItemRestRepository() throws SubmissionConfigReaderException {
-        submissionConfigReader = new SubmissionConfigReader();
+        submissionConfigService = SubmissionServiceFactory.getInstance().getSubmissionConfigService();
     }
 
     @PreAuthorize("hasPermission(#id, 'WORKSPACEITEM', 'READ')")
@@ -310,7 +311,8 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
             collection = collectionService.findAuthorizedOptimized(context, Constants.ADD).get(0);
         }
 
-        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByCollection(collection);
+        SubmissionConfig submissionConfig =
+            submissionConfigService.getSubmissionConfigByCollection(collection);
         List<WorkspaceItem> result = null;
         List<ImportRecord> records = new ArrayList<>();
         try {

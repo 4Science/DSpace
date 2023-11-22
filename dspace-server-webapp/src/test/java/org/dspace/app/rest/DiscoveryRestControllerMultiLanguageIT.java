@@ -20,6 +20,7 @@ import org.dspace.app.rest.matcher.FacetValueMatcher;
 import org.dspace.app.rest.matcher.PageMatcher;
 import org.dspace.app.rest.matcher.SearchResultMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
@@ -54,7 +55,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
     private ChoiceAuthorityService choiceAuthorityService;
 
     @After
-    public void after() {
+    public void after() throws SubmissionConfigReaderException {
         DSpaceServicesFactory.getInstance().getConfigurationService().reloadConfig();
         metadataAuthorityService.clearCache();
         choiceAuthorityService.clearCache();

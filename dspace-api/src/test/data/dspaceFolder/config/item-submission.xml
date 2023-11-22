@@ -26,6 +26,7 @@
         <name-map collection-handle="123456789/qualdrop-test" submission-name="qualdroptest"/>
         <name-map collection-handle="123456789/typebind-test" submission-name="typebindtest"/>
         <name-map collection-handle="123456789/accessCondition-not-discoverable" submission-name="accessConditionNotDiscoverable"/>
+        <name-map collection-handle="123456789/test-hidden" submission-name="test-hidden"/>
     </submission-map>
 
 

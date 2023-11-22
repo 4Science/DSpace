@@ -14,6 +14,7 @@ import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.Collection;
 import org.dspace.core.Constants;
 import org.dspace.submit.model.UploadConfigurationService;
+import org.dspace.submit.service.SubmissionConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -43,6 +44,34 @@ public final class AuthorityServiceUtils {
                 return configReader.getSubmissionConfigByCollection(collection).getSubmissionName();
             case Constants.BITSTREAM:
                 SubmissionConfig subCfg = configReader.getSubmissionConfigByCollection(collection);
+                for (int i = 0; i < subCfg.getNumberOfSteps(); i++) {
+                    SubmissionStepConfig step = subCfg.getStep(i);
+                    if (SubmissionStepConfig.UPLOAD_STEP_NAME.equalsIgnoreCase(step.getType())) {
+                        return uploadConfigurationService.getMap().get(step.getId()).getMetadata();
+                    }
+                }
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     *
+     * @param submissionConfigService the Submission Config service
+     * @param dsoType      the type of dspace object (ITEM or BITSTREAM) for all the
+     *                     other object <code>null</code> is returned
+     * @param collection   the collection where the object stays
+     * @return the name of the submission form (if ITEM) or the name of the metadata
+     *         form (BITSTREAM)
+     */
+    public String getSubmissionOrFormName(SubmissionConfigService submissionConfigService, int dsoType,
+                                          Collection collection) {
+        switch (dsoType) {
+            case Constants.ITEM:
+                return submissionConfigService.getSubmissionConfigByCollection(collection).getSubmissionName();
+            case Constants.BITSTREAM:
+                SubmissionConfig subCfg = submissionConfigService.getSubmissionConfigByCollection(collection);
                 for (int i = 0; i < subCfg.getNumberOfSteps(); i++) {
                     SubmissionStepConfig step = subCfg.getStep(i);
                     if (SubmissionStepConfig.UPLOAD_STEP_NAME.equalsIgnoreCase(step.getType())) {

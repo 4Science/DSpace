@@ -31,6 +31,13 @@ import org.dspace.xoai.util.ItemUtils;
  *          <field name="value">open.access</field>
  *       </element>
  *   </element>
+ *   OR
+ *   <element name="others">
+ *       <element name="access-status">
+ *          <field name="value">embargo</field>
+ *          <field name="embargo">2024-10-10</field>
+ *       </element>
+ *   </element>
  * }
  * </pre>
  * Returning Values are based on:

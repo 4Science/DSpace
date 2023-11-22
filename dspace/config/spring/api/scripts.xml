@@ -99,7 +99,7 @@
         <property name="description" value="Perform the creating of workspace item using external sources (i.e. Scopus, WebOfScience)"/>
         <property name="dspaceRunnableClass" value="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCli"/>
     </bean>
-    
+
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration">
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>

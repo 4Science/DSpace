@@ -2713,7 +2713,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
                 .build();
 
         Item publicationItem = createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withTitle("Publication title")
             .withType("not translated", vocabularyName + ":c_7bab")
             .withLanguage("en_US")
@@ -2730,11 +2729,11 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         referCrosswalk.disseminate(context, publicationItem, out);
 
         String[] resultLines = out.toString().split("\n");
-        assertThat(resultLines.length, is(7));
+        assertThat(resultLines.length, is(6));
         assertThat(resultLines[0].trim(), equalTo("<publication>"));
-        assertThat(resultLines[4].trim(), equalTo("<VocabularyType>software paper</VocabularyType>"));
-        assertThat(resultLines[5].trim(), equalTo("<ValuePairLanguage>English (United States)</ValuePairLanguage>"));
-        assertThat(resultLines[6].trim(), equalTo("</publication>"));
+        assertThat(resultLines[3].trim(), equalTo("<VocabularyType>software paper</VocabularyType>"));
+        assertThat(resultLines[4].trim(), equalTo("<ValuePairLanguage>English (United States)</ValuePairLanguage>"));
+        assertThat(resultLines[5].trim(), equalTo("</publication>"));
     }
 
     @Test

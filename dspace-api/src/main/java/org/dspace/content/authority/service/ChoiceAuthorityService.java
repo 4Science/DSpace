@@ -10,6 +10,7 @@ package org.dspace.content.authority.service;
 import java.util.List;
 import java.util.Set;
 
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -184,7 +185,7 @@ public interface ChoiceAuthorityService {
     /**
      * This method has been created to have a way of clearing the cache kept inside the service
      */
-    public void clearCache();
+    public void clearCache() throws SubmissionConfigReaderException;
 
     /**
      * Get the entity type starting from the metadata field.

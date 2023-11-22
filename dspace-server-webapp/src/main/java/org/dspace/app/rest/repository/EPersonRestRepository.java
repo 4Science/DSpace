@@ -320,6 +320,35 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
         }
     }
 
+    /**
+     * Find the EPersons matching the query parameter which are NOT a member of the given Group.
+     * The search is delegated to the
+     * {@link EPersonService#searchNonMembers(Context, String, Group, int, int)}  method
+     *
+     * @param groupUUID the *required* group UUID to exclude results from
+     * @param query    is the *required* query string
+     * @param pageable contains the pagination information
+     * @return a Page of EPersonRest instances matching the user query
+     */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('MANAGE_ACCESS_GROUP')")
+    @SearchRestMethod(name = "isNotMemberOf")
+    public Page<EPersonRest> findIsNotMemberOf(@Parameter(value = "group", required = true) UUID groupUUID,
+                                             @Parameter(value = "query", required = true) String query,
+                                             Pageable pageable) {
+
+        try {
+            Context context = obtainContext();
+            Group excludeGroup = groupService.find(context, groupUUID);
+            long total = es.searchNonMembersCount(context, query, excludeGroup);
+            List<EPerson> epersons = es.searchNonMembers(context, query, excludeGroup,
+                                                     Math.toIntExact(pageable.getOffset()),
+                                                     Math.toIntExact(pageable.getPageSize()));
+            return converter.toRestPage(epersons, pageable, total, utils.obtainProjection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     @Override
     @PreAuthorize("hasPermission(#uuid, 'EPERSON', #patch)")
     protected void patch(Context context, HttpServletRequest request, String apiCategory, String model, UUID uuid,

@@ -4504,7 +4504,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="searchFilterProjectInvestigator"
         class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="projectinvestigators" />
@@ -4521,7 +4521,7 @@
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="false"/>
     </bean>
-    
+
     <bean id="searchFilterEditor" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="editor"/>
         <property name="metadataFields">
@@ -4537,7 +4537,7 @@
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
-    
+
     <bean id="searchFilterOrgUnit" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="organization"/>
         <property name="metadataFields">
@@ -4553,7 +4553,7 @@
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
-    
+
     <bean id="searchFilterFunding" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="funding"/>
         <property name="metadataFields">
@@ -4568,7 +4568,7 @@
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
-    
+
     <bean id="searchFilterOrcid" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="orcid"/>
         <property name="metadataFields">
@@ -4579,7 +4579,7 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
     </bean>
-    
+
     <bean id="searchFilterLegacyId" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="legacy-id"/>
         <property name="metadataFields">
@@ -4590,7 +4590,7 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
     </bean>
-    
+
     <bean id="searchFilterDoi" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="doi"/>
         <property name="metadataFields">
@@ -4601,7 +4601,7 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
     </bean>
-    
+
     <bean id="searchFilterTypes" class="org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet">
         <property name="indexFieldName" value="types" />
         <property name="metadataFields">
@@ -4610,7 +4610,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="searchFilterLanguage" class="org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet">
         <property name="indexFieldName" value="language" />
         <property name="metadataFields">
@@ -4719,7 +4719,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByResearchOutputsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4732,7 +4732,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByRPProjectsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4745,7 +4745,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByPublicationsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4758,7 +4758,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByRPPublicationsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4771,7 +4771,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByPeopleSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4784,7 +4784,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByOrganizationsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4797,7 +4797,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean name="sortByFundingsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
@@ -4855,9 +4855,9 @@
         <property name="metadataField" value="metric.scopus.citation"/>
         <property name="defaultSortOrder" value="desc"/>
     </bean>
-    
-    
-    
+
+
+
     <bean id="graphPublicationByType" class="org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet">
         <property name="facetLimit" value="10"/>
         <property name="indexFieldName" value="graphitemtype" />
@@ -4876,7 +4876,7 @@
         <property name="exposeMore" value="true" />
         <property name="exposeTotalElements" value="true" />
     </bean>
-    
+
     <bean id="graphPublicationByDate" class="org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet">
         <property name="facetLimit" value="10"/>
         <property name="sortOrderSidebar" value="VALUE"/>

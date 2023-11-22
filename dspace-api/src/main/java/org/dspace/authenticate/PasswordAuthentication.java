@@ -23,6 +23,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
@@ -52,10 +53,12 @@ public class PasswordAuthentication
      */
     private static final Logger log = LogManager.getLogger();
 
+    private static final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     private static final String PASSWORD_AUTHENTICATED = "password.authenticated";
 
     private EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
-
 
 
     /**
@@ -76,8 +79,7 @@ public class PasswordAuthentication
                                    String email)
         throws SQLException {
         // Is there anything set in domain.valid?
-        String[] domains = DSpaceServicesFactory.getInstance().getConfigurationService()
-                                                .getArrayProperty("authentication-password.domain.valid");
+        String[] domains = configurationService.getArrayProperty("authentication-password.domain.valid");
         if ((domains == null) || (domains.length == 0)) {
             // No conditions set, so must be able to self register
             return true;
@@ -146,8 +148,7 @@ public class PasswordAuthentication
                 && StringUtils.isNotBlank(
                 EPersonServiceFactory.getInstance().getEPersonService().getPasswordHash(context.getCurrentUser())
                                      .toString())) {
-                String groupName = DSpaceServicesFactory.getInstance().getConfigurationService()
-                                                        .getProperty("authentication-password.login.specialgroup");
+                String groupName = configurationService.getProperty("authentication-password.login.specialgroup");
                 if ((groupName != null) && !groupName.trim().isEmpty()) {
                     Group specialGroup = EPersonServiceFactory.getInstance().getGroupService()
                                                               .findByName(context, groupName);
@@ -168,6 +169,7 @@ public class PasswordAuthentication
         }
         return Collections.EMPTY_LIST;
     }
+
 
     /**
      * Check credentials: username must match the email address of an
@@ -274,5 +276,20 @@ public class PasswordAuthentication
             return false;
         }
         return ePersonService.checkPassword(context, ePerson, currentPassword);
+    }
+
+    @Override
+    public boolean areSpecialGroupsApplicable(Context context, HttpServletRequest request) {
+        return isPasswordAuthenticationMethodInContext(context, request) ||
+            isPasswordAuthenticatedInRequest(context, request);
+    }
+
+    private boolean isPasswordAuthenticatedInRequest(Context context, HttpServletRequest request) {
+        return StringUtils.isBlank(context.getAuthenticationMethod()) &&
+            (Boolean) request.getAttribute(PASSWORD_AUTHENTICATED);
+    }
+
+    private boolean isPasswordAuthenticationMethodInContext(Context context, HttpServletRequest request) {
+        return AuthenticationMethod.super.areSpecialGroupsApplicable(context, request);
     }
 }

@@ -36,6 +36,7 @@ import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -98,6 +99,8 @@ import org.springframework.test.util.ReflectionTestUtils;
  * @author Frederic Van Reet (frederic dot vanreet at atmire dot com)
  */
 public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest {
+
+    public static final String[] PASS_ONLY = {"org.dspace.authenticate.PasswordAuthentication"};
 
     protected SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
 
@@ -744,52 +747,68 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     @Test
     public void restrictedSpecialGroupBitstreamTest() throws Exception {
-        context.turnOffAuthorisationSystem();
 
-        parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+        String authenticationMethod =
+            configurationService.getProperty("plugin.sequence.org.dspace.authenticate.AuthenticationMethod");
 
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .build();
+        try {
 
-        Group restrictedGroup = GroupBuilder.createGroup(context)
-            .withName("Restricted Group")
-            .build();
+            configurationService.setProperty("plugin.sequence.org.dspace.authenticate.AuthenticationMethod", PASS_ONLY);
 
-        String bitstreamContent = "Private!";
-        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            context.turnOffAuthorisationSystem();
 
-            Item item = ItemBuilder.createItem(context, col1)
-                .withTitle("item 1")
-                .withIssueDate("2013-01-17")
-                .withAuthor("Doe, John")
-                .build();
+            parentCommunity = CommunityBuilder.createCommunity(context)
+                                              .withName("Parent Community")
+                                              .build();
 
-            bitstream = BitstreamBuilder
-                .createBitstream(context, item, is)
-                .withName("Test Embargoed Bitstream")
-                .withDescription("This bitstream is embargoed")
-                .withMimeType("text/plain")
-                .withReaderGroup(restrictedGroup)
-                .build();
+            Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withName("Collection 1")
+                                               .build();
+
+            Group restrictedGroup = GroupBuilder.createGroup(context)
+                                                .withName("Restricted Group")
+                                                .build();
+
+            String bitstreamContent = "Private!";
+            try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+
+                Item item = ItemBuilder.createItem(context, col1)
+                                       .withTitle("item 1")
+                                       .withIssueDate("2013-01-17")
+                                       .withAuthor("Doe, John")
+                                       .build();
+
+                bitstream = BitstreamBuilder
+                    .createBitstream(context, item, is)
+                    .withName("Test Embargoed Bitstream")
+                    .withDescription("This bitstream is embargoed")
+                    .withMimeType("text/plain")
+                    .withReaderGroup(restrictedGroup)
+                    .build();
+            }
+
+            context.restoreAuthSystemState();
+
+            String authToken = getAuthToken(eperson.getEmail(), password);
+            getClient(authToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                .andExpect(status().isForbidden());
+
+            getClient(authToken).perform(post("/api/authn/logout")).andExpect(status().isNoContent());
+
+            configurationService.setProperty("authentication-password.login.specialgroup", "Restricted Group");
+
+            authToken = getAuthToken(eperson.getEmail(), password);
+            getClient(authToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                .andExpect(status().isOk());
+
+            checkNumberOfStatsRecords(bitstream, 1);
+
+        } finally {
+            configurationService.setProperty(
+                "plugin.sequence.org.dspace.authenticate.AuthenticationMethod",
+                authenticationMethod
+            );
         }
-
-        context.restoreAuthSystemState();
-
-        String authToken = getAuthToken(eperson.getEmail(), password);
-        getClient(authToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            .andExpect(status().isForbidden());
-
-        configurationService.setProperty("authentication-password.login.specialgroup", "Restricted Group");
-
-        authToken = getAuthToken(eperson.getEmail(), password);
-        getClient(authToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            .andExpect(status().isOk());
-
-        checkNumberOfStatsRecords(bitstream, 1);
-
     }
 
     @Test

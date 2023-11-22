@@ -15,7 +15,7 @@
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
-        <xoai.version>3.3.0</xoai.version>
+        <xoai.version>3.4.0</xoai.version>
         <jtwig.version>5.87.0.RELEASE</jtwig.version>
     </properties>
 
@@ -80,6 +80,11 @@
                 <exclusion>
                     <groupId>org.codehaus.woodstox</groupId>
                     <artifactId>wstx-asl</artifactId>
+                </exclusion>
+                <!-- Use version provided by SolrJ -->
+                <exclusion>
+                    <groupId>com.fasterxml.woodstox</groupId>
+                    <artifactId>woodstox-core</artifactId>
                 </exclusion>
                 <!-- Later version provided by Hibernate -->
                 <exclusion>

@@ -86,7 +86,6 @@ public class XOAI {
 
     // needed because the solr query only returns 10 rows by default
     private final Context context;
-    private boolean optimize;
     private final boolean verbose;
     private boolean clean;
 
@@ -123,9 +122,8 @@ public class XOAI {
         return formats;
     }
 
-    public XOAI(Context context, boolean optimize, boolean clean, boolean verbose) {
+    public XOAI(Context context, boolean clean, boolean verbose) {
         this.context = context;
-        this.optimize = optimize;
         this.clean = clean;
         this.verbose = verbose;
 
@@ -173,12 +171,6 @@ public class XOAI {
             }
 
             solrServerResolver.getServer().commit();
-
-            if (optimize) {
-                println("Optimizing Index");
-                solrServerResolver.getServer().optimize();
-                println("Index optimized");
-            }
 
             // Set last compilation date
             xoaiLastCompilationCacheService.put(new Date());
@@ -590,7 +582,6 @@ public class XOAI {
             CommandLineParser parser = new DefaultParser();
             Options options = new Options();
             options.addOption("c", "clear", false, "Clear index before indexing");
-            options.addOption("o", "optimize", false, "Optimize index at the end");
             options.addOption("v", "verbose", false, "Verbose output");
             options.addOption("h", "help", false, "Shows some help");
             options.addOption("n", "number", true, "FOR DEVELOPMENT MUST DELETE");
@@ -623,7 +614,7 @@ public class XOAI {
 
                 if (COMMAND_IMPORT.equals(command)) {
                     ctx = new Context(Context.Mode.READ_ONLY);
-                    XOAI indexer = new XOAI(ctx, line.hasOption('o'), line.hasOption('c'), line.hasOption('v'));
+                    XOAI indexer = new XOAI(ctx, line.hasOption('c'), line.hasOption('v'));
 
                     applicationContext.getAutowireCapableBeanFactory().autowireBean(indexer);
 
@@ -709,7 +700,6 @@ public class XOAI {
             System.out.println("     " + COMMAND_IMPORT + " - To import DSpace items into OAI index and cache system");
             System.out.println("     " + COMMAND_CLEAN_CACHE + " - Cleans the OAI cached responses");
             System.out.println("> Parameters:");
-            System.out.println("     -o Optimize index after indexing (" + COMMAND_IMPORT + " only)");
             System.out.println("     -c Clear index (" + COMMAND_IMPORT + " only)");
             System.out.println("     -v Verbose output");
             System.out.println("     -h Shows this text");

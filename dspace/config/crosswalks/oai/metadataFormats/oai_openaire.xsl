@@ -13,13 +13,13 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" xmlns:datacite="http://datacite.org/schema/kernel-4"
     xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai"
-    xmlns:rdf="http://www.w3.org/TR/rdf-concepts/" version="1.0">
+                version="1.0">
     <xsl:output omit-xml-declaration="yes" method="xml" indent="yes"/>
 
     <xsl:template match="/">
-        <oaire:resource xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
+        <oaire:resource
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
 
             <!-- datacite:title -->
             <xsl:apply-templates
@@ -1440,6 +1440,18 @@
             <xsl:when test="$lc_dc_type = 'book review'">
                 <xsl:text>literature</xsl:text>
             </xsl:when>
+            <xsl:when test="$lc_dc_type = 'bachelor thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'doctoral thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'master thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>		
             <xsl:when test="$lc_dc_type = 'dataset'">
                 <xsl:text>dataset</xsl:text>
             </xsl:when>

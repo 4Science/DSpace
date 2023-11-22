@@ -190,10 +190,6 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "date", "issued", new DCDate(issueDate).toString());
     }
 
-    public WorkspaceItemBuilder withType(final String type) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "type", null, type);
-    }
-
     public WorkspaceItemBuilder withAuthor(final String authorName) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "author", authorName);
     }
@@ -272,6 +268,9 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return addMetadataValue(MetadataSchemaEnum.DC.getName(),"description", "abstract", subject);
     }
 
+    public WorkspaceItemBuilder withType(final String type) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(),"type", null, type);
+    }
 
     public WorkspaceItemBuilder grantLicense() {
         Item item = workspaceItem.getItem();

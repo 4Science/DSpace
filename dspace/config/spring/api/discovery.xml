@@ -738,9 +738,11 @@
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--The default sort filter to use for the initial workspace loading-->
+                <property name="defaultSortField" ref="sortLastModified" />
                 <property name="sortFields">
                     <list>
-                    	<ref bean="sortLastModified" />
+                        <ref bean="sortLastModified" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortDateIssuedDesc" />
                     </list>
@@ -807,6 +809,8 @@
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--The default sort filter to use for the initial workspace loading-->
+                <property name="defaultSortField" ref="sortLastModified" />
                 <property name="sortFields">
                     <list>
                         <ref bean="sortLastModified" />

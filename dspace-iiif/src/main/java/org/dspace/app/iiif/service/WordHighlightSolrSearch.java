@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -120,25 +119,6 @@ public class WordHighlightSolrSearch implements SearchAnnotationService {
             return '(' + query + ')';
         }
         return query;
-    }
-
-    /**
-     * Converts unicode to XML-encoded codepoint.
-     * @param s query terms
-     * @return encoded query
-     */
-    private String toXMLEncoded(String s) {
-        Formatter formatter = new Formatter();
-        int len = s.length();
-        for (int i = 0; i < len; i = s.offsetByCodePoints(i, 1)) {
-            int c = s.codePointAt(i);
-            if (c < 32 || c > 126) {
-                formatter.format("&#%d;", c);
-            } else {
-                formatter.format("%c", c);
-            }
-        }
-        return formatter.toString();
     }
 
     /**
