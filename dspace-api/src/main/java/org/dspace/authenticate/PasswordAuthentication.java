@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -285,8 +286,10 @@ public class PasswordAuthentication
     }
 
     private boolean isPasswordAuthenticatedInRequest(Context context, HttpServletRequest request) {
-        return StringUtils.isBlank(context.getAuthenticationMethod()) &&
-            (Boolean) request.getAttribute(PASSWORD_AUTHENTICATED);
+        return (context == null || StringUtils.isBlank(context.getAuthenticationMethod())) &&
+            request != null && Optional.ofNullable(request.getAttribute(PASSWORD_AUTHENTICATED))
+                                       .map(Boolean.class::cast)
+                                       .orElse(false);
     }
 
     private boolean isPasswordAuthenticationMethodInContext(Context context, HttpServletRequest request) {
