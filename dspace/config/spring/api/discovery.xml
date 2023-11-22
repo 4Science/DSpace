@@ -774,7 +774,6 @@
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
@@ -796,6 +795,9 @@
                     <list>
                     	<ref bean="sortLastModified" />
                         <ref bean="sortTitleAsc" />
+                        <ref bean="sortTypeAsc" />
+                        <ref bean="sortTypeDesc" />
+                        <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateIssuedDesc" />
                     </list>
                 </property>
@@ -4497,6 +4499,15 @@
     <bean id="sortDateIssuedDesc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="dc.date.issued"/>
         <property name="type" value="date"/>
+        <property name="defaultSortOrder" value="desc"/>
+    </bean>
+    <bean id="sortTypeAsc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="dc.type"/>
+        <property name="defaultSortOrder" value="asc"/>
+    </bean>
+
+    <bean id="sortTypeDesc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="dc.type"/>
         <property name="defaultSortOrder" value="desc"/>
     </bean>
 
