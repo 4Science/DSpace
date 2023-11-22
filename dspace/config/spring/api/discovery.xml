@@ -132,8 +132,8 @@
                 <entry key="RELATION.Path.pathpublications" value-ref="relationPathRecordsConfiguration"/>
                 <!-- Person Related items -->
                 <entry key="RELATION.Person.projects" value-ref="relationInvestigatorProjectsConfiguration"/>
-                <entry key="RELATION.Person.publications" value-ref="relationAuthorResearchOutputsConfiguration"/>
-                <entry key="RELATION.Person.copublications" value-ref="relationContributorResearchOutputsConfiguration"/>
+                <entry key="RELATION.Person.publications" value-ref="relationAuthorPublicationsConfiguration"/>
+                <entry key="RELATION.Person.copublications" value-ref="relationContributorPublicationsConfiguration"/>
                 <entry key="RELATION.Person.fonds" value-ref="relationPersonFondsConfiguration"/>
                 <!-- OrgUnit Related items -->
                 <entry key="RELATION.OrgUnit.rpprojects" value-ref="relationOrgunitRPProjectConfiguration"/>
@@ -1224,7 +1224,7 @@
 
 
     <!-- publications of an author -->
-    <bean id="relationAuthorResearchOutputsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+    <bean id="relationAuthorPublicationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
@@ -1265,7 +1265,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByResearchOutputsSelection" />
+                        <ref bean="sortByPublicationsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -1297,7 +1297,7 @@
     </bean>
 
     <!-- publications of a contributor -->
-    <bean id="relationContributorResearchOutputsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+    <bean id="relationContributorPublicationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
@@ -1305,7 +1305,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByPublicationsSelection" />
+                        <ref bean="sortByContributedPublicationSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
                 </property>
@@ -4728,6 +4728,18 @@
         <property name="arguments">
             <list>
                 <value>relation.isPlacesSelectedFor</value>
+                <value>{0}</value>
+            </list>
+        </property>
+    </bean>
+    <bean name="sortByContributedPublicationSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+        <property name="defaultSortOrder" value="desc"/>
+        <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
+        <property name="function" value="termfreq"/>
+        <property name="id" value="ownerselection"/>
+        <property name="arguments">
+            <list>
+                <value>relation.isCoPublicationsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>

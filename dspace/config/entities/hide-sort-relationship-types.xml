@@ -4,17 +4,6 @@
 <relationships>
     <type>
         <rightType>Person</rightType>
-        <leftwardType>isResearchoutputsHiddenFor</leftwardType>
-        <rightwardType>notDisplayingResearchoutputs</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-        </rightCardinality>
-    </type>
-    <type>
-        <rightType>Person</rightType>
         <leftwardType>isPublicationsHiddenFor</leftwardType>
         <rightwardType>notDisplayingPublications</rightwardType>
         <leftCardinality>
@@ -83,17 +72,6 @@
         <rightType>Person</rightType>
         <leftwardType>isFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedFonds</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-        </rightCardinality>
-    </type>
-    <type>
-        <rightType>Person</rightType>
-        <leftwardType>isResearchoutputsSelectedFor</leftwardType>
-        <rightwardType>hasSelectedResearchoutputs</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>
