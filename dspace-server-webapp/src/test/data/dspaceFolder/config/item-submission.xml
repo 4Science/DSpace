@@ -175,6 +175,12 @@
             <processing-class>org.dspace.submit.step.SampleStep</processing-class>
             <type>sample</type>
         </step-definition>
+        <step-definition id="unpaywall" mandatory="true">
+            <heading>submit.progressbar.unpaywall</heading>
+            <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
+            <type>unpaywall</type>
+        </step-definition>
+
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
