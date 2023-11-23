@@ -20,6 +20,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataValueService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -66,6 +67,9 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
 
     @Autowired(required = true)
     private ItemService itemService;
+
+    @Autowired()
+    private MetadataValueService metadataValueService;
 
     /**
      * After all the properties are set check that the versioning is enabled
@@ -504,12 +508,17 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
         String handleref = handleService.getCanonicalForm(handle);
         List<MetadataValue> identifiers = itemService
             .getMetadata(item, MetadataSchemaEnum.DC.getName(), "identifier", "uri", Item.ANY);
-        itemService.clearMetadata(context, item, MetadataSchemaEnum.DC.getName(), "identifier", "uri", Item.ANY);
         for (MetadataValue identifier : identifiers) {
             if (this.supports(identifier.getValue())) {
                 // ignore handles
                 continue;
             }
+
+            identifiers.remove(identifier);
+            metadataValueService.delete(context, identifier);
+
+            context.uncacheEntity(identifier);
+
             itemService.addMetadata(context,
                                     item,
                                     identifier.getMetadataField(),
@@ -522,6 +531,7 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
             itemService.addMetadata(context, item, MetadataSchemaEnum.DC.getName(),
                                     "identifier", "uri", null, handleref);
         }
+        itemService.setMetadataModified(item);
         itemService.update(context, item);
     }
 }
