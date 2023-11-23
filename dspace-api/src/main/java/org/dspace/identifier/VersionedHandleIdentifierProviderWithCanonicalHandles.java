@@ -520,8 +520,6 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
             toRemove.add(identifier);
             metadataValueService.delete(context, identifier);
 
-            context.uncacheEntity(identifier);
-
             itemService.addMetadata(context,
                                     item,
                                     identifier.getMetadataField(),
