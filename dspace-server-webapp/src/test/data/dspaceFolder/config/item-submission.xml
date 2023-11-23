@@ -180,7 +180,6 @@
             <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
             <type>unpaywall</type>
         </step-definition>
-
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -291,6 +290,13 @@
         <submission-process name="openAIREOrganizationSubmission">
             <step id="collection"/>
             <step id="openAIREOrganizationForm"/>
+        </submission-process>
+        <submission-process name="traditional-with-unpaywall">
+            <step id="collection"/>
+            <step id="extraction" />
+            <step id="traditionalpageone"/>
+            <step id="traditionalpagetwo"/>
+            <step id="unpaywall"/>
         </submission-process>
     </submission-definitions>
 

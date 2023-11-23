@@ -346,7 +346,7 @@
         <submission-process name="traditional-with-custom-url">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="custom-url"/>
         </submission-process>
@@ -354,7 +354,7 @@
         <submission-process name="traditional-with-unpaywall">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="unpaywall"/>
         </submission-process>
@@ -362,7 +362,7 @@
         <submission-process name="traditional-with-correction">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="correction"/>
             <step id="license"/>
