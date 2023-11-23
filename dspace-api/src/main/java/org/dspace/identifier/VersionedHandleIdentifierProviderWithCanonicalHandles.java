@@ -529,6 +529,9 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
                                     identifier.getConfidence());
         }
         itemService.removeMetadataValues(context, item, toRemove);
+
+        item = context.reloadEntity(item);
+
         if (!StringUtils.isEmpty(handleref)) {
             itemService.addMetadata(context, item, MetadataSchemaEnum.DC.getName(),
                                     "identifier", "uri", null, handleref);
