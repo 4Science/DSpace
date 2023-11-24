@@ -109,9 +109,9 @@
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataMetadataServiceImpl"/>
     <bean class="org.dspace.eperson.SubscribeServiceImpl"/>
-    
+
     <bean class="org.dspace.eperson.SubscribeParameterServiceImpl"/>
-    
+
     <bean class="org.dspace.eperson.CaptchaServiceImpl"/>
     <bean class="org.dspace.event.EventServiceImpl"/>
 
@@ -200,8 +200,8 @@
 
     <bean class="org.dspace.supervision.SupervisionOrderServiceImpl"/>
 
-    <bean class="org.dspace.ror.client.RORApiClientImpl" />
-    <bean class="org.dspace.ror.service.RORApiServiceImpl" />
+    <!-- Submission Config Service -->
+    <bean class="org.dspace.submit.service.SubmissionConfigServiceImpl"/>
 
 </beans>
 

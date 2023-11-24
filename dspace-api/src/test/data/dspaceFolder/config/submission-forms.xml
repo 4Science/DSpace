@@ -48,7 +48,7 @@
        </row>
    </form>
 
-   <form name="traditionalpageone">
+    <form name="traditionalpageone">
             <!-- NOTE: this Author <row> is customized from the default submission-forms.xml in order to make it
                  easier to test Entity functionality -->
             <row>
@@ -240,7 +240,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
 
-   <form name="traditionalpageone-cris">
+    <form name="traditionalpageone-cris">
 	 <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -380,7 +380,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
 	</form>
-	<form name="traditionalpagetwo">
+    <form name="traditionalpagetwo">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -432,7 +432,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="traditionalpagethree-cris-open">
+    <form name="traditionalpagethree-cris-open">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -484,7 +484,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="traditionalpagethree-cris-collapsed">
+    <form name="traditionalpagethree-cris-collapsed">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -536,7 +536,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="journalVolumeStep">
+    <form name="journalVolumeStep">
      <row>
        <relation-field>
          <relationship-type>isJournalOfVolume</relationship-type>
@@ -1038,8 +1038,8 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
 
-   <!-- Form patent [START] -->
-   <form name="patent">
+    <!-- Form patent [START] -->
+    <form name="patent">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1060,7 +1060,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <repeatable>false</repeatable>
          <required />
          <hint>The Approval date.
-You can leave out the day and/or month if they aren't applicable.</hint>
+    You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
      <row>
@@ -1073,7 +1073,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <repeatable>false</repeatable>
          <required />
          <hint>The registration date of the patent.
-You can leave out the day and/or month if they aren't applicable.</hint>
+    You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
      <row>
@@ -1169,8 +1169,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>The date Filled.</hint>
        </field>
      </row>
-   </form>
-   <form name="patent_indexing">
+    </form>
+    <form name="patent_indexing">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1206,8 +1206,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>Enter the description of the patent.</hint>
        </field>
      </row>
-   </form>
-   <form name="patent_references">
+    </form>
+    <form name="patent_references">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1243,8 +1243,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>Result outputs that are referenced by this patent</hint>
        </field>
      </row>
-   </form>
-   <!-- Form patent [END] -->
+    </form>
+    <!-- Form patent [END] -->
 	<form name="person">
       <row>
         <field>
@@ -1528,6 +1528,54 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         </field>
       </row>
     </form>
+    <form name="person-oairecerif-person-affiliation">
+     <row>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>role</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Role</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>onebox</input-type>
+         <hint />
+         <required />
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>person</dc-element>
+         <dc-qualifier>affiliation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Organisation name</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>onebox</input-type>
+         <hint />
+         <required>You must enter at least the organisation of your affiliation.</required>
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>startDate</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Start Date</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>date</input-type>
+         <hint />
+         <required />
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>endDate</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>End Date</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>date</input-type>
+         <hint />
+         <required />
+       </field>
+     </row>
+   </form>
     <form name="person-crisrp-qualification">
       <row>
         <field>
@@ -1638,7 +1686,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         </field>
       </row>
     </form>
-    
+
     <form name="qualdroptest">
      <row>
        <field>
@@ -1654,8 +1702,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
-   <form name="typebindtest">
+
+    <form name="typebindtest">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1723,8 +1771,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
-   <form name="languagetest">
+
+    <form name="languagetest">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -1769,14 +1817,14 @@ You can leave out the day and/or month if they aren't applicable.</hint>
           <label>Type</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <vocabulary>srsc</vocabulary>
-          <required />
-          <hint>Select a subject from the vocabulary.</hint>
+          <required>You must select a publication type</required>
+          <hint>Select the type(s) of content of the item.</hint>
+          <vocabulary>publication-coar-types</vocabulary>
         </field>
       </row>
-   </form>
+    </form>
 
-   <form name="sampleauthority">
+    <form name="sampleauthority">
      <row>
         <field>
             <dc-schema>dc</dc-schema>
@@ -1812,9 +1860,9 @@ You can leave out the day and/or month if they aren't applicable.</hint>
             <required></required>
         </field>
      </row>
-  </form>
+    </form>
 
-   <form name="titleAndIssuedDate">
+    <form name="titleAndIssuedDate">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1862,8 +1910,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <required>You must enter at least the year.</required>
        </field>
      </row>
-	</form>
-	   <form name="onlyTitle">
+    </form>
+    <form name="onlyTitle">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1877,8 +1925,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <!--    <language value-pairs-name="common_iso_languages">true</language> -->
        </field>
      </row>
-	</form>
-	
+    </form>
+
 	<form name="testVisibility">
 		<row>
 			<field>

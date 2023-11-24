@@ -27,7 +27,6 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
-import org.dspace.subscriptions.service.SubscriptionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -38,19 +37,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Alba Aliu
  */
-public class StatisticsGenerator implements SubscriptionGenerator<CrisMetrics> {
+public class StatisticsGenerator {
     private static final Logger log = LogManager.getLogger(StatisticsGenerator.class);
 
     @Autowired
     private ConfigurationService configurationService;
 
-    @Override
-    public void notifyForSubscriptions(Context c, EPerson ePerson, List<CrisMetrics> crisMetricsList,
-        List<CrisMetrics> crisMetricsList1, List<CrisMetrics> crisMetricsList2) {
-        // find statistics for all the subscribed objects
+    public void notifyForSubscriptions(Context c, EPerson ePerson, List<CrisMetrics> crisMetricsList) {
         try {
             // send the notification to the user
-            if (Objects.nonNull(ePerson) && crisMetricsList.size() > 0) {
+            if (Objects.nonNull(ePerson) && !crisMetricsList.isEmpty()) {
                 Email email = new Email();
                 String name = configurationService.getProperty("dspace.name");
                 File attachment = generateExcel(crisMetricsList, c);

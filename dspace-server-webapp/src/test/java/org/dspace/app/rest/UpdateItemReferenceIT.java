@@ -40,6 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 */
 public class UpdateItemReferenceIT extends AbstractControllerIntegrationTest {
 
+
+    private static final ConfigurationService configService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+    private static final EventService eventService = EventServiceFactory.getInstance().getEventService();
     private static String[] consumers;
 
     @Autowired
@@ -52,13 +56,11 @@ public class UpdateItemReferenceIT extends AbstractControllerIntegrationTest {
      */
     @BeforeClass
     public static void initCrisConsumer() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
         consumers = configService.getArrayProperty("event.dispatcher.default.consumers");
         Set<String> consumersSet = new HashSet<String>(Arrays.asList(consumers));
         consumersSet.remove("referenceresolver");
         consumersSet.remove("crisconsumer");
         configService.setProperty("event.dispatcher.default.consumers", consumersSet.toArray());
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
         eventService.reloadConfiguration();
     }
 
@@ -67,9 +69,7 @@ public class UpdateItemReferenceIT extends AbstractControllerIntegrationTest {
      */
     @AfterClass
     public static void resetDefaultConsumers() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
         configService.setProperty("event.dispatcher.default.consumers", consumers);
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
         eventService.reloadConfiguration();
     }
 

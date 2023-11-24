@@ -21,7 +21,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 /**
- * Implementation of {@link org.hamcrest.Matcher} to match a ResourcePolicy.
+ * Implementation of {@link Matcher} to match a ResourcePolicy.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *

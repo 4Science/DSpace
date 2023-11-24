@@ -243,13 +243,11 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-//                        FacetEntryMatcher.typeFacet(false),
                         FacetEntryMatcher.authorFacet(false),
                         FacetEntryMatcher.anyFacet("editor", "text"),
                         FacetEntryMatcher.anyFacet("organization", "text"),
                         FacetEntryMatcher.anyFacet("funding", "text"),
                         FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-//                        FacetEntryMatcher.anyFacet("subject", "hierarchical"),
                         FacetEntryMatcher.subjectFacet(false),
                         FacetEntryMatcher.dateIssuedFacet(false),
                         FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
@@ -283,17 +281,16 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
-                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
-                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-//                        FacetEntryMatcher.typeFacet(false),
-                        FacetEntryMatcher.authorFacet(false),
-                        FacetEntryMatcher.anyFacet("editor", "text"),
-                        FacetEntryMatcher.anyFacet("organization", "text"),
-                        FacetEntryMatcher.anyFacet("funding", "text"),
-                        FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                        FacetEntryMatcher.subjectFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                    FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
+                    FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
+                    FacetEntryMatcher.authorFacet(false),
+                    FacetEntryMatcher.anyFacet("editor", "text"),
+                    FacetEntryMatcher.anyFacet("organization", "text"),
+                    FacetEntryMatcher.anyFacet("funding", "text"),
+                    FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
+                    FacetEntryMatcher.subjectFacet(false),
+                    FacetEntryMatcher.dateIssuedFacet(false),
+                    FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
@@ -326,17 +323,16 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 //These facets have to show up in the embedded.facets section as well with the given hasMore
                 // property because we don't exceed their default limit for a hasMore true (the default is 10)
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
-                        FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
-                        FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-//                        FacetEntryMatcher.typeFacet(false),
-                        FacetEntryMatcher.authorFacet(false),
-                        FacetEntryMatcher.anyFacet("editor", "text"),
-                        FacetEntryMatcher.anyFacet("organization", "text"),
-                        FacetEntryMatcher.anyFacet("funding", "text"),
-                        FacetEntryMatcher.subjectFacet(false),
-                        FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                    FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
+                    FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
+                    FacetEntryMatcher.authorFacet(false),
+                    FacetEntryMatcher.anyFacet("editor", "text"),
+                    FacetEntryMatcher.anyFacet("organization", "text"),
+                    FacetEntryMatcher.anyFacet("funding", "text"),
+                    FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
+                    FacetEntryMatcher.subjectFacet(false),
+                    FacetEntryMatcher.dateIssuedFacet(false),
+                    FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))

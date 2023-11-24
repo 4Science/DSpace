@@ -22,11 +22,13 @@ import org.dspace.sort.SortOption;
  * This class holds all the information about a specifically configured
  * BrowseIndex.  It is responsible for parsing the configuration, understanding
  * about what sort options are available, and what the names of the database
- * tables that hold all the information are actually called.
+ * tables that hold all the information are actually called. Hierarchical browse
+ * indexes also contain information about the vocabulary they're using, see:
+ * {@link org.dspace.content.authority.DSpaceControlledVocabularyIndex}
  *
  * @author Richard Jones
  */
-public final class BrowseIndex {
+public class BrowseIndex {
     /** the configuration number, as specified in the config */
     /**
      * used for single metadata browse tables for generating the table name
@@ -99,10 +101,10 @@ public final class BrowseIndex {
 
     /**
      * Constructor for creating generic / internal index objects
-     * 
+     *
      * @param baseName The base of the table name
      */
-    private BrowseIndex(String baseName) {
+    protected BrowseIndex(String baseName) {
         this(baseName, "item");
     }
 
@@ -735,7 +737,7 @@ public final class BrowseIndex {
 
     /**
      * Get the internally defined browse index for archived items.
-     * 
+     *
      * @param displayType
      *
      * @return browse index

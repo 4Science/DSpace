@@ -118,7 +118,6 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         HttpServletRequest request = requestService.getCurrentRequest().getHttpServletRequest();
         ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest;
-
         String captchaToken = request.getHeader("X-Recaptcha-Token");
         boolean verificationEnabled = configurationService.getBooleanProperty("registration.verification.enabled");
 

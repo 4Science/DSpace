@@ -65,6 +65,7 @@
         <property name="urlFetch" value="${pubmed.url.fetch}"/>
         <property name="urlSearch" value="${pubmed.url.search}"/>
         <property name="generateQueryForItem" ref="pubmedService"></property>
+        <property name="interRequestTime" value="500"/>
         <property name="supportedExtensions">
             <list>
                  <value>xml</value>
@@ -157,6 +158,12 @@
         <property name="viewMode" value="${scopus.search-api.viewMode}"/>
     </bean>
     <bean id="scopusMetadataFieldMapping" class="org.dspace.importer.external.scopus.service.ScopusFieldMapping"/>
+
+    <bean id="rorImportService" class="org.dspace.importer.external.ror.service.RorImportMetadataSourceServiceImpl">
+          <property name="metadataFieldMapping" ref="rorMetadataFieldMapping"/>
+          <property name="url" value="${ror.orgunit-import.api-url}"/>
+    </bean>
+    <bean id="rorMetadataFieldMapping" class="org.dspace.importer.external.ror.service.RorFieldMapping"/>
 
     <bean id="vufindImportService" class="org.dspace.importer.external.vufind.VuFindImportMetadataSourceServiceImpl" scope="singleton">
           <!-- Set to empty to use the default set of fields  -->

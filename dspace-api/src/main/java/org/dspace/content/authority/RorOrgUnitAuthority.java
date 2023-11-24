@@ -8,21 +8,27 @@
 
 package org.dspace.content.authority;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.authority.factory.ItemAuthorityServiceFactory;
-import org.dspace.ror.ROROrgUnitDTO;
-import org.dspace.ror.service.RORApiService;
-import org.dspace.ror.service.RORApiServiceImpl;
+import org.dspace.importer.external.datamodel.ImportRecord;
+import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.metadatamapping.MetadatumDTO;
+import org.dspace.importer.external.ror.service.RorImportMetadataSourceServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.utils.DSpace;
 
 public class RorOrgUnitAuthority extends ItemAuthority {
 
-    private final RORApiService rorApiService = dspace.getSingletonService(RORApiServiceImpl.class);
+    private final RorImportMetadataSourceServiceImpl rorImportMetadataSource = new DSpace().getServiceManager()
+        .getServicesByType(RorImportMetadataSourceServiceImpl.class).get(0);
+
     private final ItemAuthorityServiceFactory itemAuthorityServiceFactory =
         dspace.getServiceManager().getServiceByName("itemAuthorityServiceFactory", ItemAuthorityServiceFactory.class);
     private final ConfigurationService configurationService =
@@ -32,18 +38,20 @@ public class RorOrgUnitAuthority extends ItemAuthority {
 
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
+
         super.setPluginInstanceName(authorityName);
         Choices solrChoices = super.getMatches(text, start, limit, locale);
 
-        return solrChoices.values.length == 0 ? getRORApiMatches(text, start, limit) : solrChoices;
+        try {
+            return solrChoices.values.length == 0 ? getRORApiMatches(text, start, limit) : solrChoices;
+        } catch (MetadataSourceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private Choices getRORApiMatches(String text, int start, int limit) {
-        Choice[] rorApiChoices = getChoiceFromRORQueryResults(
-            rorApiService.getOrgUnits(text).stream()
-                         .filter(ou -> "active".equals(ou.getStatus()))
-                         .collect(Collectors.toList())
-        ).toArray(new Choice[0]);
+    private Choices getRORApiMatches(String text, int start, int limit) throws MetadataSourceException {
+        Choice[] rorApiChoices = getChoiceFromRORQueryResults(rorImportMetadataSource.getRecords(text, 0, 0))
+            .toArray(new Choice[0]);
 
         int confidenceValue = itemAuthorityServiceFactory.getInstance(authorityName)
                                                          .getConfidenceForChoices(rorApiChoices);
@@ -52,16 +60,74 @@ public class RorOrgUnitAuthority extends ItemAuthority {
                            rorApiChoices.length > (start + limit), 0);
     }
 
-    private List<Choice> getChoiceFromRORQueryResults(List<ROROrgUnitDTO> orgUnits) {
+    private List<Choice> getChoiceFromRORQueryResults(Collection<ImportRecord> orgUnits) {
         return orgUnits
             .stream()
-            .map(orgUnit -> new Choice(composeAuthorityValue(orgUnit.getIdentifier()), orgUnit.getName(),
-                                       orgUnit.getName(), buildExtras(orgUnit)))
+            .map(orgUnit -> new Choice(composeAuthorityValue(getIdentifier(orgUnit)), getName(orgUnit),
+                getName(orgUnit), buildExtras(orgUnit)))
             .collect(Collectors.toList());
     }
 
-    private Map<String, String> buildExtras(ROROrgUnitDTO orgUnit) {
-        return new HashMap<>();
+    private String getIdentifier(ImportRecord orgUnit) {
+        return orgUnit.getValue("organization", "identifier", "ror").stream()
+            .findFirst()
+            .map(metadata -> metadata.getValue())
+            .orElse(null);
+    }
+
+    private String getName(ImportRecord orgUnit) {
+        return orgUnit.getValue("dc", "title", null).stream()
+            .findFirst()
+            .map(metadata -> metadata.getValue())
+            .orElse(null);
+    }
+
+    private Map<String, String> buildExtras(ImportRecord orgUnit) {
+
+        Map<String, String> extras = new LinkedHashMap<String, String>();
+
+        addExtra(extras, getIdentifier(orgUnit), "id");
+
+        orgUnit.getSingleValue("dc", "type", null)
+            .ifPresent(type -> addExtra(extras, type, "type"));
+
+        String acronym = orgUnit.getValue("oairecerif", "acronym", null).stream()
+            .map(MetadatumDTO::getValue)
+            .collect(Collectors.joining(", "));
+
+        if (StringUtils.isNotBlank(acronym)) {
+            addExtra(extras, acronym, "acronym");
+        }
+
+        return extras;
+    }
+
+    private void addExtra(Map<String, String> extras, String value, String extraType) {
+
+        String key = getKey(extraType);
+
+        if (useAsData(extraType)) {
+            extras.put("data-" + key, value);
+        }
+        if (useForDisplaying(extraType)) {
+            extras.put(key, value);
+        }
+
+    }
+
+    private boolean useForDisplaying(String extraType) {
+        return configurationService.getBooleanProperty("cris.OrcidAuthority."
+            + getPluginInstanceName() + "." + extraType + ".display", true);
+    }
+
+    private boolean useAsData(String extraType) {
+        return configurationService.getBooleanProperty("cris.OrcidAuthority."
+            + getPluginInstanceName() + "." + extraType + ".as-data", true);
+    }
+
+    private String getKey(String extraType) {
+        return configurationService.getProperty("cris.OrcidAuthority."
+            + getPluginInstanceName() + "." + extraType + ".key", "ror_orgunit_" + extraType);
     }
 
     private String composeAuthorityValue(String rorId) {

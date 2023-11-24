@@ -8,6 +8,9 @@
 package org.dspace.app.rest.matcher;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.dspace.app.rest.model.BrowseIndexRest.BROWSE_TYPE_FLAT;
+import static org.dspace.app.rest.model.BrowseIndexRest.BROWSE_TYPE_HIERARCHICAL;
+import static org.dspace.app.rest.model.BrowseIndexRest.BROWSE_TYPE_VALUE_LIST;
 import static org.dspace.app.rest.test.AbstractControllerIntegrationTest.REST_SERVER_URL;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -16,7 +19,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 /**
  * Utility class to construct a Matcher for a browse index
@@ -31,7 +33,8 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> subjectBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.subject.*")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(true)),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_VALUE_LIST)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
@@ -44,7 +47,8 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> titleBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_FLAT)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
@@ -56,7 +60,8 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> contributorBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.contributor.*", "dc.creator")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(true)),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_VALUE_LIST)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
@@ -69,7 +74,8 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> dateIssuedBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.date.issued")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_FLAT)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("date")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
@@ -81,7 +87,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> rodeptBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("cris.virtual.department")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(true)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rodept")),
@@ -92,7 +97,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> typeBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.type")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(true)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/type")),
@@ -103,7 +107,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> rpnameBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rpname")),
@@ -114,7 +117,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> rpdeptBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("person.affiliation.name")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(true)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rpdept")),
@@ -125,7 +127,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> ounameBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/ouname")),
@@ -136,7 +137,6 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> pjtitleBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/pjtitle")),
@@ -147,11 +147,41 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> eqtitleBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
-            hasJsonPath("$.metadataBrowse", Matchers.is(false)),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/eqtitle")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/eqtitle/items"))
+        );
+    }
+
+    public static Matcher<? super Object> typesBrowseIndex() {
+        return allOf(
+            hasJsonPath("$.metadata", contains("dc.type")),
+            hasJsonPath("$.browseType", is("hierarchicalBrowse")),
+            hasJsonPath("$.facetType", is("itemtype")),
+            hasJsonPath("$.type", is("browse")),
+            hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/types")),
+            hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/types/items"))
                     );
+    }
+
+    public static Matcher<? super Object> hierarchicalBrowseIndex(
+        String vocabulary, String facetType, String metadata
+    ) {
+        return allOf(
+            hasJsonPath("$.metadata", contains(metadata)),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_HIERARCHICAL)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
+            hasJsonPath("$.facetType", equalToIgnoringCase(facetType)),
+            hasJsonPath("$.vocabulary", equalToIgnoringCase(vocabulary)),
+            hasJsonPath("$._links.vocabulary.href",
+                        is(REST_SERVER_URL + String.format("submission/vocabularies/%s/", vocabulary))),
+            hasJsonPath("$._links.items.href",
+                        is(REST_SERVER_URL + String.format("discover/browses/%s/items", vocabulary))),
+            hasJsonPath("$._links.entries.href",
+                        is(REST_SERVER_URL + String.format("discover/browses/%s/entries", vocabulary))),
+            hasJsonPath("$._links.self.href",
+                        is(REST_SERVER_URL + String.format("discover/browses/%s", vocabulary)))
+        );
     }
 }

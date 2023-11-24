@@ -10122,5 +10122,4 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                              "ExtraEntry")
                                  )));
     }
-
 }

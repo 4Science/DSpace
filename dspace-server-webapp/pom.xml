@@ -296,7 +296,7 @@
                 </dependency>
             </dependencies>
         </profile>
-        
+
 	   	<profile>
 			<id>addon-analytics</id>
 	         <activation>
@@ -312,7 +312,7 @@
 					<type>jar</type>
 				</dependency>
 			</dependencies>
-		</profile>          
+		</profile>
     </profiles>
 
 

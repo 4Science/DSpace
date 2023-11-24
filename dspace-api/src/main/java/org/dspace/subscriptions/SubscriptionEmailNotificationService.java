@@ -7,7 +7,7 @@
  */
 package org.dspace.subscriptions;
 
-import java.util.Set;
+import java.util.List;
 
 import org.dspace.core.Context;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -32,6 +32,6 @@ public interface SubscriptionEmailNotificationService {
     /**
      *  returns a set of supported SubscriptionTypes
      */
-    public Set<String> getSupportedSubscriptionTypes();
+    public List<String> getSupportedSubscriptionTypes();
 
 }

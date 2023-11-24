@@ -21,7 +21,6 @@ import org.dspace.app.rest.submit.RestProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.app.util.SubmissionConfig;
-import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.Collection;
@@ -31,6 +30,8 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
+import org.dspace.submit.factory.SubmissionServiceFactory;
+import org.dspace.submit.service.SubmissionConfigService;
 import org.dspace.validation.service.ValidationService;
 import org.dspace.versioning.ItemCorrectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
     @Autowired
     private SubmissionSectionConverter submissionSectionConverter;
 
-    protected SubmissionConfigReader submissionConfigReader;
+    protected SubmissionConfigService submissionConfigService;
 
     @Autowired
     SubmissionService submissionService;
@@ -75,7 +76,7 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
     private ItemCorrectionService itemCorrectionService;
 
     public AInprogressItemConverter() throws SubmissionConfigReaderException {
-        submissionConfigReader = new SubmissionConfigReader();
+        submissionConfigService = SubmissionServiceFactory.getInstance().getSubmissionConfigService();
     }
 
     @SuppressWarnings("unchecked")
@@ -90,6 +91,10 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
         if (submitter != null) {
             witem.setSubmitter(converter.toRest(submitter, projection));
         }
+
+        // 1. retrieve the submission definition
+        // 2. iterate over the submission section to allow to plugin additional
+        // info
 
         if (collection != null) {
 
@@ -141,9 +146,9 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
 
     private SubmissionConfig getSubmissionConfig(Item item, Collection collection) {
         if (isCorrectionItem(item)) {
-            return submissionConfigReader.getCorrectionSubmissionConfigByCollection(collection);
+            return submissionConfigService.getCorrectionSubmissionConfigByCollection(collection);
         } else {
-            return submissionConfigReader.getSubmissionConfigByCollection(collection);
+            return submissionConfigService.getSubmissionConfigByCollection(collection);
         }
     }
 
