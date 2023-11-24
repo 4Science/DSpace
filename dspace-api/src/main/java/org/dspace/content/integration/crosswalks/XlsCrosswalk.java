@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,7 +46,7 @@ public class XlsCrosswalk extends TabularCrosswalk {
                 int cellCount = 0;
                 for (String field : row) {
                     Cell cell = sheetRow.createCell(cellCount++);
-                    cell.setCellValue(field);
+                    cell.setCellValue(StringUtils.length(field) > 32726 ? field.substring(0, 32725) + "…" : field );
                 }
             }
 

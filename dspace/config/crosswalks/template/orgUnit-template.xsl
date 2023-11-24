@@ -35,6 +35,11 @@
 				    	<xsl:with-param name="label" select="'Acronym'" />
 				    	<xsl:with-param name="value" select="Acronym" />
 			    	</xsl:call-template>
+
+					<xsl:call-template name="print-value">
+				    	<xsl:with-param name="label" select="'Description'" />
+				    	<xsl:with-param name="value" select="Description" />
+			    	</xsl:call-template>
 			    	
 					<xsl:call-template name="print-value">
 				    	<xsl:with-param name="label" select="'Type'" />
@@ -44,6 +49,21 @@
 					<xsl:call-template name="print-value">
 				    	<xsl:with-param name="label" select="'Parent Organization'" />
 				    	<xsl:with-param name="value" select="PartOf/OrgUnit/Name" />
+			    	</xsl:call-template>
+
+					<xsl:call-template name="print-value">
+				    	<xsl:with-param name="label" select="'Founding Date'" />
+				    	<xsl:with-param name="value" select="FoundingDate" />
+			    	</xsl:call-template>
+
+					<xsl:call-template name="print-value">
+				    	<xsl:with-param name="label" select="'Address'" />
+				    	<xsl:with-param name="value" select="AddressLocality" />
+			    	</xsl:call-template>
+
+					<xsl:call-template name="print-value">
+				    	<xsl:with-param name="label" select="'Country'" />
+				    	<xsl:with-param name="value" select="AddressCountry" />
 			    	</xsl:call-template>
 			    	
 					<xsl:call-template name="print-values">
@@ -60,6 +80,21 @@
 				    	<xsl:with-param name="label" select="'People'" />
 				    	<xsl:with-param name="values" select="People/Person/@displayName" />
 			    	</xsl:call-template>
+
+					<xsl:call-template name="print-values">
+						<xsl:with-param name="label" select="'Directors'" />
+						<xsl:with-param name="values" select="Directors/Director/DisplayName" />
+					</xsl:call-template>
+
+					<xsl:call-template name="print-values">
+						<xsl:with-param name="label" select="'Services'" />
+						<xsl:with-param name="values" select="Services/Service/DisplayName" />
+					</xsl:call-template>
+
+					<xsl:call-template name="print-values">
+						<xsl:with-param name="label" select="'Aggregations'" />
+						<xsl:with-param name="values" select="Aggregations/Aggregation/DisplayName" />
+					</xsl:call-template>
 			    	
 				</fo:flow>
 			</fo:page-sequence>

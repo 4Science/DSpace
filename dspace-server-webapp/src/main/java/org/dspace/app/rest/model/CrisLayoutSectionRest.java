@@ -17,6 +17,7 @@ import org.dspace.app.rest.RestResourceController;
 import org.dspace.layout.CrisLayoutCarouselComponent;
 import org.dspace.layout.CrisLayoutCountersComponent;
 import org.dspace.layout.CrisLayoutMultiColumnTopComponent;
+import org.dspace.layout.CrisLayoutTwitterComponent;
 
 /**
  * The Layout section REST resource related to the explore functionality.
@@ -562,6 +563,82 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             }
         }
 
+    }
+
+    public static class CrisLayoutTwitterComponentRest implements CrisLayoutSectionComponentRest {
+
+        private final String style;
+        private final List<TwitterSettingsRest> twitterSettings;
+
+        public static CrisLayoutTwitterComponentRest from (CrisLayoutTwitterComponent source) {
+            return new CrisLayoutTwitterComponentRest(source.getStyle(),
+                    source.getTwitterSettings().stream()
+                            .map(TwitterSettingsRest::from)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        @Override
+        public String getComponentType() {
+            return "twitter";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        public List<TwitterSettingsRest> getTwitterSettings() {
+            return twitterSettings;
+        }
+
+        private CrisLayoutTwitterComponentRest(String style, List<TwitterSettingsRest> twitterSettings) {
+            this.style = style;
+            this.twitterSettings = twitterSettings;
+        }
+
+        static class TwitterSettingsRest {
+
+            private String theme;
+
+            private String url;
+
+            private boolean optOut;
+
+            static TwitterSettingsRest from (CrisLayoutTwitterComponent.TwitterSettings source) {
+                return new TwitterSettingsRest(source.getTheme(), source.getUrl(), source.getOptOut());
+            }
+
+            private TwitterSettingsRest(String theme, String url, boolean optOut) {
+                this.theme = theme;
+                this.url = url;
+                this.optOut = optOut;
+            }
+
+            public String getTheme() {
+                return theme;
+            }
+
+            public void setTheme(String theme) {
+                this.theme = theme;
+            }
+
+            public String getUrl() {
+                return url;
+            }
+
+            public void setUrl(String url) {
+                this.url = url;
+            }
+
+            public boolean getOptOut() {
+                return optOut;
+            }
+
+            public void setOptOut(boolean optOut) {
+                this.optOut = optOut;
+            }
+        }
     }
 
     public static class CrisLayoutMultiColumnTopComponentRest implements CrisLayoutSectionComponentRest {
