@@ -58,6 +58,7 @@ import org.dspace.unpaywall.dto.UnpaywallItemVersionDto;
 import org.dspace.unpaywall.model.Unpaywall;
 import org.dspace.unpaywall.model.UnpaywallStatus;
 import org.dspace.unpaywall.service.UnpaywallService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UnpaywallServiceImpl implements UnpaywallService {
@@ -194,16 +195,23 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             Context context = new Context(Context.Mode.READ_WRITE);
             Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
 
-            callUnpaywallApi(doi).ifPresentOrElse(value -> {
-                unpaywall.setJsonRecord(value);
-                unpaywall.setStatus(UnpaywallStatus.SUCCESSFUL);
-            }, () -> {
+            callUnpaywallApi(doi).ifPresentOrElse(
+                value -> {
+                    unpaywall.setJsonRecord(value);
+                    unpaywall.setStatus(
+                        new JSONObject(value).isNull("best_oa_location")
+                            ? UnpaywallStatus.NO_FILE
+                            : UnpaywallStatus.SUCCESSFUL
+                    );
+                },
+                () -> {
                     unpaywall.setJsonRecord(null);
                     unpaywall.setStatus(UnpaywallStatus.NOT_FOUND);
-                });
+                }
+            );
             unpaywallDAO.save(context, unpaywall);
             context.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
             throw new RuntimeException(e);
         }
     }
