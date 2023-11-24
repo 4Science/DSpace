@@ -55,7 +55,9 @@ public class RelationshipPlacesIndexingServiceImpl implements RelationshipPlaces
                 if (singleDirectionRelationship("right", relationship.getRelationshipType())) {
                     times = relation.getLeftPlace() - relation.getRightPlace();
                 }
-                rightItemsIdsToAdd.addAll(Collections.nCopies(times, relation.getRightItem().getID().toString()));
+                if (times > 0) {
+                    rightItemsIdsToAdd.addAll(Collections.nCopies(times, relation.getRightItem().getID().toString()));
+                }
             }
             if (!rightItemsIdsToAdd.isEmpty()) {
 
@@ -79,7 +81,9 @@ public class RelationshipPlacesIndexingServiceImpl implements RelationshipPlaces
                 if (singleDirectionRelationship("left", relationship.getRelationshipType())) {
                     times = relation.getRightPlace() - relation.getLeftPlace();
                 }
-                leftItemsIdsToAdd.addAll(Collections.nCopies(times, relation.getLeftItem().getID().toString()));
+                if (times > 0) {
+                    leftItemsIdsToAdd.addAll(Collections.nCopies(times, relation.getLeftItem().getID().toString()));
+                }
             }
             if (!leftItemsIdsToAdd.isEmpty()) {
 
@@ -102,7 +106,9 @@ public class RelationshipPlacesIndexingServiceImpl implements RelationshipPlaces
             if (singleDirectionRelationship("right", relationship.getRelationshipType())) {
                 times = leftItemRelation.getLeftPlace() - leftItemRelation.getRightPlace();
             }
-            rightItemsToAdd.addAll(Collections.nCopies(times, leftItemRelation.getRightItem().getID().toString()));
+            if (times > 0) {
+                rightItemsToAdd.addAll(Collections.nCopies(times, leftItemRelation.getRightItem().getID().toString()));
+            }
         }
         if (!rightItemsToAdd.isEmpty())  {
             indexingService.updateRelationForItem(leftItem.getID().toString(),
@@ -122,7 +128,9 @@ public class RelationshipPlacesIndexingServiceImpl implements RelationshipPlaces
             if (singleDirectionRelationship("left", relationship.getRelationshipType())) {
                 times = leftItemRelation.getRightPlace() - leftItemRelation.getLeftPlace();
             }
-            rightItemsToAdd.addAll(Collections.nCopies(times, leftItemRelation.getLeftItem().getID().toString()));
+            if (times > 0) {
+                rightItemsToAdd.addAll(Collections.nCopies(times, leftItemRelation.getLeftItem().getID().toString()));
+            }
         }
         if (!rightItemsToAdd.isEmpty())  {
             indexingService.updateRelationForItem(rightItem.getID().toString(),

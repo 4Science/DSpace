@@ -93,7 +93,13 @@ public class OrcidAffiliationFactory extends AbstractOrcidProfileSectionFactory 
         int groupSize = metadataGroups.getOrDefault(organizationField, Collections.emptyList()).size();
         for (int currentGroupIndex = 0; currentGroupIndex < groupSize; currentGroupIndex++) {
             List<MetadataValue> metadataValues = getMetadataValueByPlace(metadataGroups, currentGroupIndex);
-            signatures.add(metadataSignatureGenerator.generate(context, metadataValues));
+            //only "visible" metadatavalues within this group
+            metadataValues = metadataValues.stream()
+                .filter(metadataValue -> isAllowedMetadataByVisibility(metadataValue))
+                .collect(Collectors.toList());
+            if (!metadataValues.isEmpty()) {
+                signatures.add(metadataSignatureGenerator.generate(context, metadataValues));
+            }
         }
 
         return signatures;

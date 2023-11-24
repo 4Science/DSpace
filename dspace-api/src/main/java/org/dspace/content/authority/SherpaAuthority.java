@@ -173,9 +173,4 @@ public class SherpaAuthority extends ItemAuthority {
         return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
     }
 
-    @Override
-    public Map<String, String> getExternalSource() {
-        return Map.of();
-    }
-
 }

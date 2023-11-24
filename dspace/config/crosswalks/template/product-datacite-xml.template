@@ -8,7 +8,16 @@
             @relation.dc-contributor-author.start@
             <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">@person.identifier.orcid@</nameIdentifier>       
             @relation.dc-contributor-author.end@
+            @relation.oairecerif-author-affiliation.start@
+            <affiliation 
+            @if.metadata.organization-identifier-ror.start@
+                affiliationIdentifier="@organization.identifier.ror@" affiliationIdentifierScheme="ROR"
+            @if.metadata.organization-identifier-ror.end@
+            >@dc.title@</affiliation>
+            @relation.oairecerif-author-affiliation.end@
+            @if.not.authority.oairecerif-author-affiliation.start@
             <affiliation>@oairecerif.author.affiliation@</affiliation>
+            @if.not.authority.oairecerif-author-affiliation.end@
       </creator>
       @group.dc-contributor-author.end@
     </creators>

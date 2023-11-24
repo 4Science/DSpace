@@ -37,6 +37,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
+import org.dspace.core.UUIDIterator;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -134,13 +135,17 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
         throws Exception {   //only apply filters if community not in skip-list
         if (!inSkipList(community.getHandle())) {
             List<Community> subcommunities = community.getSubcommunities();
-            for (Community subcommunity : subcommunities) {
-                applyFiltersCommunity(context, subcommunity);
+            List<Collection> collections = community.getCollections();
+
+            UUIDIterator<Community> communityIterator = new UUIDIterator<>(context, subcommunities, Community.class);
+            UUIDIterator<Collection> collectionIterator = new UUIDIterator<>(context, collections, Collection.class);
+
+            while (communityIterator.hasNext()) {
+                applyFiltersCommunity(context, communityIterator.next());
             }
 
-            List<Collection> collections = community.getCollections();
-            for (Collection collection : collections) {
-                applyFiltersCollection(context, collection);
+            while (collectionIterator.hasNext()) {
+                applyFiltersCollection(context, collectionIterator.next());
             }
         }
     }
@@ -171,6 +176,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
             // clear item objects from context cache and internal cache
             c.uncacheEntity(currentItem);
+            c.commit();
             currentItem = null;
         }
     }
