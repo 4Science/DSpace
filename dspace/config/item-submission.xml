@@ -233,7 +233,6 @@
       <step id="product" />
       <step id="product_indexing" />
       <step id="product_references" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="orgunit">
@@ -246,7 +245,6 @@
     </submission-process>
     <submission-process name="orgunit-edit">
       <step id="orgunit" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="project">
@@ -259,7 +257,6 @@
     </submission-process>
     <submission-process name="project-edit">
       <step id="project" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="journal">
@@ -272,7 +269,6 @@
     </submission-process>
     <submission-process name="journal-edit">
       <step id="journal" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="publication">
@@ -293,7 +289,6 @@
       <step id="publication_indexing" />
       <step id="publication_bibliographic_details" />
       <step id="publication_references" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="person">
@@ -308,14 +303,12 @@
     <submission-process name="person-edit">
       <step id="person" />
       <step id="custom-url" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="admin-person-edit">
       <step id="person" />
       <step id="custom-url" />
       <step id="owner" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="event">
@@ -328,7 +321,6 @@
     </submission-process>
     <submission-process name="event-edit">
       <step id="event" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="equipment">
@@ -341,7 +333,6 @@
     </submission-process>
     <submission-process name="equipment-edit">
       <step id="equipment" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="patent">
@@ -360,7 +351,6 @@
       <step id="patent" />
       <step id="patent_indexing" />
       <step id="patent_references" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="funding">
@@ -373,7 +363,6 @@
     </submission-process>
     <submission-process name="funding-edit">
       <step id="funding" />
-      <step id="detect-duplicate" />
       <step id="upload" />
     </submission-process>
     <submission-process name="green">
