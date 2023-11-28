@@ -10,6 +10,7 @@ package com.science4.webcache;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +26,9 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.factory.CrisLayoutServiceFactory;
+import org.dspace.layout.service.CrisLayoutTabService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -35,11 +39,13 @@ public abstract class AbstractWebServerCache implements WebServerCache {
     private ConfigurationService configurationService;
     private CustomUrlService customUrlService;
     private ItemService itemService;
+    private CrisLayoutTabService crisLayoutTabService;
 
     public void initialize() {
         itemService = ContentServiceFactory.getInstance().getItemService();
         customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        crisLayoutTabService = CrisLayoutServiceFactory.getInstance().getTabService();
         baseURL = configurationService.getProperty("dspace.ui.url");
     }
 
@@ -65,7 +71,7 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         } else if (subject instanceof Item) {
             Item item = (Item) subject;
             if (item.isArchived() || item.isWithdrawn()) {
-                urls.addAll(getItemUrls(item));
+                urls.addAll(getItemUrls(item, context));
             }
         }
         return urls;
@@ -85,7 +91,7 @@ public abstract class AbstractWebServerCache implements WebServerCache {
             case Constants.COLLECTION:
                 return getCollectionUrls(subjectID, handle);
             case Constants.ITEM:
-                return getItemUrls(subjectID, handle, identifiers);
+                return getItemUrls(subjectID, ctx, handle, identifiers);
             default:
                 return Collections.emptyList();
         }
@@ -109,13 +115,14 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         return urls;
     }
 
-    private List<String> getItemUrls(UUID itemId, String handle, List<String> identifiers) {
+    private List<String> getItemUrls(UUID itemId, Context ctx, String handle, List<String> identifiers) {
         List<String> urls = new ArrayList<>();
 
         String[] entityTypes = configurationService.getArrayProperty("cris.entity-type");
         if (nonNull(entityTypes)) {
             for (String entityType : entityTypes) {
                 urls.add(baseURL + "/entities/" + entityType.toLowerCase() + "/" + itemId.toString());
+                addFirstTabUrl(urls, ctx, itemId.toString(), entityType);
             }
         }
 
@@ -134,13 +141,14 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         return urls;
     }
 
-    private List<String> getItemUrls(Item item) {
+    private List<String> getItemUrls(Item item, Context ctx) {
         List<String> urls = new ArrayList<>();
 
         String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
         if (isNotBlank(entityType)) {
-            String url = baseURL + "/entities/" + entityType.toLowerCase() + "/" + item.getID().toString();
-            urls.add(url);
+            String itemId = item.getID().toString();
+            urls.add(baseURL + "/entities/" + entityType.toLowerCase() + "/" + itemId);
+            addFirstTabUrl(urls, ctx, itemId, entityType);
         }
 
         if (isNotBlank(item.getHandle())) {
@@ -150,6 +158,15 @@ public abstract class AbstractWebServerCache implements WebServerCache {
         customUrlService.getCustomUrl(item).ifPresent(urls::add);
         urls.addAll(customUrlService.getOldCustomUrls(item));
         return urls;
+    }
+
+    private void addFirstTabUrl(List<String> urls, Context ctx, String itemId, String entityType) {
+        try {
+            CrisLayoutTab firstTab = crisLayoutTabService.findByItem(ctx, itemId).get(0);
+            urls.add(baseURL + "/entities/" + entityType.toLowerCase() + "/" + itemId + "/" + firstTab.getID());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String handleUrl(String handle) {
