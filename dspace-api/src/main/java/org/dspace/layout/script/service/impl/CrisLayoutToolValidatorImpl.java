@@ -11,6 +11,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.dspace.util.WorkbookUtils.getCellIndexFromHeaderName;
 import static org.dspace.util.WorkbookUtils.getCellValue;
 import static org.dspace.util.WorkbookUtils.getColumnWithoutHeader;
+import static org.dspace.util.WorkbookUtils.getEntityTypeCellValue;
+import static org.dspace.util.WorkbookUtils.getEntityTypeValue;
 import static org.dspace.util.WorkbookUtils.getNotEmptyRowsSkippingHeader;
 
 import java.sql.SQLException;
@@ -468,7 +470,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         int entityTypeColumn, int nameColumn) {
 
         for (Row row : getNotEmptyRowsSkippingHeader(sheet)) {
-            String entityType = getCellValue(row, entityTypeColumn);
+            String entityType = getEntityTypeCellValue(row, entityTypeColumn);
             String name = getCellValue(row, nameColumn);
             if (isNotPresentOnSheet(sheet.getWorkbook(), BOX_SHEET, entityType, name)) {
                 result.addError("The box with name " + name +
@@ -502,7 +504,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         }
 
         for (Row row : getNotEmptyRowsSkippingHeader(sheet)) {
-            String entityType = getCellValue(row, entityTypeColumn);
+            String entityType = getEntityTypeCellValue(row, entityTypeColumn);
             String shortname = getCellValue(row, shortnameColumn);
             if (isNotPresentOnTab2Box(tab2boxSheet, columnName, entityType, shortname)) {
                 result.addWarning("The " + sheet.getSheetName() + " with name " + shortname +
@@ -519,7 +521,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
 
         Sheet tab2boxSheet = row.getSheet();
 
-        String entityType = getCellValue(row, entityTypeColumn);
+        String entityType = getEntityTypeCellValue(row, entityTypeColumn);
         String tab = getCellValue(row, tabColumn);
         String[] boxes = splitByCommaAndTrim(getCellValue(row, boxesColumn));
 
@@ -572,7 +574,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
                 continue;
             }
 
-            String entityType = getCellValue(row, entityTypeColumn);
+            String entityType = getEntityTypeCellValue(row, entityTypeColumn);
             String container = getCellValue(row, containerColumn);
             String rowCount = getCellValue(row, rowColumn);
 
@@ -597,7 +599,7 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
             .filter(sheetRow -> excelRowNum != sheetRow.getRowNum())
             .filter(sheetRow -> row.equals(getCellValue(sheetRow, rowColumn)))
             .filter(sheetRow -> container.equals(getCellValue(sheetRow, containerColumn)))
-            .filter(sheetRow -> entity.equals(getCellValue(sheetRow, entityTypeColumn)))
+            .filter(sheetRow -> entity.equals(getEntityTypeCellValue(sheetRow, entityTypeColumn)))
             .filter(sheetRow -> hasDifferentStyle(sheetRow, rowStyleColumn, style))
             .map(Row::getRowNum)
             .collect(Collectors.toList());
@@ -645,7 +647,8 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         int nameColumn, String name) {
 
         String[] namesOnColumn = splitByCommaAndTrim(getCellValue(row, nameColumn));
-        return entityType.equals(getCellValue(row, entityTypeColumn)) && ArrayUtils.contains(namesOnColumn, name);
+        return entityType.equals(getEntityTypeCellValue(row, entityTypeColumn))
+                && ArrayUtils.contains(namesOnColumn, name);
 
     }
 
@@ -653,8 +656,11 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         int entityColumn, List<String> allEntityTypes) {
 
         for (Cell entityTypeCell : getColumnWithoutHeader(sheet, entityColumn)) {
-            String entityType = WorkbookUtils.getCellValue(entityTypeCell);
-            if (!allEntityTypes.contains(entityType)) {
+            String entityType = getCellValue(entityTypeCell);
+            if (
+                    !allEntityTypes.contains(entityType) &&
+                    !allEntityTypes.contains(getEntityTypeValue(entityTypeCell))
+            ) {
                 result.addError("The " + sheet.getSheetName() + " contains an unknown entity type '" + entityType
                     + "' at row " + entityTypeCell.getRowIndex());
             }

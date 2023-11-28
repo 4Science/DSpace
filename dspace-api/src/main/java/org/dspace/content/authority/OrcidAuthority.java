@@ -43,6 +43,8 @@ public class OrcidAuthority extends ItemAuthority {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrcidAuthority.class);
 
+    private static final String IS_LATIN_REGEX = "\\p{IsLatin}+";
+
     public static final String DEFAULT_ORCID_KEY = "person_identifier_orcid";
 
     public static final String DEFAULT_INSTITUTION_KEY = "institution-affiliation-name";
@@ -118,9 +120,13 @@ public class OrcidAuthority extends ItemAuthority {
         String givenName = result.getGivenNames();
         String familyName = result.getFamilyNames();
 
-        String title = isNotBlank(givenName) ? capitalizeFully(givenName) : "";
-        title += isNotBlank(familyName) ? " " + capitalizeFully(familyName) : "";
-
+        String capitalizedFamilyName = capitalizeFully(familyName);
+        String capitalizedGivenName = capitalizeFully(givenName);
+        String title = capitalizedFamilyName + ", " + capitalizedGivenName;
+        if (!givenName.matches(IS_LATIN_REGEX) || !familyName.matches(IS_LATIN_REGEX)) {
+            title = isNotBlank(familyName) ? capitalizeFully(familyName) : "";
+            title += isNotBlank(givenName) ? " " + capitalizeFully(givenName) : "";
+        }
         return title.trim();
     }
 

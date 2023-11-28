@@ -18,7 +18,7 @@ import org.dspace.app.rest.RestResourceController;
 
 /**
  * The CrisLayoutTab REST Resource
- * 
+ *
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
@@ -39,6 +39,7 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
     private String shortname;
     private String header;
     private String entityType;
+    private String customFilter;
     private Integer priority;
     private Integer security;
     private Boolean leading;
@@ -100,6 +101,14 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
 
     public void setEntityType(String entityType) {
         this.entityType = entityType;
+    }
+
+    public String getCustomFilter() {
+        return customFilter;
+    }
+
+    public void setCustomFilter(String customFilter) {
+        this.customFilter = customFilter;
     }
 
     public Integer getPriority() {

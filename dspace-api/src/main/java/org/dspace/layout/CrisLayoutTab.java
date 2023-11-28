@@ -79,6 +79,9 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
     @Column(name = "security")
     private Integer security;
 
+    @Column(name = "custom_filter")
+    private String customFilter;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "cris_layout_tab2securitymetadata", joinColumns = {
         @JoinColumn(name = "tab_id") }, inverseJoinColumns = { @JoinColumn(name = "metadata_field_id") })
@@ -178,6 +181,14 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
     public void setSecurity(Integer security) {
         this.security = security;
+    }
+
+    public String getCustomFilter() {
+        return customFilter;
+    }
+
+    public void setCustomFilter(String customFilter) {
+        this.customFilter = customFilter;
     }
 
     public Set<MetadataField> getMetadataSecurityFields() {
