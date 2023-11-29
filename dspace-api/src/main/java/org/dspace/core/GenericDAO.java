@@ -92,6 +92,17 @@ public interface GenericDAO<T> {
     public T findByID(Context context, Class clazz, int id) throws SQLException;
 
     /**
+     * Checks if a given id of a target entity with the clazz type exists in the database.
+     *
+     * @param context current DSpace context
+     * @param clazz entity class
+     * @param id identifier of the entity
+     * @return true if found, false otherwise
+     * @throws SQLException
+     */
+    boolean exists(Context context, Class<T> clazz, UUID id) throws SQLException;
+
+    /**
      * Fetch the entity identified by its UUID primary key.
      *
      * @param context current DSpace context.

@@ -7,16 +7,23 @@
  */
 package org.dspace.core;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -92,6 +99,44 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         @SuppressWarnings("unchecked")
         T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
+    }
+
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
+    }
+
+    @Override
+    public boolean exists(Context context, Class<T> clazz, UUID id) throws SQLException {
+        if (id == null) {
+            return false;
+        }
+        Optional<Field> optionalField =
+            getAllFields(new LinkedList<>(), clazz)
+                .stream()
+                .filter(field -> field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(Column.class))
+                .findFirst();
+        if (optionalField.isEmpty()) {
+            return false;
+        }
+
+        Field idField = optionalField.get();
+        CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
+        CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, clazz);
+
+        Root root = criteriaQuery.from(clazz);
+        Path idColumn = root.get(idField.getName());
+        criteriaQuery.select(idColumn);
+        criteriaQuery.where(criteriaBuilder.equal(idColumn, id));
+
+        org.hibernate.query.Query query = getHibernateSession(context).createQuery(criteriaQuery);
+        query.setMaxResults(1);
+        return query.uniqueResult() != null;
     }
 
     @Override

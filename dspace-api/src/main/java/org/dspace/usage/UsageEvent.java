@@ -7,9 +7,12 @@
  */
 package org.dspace.usage;
 
+import java.sql.SQLException;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.services.model.Event;
@@ -18,6 +21,20 @@ import org.dspace.services.model.Event;
  * @author Mark Diggory (mdiggory at atmire.com)
  */
 public class UsageEvent extends Event {
+
+    public static final UsageEvent createUsageEvent(
+        final Context context, final HttpServletRequest req,
+        final DSpaceObjectService dSpaceObjectService, final UUID targetId,
+        final String referrer
+    ) {
+        try {
+            return new UsageEvent(
+                UsageEvent.Action.VIEW, req, context, dSpaceObjectService.find(context, targetId), referrer
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static enum Action {
         VIEW("view"),

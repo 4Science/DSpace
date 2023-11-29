@@ -23,9 +23,12 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
@@ -41,6 +44,9 @@ public class ReciprocalItemAuthorityConsumer implements Consumer {
     private final Map<String, String> reciprocalMetadata = new ConcurrentHashMap<>();
 
     private final transient Set<UUID> processedHandles = new HashSet<>();
+
+    private final IndexingService indexer = DSpaceServicesFactory.getInstance().getServiceManager()
+            .getServiceByName(IndexingService.class.getName(), IndexingService.class);
 
     private final ItemService itemService;
 
@@ -127,6 +133,24 @@ public class ReciprocalItemAuthorityConsumer implements Consumer {
 
         itemService.addMetadata(ctx, target, mdSplit[0], mdSplit[1], mdSplit.length > 2 ? mdSplit[2] : null, null,
                 name, sourceUuid, Choices.CF_ACCEPTED);
+        reindexItem(ctx, target);
+    }
+
+    private void reindexItem(Context ctx, Item target) throws SQLException {
+        IndexableItem item = new IndexableItem(target);
+        item.setIndexedObject(ctx.reloadEntity(item.getIndexedObject()));
+        String uniqueIndexID = item.getUniqueIndexID();
+        if (uniqueIndexID != null) {
+            try {
+                indexer.indexContent(ctx, item, true, false, false);
+                log.debug("Indexed "
+                        + item.getTypeText()
+                        + ", id=" + item.getID()
+                        + ", unique_id=" + uniqueIndexID);
+            } catch (Exception e) {
+                log.error("Failed while indexing object: ", e);
+            }
+        }
     }
 
     @Override

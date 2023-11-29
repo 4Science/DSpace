@@ -2249,4 +2249,8 @@ prevent the generation of resource policy entry values with null dspace_object a
         item.getResourcePolicies().add(resourcePolicy);
     }
 
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.itemDAO.exists(context, Item.class, id);
+    }
+
 }

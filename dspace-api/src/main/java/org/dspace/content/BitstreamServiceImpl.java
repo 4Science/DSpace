@@ -556,6 +556,10 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     }
 
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.bitstreamDAO.exists(context, Bitstream.class, id);
+    }
+
     private boolean isContainedInBundleNamed(Bitstream bitstream, String name) {
 
         if (StringUtils.isEmpty(name)) {

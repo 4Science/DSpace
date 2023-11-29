@@ -1250,4 +1250,10 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     public int countArchivedItems(Collection collection) throws ItemCountException {
         return ItemCounter.getInstance().getCount(collection);
     }
+
+    @Override
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.collectionDAO.exists(context, Collection.class, id);
+    }
+
 }

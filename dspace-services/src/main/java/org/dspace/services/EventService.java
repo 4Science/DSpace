@@ -7,6 +7,8 @@
  */
 package org.dspace.services;
 
+import java.util.function.Supplier;
+
 import org.dspace.services.model.Event;
 import org.dspace.services.model.EventListener;
 
@@ -33,5 +35,12 @@ public interface EventService {
      * @param listener an implementation of the event listener
      */
     public void registerEventListener(EventListener listener);
+
+    /**
+     * Fires an event asynchronously by retrieving it from the given supplier
+     *
+     * @param eventSupplier
+     */
+    void fireAsyncEvent(Supplier<? extends Event> eventSupplier);
 
 }
