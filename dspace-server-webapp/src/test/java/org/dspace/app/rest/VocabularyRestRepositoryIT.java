@@ -167,7 +167,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("publication-coar-types", "publication-coar-types", false, true),
                      VocabularyMatcher.matchProperties("currency", "currency", true, false),
                      VocabularyMatcher.matchProperties("common_iso_countries", "common_iso_countries", true , false),
-                     VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true , false),
+                     VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true , false)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))

@@ -239,12 +239,12 @@ public class CrisLayoutBoxServiceImplTest {
         box.setShortname("Main Box");
         box.setType("METADATA");
 
-        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of()))
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false))
                 .thenReturn(List.of(bitstream));
 
         assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
 
-        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of());
+        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false);
 
     }
 
