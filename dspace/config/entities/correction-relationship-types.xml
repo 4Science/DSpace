@@ -59,6 +59,20 @@
         </rightCardinality>
     </type>
     <type>
+        <leftType>DSpaceItem</leftType>
+        <rightType>DSpaceItem</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+	    <max>1</max>
+        </rightCardinality>
+    </type>
+    <type>
         <leftType>Event</leftType>
         <rightType>Event</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
