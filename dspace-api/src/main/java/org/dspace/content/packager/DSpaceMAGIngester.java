@@ -301,9 +301,9 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private Optional<Item> getExistingItem(Context context, MAGManifest manifest)
             throws PackageValidationException, MetadataValidationException, SQLException, AuthorizeException {
-        String number = inventoryNumber(manifest);
+        String identifier = getIdentifier(manifest);
         Iterator<Item> existingItems = itemService
-                .findUnfilteredByMetadataField(context, DC.getName(), "identifier", "inventorynumber", number);
+                .findUnfilteredByMetadataField(context, DC.getName(), "identifier", "other", identifier);
         return existingItems.hasNext() ? Optional.of(existingItems.next()) : Optional.empty();
     }
 
@@ -683,13 +683,13 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private String inventoryNumber(MAGManifest manifest) throws PackageValidationException {
-        Element inventoryNumber = manifest
-                .getElementByXPath("/mag:metadigit/mag:bib/mag:holdings/mag:inventory_number", true);
-        if (isNull(inventoryNumber) || isBlank(inventoryNumber.getValue())) {
-            throw new PackageValidationException("Manifest is missing the required inventory number.");
+    private String getIdentifier(MAGManifest manifest) throws PackageValidationException {
+        Element identifier = manifest
+                .getElementByXPath("/mag:metadigit/mag:bib/dc:identifier", true);
+        if (isNull(identifier) || isBlank(identifier.getValue())) {
+            throw new PackageValidationException("Manifest is missing the required identifier.");
         }
-        return inventoryNumber.getValue();
+        return identifier.getValue();
     }
 
     private Collection getOwningCollection(Context context, DSpaceObject dso, Item item) throws SQLException {
