@@ -108,6 +108,7 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         //Item
         performExportScript(article.getHandle(), tempFile);
         String idStr = getID();
+        article = context.reloadEntity(article);
         itemService.delete(context, article);
         performImportScript(tempFile);
         Item item = itemService.find(context, UUID.fromString(idStr));
@@ -121,6 +122,7 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
 
         performExportScript(col1.getHandle(), tempFile);
         String idStr = getID();
+        col1 = context.reloadEntity(col1);
         collectionService.delete(context, col1);
         performImportScript(tempFile);
         Collection collection = collectionService.find(context, UUID.fromString(idStr));
@@ -135,6 +137,7 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         //Community
         performExportScript(child1.getHandle(), tempFile);
         String idStr = getID();
+        child1 = context.reloadEntity(child1);
         communityService.delete(context, child1);
         performImportScript(tempFile);
         Community community = communityService.find(context, UUID.fromString(idStr));
@@ -158,7 +161,9 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         //should fail to restore the item because the uuid already exists.
         performExportScript(article.getHandle(), tempFile);
         UUID id = article.getID();
+        article = context.reloadEntity(article);
         itemService.delete(context, article);
+        col1 = context.reloadEntity(col1);
         WorkspaceItem workspaceItem = workspaceItemService.create(context, col1, id, false);
         installItemService.installItem(context, workspaceItem, "123456789/0100");
         performImportNoForceScript(tempFile);
@@ -167,6 +172,7 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         assertFalse(items.hasNext()); //check to make sure there is only 1 item
         assertEquals("123456789/0100", testItem.getHandle()); //check to make sure the item wasn't overwritten as
         // it would have the old handle.
+        testItem = context.reloadEntity(testItem);
         itemService.delete(context, testItem);
     }
 

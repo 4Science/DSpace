@@ -29,6 +29,7 @@
             <map>
                 <entry key="community" value-ref="communityUpdates"/>
                 <entry key="collection" value-ref="collectionUpdates"/>
+                <entry key="item" value-ref="itemUpdates"/>
             </map>
         </constructor-arg>
     </bean>
@@ -62,5 +63,8 @@
     <bean id="communityUpdates" class="org.dspace.subscriptions.objectupdates.CommunityUpdates" />
 
     <bean id="collectionUpdates" class="org.dspace.subscriptions.objectupdates.CollectionUpdates" />
+
+    <bean id="itemUpdates" name="itemUpdates" class="org.dspace.subscriptions.dSpaceObjectsUpdates.ItemsUpdates">
+    </bean>
 
 </beans>

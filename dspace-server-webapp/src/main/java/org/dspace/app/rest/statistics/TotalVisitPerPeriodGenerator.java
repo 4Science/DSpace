@@ -97,7 +97,8 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
                     statisticsDatasetDisplay
                         .composeQueryWithInverseRelation(
                                 dso,
-                                discoveryConfiguration.getDefaultFilterQueries()
+                                discoveryConfiguration.getDefaultFilterQueries(),
+                                getDsoType(dso)
                         )
                 );
             }

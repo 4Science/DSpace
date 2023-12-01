@@ -24,7 +24,10 @@ import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.logic.Filter;
+import org.dspace.content.logic.LogicalStatementException;
 import org.dspace.content.security.service.CrisSecurityService;
+import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.utils.DSpace;
@@ -366,6 +369,92 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(crisSecurityService.hasAccess(context, item, secondUser, accessMode), is(false));
         assertThat(crisSecurityService.hasAccess(context, item, thirdUser, accessMode), is(true));
         assertThat(crisSecurityService.hasAccess(context, item, fourthUser, accessMode), is(true));
+    }
+
+    @Test
+    public void testHasAccessWithGroupConfigAndAdditionalFilter() throws SQLException, AuthorizeException {
+
+        context.turnOffAuthorisationSystem();
+
+        Group firstGroup = GroupBuilder.createGroup(context)
+                                       .withName("Group 1")
+                                       .build();
+
+        Group secondGroup = GroupBuilder.createGroup(context)
+                                        .withName("Group 2")
+                                        .build();
+
+        Group thirdGroup = GroupBuilder.createGroup(context)
+                                       .withName("Group 3")
+                                       .build();
+
+        EPerson firstUser = EPersonBuilder.createEPerson(context)
+                                          .withEmail("user@mail.it")
+                                          .withGroupMembership(firstGroup)
+                                          .build();
+
+        EPerson secondUser = EPersonBuilder.createEPerson(context)
+                                           .withEmail("user2@mail.it")
+                                           .withGroupMembership(secondGroup)
+                                           .build();
+
+        EPerson thirdUser = EPersonBuilder.createEPerson(context)
+                                          .withEmail("user3@mail.it")
+                                          .withGroupMembership(thirdGroup)
+                                          .build();
+
+        EPerson fourthUser = EPersonBuilder.createEPerson(context)
+                                           .withEmail("user4@mail.it")
+                                           .withGroupMembership(thirdGroup)
+                                           .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("Test item")
+                               .withDspaceObjectOwner("Owner", owner.getID().toString())
+                               .build();
+
+        Item itemNotAccessible = ItemBuilder.createItem(context, collection)
+                               .withTitle("Test item not accessible")
+                               .withDspaceObjectOwner("Owner", owner.getID().toString())
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.GROUP);
+        when(accessMode.getGroups()).thenReturn(List.of("Group 1", thirdGroup.getID().toString()));
+        // filter valid only on first item
+        when(accessMode.getAdditionalFilter()).thenReturn(new Filter() {
+            @Override
+            public Boolean getResult(Context context, Item item) throws LogicalStatementException {
+                return item.getName().equals("Test item");
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public void setBeanName(String s) {}
+        });
+
+        assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, admin, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, owner, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, collectionAdmin, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, communityAdmin, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, submitter, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, anotherSubmitter, accessMode), is(false));
+
+        assertThat(crisSecurityService.hasAccess(context, item, firstUser, accessMode), is(true));
+        assertThat(crisSecurityService.hasAccess(context, item, secondUser, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, thirdUser, accessMode), is(true));
+        assertThat(crisSecurityService.hasAccess(context, item, fourthUser, accessMode), is(true));
+
+        assertThat(crisSecurityService.hasAccess(context, itemNotAccessible, firstUser, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, itemNotAccessible, secondUser, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, itemNotAccessible, thirdUser, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, itemNotAccessible, fourthUser, accessMode), is(false));
     }
 
     private AccessItemMode buildAccessItemMode(CrisSecurity... securities) {

@@ -8,14 +8,17 @@
 package org.dspace.app.nbevent.service.impl;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
@@ -33,6 +36,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.nbevent.NBTopic;
 import org.dspace.app.nbevent.dao.impl.NBEventsDaoImpl;
 import org.dspace.app.nbevent.service.NBEventService;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.NBEvent;
 import org.dspace.content.service.ItemService;
@@ -316,15 +320,35 @@ public class NBEventServiceImpl implements NBEventService {
         String id = getHandleFromOriginalId(originalId);
         if (id != null) {
             Item item = (Item) handleService.resolveToObject(context, id);
+
             if (item != null) {
                 final String itemUuid = item.getID().toString();
                 context.uncacheEntity(item);
                 return itemUuid;
             } else {
-                return null;
+                item = fromLegacyIdentifier(context, originalId);
+                return item == null ? null : item.getID().toString();
             }
         } else {
             throw new RuntimeException("Malformed originalId " + originalId);
+        }
+    }
+
+    private Item fromLegacyIdentifier(Context context, String legacyIdentifier) {
+        if (StringUtils.isBlank(legacyIdentifier)) {
+            return null;
+        }
+        try {
+            Iterator<Item>
+                iterator = itemService.findUnfilteredByMetadataField(
+                context, "dspace", "legacy", "oai-identifier",
+                legacyIdentifier);
+            if (!iterator.hasNext()) {
+                return null;
+            }
+            return iterator.next();
+        } catch (AuthorizeException | SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

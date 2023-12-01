@@ -278,9 +278,14 @@ public class StatisticsDatasetDisplay {
     }
 
     //Creates query for usage raport generator
-    public String composeQueryWithInverseRelation(DSpaceObject dSpaceObject, List<String> default_queries ) {
+    public String composeQueryWithInverseRelation(DSpaceObject dSpaceObject, List<String> default_queries, int type) {
         StringBuilder query = new StringBuilder();
-        query.append("{!join from=search.resourceid to=id fromIndex=");
+        if (type == Constants.BITSTREAM) {
+            query.append("{!join from=search.resourceid to=owningItem fromIndex=");
+        } else {
+            query.append("{!join from=search.resourceid to=id fromIndex=");
+        }
+
         query.append(configurationService.getProperty("solr.multicorePrefix"));
         query.append("search} ");
         boolean isFirstDefaultQuery = true;

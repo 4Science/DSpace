@@ -59,9 +59,8 @@ public class TotalDownloadsAndVisitsGenerator extends AbstractUsageReportGenerat
 
             } else {
                 hasValidRelation = true;
-                query = statisticsDatasetDisplay.
-                                                    composeQueryWithInverseRelation(
-                                                        dso, discoveryConfiguration.getDefaultFilterQueries());
+                query = statisticsDatasetDisplay.composeQueryWithInverseRelation(dso,
+                    discoveryConfiguration.getDefaultFilterQueries(), dso.getType());
             }
         }
         if (!hasValidRelation) {

@@ -1,0 +1,5 @@
+{
+	"pictures": [
+		@item.template@,
+	]
+}

@@ -101,6 +101,12 @@ public class UsageReportUtils {
     public static final String TOP_DOWNLOAD_COUNTRIES_REPORT_ID = "TopDownloadsCountries";
     public static final String TOP_DOWNLOAD_CITIES_REPORT_ID = "TopDownloadsCities";
     public static final String TOTAL_DOWNLOAD_PER_MONTH_REPORT_ID = "TotalDownloadsPerMonth";
+    public static final String TOP_ITEMS_CITIES_REPORT_ID = "TopItemsCities";
+    public static final String TOP_ITEMS_CONTINENTS_REPORT_ID = "TopItemsContinents";
+    public static final String TOP_ITEMS_COUNTRIES_REPORT_ID = "TopItemsCountries";
+    public static final String TOP_ITEMS_CATEGORIES_REPORT_ID = "TopItemsCategories";
+    public static final String TOTAL_ITEMS_VISITS_REPORT_ID = "TotalItemsVisits";
+    public static final String TOTAL_ITEMS_VISITS_PER_MONTH_REPORT_ID = "TotalItemsVisitsPerMonth";
 
     /**
      * Get list of usage reports that are applicable to the DSO (of given UUID)

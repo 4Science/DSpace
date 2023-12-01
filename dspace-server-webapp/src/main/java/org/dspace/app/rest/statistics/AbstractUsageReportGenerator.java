@@ -40,5 +40,6 @@ public abstract class AbstractUsageReportGenerator implements UsageReportGenerat
     public void setRelation(String relation) {
         this.relation = relation;
     }
+
 }
 

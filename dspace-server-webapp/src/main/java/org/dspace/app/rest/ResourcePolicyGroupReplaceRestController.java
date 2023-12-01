@@ -23,7 +23,9 @@ import org.dspace.app.rest.utils.Utils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.ResourcePolicyService;
+import org.dspace.content.Bitstream;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,8 @@ public class ResourcePolicyGroupReplaceRestController {
     private Utils utils;
     @Autowired
     private ResourcePolicyService resourcePolicyService;
+    @Autowired
+    private BitstreamService bitstreamService;
 
     @PreAuthorize("hasPermission(#id, 'resourcepolicy', 'ADMIN')")
     @RequestMapping(method = PUT, consumes = {"text/uri-list"})
@@ -75,6 +79,11 @@ public class ResourcePolicyGroupReplaceRestController {
 
         Group newGroup = (Group) dsoList.get(0);
         resourcePolicy.setGroup(newGroup);
+
+        if (bitstreamService.isOriginalBitstream(resourcePolicy.getdSpaceObject())) {
+            bitstreamService.updateThumbnailResourcePolicies(context, (Bitstream) resourcePolicy.getdSpaceObject());
+        }
+
         context.commit();
         return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT);
     }

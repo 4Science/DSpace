@@ -22,6 +22,7 @@ import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 
@@ -242,5 +243,9 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
 
     List<Bitstream> findByItemAndBundleAndMetadata(Context context, Item item, String bundleName,
         Map<String, String> filterMetadata);
+
+    boolean isOriginalBitstream(DSpaceObject dso) throws SQLException;
+
+    void updateThumbnailResourcePolicies(Context context, Bitstream bitstream) throws SQLException;
 
 }

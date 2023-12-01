@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,8 @@ import org.dspace.eperson.EPerson;
 import org.dspace.subscriptions.service.SubscriptionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 
+
+
 /**
  * Implementation class of SubscriptionGenerator
  * which will handle the logic of sending the emails
@@ -42,6 +45,7 @@ public class ContentGenerator implements SubscriptionGenerator<IndexableObject> 
     private final Logger log = LogManager.getLogger(ContentGenerator.class);
 
     @SuppressWarnings("unchecked")
+    @Resource(name = "entityDissemination")
     private Map<String, StreamDisseminationCrosswalk> entityType2Disseminator = new HashMap();
 
     @Autowired
@@ -50,7 +54,8 @@ public class ContentGenerator implements SubscriptionGenerator<IndexableObject> 
     @Override
     public void notifyForSubscriptions(Context context, EPerson ePerson,
                                        List<IndexableObject> indexableComm,
-                                       List<IndexableObject> indexableColl) {
+                                       List<IndexableObject> indexableColl,
+                                       List<IndexableObject> indexableItems) {
         try {
             if (Objects.nonNull(ePerson)) {
                 Locale supportedLocale = I18nUtil.getEPersonLocale(ePerson);
@@ -58,6 +63,7 @@ public class ContentGenerator implements SubscriptionGenerator<IndexableObject> 
                 email.addRecipient(ePerson.getEmail());
                 email.addArgument(generateBodyMail(context, indexableComm));
                 email.addArgument(generateBodyMail(context, indexableColl));
+                email.addArgument(generateBodyMail(context, indexableItems));
                 email.send();
             }
         } catch (Exception e) {

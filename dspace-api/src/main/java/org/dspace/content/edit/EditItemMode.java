@@ -9,6 +9,7 @@ package org.dspace.content.edit;
 
 import java.util.List;
 
+import org.dspace.content.logic.Filter;
 import org.dspace.content.security.AccessItemMode;
 import org.dspace.content.security.CrisSecurity;
 
@@ -49,6 +50,7 @@ public class EditItemMode implements AccessItemMode {
      * Contains the list of items metadata for CUSTOM security
      */
     private List<String> items;
+    private Filter additionalFilter;
 
     @Override
     public List<CrisSecurity> getSecurities() {
@@ -98,6 +100,15 @@ public class EditItemMode implements AccessItemMode {
     }
     public void setItems(List<String> items) {
         this.items = items;
+    }
+
+    public void setAdditionalFilter(Filter additionalFilter) {
+        this.additionalFilter = additionalFilter;
+    }
+
+    @Override
+    public Filter getAdditionalFilter() {
+        return additionalFilter;
     }
 
     @Override

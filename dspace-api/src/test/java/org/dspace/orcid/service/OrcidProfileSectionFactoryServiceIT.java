@@ -135,7 +135,9 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
         assertThat(qualification.getRoleTitle(), is("Researcher"));
         assertThat(qualification.getOrganization(), notNullValue());
         assertThat(qualification.getOrganization().getName(), is("4Science"));
-        assertThat(qualification.getOrganization().getAddress(), nullValue());
+        assertThat(qualification.getOrganization().getAddress().getCity(), nullValue());
+        assertThat(qualification.getOrganization().getAddress().getCountry(), nullValue());
+        assertThat(qualification.getOrganization().getAddress().getRegion(), nullValue());
         assertThat(qualification.getOrganization().getDisambiguatedOrganization(), nullValue());
 
         values = new ArrayList<>();
@@ -158,7 +160,9 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
         assertThat(secondEmployment.getRoleTitle(), nullValue());
         assertThat(secondEmployment.getOrganization(), notNullValue());
         assertThat(secondEmployment.getOrganization().getName(), is("Organization"));
-        assertThat(secondEmployment.getOrganization().getAddress(), nullValue());
+        assertThat(secondEmployment.getOrganization().getAddress().getCity(), nullValue());
+        assertThat(secondEmployment.getOrganization().getAddress().getCountry(), nullValue());
+        assertThat(secondEmployment.getOrganization().getAddress().getRegion(), nullValue());
         assertThat(secondEmployment.getOrganization().getDisambiguatedOrganization(), nullValue());
 
     }

@@ -422,19 +422,28 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
                 + feature + "')]").doesNotExist());
     }
 
-    private void testAdminsHavePermissionsItem(String feature) throws Exception {
+    private void testAdminsHavePermissionsItem(String feature, boolean adminAccess) throws Exception {
         String adminToken = getAuthToken(admin.getEmail(), password);
         String communityAAdminToken = getAuthToken(communityAAdmin.getEmail(), password);
         String collectionXAdminToken = getAuthToken(collectionXAdmin.getEmail(), password);
         String item1AdminToken = getAuthToken(item1Admin.getEmail(), password);
 
-        // Verify the general admin has this feature on item 1
-        getClient(adminToken).perform(
-            get("/api/authz/authorizations/search/object?embed=feature&uri="
-                + "http://localhost/api/core/items/" + item1.getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='"
-                + feature + "')]").exists());
+        if (adminAccess) {
+            // Verify the general admin has this feature on item 1
+            getClient(adminToken).perform(
+                            get("/api/authz/authorizations/search/object?embed=feature&uri="
+                                    + "http://localhost/api/core/items/" + item1.getID()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='"
+                            + feature + "')]").exists());
+        } else {
+            getClient(adminToken).perform(
+                            get("/api/authz/authorizations/search/object?embed=feature&uri="
+                                    + "http://localhost/api/core/items/" + item1.getID()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='"
+                            + feature + "')]").doesNotExist());
+        }
 
         // Verify community A admin has this feature on item 1
         getClient(communityAAdminToken).perform(
@@ -839,7 +848,7 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
 
     @Test
     public void testCanMakePrivateAdmin() throws Exception {
-        testAdminsHavePermissionsItem("canMakePrivate");
+        testAdminsHavePermissionsItem("canMakePrivate", false);
     }
 
     @Test
@@ -849,7 +858,7 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
 
     @Test
     public void testCanMakeDiscoverableAdmin() throws Exception {
-        testAdminsHavePermissionsItem("canMakeDiscoverable");
+        testAdminsHavePermissionsItem("canMakeDiscoverable", true);
     }
 
     @Test
@@ -1628,7 +1637,7 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
 
     @Test
     public void testCanCreateBundleAdmin() throws Exception {
-        testAdminsHavePermissionsItem("canCreateBundle");
+        testAdminsHavePermissionsItem("canCreateBundle", true);
     }
 
     @Test

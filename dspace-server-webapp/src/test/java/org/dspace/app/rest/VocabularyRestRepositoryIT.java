@@ -40,6 +40,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.edit.EditItem;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
@@ -48,6 +49,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * This class handles all Authority related IT. It alters some config to run the tests, but it gets cleared again
@@ -57,6 +59,9 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Autowired
     private ConfigurationService configurationService;
+
+    @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
 
     @Autowired
     private SubmissionFormRestRepository submissionFormRestRepository;
@@ -148,25 +153,41 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     @Test
     public void findAllTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
+        MvcResult mvcResult = getClient(token).perform(get("/api/submission/vocabularies")).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
         getClient(token).perform(get("/api/submission/vocabularies"))
                  .andExpect(status().isOk())
                  .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
                      VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
+                     VocabularyMatcher.matchProperties("picture_color_types", "picture_color_types", true, false),
+                     VocabularyMatcher.matchProperties(
+                             "common_preservation_state", "common_preservation_state", true, false),
+                     VocabularyMatcher.matchProperties("relation_type", "relation_type", true, false),
+                     VocabularyMatcher.matchProperties("project_types", "project_types", true, false),
+                     VocabularyMatcher.matchProperties("license_types", "license_types", true, false),
+                     VocabularyMatcher.matchProperties(
+                             "picture_material_and_technique", "picture_material_and_technique", true, false),
+                     VocabularyMatcher.matchProperties("picture_format", "picture_format", true, false),
+                     VocabularyMatcher.matchProperties("end_date_valid", "end_date_valid", true, false),
+                     VocabularyMatcher.matchProperties("start_date_valid", "start_date_valid", true, false),
+                     VocabularyMatcher.matchProperties(
+                             "archival_material_types", "archival_material_types", true, false),
+                     VocabularyMatcher.matchProperties(
+                             "fonds_photographictype", "fonds_photographictype", true, false),
+                     VocabularyMatcher.matchProperties(
+                             "unit_of_description_types", "unit_of_description_types", true, false),
                      VocabularyMatcher.matchProperties("common_types", "common_types", true, false),
-                     VocabularyMatcher.matchProperties("common_iso_languages", "common_iso_languages", true , false),
+                     VocabularyMatcher.matchProperties("types", "types", false , true),
                      VocabularyMatcher.matchProperties("SolrAuthorAuthority", "SolrAuthorAuthority", false , false),
                      VocabularyMatcher.matchProperties("patent_types", "patent_types", true , false),
-                     VocabularyMatcher.matchProperties("types", "types", false , true),
                      VocabularyMatcher.matchProperties("gender", "gender", true , false),
-                     VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false , false),
                      VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false , false),
-                     VocabularyMatcher.matchProperties("common_iso_countries", "common_iso_countries", true , false),
-                     VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true , false),
-                     VocabularyMatcher.matchProperties("publication-coar-types", "publication-coar-types", false , true)
+                     VocabularyMatcher.matchProperties(
+                             "publication-coar-types", "publication-coar-types", false , true)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))
-                .andExpect(jsonPath("$.page.totalElements", is(12)));
+                .andExpect(jsonPath("$.page.totalElements", is(28)));
     }
 
     @Test
@@ -508,140 +529,160 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     @Test
     public void controlledVocabularyWithHierarchyStoreSetTrueTest() throws Exception {
         context.turnOffAuthorisationSystem();
-        String vocabularyName = "publication-coar-types";
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Root Community")
-                                          .build();
+        try {
+            configurationService.setProperty("authority.controlled.dc.type", "true");
+            metadataAuthorityService.clearCache();
 
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
-                                          .withEntityType("Publication")
-                                          .withName("Collection 1")
-                                          .build();
+            String vocabularyName = "publication-coar-types";
+            parentCommunity = CommunityBuilder.createCommunity(context)
+                                              .withName("Root Community")
+                                              .build();
 
-        Item itemA = ItemBuilder.createItem(context, col)
-                                .withTitle("Test Item A")
-                                .withIssueDate("2023-04-04")
-                                .withType("Resource Types::text::book::book part", vocabularyName + ":c_3248")
-                                .build();
+            Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                              .withEntityType("Publication")
+                                              .withName("Collection 1")
+                                              .build();
 
-        EditItem editItem = new EditItem(context, itemA);
+            Item itemA = ItemBuilder.createItem(context, col)
+                                    .withTitle("Test Item A")
+                                    .withIssueDate("2023-04-04")
+                                    .withType("Resource Types::text::book::book part", vocabularyName + ":c_3248")
+                                    .build();
 
-        context.restoreAuthSystemState();
+            EditItem editItem = new EditItem(context, itemA);
 
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+            context.restoreAuthSystemState();
 
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                     hasJsonPath("$['dc.type'][0].value", is("Resource Types::text::book::book part")),
-                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
-                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                     )));
+            String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
-        AtomicReference<String> selectedLeafValue = new AtomicReference<>();
-        AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
+            getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.metadata", Matchers.allOf(
+                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                         hasJsonPath(
+                                                 "$['dc.type'][0].value", is("Resource Types::text::book::book part")),
+                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
+                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                         )));
 
-        getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                             .param("metadata", "dc.type")
-                             .param("entryID", vocabularyName + ":c_b239"))
-                             .andExpect(status().isOk())
-                             .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
-                                                                    "$._embedded.entries[0].value")))
-                             .andDo(result -> selectedLeafauthority.set(read(result.getResponse().getContentAsString(),
-                                                                        "$._embedded.entries[0].authority")));
+            AtomicReference<String> selectedLeafValue = new AtomicReference<>();
+            AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
 
-        List<Operation> operations = new ArrayList<Operation>();
-        Map<String, String> value = new HashMap<String, String>();
-        value.put("value", selectedLeafValue.get());
-        value.put("authority", selectedLeafauthority.get());
-        value.put("confidence", "600");
-        operations.add(new ReplaceOperation("/sections/controlled-vocabulary-test/dc.type/0", value));
+            getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
+                                 .param("metadata", "dc.type")
+                                 .param("entryID", vocabularyName + ":c_b239"))
+                                 .andExpect(status().isOk())
+                                 .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
+                                                                        "$._embedded.entries[0].value")))
+                                 .andDo(result -> selectedLeafauthority.set(
+                                         read(result.getResponse().getContentAsString(),
+                                                 "$._embedded.entries[0].authority")));
 
-        String patchBody = getPatchContent(operations);
-        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
-                             .content(patchBody)
-                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                             .andExpect(status().isOk());
+            List<Operation> operations = new ArrayList<Operation>();
+            Map<String, String> value = new HashMap<String, String>();
+            value.put("value", selectedLeafValue.get());
+            value.put("authority", selectedLeafauthority.get());
+            value.put("confidence", "600");
+            operations.add(new ReplaceOperation("/sections/controlled-vocabulary-test/dc.type/0", value));
 
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                   hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                   hasJsonPath("$['dc.type'][0].value", is("text::journal::editorial")),
-                                   hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
-                                   hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                   )));
+            String patchBody = getPatchContent(operations);
+            getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
+                                 .content(patchBody)
+                                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                 .andExpect(status().isOk());
+
+            getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.metadata", Matchers.allOf(
+                                       hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                       hasJsonPath("$['dc.type'][0].value", is("text::journal::editorial")),
+                                       hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
+                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                       )));
+        } finally {
+            configurationService.setProperty("authority.controlled.dc.type", "false");
+            metadataAuthorityService.clearCache();
+        }
     }
 
     @Test
     public void controlledVocabularyWithHierarchyStoreSetFalseTest() throws Exception {
         context.turnOffAuthorisationSystem();
-        String vocabularyName = "publication-coar-types";
-        configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".hierarchy.store", false);
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Root Community")
-                                          .build();
+        try {
+            configurationService.setProperty("authority.controlled.dc.type", "true");
+            metadataAuthorityService.clearCache();
 
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
-                                          .withEntityType("Publication")
-                                          .withName("Collection 1")
-                                          .build();
+            String vocabularyName = "publication-coar-types";
+            configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".hierarchy.store", false);
+            parentCommunity = CommunityBuilder.createCommunity(context)
+                                              .withName("Root Community")
+                                              .build();
 
-        Item itemA = ItemBuilder.createItem(context, col)
-                                .withTitle("Test Item A")
-                                .withIssueDate("2023-04-04")
-                                .withType("Resource Types::text::book::book part", vocabularyName + ":c_3248")
-                                .build();
+            Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                              .withEntityType("Publication")
+                                              .withName("Collection 1")
+                                              .build();
 
-        EditItem editItem = new EditItem(context, itemA);
+            Item itemA = ItemBuilder.createItem(context, col)
+                                    .withTitle("Test Item A")
+                                    .withIssueDate("2023-04-04")
+                                    .withType("Resource Types::text::book::book part", vocabularyName + ":c_3248")
+                                    .build();
 
-        context.restoreAuthSystemState();
+            EditItem editItem = new EditItem(context, itemA);
 
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+            context.restoreAuthSystemState();
 
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                     hasJsonPath("$['dc.type'][0].value", is("Resource Types::text::book::book part")),
-                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
-                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                     )));
+            String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
-        AtomicReference<String> selectedLeafValue = new AtomicReference<>();
-        AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
+            getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.metadata", Matchers.allOf(
+                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                         hasJsonPath("$['dc.type'][0].value",
+                                                 is("Resource Types::text::book::book part")),
+                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
+                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                         )));
 
-        getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                             .param("metadata", "dc.type")
-                             .param("entryID", vocabularyName + ":c_b239"))
-                             .andExpect(status().isOk())
-                             .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
-                                                                    "$._embedded.entries[0].value")))
-                             .andDo(result -> selectedLeafauthority.set(read(result.getResponse().getContentAsString(),
-                                                                        "$._embedded.entries[0].authority")));
+            AtomicReference<String> selectedLeafValue = new AtomicReference<>();
+            AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
 
-        List<Operation> operations = new ArrayList<Operation>();
-        Map<String, String> value = new HashMap<String, String>();
-        value.put("value", selectedLeafValue.get());
-        value.put("authority", selectedLeafauthority.get());
-        value.put("confidence", "600");
-        operations.add(new ReplaceOperation("/sections/controlled-vocabulary-test/dc.type/0", value));
+            getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
+                                 .param("metadata", "dc.type")
+                                 .param("entryID", vocabularyName + ":c_b239"))
+                                 .andExpect(status().isOk())
+                                 .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
+                                                                        "$._embedded.entries[0].value")))
+                                 .andDo(result -> selectedLeafauthority.set(
+                                         read(result.getResponse().getContentAsString(),
+                                                                            "$._embedded.entries[0].authority")));
 
-        String patchBody = getPatchContent(operations);
-        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
-                             .content(patchBody)
-                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                             .andExpect(status().isOk());
+            List<Operation> operations = new ArrayList<Operation>();
+            Map<String, String> value = new HashMap<String, String>();
+            value.put("value", selectedLeafValue.get());
+            value.put("authority", selectedLeafauthority.get());
+            value.put("confidence", "600");
+            operations.add(new ReplaceOperation("/sections/controlled-vocabulary-test/dc.type/0", value));
 
-        getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                     hasJsonPath("$['dc.type'][0].value", is("editorial")),
-                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
-                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                     )));
+            String patchBody = getPatchContent(operations);
+            getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
+                                 .content(patchBody)
+                                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                 .andExpect(status().isOk());
+
+            getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.metadata", Matchers.allOf(
+                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                         hasJsonPath("$['dc.type'][0].value", is("editorial")),
+                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
+                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                         )));
+        } finally {
+            configurationService.setProperty("authority.controlled.dc.type", "false");
+            metadataAuthorityService.clearCache();
+        }
     }
 
     @Test

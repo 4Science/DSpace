@@ -13,7 +13,7 @@ import static org.dspace.content.Item.ANY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -290,7 +290,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
         assertThat(authorList.get(0).getMetadataField().getMetadataSchema().getName(), equalTo("dc"));
         assertThat(authorList.get(0).getMetadataField().getElement(), equalTo("contributor"));
         assertThat(authorList.get(0).getMetadataField().getQualifier(), equalTo("author"));
-        assertNull(authorList.get(0).getAuthority());
+        assertNotNull(authorList.get(0).getAuthority());
 
         List<MetadataValue> relationshipMetadataList = itemService
             .getMetadata(leftItem, "relation", "isAuthorOfPublication", null, Item.ANY);
@@ -401,7 +401,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
         assertThat(authorList.get(0).getMetadataField().getMetadataSchema().getName(), equalTo("dc"));
         assertThat(authorList.get(0).getMetadataField().getElement(), equalTo("contributor"));
         assertThat(authorList.get(0).getMetadataField().getQualifier(), equalTo("author"));
-        assertNull(authorList.get(0).getAuthority());
+        assertNotNull(authorList.get(0).getAuthority());
 
         List<MetadataValue> relationshipMetadataList = itemService
             .getMetadata(leftItem, "relation", "isAuthorOfPublication", null, Item.ANY);
@@ -557,7 +557,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "dc", "contributor", "author", Item.ANY);
         assertThat(publicationAuthorList.size(), equalTo(1));
         assertThat(publicationAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(publicationAuthorList.get(0).getAuthority());
+        assertNotNull(publicationAuthorList.get(0).getAuthority());
         List<MetadataValue> publicationRelationships = itemService.getMetadata(publicationItem,
             "relation", "isAuthorOfPublication", Item.ANY, Item.ANY);
         assertThat(publicationRelationships.size(), equalTo(1));
@@ -586,7 +586,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "dc", "contributor", "author", Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(projectAuthorList.get(0).getAuthority());
+        assertNotNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));
@@ -651,7 +651,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "dc", "contributor", "author", Item.ANY);
         assertThat(publicationAuthorList.size(), equalTo(1));
         assertThat(publicationAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(publicationAuthorList.get(0).getAuthority());
+        assertNotNull(publicationAuthorList.get(0).getAuthority());
         List<MetadataValue> publicationRelationships = itemService.getMetadata(publicationItem,
             "relation", "isAuthorOfPublication", Item.ANY, Item.ANY);
         assertThat(publicationRelationships.size(), equalTo(1));
@@ -725,7 +725,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "dc", "contributor", "author", Item.ANY);
         assertThat(publicationAuthorList.size(), equalTo(1));
         assertThat(publicationAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(publicationAuthorList.get(0).getAuthority());
+        assertNotNull(publicationAuthorList.get(0).getAuthority());
         List<MetadataValue> publicationRelationships = itemService.getMetadata(publicationItem,
             "relation", "isAuthorOfPublication", Item.ANY, Item.ANY);
         assertThat(publicationRelationships.size(), equalTo(1));
@@ -754,7 +754,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "dc", "contributor", "author", Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(projectAuthorList.get(0).getAuthority());
+        assertNotNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));
@@ -930,7 +930,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             itemService.getMetadata(publicationItem, "dc", "contributor", "author", Item.ANY);
         assertThat(publicationAuthorList.size(), equalTo(1));
         assertThat(publicationAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertThat(publicationAuthorList.get(0).getAuthority(), equalTo(null));
+        assertNotNull(publicationAuthorList.get(0).getAuthority());
         List<MetadataValue> publicationRelationships = itemService.getMetadata(publicationItem,
             "relation", "isAuthorOfPublication", Item.ANY, Item.ANY);
         assertThat(publicationRelationships.size(), equalTo(1));
@@ -1084,7 +1084,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
                                                                         "dc", "contributor", "author", Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(projectAuthorList.get(0).getAuthority());
+        assertNotNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));
@@ -1127,7 +1127,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
                                                                             "dc", "contributor", "author", Item.ANY);
         assertThat(publicationAuthorList.size(), equalTo(2));
         assertThat(publicationAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNull(publicationAuthorList.get(0).getAuthority());
+        assertNotNull(publicationAuthorList.get(0).getAuthority());
         List<MetadataValue> publicationRelationships = itemService.getMetadata(publicationItem,
                                                 "relation", "isAuthorOfPublication", Item.ANY, Item.ANY);
         assertThat(publicationRelationships.size(), equalTo(1));

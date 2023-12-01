@@ -10,6 +10,7 @@ package org.dspace.content.enhancer.consumer;
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -287,6 +288,75 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(metadataValues, hasSize(3));
         assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testEnhancementAfterItemUpdate() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item person = ItemBuilder.createItem(context, collection)
+            .withTitle("Walter White")
+            .withOrcidIdentifier("0000-0000-1111-2222")
+            .build();
+
+        String personId = person.getID().toString();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+            .withTitle("Test publication")
+            .withEntityType("Publication")
+            .withAuthor("Jesse Pinkman")
+            .withAuthor("Saul Goodman")
+            .withAuthor("Walter White", person.getID().toString())
+            .withAuthor("Gus Fring")
+            .build();
+
+        context.restoreAuthSystemState();
+        publication = commitAndReload(publication);
+
+        assertThat(getMetadataValues(publication, "dc.contributor.author"), contains(
+            with("dc.contributor.author", "Jesse Pinkman"),
+            with("dc.contributor.author", "Saul Goodman", 1),
+            with("dc.contributor.author", "Walter White", personId, 2, 600),
+            with("dc.contributor.author", "Gus Fring", 3)));
+
+        assertThat(getMetadataValues(publication, "cris.virtual.author-orcid"), contains(
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 1),
+            with("cris.virtual.author-orcid", "0000-0000-1111-2222", 2),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
+
+        assertThat(getMetadataValues(publication, "cris.virtualsource.author-orcid"), contains(
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 1),
+            with("cris.virtualsource.author-orcid", personId, 2),
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
+
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, publication, "dc", "title", "alternative", null, "Other name");
+        itemService.update(context, publication);
+        context.restoreAuthSystemState();
+        publication = commitAndReload(publication);
+
+        assertThat(getMetadataValues(publication, "dc.contributor.author"), contains(
+            with("dc.contributor.author", "Jesse Pinkman"),
+            with("dc.contributor.author", "Saul Goodman", 1),
+            with("dc.contributor.author", "Walter White", personId, 2, 600),
+            with("dc.contributor.author", "Gus Fring", 3)));
+
+        assertThat(getMetadataValues(publication, "cris.virtual.author-orcid"), contains(
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 1),
+            with("cris.virtual.author-orcid", "0000-0000-1111-2222", 2),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
+
+        assertThat(getMetadataValues(publication, "cris.virtualsource.author-orcid"), contains(
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 1),
+            with("cris.virtualsource.author-orcid", personId, 2),
+            with("cris.virtualsource.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
 
     }
 

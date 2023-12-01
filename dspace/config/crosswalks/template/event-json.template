@@ -1,0 +1,17 @@
+{
+	"name": "@dc.title@",
+	"type": "@virtual.mapConverter.eventTypes.dc-type@",
+	"acronym": "@oairecerif.acronym@",
+	"place": "@oairecerif.event.place@",
+	"country": "@oairecerif.event.country@",
+	"startDate": "@oairecerif.event.startDate@",
+	"endDate": "@oairecerif.event.endDate@",
+	"description": "@dc.description.abstract@",
+	"keyword": "@dc.subject@",
+	"organizerOrgUnit": "@crisevent.organizerou@",
+	"organizerProject": "@crisevent.organizerpj@",
+	"sponsorOrgUnit": "@crisevent.sponsorou@",
+	"sponsorProject": "@crisevent.sponsorpj@",
+	"partnerOrgUnit": "@crisevent.partnerou@",
+	"partnerProject": "@crisevent.partnerpj@"
+}

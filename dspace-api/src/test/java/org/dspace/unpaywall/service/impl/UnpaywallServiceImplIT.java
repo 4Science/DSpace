@@ -39,6 +39,8 @@ import org.apache.tools.ant.filters.StringInputStream;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.model.Unpaywall;
 import org.dspace.unpaywall.model.UnpaywallStatus;
 import org.dspace.unpaywall.service.UnpaywallService;
@@ -57,6 +59,9 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
 
     private final UnpaywallService unpaywallService = ContentServiceFactory.getInstance().getUnpaywallService();
 
+    private final ConfigurationService configurationService =
+            DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @After
     public void after() throws SQLException, AuthorizeException {
         List<Unpaywall> unpaywallRecords = unpaywallService.findAll(context);
@@ -67,6 +72,8 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
 
     @Test
     public void testFindUnpaywall() {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID item1Id = UUID.randomUUID();
         String doi1 = "testDoi1";
         Unpaywall unpaywall1 = new Unpaywall();
@@ -83,10 +90,13 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
 
         assertTrue(unpaywall.isPresent());
         Assert.assertEquals(unpaywall1.getID(), unpaywall.get().getID());
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testFindAll() {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         Unpaywall unpaywall1 = new Unpaywall();
         unpaywall1.setItemId(UUID.randomUUID());
         unpaywall1.setDoi("testDoi1");
@@ -102,10 +112,13 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
         Assert.assertEquals(2, unpaywallRecords.size());
         Assert.assertEquals(unpaywall1.getID(), unpaywallRecords.get(0).getID());
         Assert.assertEquals(unpaywall2.getID(), unpaywallRecords.get(1).getID());
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testDelete() {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID itemId = UUID.randomUUID();
         String doi = "testDoi1";
         Unpaywall unpaywall = new Unpaywall();
@@ -117,11 +130,14 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
 
         Optional<Unpaywall> result = unpaywallService.findUnpaywall(context, doi, itemId);
         assertTrue(result.isEmpty());
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testInitUnpaywallCallSuccessful()
             throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID itemId = UUID.randomUUID();
         String doi = "10.1504/ijmso.2012.048507";
 
@@ -146,11 +162,14 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
             Assert.assertEquals(unpaywallResponse, unpaywall.get().getJsonRecord());
             verify(httpClient).execute(any());
         }
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testInitUnpaywallCallNotFound()
             throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID itemId = UUID.randomUUID();
         String doi = "10.1504/ijmso.2012.048507";
 
@@ -170,11 +189,14 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
         Assert.assertEquals(UnpaywallStatus.NOT_FOUND, unpaywall.get().getStatus());
         Assert.assertNull(unpaywall.get().getJsonRecord());
         verify(httpClient).execute(any());
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testInitUnpaywallCallIfNeededWithInitialization()
             throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID itemId = UUID.randomUUID();
         String doi = "10.1504/ijmso.2012.048507";
 
@@ -199,11 +221,14 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
             Assert.assertEquals(unpaywallResponse, unpaywall.get().getJsonRecord());
             verify(httpClient, times(1)).execute(any());
         }
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     @Test
     public void testInitUnpaywallCallIfNeededWithoutInitialization()
             throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
         UUID itemId = UUID.randomUUID();
         String doi = "10.1504/ijmso.2012.048507";
 
@@ -226,6 +251,7 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
         assertTrue(unpaywall.isPresent());
         Assert.assertEquals(UnpaywallStatus.SUCCESSFUL, unpaywall.get().getStatus());
         verify(httpClient, times(0)).execute(any());
+        configurationService.setProperty("unpaywall.email", null);
     }
 
     private static CloseableHttpResponse mockResponse(String xmlExample, int statusCode, String reason) {

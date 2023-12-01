@@ -1,0 +1,5 @@
+{
+	"journalFounds": [
+		@item.template@,
+	]
+}

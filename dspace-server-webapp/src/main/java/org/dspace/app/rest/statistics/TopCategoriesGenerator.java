@@ -10,6 +10,7 @@ package org.dspace.app.rest.statistics;
 import static org.dspace.core.Constants.ITEM;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
+import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.content.StatisticsDatasetDisplay;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class TopCategoriesGenerator extends AbstractUsageReportGenerator {
 
     @Autowired
     private SolrLoggerService solrLoggerService;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Autowired
     private DiscoveryConfigurationService discoveryConfigurationService;
@@ -67,8 +72,8 @@ public class TopCategoriesGenerator extends AbstractUsageReportGenerator {
 
         Map<String, Integer> categoriesCount = new HashMap<String, Integer>();
 
-        for (String category : categoryQueries.keySet()) {
-            String categoryQuery = categoryQueries.get(category);
+        for (String category : getCategoryQueries().keySet()) {
+            String categoryQuery = getCategoryQueries().get(category);
             Integer categoryCount = getCategoryCount(dso, discoveryConfiguration, categoryQuery, startDate, endDate);
             categoriesCount.put(category, categoryCount);
         }
@@ -93,7 +98,8 @@ public class TopCategoriesGenerator extends AbstractUsageReportGenerator {
     private String composeCategoryQuery(DSpaceObject dso, DiscoveryConfiguration configuration, String categoryQuery) {
 
         List<String> defaultFilterQueries = configuration.getDefaultFilterQueries();
-        String query = new StatisticsDatasetDisplay().composeQueryWithInverseRelation(dso, defaultFilterQueries);
+        String query = new StatisticsDatasetDisplay().composeQueryWithInverseRelation(dso,
+            defaultFilterQueries, dso.getType());
 
         if (categoryQuery.equals(OTHER_CATEGORY)) {
             return query + " AND " + getAllCategoryQueriesReverted();
@@ -104,7 +110,7 @@ public class TopCategoriesGenerator extends AbstractUsageReportGenerator {
     }
 
     private String getAllCategoryQueriesReverted() {
-        return categoryQueries.values().stream()
+        return getCategoryQueries().values().stream()
             .filter(categoryQuery -> !OTHER_CATEGORY.equals(categoryQuery))
             .map(categoryQuery -> "-" + formatCategoryQuery(categoryQuery))
             .collect(Collectors.joining(" AND "));
@@ -129,10 +135,26 @@ public class TopCategoriesGenerator extends AbstractUsageReportGenerator {
     }
 
     public Map<String, String> getCategoryQueries() {
+        if (categoryQueries == null) {
+            return getDefaultCategoryQueries();
+        }
         return categoryQueries;
     }
 
     public void setCategoryQueries(Map<String, String> categoryQueries) {
         this.categoryQueries = categoryQueries;
     }
+
+    private Map<String, String> getDefaultCategoryQueries() {
+        return Arrays.stream(getDefaultEntityTypes())
+                     .collect(Collectors.toMap(
+                         type -> type.toLowerCase(),
+                         type -> "entityType_keyword: '" + type + "'"
+                     ));
+    }
+
+    private String[] getDefaultEntityTypes() {
+        return configurationService.getArrayProperty("cris.entity-type");
+    }
+
 }

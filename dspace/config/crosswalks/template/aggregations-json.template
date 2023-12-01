@@ -1,0 +1,5 @@
+{
+	"aggregations": [
+		@item.template@,
+	]
+}

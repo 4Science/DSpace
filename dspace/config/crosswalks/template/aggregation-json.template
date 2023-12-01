@@ -1,0 +1,5 @@
+{
+	"name": "@dc.title@",
+	"description": "@dc.description@",
+	"parent": "@glamaggregation.parent@"
+}

@@ -1,0 +1,5 @@
+<Aggregation id="@virtual.id@">
+	<Name>@dc.title@</Name>
+	<Description>@dc.description@</Description>
+    <Parent>@glamaggregation.parent@</Parent>
+</Aggregation>

@@ -67,18 +67,15 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndSearchComponent("sectiondocuments", 0, 1, "col-md-8", "documents"))))
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndTopComponent("sectiondocuments", 2, 0, "col-md-6",
-                    "documents", "dc.date.accessioned", "desc", 5, false, false, "list",
+                hasItem(withIdAndTopComponent("sectiondocuments", 2, 0, "col-md-12",
+                    "documents", "dc.date.accessioned", "desc", 4, false, false, "list",
                     "", "col-12 col-lg-6", "", true, "top"))))
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndTopComponent("sectiondocuments", 2, 1, "col-md-6",
-                                    "documents", "metric.view", "desc", 5, false, false, "list",
+                hasItem(withIdAndTopComponent("sectiondocuments", 2, 1, "col-md-12",
+                                    "documents", "metric.view", "desc", 4, false, false, "list",
                                     "", "col-12 col-lg-6", "", true, "top"))))
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndFacetComponent("sectiondocuments", 1, 0, "col-md-12", "documents"))))
-
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndSearchComponent("site", 0, 0, "col-md-12", "site"))))
 
             .andExpect(jsonPath("$._embedded.sections",
                         hasItem(withIdAndTextRowComponent("site", 0, 0 , "style", "text-metadata"))))
@@ -102,7 +99,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
             .andExpect(jsonPath("$._embedded.sections",
               hasItem(withIdAndTopComponent("site", 4, 0, "col-md-12 pad-left pad-right bg-light", "additions",
-                                            "dc.date.accessioned", "desc", 8, true, true, "card",
+                                            "lastModified", "desc", 8, true, true, "card",
                                             "", "col-6 col-lg-3", "", true, "top"))))
             ;
     }
@@ -159,11 +156,11 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.id", is("sectiondocuments")))
             .andExpect(jsonPath("$", withBrowseComponent(0, 0, "col-md-4", expectedBrowseNames)))
             .andExpect(jsonPath("$", withSearchComponent(0, 1, "col-md-8", "documents")))
-            .andExpect(jsonPath("$", withTopComponent(2, 0, "col-md-6", "documents",
-                "dc.date.accessioned", "desc", 5, false, false, "list",
+            .andExpect(jsonPath("$", withTopComponent(2, 0, "col-md-12", "documents",
+                "dc.date.accessioned", "desc", 4, false, false, "list",
                 "", "col-12 col-lg-6", "", true, "top")))
-            .andExpect(jsonPath("$", withTopComponent(2, 1, "col-md-6", "documents", "metric.view", "desc",
-                5, false, false, "list",
+            .andExpect(jsonPath("$", withTopComponent(2, 1, "col-md-12", "documents", "metric.view", "desc",
+                4, false, false, "list",
                 "", "col-12 col-lg-6", "", true, "top")))
             .andExpect(jsonPath("$", withFacetComponent(1, 0, "col-md-12", "documents")));
     }

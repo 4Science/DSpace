@@ -1,0 +1,19 @@
+{
+	"name": "@dc.title@",
+	"nameAlternative": "@dc.title.alternative@",
+	"latitude": "@glamplace.lat@",
+	"longitude": "@glamplace.long@",
+	"dbpedialink": [
+	    "@glam.link.dbpedia@",
+	],
+	"wikipedialink": [
+	    "@glam.link.dbpedia@",
+	],
+	"aggregations": [
+        @group.dc-relation-aggregation.start@
+        {
+            "name": "@dc.relation.aggregation@"
+        },
+        @group.dc-relation-aggregation.end@
+    ]
+}

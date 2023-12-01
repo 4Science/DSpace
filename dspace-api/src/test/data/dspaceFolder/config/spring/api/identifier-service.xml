@@ -41,6 +41,10 @@
       <property name='DATACITE_HOST' value='mds.test.datacite.org'/>
       <property name='DATACITE_DOI_PATH' value='/doi/'/>
       <property name='DATACITE_METADATA_PATH' value='/metadata/'/>
-      <property name='disseminationCrosswalkName' value="DataCite"/>
+      <property name='disseminationCrosswalkByEntityType'>
+          <map>
+              <entry key="Publication" value-ref="referCrosswalkPublicationDataciteXml"></entry>
+          </map>
+      </property>
     </bean>
 </beans>

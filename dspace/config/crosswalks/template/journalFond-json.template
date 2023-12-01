@@ -1,0 +1,26 @@
+{
+	"title": "@dc.title@",
+	"type": "@virtual.mapConverter.eventTypes.dc-type@",
+	"history": "@glamfonds.history@",
+	"language": [
+	    "@dc.language.iso@",
+	],
+	"description": "@dc.description.abstract@",
+	"signature": "@glamfonds.shelfmark@",
+	"identifier": [
+	    "@dc.identifier.other@",
+	],
+	"opac": "@dc.relation.opac@",
+	"link": [
+	    "@dc.relation.otherlinks@",
+	],
+	"fondsHistory": [
+	    @group.glamjournalfonds-history.start@
+    	{
+    		"name": "@glamjournalfonds.history@"
+    	},
+    	@group.glamjournalfonds-history.end@
+	],
+	"editor": "@dc.publisher@",
+	"format": "@dc.format@"
+}

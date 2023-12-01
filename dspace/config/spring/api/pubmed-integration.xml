@@ -29,7 +29,7 @@
         <entry key-ref="oaire.citation.volume" value-ref="volumeContrib"/>
         <entry key-ref="oaire.citation.issue" value-ref="issueContrib"/>
         <entry key-ref="dc.identifier.doi" value-ref="doiContrib"/>
-        <entry key-ref="dc.type" value-ref="typeContrib"/>
+        <entry key-ref="dc.type" value-ref="pubmedTypeContrib"/>
 
     </util:map>
 
@@ -151,16 +151,15 @@
         <property name="prefixToNamespaceMapping" ref="prefixToNamespaceMapping"/>
     </bean>
 
-
-    <bean id="innerTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+    <bean id="innerPubmedTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="dc.type"/>
         <property name="query" value="descendant::PublicationTypeList/PublicationType"/>
         <property name="prefixToNamespaceMapping" ref="prefixToNamespaceMapping"/>
         <property name="metadataFieldMapping" ref="pubmedMetadataFieldMapping"/>
     </bean>
 
-    <bean id="typeContrib" class="org.dspace.importer.external.metadatamapping.contributor.MappedMetadataContributor">
-        <constructor-arg name="innerContributor" ref="innerTypeContrib"/>
+    <bean id="pubmedTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.MappedMetadataContributor">
+        <constructor-arg name="innerContributor" ref="innerPubmedTypeContrib"/>
         <constructor-arg name="mapConverter" ref="mapConverterPubmedToCoarPublicationTypes"/>
     </bean>
 
@@ -231,6 +230,5 @@
             these must be present. If multiple are present the result is undefined.
         </description>
     </bean>
-    
 
 </beans>

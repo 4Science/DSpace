@@ -1,0 +1,72 @@
+{
+	"type": "@virtual.mapConverter.eventTypes.dc-type@",
+	"authors": [
+	    @group.dc-contributor-author.start@
+    	{
+    		"name": "@dc.contributor.author@"
+    	},
+    	@group.dc-contributor-author.end@
+	],
+	"organizations": [
+    	@group.dc-contributor-corporatebody.start@
+        {
+        	"name": "@dc.contributor.corporatebody@"
+        },
+        @group.dc-contributor-corporatebody.end@
+    ],
+	"families": [
+    	@group.dc-contributor-family.start@
+        {
+        	"name": "@dc.contributor.family@"
+        },
+        @group.dc-contributor-family.end@
+    ],
+    "title": "@dc.title@",
+    "subtitle": "@dc.title.alternative@",
+    "publicationDate": "@dc.date.issued@",
+    "secularDate": "@dc.coverage.temporal@",
+	"identifiers": [
+    	@group.dc-identifier.start@
+        {
+        	"name": "@dc.identifier@"
+        },
+        @group.dc-identifier.end@
+    ],
+    "descriptionAbstract": "@dc.description.abstract@",
+    "physicalTypeResource": "@dc.type.physical@",
+    "physicalResourceFormat": "@dc.format.medium@",
+	"bibliographicLinks": [
+    	@group.dcterms-bibliographicCitation.start@
+        {
+        	"name": "@dcterms.bibliographicCitation@"
+        },
+        @group.dcterms-bibliographicCitation.end@
+    ],
+	"bibliographicLinks": [
+    	@group.dcterms-bibliographicCitation.start@
+        {
+        	"name": "@dcterms.bibliographicCitation@"
+        },
+        @group.dcterms-bibliographicCitation.end@
+    ],
+    "uses": {
+    	"aggregation": [
+    		"@dc.relation.aggregation@",
+    	],
+    	"document": [
+            "@dc.relation.isreferencedby@",
+        ],
+        "fond": [
+            "@dc.relation.fond@",
+        ],
+    },
+	"languagesIso": [
+    	@group.dc-language-iso.start@
+        {
+        	"name": "@@dc.language.iso@@"
+        },
+        @group.dc-language-iso.end@
+    ],
+    "description": "@dc.description@",
+    "descriptionPreservation": "@dc.description.preservation@"
+}

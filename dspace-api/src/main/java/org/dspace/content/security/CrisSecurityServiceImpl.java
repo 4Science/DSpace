@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -55,35 +56,44 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
             .anyMatch(security -> hasAccess(context, item, user, accessMode, security));
     }
 
-    private boolean hasAccess(Context context, Item item, EPerson user, AccessItemMode accessMode,
-        CrisSecurity crisSecurity) {
-
+    private boolean hasAccess(
+        Context context, Item item, EPerson user, AccessItemMode accessMode, CrisSecurity crisSecurity
+    ) {
         try {
+            final boolean checkSecurity = checkSecurity(context, item, user, accessMode, crisSecurity);
 
-            switch (crisSecurity) {
-                case ADMIN:
-                    return authorizeService.isAdmin(context, user);
-                case CUSTOM:
-                    return hasAccessByCustomPolicy(context, item, user, accessMode);
-                case GROUP:
-                    return hasAccessByGroup(context, user, accessMode.getGroups());
-                case ITEM_ADMIN:
-                    return authorizeService.isAdmin(context, user, item);
-                case OWNER:
-                    return isOwner(user, item);
-                case SUBMITTER:
-                    return user != null && user.equals(item.getSubmitter());
-                case SUBMITTER_GROUP:
-                    return isUserInSubmitterGroup(context, item, user);
-                case NONE:
-                default:
-                    return false;
-            }
-
+            return Optional.ofNullable(accessMode.getAdditionalFilter())
+                .map(filter -> checkSecurity && filter.getResult(context, item))
+                .orElse(checkSecurity);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLRuntimeException(e);
         }
 
+    }
+
+    private boolean checkSecurity(Context context, Item item, EPerson user, AccessItemMode accessMode,
+                              CrisSecurity crisSecurity) throws SQLException {
+        switch (crisSecurity) {
+            case ADMIN:
+                return authorizeService.isAdmin(context, user);
+            case CUSTOM:
+                return hasAccessByCustomPolicy(context, item, user, accessMode);
+            case GROUP:
+                return hasAccessByGroup(context, user, accessMode.getGroups());
+            case ITEM_ADMIN:
+                return authorizeService.isAdmin(context, user, item);
+            case OWNER:
+                return isOwner(user, item);
+            case SUBMITTER:
+                return user != null && user.equals(item.getSubmitter());
+            case SUBMITTER_GROUP:
+                return isUserInSubmitterGroup(context, item, user);
+            case ALL:
+                return true;
+            case NONE:
+            default:
+                return false;
+        }
     }
 
     private boolean isOwner(EPerson eperson, Item item) {

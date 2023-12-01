@@ -9,6 +9,7 @@ package org.dspace.external.provider.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -135,9 +136,8 @@ public class LiveImportDataProvider extends AbstractExternalDataProvider {
      * @return
      */
     private ExternalDataObject getExternalDataObject(ImportRecord record) {
-        //return 400 if no record were found
-        if (record == null) {
-            throw new IllegalArgumentException("No record found for query or id");
+        if (Objects.isNull(record)) {
+            return null;
         }
         ExternalDataObject externalDataObject = new ExternalDataObject(sourceIdentifier);
         String id = getFirstValue(record, recordIdMetadata);

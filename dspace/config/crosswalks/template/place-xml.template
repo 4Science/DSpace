@@ -1,0 +1,15 @@
+<Place id="@virtual.id@">
+	<Name>@dc.title@</Name>
+	<NameAlternative>@dc.title.alternative@</NameAlternative>
+	<Latitude>@glamplace.lat@</Latitude>
+	<Longitude>@glamplace.long@</Longitude>
+	<DBpedialink>@glam.link.dbpedia@</DBpedialink>
+	<Wikipedialink>@glam.link.wikipedia@</Wikipedialink>
+	<Aggregations>
+        @group.dc-relation-aggregation.start@
+        <Aggregation>
+            <DisplayName>@dc.relation.aggregation@</DisplayName>
+        </Aggregation>
+        @group.dc-relation-aggregation.end@
+    </Aggregations>
+</Place>

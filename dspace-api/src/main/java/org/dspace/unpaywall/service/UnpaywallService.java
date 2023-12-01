@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.dspace.content.Item;
 import org.dspace.core.Context;
+import org.dspace.unpaywall.dto.UnpaywallItemVersionDto;
 import org.dspace.unpaywall.model.Unpaywall;
 
 /**
@@ -72,4 +74,22 @@ public interface UnpaywallService {
      * @return all records
      */
     List<Unpaywall> findAll(Context context);
+
+    /**
+     * Retrives item versions.
+     *
+     * @param context the DSpace context
+     * @param item    item
+     * @return list of item versions
+     */
+    List<UnpaywallItemVersionDto> getItemVersions(Context context, Item item);
+
+    /**
+     * Retrives item versions.
+     *
+     * @param context the DSpace context
+     * @param itemId  uuid of the item
+     * @return list of item versions
+     */
+    List<UnpaywallItemVersionDto> getItemVersions(Context context, UUID itemId);
 }

@@ -40,6 +40,7 @@ import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.subscriptions.ContentGenerator;
 import org.dspace.subscriptions.service.DSpaceObjectUpdates;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -49,10 +50,20 @@ import org.dspace.subscriptions.service.DSpaceObjectUpdates;
  * @author Alba Aliu
  */
 public class ItemsUpdates implements DSpaceObjectUpdates {
-    private final CollectionService collectionService;
-    private final CommunityService communityService;
-    private final ItemService itemService;
+
+    @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
+    private CommunityService communityService;
+
+    @Autowired
+    private ItemService itemService;
+
+    @Autowired
     private DiscoveryConfigurationService searchConfigurationService;
+
+    @Autowired
     private SearchService searchService;
     private final Logger log = org.apache.logging.log4j.LogManager.getLogger(ContentGenerator.class);
 
@@ -189,12 +200,4 @@ public class ItemsUpdates implements DSpaceObjectUpdates {
         return discoverQuery;
     }
 
-    public ItemsUpdates(CollectionService collectionService, CommunityService communityService, ItemService itemService,
-                        DiscoveryConfigurationService searchConfigurationService, SearchService searchService) {
-        this.collectionService = collectionService;
-        this.communityService = communityService;
-        this.itemService = itemService;
-        this.searchConfigurationService = searchConfigurationService;
-        this.searchService = searchService;
-    }
 }
