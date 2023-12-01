@@ -193,8 +193,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                     // Verify that this file will be extracted into our zipDir (and not somewhere else!)
                     if (!outFile.toPath().normalize().startsWith(zipDir)) {
                         throw new IOException("Bad zip entry: '" + entryName
-                                                  + "' in file '" + zipDir + "'!"
-                                                  + " Cannot process this file.");
+                                + "' in file '" + zipDir + "'!"
+                                + " Cannot process this file.");
                     } else {
                         log.info("Extracting file: " + entryName);
 
@@ -226,7 +226,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                         int len;
                         InputStream in = zf.getInputStream(entry);
                         BufferedOutputStream out = new BufferedOutputStream(
-                            new FileOutputStream(outFile));
+                                new FileOutputStream(outFile));
                         while ((len = in.read(buffer)) >= 0) {
                             out.write(buffer, 0, len);
                         }
@@ -263,9 +263,9 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private DSpaceObject ingestObject(Context context, DSpaceObject parent, MAGManifest manifest,
-            String sourceDir, PackageParameters params, String license)
-                    throws IOException, SQLException, AuthorizeException, CrosswalkException,
-                    PackageValidationException, WorkflowException {
+                                      String sourceDir, PackageParameters params, String license)
+            throws IOException, SQLException, AuthorizeException, CrosswalkException,
+            PackageValidationException, WorkflowException {
         Optional<Item> existingItem = getExistingItem(context, manifest);
 
         Item item;
@@ -346,6 +346,10 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 "glam", "relation", "ispartof");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
                 "glam", "relation", "references");
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:xsamplingfrequency",
+                "mix", "xsamplingfrequency", null);
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:ysamplingfrequency",
+                "mix", "ysamplingfrequency", null);
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:identifier",
                 "dc", "identifier", "other");
         addTitleMetadata(context, item, manifest);
@@ -424,8 +428,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private DSpaceObject replaceObject(Context context, DSpaceObject dso, MAGManifest manifest,
-            String sourceDir, PackageParameters params, String license)
-                    throws IOException, SQLException, AuthorizeException, CrosswalkException {
+                                       String sourceDir, PackageParameters params, String license)
+            throws IOException, SQLException, AuthorizeException, CrosswalkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Object to be replaced (handle=" + dso.getHandle()
