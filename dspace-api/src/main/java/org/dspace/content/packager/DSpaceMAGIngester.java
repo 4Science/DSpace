@@ -329,15 +329,15 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:rights",
                 "dc", "rights", null);
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:library",
-                "dc", "rights", "holder");
+                "glam", "rights", "holder");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:inventory_number",
                 "dc", "identifier", "inventorynumber");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/mag:holdings/mag:shelfmark",
                 "dc", "identifier", "shelfmark");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
-                "dc", "relation", "ispartof");
+                "glam", "relation", "ispartof");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
-                "dc", "relation", "references");
+                "glam", "relation", "references");
         addTitleMetadata(context, item, manifest);
         addDateMetadata(context, item, manifest);
         addLanguageMetadata(context, item, manifest);
