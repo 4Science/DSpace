@@ -30,7 +30,6 @@
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Tipo di File</label>
-          <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <input-type value-pairs-name="bitstream_types">dropdown</input-type>
           <hint>Immagine profilo, logo, file principale, etc.</hint>
