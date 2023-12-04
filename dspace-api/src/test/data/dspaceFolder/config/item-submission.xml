@@ -357,6 +357,7 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="unpaywall"/>
+            <step id="upload"/>
         </submission-process>
 
         <submission-process name="traditional-with-correction">

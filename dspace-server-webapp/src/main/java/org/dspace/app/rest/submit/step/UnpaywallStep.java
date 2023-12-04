@@ -9,13 +9,19 @@ package org.dspace.app.rest.submit.step;
 
 import static java.lang.Boolean.TRUE;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
+import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;
 import org.dspace.app.rest.submit.AbstractProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
+import org.dspace.app.util.SubmissionConfig;
+import org.dspace.app.util.SubmissionConfigReader;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
@@ -27,13 +33,18 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.service.UnpaywallService;
 import org.dspace.web.ContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unpaywall submission step.
  */
 public class UnpaywallStep extends AbstractProcessingStep {
 
+    private final Logger logger = LoggerFactory.getLogger(UnpaywallStep.class);
+
     private final static String REFRESH_OPERATION = "refresh";
+    private final static String ACCEPT_OPERATION = "accept";
 
     private final UnpaywallService unpaywallService = ContentServiceFactory.getInstance().getUnpaywallService();
 
@@ -41,6 +52,17 @@ public class UnpaywallStep extends AbstractProcessingStep {
             DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    private final SubmissionConfigReader submissionConfigReader;
+
+    {
+        try {
+            submissionConfigReader = new SubmissionConfigReader();
+        } catch (SubmissionConfigReaderException e) {
+            logger.error("Cannot initialize submission config reader", e);
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public DataUnpaywall getData(
@@ -64,13 +86,49 @@ public class UnpaywallStep extends AbstractProcessingStep {
             Operation operation,
             SubmissionStepConfig stepConf
     ) throws Exception {
-        getDoiValue(source.getItem()).ifPresent(doi -> {
-            if (isRefreshRequired(operation)) {
-                unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
-            } else {
-                unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
-            }
-        });
+        if (operation.getPath().contains(ACCEPT_OPERATION) && TRUE.equals(operation.getValue())) {
+            getDoiValue(source.getItem())
+                .flatMap(doi -> this.unpaywallService.findUnpaywall(context, doi, source.getItem().getID()))
+                .ifPresentOrElse(
+                    unpaywall -> this.unpaywallService.downloadResource(context, unpaywall, source.getItem()),
+                    () -> new UnprocessableEntityException(
+                        "Cannot find any unpaywall related to item: " + source.getItem().getID()
+                    )
+                );
+        } else if (operation.getPath().contains(REFRESH_OPERATION)) {
+            getDoiValue(source.getItem())
+                .ifPresent(doi -> {
+                    if (isRefreshRequired(operation)) {
+                        unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
+                    } else {
+                        unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
+                    }
+                });
+        }
+    }
+
+    private static UploadStep getUploadStep(InProgressSubmission source, SubmissionConfig submissionConfig)
+        throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+        IllegalAccessException {
+        if (submissionConfig == null) {
+            throw new RuntimeException(
+                "Cannot load configuration for the collection: " + source.getCollection().getID()
+            );
+        }
+        Iterator<SubmissionStepConfig> iterator = submissionConfig.iterator();
+        boolean hasUploadStep = false;
+        Class<?> uploadStepClass = null;
+        while (iterator.hasNext() && !hasUploadStep) {
+            SubmissionStepConfig stepConfig = iterator.next();
+            uploadStepClass = Class.forName(stepConfig.getProcessingClassName());
+            hasUploadStep = uploadStepClass.isAssignableFrom(UploadStep.class);
+        }
+        if (!hasUploadStep) {
+            throw new RuntimeException(
+                "Cannot find upload step in the submission configuration: " + submissionConfig.getSubmissionName()
+            );
+        }
+        return (UploadStep) uploadStepClass.getDeclaredConstructor().newInstance();
     }
 
     private static boolean isRefreshRequired(Operation operation) {
