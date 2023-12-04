@@ -67,6 +67,9 @@ public final class SystemEventService implements EventService {
     public void shutdown() {
         this.requestInterceptor = null; // clear the interceptor
         this.listenersMap.clear();
+        if (this.executorService != null && !this.executorService.isShutdown()) {
+            this.executorService.shutdown();
+        }
     }
 
 
