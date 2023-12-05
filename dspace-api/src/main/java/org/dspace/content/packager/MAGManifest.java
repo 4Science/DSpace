@@ -89,8 +89,24 @@ public class MAGManifest {
         listNodes.forEach(node -> addMagToNodes(node.getChildren(), rootNamespace));
     }
 
-    public List<Element> getFiles() {
+    public List<Element> getImageFiles() {
         List<Element> elements = getElementsByXPath("/mag:metadigit/mag:img", true);
+        if (nonNull(elements)) {
+            return elements;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Element> getAltImageFiles(Element source) {
+        List<Element> elements = getElementsByXPathAndFile("mag:altimg", true, source);
+        if (nonNull(elements)) {
+            return elements;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Element> getDocFiles() {
+        List<Element> elements = getElementsByXPath("/mag:metadigit/mag:doc", true);
         if (nonNull(elements)) {
             return elements;
         }
@@ -102,7 +118,7 @@ public class MAGManifest {
     }
 
     public String getThumbnailFileName(String absoluteParentPath, Element file) {
-        return getFileName(absoluteParentPath, file, "mag:altimg/mag:file");
+        return getFileName(absoluteParentPath, file, "mag:file");
     }
 
     public String getFileName(String absoluteParentPath, Element file, String xpath) {
@@ -152,6 +168,19 @@ public class MAGManifest {
         XPathExpression<Element> xpath = XPathFactory.instance()
                 .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS, nisoNS);
         List<Element> result = xpath.evaluate(mag);
+        if (result == null && nullOk) {
+            return null;
+        } else if (result == null && !nullOk) {
+            throw new RuntimeException("MAGManifest: Failed to resolve XPath, path=\"" + path + "\"");
+        } else {
+            return result;
+        }
+    }
+
+    protected List<Element> getElementsByXPathAndFile(String path, boolean nullOk, Element source) {
+        XPathExpression<Element> xpath = XPathFactory.instance()
+                .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS, nisoNS);
+        List<Element> result = xpath.evaluate(source);
         if (result == null && nullOk) {
             return null;
         } else if (result == null && !nullOk) {

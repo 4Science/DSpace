@@ -83,6 +83,11 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private final static String ORIGINAL = "ORIGINAL";
     private final static String THUMBNAIL = "THUMBNAIL";
+    private final static String BRANDED_PREVIEW = "BRANDED_PREVIEW";
+    private final static String CUSTOMER_TIFF = "CUSTOMER-TIFF";
+    private final static String CUSTOMER_JPEG300 = "CUSTOMER-JPEG300";
+    private final static String CUSTOMER_TEXT = "CUSTOMER-TEXT";
+    private final static String CUSTOMER_HOCR = "CUSTOMER-HOCR";
     private final static String MAG = "MAG";
     private final static String XML_FORMAT = ".xml";
     private final static String MAG_DIR = "MagXML";
@@ -287,7 +292,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
 
         addMetadata(context, item, manifest);
-        addBitstreams(context, item, manifest, sourceDir, params);
+        addDocFilesBitstreams(context, item, manifest, sourceDir, params);
+        addImgFilesBitstreams(context, item, manifest, sourceDir, params);
         addManifestBitstream(context, item, manifest);
         addLicense(context, item, license, collection);
 
@@ -432,7 +438,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             Item item = (Item) dso;
 
             addMetadata(context, item, manifest);
-            addBitstreams(context, item, manifest, sourceDir, params);
+            addDocFilesBitstreams(context, item, manifest, sourceDir, params);
+            addImgFilesBitstreams(context, item, manifest, sourceDir, params);
             addManifestBitstream(context, item, manifest);
 
             Collection owningCollection = getOwningCollection(context, dso, item);
@@ -442,8 +449,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return dso;
     }
 
-    private void addOriginalBitstreamMetadata(Context context, Element fileElement,
-                                              Bitstream bitstream, MAGManifest manifest)
+    private void addTiffBitstreamMetadata(Context context, Element fileElement,
+                                          Bitstream bitstream, MAGManifest manifest)
             throws MetadataValidationException, SQLException {
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "TIFF600");
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "TIFF600");
@@ -502,15 +509,16 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addThumbnailBitstreamMetadata(Context context, Element originalFileElement,
-                                               Bitstream bitstream, MAGManifest manifest)
+                                               Bitstream bitstream, MAGManifest manifest,
+                                               String imgGroupId)
             throws MetadataValidationException, SQLException {
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "JPEG150");
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "JPEG150");
-        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "JPEG150");
-        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "JPEG150");
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", imgGroupId);
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", imgGroupId);
+        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", imgGroupId);
+        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", imgGroupId);
         addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
-                "mix", "colorSpace", null, "JPEG150");
-        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "JPEG150");
+                "mix", "colorSpace", null, imgGroupId);
+        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, imgGroupId);
         addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
                 "mix", "compressionScheme", null, "TIFF600");
     }
@@ -568,28 +576,76 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return Optional.empty();
     }
 
-    private void addBitstreams(Context context, Item item, MAGManifest manifest,
-            String sourceDir, PackageParameters params)
-                    throws SQLException, AuthorizeException, MetadataValidationException, IOException {
-        List<Element> files = manifest.getFiles();
+    private void addImgFilesBitstreams(Context context, Item item, MAGManifest manifest,
+                                       String sourceDir, PackageParameters params)
+            throws SQLException, AuthorizeException, MetadataValidationException, IOException {
+        List<Element> imageFiles = manifest.getImageFiles();
+        Bundle brandPreviewBundle = getBundleElseCreate(context, item, BRANDED_PREVIEW);
+        Bundle thumbnailBundle = getBundleElseCreate(context, item, THUMBNAIL);
+        Bundle customerTiifBundle = getBundleElseCreate(context, item, CUSTOMER_TIFF);
+        Bundle customerJPEG300Bundle = getBundleElseCreate(context, item, CUSTOMER_JPEG300);
+        Bundle customerTextBundle = getBundleElseCreate(context, item, CUSTOMER_TEXT);
+        Bundle customerHocrBundle = getBundleElseCreate(context, item, CUSTOMER_HOCR);
+
+        for (Element imageFile : imageFiles) {
+            Integer originalSequenceId = manifest.getOriginalSequenceId(imageFile);
+
+            List<Element> altImageFiles = manifest.getAltImageFiles(imageFile);
+
+            for (Element altImageFile : altImageFiles) {
+                addAltImageBitstream(context, manifest, sourceDir, altImageFile, originalSequenceId, brandPreviewBundle,
+                        thumbnailBundle, customerTiifBundle, customerJPEG300Bundle, customerTextBundle,
+                        customerHocrBundle);
+            }
+        }
+
+        updatePrimaryBitstream(context, brandPreviewBundle);
+        updatePrimaryBitstream(context, thumbnailBundle);
+        updatePrimaryBitstream(context, customerTiifBundle);
+        updatePrimaryBitstream(context, customerJPEG300Bundle);
+        updatePrimaryBitstream(context, customerTextBundle);
+        updatePrimaryBitstream(context, customerHocrBundle);
+    }
+
+    private void addAltImageBitstream(Context context, MAGManifest manifest, String sourceDir, Element altImageFile,
+                                      Integer originalSequenceId, Bundle brandPreviewBundle, Bundle thumbnailBundle,
+                                      Bundle customerTiifBundle, Bundle customerJPEG300Bundle,
+                                      Bundle customerTextBundle, Bundle customerHocrBundle)
+            throws SQLException, AuthorizeException, IOException, MetadataValidationException {
+        String altImgMagUsage = getMagUsage(manifest, altImageFile, "mag:usage");
+
+        if (altImgMagUsage != null && altImgMagUsage.equals("JPEG100")) {
+            addThumbnailBitstream(context, manifest, sourceDir, altImageFile, brandPreviewBundle,
+                    originalSequenceId, "JPEG150");
+        } else if (altImgMagUsage != null && altImgMagUsage.equals("THUMBS")) {
+            addThumbnailBitstream(context, manifest, sourceDir, altImageFile, thumbnailBundle,
+                    originalSequenceId, "JPEG150");
+        } else if (altImgMagUsage != null && altImgMagUsage.equals("TIFF")) {
+            addTiffBitstream(context, manifest, sourceDir, altImageFile, customerTiifBundle, originalSequenceId);
+        } else if (altImgMagUsage != null && altImgMagUsage.equals("JPEG300")) {
+            addThumbnailBitstream(context, manifest, sourceDir, altImageFile, customerJPEG300Bundle,
+                    originalSequenceId, "JPEG300");
+        } else if (altImgMagUsage != null && altImgMagUsage.equals("TXT")) {
+            addTXTBitstream(context, manifest, sourceDir, altImageFile, customerTextBundle, originalSequenceId);
+            addTXTBitstream(context, manifest, sourceDir, altImageFile, customerHocrBundle, originalSequenceId);
+        }
+    }
+
+    private void addDocFilesBitstreams(Context context, Item item, MAGManifest manifest,
+                                       String sourceDir, PackageParameters params)
+            throws SQLException, AuthorizeException, IOException {
+        List<Element> files = manifest.getDocFiles();
         Bundle originalBundle = getBundleElseCreate(context, item, ORIGINAL);
-        // removed because they will be handled by the filter-media script
-        // Bundle thumbnailsBundle = getBundleElseCreate(context, item, THUMBNAIL);
 
         for (Element file : files) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(file);
-            String originalName = addOriginalBitstream(context, manifest, sourceDir,
-                    params, file, originalBundle, originalSequenceId);
-            if (originalName != null) {
-                // removed because they will be handled by the filter-media script
-                // addThumbnailBitstream(context, manifest, sourceDir, params, file, thumbnailsBundle,
-                //         originalSequenceId, originalName);
+            String magUsage = getMagUsage(manifest, file, "mag:usage");
+            if (magUsage != null && magUsage.equals("PDF")) {
+                addOriginalBitstream(context, manifest, sourceDir, file, originalBundle, originalSequenceId);
             }
         }
 
         updatePrimaryBitstream(context, originalBundle);
-        // removed because they will be handled by the filter-media script
-        // updatePrimaryBitstream(context, thumbnailsBundle);
     }
 
     private void updatePrimaryBitstream(Context context, Bundle bundle) throws SQLException, AuthorizeException {
@@ -601,36 +657,65 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addThumbnailBitstream(Context context, MAGManifest manifest,
-            String sourceDir, PackageParameters params,
-            Element file, Bundle thumbnailsBundle, Integer originalSequenceId, String originalName)
-                    throws IOException, SQLException, AuthorizeException, MetadataValidationException {
+    private void addThumbnailBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
+                                       Bundle thumbnailsBundle, Integer originalSequenceId, String imgGroupId)
+            throws IOException, SQLException, AuthorizeException, MetadataValidationException {
         String thumbnailPath = manifest.getThumbnailFileName(sourceDir, file);
-        String thumbnailExtension = thumbnailPath.substring(thumbnailPath.lastIndexOf("."));
         Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(thumbnailPath));
         if (thumbnailFileStream.isPresent()) {
-            Bitstream bitstream = createBitstream(context, thumbnailsBundle,
-                    thumbnailFileStream.get(), thumbnailPath, originalSequenceId, originalName + thumbnailExtension);
-            addThumbnailBitstreamMetadata(context, file, bitstream, manifest);
+            Bitstream bitstream = createBitstream(context, thumbnailsBundle, thumbnailFileStream.get(),
+                    thumbnailPath, originalSequenceId);
+            addThumbnailBitstreamMetadata(context, file, bitstream, manifest, imgGroupId);
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", thumbnailPath);
         }
     }
 
-    private String addOriginalBitstream(Context context, MAGManifest manifest, String sourceDir,
-            PackageParameters params, Element file, Bundle originalBundle, Integer originalSequenceId)
-                    throws IOException, SQLException, AuthorizeException, MetadataValidationException {
+    private void addTiffBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
+                                  Bundle bundle, Integer originalSequenceId)
+            throws IOException, SQLException, AuthorizeException, MetadataValidationException {
+        String tiffPath = manifest.getThumbnailFileName(sourceDir, file);
+        Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(tiffPath));
+        if (thumbnailFileStream.isPresent()) {
+            Bitstream bitstream = createBitstream(context, bundle, thumbnailFileStream.get(),
+                    tiffPath, originalSequenceId);
+            addTiffBitstreamMetadata(context, file, bitstream, manifest);
+        } else {
+            log.warn("Bitstream creation failed. There are no files in provided path: {}", tiffPath);
+        }
+    }
+
+    private void addTXTBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
+                                 Bundle bundle, Integer originalSequenceId)
+            throws IOException, SQLException, AuthorizeException {
+        String txtPath = manifest.getThumbnailFileName(sourceDir, file);
+        Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(txtPath));
+        if (thumbnailFileStream.isPresent()) {
+            String pathExtension = txtPath.substring(txtPath.lastIndexOf("."));
+            if (pathExtension.equals(".hocr") && bundle.getName().equals(CUSTOMER_HOCR)) {
+                createBitstream(context, bundle,
+                        thumbnailFileStream.get(), txtPath, originalSequenceId);
+            } else if (pathExtension.equals(".txt") && bundle.getName().equals(CUSTOMER_TEXT)) {
+                createBitstream(context, bundle,
+                        thumbnailFileStream.get(), txtPath, originalSequenceId);
+            }
+
+        } else {
+            log.warn("Bitstream creation failed. There are no files in provided path: {}", txtPath);
+        }
+    }
+
+    private void addOriginalBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
+                                      Bundle originalBundle, Integer originalSequenceId)
+            throws IOException, SQLException, AuthorizeException {
         String originalPath = manifest.getOriginalFileName(sourceDir, file);
         Optional<InputStream> originalFileStream = Optional.of(new FileInputStream(originalPath));
         if (originalFileStream.isPresent()) {
-            Bitstream bitstream = createBitstream(context, originalBundle,
+            createBitstream(context, originalBundle,
                     originalFileStream.get(), originalPath, originalSequenceId);
-            addOriginalBitstreamMetadata(context, file, bitstream, manifest);
-            return bitstream.getName();
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", originalPath);
         }
-        return null;
     }
 
     private Bundle getBundleElseCreate(Context context, Item item, String name)
@@ -724,4 +809,12 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return sequenceNumber;
     }
 
+    private static String getMagUsage(MAGManifest manifest, Element fileElement, String path) {
+        String useMag = null;
+        Element useMagTag = manifest.getElementByXPath(path, true, fileElement);
+        if (nonNull(useMagTag) && nonNull(useMagTag.getValue())) {
+            useMag = useMagTag.getValue();
+        }
+        return useMag;
+    }
 }
