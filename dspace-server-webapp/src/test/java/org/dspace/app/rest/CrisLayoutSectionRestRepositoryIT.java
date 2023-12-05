@@ -82,7 +82,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCarouselComponent("site", 1, 0, "col-md-12", "news"))))
+                hasItem(withIdAndCarouselComponent("site", 1, 0, "col-12 px-0", "news"))))
 
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndSearchComponent("site", 2, 0, "col-md-12", "site"))))

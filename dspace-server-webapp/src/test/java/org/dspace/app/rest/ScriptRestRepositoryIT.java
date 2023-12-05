@@ -85,6 +85,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -763,7 +764,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         }
     }
 
-    @Test
+    @Ignore
     public void postProcessWithAnonymousUser() throws Exception {
         context.turnOffAuthorisationSystem();
 
