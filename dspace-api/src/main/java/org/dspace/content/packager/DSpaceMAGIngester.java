@@ -478,8 +478,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
                 Integer start = null;
                 Integer stop = null;
-                Element startTag = manifest.getElementByXPath("element/start", true, stru);
-                Element stopTag = manifest.getElementByXPath("element/stop", true, stru);
+                Element startTag = manifest.getElementByXPath("mag:element/mag:start", true, stru);
+                Element stopTag = manifest.getElementByXPath("mag:element/mag:stop", true, stru);
                 if (nonNull(startTag) && nonNull(startTag.getAttributeValue("sequence_number"))) {
                     start = Integer.valueOf(startTag.getAttributeValue("sequence_number"));
                 }
@@ -488,11 +488,10 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 }
 
                 if ((isNull(start) || sequenceNumber >= start) && (isNull(stop) || sequenceNumber <= stop)) {
-                    Element struNomenclatureTag = manifest.getElementByXPath("nomenclature", true, stru);
+                    Element struNomenclatureTag = manifest.getElementByXPath("mag:nomenclature", true, stru);
 
                     if (nonNull(struNomenclatureTag) && isNotBlank(struNomenclatureTag.getValue())) {
-                        String value = "Indice del Documento|||"
-                                + struNomenclatureTag.getValue() + "|||" + nomenclature;
+                        String value = "Index|||" + struNomenclatureTag.getValue() + "|||" + nomenclature;
                         bitstreamService.addMetadata(context, bitstream, "iiif", "toc", null, null,
                                 value, null, CF_ACCEPTED);
                     }
@@ -708,7 +707,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private static String getNomenclature(MAGManifest manifest, Element fileElement) {
         String nomenclature = null;
-        Element nomenclatureTag = manifest.getElementByXPath("nomenclature", true, fileElement);
+        Element nomenclatureTag = manifest.getElementByXPath("mag:nomenclature", true, fileElement);
         if (nonNull(nomenclatureTag) && nonNull(nomenclatureTag.getValue())) {
             nomenclature = nomenclatureTag.getValue();
         }
@@ -717,7 +716,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private static Integer getSequenceNumber(MAGManifest manifest, Element fileElement) {
         Integer sequenceNumber = null;
-        Element sequenceNumberTag = manifest.getElementByXPath("sequence_number", true, fileElement);
+        Element sequenceNumberTag = manifest.getElementByXPath("mag:sequence_number", true, fileElement);
         if (nonNull(sequenceNumberTag) && nonNull(sequenceNumberTag.getValue())) {
             sequenceNumber = Integer.valueOf(sequenceNumberTag.getValue());
         }
