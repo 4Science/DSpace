@@ -39,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
@@ -175,6 +176,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     public void downloadResource(Context context, Unpaywall unpaywall, Item item) {
         CompletableFuture
             .runAsync(() -> resolveResourceForItem(unpaywall, item), executor)
+            .orTimeout(30, TimeUnit.SECONDS)
             .exceptionally(throwable -> {
                 logger.error("Cannot resolve the linked unpaywall resource", throwable);
                 unpaywall.setStatus(UnpaywallStatus.NOT_FOUND);
@@ -309,6 +311,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         CompletableFuture<Void> newRequest = CompletableFuture
                 .runAsync(() -> callApiAndUpdateUnpaywallRecord(doi, itemId), executor)
                 .thenRun(() -> requestMap.remove(doi))
+                .orTimeout(30, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
                     requestMap.remove(doi);
                     return null;
