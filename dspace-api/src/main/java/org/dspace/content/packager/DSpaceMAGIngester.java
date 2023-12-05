@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -294,6 +296,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         addMetadata(context, item, manifest);
         addDocFilesBitstreams(context, item, manifest, sourceDir, params);
         addImgFilesBitstreams(context, item, manifest, sourceDir, params);
+        addTxtBitstreams(context, item, sourceDir);
         addManifestBitstream(context, item, manifest);
         addLicense(context, item, license, collection);
 
@@ -440,6 +443,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             addMetadata(context, item, manifest);
             addDocFilesBitstreams(context, item, manifest, sourceDir, params);
             addImgFilesBitstreams(context, item, manifest, sourceDir, params);
+            addTxtBitstreams(context, item, sourceDir);
             addManifestBitstream(context, item, manifest);
 
             Collection owningCollection = getOwningCollection(context, dso, item);
@@ -583,8 +587,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         Bundle thumbnailBundle = getBundleElseCreate(context, item, THUMBNAIL);
         Bundle customerTiifBundle = getBundleElseCreate(context, item, CUSTOMER_TIFF);
         Bundle customerJPEG300Bundle = getBundleElseCreate(context, item, CUSTOMER_JPEG300);
-        Bundle customerTextBundle = getBundleElseCreate(context, item, CUSTOMER_TEXT);
-        Bundle customerHocrBundle = getBundleElseCreate(context, item, CUSTOMER_HOCR);
 
         for (Element imageFile : imageFiles) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(imageFile);
@@ -593,8 +595,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
             for (Element altImageFile : altImageFiles) {
                 addAltImageBitstream(context, manifest, sourceDir, altImageFile, originalSequenceId, brandPreviewBundle,
-                        thumbnailBundle, customerTiifBundle, customerJPEG300Bundle, customerTextBundle,
-                        customerHocrBundle);
+                        thumbnailBundle, customerTiifBundle, customerJPEG300Bundle);
             }
         }
 
@@ -602,16 +603,13 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         updatePrimaryBitstream(context, thumbnailBundle);
         updatePrimaryBitstream(context, customerTiifBundle);
         updatePrimaryBitstream(context, customerJPEG300Bundle);
-        updatePrimaryBitstream(context, customerTextBundle);
-        updatePrimaryBitstream(context, customerHocrBundle);
     }
 
     private void addAltImageBitstream(Context context, MAGManifest manifest, String sourceDir, Element altImageFile,
                                       Integer originalSequenceId, Bundle brandPreviewBundle, Bundle thumbnailBundle,
-                                      Bundle customerTiifBundle, Bundle customerJPEG300Bundle,
-                                      Bundle customerTextBundle, Bundle customerHocrBundle)
+                                      Bundle customerTiifBundle, Bundle customerJPEG300Bundle)
             throws SQLException, AuthorizeException, IOException, MetadataValidationException {
-        String altImgMagUsage = getMagUsage(manifest, altImageFile, "mag:usage");
+        String altImgMagUsage = getMagUsage(manifest, altImageFile);
 
         if (altImgMagUsage != null && altImgMagUsage.equals("JPEG100")) {
             addThumbnailBitstream(context, manifest, sourceDir, altImageFile, brandPreviewBundle,
@@ -624,9 +622,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         } else if (altImgMagUsage != null && altImgMagUsage.equals("JPEG300")) {
             addThumbnailBitstream(context, manifest, sourceDir, altImageFile, customerJPEG300Bundle,
                     originalSequenceId, "JPEG300");
-        } else if (altImgMagUsage != null && altImgMagUsage.equals("TXT")) {
-            addTXTBitstream(context, manifest, sourceDir, altImageFile, customerTextBundle, originalSequenceId);
-            addTXTBitstream(context, manifest, sourceDir, altImageFile, customerHocrBundle, originalSequenceId);
         }
     }
 
@@ -638,13 +633,42 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
         for (Element file : files) {
             Integer originalSequenceId = manifest.getOriginalSequenceId(file);
-            String magUsage = getMagUsage(manifest, file, "mag:usage");
+            String magUsage = getMagUsage(manifest, file);
             if (magUsage != null && magUsage.equals("PDF")) {
                 addOriginalBitstream(context, manifest, sourceDir, file, originalBundle, originalSequenceId);
             }
         }
 
         updatePrimaryBitstream(context, originalBundle);
+    }
+
+    private void addTxtBitstreams(Context context, Item item, String sourceDir)
+            throws SQLException, AuthorizeException, IOException {
+        sourceDir += "/TXT";
+        Bundle customerTextBundle = getBundleElseCreate(context, item, CUSTOMER_TEXT);
+        Bundle customerHocrBundle = getBundleElseCreate(context, item, CUSTOMER_HOCR);
+
+        List<File> files = new ArrayList<>(FileUtils.listFiles(new File(sourceDir), new String[]{"txt", "hocr"}, false));
+
+        if (!files.isEmpty()) {
+            for (File file: files) {
+                String filePath = file.getPath();
+                String pathExtension = filePath.substring(filePath.lastIndexOf("."));
+                if (pathExtension.equals(".txt")) {
+                    addTXTBitstream(context, filePath, customerTextBundle);
+                }
+                else if (pathExtension.equals(".hocr")) {
+                    addTXTBitstream(context, filePath, customerHocrBundle);
+                }
+            }
+        }
+        else {
+            log.warn("Bitstream creation failed. There are no files with extension" +
+                    " \".txt\" and \".hocr\" in directory: {}", sourceDir);
+        }
+
+        updatePrimaryBitstream(context, customerTextBundle);
+        updatePrimaryBitstream(context, customerHocrBundle);
     }
 
     private void updatePrimaryBitstream(Context context, Bundle bundle) throws SQLException, AuthorizeException {
@@ -684,23 +708,13 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addTXTBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
-                                 Bundle bundle, Integer originalSequenceId)
+    private void addTXTBitstream(Context context, String filePath, Bundle bundle)
             throws IOException, SQLException, AuthorizeException {
-        String txtPath = manifest.getThumbnailFileName(sourceDir, file);
-        Optional<InputStream> thumbnailFileStream = Optional.of(new FileInputStream(txtPath));
-        if (thumbnailFileStream.isPresent()) {
-            String pathExtension = txtPath.substring(txtPath.lastIndexOf("."));
-            if (pathExtension.equals(".hocr") && bundle.getName().equals(CUSTOMER_HOCR)) {
-                createBitstream(context, bundle,
-                        thumbnailFileStream.get(), txtPath, originalSequenceId);
-            } else if (pathExtension.equals(".txt") && bundle.getName().equals(CUSTOMER_TEXT)) {
-                createBitstream(context, bundle,
-                        thumbnailFileStream.get(), txtPath, originalSequenceId);
-            }
-
+        Optional<InputStream> txtFileStream = Optional.of(new FileInputStream(filePath));
+        if (txtFileStream.isPresent()) {
+            createBitstream(context, bundle, txtFileStream.get(), filePath, -1);
         } else {
-            log.warn("Bitstream creation failed. There are no files in provided path: {}", txtPath);
+            log.warn("Bitstream creation failed. There are no files in provided path: {}", filePath);
         }
     }
 
@@ -808,9 +822,9 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         return sequenceNumber;
     }
 
-    private static String getMagUsage(MAGManifest manifest, Element fileElement, String path) {
+    private static String getMagUsage(MAGManifest manifest, Element fileElement) {
         String useMag = null;
-        Element useMagTag = manifest.getElementByXPath(path, true, fileElement);
+        Element useMagTag = manifest.getElementByXPath("mag:usage", true, fileElement);
         if (nonNull(useMagTag) && nonNull(useMagTag.getValue())) {
             useMag = useMagTag.getValue();
         }
