@@ -338,6 +338,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 "dc", "relation", "ispartof");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
                 "dc", "relation", "references");
+        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:identifier",
+                "dc", "identifier", "other");
         addTitleMetadata(context, item, manifest);
         addDateMetadata(context, item, manifest);
         addLanguageMetadata(context, item, manifest);
