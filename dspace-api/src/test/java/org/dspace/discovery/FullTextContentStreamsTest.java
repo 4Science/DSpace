@@ -70,8 +70,6 @@ public class FullTextContentStreamsTest {
     @Before
     public void setUp() throws Exception {
         when(item.getHandle()).thenReturn(HANDLE);
-        when(originalBundle.getName()).thenReturn("ORIGINAL");
-        when(textBundle.getName()).thenReturn("TEXT");
 
         when(textBitstream1.getName()).thenReturn("Full Text 1");
         when(textBitstream2.getName()).thenReturn("Full Text 2");
@@ -94,8 +92,6 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithNoBundles() throws Exception {
-        when(item.getBundles()).thenReturn(null);
-
         streams.init(item);
 
         assertEquals("Source info should give you the handle", HANDLE, streams.getSourceInfo());
@@ -110,8 +106,6 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithOnlyOriginalBundle() throws Exception {
-        when(item.getBundles()).thenReturn(Arrays.asList(originalBundle));
-
         streams.init(item);
 
         assertEquals("Source info should give you the handle", HANDLE, streams.getSourceInfo());
@@ -126,9 +120,6 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithEmptyTextBundle() throws Exception {
-        when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
-        when(textBundle.getBitstreams()).thenReturn(null);
-
         streams.init(item);
 
         assertEquals("Source info should give you the handle", HANDLE, streams.getSourceInfo());
@@ -144,7 +135,6 @@ public class FullTextContentStreamsTest {
     @Test
     public void testItemWithOnlyOneTextBitstream() throws Exception {
         when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
-        when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1));
 
         streams.init(item);
@@ -163,7 +153,6 @@ public class FullTextContentStreamsTest {
     @Test
     public void testItemWithMultipleTextBitstreams() throws Exception {
         when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
-        when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1, textBitstream2, textBitstream3));
 
         streams.init(item);
@@ -183,7 +172,6 @@ public class FullTextContentStreamsTest {
     @Test
     public void testBitstreamThrowingExceptionShouldNotStopIndexing() throws Exception {
         when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
-        when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1, textBitstream2, textBitstream3));
         when(bitstreamService.retrieve(null, textBitstream2)).thenThrow(new IOException("NOTFOUND"));
 
