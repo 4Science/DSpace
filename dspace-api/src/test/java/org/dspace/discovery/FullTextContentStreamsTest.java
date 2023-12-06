@@ -7,6 +7,7 @@
  */
 package org.dspace.discovery;
 
+import static org.dspace.discovery.FullTextContentStreams.FULLTEXT_BUNDLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +25,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.ItemService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,9 @@ public class FullTextContentStreamsTest {
     private Bitstream textBitstream1;
 
     @Mock
+    private ItemService itemService;
+
+    @Mock
     private Bitstream textBitstream2;
 
     @Mock
@@ -84,6 +89,7 @@ public class FullTextContentStreamsTest {
             .thenReturn(new ByteArrayInputStream("This is text 3".getBytes(StandardCharsets.UTF_8)));
 
         streams.bitstreamService = bitstreamService;
+        streams.itemService = itemService;
     }
 
     @Test
@@ -137,6 +143,7 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithOnlyOneTextBitstream() throws Exception {
+        when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
         when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1));
 
@@ -155,6 +162,7 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testItemWithMultipleTextBitstreams() throws Exception {
+        when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
         when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1, textBitstream2, textBitstream3));
 
@@ -174,6 +182,7 @@ public class FullTextContentStreamsTest {
 
     @Test
     public void testBitstreamThrowingExceptionShouldNotStopIndexing() throws Exception {
+        when(item.getBundles(FULLTEXT_BUNDLE)).thenReturn(Arrays.asList(textBundle));
         when(item.getBundles()).thenReturn(Arrays.asList(originalBundle, textBundle));
         when(textBundle.getBitstreams()).thenReturn(Arrays.asList(textBitstream1, textBitstream2, textBitstream3));
         when(bitstreamService.retrieve(null, textBitstream2)).thenThrow(new IOException("NOTFOUND"));
