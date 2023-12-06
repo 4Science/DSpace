@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -648,7 +647,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         Bundle customerTextBundle = getBundleElseCreate(context, item, CUSTOMER_TEXT);
         Bundle customerHocrBundle = getBundleElseCreate(context, item, CUSTOMER_HOCR);
 
-        List<File> files = new ArrayList<>(FileUtils.listFiles(new File(sourceDir), new String[]{"txt", "hocr"}, false));
+        List<File> files = new ArrayList<>(
+                FileUtils.listFiles(new File(sourceDir), new String[]{"txt", "hocr"}, false));
 
         if (!files.isEmpty()) {
             for (File file: files) {
@@ -656,13 +656,11 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 String pathExtension = filePath.substring(filePath.lastIndexOf("."));
                 if (pathExtension.equals(".txt")) {
                     addTXTBitstream(context, filePath, customerTextBundle);
-                }
-                else if (pathExtension.equals(".hocr")) {
+                } else if (pathExtension.equals(".hocr")) {
                     addTXTBitstream(context, filePath, customerHocrBundle);
                 }
             }
-        }
-        else {
+        } else {
             log.warn("Bitstream creation failed. There are no files with extension" +
                     " \".txt\" and \".hocr\" in directory: {}", sourceDir);
         }
