@@ -79,9 +79,7 @@ public class PackagerCLI extends Packager {
     @Override
     public void setSourceFile(Context context, boolean isGiven) {
         String files[] = commandLine.getArgs();
-        if (commandLine.hasOption('z')) {
-            sourceFile = commandLine.getOptionValue('z');
-        } else if (files.length > 0) {
+        if (files.length > 0) {
             if (PACKAGER_FILENAME_PREFIX.equals(files[0]) && files.length > 1) {
                 sourceFile = files[1];
             } else {

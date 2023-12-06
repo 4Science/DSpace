@@ -69,7 +69,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 "-e", admin.getEmail(),
                 "-p", magCollection.getHandle(),
                 "-t", "MAG",
-                "-z", archive.getFile().getPath());
+                archive.getFile().getPath());
 
         Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
         List<Item> items = IteratorUtils.toList(itemsIterator);
@@ -104,7 +104,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 "-e", admin.getEmail(),
                 "-p", magCollection.getHandle(),
                 "-t", "MAG",
-                "-z", archive.getFile().getPath());
+                archive.getFile().getPath());
 
         Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
         List<Item> items = IteratorUtils.toList(itemsIterator);
