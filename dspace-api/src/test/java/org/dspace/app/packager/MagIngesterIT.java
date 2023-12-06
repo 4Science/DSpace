@@ -223,8 +223,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void testShouldAddMetadataToExistingItem()
-            throws Exception {
+    public void testShouldAddMetadataToExistingItem() throws Exception {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
@@ -267,6 +266,84 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<MetadataValue> rights = itemService.getMetadata(items.get(0), "dc", "rights", null, null);
         assertEquals(1, rights.size());
         assertEquals("Università degli Studi di Bari Aldo Moro", rights.get(0).getValue());
+    }
+
+    @Test
+    public void testShouldAddMetadataToJpeg300Bitstream() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/31")
+                .withName("MagCollection2")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> jpeg300Bundles = itemService.getBundles(items.get(0), "CUSTOMER-JPEG300");
+        assertEquals(1, jpeg300Bundles.size());
+
+        List<Bitstream> jpeg300Bitstreams = jpeg300Bundles.get(0).getBitstreams();
+        assertEquals(1, jpeg300Bitstreams.size());
+
+        String expectedXsamplingFrequency = "300";
+        String expectedYsamplingFrequency = "300";
+        String xsamplingFrequencyValue = bitstreamService
+                .getMetadataFirstValue(jpeg300Bitstreams.get(0), "mix", "xsamplingfrequency", null, Item.ANY);
+        String ysamplingFrequencyValue = bitstreamService
+                .getMetadataFirstValue(jpeg300Bitstreams.get(0), "mix", "ysamplingfrequency", null, Item.ANY);
+
+        assertEquals(expectedXsamplingFrequency, xsamplingFrequencyValue);
+        assertEquals(expectedYsamplingFrequency, ysamplingFrequencyValue);
+    }
+
+    @Test
+    public void testShouldAddMetadataToThumbnailBitstream() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/31")
+                .withName("MagCollection2")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> thumbnailBundles = itemService.getBundles(items.get(0), "THUMBNAIL");
+        assertEquals(1, thumbnailBundles.size());
+
+        List<Bitstream> thumbnailBitstreams = thumbnailBundles.get(0).getBitstreams();
+        assertEquals(1, thumbnailBitstreams.size());
+
+        String expectedXsamplingFrequency = "600";
+        String expectedYsamplingFrequency = "600";
+        String xsamplingFrequencyValue = bitstreamService
+                .getMetadataFirstValue(thumbnailBitstreams.get(0), "mix", "xsamplingfrequency", null, Item.ANY);
+        String ysamplingFrequencyValue = bitstreamService
+                .getMetadataFirstValue(thumbnailBitstreams.get(0), "mix", "ysamplingfrequency", null, Item.ANY);
+
+        assertEquals(expectedXsamplingFrequency, xsamplingFrequencyValue);
+        assertEquals(expectedYsamplingFrequency, ysamplingFrequencyValue);
     }
 
 }
