@@ -720,4 +720,8 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     public String getName(EPerson dso) {
         return dso.getName();
     }
+
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.ePersonDAO.exists(context, EPerson.class, id);
+    }
 }

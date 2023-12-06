@@ -584,4 +584,6 @@ public interface DSpaceObjectService<T extends DSpaceObject> {
             throws SQLException {
 
     }
+
+    boolean exists(Context context, UUID id) throws SQLException;
 }

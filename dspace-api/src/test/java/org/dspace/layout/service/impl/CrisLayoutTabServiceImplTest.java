@@ -32,6 +32,7 @@ import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.dao.CrisLayoutTabDAO;
+import org.dspace.services.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -55,6 +56,8 @@ public class CrisLayoutTabServiceImplTest {
     private AuthorizeService authorizeService;
     @Mock
     private ItemService itemService;
+    @Mock
+    private ConfigurationService configurationService;
 
     @InjectMocks
     private CrisLayoutTabServiceImpl crisLayoutTabService;
@@ -97,7 +100,7 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType))
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType, null))
             .thenReturn(Arrays.asList(tabOne, tabTwo, tabThree, tabWithoutBoxes, tabWithOnlyForbiddenBoxes));
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
@@ -120,7 +123,7 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType)).thenReturn(emptyList());
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType, null)).thenReturn(emptyList());
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
 
@@ -140,7 +143,7 @@ public class CrisLayoutTabServiceImplTest {
         when(itemService.getMetadata(item, "dspace.entity.type"))
             .thenReturn(entityType);
 
-        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType)).thenReturn(List.of());
+        when(tabDao.findByEntityTypeAndEagerlyFetchBoxes(context, entityType, null)).thenReturn(List.of());
 
         List<CrisLayoutTab> tabs = crisLayoutTabService.findByItem(context, itemUuid);
 

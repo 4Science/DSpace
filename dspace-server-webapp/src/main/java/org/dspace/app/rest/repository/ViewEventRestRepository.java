@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,7 +22,6 @@ import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.ViewEventRest;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
@@ -51,7 +51,8 @@ public class ViewEventRestRepository extends AbstractDSpaceRestRepository {
         } catch (IOException e1) {
             throw new UnprocessableEntityException("Error parsing request body", e1);
         }
-        if (viewEventRest.getTargetId() == null || StringUtils.isBlank(viewEventRest.getTargetType()) ||
+        final UUID targetId = viewEventRest.getTargetId();
+        if (targetId == null || StringUtils.isBlank(viewEventRest.getTargetType()) ||
             !typeList.contains(viewEventRest.getTargetType().toUpperCase())) {
             throw new DSpaceBadRequestException("The given ViewEvent was invalid, one or more properties are either" +
                                                     " wrong or missing");
@@ -59,14 +60,14 @@ public class ViewEventRestRepository extends AbstractDSpaceRestRepository {
         DSpaceObjectService dSpaceObjectService = ContentServiceFactory.getInstance().getDSpaceObjectService(
             Constants.getTypeID(viewEventRest.getTargetType().toUpperCase(Locale.getDefault())));
 
-        DSpaceObject dSpaceObject = dSpaceObjectService.find(context, viewEventRest.getTargetId());
-        if (dSpaceObject == null) {
+        if (!dSpaceObjectService.exists(context, targetId)) {
             throw new UnprocessableEntityException(
-                "The given targetId does not resolve to a DSpaceObject: " + viewEventRest.getTargetId());
+                "The given targetId does not resolve to a DSpaceObject: " + targetId);
         }
-        UsageEvent usageEvent = new UsageEvent(UsageEvent.Action.VIEW, req, context, dSpaceObject,
-                viewEventRest.getReferrer());
-        eventService.fireEvent(usageEvent);
+        final String referrer = viewEventRest.getReferrer();
+        eventService.fireAsyncEvent(
+            () -> UsageEvent.createUsageEvent(context, req, dSpaceObjectService, targetId, referrer)
+        );
         return viewEventRest;
     }
 }

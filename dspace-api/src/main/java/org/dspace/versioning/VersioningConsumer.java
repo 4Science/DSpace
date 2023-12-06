@@ -31,9 +31,15 @@ import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.IndexEventConsumer;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.orcid.OrcidHistory;
+import org.dspace.orcid.OrcidQueue;
+import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.orcid.service.OrcidHistoryService;
+import org.dspace.orcid.service.OrcidQueueService;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
@@ -61,6 +67,8 @@ public class VersioningConsumer implements Consumer {
     private RelationshipService relationshipService;
     private RelationshipVersioningUtils relationshipVersioningUtils;
     private DedupService dedupService;
+    private OrcidQueueService orcidQueueService;
+    private OrcidHistoryService orcidHistoryService;
 
     @Override
     public void initialize() throws Exception {
@@ -72,6 +80,8 @@ public class VersioningConsumer implements Consumer {
         relationshipVersioningUtils = VersionServiceFactory.getInstance().getRelationshipVersioningUtils();
         dedupService = new DSpace().getServiceManager().getServiceByName(DedupService.class.getName(),
             DedupService.class);
+        this.orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
+        this.orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
     }
 
     @Override
@@ -138,6 +148,8 @@ public class VersioningConsumer implements Consumer {
         // unarchive previous item
         unarchiveItem(ctx, previousItem);
 
+        handleOrcidSynchronization(ctx, previousItem, latestItem);
+
         updateDuplicateDetection(ctx, latestItem, previousItem);
 
         // update relationships
@@ -153,6 +165,29 @@ public class VersioningConsumer implements Consumer {
         ctx.addEvent(new Event(
             Event.MODIFY, item.getType(), item.getID(), null, itemService.getIdentifiers(ctx, item)
         ));
+    }
+
+    private void handleOrcidSynchronization(Context ctx, Item previousItem, Item latestItem) {
+        try {
+            replaceOrcidHistoryEntities(ctx, previousItem, latestItem);
+            removeOrcidQueueEntries(ctx, previousItem);
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
+
+    private void removeOrcidQueueEntries(Context ctx, Item previousItem) throws SQLException {
+        List<OrcidQueue> queueEntries = orcidQueueService.findByEntity(ctx, previousItem);
+        for (OrcidQueue queueEntry : queueEntries) {
+            orcidQueueService.delete(ctx, queueEntry);
+        }
+    }
+
+    private void replaceOrcidHistoryEntities(Context ctx, Item previousItem, Item latestItem) throws SQLException {
+        List<OrcidHistory> entries = orcidHistoryService.findByEntity(ctx, previousItem);
+        for (OrcidHistory entry : entries) {
+            entry.setEntity(latestItem);
+        }
     }
 
     private void updateDuplicateDetection(Context ctx, Item latestItem, Item previousItem) throws Exception {

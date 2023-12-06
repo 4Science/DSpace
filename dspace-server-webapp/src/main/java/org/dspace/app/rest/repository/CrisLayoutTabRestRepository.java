@@ -106,6 +106,7 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
             tabList = service.findByEntityType(
                 context,
                 type,
+                null,
                 pageable.getPageSize(),
                 (pageable.getPageNumber() * pageable.getPageSize()) );
         } catch (SQLException e) {

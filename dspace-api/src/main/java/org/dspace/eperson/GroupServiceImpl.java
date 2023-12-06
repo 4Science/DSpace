@@ -909,6 +909,10 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         return dso.getName();
     }
 
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.groupDAO.exists(context, Group.class, id);
+    }
+
     @Override
     public List<Group> findByParent(Context context, Group parent, int pageSize, int offset) throws SQLException {
         if (parent == null) {
