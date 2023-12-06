@@ -27,12 +27,17 @@
                         </fo:block>
                     </fo:block>
 
+                    <xsl:call-template name="print-value">
+                        <xsl:with-param name="label" select="'Subtitle'" />
+                        <xsl:with-param name="value" select="Subtitle" />
+                    </xsl:call-template>
+
                     <fo:block font-size="10pt" space-after="5mm" text-align="justify" margin-top="5mm" >
                         <xsl:value-of select="Type" />
                     </fo:block>
 
                     <xsl:call-template name="section-title">
-                        <xsl:with-param name="label" select="'Basic informations'" />
+                        <xsl:with-param name="label" select="'Basic information'" />
                     </xsl:call-template>
 
                     <xsl:if test="Authors/Author">
@@ -50,12 +55,12 @@
                     </xsl:if>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Soggetto'" />
+                        <xsl:with-param name="label" select="'Subject'" />
                         <xsl:with-param name="value" select="Subject" />
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Datazione generica'" />
+                        <xsl:with-param name="label" select="'Common Data'" />
                         <xsl:with-param name="value" select="CommonData" />
                     </xsl:call-template>
 
@@ -74,12 +79,12 @@
                     </xsl:if>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Descrizione'" />
+                        <xsl:with-param name="label" select="'Description'" />
                         <xsl:with-param name="value" select="Description" />
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Collezione fisica'" />
+                        <xsl:with-param name="label" select="'Collection Description'" />
                         <xsl:with-param name="value" select="CollectionDescription" />
                     </xsl:call-template>
 
@@ -99,29 +104,29 @@
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Tipo di scheda'" />
+                        <xsl:with-param name="label" select="'Form Type'" />
                         <xsl:with-param name="value" select="FormType" />
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Nazione'" />
+                        <xsl:with-param name="label" select="'Nation'" />
                         <xsl:with-param name="value" select="Nation" />
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Comune'" />
+                        <xsl:with-param name="label" select="'Common'" />
                         <xsl:with-param name="value" select="Common" />
                     </xsl:call-template>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Luogo di Conservazione'" />
+                        <xsl:with-param name="label" select="'Storage Place'" />
                         <xsl:with-param name="value" select="StoragePlace" />
                     </xsl:call-template>
 
                     <xsl:if test="Materials/Material">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Materiale: </xsl:text>
+                                <xsl:text>Materials: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Materials/Material">
@@ -135,7 +140,7 @@
                     <xsl:if test="Formats/Format">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Formato: </xsl:text>
+                                <xsl:text>formats: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Formats/Format">
@@ -149,7 +154,7 @@
                     <xsl:if test="Bibliographies/Bibliography">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Bibliografia: </xsl:text>
+                                <xsl:text>Bibliographies: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Bibliographies/Bibliography">
@@ -161,7 +166,7 @@
                     </xsl:if>
 
                     <xsl:call-template name="print-value">
-                        <xsl:with-param name="label" select="'Stato di conservazione'" />
+                        <xsl:with-param name="label" select="'Reservation Description'" />
                         <xsl:with-param name="value" select="ReservationDescription" />
                     </xsl:call-template>
 
