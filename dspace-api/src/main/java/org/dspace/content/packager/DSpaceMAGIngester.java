@@ -252,7 +252,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         if (magDir.exists() && magDir.isDirectory()) {
             sourceDir = sourceDir + File.separator + MAG_DIR;
         }
-        Optional<File> manifestFile = FileUtils.listFiles(new File(sourceDir), new String[] {"xml"}, false)
+        Optional<File> manifestFile = FileUtils.listFiles(new File(sourceDir), new String[]{"xml"}, false)
                 .stream()
                 .filter(file -> StringUtils.endsWith(file.getName(), ".xml")).findFirst();
         if (manifestFile.isEmpty()) {
@@ -346,10 +346,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 "glam", "relation", "ispartof");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
                 "glam", "relation", "references");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:xsamplingfrequency",
-                "mix", "xsamplingfrequency", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:ysamplingfrequency",
-                "mix", "ysamplingfrequency", null);
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:identifier",
                 "dc", "identifier", "other");
         addTitleMetadata(context, item, manifest);
@@ -457,12 +453,14 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addTiffBitstreamMetadata(Context context, Element fileElement,
-                                          Bitstream bitstream, MAGManifest manifest)
+                                          Bitstream bitstream, MAGManifest manifest, Element file)
             throws MetadataValidationException, SQLException {
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "TIFF600");
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "TIFF600");
-        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", "TIFF600");
-        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", "TIFF600");
+        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
+                "xsamplingfrequency", null);
+        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
+                "ysamplingfrequency", null);
         addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
                 "mix", "colorSpace", null, "TIFF600");
         addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "TIFF600");
@@ -514,7 +512,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addThumbnailBitstreamMetadata(Context context, Element originalFileElement,
+    private void addThumbnailBitstreamMetadata(Context context, Element file,
                                                Bitstream bitstream, MAGManifest manifest,
                                                String imgGroupId)
             throws MetadataValidationException, SQLException {
@@ -522,11 +520,25 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", imgGroupId);
         addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", imgGroupId);
         addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", imgGroupId);
+        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
+                "xsamplingfrequency", null);
+        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
+                "ysamplingfrequency", null);
         addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
                 "mix", "colorSpace", null, imgGroupId);
         addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, imgGroupId);
         addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
                 "mix", "compressionScheme", null, "TIFF600");
+    }
+
+    private void addAltImgMetadata(Context context, Element altImgElement, Bitstream bitstream, MAGManifest manifest,
+                                   String path, String schema, String element, String qualifier)
+            throws SQLException {
+        Element pathElement = manifest.getElementByXPath(path, true, altImgElement);
+        if (nonNull(pathElement) && nonNull(pathElement.getValue())) {
+            bitstreamService.addMetadata(context, bitstream, schema, element, qualifier,
+                    null, pathElement.getValue(), null, CF_ACCEPTED);
+        }
     }
 
     private void addImgGroupMetadata(Context context, Bitstream bitstream, MAGManifest manifest, String path,
@@ -704,7 +716,7 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         if (thumbnailFileStream.isPresent()) {
             Bitstream bitstream = createBitstream(context, bundle, thumbnailFileStream.get(),
                     tiffPath, originalSequenceId);
-            addTiffBitstreamMetadata(context, file, bitstream, manifest);
+            addTiffBitstreamMetadata(context, file, bitstream, manifest, file);
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", tiffPath);
         }
