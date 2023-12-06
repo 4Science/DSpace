@@ -736,10 +736,10 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                                       Bundle originalBundle, Integer originalSequenceId)
             throws IOException, SQLException, AuthorizeException {
         String originalPath = manifest.getOriginalFileName(sourceDir, file);
-        Optional<InputStream> originalFileStream = Optional.of(new FileInputStream(originalPath));
-        if (originalFileStream.isPresent()) {
+        File originalFile = new File(originalPath);
+        if (originalFile.exists()) {
             createBitstream(context, originalBundle,
-                    originalFileStream.get(), originalPath, originalSequenceId);
+                    new FileInputStream(originalPath), originalPath, originalSequenceId);
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", originalPath);
         }
