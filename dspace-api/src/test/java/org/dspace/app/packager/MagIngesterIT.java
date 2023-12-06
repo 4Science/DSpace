@@ -25,7 +25,6 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
-import org.dspace.core.Constants;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -76,16 +75,16 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Item> items = IteratorUtils.toList(itemsIterator);
         assertEquals(1, items.size());
 
-        List<Bundle> originalBundles = itemService.getBundles(items.get(0), Constants.CONTENT_BUNDLE_NAME);
-        assertEquals(1, originalBundles.size());
+        List<Bundle> tiffBundles = itemService.getBundles(items.get(0), "CUSTOMER-TIFF");
+        assertEquals(1, tiffBundles.size());
 
-        List<Bitstream> originalBitstreams = originalBundles.get(0).getBitstreams();
-        assertEquals(1, originalBitstreams.size());
+        List<Bitstream> tiffBitstreams = tiffBundles.get(0).getBitstreams();
+        assertEquals(1, tiffBitstreams.size());
 
         // "Index|||<stru.nomenclature>|||<img.nomenclature>" from MAG manifest.
         String expectedIfffToc = "Index|||Coperta anteriore e dorso|||Dorso";
         String iiifTocValue = bitstreamService
-                .getMetadataFirstValue(originalBitstreams.get(0), "iiif", "toc", null, Item.ANY);
+                .getMetadataFirstValue(tiffBitstreams.get(0), "iiif", "toc", null, Item.ANY);
         assertEquals(expectedIfffToc, iiifTocValue);
     }
 
@@ -111,14 +110,14 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Item> items = IteratorUtils.toList(itemsIterator);
         assertEquals(1, items.size());
 
-        List<Bundle> originalBundles = itemService.getBundles(items.get(0), Constants.CONTENT_BUNDLE_NAME);
-        assertEquals(1, originalBundles.size());
+        List<Bundle> tiffBundles = itemService.getBundles(items.get(0), "CUSTOMER-TIFF");
+        assertEquals(1, tiffBundles.size());
 
-        List<Bitstream> originalBitstreams = originalBundles.get(0).getBitstreams();
-        assertEquals(1, originalBitstreams.size());
+        List<Bitstream> tiffBitstreams = tiffBundles.get(0).getBitstreams();
+        assertEquals(1, tiffBitstreams.size());
 
         String iiifTocValue = bitstreamService
-                .getMetadataFirstValue(originalBitstreams.get(0), "iiif", "toc", null, Item.ANY);
+                .getMetadataFirstValue(tiffBitstreams.get(0), "iiif", "toc", null, Item.ANY);
         assertNull(iiifTocValue);
     }
 
