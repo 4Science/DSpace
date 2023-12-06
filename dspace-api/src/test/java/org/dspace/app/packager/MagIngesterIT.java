@@ -346,4 +346,52 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(expectedYsamplingFrequency, ysamplingFrequencyValue);
     }
 
+    @Test
+    public void testShouldAddMetadataWithGlamSchemaToItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/31")
+                .withName("MagCollection2")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<MetadataValue> holders = itemService.getMetadata(items.get(0), "glam", "rights", "holder", null);
+        assertEquals(1, holders.size());
+        assertEquals("Polo bibliotecario Scientifico - Agrario - Biblioteca di Biologia Vegetale",
+                holders.get(0).getValue());
+
+        List<MetadataValue> partOfRelations = itemService.getMetadata(items.get(0), "glam", "relation",
+                "ispartof", null);
+        assertEquals(3, partOfRelations.size());
+        assertEquals("Fa parte di: Histoire naturelle de Pline...Panckoucke 1829-1833",
+                partOfRelations.get(0).getValue());
+
+        List<MetadataValue> referencesRelations = itemService.getMetadata(items.get(0), "glam", "relation",
+                "references", null);
+        assertEquals(3, referencesRelations.size());
+        assertEquals("Legato con:Histoire naturelle de Pline...Tome troisième.", referencesRelations.get(1).getValue());
+
+        holders = itemService.getMetadata(items.get(0), "dc", "rights", "holder", null);
+        assertEquals(0, holders.size());
+
+        partOfRelations = itemService.getMetadata(items.get(0), "dc", "relation", "ispartof", null);
+        assertEquals(0, partOfRelations.size());
+
+        referencesRelations = itemService.getMetadata(items.get(0), "dc", "relation", "references", null);
+        assertEquals(0, referencesRelations.size());
+    }
+
 }
