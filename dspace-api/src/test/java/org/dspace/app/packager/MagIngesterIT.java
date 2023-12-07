@@ -9,6 +9,8 @@ package org.dspace.app.packager;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -195,6 +198,75 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
 
         List<MetadataValue> titles = itemService.getMetadata(items.get(0), "dc", "title", null, null);
         assertEquals(0, titles.size());
+    }
+
+    @Test
+    public void testThrowPackageValidationExceptionWhenTagIdentifierNotFoundInManifest() {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/31")
+                .withName("MagCollection2")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_identifier.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> runDSpaceScript("packager",
+                        "-e", admin.getEmail(),
+                        "-p", magCollection.getHandle(),
+                        "-t", "MAG",
+                        archive.getFile().getPath()));
+
+        assertTrue(exception.getMessage().contains("Manifest is missing the required identifier."));
+    }
+
+    @Test
+    public void testShouldAddMetadataToExistingItem()
+            throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/31")
+                .withName("MagCollection2")
+                .withEntityType("Publication").build();
+
+        ItemBuilder.createItem(context, magCollection)
+                .withOtherIdentifier("UNIBA_BFB_2069_2_")
+                .withAuthor("Donald, Smith")
+                .build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<MetadataValue> identifiers = itemService.getMetadata(items.get(0), "dc", "identifier", "other", null);
+        assertEquals(2, identifiers.size());
+        assertEquals("UNIBA_BFB_2069_2_", identifiers.get(0).getValue());
+        assertEquals("UNIBA_BFB_2069_2_", identifiers.get(1).getValue());
+
+        List<MetadataValue> authors = itemService.getMetadata(items.get(0), "dc", "contributor", "author", null);
+        assertEquals(2, authors.size());
+        assertEquals("Donald, Smith", authors.get(0).getValue());
+        assertEquals("PLINIUS, Gaius Secundus", authors.get(1).getValue());
+
+        List<MetadataValue> types = itemService.getMetadata(items.get(0), "dc", "type", null, null);
+        assertEquals(1, types.size());
+        assertEquals("Testo a stampa", types.get(0).getValue());
+
+        List<MetadataValue> rights = itemService.getMetadata(items.get(0), "dc", "rights", null, null);
+        assertEquals(1, rights.size());
+        assertEquals("Università degli Studi di Bari Aldo Moro", rights.get(0).getValue());
     }
 
 }
