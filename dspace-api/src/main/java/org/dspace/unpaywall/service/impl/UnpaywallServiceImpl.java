@@ -145,7 +145,16 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         if (isBlank(doi) || isNull(itemId)) {
             throw new IllegalArgumentException();
         }
-        findUnpaywall(context, doi, itemId).ifPresent(unpaywall -> updateStatus(context, unpaywall, PENDING));
+        findUnpaywall(context, doi, itemId)
+            .ifPresent(unpaywall -> {
+                try {
+                    updateStatus(context, unpaywall, PENDING);
+                    context.commit();
+                } catch (SQLException e) {
+                    logger.error("Cannot update unpaywall status", e);
+                    throw new RuntimeException("Cannot update unpaywall status", e);
+                }
+            });
         initApiCall(doi, itemId);
     }
 
@@ -333,8 +342,8 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         CompletableFuture<Void> newRequest = CompletableFuture
                 .runAsync(() -> callApiAndUpdateUnpaywallRecord(doi, itemId), executor)
                 .thenRun(() -> requestMap.remove(doi))
-                .orTimeout(30, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
+                    logger.error("Cannot find the unpaywall for doi: " + doi, throwable);
                     requestMap.remove(doi);
                     return null;
                 });
@@ -346,16 +355,27 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             Context context = new Context(Context.Mode.READ_WRITE);
             Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
 
-            callUnpaywallApi(doi).ifPresentOrElse(
-                jsonResponse -> mapSuccessful(jsonResponse, unpaywall),
-                () -> mapNotFound(unpaywall)
-            );
+            unpaywall = handleUnpaywallApiCall(context, unpaywall, doi);
+
             unpaywallDAO.save(context, unpaywall);
             context.commit();
         } catch (SQLException | RuntimeException e) {
             logger.error("Cannot retrieve unpaywall details for doi: " + doi, e);
             throw new RuntimeException("Cannot retrieve unpaywall details for doi: " + doi, e);
         }
+    }
+
+    private Unpaywall handleUnpaywallApiCall(Context context, Unpaywall unpaywall, String doi) {
+        try {
+            callUnpaywallApi(doi).ifPresentOrElse(
+                jsonResponse -> mapSuccessful(jsonResponse, unpaywall),
+                () -> mapNotFound(unpaywall)
+            );
+        } catch (Exception e) {
+            updateStatus(context, unpaywall, NOT_FOUND);
+            logger.error("Cannot retrieve unpaywall details for doi: " + doi, e);
+        }
+        return unpaywall;
     }
 
     private void mapSuccessful(String jsonResponse, Unpaywall unpaywall) {
