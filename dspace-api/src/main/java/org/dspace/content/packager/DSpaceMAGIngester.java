@@ -454,28 +454,27 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
     private void addTiffBitstreamMetadata(Context context, Element imgFile,
                                           Bitstream bitstream, MAGManifest manifest)
-            throws MetadataValidationException, SQLException {
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", "TIFF600");
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", "TIFF600");
-        addAltImgMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
+            throws SQLException {
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", imgFile);
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", imgFile);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
                 "xsamplingfrequency", null);
-        addAltImgMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
+        addMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
                 "ysamplingfrequency", null);
-        addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
-                "mix", "colorSpace", null, "TIFF600");
-        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, "TIFF600");
-        addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
-                "mix", "compressionScheme", null, "TIFF600");
-        addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:devicesource", "mix", "captureDevice", null, "TIFF600");
-        addImgGroupMetadata(context, bitstream, manifest, "mag:scanning/niso:scanningsystem/niso:scanner_manufacturer",
-                "mix", "scannerManufacturer", null, "TIFF600");
-        addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:scanningsystem/niso:scanner_model", "mix", "scannerModelName",
-                null, "TIFF600");
-        addImgGroupMetadata(context, bitstream, manifest,
-                "mag:scanning/niso:scanningsystem/niso:capture_software", "mix", "scanningSoftwareName",
-                null, "TIFF600");
+        addMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:photometricinterpretation", "mix",
+                "colorSpace", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:image_metrics/niso:bitpersample", "mix",
+                "bitsPerSampleValue", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:format/niso:compression", "mix",
+                "compressionScheme", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:scanning/niso:devicesource", "mix",
+                "captureDevice", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:scanning/niso:scanningsystem/niso:scanner_manufacturer",
+                "mix", "scannerManufacturer", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:scanning/niso:scanningsystem/niso:scanner_model",
+                "mix", "scannerModelName", null);
+        addMetadata(context, imgFile, bitstream, manifest, "mag:scanning/niso:scanningsystem/niso:capture_software",
+                "mix", "scanningSoftwareName", null);
         addIiifTocMetadata(context, bitstream, manifest, imgFile);
     }
 
@@ -512,27 +511,25 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addThumbnailBitstreamMetadata(Context context, Element file,
-                                               Bitstream bitstream, MAGManifest manifest,
-                                               String imgGroupId)
-            throws MetadataValidationException, SQLException {
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", imgGroupId);
-        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", imgGroupId);
-        addMetricMetadata(context, bitstream, manifest, "xsamplingfrequency", imgGroupId);
-        addMetricMetadata(context, bitstream, manifest, "ysamplingfrequency", imgGroupId);
-        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
+    private void addThumbnailBitstreamMetadata(Context context, Element file, Bitstream bitstream, MAGManifest manifest)
+            throws SQLException {
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyunit", "2", "inch", file);
+        addMetricMetadata(context, bitstream, manifest, "samplingfrequencyplane", "2", "object plane", file);
+        addMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:xsamplingfrequency", "mix",
                 "xsamplingfrequency", null);
-        addAltImgMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
+        addMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:ysamplingfrequency", "mix",
                 "ysamplingfrequency", null);
-        addMetricMetadata(context, bitstream, manifest, "photometricinterpretation",
-                "mix", "colorSpace", null, imgGroupId);
-        addMetricMetadata(context, bitstream, manifest, "bitpersample", "mix", "bitsPerSampleValue", null, imgGroupId);
-        addImgGroupMetadata(context, bitstream, manifest, "mag:format/niso:compression",
-                "mix", "compressionScheme", null, "TIFF600");
+        addMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:photometricinterpretation", "mix",
+                "colorSpace",
+                null);
+        addMetadata(context, file, bitstream, manifest, "mag:image_metrics/niso:bitpersample", "mix",
+                "bitsPerSampleValue", null);
+        addMetadata(context, file, bitstream, manifest, "mag:format/niso:compression", "mix", "compressionScheme",
+                null);
     }
 
-    private void addAltImgMetadata(Context context, Element altImgElement, Bitstream bitstream, MAGManifest manifest,
-                                   String path, String schema, String element, String qualifier)
+    private void addMetadata(Context context, Element altImgElement, Bitstream bitstream, MAGManifest manifest,
+                             String path, String schema, String element, String qualifier)
             throws SQLException {
         Element pathElement = manifest.getElementByXPath(path, true, altImgElement);
         if (nonNull(pathElement) && nonNull(pathElement.getValue())) {
@@ -569,22 +566,18 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addMetricMetadata(Context context, Bitstream bitstream, MAGManifest manifest,
-                                   String metricName, String metricMatchValue, String metadataValue, String imgGroupId)
-            throws MetadataValidationException, SQLException {
-        Optional<Element> tiffImgGroup = getImgGroupElement(manifest, imgGroupId);
-        if (tiffImgGroup.isPresent()) {
-            Element metric = manifest
-                    .getElementByXPath("mag:image_metrics/niso:" + metricName, true, tiffImgGroup.get());
-            if (nonNull(metric) && nonNull(metric.getValue())
-                    && metric.getValue().equalsIgnoreCase(metricMatchValue)) {
-                bitstreamService.addMetadata(context, bitstream, "mix", metricName,
-                        null, null, metadataValue, null, CF_ACCEPTED);
-            }
+                                   String metricName, String metricMatchValue, String metadataValue, Element file)
+            throws SQLException {
+        Element metric = manifest
+                .getElementByXPath("mag:image_metrics/niso:" + metricName, true, file);
+        if (nonNull(metric) && nonNull(metric.getValue())
+                && metric.getValue().equalsIgnoreCase(metricMatchValue)) {
+            bitstreamService.addMetadata(context, bitstream, "mix", metricName,
+                    null, null, metadataValue, null, CF_ACCEPTED);
         }
     }
 
-    private static Optional<Element> getImgGroupElement(MAGManifest manifest, String imgGroupId)
-            throws MetadataValidationException {
+    private static Optional<Element> getImgGroupElement(MAGManifest manifest, String imgGroupId) {
         List<Element> imgGroups = manifest.getElementsByXPath("/mag:metadigit/mag:gen/mag:img_group", true);
         if (nonNull(imgGroups)) {
             return imgGroups.stream()
@@ -633,13 +626,13 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
 
         if (altImgMagUsage != null && altImgMagUsage.equals("JPEG100")) {
             addThumbnailBitstream(context, manifest, sourceDir, altImageFile, brandPreviewBundle,
-                    originalSequenceId, "JPEG150");
+                    originalSequenceId);
         } else if (altImgMagUsage != null && altImgMagUsage.equals("THUMBS")) {
             addThumbnailBitstream(context, manifest, sourceDir, altImageFile, thumbnailBundle,
-                    originalSequenceId, "JPEG150");
+                    originalSequenceId);
         } else if (altImgMagUsage != null && altImgMagUsage.equals("JPEG300")) {
             addThumbnailBitstream(context, manifest, sourceDir, altImageFile, customerJPEG300Bundle,
-                    originalSequenceId, "JPEG300");
+                    originalSequenceId);
         }
     }
 
@@ -698,14 +691,14 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     }
 
     private void addThumbnailBitstream(Context context, MAGManifest manifest, String sourceDir, Element file,
-                                       Bundle thumbnailsBundle, Integer originalSequenceId, String imgGroupId)
+                                       Bundle thumbnailsBundle, Integer originalSequenceId)
             throws IOException, SQLException, AuthorizeException, MetadataValidationException {
         String thumbnailPath = manifest.getThumbnailFileName(sourceDir, file);
         File tiffFile = new File(thumbnailPath);
         if (tiffFile.exists()) {
             Bitstream bitstream = createBitstream(context, thumbnailsBundle, new FileInputStream(thumbnailPath),
                     thumbnailPath, originalSequenceId);
-            addThumbnailBitstreamMetadata(context, file, bitstream, manifest, imgGroupId);
+            addThumbnailBitstreamMetadata(context, file, bitstream, manifest);
         } else {
             log.warn("Bitstream creation failed. There are no files in provided path: {}", thumbnailPath);
         }
