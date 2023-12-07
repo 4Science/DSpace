@@ -87,9 +87,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
 
         // "Index|||<stru.nomenclature>|||<img.nomenclature>" from MAG manifest.
         String expectedIfffToc = "Index|||Coperta anteriore e dorso|||Dorso";
-        String iiifTocValue = bitstreamService
-                .getMetadataFirstValue(tiffBitstreams.get(0), "iiif", "toc", null, Item.ANY);
-        assertEquals(expectedIfffToc, iiifTocValue);
+        compareBitstreamMetadata(tiffBitstreams.get(0), "iiif", "toc", null, expectedIfffToc);
     }
 
     @Test
@@ -120,9 +118,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Bitstream> tiffBitstreams = tiffBundles.get(0).getBitstreams();
         assertEquals(1, tiffBitstreams.size());
 
-        String iiifTocValue = bitstreamService
-                .getMetadataFirstValue(tiffBitstreams.get(0), "iiif", "toc", null, Item.ANY);
-        assertNull(iiifTocValue);
+        compareToNullBitstreamMetadata(tiffBitstreams.get(0), "iiif", "toc", null);
     }
 
     @Test
@@ -130,8 +126,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/35")
+                .withName("MagCollection3")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
@@ -147,22 +143,13 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Item> items = IteratorUtils.toList(itemsIterator);
         assertEquals(1, items.size());
 
-        List<MetadataValue> identifiers = itemService.getMetadata(items.get(0), "dc", "identifier", "other", null);
-        assertEquals(1, identifiers.size());
-        assertEquals("UNIBA_BFB_2069_2_", identifiers.get(0).getValue());
+        compareItemMetadata(items.get(0), "dc", "identifier", "other", "UNIBA_BFB_2069_2_");
+        compareItemMetadata(items.get(0), "dc", "language", "iso", "fr");
+        compareItemMetadata(items.get(0), "dc", "date", "issued", "1829");
 
-        List<MetadataValue> languages = itemService.getMetadata(items.get(0), "dc", "language", "iso", null);
-        assertEquals(1, languages.size());
-        assertEquals("fr", languages.get(0).getValue());
-
-        List<MetadataValue> dates = itemService.getMetadata(items.get(0), "dc", "date", "issued", null);
-        assertEquals(1, dates.size());
-        assertEquals("1829", dates.get(0).getValue());
-
-        List<MetadataValue> titles = itemService.getMetadata(items.get(0), "dc", "title", null, null);
-        assertEquals(1, titles.size());
-        assertEquals("Histoire naturelle de Pline traduction nouvelle par M. Ajasson de Grandsagne annotée" +
-                " par MM. Beudant, Brongniart, G. Cuvier, et al. Tome quatrième", titles.get(0).getValue());
+        String expectedTitle = "Histoire naturelle de Pline traduction nouvelle par M. Ajasson de Grandsagne annotée" +
+                " par MM. Beudant, Brongniart, G. Cuvier, et al. Tome quatrième";
+        compareItemMetadata(items.get(0), "dc", "title", null, expectedTitle);
     }
 
     @Test
@@ -170,8 +157,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/36")
+                .withName("MagCollection4")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_with_stru.zip";
@@ -205,8 +192,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/37")
+                .withName("MagCollection5")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_identifier.zip";
@@ -227,8 +214,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/38")
+                .withName("MagCollection6")
                 .withEntityType("Publication").build();
 
         ItemBuilder.createItem(context, magCollection)
@@ -259,13 +246,10 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         assertEquals("Donald, Smith", authors.get(0).getValue());
         assertEquals("PLINIUS, Gaius Secundus", authors.get(1).getValue());
 
-        List<MetadataValue> types = itemService.getMetadata(items.get(0), "dc", "type", null, null);
-        assertEquals(1, types.size());
-        assertEquals("Testo a stampa", types.get(0).getValue());
+        compareItemMetadata(items.get(0), "dc", "type", null, "Testo a stampa");
 
-        List<MetadataValue> rights = itemService.getMetadata(items.get(0), "dc", "rights", null, null);
-        assertEquals(1, rights.size());
-        assertEquals("Università degli Studi di Bari Aldo Moro", rights.get(0).getValue());
+        String expectedRights = "Università degli Studi di Bari Aldo Moro";
+        compareItemMetadata(items.get(0), "dc", "rights", null, expectedRights);
     }
 
     @Test
@@ -273,8 +257,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/39")
+                .withName("MagCollection7")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
@@ -296,15 +280,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Bitstream> jpeg300Bitstreams = jpeg300Bundles.get(0).getBitstreams();
         assertEquals(1, jpeg300Bitstreams.size());
 
-        String expectedXsamplingFrequency = "300";
-        String expectedYsamplingFrequency = "300";
-        String xsamplingFrequencyValue = bitstreamService
-                .getMetadataFirstValue(jpeg300Bitstreams.get(0), "mix", "xsamplingfrequency", null, Item.ANY);
-        String ysamplingFrequencyValue = bitstreamService
-                .getMetadataFirstValue(jpeg300Bitstreams.get(0), "mix", "ysamplingfrequency", null, Item.ANY);
-
-        assertEquals(expectedXsamplingFrequency, xsamplingFrequencyValue);
-        assertEquals(expectedYsamplingFrequency, ysamplingFrequencyValue);
+        compareBitstreamMetadata(jpeg300Bitstreams.get(0), "mix", "xsamplingfrequency", null, "300");
+        compareBitstreamMetadata(jpeg300Bitstreams.get(0), "mix", "ysamplingfrequency", null, "300");
     }
 
     @Test
@@ -312,8 +289,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/40")
+                .withName("MagCollection8")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
@@ -335,15 +312,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Bitstream> thumbnailBitstreams = thumbnailBundles.get(0).getBitstreams();
         assertEquals(1, thumbnailBitstreams.size());
 
-        String expectedXsamplingFrequency = "600";
-        String expectedYsamplingFrequency = "600";
-        String xsamplingFrequencyValue = bitstreamService
-                .getMetadataFirstValue(thumbnailBitstreams.get(0), "mix", "xsamplingfrequency", null, Item.ANY);
-        String ysamplingFrequencyValue = bitstreamService
-                .getMetadataFirstValue(thumbnailBitstreams.get(0), "mix", "ysamplingfrequency", null, Item.ANY);
-
-        assertEquals(expectedXsamplingFrequency, xsamplingFrequencyValue);
-        assertEquals(expectedYsamplingFrequency, ysamplingFrequencyValue);
+        compareBitstreamMetadata(thumbnailBitstreams.get(0), "mix", "xsamplingfrequency", null, "600");
+        compareBitstreamMetadata(thumbnailBitstreams.get(0), "mix", "ysamplingfrequency", null, "600");
     }
 
     @Test
@@ -351,8 +321,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
-                .withName("MagCollection2")
+                .createCollection(context, parentCommunity, "123456789/41")
+                .withName("MagCollection9")
                 .withEntityType("Publication").build();
 
         String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
@@ -368,10 +338,8 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         List<Item> items = IteratorUtils.toList(itemsIterator);
         assertEquals(1, items.size());
 
-        List<MetadataValue> holders = itemService.getMetadata(items.get(0), "glam", "rights", "holder", null);
-        assertEquals(1, holders.size());
-        assertEquals("Polo bibliotecario Scientifico - Agrario - Biblioteca di Biologia Vegetale",
-                holders.get(0).getValue());
+        String expectedHolder = "Polo bibliotecario Scientifico - Agrario - Biblioteca di Biologia Vegetale";
+        compareItemMetadata(items.get(0), "glam", "rights", "holder", expectedHolder);
 
         List<MetadataValue> partOfRelations = itemService.getMetadata(items.get(0), "glam", "relation",
                 "ispartof", null);
@@ -384,7 +352,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(3, referencesRelations.size());
         assertEquals("Legato con:Histoire naturelle de Pline...Tome troisième.", referencesRelations.get(1).getValue());
 
-        holders = itemService.getMetadata(items.get(0), "dc", "rights", "holder", null);
+        List<MetadataValue> holders = itemService.getMetadata(items.get(0), "dc", "rights", "holder", null);
         assertEquals(0, holders.size());
 
         partOfRelations = itemService.getMetadata(items.get(0), "dc", "relation", "ispartof", null);
@@ -394,4 +362,172 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(0, referencesRelations.size());
     }
 
+    @Test
+    public void testShouldAddOriginalBitstreamOnlyWithTitleMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/42")
+                .withName("MagCollection10")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> originalBundles = itemService.getBundles(items.get(0), "ORIGINAL");
+        assertEquals(1, originalBundles.size());
+
+        List<Bitstream> originalBitstreams = originalBundles.get(0).getBitstreams();
+        assertEquals(1, originalBitstreams.size());
+        assertEquals(1, originalBitstreams.get(0).getMetadata().size());
+
+        compareBitstreamMetadata(originalBitstreams.get(0), "dc", "title", null, "UNIBA_BFB_2069_2.pdf");
+    }
+
+    @Test
+    public void testShouldAddTXTBitstreamOnlyWithTitleMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/42")
+                .withName("MagCollection10")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "CUSTOMER-TEXT");
+        assertEquals(1, txtBundles.size());
+
+        List<Bitstream> txtBitstreams = txtBundles.get(0).getBitstreams();
+        assertEquals(1, txtBitstreams.size());
+        assertEquals(1, txtBitstreams.get(0).getMetadata().size());
+        compareBitstreamMetadata(txtBitstreams.get(0), "dc", "title", null, "UNIBA_BFB_2069_2_0001.txt");
+
+        List<Bundle> hocrBundles = itemService.getBundles(items.get(0), "CUSTOMER-HOCR");
+        assertEquals(1, hocrBundles.size());
+
+        List<Bitstream> hocrBitstreams = hocrBundles.get(0).getBitstreams();
+        assertEquals(1, hocrBitstreams.size());
+        assertEquals(1, hocrBitstreams.get(0).getMetadata().size());
+        compareBitstreamMetadata(hocrBitstreams.get(0), "dc", "title", null, "UNIBA_BFB_2069_2_0001.hocr");
+    }
+
+    @Test
+    public void testShouldAddThumbnailMetadataToBitstream() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/43")
+                .withName("MagCollection11")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> jpeg100Bundles = itemService.getBundles(items.get(0), "BRANDED_PREVIEW");
+        assertEquals(1, jpeg100Bundles.size());
+
+        List<Bitstream> jpeg100Bitstreams = jpeg100Bundles.get(0).getBitstreams();
+        assertEquals(1, jpeg100Bitstreams.size());
+
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "samplingfrequencyunit", null, "inch");
+        compareToNullBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "samplingfrequencyplane", null);
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "xsamplingfrequency", null, "100");
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "ysamplingfrequency", null, "100");
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "colorSpace", null, "YCbCr");
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "compressionScheme", null, "JPG");
+        compareBitstreamMetadata(jpeg100Bitstreams.get(0), "mix", "bitsPerSampleValue", null, "8,8,8");
+    }
+
+    @Test
+    public void testShouldAddTiffMetadataToBitstream() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/44")
+                .withName("MagCollection12")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> tiffBundles = itemService.getBundles(items.get(0), "CUSTOMER-TIFF");
+        assertEquals(1, tiffBundles.size());
+
+        List<Bitstream> tiffBitstreams = tiffBundles.get(0).getBitstreams();
+        assertEquals(1, tiffBitstreams.size());
+
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "samplingfrequencyunit", null, "inch");
+        compareToNullBitstreamMetadata(tiffBitstreams.get(0), "mix", "samplingfrequencyplane", null);
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "xsamplingfrequency", null, "600");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "ysamplingfrequency", null, "600");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "colorSpace", null, "RGB");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "compressionScheme", null, "Uncompressed");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "bitsPerSampleValue", null, "8,8,8");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "captureDevice", null, "");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scannerManufacturer", null, "i2s");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scannerModelName", null, "i2s scanner");
+        compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scanningSoftwareName", null, "i2s aquire");
+    }
+
+    private void compareBitstreamMetadata(Bitstream bitstream, String schema, String element, String qualifier,
+                                          String expectedValue) {
+        String metadataValue = bitstreamService
+                .getMetadataFirstValue(bitstream, schema, element, qualifier, Item.ANY);
+        assertEquals(expectedValue, metadataValue);
+    }
+
+    private void compareItemMetadata(Item item, String schema, String element, String qualifier,
+                                          String expectedValue) {
+        String metadataValue = itemService
+                .getMetadataFirstValue(item, schema, element, qualifier, Item.ANY);
+        assertEquals(expectedValue, metadataValue);
+    }
+
+    private void compareToNullBitstreamMetadata(Bitstream bitstream, String schema, String element, String qualifier) {
+        String metadataValue = bitstreamService
+                .getMetadataFirstValue(bitstream, schema, element, qualifier, Item.ANY);
+        assertNull(metadataValue);
+    }
 }
