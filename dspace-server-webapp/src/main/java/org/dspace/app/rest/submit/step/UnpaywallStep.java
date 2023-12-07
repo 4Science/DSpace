@@ -9,8 +9,6 @@ package org.dspace.app.rest.submit.step;
 
 import static java.lang.Boolean.TRUE;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,9 +17,6 @@ import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;
 import org.dspace.app.rest.submit.AbstractProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
-import org.dspace.app.util.SubmissionConfig;
-import org.dspace.app.util.SubmissionConfigReader;
-import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
@@ -52,17 +47,6 @@ public class UnpaywallStep extends AbstractProcessingStep {
             DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-
-    private final SubmissionConfigReader submissionConfigReader;
-
-    {
-        try {
-            submissionConfigReader = new SubmissionConfigReader();
-        } catch (SubmissionConfigReaderException e) {
-            logger.error("Cannot initialize submission config reader", e);
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public DataUnpaywall getData(
@@ -105,30 +89,6 @@ public class UnpaywallStep extends AbstractProcessingStep {
                     }
                 });
         }
-    }
-
-    private static UploadStep getUploadStep(InProgressSubmission source, SubmissionConfig submissionConfig)
-        throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-        IllegalAccessException {
-        if (submissionConfig == null) {
-            throw new RuntimeException(
-                "Cannot load configuration for the collection: " + source.getCollection().getID()
-            );
-        }
-        Iterator<SubmissionStepConfig> iterator = submissionConfig.iterator();
-        boolean hasUploadStep = false;
-        Class<?> uploadStepClass = null;
-        while (iterator.hasNext() && !hasUploadStep) {
-            SubmissionStepConfig stepConfig = iterator.next();
-            uploadStepClass = Class.forName(stepConfig.getProcessingClassName());
-            hasUploadStep = uploadStepClass.isAssignableFrom(UploadStep.class);
-        }
-        if (!hasUploadStep) {
-            throw new RuntimeException(
-                "Cannot find upload step in the submission configuration: " + submissionConfig.getSubmissionName()
-            );
-        }
-        return (UploadStep) uploadStepClass.getDeclaredConstructor().newInstance();
     }
 
     private static boolean isRefreshRequired(Operation operation) {
