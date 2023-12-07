@@ -82,6 +82,8 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
             .getWorkspaceItemService();
     private final MapConverters mapConverters = new DSpace().getSingletonService(MapConverters.class);
 
+    public final static String MAG = "MAG";
+
     private final static String ORIGINAL = "ORIGINAL";
     private final static String THUMBNAIL = "THUMBNAIL";
     private final static String BRANDED_PREVIEW = "BRANDED_PREVIEW";
@@ -89,7 +91,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
     private final static String CUSTOMER_JPEG300 = "CUSTOMER-JPEG300";
     private final static String CUSTOMER_TEXT = "CUSTOMER-TEXT";
     private final static String CUSTOMER_HOCR = "CUSTOMER-HOCR";
-    private final static String MAG = "MAG";
     private final static String XML_FORMAT = ".xml";
     private final static String MAG_DIR = "MagXML";
 

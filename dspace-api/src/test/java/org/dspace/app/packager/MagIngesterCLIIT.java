@@ -37,9 +37,13 @@ import org.junit.Test;
 import org.springframework.core.io.Resource;
 
 /**
- * Basic integration testing for the MAG Ingester.
+ * Basic integration testing for the MAG Ingester via CLI {@link Packager}.
+ * https://wiki.lyrasis.org/display/DSDOC7x/Importing+and+Exporting+Content+via+Packages
+ *
+ * @author Francesco Pio Scognamiglio (francescopio.scognamiglio at 4science.com)
+ * @author Nikita Krivonosov (nikita.krivonosov at 4science.com)
  */
-public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
+public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
 
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected static final InstallItemService installItemService = ContentServiceFactory.getInstance()
@@ -66,7 +70,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection1")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_with_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_with_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -99,7 +103,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection2")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -130,7 +134,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection3")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -161,7 +165,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection4")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_with_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_with_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -196,7 +200,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection5")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_identifier.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_identifier.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -223,7 +227,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withAuthor("Donald, Smith")
                 .build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -261,7 +265,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection7")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -293,7 +297,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection8")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -325,7 +329,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection9")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -371,7 +375,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -403,7 +407,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -442,7 +446,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection11")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
@@ -479,7 +483,7 @@ public class MagIngesterIT extends AbstractIntegrationTestWithDatabase {
                 .withName("MagCollection12")
                 .withEntityType("Publication").build();
 
-        String archiveClassPath = "classpath:org/dspace/app/itemimport/UNIBA_MAG_archive_without_stru.zip";
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_stru.zip";
         Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
 
         runDSpaceScript("packager",
