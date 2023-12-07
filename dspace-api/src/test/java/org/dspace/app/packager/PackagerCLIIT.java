@@ -48,7 +48,7 @@ import org.junit.Test;
  *
  * @author Nathan Buckingham
  */
-public class PackagerIT extends AbstractIntegrationTestWithDatabase {
+public class PackagerCLIIT extends AbstractIntegrationTestWithDatabase {
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
