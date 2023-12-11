@@ -732,6 +732,16 @@
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
                          <!-- By default, full text snippets are disabled, as snippets of embargoed/restricted bitstreams
                              may appear in search results when the Item is public. See DS-3498
                         <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
@@ -821,6 +831,16 @@
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
                     </list>
                 </property>
             </bean>
@@ -891,6 +911,16 @@
                         </bean>
                         <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
                             <property name="field" value="fulltext"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
@@ -966,6 +996,16 @@
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
                     </list>
                 </property>
             </bean>
@@ -1033,6 +1073,16 @@
                         </bean>
                         <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
                             <property name="field" value="fulltext"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
@@ -1111,6 +1161,16 @@
                             <property name="maxSize" value="250"/>
                             <property name="snippets" value="2"/>
                         </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.mirador"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
+                        <bean class="org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration">
+                            <property name="field" value="fulltext.video"/>
+                            <property name="maxSize" value="250"/>
+                            <property name="snippets" value="2"/>
+                        </bean>
                     </list>
                 </property>
             </bean>
@@ -1140,7 +1200,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortByPathSelection" />
+                        <ref bean="sortByPathPublicationsSelection" />
                     </list>
                 </property>
             </bean>
@@ -2067,7 +2127,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
+                        <ref bean="glamfondsSortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2137,7 +2197,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
+                        <ref bean="glamjournalfondsSortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -2204,7 +2264,6 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
-                        <ref bean="sortIndex"/>
                     </list>
                 </property>
             </bean>
@@ -4551,15 +4610,27 @@
         <property name="type" value="integer"/>
     </bean>
 
+    <bean id="glamfondsSortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="glamfonds.index"/>
+        <property name="defaultSortOrder" value="asc"/>
+        <property name="type" value="integer"/>
+    </bean>
+
+    <bean id="glamjournalfondsSortIndex" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="glamjournalfonds.index"/>
+        <property name="defaultSortOrder" value="asc"/>
+        <property name="type" value="integer"/>
+    </bean>
+
     <!-- functional sorting -->
-    <bean name="sortByPathSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
+    <bean name="sortByPathPublicationsSelection" class="org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration">
         <property name="defaultSortOrder" value="desc"/>
         <!--sort by frequency of relation.isProjectsSelectedFor. The placeholder {0} will be replaced with scope (UUID of researcher)-->
         <property name="function" value="termfreq"/>
         <property name="id" value="ownerselection"/>
         <property name="arguments">
             <list>
-                <value>relation.isPathSelectedFor</value>
+                <value>relation.isPathPublicationsSelectedFor</value>
                 <value>{0}</value>
             </list>
         </property>

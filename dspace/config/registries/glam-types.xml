@@ -704,7 +704,14 @@
         <qualifier>note</qualifier>
         <scope_note></scope_note>
     </dc-type>
-    
+
+    <dc-type>
+        <schema>glamfonds</schema>
+        <element>index</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>glamaggregation</schema>
         <element>parent</element>
@@ -743,6 +750,13 @@
         <schema>glamjournalfonds</schema>
         <element>relation</element>
         <qualifier>person</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamjournalfonds</schema>
+        <element>index</element>
+        <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
