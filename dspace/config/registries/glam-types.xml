@@ -774,4 +774,25 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glam</schema>
+        <element>relation</element>
+        <qualifier>ispartof</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>relation</element>
+        <qualifier>references</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>rights</element>
+        <qualifier>holder</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
