@@ -402,30 +402,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>path</dc-qualifier>
-          <label>Percorso</label>
-          <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>Inserire il titolo del percorso cui è eventualmente connessa la risorsa.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>relation</dc-element>
-          <dc-qualifier>aggregation</dc-qualifier>
-          <label>Aggregazione</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il titolo della collezione a cui eventualmente appartiene la risorsa.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>relation</dc-element>
           <dc-qualifier>ispartofseries</dc-qualifier>
           <label>Serie/N.</label>
           <input-type>series</input-type>
