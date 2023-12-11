@@ -30,7 +30,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Tipo di File</label>
-          <input-type>onebox</input-type>
+          <input-type value-pairs-name="bitstream_types">dropdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Personal picture, logo, main article, etc.</hint>
@@ -6494,6 +6494,20 @@ it, please enter the types and the actual numbers or codes.</hint>
       <pair>
         <displayed-value>topic</displayed-value>
         <stored-value>topic</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="bitstream_types" dc-term="bitstream_types">
+      <pair>
+        <displayed-value>Logo</displayed-value>
+        <stored-value>logo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Main Article</displayed-value>
+        <stored-value>main article</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Personal Picture</displayed-value>
+        <stored-value>personal picture</stored-value>
       </pair>
     </value-pairs>
   </form-value-pairs>
