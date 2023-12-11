@@ -2331,6 +2331,7 @@
 
     <bean id="path" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
         <property name="id" value="path"/>
+        <property name="indexAlways" value="true"/>
         <!--Which sidebar facets are to be displayed (same as defaultConfiguration above)-->
         <property name="sidebarFacets">
             <list>
