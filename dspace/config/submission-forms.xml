@@ -30,10 +30,10 @@
           <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Tipo di File</label>
-          <repeatable>false</repeatable>
           <input-type value-pairs-name="bitstream_types">dropdown</input-type>
-          <hint>Immagine profilo, logo, file principale, etc.</hint>
+          <repeatable>false</repeatable>
           <required />
+          <hint>Personal picture, logo, main article, etc.</hint>
         </field>
       </row>
       <row>
@@ -6502,12 +6502,12 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>logo</stored-value>
       </pair>
       <pair>
-        <displayed-value>File principale</displayed-value>
-        <stored-value>file principale</stored-value>
+        <displayed-value>Main Article</displayed-value>
+        <stored-value>main article</stored-value>
       </pair>
       <pair>
-        <displayed-value>Immagine profilo</displayed-value>
-        <stored-value>immagine profilo</stored-value>
+        <displayed-value>Personal Picture</displayed-value>
+        <stored-value>personal picture</stored-value>
       </pair>
     </value-pairs>
   </form-value-pairs>
