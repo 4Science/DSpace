@@ -3126,7 +3126,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamjournalfonds</dc-schema>
           <dc-element>index</dc-element>
-          <dc-qualifier></dc-qualifier>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
