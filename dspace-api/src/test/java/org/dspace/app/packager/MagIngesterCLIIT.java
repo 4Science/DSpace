@@ -66,7 +66,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/51")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection1")
                 .withEntityType("Publication").build();
 
@@ -99,7 +99,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/52")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection2")
                 .withEntityType("Publication").build();
 
@@ -130,7 +130,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/53")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection3")
                 .withEntityType("Publication").build();
 
@@ -161,7 +161,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/54")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection4")
                 .withEntityType("Publication").build();
 
@@ -196,7 +196,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/55")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection5")
                 .withEntityType("Publication").build();
 
@@ -218,7 +218,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/56")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection6")
                 .withEntityType("Publication").build();
 
@@ -261,7 +261,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/57")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection7")
                 .withEntityType("Publication").build();
 
@@ -293,7 +293,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/58")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection8")
                 .withEntityType("Publication").build();
 
@@ -325,7 +325,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/59")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection9")
                 .withEntityType("Publication").build();
 
@@ -371,7 +371,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/61")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
@@ -403,7 +403,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/60")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
@@ -442,7 +442,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/62")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection11")
                 .withEntityType("Publication").build();
 
@@ -479,7 +479,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/249")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection12")
                 .withEntityType("Publication").build();
 
@@ -520,7 +520,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/63")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection13")
                 .withEntityType("Publication").build();
 
@@ -550,7 +550,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/64")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection14")
                 .withEntityType("Publication").build();
 
@@ -577,7 +577,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/147")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection15")
                 .withEntityType("Publication").build();
 
