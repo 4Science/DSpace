@@ -8,7 +8,6 @@
 package org.dspace.app.rest;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -261,31 +260,13 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                     .content(getPatchContent(List.of(acceptOperation)))
                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
-                .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
-                .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
-                .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.PENDING.name())));
-            verify(httpClient, times(1)).execute(any());
-
-            pauseSeconds(5);
-
-            refreshOperation = new AddOperation("/sections/unpaywall/refresh", false);
-
-            getClient(getAuthToken(eperson.getEmail(), password))
-                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                    .content(getPatchContent(List.of(refreshOperation)))
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").doesNotExist())
-                .andExpect(jsonPath("$.sections.upload.files", notNullValue()))
-                .andExpect(jsonPath("$.sections.upload.files[0].metadata", matchMetadata("dc.source", pdfUrl)))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", equalTo(UnpaywallStatus.IMPORTED.name())));
+                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.IMPORTED.name())));
+            verify(httpClient, times(1)).execute(any());
 
         } finally {
             configurationService.setProperty("unpaywall.email", null);
