@@ -479,7 +479,7 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/44")
+                .createCollection(context, parentCommunity, "123456789/249")
                 .withName("MagCollection12")
                 .withEntityType("Publication").build();
 
@@ -570,6 +570,35 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
 
         List<Bundle> txtBundles = itemService.getBundles(items.get(0), "BRANDED_PREVIEW");
         assertEquals(0, txtBundles.size());
+    }
+
+    @Test
+    public void testShouldNotAddTXTBitstreamWhenTxtDirectoryDoesNotExist() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/147")
+                .withName("MagCollection15")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/packager/UNIBA_MAG_archive_without_txt-directory.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "CUSTOMER-TEXT");
+        assertEquals(0, txtBundles.size());
+
+        List<Bundle> hocrBundles = itemService.getBundles(items.get(0), "CUSTOMER-HOCR");
+        assertEquals(0, hocrBundles.size());
     }
 
     private void compareBitstreamMetadata(Bitstream bitstream, String schema, String element, String qualifier,

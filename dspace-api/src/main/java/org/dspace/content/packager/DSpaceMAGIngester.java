@@ -648,24 +648,34 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
         }
     }
 
-    private void addTxtBitstreams(Context context, Item item, String sourceDir)
+    private void addTxtBitstreams(Context context, Item item, String directoryPath)
             throws SQLException, AuthorizeException, IOException {
-        sourceDir += "/TXT";
+        directoryPath += "/TXT";
+
+        File sourceDirectory = new File(directoryPath);
+        if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
+            return;
+        }
 
         List<File> files = new ArrayList<>(
-                FileUtils.listFiles(new File(sourceDir), new String[]{"txt"}, false));
+                FileUtils.listFiles(sourceDirectory, new String[]{"txt"}, false));
 
-        createTxtBitstreams(context, files, item, sourceDir, CUSTOMER_TEXT);
+        createTxtBitstreams(context, files, item, directoryPath, CUSTOMER_TEXT);
     }
 
-    private void addHocrBitstreams(Context context, Item item, String sourceDir)
+    private void addHocrBitstreams(Context context, Item item, String directoryPath)
             throws SQLException, AuthorizeException, IOException {
-        sourceDir += "/TXT";
+        directoryPath += "/TXT";
+
+        File sourceDirectory = new File(directoryPath);
+        if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
+            return;
+        }
 
         List<File> files = new ArrayList<>(
-                FileUtils.listFiles(new File(sourceDir), new String[]{"hocr"}, false));
+                FileUtils.listFiles(sourceDirectory, new String[]{"hocr"}, false));
 
-        createTxtBitstreams(context, files, item, sourceDir, CUSTOMER_HOCR);
+        createTxtBitstreams(context, files, item, directoryPath, CUSTOMER_HOCR);
     }
 
     private void createTxtBitstreams(Context context, List<File> files, Item item, String sourceDir, String bundleName)
