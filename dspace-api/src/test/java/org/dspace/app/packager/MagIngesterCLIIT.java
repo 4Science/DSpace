@@ -515,6 +515,63 @@ public class MagIngesterCLIIT extends AbstractIntegrationTestWithDatabase {
         compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scanningSoftwareName", null, "i2s aquire");
     }
 
+    @Test
+    public void testShouldNotCreateCustomerTextBundleWhenTxtFilesNotExistsInDirectory() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/45")
+                .withName("MagCollection13")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/packager/" +
+                "UNIBA_MAG_archive_without_txt_files_and_jpeg100_altimg.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "CUSTOMER-TEXT");
+        assertEquals(0, txtBundles.size());
+
+        List<Bundle> hocrBundles = itemService.getBundles(items.get(0), "CUSTOMER-HOCR");
+        assertEquals(1, hocrBundles.size());
+    }
+
+    @Test
+    public void testShouldNotCreateJpeg100BundleWhenJpeg100AltImgNotExistsInManifest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity, "123456789/46")
+                .withName("MagCollection14")
+                .withEntityType("Publication").build();
+
+        String archiveClassPath = "classpath:org/dspace/app/packager/" +
+                "UNIBA_MAG_archive_without_txt_files_and_jpeg100_altimg.zip";
+        Resource archive = new DSpace().getServiceManager().getApplicationContext().getResource(archiveClassPath);
+
+        runDSpaceScript("packager",
+                "-e", admin.getEmail(),
+                "-p", magCollection.getHandle(),
+                "-t", "MAG",
+                archive.getFile().getPath());
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "BRANDED_PREVIEW");
+        assertEquals(0, txtBundles.size());
+    }
+
     private void compareBitstreamMetadata(Bitstream bitstream, String schema, String element, String qualifier,
                                           String expectedValue) {
         String metadataValue = bitstreamService
