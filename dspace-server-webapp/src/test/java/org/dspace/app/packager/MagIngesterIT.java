@@ -99,7 +99,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/34")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection1")
                 .withEntityType("Publication").build();
 
@@ -125,7 +125,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/31")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection2")
                 .withEntityType("Publication").build();
 
@@ -149,7 +149,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/35")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection3")
                 .withEntityType("Publication").build();
 
@@ -173,7 +173,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/36")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection4")
                 .withEntityType("Publication").build();
 
@@ -201,7 +201,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/38")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection6")
                 .withEntityType("Publication").build();
 
@@ -237,7 +237,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/39")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection7")
                 .withEntityType("Publication").build();
 
@@ -262,7 +262,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/40")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection8")
                 .withEntityType("Publication").build();
 
@@ -287,7 +287,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/41")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection9")
                 .withEntityType("Publication").build();
 
@@ -326,7 +326,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/42")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
@@ -351,7 +351,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/42")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection10")
                 .withEntityType("Publication").build();
 
@@ -383,7 +383,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/43")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection11")
                 .withEntityType("Publication").build();
 
@@ -413,7 +413,7 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         Collection magCollection = CollectionBuilder
-                .createCollection(context, parentCommunity, "123456789/44")
+                .createCollection(context, parentCommunity)
                 .withName("MagCollection12")
                 .withEntityType("Publication").build();
 
@@ -440,6 +440,69 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
         compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scannerManufacturer", null, "i2s");
         compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scannerModelName", null, "i2s scanner");
         compareBitstreamMetadata(tiffBitstreams.get(0), "mix", "scanningSoftwareName", null, "i2s aquire");
+    }
+
+    @Test
+    public void testShouldNotCreateCustomerTextBundleWhenTxtFilesNotExistsInDirectory() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity)
+                .withName("MagCollection13")
+                .withEntityType("Publication").build();
+
+        importMAG(magCollection.getHandle(), "UNIBA_MAG_archive_without_txt_files_and_jpeg100_altimg.zip");
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "CUSTOMER-TEXT");
+        assertEquals(0, txtBundles.size());
+
+        List<Bundle> hocrBundles = itemService.getBundles(items.get(0), "CUSTOMER-HOCR");
+        assertEquals(1, hocrBundles.size());
+    }
+
+    @Test
+    public void testShouldNotCreateJpeg100BundleWhenJpeg100AltImgNotExistsInManifest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity)
+                .withName("MagCollection14")
+                .withEntityType("Publication").build();
+
+        importMAG(magCollection.getHandle(), "UNIBA_MAG_archive_without_txt_files_and_jpeg100_altimg.zip");
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "BRANDED_PREVIEW");
+        assertEquals(0, txtBundles.size());
+    }
+
+    @Test
+    public void testShouldNotAddTXTBitstreamWhenTxtDirectoryDoesNotExist() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection magCollection = CollectionBuilder
+                .createCollection(context, parentCommunity)
+                .withName("MagCollection15")
+                .withEntityType("Publication").build();
+
+        importMAG(magCollection.getHandle(), "UNIBA_MAG_archive_without_txt-directory.zip");
+
+        Iterator<Item> itemsIterator = itemService.findAllByCollection(context, magCollection);
+        List<Item> items = IteratorUtils.toList(itemsIterator);
+        assertEquals(1, items.size());
+
+        List<Bundle> txtBundles = itemService.getBundles(items.get(0), "CUSTOMER-TEXT");
+        assertEquals(0, txtBundles.size());
+
+        List<Bundle> hocrBundles = itemService.getBundles(items.get(0), "CUSTOMER-HOCR");
+        assertEquals(0, hocrBundles.size());
     }
 
     private void compareBitstreamMetadata(Bitstream bitstream, String schema, String element, String qualifier,
