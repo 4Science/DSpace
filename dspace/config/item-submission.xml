@@ -152,21 +152,6 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="journal_fonds-glamjournalfonds-history" mandatory="true">
-      <heading>submit.progressbar.describe.journal_fonds-glamjournalfonds-history</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="journal_fonds-glamjournalfonds-relation-person" mandatory="true">
-      <heading>submit.progressbar.describe.journal_fonds-glamjournalfonds-relation-person</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
-    <step-definition id="journal_fonds-glamjournalfonds-relation-journalfonds" mandatory="true">
-      <heading>submit.progressbar.describe.journal_fonds-glamjournalfonds-relation-journalfonds</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
     <step-definition id="picture" mandatory="true">
       <heading>submit.progressbar.describe.picture</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
@@ -336,17 +321,11 @@
     <submission-process name="journal_fonds">
       <step id="collection" />
       <step id="journal_fonds" />
-      <step id="journal_fonds-glamjournalfonds-history" />
-      <step id="journal_fonds-glamjournalfonds-relation-person" />
-      <step id="journal_fonds-glamjournalfonds-relation-journalfonds" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="journal_fonds-edit">
       <step id="journal_fonds" />
-      <step id="journal_fonds-glamjournalfonds-history" />
-      <step id="journal_fonds-glamjournalfonds-relation-person" />
-      <step id="journal_fonds-glamjournalfonds-relation-journalfonds" />
       <step id="upload" />
     </submission-process>
     <submission-process name="picture">
