@@ -546,11 +546,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
-          <label>Titolo o denominazione formale della risorsa.</label>
+          <label>Titolo o denominazione formale della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required>Inserire il titolo principale della risorsa.</required>
-          <hint>Titolo o denominazione formale della risorsa.</hint>
+          <hint>Titolo o denominazione formale della risorsa</hint>
         </field>
       </row>
       <row>
@@ -558,11 +558,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</label>
+          <label>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</hint>
+          <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa</hint>
         </field>
       </row>
       <row>
@@ -676,11 +676,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>format</dc-element>
           <dc-qualifier>medium</dc-qualifier>
-          <label>Indicare il supporto fisico della risorsa.</label>
+          <label>Indicare il supporto fisico della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Indicare il supporto fisico della risorsa.</hint>
+          <hint>Indicare il supporto fisico della risorsa</hint>
         </field>
       </row>
       <row>
@@ -855,11 +855,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <dc-qualifier>archivist</dc-qualifier>
-          <label>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista.</label>
+          <label>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista.</hint>
+          <hint>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista</hint>
         </field>
       </row>
       <row>
@@ -1356,7 +1356,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamou</dc-schema>
           <dc-element>accessibility</dc-element>
-          <label>acessibilità</label>
+          <label>Accessibilità</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1437,7 +1437,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>crispj</dc-schema>
           <dc-element>coordinator</dc-element>
-          <label>Inseire il nome del coordinatore del progetto</label>
+          <label>Inserire il nome del coordinatore del progetto</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -1448,7 +1448,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>internalid</dc-element>
-          <label>Identicativo intereno del progetto</label>
+          <label>Identicativo interno del progetto</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1527,7 +1527,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>oamandate</dc-element>
           <dc-qualifier>url</dc-qualifier>
-          <label>Imserire l'URL relativo alla policiy OA</label>
+          <label>Inserire l'URL relativo alla policy OA</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1539,7 +1539,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>project</dc-element>
           <dc-qualifier>startDate</dc-qualifier>
-          <label>Data di inizion</label>
+          <label>Data di inizio</label>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -2444,7 +2444,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Nome alternativi del luogo</label>
+          <label>Nomi alternativi del luogo</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -2575,7 +2575,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Nomi alternativi della familglia</label>
+          <label>Nomi alternativi della famiglia</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
