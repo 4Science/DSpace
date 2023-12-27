@@ -2923,17 +2923,6 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>index</dc-element>
-          <label>Numero di corda</label>
-          <input-type>number</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il numero di corda</hint>
-        </field>
-      </row>
-      <row>
-        <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
