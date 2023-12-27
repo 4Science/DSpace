@@ -58,6 +58,30 @@
           <hint />
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare i percorsi collegati</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
     </form>
     <form name="publication-dc-contributor-author">
       <row>
@@ -1234,6 +1258,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire link a risorse esterne correlate alla testata</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
     </form>
@@ -2557,6 +2593,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
     </form>
     <form name="family">
       <row>
@@ -2649,6 +2697,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
     </form>
@@ -2780,6 +2840,30 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Inserire l'ordine</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare i percorsi collegati</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
     </form>
     <form name="news">
       <row>
@@ -2815,6 +2899,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>URL di approfondimento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Indicare i percorsi collegati</hint>
         </field>
       </row>
       <row>
@@ -2875,28 +2971,53 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Inserisci alcuni keywords per la pagina</hint>
         </field>
       </row>
-    </form>
-    <form name="path">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
-          <dc-element>title</dc-element>
-          <label>Nome del percorso</label>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del percorso</hint>
+          <hint>Indicare i percorsi collegati</hint>
         </field>
       </row>
       <row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
-          <label>Descrizione</label>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire la descrizione del percorso</hint>
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
+    </form>
+    <form name="path">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <label>Nome</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il titolo della news</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>news</dc-element>
+          <dc-qualifier>enabled</dc-qualifier>
+          <label>Mostra</label>
+          <input-type value-pairs-name="truefalse">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Mostrare in home page?</hint>
         </field>
       </row>
       <row>
@@ -2942,6 +3063,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
     </form>
@@ -3179,6 +3312,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
     </form>
@@ -4151,6 +4296,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la licenza attribuita alla risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
     </form>
