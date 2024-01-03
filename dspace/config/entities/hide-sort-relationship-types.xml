@@ -662,5 +662,27 @@
             <min>0</min>
         </rightCardinality>
     </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isItemsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedItems</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isItemsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingItems</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
 
 </relationships>
