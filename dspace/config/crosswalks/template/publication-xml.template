@@ -1,0 +1,54 @@
+<Publication id="@virtual.id@">
+    <Title>@dc.title@</Title>
+    <Subtitle>@dc.title.alternative@</Subtitle>
+    <PublicationDate>@dc.date.issued@</PublicationDate>
+    <Authors>
+        @group.dc-contributor-author.start@
+            <Author>
+                <DisplayName>@dc.contributor.author@</DisplayName>
+                <Person id="@virtual.authority.dc-contributor-author@" />
+            </Author>
+        @group.dc-contributor-author.end@
+    </Authors>
+    <Contributors>
+        @group.dc-contributor-contributor.start@
+            <Contributor>
+                <DisplayName>@dc.contributor.contributor@</DisplayName>
+                <Person id="@virtual.authority.dc-contributor-contributor@" />
+            </Contributor>
+        @group.dc-contributor-contributor.end@
+    </Contributors>
+    <Type xmlns="https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Funding_Types">@virtual.mapConverter.coarTypes.dc-type@</Type>
+    <Language>@dc.language.iso@</Language>
+    <Abstract>@dc.description.abstract@</Abstract>
+    <Identifier>@dc.identifier@</Identifier>
+    <Editor>@dc.publisher@</Editor>
+    <Aggregations>
+          @group.dc-relation-aggregation.start@
+          <Aggregation>
+              <DisplayName>@dc.relation.aggregation@</DisplayName>
+          </Aggregation>
+          @group.dc-relation-aggregation.end@
+    </Aggregations>
+    <Documents>
+        @group.dc-relation-isreferencedby.start@
+            <Document>
+                <DisplayName>@dc.relation.isreferencedby@</DisplayName>
+            </Document>
+        @group.dc-relation-isreferencedby.end@
+    </Documents>
+    <ReferencedBy>
+        @group.dc-relation-isreferencedby.start@
+            <Document>
+                <DisplayName>@dc.relation.isreferencedby@</DisplayName>
+            </Document>
+        @group.dc-relation-isreferencedby.end@
+    </ReferencedBy>
+    <PartOfSeries>
+        @group.dc-relation-ispartofseries.start@
+            <Document>
+                <DisplayName>@dc.relation.ispartofseries@</DisplayName>
+            </Document>
+        @group.dc-relation-ispartofseries.end@
+    </PartOfSeries>
+</Publication>

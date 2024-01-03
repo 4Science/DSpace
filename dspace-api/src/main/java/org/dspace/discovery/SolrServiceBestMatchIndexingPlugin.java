@@ -13,6 +13,8 @@ import static org.dspace.util.PersonNameUtil.getAllNameVariants;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
@@ -37,6 +39,8 @@ public class SolrServiceBestMatchIndexingPlugin implements SolrServiceIndexPlugi
     protected static final String LASTNAME_FIELD = "person.familyName";
 
     public final static String PUNCT_CHARS_REGEX = "\\p{Punct}";
+
+    private static final Logger log = LogManager.getLogger();
 
     protected static final List<String> FULLNAME_FIELDS = List.of("dc.title", "crisrp.name", "crisrp.name.variant",
         "crisrp.name.translated");
@@ -63,6 +67,9 @@ public class SolrServiceBestMatchIndexingPlugin implements SolrServiceIndexPlugi
     }
 
     protected void addIndexValueForPersonItem(Item item, SolrInputDocument document) {
+
+        log.info(item.getID());
+        System.out.println(item.getID());
 
         String firstName = getMetadataValue(item, FIRSTNAME_FIELD);
         String lastName = getMetadataValue(item, LASTNAME_FIELD);
