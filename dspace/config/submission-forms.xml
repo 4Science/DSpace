@@ -744,6 +744,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
+          <dc-qualifier>person</dc-qualifier>
           <label>Persona</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
