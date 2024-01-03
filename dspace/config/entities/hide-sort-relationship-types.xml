@@ -4,17 +4,6 @@
 <relationships>
     <type>
         <rightType>Person</rightType>
-        <leftwardType>isResearchoutputsHiddenFor</leftwardType>
-        <rightwardType>notDisplayingResearchoutputs</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-        </rightCardinality>
-    </type>
-    <type>
-        <rightType>Person</rightType>
         <leftwardType>isPublicationsHiddenFor</leftwardType>
         <rightwardType>notDisplayingPublications</rightwardType>
         <leftCardinality>
@@ -83,17 +72,6 @@
         <rightType>Person</rightType>
         <leftwardType>isFondsSelectedFor</leftwardType>
         <rightwardType>hasSelectedFonds</rightwardType>
-        <leftCardinality>
-            <min>0</min>
-        </leftCardinality>
-        <rightCardinality>
-            <min>0</min>
-        </rightCardinality>
-    </type>
-    <type>
-        <rightType>Person</rightType>
-        <leftwardType>isResearchoutputsSelectedFor</leftwardType>
-        <rightwardType>hasSelectedResearchoutputs</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>
@@ -677,6 +655,28 @@
         <rightType>Path</rightType>
         <leftwardType>isPathPublicationsSelectedFor</leftwardType>
         <rightwardType>hasSelectedPathPublications</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isItemsSelectedFor</leftwardType>
+        <rightwardType>hasSelectedItems</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+    </type>
+    <type>
+        <rightType>Aggregation</rightType>
+        <leftwardType>isItemsHiddenFor</leftwardType>
+        <rightwardType>notDisplayingItems</rightwardType>
         <leftCardinality>
             <min>0</min>
         </leftCardinality>
