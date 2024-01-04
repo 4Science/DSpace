@@ -1910,7 +1910,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome della fonte archivistica</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo del fondo</required>
           <hint>Inserire il nome della fonte archivistica</hint>
         </field>
       </row>
@@ -2721,7 +2721,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo dell’aggregazione</required>
           <hint>Inserire il nome della fonte archivistica</hint>
         </field>
       </row>
@@ -2801,7 +2801,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della news</required>
           <hint>Inserire il titolo della news</hint>
         </field>
       </row>
@@ -2861,7 +2861,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Titolo della pagina</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della pagina</required>
           <hint>Inserire il titolo della pagina</hint>
         </field>
       </row>
@@ -2896,7 +2896,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome del percorso</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo del percorso</required>
           <hint>Inserire il nome del percorso</hint>
         </field>
       </row>
