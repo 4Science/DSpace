@@ -1910,7 +1910,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome della fonte archivistica</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required>Inserire il titolo della news</required>
+          <required>Inserire il titolo del fondo</required>
           <hint>Inserire il nome della fonte archivistica</hint>
         </field>
       </row>
