@@ -744,6 +744,18 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
+          <dc-qualifier>person</dc-qualifier>
+          <label>Persona</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
           <label>Aggregazione</label>
           <input-type>onebox</input-type>
@@ -1898,7 +1910,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome della fonte archivistica</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo del fondo</required>
           <hint>Inserire il nome della fonte archivistica</hint>
         </field>
       </row>
@@ -2709,7 +2721,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo dell’aggregazione</required>
           <hint>Inserire il nome della fonte archivistica</hint>
         </field>
       </row>
@@ -2789,7 +2801,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della news</required>
           <hint>Inserire il titolo della news</hint>
         </field>
       </row>
@@ -2849,7 +2861,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Titolo della pagina</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della pagina</required>
           <hint>Inserire il titolo della pagina</hint>
         </field>
       </row>
@@ -2884,7 +2896,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Nome del percorso</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo del percorso</required>
           <hint>Inserire il nome del percorso</hint>
         </field>
       </row>
@@ -3377,6 +3389,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il numero di corda</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
     </form>
@@ -4359,6 +4383,527 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>Indicare il tipo di bibliografia</hint>
+        </field>
+      </row>
+    </form>
+    <form name="audiovideo-dc-contributor-author">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Nome dell’autore nella forma Cognome, Nome (nel caso di autore anonimo, indicare “Anonimo”)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>authorrole</dc-qualifier>
+          <label>Ruolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Ruolo dell’autore (esempio: Relatore, Attore, Soggetto intervistato, Soggetto ripreso)</hint>
+        </field>
+      </row>
+    </form>
+    <form name="audiovideo-dc-contributor-contributor">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>contributor</dc-qualifier>
+          <label>Agente</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Soggetto coinvolto nell’evento nella forma Cognome, Nome (nel caso di agente anonimo, indicare “Anonimo”)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>contributorrole</dc-qualifier>
+          <label>Ruolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Ruolo dell'agente (esempio: Rilevatore, Operatore, Spettatore, Intervistatore)</hint>
+        </field>
+      </row>
+    </form>
+    <form name="audiovideo">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <label>Identificativo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Codice identificativo del documento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>fonds</dc-qualifier>
+          <label>Livello di descrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il nome del livello cui appartiene la risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <label>Titolo / Evento</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire il titolo della risorsa</required>
+          <hint>Titolo dell’opera / evento / . . .</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <label>Soggetto / Argomento</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Soggetto o argomento della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>event</dc-qualifier>
+          <label>Evento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Titolo dell’eventuale evento cui è connessa la risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>source</dc-element>
+          <dc-qualifier>content</dc-qualifier>
+          <label>Ambiti e contenuto</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Descrizione dell’evento e del contenuto della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>corporatebody</dc-qualifier>
+          <label>Soggetto produttore / Organizzazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Nominativo dell’organizzazione che ha realizzato l’evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Nome dell’autore nella forma Cognome, Nome (nel caso di autore anonimo, indicare “Anonimo”)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>contributor</dc-qualifier>
+          <label>Agente</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Soggetto coinvolto nell’evento nella forma Cognome, Nome (nel caso di agente anonimo, indicare “Anonimo”)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>culture</dc-qualifier>
+          <label>Ambito culturale</label>
+          <input-type value-pairs-name="cultural_sphere">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Ambito culturale della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo di rilevazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Luogo dell'evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcs</dc-qualifier>
+          <label>Nazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Nazione dell'evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcc</dc-qualifier>
+          <label>Comune</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Comune dell'evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>spatialpvcn</dc-qualifier>
+          <label>Provincia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Sigla della provincia dell'evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>issued</dc-qualifier>
+          <label>Data puntuale</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Data puntuale della risorsa. Tralasciare il giorno e il mese quando non sono definiti.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>start</dc-qualifier>
+          <label>Estremo cronologico iniziale</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Estremo cronologico iniziale della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>end</dc-qualifier>
+          <label>Estremo cronologico finale</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Estremo cronologico finale della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>language</dc-element>
+          <dc-qualifier>iso</dc-qualifier>
+          <label>Lingua</label>
+          <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Lingua parlata (esempio: Italiano, Inglese, Dialetto . . . )</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>note</dc-qualifier>
+          <label>Note</label>
+          <input-type>textarea</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Eventuali annotazioni non riconducibili ai campi precedenti</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>keywords</dc-qualifier>
+          <label>Parole chiave / keywords</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Descrittore del contenuto attraverso parole chiave</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Percorso D-Space Glam</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>project</dc-qualifier>
+          <label>Progetto</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Titolo del progetto cui è connessa la risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>url</dc-qualifier>
+          <label>URL</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>URL a eventuali risorse esterne collegate</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>audiovideo</dc-qualifier>
+          <label>Documenti collegati</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Collegamenti con altri Item Audio/Video della digital library</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>aggregation</dc-qualifier>
+          <label>Aggregazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+    </form>
+    <form name="audiovideo-file">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>rights</dc-element>
+          <dc-qualifier>license</dc-qualifier>
+          <label>Licenza</label>
+          <input-type value-pairs-name="license_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Selezionare le condizioni di utilizzo</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>rights</dc-element>
+          <dc-qualifier>note</dc-qualifier>
+          <label>Note sulla privacy</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la presenza di eventuali liberatorie relative alla privacy fornite nel corso dell’evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Tipologia file</label>
+          <input-type value-pairs-name="file_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire la tipologia di file</required>
+          <hint>Selezionare la tipologia del file</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>physical</dc-qualifier>
+          <label>Tipologia fisica</label>
+          <input-type value-pairs-name="audiovideo_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Selezionare la tipologia fisica della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>extent</dc-qualifier>
+          <label>Durata dell’evento</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Durata dell’evento espressa in ore, minuti e secondi, HH:MM:SS</hint>
+          <type-bind>NB: USATO PER CONSISTENZA ARCHIVISTICA</type-bind>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>mimetype</dc-qualifier>
+          <label>Codifica file Audio / Video</label>
+          <input-type value-pairs-name="codify_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Codifica dello stream di dati audio / video</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>channel</dc-qualifier>
+          <label>Numero di canali</label>
+          <input-type value-pairs-name="channel_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Numero di canali di registrazione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>samplerate</dc-qualifier>
+          <label>Sample rate</label>
+          <input-type value-pairs-name="samplerate">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Frequenza di campionamento espressa in Khz</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>bitsample</dc-qualifier>
+          <label>Bit per sample</label>
+          <input-type value-pairs-name="bitsample">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Numero di bit della registrazione audio / video di cui è composto il singolo campione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>tools</dc-qualifier>
+          <label>Strumentazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Strumentazione utilizzata per la registrazione audio / video</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>medium</dc-qualifier>
+          <label>Descrizione fisica del supporto</label>
+          <input-type value-pairs-name="medium_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Descrizione delle caratteristiche fisiche del supporto</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationstate</dc-qualifier>
+          <label>Stato di conservazione</label>
+          <input-type value-pairs-name="common_preservation_state">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Stato di conservazione del supporto analogico</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationnote</dc-qualifier>
+          <label>Note sullo stato di conservazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Eventuali annotazioni relative allo stato di conservazione della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>digitaltools</dc-qualifier>
+          <label>Metodologia e strumentazione di riproduzione digitale adottata</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Specifiche sul tipo di metodologia e sulla strumentazione adottata per la riproduzione digitale</hint>
         </field>
       </row>
     </form>
@@ -6482,6 +7027,266 @@ it, please enter the types and the actual numbers or codes.</hint>
       <pair>
         <displayed-value>Personal Picture</displayed-value>
         <stored-value>personal picture</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="file_type" dc-term="file_type">
+      <pair>
+        <displayed-value>Audio</displayed-value>
+        <stored-value>Audio</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Video</displayed-value>
+        <stored-value>Video</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="audiovideo_type" dc-term="audiovideo_type">
+      <pair>
+        <displayed-value>Registrazione audio</displayed-value>
+        <stored-value>Registrazione audio</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione audio / solo musica</displayed-value>
+        <stored-value>Registrazione audio / solo musica</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione audio / solo voce</displayed-value>
+        <stored-value>Registrazione audio / solo voce</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video</displayed-value>
+        <stored-value>Registrazione video</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video / solo musica</displayed-value>
+        <stored-value>Registrazione video / solo musica</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video / solo voce</displayed-value>
+        <stored-value>Registrazione video / solo voce</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="cultural_sphere" dc-term="cultural_sphere">
+      <pair>
+        <displayed-value>Cinematografico</displayed-value>
+        <stored-value>Cinematografico</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Culturale</displayed-value>
+        <stored-value>Culturale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Didattico</displayed-value>
+        <stored-value>Didattico</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Divulgativo</displayed-value>
+        <stored-value>Divulgativo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Religioso</displayed-value>
+        <stored-value>Religioso</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sociale</displayed-value>
+        <stored-value>Sociale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Teatrale</displayed-value>
+        <stored-value>Teatrale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="codify_type" dc-term="codify_type">
+      <pair>
+        <displayed-value>audio/mp1</displayed-value>
+        <stored-value>audio/mp1</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mp2</displayed-value>
+        <stored-value>audio/mp2</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mp3</displayed-value>
+        <stored-value>audio/mp3</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mpc</displayed-value>
+        <stored-value>audio/mpc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/wav</displayed-value>
+        <stored-value>audio/wav</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/wma</displayed-value>
+        <stored-value>audio/wma</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/flac</displayed-value>
+        <stored-value>audio/flac</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/aiff</displayed-value>
+        <stored-value>audio/aiff</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mp4</displayed-value>
+        <stored-value>video/mp4</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mpg</displayed-value>
+        <stored-value>video/mpg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mov</displayed-value>
+        <stored-value>video/mov</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/wmv</displayed-value>
+        <stored-value>video/wmv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/webm</displayed-value>
+        <stored-value>video/webm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/avi</displayed-value>
+        <stored-value>video/avi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/flv</displayed-value>
+        <stored-value>video/flv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="channel_type" dc-term="channel_type">
+      <pair>
+        <displayed-value>Mono</displayed-value>
+        <stored-value>Mono</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dual mono</displayed-value>
+        <stored-value>Dual mono</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Joint stereo</displayed-value>
+        <stored-value>Joint stereo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Stereo</displayed-value>
+        <stored-value>Stereo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>2 ch</displayed-value>
+        <stored-value>2 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>4 ch</displayed-value>
+        <stored-value>4 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>5.1 ch</displayed-value>
+        <stored-value>5.1 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>6.1 ch</displayed-value>
+        <stored-value>6.1 ch</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="samplerate" dc-term="samplerate">
+      <pair>
+        <displayed-value>8 KHz</displayed-value>
+        <stored-value>8 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>11.025 KHz</displayed-value>
+        <stored-value>11.025 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>12 KHz</displayed-value>
+        <stored-value>12 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>16 KHz</displayed-value>
+        <stored-value>16 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>22.05 KHz</displayed-value>
+        <stored-value>22.05 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>24 KHz</displayed-value>
+        <stored-value>24 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>32 KHz</displayed-value>
+        <stored-value>32 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>44.1 KHz</displayed-value>
+        <stored-value>44.1 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>48 KHz</displayed-value>
+        <stored-value>48 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>96 KHz</displayed-value>
+        <stored-value>96 KHz</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="bitsample" dc-term="bitsample">
+      <pair>
+        <displayed-value>8 bit</displayed-value>
+        <stored-value>8 bit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>16 bit</displayed-value>
+        <stored-value>16 bit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>24 bit</displayed-value>
+        <stored-value>24 bit</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="medium_type" dc-term="medium_type">
+      <pair>
+        <displayed-value>Nastro magnetico (bobina)</displayed-value>
+        <stored-value>Nastro magnetico (bobina)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nastro magnetico (audiocassetta)</displayed-value>
+        <stored-value>Nastro magnetico (audiocassetta)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Video VHS</displayed-value>
+        <stored-value>Video VHS</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (33 gg.)</displayed-value>
+        <stored-value>Vinile (33 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (45 gg.)</displayed-value>
+        <stored-value>Vinile (45 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (78 gg.)</displayed-value>
+        <stored-value>Vinile (78 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
       </pair>
     </value-pairs>
   </form-value-pairs>
