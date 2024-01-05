@@ -344,3 +344,18 @@ iiif.enabled = false
 # iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
 # iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
 # ocr.tesseract.path =
+
+###############################
+# AUDIO and VIDEO Integration #
+###############################
+
+## Audio Video configuration
+# audiowaveform.path =
+# ffmpeg.path =
+# ffprobe.path =
+# m4box.path =
+# av-stream.stream.original =
+# av-stream.transcribe-service.plugin =
+# whisper.fullpath =
+# whisper.default.transcription-model =
+# whisper.transcription-format =
