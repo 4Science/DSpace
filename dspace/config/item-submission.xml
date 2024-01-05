@@ -228,7 +228,6 @@
       <step id="collection" />
       <step id="event" />
       <step id="upload" />
-      <step id="license" />
     </submission-process>
     <submission-process name="event-edit">
       <step id="event" />
@@ -268,7 +267,6 @@
       <step id="collection" />
       <step id="place" />
       <step id="upload" />
-      <step id="license" />
     </submission-process>
     <submission-process name="place-edit">
       <step id="place" />
@@ -278,7 +276,6 @@
       <step id="collection" />
       <step id="family" />
       <step id="upload" />
-      <step id="license" />
     </submission-process>
     <submission-process name="family-edit">
       <step id="family" />
@@ -288,7 +285,6 @@
       <step id="collection" />
       <step id="aggregation" />
       <step id="upload" />
-      <step id="license" />
     </submission-process>
     <submission-process name="aggregation-edit">
       <step id="aggregation" />
