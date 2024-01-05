@@ -69,7 +69,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+          <hint>Inserire il nome dell’autore nella forma Cognome, Nome.</hint>
         </field>
       </row>
       <row>
@@ -81,7 +81,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Enter the affiliation of the author as stated on the publication.</hint>
+          <hint>Inserire il ruolo dell’autore</hint>
         </field>
       </row>
     </form>
@@ -95,7 +95,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+          <hint>Inserire il nome dell’autore nella forma Cognome, Nome.</hint>
         </field>
       </row>
       <row>
@@ -107,7 +107,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Enter the affiliation of the editor as stated on the publication.</hint>
+          <hint>Inserire il ruolo dell’autore</hint>
         </field>
       </row>
     </form>
@@ -120,8 +120,7 @@
           <input-type value-pairs-name="common_book_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
+          <hint>Se la risorsa ha un identificativo associato, selezionare il tipo di identificativo ed inserirlo.</hint>
         </field>
       </row>
       <row>
@@ -179,7 +178,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter the names of the authors of this item.</hint>
+          <hint>Inserire i nomi degli autori.</hint>
         </field>
       </row>
       <row>
@@ -191,7 +190,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>The editors of this publication.</hint>
+          <hint>Inserire i nomi degli autori secondari.</hint>
         </field>
       </row>
       <row>
@@ -546,7 +545,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
-          <label>Titolo o denominazione formale della risorsa.</label>
+          <label>Titolo o denominazione formale della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required>Inserire il titolo principale della risorsa.</required>
@@ -558,7 +557,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</label>
+          <label>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -676,7 +675,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>format</dc-element>
           <dc-qualifier>medium</dc-qualifier>
-          <label>Indicare il supporto fisico della risorsa.</label>
+          <label>Indicare il supporto fisico della risorsa</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -867,7 +866,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <dc-qualifier>archivist</dc-qualifier>
-          <label>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista.</label>
+          <label>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1380,7 +1379,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>glamou</dc-schema>
           <dc-element>accessibility</dc-element>
-          <label>acessibilità</label>
+          <label>Accessibilità</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1461,7 +1460,7 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>crispj</dc-schema>
           <dc-element>coordinator</dc-element>
-          <label>Inseire il nome del coordinatore del progetto</label>
+          <label>Inserire il nome del coordinatore del progetto</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -1472,11 +1471,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>internalid</dc-element>
-          <label>Identicativo intereno del progetto</label>
+          <label>Identicativo interno del progetto</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire l'identificativo interno del progetto</hint>
+          <hint>Inserire l'identificativo interno del progetto</hint>
         </field>
       </row>
       <row>
@@ -1551,7 +1550,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>oamandate</dc-element>
           <dc-qualifier>url</dc-qualifier>
-          <label>Imserire l'URL relativo alla policiy OA</label>
+          <label>Inserire l'URL relativo alla policy OA</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1563,7 +1562,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>project</dc-element>
           <dc-qualifier>startDate</dc-qualifier>
-          <label>Data di inizion</label>
+          <label>Data di inizio</label>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
@@ -1614,7 +1613,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire l'abstract del progetto</hint>
+          <hint>Inserire l'abstract del progetto</hint>
         </field>
       </row>
       <row>
@@ -1718,7 +1717,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la data di inizio dell'evento</hint>
+          <hint>Inserire la data di inizio dell'evento</hint>
         </field>
       </row>
       <row>
@@ -1946,7 +1945,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la tipologia del livello di descrizione</hint>
+          <hint>Inserire la tipologia del livello di descrizione</hint>
         </field>
       </row>
       <row>
@@ -2186,7 +2185,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire informazione relative alla condizione di riproduzione dell'archivio</hint>
+          <hint>Inserire informazione relative alla condizione di riproduzione dell'archivio</hint>
         </field>
       </row>
       <row>
@@ -2209,7 +2208,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inseire la bilbliografia relativa alla fonte</hint>
+          <hint>Inserire la bilbliografia relativa alla fonte</hint>
         </field>
       </row>
       <row>
@@ -2468,7 +2467,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Nome alternativi del luogo</label>
+          <label>Nomi alternativi del luogo</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -2611,7 +2610,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
           <dc-qualifier>alternative</dc-qualifier>
-          <label>Nomi alternativi della familglia</label>
+          <label>Nomi alternativi della famiglia</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -3289,7 +3288,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la tipologia del livello di descrizione</hint>
+          <hint>Inserire la tipologia del livello di descrizione</hint>
         </field>
       </row>
       <row>
@@ -3683,7 +3682,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter the names of the authors of this item.</hint>
+          <hint>Inserire i nomi degli autori.</hint>
         </field>
       </row>
       <row>
