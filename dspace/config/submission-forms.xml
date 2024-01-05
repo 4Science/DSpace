@@ -69,7 +69,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+          <hint>Inserire il nome dell’autore nella forma Cognome, Nome.</hint>
         </field>
       </row>
       <row>
@@ -81,7 +81,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Enter the affiliation of the author as stated on the publication.</hint>
+          <hint>Inserire il ruolo dell’autore</hint>
         </field>
       </row>
     </form>
@@ -95,7 +95,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il/i nome/i del/degli autore/i nella forma Cognome, Nome.</hint>
+          <hint>Inserire il nome dell’autore nella forma Cognome, Nome.</hint>
         </field>
       </row>
       <row>
@@ -107,7 +107,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Enter the affiliation of the editor as stated on the publication.</hint>
+          <hint>Inserire il ruolo dell’autore</hint>
         </field>
       </row>
     </form>
@@ -120,8 +120,7 @@
           <input-type value-pairs-name="common_book_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
+          <hint>Se la risorsa ha un identificativo associato, selezionare il tipo di identificativo ed inserirlo.</hint>
         </field>
       </row>
       <row>
@@ -179,7 +178,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter the names of the authors of this item.</hint>
+          <hint>Inserire i nomi degli autori.</hint>
         </field>
       </row>
       <row>
@@ -191,7 +190,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>The editors of this publication.</hint>
+          <hint>Inserire i nomi degli autori secondari.</hint>
         </field>
       </row>
       <row>
@@ -550,7 +549,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required>Inserire il titolo principale della risorsa.</required>
-          <hint>Titolo o denominazione formale della risorsa</hint>
+          <hint>Titolo o denominazione formale della risorsa.</hint>
         </field>
       </row>
       <row>
@@ -562,7 +561,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa</hint>
+          <hint>Titolo o denominazione alternativo/a, incerto/a o attribuito/a della risorsa.</hint>
         </field>
       </row>
       <row>
@@ -680,7 +679,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Indicare il supporto fisico della risorsa</hint>
+          <hint>Indicare il supporto fisico della risorsa.</hint>
         </field>
       </row>
       <row>
@@ -871,7 +870,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista</hint>
+          <hint>Inserire qualsiasi ulteriore annotazione di servizio a cura dell'archivista.</hint>
         </field>
       </row>
       <row>
@@ -1476,7 +1475,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire l'identificativo interno del progetto</hint>
+          <hint>Inserire l'identificativo interno del progetto</hint>
         </field>
       </row>
       <row>
@@ -1614,7 +1613,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire l'abstract del progetto</hint>
+          <hint>Inserire l'abstract del progetto</hint>
         </field>
       </row>
       <row>
@@ -1718,7 +1717,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la data di inizio dell'evento</hint>
+          <hint>Inserire la data di inizio dell'evento</hint>
         </field>
       </row>
       <row>
@@ -1946,7 +1945,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la tipologia del livello di descrizione</hint>
+          <hint>Inserire la tipologia del livello di descrizione</hint>
         </field>
       </row>
       <row>
@@ -2186,7 +2185,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire informazione relative alla condizione di riproduzione dell'archivio</hint>
+          <hint>Inserire informazione relative alla condizione di riproduzione dell'archivio</hint>
         </field>
       </row>
       <row>
@@ -2209,7 +2208,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inseire la bilbliografia relativa alla fonte</hint>
+          <hint>Inserire la bilbliografia relativa alla fonte</hint>
         </field>
       </row>
       <row>
@@ -3289,7 +3288,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inseire la tipologia del livello di descrizione</hint>
+          <hint>Inserire la tipologia del livello di descrizione</hint>
         </field>
       </row>
       <row>
@@ -3683,7 +3682,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter the names of the authors of this item.</hint>
+          <hint>Inserire i nomi degli autori.</hint>
         </field>
       </row>
       <row>
