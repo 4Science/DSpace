@@ -74,7 +74,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                    //The configuration file for the test env includes PAGE_TOTAL_ELEMENTS forms
                    .andExpect(jsonPath("$.page.size", is(20)))
                    .andExpect(jsonPath("$.page.totalElements", equalTo(41)))
-                   .andExpect(jsonPath("$.page.totalPages", equalTo(2)))
+                   .andExpect(jsonPath("$.page.totalPages", equalTo(3)))
                    .andExpect(jsonPath("$.page.number", is(0)))
                    .andExpect(
                        jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL + "config/submissionforms")))
@@ -91,7 +91,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.page.size", is(20)))
                 .andExpect(jsonPath("$.page.totalElements", equalTo(41)))
-                .andExpect(jsonPath("$.page.totalPages", equalTo(2)))
+                .andExpect(jsonPath("$.page.totalPages", equalTo(3)))
                 .andExpect(jsonPath("$.page.number", is(0)))
                 .andExpect(jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL
                            + "config/submissionforms")))
