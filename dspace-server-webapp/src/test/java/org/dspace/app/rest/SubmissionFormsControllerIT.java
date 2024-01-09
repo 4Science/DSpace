@@ -697,7 +697,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=21"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=20"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(41)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(21)))
