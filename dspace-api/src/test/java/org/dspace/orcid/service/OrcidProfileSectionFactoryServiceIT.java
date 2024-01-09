@@ -298,7 +298,7 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
         assertThat(organization.getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier(), is("12345"));
         assertThat(organization.getDisambiguatedOrganization().getDisambiguationSource(), is("RINGGOLD"));
     }
-    
+
     @Test
     public void testDisambiguationFromOrgUnitHierarchyOnEmploymentCreationWithAncestor() {
 
@@ -310,14 +310,13 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
                                   .withOrgUnitLocality("Milan")
                                   .withOrgUnitRinggoldIdentifier("12345")
                                   .build();
-        
+
         Item orgUnitFather = ItemBuilder.createItem(context, orgUnits)
                 .withTitle("4Science without rin")
                 .withOrgUnitCountry("IT")
                 .withOrgUnitLocality("Milan")
                 .withParentOrganization("4Science with rin", orgUnitGranfather.getID().toString())
                 .build();
-        
 
         Item orgUnit = ItemBuilder.createItem(context, orgUnits)
                                   .withTitle("4Science")
@@ -363,7 +362,7 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
         assertThat(organization.getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier(), is("12345"));
         assertThat(organization.getDisambiguatedOrganization().getDisambiguationSource(), is("RINGGOLD"));
     }
-    
+
     @Test
     public void testDisambiguationFromOrgUnitHierarchyOnEmploymentCreationWithNoId() {
 
@@ -417,8 +416,6 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
         assertThat(organization.getAddress().getCity(), is("Milan"));
         assertThat(organization.getDisambiguatedOrganization(), nullValue());
     }
-    
-    
 
     @Test
     public void testQualificationCreation() {
