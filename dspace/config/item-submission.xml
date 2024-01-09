@@ -201,7 +201,7 @@
       <type>correction</type>
       <scope visibilityOutside="hidden">workflow</scope>
     </step-definition>
-    <step-definition id="unpaywall" mandatory="true">
+    <step-definition id="unpaywall" mandatory="false">
       <heading>submit.progressbar.unpaywall</heading>
       <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
       <type>unpaywall</type>
@@ -271,6 +271,7 @@
       <step id="correction" />
       <step id="detect-duplicate" />
       <step id="upload" />
+      <step id="unpaywall" />
       <step id="license" />
     </submission-process>
     <submission-process name="publication-edit">
