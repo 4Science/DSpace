@@ -4552,8 +4552,8 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             itemRest.setInArchive(true);
             itemRest.setDiscoverable(true);
             itemRest.setWithdrawn(false);
-            String token = getAuthToken(admin.getEmail(), password);
-            MvcResult mvcResult = getClient(token).perform(post("/api/core/items?owningCollection=" +
+            String adminToken = getAuthToken(admin.getEmail(), password);
+            MvcResult mvcResult = getClient(adminToken).perform(post("/api/core/items?owningCollection=" +
                             col1.getID().toString())
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
@@ -4569,12 +4569,25 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             itemRest.setHandle(itemHandleString);
             Group group = GroupBuilder.createGroup(context).build();
             configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+            // add write rights to the user
+            ResourcePolicyBuilder.createResourcePolicy(context)
+                    .withUser(eperson)
+                    .withAction(WRITE)
+                    .withDspaceObject(itemService.find(context, UUID.fromString(itemUuidString)))
+                    .build();
+
             context.restoreAuthSystemState();
+            String token = getAuthToken(eperson.getEmail(), password);
             // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
             getClient(token).perform(put("/api/core/items/" + itemUuidString)
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
                     .andExpect(status().isForbidden());
+            // admins should still be able to use put
+            getClient(adminToken).perform(put("/api/core/items/" + itemUuidString)
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isOk());
         } finally {
             ItemBuilder.deleteItem(UUID.fromString(itemUuidString));
         }
@@ -4635,7 +4648,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             context.restoreAuthSystemState();
             token = getAuthToken(eperson.getEmail(), password);
             configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-            // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
+            // expect ok, the user is part of the group set in property {{edit.metadata.allowed-group}}
             getClient(token).perform(put("/api/core/items/" + itemUuidString)
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
@@ -4907,7 +4920,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void patchItemMetadataWithUserPartOfGroupConfigured() throws Exception {
         context.turnOffAuthorisationSystem();
         // add admin person as member to the group
-        Group group = GroupBuilder.createGroup(context).addMember(admin).build();
+        Group group = GroupBuilder.createGroup(context).addMember(eperson).build();
         groupService.update(context, group);
         context.commit();
         // ** GIVEN **
@@ -4930,15 +4943,19 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             .build();
         // add write permission to the user admin
         ResourcePolicyBuilder.createResourcePolicy(context)
-            .withUser(admin)
+            .withUser(eperson)
             .withAction(WRITE)
             .withDspaceObject(itemService.find(context, item.getID()))
             .build();
         context.restoreAuthSystemState();
         configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-        String token = getAuthToken(admin.getEmail(), password);
+        String token = getAuthToken(eperson.getEmail(), password);
         List<Operation> ops = new ArrayList<Operation>();
-        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        List<Map<String, String>> titleValue = new ArrayList<>();
+        Map value = new HashMap<String, String>();
+        value.put("value", "New title");
+        titleValue.add(value);
+        ReplaceOperation replaceOperation = new ReplaceOperation("/metadata/dc.title", titleValue);
         ops.add(replaceOperation);
         String patchBody = getPatchContent(ops);
         // withdraw item
@@ -4948,8 +4965,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid", Matchers.is(item.getID().toString())))
-                .andExpect(jsonPath("$.withdrawn", Matchers.is(true)))
-                .andExpect(jsonPath("$.inArchive", Matchers.is(false)));
+                .andExpect(jsonPath("$.metadata['dc.title'][0].value", Matchers.is("New title")));
     }
 
     @Test
@@ -4974,7 +4990,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .build();
         // add write rights to the user admin
         ResourcePolicyBuilder.createResourcePolicy(context)
-                .withUser(admin)
+                .withUser(eperson)
                 .withAction(WRITE)
                 .withDspaceObject(itemService.find(context, item.getID()))
                 .build();
@@ -4984,9 +5000,13 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.commit();
         context.restoreAuthSystemState();
         configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-        String token = getAuthToken(admin.getEmail(), password);
+        String token = getAuthToken(eperson.getEmail(), password);
         List<Operation> ops = new ArrayList<Operation>();
-        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        List<Map<String, String>> titleValue = new ArrayList<>();
+        Map value = new HashMap<String, String>();
+        value.put("value", "New title");
+        titleValue.add(value);
+        ReplaceOperation replaceOperation = new ReplaceOperation("/metadata/dc.title", titleValue);
         ops.add(replaceOperation);
         String patchBody = getPatchContent(ops);
         // withdraw item
@@ -4995,6 +5015,14 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .content(patchBody)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isForbidden());
+        token = getAuthToken(admin.getEmail(), password);
+        //expect ok as admin
+        getClient(token).perform(patch("/api/core/items/" + item.getID())
+                    .content(patchBody)
+                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid", Matchers.is(item.getID().toString())))
+                .andExpect(jsonPath("$.metadata['dc.title'][0].value", Matchers.is("New title")));
     }
 
     @Test

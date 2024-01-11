@@ -51,8 +51,10 @@ public class StatisticsGenerator {
                 String name = configurationService.getProperty("dspace.name");
                 File attachment = generateExcel(crisMetricsList, c);
                 email.addAttachment(attachment, "subscriptions.xlsx");
+                email.setSubject(name + ": Statistics of records which you are subscribed");
                 email.setContent("intro",
-                        "This automatic email is sent by " + name + " based on the subscribed statistics updates.");
+                        "This automatic email is sent by " + name + " based on the subscribed statistics updates.\n\n" +
+                                "See additional details in the file attached.");
                 email.send();
             }
         } catch (Exception ex) {
