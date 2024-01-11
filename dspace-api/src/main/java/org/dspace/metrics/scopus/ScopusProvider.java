@@ -40,8 +40,14 @@ public class ScopusProvider {
 
     private static final Logger log = LogManager.getLogger(ScopusProvider.class);
 
+    private List<String> logsCache = new ArrayList<>();
+
     @Autowired
     private ScopusRestConnector scopusRestConnector;
+
+    public List<String> getLogs() {
+        return logsCache;
+    }
 
     /**
      * <p>
@@ -54,6 +60,7 @@ public class ScopusProvider {
      * @return List of CrisMetrics fetched
      */
     public List<CrisMetricDTO> getScopusList(String id) {
+        logsCache = new ArrayList<>();
         String scopusResponse = getRecords(id);
         if (StringUtils.isNotBlank(scopusResponse)) {
             List<CrisMetricDTO> crisMetricList = mapToCrisMetricList(scopusResponse);
@@ -66,7 +73,7 @@ public class ScopusProvider {
             }
             return crisMetricList;
         }
-        log.error("The query : " + id + " is wrong!");
+        logAndCache("The query : " + id + " is wrong!");
         return List.of();
     }
 
@@ -75,7 +82,7 @@ public class ScopusProvider {
         if (StringUtils.isNotBlank(scopusResponse)) {
             return mapToCrisMetric(scopusResponse);
         }
-        log.error("The query : " + id + " is wrong!");
+        logAndCache("The query : " + id + " is wrong!");
         return null;
     }
 
@@ -94,7 +101,7 @@ public class ScopusProvider {
             docBuilder = docBuilderFactory.newDocumentBuilder();
             parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.error(e.getMessage(), e);
+            logAndCacheError(e);
         }
         return mapToCrisMetric(parsedResponse);
     }
@@ -107,7 +114,7 @@ public class ScopusProvider {
             docBuilder = docBuilderFactory.newDocumentBuilder();
             parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.error(e.getMessage(), e);
+            logAndCacheError(e);
         }
         return mapToCrisMetricList(parsedResponse);
     }
@@ -134,7 +141,7 @@ public class ScopusProvider {
                 .map(element -> element.getAttribute("href"))
                 .orElse(null);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.error(e.getMessage(), e);
+            logAndCacheError(e);
         }
         return nextUrl;
     }
@@ -148,7 +155,7 @@ public class ScopusProvider {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logAndCacheError(e);
         }
         return scopusCitationList;
     }
@@ -162,7 +169,7 @@ public class ScopusProvider {
                     .map(this::mapToCrisMetric)
                     .orElse(null);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logAndCacheError(e);
         }
         return scopusCitation;
     }
@@ -170,13 +177,13 @@ public class ScopusProvider {
     private CrisMetricDTO mapToCrisMetric(Element dataRoot) {
         CrisMetricDTO scopusCitation = new CrisMetricDTO();
         if (dataRoot == null) {
-            log.debug("No citation entry found in Scopus");
+            logAndCache("No citation entry found in Scopus");
             return scopusCitation;
         }
 
         Element errorScopusResp = XMLUtils.getSingleElement(dataRoot, "error");
         if (errorScopusResp != null) {
-            log.debug("Error citation entry found in Scopus: " + errorScopusResp.getTextContent());
+            logAndCache("Error citation entry found in Scopus: " + errorScopusResp.getTextContent());
             return scopusCitation;
         }
 
@@ -203,10 +210,25 @@ public class ScopusProvider {
         try {
             scopusCitation.setMetricCount(Double.valueOf(numCitations));
         } catch (NullPointerException | NumberFormatException ex) {
-            log.error("Error while trying to parse numCitations:" + numCitations);
+            logAndCacheErrorWithMessage("Error while trying to parse numCitations:" + numCitations, ex);
         }
         scopusCitation.setRemark(scopusCitation.buildMetricsRemark());
         return scopusCitation;
+    }
+
+    private void logAndCache(String message) {
+        logsCache.add("INFO: " + message);
+        log.debug(message);
+    }
+
+    private void logAndCacheErrorWithMessage(String message, Throwable e) {
+        logsCache.add("ERROR: " + message + '\n' + e.getMessage());
+        log.error(message, e);
+    }
+
+    private void logAndCacheError(Throwable e) {
+        logsCache.add("ERROR: " + e.getMessage());
+        log.error(e.getMessage(), e);
     }
 
 }

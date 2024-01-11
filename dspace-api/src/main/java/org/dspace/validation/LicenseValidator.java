@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LicenseValidator implements SubmissionStepValidator {
 
-    private static final String ERROR_VALIDATION_LICENSEREQUIRED = "error.validation.license.notgranted";
+    public static final String ERROR_VALIDATION_LICENSEREQUIRED = "error.validation.license.required";
 
     private String name;
 

@@ -76,6 +76,7 @@ public class OrcidSimpleValueObjectFactory extends AbstractOrcidProfileSectionFa
     public List<String> getMetadataSignatures(Context context, Item item) {
         return metadataFields.stream()
             .flatMap(metadataField -> getMetadataValues(item, metadataField).stream())
+            .filter(metadataValue -> isAllowedMetadataByVisibility(metadataValue))
             .map(metadataValue -> metadataSignatureGenerator.generate(context, List.of(metadataValue)))
             .collect(Collectors.toList());
     }

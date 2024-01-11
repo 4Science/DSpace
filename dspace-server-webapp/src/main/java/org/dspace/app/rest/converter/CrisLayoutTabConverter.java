@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This is the converter from Entity CrisLayoutTab to the REST data model
- * 
+ *
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
@@ -66,6 +66,7 @@ public class CrisLayoutTabConverter implements DSpaceConverter<CrisLayoutTab, Cr
         CrisLayoutTabRest rest = new CrisLayoutTabRest();
         rest.setId(model.getID());
         rest.setEntityType(model.getEntity().getLabel());
+        rest.setCustomFilter(model.getCustomFilter());
         rest.setShortname(model.getShortName());
         rest.setHeader(model.getHeader());
         rest.setPriority(model.getPriority());
@@ -87,6 +88,7 @@ public class CrisLayoutTabConverter implements DSpaceConverter<CrisLayoutTab, Cr
         tab.setSecurity(LayoutSecurity.valueOf(rest.getSecurity()));
         tab.setShortName(rest.getShortname());
         tab.setEntity(findEntityType(context, rest));
+        tab.setCustomFilter(rest.getCustomFilter());
         tab.setLeading(rest.isLeading());
         rest.getRows().forEach(row -> tab.addRow(toRowModel(context, row)));
         return tab;

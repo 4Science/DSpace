@@ -36,6 +36,7 @@ import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.services.ConfigurationService;
+import org.dspace.web.ContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +161,7 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
 
     private List<DiscoveryConfiguration> getAllDiscoveryConfiguration(Item item) {
         try {
-            return SearchUtils.getAllDiscoveryConfigurations(item);
+            return SearchUtils.getAllDiscoveryConfigurations(ContextUtil.obtainCurrentRequestContext(), item);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

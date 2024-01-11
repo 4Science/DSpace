@@ -190,10 +190,13 @@ public class Application extends SpringBootServletInitializer {
                     .getCorsAllowedOrigins(configuration.getIiifAllowedOriginsConfig());
                 String[] bitstreamAllowedOrigins = configuration
                     .getCorsAllowedOrigins(configuration.getBitstreamAllowedOriginsConfig());
+                String[] signpostingAllowedOrigins = configuration
+                        .getCorsAllowedOrigins(configuration.getSignpostingAllowedOriginsConfig());
 
                 boolean corsAllowCredentials = configuration.getCorsAllowCredentials();
                 boolean iiifAllowCredentials = configuration.getIiifAllowCredentials();
                 boolean bitstreamAllowCredentials = configuration.getBitstreamsAllowCredentials();
+                boolean signpostingAllowCredentials = configuration.getSignpostingAllowCredentials();
 
                 if (ArrayUtils.isEmpty(bitstreamAllowedOrigins)) {
                     bitstreamAllowedOrigins = corsAllowedOrigins;
@@ -232,6 +235,18 @@ public class Application extends SpringBootServletInitializer {
                             .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
                                 "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
                                 "x-recaptcha-token")
+                            // Allow list of response headers allowed to be sent by us (the server) to the client
+                            .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
+                }
+                if (signpostingAllowedOrigins != null) {
+                    registry.addMapping("/signposting/**").allowedMethods(CorsConfiguration.ALL)
+                            // Set Access-Control-Allow-Credentials to "true" and specify which origins are valid
+                            // for our Access-Control-Allow-Origin header
+                            .allowCredentials(signpostingAllowCredentials).allowedOrigins(signpostingAllowedOrigins)
+                            // Allow list of request preflight headers allowed to be sent to us from the client
+                            .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
+                                    "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                                    "x-recaptcha-token", "access-control-allow-headers")
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }

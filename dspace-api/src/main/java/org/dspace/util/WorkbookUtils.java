@@ -13,6 +13,7 @@ import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_B
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -87,6 +88,11 @@ public final class WorkbookUtils {
         return values;
     }
 
+    public static String getEntityTypeCellValue(Row row, int index) {
+        Cell cell = row.getCell(index);
+        return getEntityTypeValue(cell);
+    }
+
     public static String getCellValue(Row row, int index) {
         Cell cell = row.getCell(index);
         return getCellValue(cell);
@@ -103,6 +109,15 @@ public final class WorkbookUtils {
         }
         DataFormatter formatter = new DataFormatter();
         return formatter.formatCellValue(cell).trim();
+    }
+
+    public static String getEntityTypeValue(Cell cell) {
+        String cellValue = getCellValue(cell);
+        return Optional.ofNullable(cellValue)
+                    .filter(value -> StringUtils.isNotBlank(value))
+                    .filter(value -> value.contains("."))
+                    .map(value -> value.split("\\.")[0])
+                    .orElse(cellValue);
     }
 
     public static Cell createCell(Row row, int column, String value) {

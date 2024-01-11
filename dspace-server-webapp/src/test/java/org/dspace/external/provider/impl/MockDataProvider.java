@@ -85,6 +85,7 @@ public class MockDataProvider extends AbstractExternalDataProvider {
             externalDataObject.setDisplayValue(id);
             List<MetadataValueDTO> list = new LinkedList<>();
             list.add(new MetadataValueDTO("dc", "contributor", "author", null, "Donald, Smith"));
+            list.add(new MetadataValueDTO("dc", "identifier", "doi", null, "10.1016/j.procs.2017.03.031"));
             externalDataObject.setMetadata(list);
 
             mockLookupMap.put(id, externalDataObject);

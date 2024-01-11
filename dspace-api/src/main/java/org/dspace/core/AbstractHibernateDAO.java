@@ -7,19 +7,25 @@
  */
 package org.dspace.core;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
-import com.google.common.collect.AbstractIterator;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 
@@ -93,6 +99,44 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         @SuppressWarnings("unchecked")
         T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
+    }
+
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
+    }
+
+    @Override
+    public boolean exists(Context context, Class<T> clazz, UUID id) throws SQLException {
+        if (id == null) {
+            return false;
+        }
+        Optional<Field> optionalField =
+            getAllFields(new LinkedList<>(), clazz)
+                .stream()
+                .filter(field -> field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(Column.class))
+                .findFirst();
+        if (optionalField.isEmpty()) {
+            return false;
+        }
+
+        Field idField = optionalField.get();
+        CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
+        CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, clazz);
+
+        Root root = criteriaQuery.from(clazz);
+        Path idColumn = root.get(idField.getName());
+        criteriaQuery.select(idColumn);
+        criteriaQuery.where(criteriaBuilder.equal(idColumn, id));
+
+        org.hibernate.query.Query query = getHibernateSession(context).createQuery(criteriaQuery);
+        query.setMaxResults(1);
+        return query.uniqueResult() != null;
     }
 
     @Override
@@ -297,22 +341,14 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
      * @param query
      *         The query for which an Iterator will be made
      * @return The Iterator for the results of this query
+     * @throws SQLException
      */
-    public Iterator<T> iterate(Query query) {
+    public Iterator<T> iterate(Context ctx, Query query, Class<?> entityType) throws SQLException {
         @SuppressWarnings("unchecked")
         org.hibernate.query.Query hquery = query.unwrap(org.hibernate.query.Query.class);
         Stream<T> stream = hquery.stream();
         Iterator<T> iter = stream.iterator();
-        return new AbstractIterator<T> () {
-            @Override
-            protected T computeNext() {
-                return iter.hasNext() ? iter.next() : endOfData();
-            }
-            @Override
-            public void finalize() {
-                stream.close();
-            }
-        };
+        return new UUIDIterator<T>(ctx, iter, entityType);
     }
 
     /**

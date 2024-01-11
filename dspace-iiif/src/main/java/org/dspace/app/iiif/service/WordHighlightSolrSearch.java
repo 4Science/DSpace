@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -123,58 +122,27 @@ public class WordHighlightSolrSearch implements SearchAnnotationService {
     }
 
     /**
-     * Converts unicode to XML-encoded codepoint.
-     * @param s query terms
-     * @return encoded query
-     */
-    private String toXMLEncoded(String s) {
-        Formatter formatter = new Formatter();
-        int len = s.length();
-        for (int i = 0; i < len; i = s.offsetByCodePoints(i, 1)) {
-            int c = s.codePointAt(i);
-            if (c < 32 || c > 126) {
-                formatter.format("&#%d;", c);
-            } else {
-                formatter.format("%c", c);
-            }
-        }
-        return formatter.toString();
-    }
-
-    /**
-     * Constructs a solr search URL.
+     * Constructs a solr search URL. Compatible with solr-ocrhighlighting-0.7.2.
+     * https://github.com/dbmdz/solr-ocrhighlighting/releases/tag/0.7.2
      *
      * @param query the search terms
      * @param manifestId the id of the manifest in which to search
      * @return solr query
      */
     private SolrQuery getSolrQuery(String query, String manifestId) {
-        boolean encode = configurationService.getBooleanProperty("iiif.search.index.xml.encode");
-        if (encode) {
-            query = toXMLEncoded(query);
-        }
-        String snippetCount = configurationService.getProperty("iiif.search.snippets");
-        String contextBlock = configurationService.getProperty("iiif.search.contextBlock");
-        String limitBlock = configurationService.getProperty("iiif.search.limitBlock");
-        String scorePassages = configurationService.getProperty("iiif.search.scorePassages");
-        String absoluteHighlights = configurationService.getProperty("iiif.search.absoluteHighlights");
-        String contextSize = configurationService.getProperty("iiif.search.contextSize");
-        String trackPages = configurationService.getProperty("iiif.search.trackPages");
-        String rows = configurationService.getProperty("iiif.search.rows");
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.set("q", "ocr_text:" + query + " AND manifest_url:\"" + manifestId + "\"");
         solrQuery.set(CommonParams.WT, "json");
         solrQuery.set("fl", "id");
         solrQuery.set("hl", "true");
         solrQuery.set("hl.ocr.fl", "ocr_text");
-        solrQuery.set("rows", rows);
-        solrQuery.set("hl.ocr.contextBlock", contextBlock);
-        solrQuery.set("hl.ocr.contextSize", contextSize);
-        solrQuery.set("hl.snippets", snippetCount);
-        solrQuery.set("hl.ocr.trackPages", trackPages);
-        solrQuery.set("hl.ocr.limitBlock",limitBlock);
-        solrQuery.set("hl.ocr.scorePassages", scorePassages);
-        solrQuery.set("hl.ocr.absoluteHighlights", absoluteHighlights);
+        solrQuery.set("hl.ocr.contextBlock", "line");
+        solrQuery.set("hl.ocr.contextSize", "2");
+        solrQuery.set("hl.snippets", "8192");
+        solrQuery.set("hl.ocr.maxPassages", "8192");
+        solrQuery.set("hl.ocr.trackPages", "on");
+        solrQuery.set("hl.ocr.limitBlock","page");
+        solrQuery.set("hl.ocr.absoluteHighlights", "true");
 
         return solrQuery;
     }

@@ -9,7 +9,6 @@ package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
-import static org.dspace.app.rest.test.AbstractControllerIntegrationTest.REST_SERVER_URL;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;

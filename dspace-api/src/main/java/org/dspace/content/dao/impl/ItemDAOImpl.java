@@ -58,7 +58,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException {
         Query query = createQuery(context, "FROM Item WHERE inArchive=:in_archive ORDER BY id");
         query.setParameter("in_archive", archived);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         query.setParameter("in_archive", archived);
         query.setFirstResult(offset);
         query.setMaxResults(limit);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
 
@@ -77,7 +77,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
                 "FROM Item WHERE inArchive=:in_archive or withdrawn=:withdrawn ORDER BY id");
         query.setParameter("in_archive", archived);
         query.setParameter("withdrawn", withdrawn);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
             "WHERE i.inArchive=true or i.withdrawn=true or (i.inArchive=false and v.id IS NOT NULL) " +
             "ORDER BY i.id"
         );
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (lastModified != null) {
             query.setParameter("last_modified", lastModified, TemporalType.TIMESTAMP);
         }
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
                 "FROM Item WHERE inArchive=:in_archive and submitter=:submitter ORDER BY id");
         query.setParameter("in_archive", true);
         query.setParameter("submitter", eperson);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         }
         Query query = createQuery(context, "FROM Item WHERE submitter=:submitter ORDER BY id");
         query.setParameter("submitter", eperson);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         hibernateQuery.setParameter("in_archive", true);
         hibernateQuery.setParameter("submitter", eperson);
         hibernateQuery.setMaxResults(limit);
-        return iterate(hibernateQuery);
+        return iterate(context, hibernateQuery, Item.class);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (value != null) {
             query.setParameter("text_value", value);
         }
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (value != null) {
             query.setParameter("text_value", value);
         }
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     enum OP {
@@ -316,7 +316,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         query.setParameter("in_archive", inArchive);
         query.setParameter("metadata_field", metadataField);
         query.setParameter("authority", authority);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -333,7 +333,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (limit != null) {
             query.setMaxResults(limit);
         }
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -371,7 +371,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
                 "select i from Item i join i.collections c WHERE :collection IN c ORDER BY i.id");
         query.setParameter("collection", collection);
 
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -388,7 +388,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
             query.setMaxResults(limit);
         }
 
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -426,7 +426,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         Query query = createQuery(context,
                 "SELECT i FROM Item i WHERE last_modified > :last_modified ORDER BY id");
         query.setParameter("last_modified", since, TemporalType.TIMESTAMP);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -469,7 +469,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
             query.setParameter("in_archive", inArchive);
         }
         query.setParameter("authority", likeAuthority);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
     @Override
@@ -477,7 +477,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         Query query = createQuery(context,
                 "SELECT item " + "FROM Item as item WHERE item.id IN (:ids)");
         query.setParameter("ids", ids);
-        return iterate(query);
+        return iterate(context, query, Item.class);
     }
 
 }

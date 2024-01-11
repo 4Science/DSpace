@@ -9,8 +9,6 @@ package org.dspace.ctask.general;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -40,7 +38,7 @@ public class CreateMissingIdentifiersIT
 
     @Test
     public void testPerform()
-            throws IOException {
+            throws Exception {
         // Must remove any cached named plugins before creating a new one
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
         ConfigurationService configurationService = kernelImpl.getConfigurationService();
