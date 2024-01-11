@@ -92,4 +92,6 @@ public interface UnpaywallService {
      * @return list of item versions
      */
     List<UnpaywallItemVersionDto> getItemVersions(Context context, UUID itemId);
+
+    Unpaywall downloadResource(Context context, Unpaywall unpaywall, Item item);
 }

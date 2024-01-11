@@ -26,8 +26,6 @@ public class DataUnpaywall implements SectionData {
 
     private UnpaywallStatus status;
 
-    private String jsonRecord;
-
     private Date timestampCreated;
 
     private Date timestampLastModified;
@@ -40,7 +38,6 @@ public class DataUnpaywall implements SectionData {
         doi = unpaywall.getDoi();
         status = unpaywall.getStatus();
         itemId = unpaywall.getItemId();
-        jsonRecord = unpaywall.getJsonRecord();
         timestampCreated = unpaywall.getTimestampCreated();
         timestampLastModified = unpaywall.getTimestampLastModified();
     }
@@ -75,14 +72,6 @@ public class DataUnpaywall implements SectionData {
 
     public void setStatus(UnpaywallStatus status) {
         this.status = status;
-    }
-
-    public String getJsonRecord() {
-        return jsonRecord;
-    }
-
-    public void setJsonRecord(String jsonRecord) {
-        this.jsonRecord = jsonRecord;
     }
 
     public Date getTimestampCreated() {
