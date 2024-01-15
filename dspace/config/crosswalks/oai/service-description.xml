@@ -2,6 +2,6 @@
 	<Compatibility xmlns="https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Service_Compatibility">https://www.openaire.eu/cerif-profile/vocab/OpenAIRE_Service_Compatibility#1.1</Compatibility>
 	<Name xml:lang="en">${dspace.name}</Name>
 	<Description xml:lang="en">An example CRIS that complies with the OpenAIRE Guidelines for CRIS Managers v.1.1.</Description>
-	<WebsiteURL>${dspace.url}</WebsiteURL>
-	<OAIPMHBaseURL>http://${dspace.hostname}/oai/openairecris</OAIPMHBaseURL>
+	<WebsiteURL>${dspace.ui.url}</WebsiteURL>
+	<OAIPMHBaseURL>${dspace.server.url}/oai/openairecris</OAIPMHBaseURL>
 </Service>

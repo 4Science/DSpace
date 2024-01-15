@@ -13,6 +13,7 @@ import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -108,6 +109,7 @@ public class UpdateCrisMetricsWithExternalSource extends
             performUpdate(externalService);
             context.complete();
         } catch (Exception e) {
+            getLogsFromMetricService(externalService);
             log.error(e.getMessage(), e);
             handler.handleException(e);
             context.abort();
@@ -184,6 +186,7 @@ public class UpdateCrisMetricsWithExternalSource extends
 
         long updatedItems = metricsServices.updateMetric(context, itemIterator, param);
 
+        getLogsFromMetricService(metricsServices);
         handler.logInfo("Updated " + updatedItems + " metrics");
         handler.logInfo("Update end");
 
@@ -216,6 +219,7 @@ public class UpdateCrisMetricsWithExternalSource extends
         }
 
         context.commit();
+        getLogsFromMetricService(metricsServices);
         handler.logInfo("Found " + countFoundItems + " items");
         handler.logInfo("Updated " + countUpdatedItems + " metrics");
         handler.logInfo("Update end");
@@ -240,4 +244,10 @@ public class UpdateCrisMetricsWithExternalSource extends
         }
     }
 
+    private void getLogsFromMetricService(MetricsExternalServices metricsServices) {
+        List<String> metricLogger = metricsServices.getLogs();
+        if (metricLogger != null) {
+            metricLogger.forEach(message -> handler.logInfo(message));
+        }
+    }
 }

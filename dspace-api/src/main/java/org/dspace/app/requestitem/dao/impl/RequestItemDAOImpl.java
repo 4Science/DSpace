@@ -46,6 +46,6 @@ public class RequestItemDAOImpl extends AbstractHibernateDAO<RequestItem> implem
     public Iterator<RequestItem> findByItem(Context context, Item item) throws SQLException {
         Query query = createQuery(context, "FROM RequestItem WHERE item_id= :uuid");
         query.setParameter("uuid", item.getID());
-        return iterate(query);
+        return iterate(context, query, RequestItem.class);
     }
 }

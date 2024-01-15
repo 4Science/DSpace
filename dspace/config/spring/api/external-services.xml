@@ -64,6 +64,12 @@
                 <value>Person</value>
             </list>
         </property>
+        <property name="externalIdentifiers">
+            <map>
+                <entry key="Scopus Author ID" value="person.identifier.scopus-author-id"/>
+                <entry key="Researcher ID" value="person.identifier.rid"/>
+            </map>
+        </property>
     </bean>
 
     <bean id="orcidRestConnector" class="org.dspace.external.OrcidRestConnector">
@@ -221,6 +227,17 @@
         <property name="supportedEntityTypes">
             <list>
                 <value>Publication</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="rorDataProvider" class="org.dspace.external.provider.impl.LiveImportDataProvider" >
+        <property name="metadataSource" ref="rorImportService"/>
+        <property name="sourceIdentifier" value="ror"/>
+        <property name="recordIdMetadata" value="organization.identifier.ror"/>
+        <property name="supportedEntityTypes">
+            <list>
+                <value>OrgUnit</value>
             </list>
         </property>
     </bean>

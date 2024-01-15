@@ -42,8 +42,9 @@ public class ItemAuthorityMatcher {
                 hasJsonPath("$.display", is(display)),
                 hasJsonPath("$.value", is(value)),
                 hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.otherInformation", aMapWithSize(1)),
-                hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue))
+                hasJsonPath("$.otherInformation", aMapWithSize(2)),
+                hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue)),
+                hasJsonPath("$.otherInformation['" + "data-" + otherInfMetadata + "']", is(metadataValue))
         );
     }
 
@@ -71,6 +72,20 @@ public class ItemAuthorityMatcher {
                       hasJsonPath("$.otherInformation." + firstOtherMetadata, is(firstOtherValue)),
                       hasJsonPath("$.otherInformation." + secondOtherMetadata, is(secondOtherValue))
                 )
+        );
+    }
+
+    public static Matcher<? super Object> matchItemAuthorityWithTwoMetadataInOtherInformations(String authority,
+            String display, String value, String type, Map<String, String> orcidAndAffiliation) {
+        return allOf(
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.otherInformation", aMapWithSize(4)),
+            allOf (
+                hasJsonPath("$.otherInformation", is(orcidAndAffiliation))
+            )
         );
     }
 }

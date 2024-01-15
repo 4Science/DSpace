@@ -68,4 +68,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.packager.Packager"/>
     </bean>
 
+    <bean id="bulk-access-control" class="org.dspace.app.bulkaccesscontrol.BulkAccessControlScriptConfiguration" primary="true">
+        <property name="description" value="Bulk access control"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControl"/>
+    </bean>
+
 </beans>

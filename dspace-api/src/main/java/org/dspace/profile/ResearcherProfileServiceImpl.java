@@ -314,16 +314,19 @@ public class ResearcherProfileServiceImpl implements ResearcherProfileService {
 
         item = installItemService.installItem(context, workspaceItem);
 
+        context.uncacheEntity(workspaceItem);
+
         if (isNewProfileNotVisibleByDefault()) {
             Group anonymous = groupService.findByName(context, ANONYMOUS);
             authorizeService.removeGroupPolicies(context, item, anonymous);
         }
 
-        authorizeService.addPolicy(context, item, READ, ePerson);
+        itemService.addResourcePolicy(context, item, READ, ePerson);
 
         if (isAdditionOfWritePolicyOnProfileEnabled()) {
-            authorizeService.addPolicy(context, item, WRITE, ePerson);
+            itemService.addResourcePolicy(context, item, WRITE, ePerson);
         }
+
 
         return reloadItem(context, item);
     }

@@ -60,8 +60,14 @@ public interface SolrLoggerService {
 
     public void postView(DSpaceObject dspaceObject, HttpServletRequest request, EPerson currentUser, Date time);
 
+    void postView(DSpaceObject dspaceObject, HttpServletRequest request,
+                  EPerson currentUser, String referrer, Date time);
+
     public void postView(DSpaceObject dspaceObject,
                          String ip, String userAgent, String xforwardedfor, EPerson currentUser);
+
+    void postView(DSpaceObject dspaceObject,
+                  String ip, String userAgent, String xforwardedfor, EPerson currentUser, String referrer);
 
     public void postLogin(DSpaceObject object, HttpServletRequest request, EPerson currentUser);
 

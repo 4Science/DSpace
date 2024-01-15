@@ -105,7 +105,8 @@ public abstract class DSpaceItem implements Item {
 
     @Override
     public String getIdentifier() {
-        return buildIdentifier(getHandle());
+        return !getMetadata("dspace","legacy", "oai-identifier").isEmpty() ?
+                getMetadata("dspace","legacy", "oai-identifier").get(0) : buildIdentifier(getHandle());
     }
 
     private static class MetadataNamePredicate implements Predicate<Element> {

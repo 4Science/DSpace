@@ -56,7 +56,7 @@ public class BitstreamFormatRestRepositoryIT extends AbstractControllerIntegrati
     @Autowired
     private BitstreamFormatConverter bitstreamFormatConverter;
 
-    private final int DEFAULT_AMOUNT_FORMATS = 90;
+    private final int DEFAULT_AMOUNT_FORMATS = 92;
 
     @Test
     public void findAllPaginationTest() throws Exception {

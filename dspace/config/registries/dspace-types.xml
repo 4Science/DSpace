@@ -51,6 +51,13 @@
         <qualifier>enabled</qualifier>
         <scope_note>Stores a boolean text value (true or false) to indicate if the iiif feature is enabled or not for the dspace object. If absent the value is derived from the parent dspace object</scope_note>
     </dc-type>
+    
+    <dc-type>
+        <schema>dspace</schema>
+        <element>file</element>
+        <qualifier>type</qualifier>
+        <scope_note>Stores the bitstream's children file type inside the item it self</scope_note>
+    </dc-type>
 
     <dc-type>
         <schema>dspace</schema>

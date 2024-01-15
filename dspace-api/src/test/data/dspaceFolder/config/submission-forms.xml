@@ -48,7 +48,7 @@
        </row>
    </form>
 
-   <form name="traditionalpageone">
+    <form name="traditionalpageone">
             <!-- NOTE: this Author <row> is customized from the default submission-forms.xml in order to make it
                  easier to test Entity functionality -->
             <row>
@@ -240,7 +240,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
 
-   <form name="traditionalpageone-cris">
+    <form name="traditionalpageone-cris">
 	 <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -380,7 +380,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
 	</form>
-	<form name="traditionalpagetwo">
+    <form name="traditionalpagetwo">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -432,7 +432,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="traditionalpagethree-cris-open">
+    <form name="traditionalpagethree-cris-open">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -484,7 +484,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="traditionalpagethree-cris-collapsed">
+    <form name="traditionalpagethree-cris-collapsed">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -536,7 +536,7 @@ it, please enter the types and the actual numbers or codes.</hint>
        </field>
      </row>
    </form>
-   <form name="journalVolumeStep">
+    <form name="journalVolumeStep">
      <row>
        <relation-field>
          <relationship-type>isJournalOfVolume</relationship-type>
@@ -1038,8 +1038,8 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
 
-   <!-- Form patent [START] -->
-   <form name="patent">
+    <!-- Form patent [START] -->
+    <form name="patent">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1060,7 +1060,7 @@ it, please enter the types and the actual numbers or codes.</hint>
          <repeatable>false</repeatable>
          <required />
          <hint>The Approval date.
-You can leave out the day and/or month if they aren't applicable.</hint>
+    You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
      <row>
@@ -1073,7 +1073,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <repeatable>false</repeatable>
          <required />
          <hint>The registration date of the patent.
-You can leave out the day and/or month if they aren't applicable.</hint>
+    You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
      <row>
@@ -1169,8 +1169,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>The date Filled.</hint>
        </field>
      </row>
-   </form>
-   <form name="patent_indexing">
+    </form>
+    <form name="patent_indexing">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1206,8 +1206,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>Enter the description of the patent.</hint>
        </field>
      </row>
-   </form>
-   <form name="patent_references">
+    </form>
+    <form name="patent_references">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1243,8 +1243,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <hint>Result outputs that are referenced by this patent</hint>
        </field>
      </row>
-   </form>
-   <!-- Form patent [END] -->
+    </form>
+    <!-- Form patent [END] -->
 	<form name="person">
       <row>
         <field>
@@ -1528,6 +1528,54 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         </field>
       </row>
     </form>
+    <form name="person-oairecerif-person-affiliation">
+     <row>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>role</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Role</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>onebox</input-type>
+         <hint />
+         <required />
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>person</dc-element>
+         <dc-qualifier>affiliation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Organisation name</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>onebox</input-type>
+         <hint />
+         <required>You must enter at least the organisation of your affiliation.</required>
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>startDate</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Start Date</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>date</input-type>
+         <hint />
+         <required />
+       </field>
+       <field>
+         <dc-schema>oairecerif</dc-schema>
+         <dc-element>affiliation</dc-element>
+         <dc-qualifier>endDate</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>End Date</label>
+         <style>col-xs-12 col-md-6 col-lg-3</style>
+         <input-type>date</input-type>
+         <hint />
+         <required />
+       </field>
+     </row>
+   </form>
     <form name="person-crisrp-qualification">
       <row>
         <field>
@@ -1638,7 +1686,7 @@ You can leave out the day and/or month if they aren't applicable.</hint>
         </field>
       </row>
     </form>
-    
+
     <form name="qualdroptest">
      <row>
        <field>
@@ -1654,8 +1702,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
-   <form name="typebindtest">
+
+    <form name="typebindtest">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -1723,8 +1771,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        </field>
      </row>
    </form>
-   
-   <form name="languagetest">
+
+    <form name="languagetest">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -1769,9 +1817,9 @@ You can leave out the day and/or month if they aren't applicable.</hint>
           <label>Type</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <vocabulary>srsc</vocabulary>
-          <required />
-          <hint>Select a subject from the vocabulary.</hint>
+          <required>You must select a publication type</required>
+          <hint>Select the type(s) of content of the item.</hint>
+          <vocabulary>publication-coar-types</vocabulary>
         </field>
       </row>
      <row>
@@ -1957,10 +2005,152 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <required />
          <hint>Indicare il tipo di relazione</hint>
        </field>
-     </row>
+     </row><row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Tipologia file</label>
+          <input-type value-pairs-name="file_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire la tipologia di file</required>
+          <hint>Selezionare la tipologia del file</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>physical</dc-qualifier>
+          <label>Tipologia fisica</label>
+          <input-type value-pairs-name="audiovideo_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Selezionare la tipologia fisica della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>extent</dc-qualifier>
+          <label>Durata dell’evento</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Durata dell’evento espressa in ore, minuti e secondi, HH:MM:SS</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>mimetype</dc-qualifier>
+          <label>Codifica file Audio / Video</label>
+          <input-type value-pairs-name="codify_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Codifica dello stream di dati audio / video</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>channel</dc-qualifier>
+          <label>Numero di canali</label>
+          <input-type value-pairs-name="channel_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Numero di canali di registrazione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>samplerate</dc-qualifier>
+          <label>Sample rate</label>
+          <input-type value-pairs-name="samplerate">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Frequenza di campionamento espressa in Khz</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>bitsample</dc-qualifier>
+          <label>Bit per sample</label>
+          <input-type value-pairs-name="bitsample">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Numero di bit della registrazione audio / video di cui è composto il singolo campione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>tools</dc-qualifier>
+          <label>Strumentazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Strumentazione utilizzata per la registrazione audio / video</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>medium</dc-qualifier>
+          <label>Descrizione fisica del supporto</label>
+          <input-type value-pairs-name="medium_type">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Descrizione delle caratteristiche fisiche del supporto</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationstate</dc-qualifier>
+          <label>Stato di conservazione</label>
+          <input-type value-pairs-name="common_preservation_state">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Stato di conservazione del supporto analogico</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>preservationnote</dc-qualifier>
+          <label>Note sullo stato di conservazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Eventuali annotazioni relative allo stato di conservazione della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>digitaltools</dc-qualifier>
+          <label>Metodologia e strumentazione di riproduzione digitale adottata</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Specifiche sul tipo di metodologia e sulla strumentazione adottata per la riproduzione digitale</hint>
+        </field>
+      </row>
    </form>
 
-   <form name="sampleauthority">
+    <form name="sampleauthority">
      <row>
         <field>
             <dc-schema>dc</dc-schema>
@@ -1996,9 +2186,9 @@ You can leave out the day and/or month if they aren't applicable.</hint>
             <required></required>
         </field>
      </row>
-  </form>
+    </form>
 
-   <form name="titleAndIssuedDate">
+    <form name="titleAndIssuedDate">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -2046,8 +2236,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <required>You must enter at least the year.</required>
        </field>
      </row>
-	</form>
-	   <form name="onlyTitle">
+    </form>
+    <form name="onlyTitle">
      <row>
        <field>
          <dc-schema>dc</dc-schema>
@@ -2061,8 +2251,8 @@ You can leave out the day and/or month if they aren't applicable.</hint>
          <!--    <language value-pairs-name="common_iso_languages">true</language> -->
        </field>
      </row>
-	</form>
-	
+    </form>
+
 	<form name="testVisibility">
 		<row>
 			<field>
@@ -3420,6 +3610,266 @@ You can leave out the day and/or month if they aren't applicable.</hint>
        <stored-value>National Health Service</stored-value>
      </pair>
    </value-pairs>
+    <value-pairs value-pairs-name="file_type" dc-term="file_type">
+      <pair>
+        <displayed-value>Audio</displayed-value>
+        <stored-value>Audio</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Video</displayed-value>
+        <stored-value>Video</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="audiovideo_type" dc-term="audiovideo_type">
+      <pair>
+        <displayed-value>Registrazione audio</displayed-value>
+        <stored-value>Registrazione audio</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione audio / solo musica</displayed-value>
+        <stored-value>Registrazione audio / solo musica</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione audio / solo voce</displayed-value>
+        <stored-value>Registrazione audio / solo voce</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video</displayed-value>
+        <stored-value>Registrazione video</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video / solo musica</displayed-value>
+        <stored-value>Registrazione video / solo musica</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Registrazione video / solo voce</displayed-value>
+        <stored-value>Registrazione video / solo voce</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="cultural_sphere" dc-term="cultural_sphere">
+      <pair>
+        <displayed-value>Cinematografico</displayed-value>
+        <stored-value>Cinematografico</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Culturale</displayed-value>
+        <stored-value>Culturale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Didattico</displayed-value>
+        <stored-value>Didattico</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Divulgativo</displayed-value>
+        <stored-value>Divulgativo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Religioso</displayed-value>
+        <stored-value>Religioso</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sociale</displayed-value>
+        <stored-value>Sociale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Teatrale</displayed-value>
+        <stored-value>Teatrale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="codify_type" dc-term="codify_type">
+      <pair>
+        <displayed-value>audio/mp1</displayed-value>
+        <stored-value>audio/mp1</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mp2</displayed-value>
+        <stored-value>audio/mp2</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mp3</displayed-value>
+        <stored-value>audio/mp3</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/mpc</displayed-value>
+        <stored-value>audio/mpc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/wav</displayed-value>
+        <stored-value>audio/wav</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/wma</displayed-value>
+        <stored-value>audio/wma</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/flac</displayed-value>
+        <stored-value>audio/flac</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>audio/aiff</displayed-value>
+        <stored-value>audio/aiff</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mp4</displayed-value>
+        <stored-value>video/mp4</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mpg</displayed-value>
+        <stored-value>video/mpg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/mov</displayed-value>
+        <stored-value>video/mov</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/wmv</displayed-value>
+        <stored-value>video/wmv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/webm</displayed-value>
+        <stored-value>video/webm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/avi</displayed-value>
+        <stored-value>video/avi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>video/flv</displayed-value>
+        <stored-value>video/flv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="channel_type" dc-term="channel_type">
+      <pair>
+        <displayed-value>Mono</displayed-value>
+        <stored-value>Mono</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dual mono</displayed-value>
+        <stored-value>Dual mono</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Joint stereo</displayed-value>
+        <stored-value>Joint stereo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Stereo</displayed-value>
+        <stored-value>Stereo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>2 ch</displayed-value>
+        <stored-value>2 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>4 ch</displayed-value>
+        <stored-value>4 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>5.1 ch</displayed-value>
+        <stored-value>5.1 ch</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>6.1 ch</displayed-value>
+        <stored-value>6.1 ch</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="samplerate" dc-term="samplerate">
+      <pair>
+        <displayed-value>8 KHz</displayed-value>
+        <stored-value>8 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>11.025 KHz</displayed-value>
+        <stored-value>11.025 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>12 KHz</displayed-value>
+        <stored-value>12 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>16 KHz</displayed-value>
+        <stored-value>16 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>22.05 KHz</displayed-value>
+        <stored-value>22.05 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>24 KHz</displayed-value>
+        <stored-value>24 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>32 KHz</displayed-value>
+        <stored-value>32 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>44.1 KHz</displayed-value>
+        <stored-value>44.1 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>48 KHz</displayed-value>
+        <stored-value>48 KHz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>96 KHz</displayed-value>
+        <stored-value>96 KHz</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="bitsample" dc-term="bitsample">
+      <pair>
+        <displayed-value>8 bit</displayed-value>
+        <stored-value>8 bit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>16 bit</displayed-value>
+        <stored-value>16 bit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>24 bit</displayed-value>
+        <stored-value>24 bit</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="medium_type" dc-term="medium_type">
+      <pair>
+        <displayed-value>Nastro magnetico (bobina)</displayed-value>
+        <stored-value>Nastro magnetico (bobina)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nastro magnetico (audiocassetta)</displayed-value>
+        <stored-value>Nastro magnetico (audiocassetta)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Video VHS</displayed-value>
+        <stored-value>Video VHS</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (33 gg.)</displayed-value>
+        <stored-value>Vinile (33 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (45 gg.)</displayed-value>
+        <stored-value>Vinile (45 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vinile (78 gg.)</displayed-value>
+        <stored-value>Vinile (78 gg.)</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altro</displayed-value>
+        <stored-value>Altro</stored-value>
+      </pair>
+    </value-pairs>
 
  </form-value-pairs>
 

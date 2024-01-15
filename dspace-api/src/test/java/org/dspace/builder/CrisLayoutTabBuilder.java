@@ -117,6 +117,11 @@ public class CrisLayoutTabBuilder extends AbstractBuilder<CrisLayoutTab, CrisLay
         return this;
     }
 
+    public CrisLayoutTabBuilder withCustomFilter(String customFilter) {
+        this.tab.setCustomFilter(customFilter);
+        return this;
+    }
+
     public CrisLayoutTabBuilder withHeader(String header) {
         this.tab.setHeader(header);
         return this;

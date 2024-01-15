@@ -7,6 +7,8 @@
  */
 package org.dspace.app.bulkedit;
 
+import org.apache.commons.cli.Options;
+
 /**
  * Extension of {@link BulkImportScriptConfiguration} for CLI.
  *
@@ -15,5 +17,13 @@ package org.dspace.app.bulkedit;
  */
 public class BulkImportCliScriptConfiguration<T extends BulkImportCli> extends BulkImportScriptConfiguration<T> {
 
+    @Override
+    public Options getOptions() {
+        Options options = super.getOptions();
+        options.addOption("e", "email", true, "email address of user");
+        options.getOption("e").setRequired(true);
+        super.options = options;
+        return options;
+    }
 
 }

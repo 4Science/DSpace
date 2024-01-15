@@ -85,7 +85,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
 
         IndexableObject scopeObject = scopeResolver.resolveScope(context, dsoScope);
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
-            .getDiscoveryConfigurationByNameOrDso(configuration, scopeObject);
+            .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
         return discoverConfigurationConverter.convert(discoveryConfiguration, utils.obtainProjection());
     }
@@ -97,7 +97,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
         Context context = obtainContext();
         IndexableObject scopeObject = scopeResolver.resolveScope(context, dsoScope);
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
-            .getDiscoveryConfigurationByNameOrDso(configuration, scopeObject);
+            .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
         boolean isRelatedItem = discoveryConfiguration != null &&
                 discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
@@ -129,7 +129,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
 
         IndexableObject scopeObject = scopeResolver.resolveScope(context, dsoScope);
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
-            .getDiscoveryConfigurationByNameOrDso(configuration, scopeObject);
+            .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
         return discoverFacetConfigurationConverter.convert(configuration, dsoScope, discoveryConfiguration);
     }
@@ -146,7 +146,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
 
         IndexableObject scopeObject = scopeResolver.resolveScope(context, dsoScope);
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
-            .getDiscoveryConfigurationByNameOrDso(configuration, scopeObject);
+            .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
         boolean isRelatedItem = discoveryConfiguration != null &&
                 discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
@@ -179,7 +179,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
         Pageable page = PageRequest.of(1, 1);
         IndexableObject scopeObject = scopeResolver.resolveScope(context, dsoScope);
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
-            .getDiscoveryConfigurationByNameOrDso(configuration, scopeObject);
+            .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
         boolean isRelatedItem = discoveryConfiguration != null &&
                 discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;

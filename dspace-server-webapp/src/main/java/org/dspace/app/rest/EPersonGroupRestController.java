@@ -42,6 +42,18 @@ public class EPersonGroupRestController implements InitializingBean {
     private ConverterService converter;
     @Autowired
     private CollectionRestRepository collectionRestRepository;
+
+    /**
+     * This request can be used to join a user to a target group by using a registration data token will be replaced
+     * by the {@link EPersonRegistrationRestController} features.
+     *
+     * @param context
+     * @param uuid
+     * @param token
+     * @return
+     * @throws Exception
+     */
+    @Deprecated
     @RequestMapping(method = RequestMethod.POST, value = EPersonRest.CATEGORY + "/"
             + EPersonRest.PLURAL_NAME + "/{uuid}/" + EPersonRest.GROUPS)
     public ResponseEntity<RepresentationModel<?>> joinUserToGroups(Context context,

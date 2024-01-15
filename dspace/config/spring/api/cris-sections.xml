@@ -205,14 +205,6 @@
                 </bean>
             </list>
             <list>
-                <bean class="org.dspace.layout.CrisLayoutSearchComponent">
-                    <property name="discoveryConfigurationName" value="site" />
-                    <property name="style" value="col-md-12"/>
-                    <property name="searchType" value="basic"/>
-                    <property name="displayTitle" value="false"/>
-                </bean>
-            </list>
-            <list>
                 <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
                     <property name="contentType" value="text-metadata"/>
                     <property name="content" value="counter.header"/>
@@ -275,7 +267,7 @@
                     <property name="order" value="asc" />
                 </bean>
             </list>
-            <list>
+            <!-- <list>
            		<bean class="org.dspace.layout.CrisLayoutTwitterComponent">
                     <property name="style" value="col-12"/>
                     <property name="twitterSettings">
@@ -310,7 +302,7 @@
                         </list>
                     </property>
                 </bean>
-            </list>
+            </list> -->
           </list>
         </constructor-arg>
     </bean>

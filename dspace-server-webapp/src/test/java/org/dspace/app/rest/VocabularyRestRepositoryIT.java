@@ -155,10 +155,16 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         String token = getAuthToken(admin.getEmail(), password);
         MvcResult mvcResult = getClient(token).perform(get("/api/submission/vocabularies")).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        getClient(token).perform(get("/api/submission/vocabularies"))
+        int size = cas.getChoiceAuthoritiesNames().size();
+        getClient(token).perform(get("/api/submission/vocabularies")
+                     .param("size", String.valueOf(size)))
                  .andExpect(status().isOk())
                  .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
                      VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
+                     VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true, false),
+                     VocabularyMatcher.matchProperties("truefalse", "truefalse", true, false),
+                     VocabularyMatcher.matchProperties("common_iso_countries", "common_iso_countries", true, false),
+                     VocabularyMatcher.matchProperties("common_iso_languages", "common_iso_languages", true, false),
                      VocabularyMatcher.matchProperties("picture_color_types", "picture_color_types", true, false),
                      VocabularyMatcher.matchProperties(
                              "common_preservation_state", "common_preservation_state", true, false),
@@ -172,6 +178,9 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("start_date_valid", "start_date_valid", true, false),
                      VocabularyMatcher.matchProperties(
                              "archival_material_types", "archival_material_types", true, false),
+                     VocabularyMatcher.matchProperties("issue_types", "issue_types", true, false),
+                     VocabularyMatcher.matchProperties("medium_type", "medium_type", true, false),
+                     VocabularyMatcher.matchProperties("book_types", "book_types", true, false),
                      VocabularyMatcher.matchProperties(
                              "fonds_photographictype", "fonds_photographictype", true, false),
                      VocabularyMatcher.matchProperties(
@@ -182,12 +191,20 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("patent_types", "patent_types", true , false),
                      VocabularyMatcher.matchProperties("gender", "gender", true , false),
                      VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false , false),
+                     VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false, false),
                      VocabularyMatcher.matchProperties(
-                             "publication-coar-types", "publication-coar-types", false , true)
+                             "publication-coar-types", "publication-coar-types", false , true),
+                     VocabularyMatcher.matchProperties("codify_type", "codify_type", true, false),
+                     VocabularyMatcher.matchProperties("audiovideo_type", "audiovideo_type", true, false),
+                     VocabularyMatcher.matchProperties("file_type", "file_type", true, false),
+                     VocabularyMatcher.matchProperties("channel_type", "channel_type", true, false),
+                     VocabularyMatcher.matchProperties("samplerate", "samplerate", true, false),
+                     VocabularyMatcher.matchProperties("bitsample", "bitsample", true, false),
+                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))
-                .andExpect(jsonPath("$.page.totalElements", is(28)));
+                .andExpect(jsonPath("$.page.totalElements", is(size)));
     }
 
     @Test

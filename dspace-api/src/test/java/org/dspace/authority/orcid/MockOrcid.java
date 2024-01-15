@@ -51,6 +51,14 @@ public class MockOrcid extends Orcidv3SolrAuthorityImpl {
                     }
                 });
 
+        when(orcidRestConnector.get(ArgumentMatchers.matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), ArgumentMatchers.any()))
+            .thenAnswer(new Answer<InputStream>() {
+                @Override
+                public InputStream answer(InvocationOnMock invocation) {
+                    return this.getClass().getResourceAsStream("orcid-record.xml");
+                }
+            });
+
         setOrcidRestConnector(orcidRestConnector);
     }
 

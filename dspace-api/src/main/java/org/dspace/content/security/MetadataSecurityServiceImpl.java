@@ -145,6 +145,17 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
 
     }
 
+    private boolean canEditItem(Context context, Item item) {
+        if (context == null) {
+            return false;
+        }
+        try {
+            return this.itemService.canEdit(context, item);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<CrisLayoutBox> findBoxes(Context context, Item item, boolean preventBoxSecurityCheck) {
         if (context == null || preventBoxSecurityCheck) {
             // the context could be null if the converter is used to prepare test data or in a batch script
@@ -169,7 +180,11 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         if (CollectionUtils.isNotEmpty(boxes)) {
             return isMetadataFieldVisibleByBoxes(context, boxes, item, metadataField, preventBoxSecurityCheck);
         }
-        return isNotAdmin(context) ? isNotHidden(context, metadataField) : true;
+        return isNotAdmin(context) ? isMetadataFieldVisibleFor(context, item, metadataField) : true;
+    }
+
+    private boolean isMetadataFieldVisibleFor(Context context, Item item, MetadataField metadataField) {
+        return canEditItem(context, item) || isNotHidden(context, metadataField);
     }
 
     private boolean isMetadataValueReturnAllowed(Context context, Item item, MetadataValue metadataValue) {
@@ -210,7 +225,7 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         }
 
         // the metadata is not included in any box so use the default dspace security
-        if (notPublicBoxes.isEmpty() && isNotHidden(context, metadataField)) {
+        if (notPublicBoxes.isEmpty() && isMetadataFieldVisibleFor(context, item, metadataField)) {
             return true;
         }
 
@@ -274,6 +289,10 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         } catch (DCInputsReaderException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private boolean isAdmin(Context context) {
+        return !isNotAdmin(context);
     }
 
     private boolean isNotAdmin(Context context) {
