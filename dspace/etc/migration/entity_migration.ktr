@@ -5691,10 +5691,10 @@ nested_object.parent_id,
 nested_object.positiondef,        
 properties.parent_id as nested_object_id,     
 --property_def.id AS pdef_id,    
---original pdef from where the value is caluclated. Remove because of DISTINCT clause 
+--original pdef from where the value is calculated. Remove because of DISTINCT clause 
 --property_def2.id AS pdef_id_missing,  
-properties.visibility,   
-property_def2.shortname,    
+0 as visibility,
+property_def2.shortname,
 property_def2.value AS textvalue
 FROM    
 (   
@@ -5706,7 +5706,7 @@ Left JOIN
 Left JOIN  
 (SELECT * FROM "public".${NESTED_TABLE}_tp2pdef) AS tp2 ON tp2.${PLACEHOLDER_TP} = nested_object.typo_id AND tp2.${PLACEHOLDER_PDEF} != property_def.id   
 -- CAN't use variables because they contain old_, thus introducing Placeholde variables
---join with non-existing values where not exist 
+-- join with non-existing values where not exist 
 Left JOIN    
 (SELECT '#PLACEHOLDER_PARENT_METADATA_VALUE#' AS value, shortname, id FROM "public".${NESTED_PROP_DEF}) AS property_def2 ON property_def2.id = tp2.${PLACEHOLDER_PDEF} AND NOT EXISTS(SELECT * from "public".${NESTED_PROP} AS pdef3 WHERE pdef3.parent_id = properties.parent_id AND pdef3.typo_id = property_def2.id)  
 ) 
