@@ -14,16 +14,8 @@
            http://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean class="org.dspace.subscriptions.SubscriptionEmailNotificationServiceImpl">
-        <constructor-arg name="subscriptionType2generators">
-            <!-- The keys of the map used by the script "subscription-send"
-             org.dspace.subscriptions.SubscriptionEmailNotification
-             currently we support only 'content' type.   
-              --> 
-            <map>
-                <entry key="content" value-ref="contentNotifyGenerator"/>
-                <entry key="statistics" value-ref="statisticsNotifyGenerator"/>
-            </map>
-        </constructor-arg>
+        <constructor-arg name="contentGenerator" ref="contentNotifyGenerator" />
+        <constructor-arg name="statisticsGenerator" ref="statisticsNotifyGenerator" />
         <constructor-arg name="contentUpdates">
             <!-- Currently we support subscriptions ONLY for Community & Collection -->
             <map>
@@ -32,10 +24,16 @@
                 <entry key="item" value-ref="itemUpdates"/>
             </map>
         </constructor-arg>
+        <constructor-arg name="supportedSubscriptionTypes">
+            <list>
+                <value>content</value>
+                <value>statistics</value>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="contentNotifyGenerator" name="contentNotifyGenerator" class="org.dspace.subscriptions.ContentGenerator"/>
-    <!-- this generator will lookup on subscribed dspaceobject and produce mail content for updates for collections, communities and items -->
+    <!-- this generator will look up on subscribed dspaceobject and produce mail content for updates for collections, communities and items -->
     <bean id="statisticsNotifyGenerator" name="statisticsNotifyGenerator" class="org.dspace.subscriptions.StatisticsGenerator"/>
 
     <!-- This map allows configuring custom generators for e-mail body by EntityType.

@@ -52,6 +52,7 @@ public class DiscoveryConfigurationUtilsService {
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
         discoverQuery.setDiscoveryConfigurationName(discoveryConfiguration.getId());
+        discoverQuery.setScopeObject(new IndexableItem(item));
         List<String> defaultFilterQueries = discoveryConfiguration.getDefaultFilterQueries();
         for (String defaultFilterQuery : defaultFilterQueries) {
             discoverQuery.addFilterQueries(MessageFormat.format(defaultFilterQuery, item.getID()));

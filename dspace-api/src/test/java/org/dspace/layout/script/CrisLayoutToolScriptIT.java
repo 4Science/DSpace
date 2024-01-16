@@ -79,7 +79,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
         List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event", "Aggregation", "News",
             "Equipment", "Funding", "Product", "Project", "Fonds", "JournalFonds", "Place", "JournalFile",
-                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture"
+                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo"
         ).forEach(this::createEntityType);
         context.restoreAuthSystemState();
 
@@ -283,7 +283,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(tabService.findAll(context), hasSize(4));
 
-        List<CrisLayoutTab> personTabs = tabService.findByEntityType(context, "Person");
+        List<CrisLayoutTab> personTabs = tabService.findByEntityType(context, "Person", null);
         assertThat(personTabs, hasSize(2));
 
         CrisLayoutTab firstPersonTab = personTabs.get(0);
@@ -378,7 +378,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(profileResearchoutputsBox.getGroupSecurityFields(),
                    contains(matches(groupField -> groupField.getName().equals("Researchers"))));
 
-        List<CrisLayoutTab> publicationTabs = tabService.findByEntityType(context, "Publication");
+        List<CrisLayoutTab> publicationTabs = tabService.findByEntityType(context, "Publication", null);
         assertThat(publicationTabs, hasSize(2));
 
         CrisLayoutTab publicationTab = publicationTabs.get(0);

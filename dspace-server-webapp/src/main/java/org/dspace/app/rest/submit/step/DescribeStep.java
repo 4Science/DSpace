@@ -32,8 +32,10 @@ import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.app.util.TypeBindUtils;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.RelationshipMetadataService;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
 import org.dspace.services.ConfigurationService;
@@ -59,6 +61,9 @@ public class DescribeStep extends AbstractProcessingStep {
     private final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
             .getInstance()
             .getMetadataAuthorityService();
+
+    private RelationshipMetadataService relationshipMetadataService =
+        ContentServiceFactory.getInstance().getRelationshipMetadataService();
 
     public DescribeStep() throws DCInputsReaderException {
         inputReader = DCInputsReaderFactory.getDCInputsReader();
@@ -101,7 +106,10 @@ public class DescribeStep extends AbstractProcessingStep {
                         .standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     readField(obj, config, data, inputConfigChild);
                 } else {
-                    fieldsName.add(input.getFieldName());
+                    String fieldName = input.getFieldName();
+                    if (fieldName != null) {
+                        fieldsName.add(fieldName);
+                    }
                 }
 
 
@@ -210,4 +218,3 @@ public class DescribeStep extends AbstractProcessingStep {
         return fieldsName;
     }
 }
-

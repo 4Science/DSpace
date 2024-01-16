@@ -41,7 +41,7 @@ public abstract class AbstractPlainMetadataSource
 
     /**
      * Set the file extensions supported by this metadata service
-     * 
+     *
      * @param supportedExtensions the file extensions (xml,txt,...) supported by this service
      */
     public void setSupportedExtensions(List<String> supportedExtensions) {
@@ -64,6 +64,9 @@ public abstract class AbstractPlainMetadataSource
     @Override
     public List<ImportRecord> getRecords(InputStream is) throws FileSourceException {
         List<PlainMetadataSourceDto> datas = readData(is);
+        if (datas == null) {
+            return List.of();
+        }
         List<ImportRecord> records = new ArrayList<>();
         for (PlainMetadataSourceDto item : datas) {
             records.add(toRecord(item));

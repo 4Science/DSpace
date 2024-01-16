@@ -33,6 +33,7 @@
 		<property name="metadata" value="dc.identifier.arxiv" />
 		<property name="resourceTypeID" value="2" />
 		<property name="prefix" value="arxiv:"/>
+		<property name="useEntityType" value="false"/>
 		<!-- remember to add the prefix to the ignoreprefix list -->
 		<property name="ignorePrefix">
 			<list>
@@ -48,6 +49,7 @@
 		<property name="metadata" value="dc.identifier.isi" />
 		<property name="resourceTypeID" value="2" />
 		<property name="prefix" value="isi:"/>
+		<property name="useEntityType" value="false"/>
 	</bean>
 
 	<bean class="org.dspace.app.deduplication.utils.MD5ValueSignature" name="ScopusSignature">
@@ -55,6 +57,7 @@
 		<property name="metadata" value="dc.identifier.scopus" />
 		<property name="resourceTypeID" value="2" />
 		<property name="prefix" value="scopus:"/>
+		<property name="useEntityType" value="false"/>
 	</bean>
 
 	<bean class="org.dspace.app.deduplication.utils.MD5ValueSignature" name="PubmedIDSignature">
@@ -62,6 +65,7 @@
 		<property name="metadata" value="dc.identifier.pmid" />
 		<property name="resourceTypeID" value="2" />
 		<property name="prefix" value="pmid:"/>
+		<property name="useEntityType" value="false"/>
 		<!-- remember to add the prefix to the ignoreprefix list -->
 		<property name="ignorePrefix">
 			<list>
@@ -78,6 +82,7 @@
 		<property name="metadata" value="dc.identifier.doi" />
 		<property name="resourceTypeID" value="2" />
 		<property name="prefix" value="doi:"/>
+		<property name="useEntityType" value="false"/>
 		<!-- remember to add the prefix to the ignoreprefix list -->
 		<property name="ignorePrefix">
 			<list>

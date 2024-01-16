@@ -150,10 +150,10 @@ public class OrcidExternalSourcesIT extends AbstractControllerIntegrationTest {
         OrcidRestConnector orcidConnector = Mockito.mock(OrcidRestConnector.class);
         OrcidRestConnector realConnector = orcidV3AuthorDataProvider.getOrcidRestConnector();
         orcidV3AuthorDataProvider.setOrcidRestConnector(orcidConnector);
-        when(orcidConnector.get(ArgumentMatchers.endsWith("/person"), ArgumentMatchers.any()))
+        when(orcidConnector.get(ArgumentMatchers.matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), ArgumentMatchers.any()))
                 .thenAnswer(new Answer<InputStream>() {
                     public InputStream answer(InvocationOnMock invocation) {
-                        return getClass().getResourceAsStream("orcid-person-record.xml");
+                        return getClass().getResourceAsStream("orcid-record.xml");
                     }
                 });
 
@@ -193,10 +193,10 @@ public class OrcidExternalSourcesIT extends AbstractControllerIntegrationTest {
                             return getClass().getResourceAsStream("orcid-search.xml");
                         }
                     });
-            when(orcidConnector.get(ArgumentMatchers.endsWith("/person"), ArgumentMatchers.any()))
+            when(orcidConnector.get(ArgumentMatchers.matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), ArgumentMatchers.any()))
                     .thenAnswer(new Answer<InputStream>() {
                         public InputStream answer(InvocationOnMock invocation) {
-                            return getClass().getResourceAsStream("orcid-person-record.xml");
+                            return getClass().getResourceAsStream("orcid-record.xml");
                         }
                     });
             String q = "orcid:0000-0002-9029-1854";
@@ -246,10 +246,10 @@ public class OrcidExternalSourcesIT extends AbstractControllerIntegrationTest {
                             return getClass().getResourceAsStream("orcid-search.xml");
                         }
                     });
-            when(orcidConnector.get(ArgumentMatchers.endsWith("/person"), ArgumentMatchers.any()))
+            when(orcidConnector.get(ArgumentMatchers.matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), ArgumentMatchers.any()))
                     .thenAnswer(new Answer<InputStream>() {
                         public InputStream answer(InvocationOnMock invocation) {
-                            return getClass().getResourceAsStream("orcid-person-record.xml");
+                            return getClass().getResourceAsStream("orcid-record.xml");
                         }
                     });
             String q = "family-name:bollini AND given-names:andrea";

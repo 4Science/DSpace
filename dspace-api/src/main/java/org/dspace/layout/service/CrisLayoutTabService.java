@@ -94,22 +94,25 @@ public interface CrisLayoutTabService extends DSpaceCRUDService<CrisLayoutTab> {
      * Returns all tabs in the database filtered by entity type {@link EntityType}
      * @param context The relevant DSpace Context
      * @param entityType label of entity type {@link EntityType}
+     * @param customFilter label of specialized entity type {@link CrisLayoutTab#getCustomFilter()}
      * @return List of CrisLayoutTab {@link CrisLayoutTab}
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public List<CrisLayoutTab> findByEntityType(Context context, String entityType) throws SQLException;
+    public List<CrisLayoutTab> findByEntityType(Context context, String entityType, String customFilter)
+        throws SQLException;
 
     /**
      * Returns all tabs in database filtered by entity type {@link EntityType}
      * @param context The relevant DSpace Context
      * @param entityType entity type label
+     * @param customFilter label of specialized entity type {@link CrisLayoutTab#getCustomFilter()}
      * @param limit how many results return
      * @param offset the position of the first result to return
      * @return List of CrisLayoutTab {@link CrisLayoutTab}
      * @throws SQLException An exception that provides information on a database errors.
      */
-    public List<CrisLayoutTab> findByEntityType(Context context, String entityType, Integer limit, Integer offset)
-            throws SQLException;
+    public List<CrisLayoutTab> findByEntityType(Context context, String entityType, String customFilter, Integer limit,
+                                                Integer offset) throws SQLException;
 
     /**
      * Returns the total number of tabs with a specific entity type

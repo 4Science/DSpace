@@ -573,6 +573,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                             wfItem = workflowService.startWithoutNotify(c, wsItem);
                         }
                     } else {
+                        // Add provenance info
+                        String provenance = installItemService.getSubmittedByProvenanceMessage(c, wsItem.getItem());
+                        itemService.addMetadata(c, item, MetadataSchemaEnum.DC.getName(),
+                                "description", "provenance", "en", provenance);
                         // Install the item
                         installItemService.installItem(c, wsItem);
                     }
@@ -1369,8 +1373,8 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
      * is the field is defined as authority controlled
      */
     private boolean isAuthorityControlledField(String md) {
-        String mdf = StringUtils.substringAfter(md, ":");
-        mdf = StringUtils.substringBefore(mdf, "[");
+        String mdf = md.contains(":") ? StringUtils.substringAfter(md, ":") : md;
+        mdf = mdf.contains("[") ? StringUtils.substringBefore(mdf, "[") : mdf;
         return metadataAuthorityService.isAuthorityAllowed(mdf.replaceAll("\\.", "_"), Constants.ITEM, null);
     }
 

@@ -7,7 +7,6 @@
  */
 package org.dspace.authority.filler;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
@@ -110,7 +109,11 @@ public class ExternalDataProviderImportFiller implements AuthorityImportFiller {
     }
 
     private boolean notAlreadyPresent(Item item, MetadataValueDTO value) {
-        return isEmpty(itemService.getMetadata(item, value.getSchema(), value.getElement(), value.getQualifier(), ANY));
+        List<MetadataValue> metadataValues = itemService.getMetadata(item, value.getSchema(),
+            value.getElement(), value.getQualifier(), ANY);
+
+        return metadataValues.stream().noneMatch(metadataValue ->
+            metadataValue.getValue().equals(value.getValue()));
     }
 
     private boolean isTitleNotSet(Item item) {

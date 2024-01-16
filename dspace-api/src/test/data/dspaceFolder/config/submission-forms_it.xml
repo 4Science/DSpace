@@ -94,14 +94,14 @@
             </row>
 			<row>
 				<field>
-					<dc-schema>dc</dc-schema>
-					<dc-element>type</dc-element>
-					<label>Type</label>
-					<input-type>onebox</input-type>
-					<repeatable>false</repeatable>
-					<required>Devi selezionare un tipo di pubblicazione</required>
-					<hint>Seleziona il tipo di contenuto della pubblicazione.</hint>
-					<vocabulary>srsc_it</vocabulary>
+                    <dc-schema>dc</dc-schema>
+                    <dc-element>type</dc-element>
+                    <label>Type</label>
+                    <input-type>onebox</input-type>
+                    <repeatable>false</repeatable>
+                    <required>You must select a publication type</required>
+                    <hint>Select the type(s) of content of the item.</hint>
+                    <vocabulary>publication-coar-types_it</vocabulary>
 				</field>
             </row>
         </form>

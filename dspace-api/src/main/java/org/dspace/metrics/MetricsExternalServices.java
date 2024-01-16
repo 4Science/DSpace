@@ -118,4 +118,8 @@ public abstract class MetricsExternalServices {
     public void setFetchSize(int fetchSize) {
         this.fetchSize = fetchSize;
     }
+
+    public List<String> getLogs() {
+        return null;
+    }
 }
