@@ -4754,6 +4754,18 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <dc-qualifier>keywords</dc-qualifier>
           <label>Parole chiave / keywords</label>
