@@ -313,7 +313,7 @@ public class CrisLayoutBoxServiceImplTest {
 
         singleBitstreamBox.addLayoutField(fieldBitstream);
 
-        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of()))
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false))
                 .thenReturn(List.of(bitstream));
 
         assertThat(crisLayoutBoxService.hasContent(context, singleBitstreamBox, item), is(true));
