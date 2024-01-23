@@ -446,13 +446,14 @@ public abstract class DSpaceRestRepository<T extends RestAddressableModel, ID ex
         Context context = obtainContext();
         try {
             getThisRepository().patch(context, request, apiCategory, model, id, patch);
+            T ret = findById(id).orElse(null);
             context.commit();
+            return ret;
         } catch (AuthorizeException ae) {
             throw new RESTAuthorizationException(ae);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        return findById(id).orElse(null);
     }
 
     /**
