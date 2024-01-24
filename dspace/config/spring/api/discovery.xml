@@ -2359,7 +2359,7 @@
                     <list>
                         <ref bean="sortDateAccessionedDesc" />
                         <ref bean="sortViews" />
-                        <ref bean="sortIndex"/>
+                        <ref bean="sortPriority"/>
                     </list>
                 </property>
             </bean>
