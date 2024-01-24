@@ -7115,6 +7115,14 @@
         <displayed-value>Personal Picture</displayed-value>
         <stored-value>personal picture</stored-value>
       </pair>
+      <pair>
+        <displayed-value>Default Audio Cover</displayed-value>
+        <stored-value>audio cover</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Default Video Cover</displayed-value>
+        <stored-value>video cover</stored-value>
+      </pair>
     </value-pairs>
     <value-pairs value-pairs-name="file_type" dc-term="file_type">
       <pair>
