@@ -1554,7 +1554,7 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Indicare l'URL relativo alla plicy UA</hint>
+          <hint>Indicare l'URL relativo alla policy UA</hint>
         </field>
       </row>
       <row>
