@@ -882,7 +882,7 @@
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <!--The default sort filter to use for the initial workspace loading-->
-                <property name="defaultSortField" ref="sortLastModified" />
+                <property name="defaultSortField" ref="sortLastModifiedDesc" />
                 <property name="sortFields">
                     <list>
                         <ref bean="sortLastModifiedDesc" />
