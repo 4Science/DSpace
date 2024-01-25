@@ -30,11 +30,6 @@
 					<xsl:call-template name="section-title">
 				    	<xsl:with-param name="label" select="'Basic informations'" />
 			    	</xsl:call-template>
-			    	
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'Acronym'" />
-				    	<xsl:with-param name="value" select="Acronym" />
-			    	</xsl:call-template>
 
 					<xsl:call-template name="print-value">
 				    	<xsl:with-param name="label" select="'Description'" />
@@ -64,21 +59,6 @@
 					<xsl:call-template name="print-value">
 				    	<xsl:with-param name="label" select="'Country'" />
 				    	<xsl:with-param name="value" select="AddressCountry" />
-			    	</xsl:call-template>
-			    	
-					<xsl:call-template name="print-values">
-				    	<xsl:with-param name="label" select="'Identifier(s)'" />
-				    	<xsl:with-param name="values" select="Identifier[not(@type)]" />
-			    	</xsl:call-template>
-			    	
-					<xsl:call-template name="print-values">
-				    	<xsl:with-param name="label" select="'URL(s)'" />
-				    	<xsl:with-param name="values" select="Identifier[@type = 'URL']" />
-			    	</xsl:call-template>
-			    	
-					<xsl:call-template name="print-values">
-				    	<xsl:with-param name="label" select="'People'" />
-				    	<xsl:with-param name="values" select="People/Person/@displayName" />
 			    	</xsl:call-template>
 
 					<xsl:call-template name="print-values">

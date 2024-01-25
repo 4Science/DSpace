@@ -30,13 +30,6 @@
           </Aggregation>
           @group.dc-relation-aggregation.end@
     </Aggregations>
-    <Documents>
-        @group.dc-relation-isreferencedby.start@
-            <Document>
-                <DisplayName>@dc.relation.isreferencedby@</DisplayName>
-            </Document>
-        @group.dc-relation-isreferencedby.end@
-    </Documents>
     <ReferencedBy>
         @group.dc-relation-isreferencedby.start@
             <Document>

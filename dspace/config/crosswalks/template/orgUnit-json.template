@@ -3,24 +3,36 @@
 	"legalName": "@organization.legalName@",
 	"acronym": "@oairecerif.acronym@",
 	"type": "@virtual.mapConverter.orgUnitTypes.dc-type@",
-	"parentOrganization": {
-		@relation.organization-parentOrganization.start@
-		"name": "@dc.title@",
-		"acronym": "@oairecerif.acronym@"
-		@relation.organization-parentOrganization.end@
-		@if.not.authority.organization-parentOrganization.start@
-		"name": "@organization.parentOrganization@"
-		@if.not.authority.organization-parentOrganization.end@
-	},
-	"identifiers": [
-		"@organization.identifier@",
-	],
-	"url-identifiers": [
-		"@oairecerif.identifier.url@",
-	],
-	"People": [
-		@relation.people.start@
-		"@dc.title@",
-		@relation.people.end@
-	]
+	"organizations": [
+        @group.organization-parentOrganization.start@
+        {
+            "name": "@organization.parentOrganization@"
+        },
+        @group.organization-parentOrganization.end@
+    ],
+    "directors": [
+        @group.crisou-director.start@
+        {
+            "name": "@crisou.director@"
+        },
+        @group.crisou-director.end@
+    ],
+    "foundingDate": "@organization.foundingDate@",
+    "description": "@dc.description.abstract@",
+    "addressLocality": "@organization.address.addressLocality@",
+    "addressCountry": "@organization.address.addressCountry@",
+    "services": [
+        @group.glamou-services.start@
+        {
+            "name": "@glamou.services@"
+        },
+        @group.glamou-services.end@
+    ],
+    "aggregations": [
+        @group.dc-relation-aggregation.start@
+        {
+            "name": "@dc.relation.aggregation@"
+        },
+        @group.dc-relation-aggregation.end@
+    ]
 }
