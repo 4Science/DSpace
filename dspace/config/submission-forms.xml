@@ -4760,7 +4760,7 @@
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire l'abstract del contenuto della risorsa</hint>
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
         </field>
       </row>
       <row>
@@ -7128,12 +7128,20 @@
         <stored-value>personal picture</stored-value>
       </pair>
       <pair>
-        <displayed-value>Default Audio Cover</displayed-value>
+        <displayed-value>Audio Cover</displayed-value>
         <stored-value>audio cover</stored-value>
       </pair>
       <pair>
-        <displayed-value>Default Video Cover</displayed-value>
+        <displayed-value>Video Cover</displayed-value>
         <stored-value>video cover</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Default Audio Cover</displayed-value>
+        <stored-value>default audio cover</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Default Video Cover</displayed-value>
+        <stored-value>default video cover</stored-value>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="file_type" dc-term="file_type">
