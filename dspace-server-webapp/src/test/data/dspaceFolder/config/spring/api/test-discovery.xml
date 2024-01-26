@@ -1772,10 +1772,10 @@
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <!--The default sort filter to use for the initial workspace loading-->
-                <property name="defaultSortField" ref="sortLastModified" />
+                <property name="defaultSortField" ref="sortLastModifiedDesc" />
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortLastModified" />
+                        <ref bean="sortLastModifiedDesc" />
                         <ref bean="sortScore" />
                         <ref bean="sortTitle" />
                         <ref bean="sortDateIssued" />
@@ -1848,10 +1848,10 @@
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <!--The default sort filter to use for the initial workspace loading-->
-                <property name="defaultSortField" ref="sortLastModified" />
+                <property name="defaultSortField" ref="sortLastModifiedDesc" />
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortLastModified" />
+                        <ref bean="sortLastModifiedDesc" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortDateIssuedDesc" />
                     </list>
@@ -1926,7 +1926,7 @@
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortLastModified" />
+                        <ref bean="sortLastModifiedDesc" />
                         <ref bean="sortScore" />
                         <ref bean="sortTitle" />
                         <ref bean="sortDateIssued" />
@@ -4695,7 +4695,13 @@
         <property name="defaultSortOrder" value="desc"/>
     </bean>
 
-    <bean id="sortLastModified" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+    <bean id="sortLastModifiedAsc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="lastModified" />
+        <property name="type" value="date" />
+        <property name="defaultSortOrder" value="asc"/>
+    </bean>
+
+    <bean id="sortLastModifiedDesc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="lastModified" />
         <property name="type" value="date" />
         <property name="defaultSortOrder" value="desc"/>
