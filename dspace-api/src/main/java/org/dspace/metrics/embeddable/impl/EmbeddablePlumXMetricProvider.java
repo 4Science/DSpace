@@ -139,31 +139,31 @@ public class EmbeddablePlumXMetricProvider extends AbstractEmbeddableMetricProvi
 
     @Override
     public boolean hasMetric(Context context, Item item, List<CrisMetrics> retrivedStoredMetrics) {
+        if (! isEnabled()) {
+            return false;
+        }
+
         String entityType = getEntityType(item);
         if (entityType != null) {
             if (entityType.equals("Person")) {
                 // if it is of type person use orcid
                 String orcid = getItemService()
                         .getMetadataFirstValue(item, "person", "identifier", "orcid", Item.ANY);
-                if (orcid != null) {
-                    return true;
-                } else {
+                if (orcid == null) {
                     return false;
                 }
+                return personListViewEnabled || personDetailViewEnabled;
             } else {
                 // if it is of type publication use doi
                 if (entityType.equals("Publication")) {
                     String doiIdentifier = getItemService()
                             .getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
-                    if (doiIdentifier != null) {
-                        return true;
-                    } else {
+                    if (doiIdentifier == null) {
                         return false;
                     }
+                    return publicationListViewEnabled || publicationDetailViewEnabled;
                 }
             }
-        } else {
-            return false;
         }
         return false;
     }
