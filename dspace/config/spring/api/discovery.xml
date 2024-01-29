@@ -1765,6 +1765,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
+                        <ref bean="glamfondsSortIndex"/>
                         <ref bean="sortByResearchOutputsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
