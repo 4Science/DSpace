@@ -180,7 +180,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
                                  UUID.fromString(parentMtd.getAuthority()));
-                return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                if (parentItem != null) {
+                    return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
@@ -229,7 +231,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
                                  UUID.fromString(parentMtd.getAuthority()));
-                choice.extras.put("parent", parentItem.getID().toString());
+                if (parentItem != null) {
+                    choice.extras.put("parent", parentItem.getID().toString());
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
