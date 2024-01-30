@@ -311,6 +311,24 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="opera">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="opera-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>

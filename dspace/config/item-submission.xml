@@ -181,6 +181,11 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="opera" mandatory="true">
+      <heading>submit.progressbar.describe.opera</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_material">
@@ -353,6 +358,16 @@
     <submission-process name="audiovideo-edit">
       <step id="audiovideo" />
       <step id="audiovideo-file" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="opera">
+      <step id="collection" />
+      <step id="opera" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="opera-edit">
+      <step id="opera" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>
