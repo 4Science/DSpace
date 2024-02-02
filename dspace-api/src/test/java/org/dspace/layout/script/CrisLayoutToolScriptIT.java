@@ -79,7 +79,8 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
         List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event", "Aggregation", "News",
             "Equipment", "Funding", "Product", "Project", "Fonds", "JournalFonds", "Place", "JournalFile",
-                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo", "Opera"
+                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo", "Opera", "Artwork",
+                "Coins", "ScientificMaterial", "MusicalLibrettos"
         ).forEach(this::createEntityType);
         context.restoreAuthSystemState();
 

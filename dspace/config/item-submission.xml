@@ -186,6 +186,56 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="coins" mandatory="true">
+      <heading>submit.progressbar.describe.coins</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="coins-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.coins-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks" mandatory="true">
+      <heading>submit.progressbar.describe.artworks</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.artworks-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks-dc-contributor-author" mandatory="true">
+      <heading>submit.progressbar.describe.artworks-dc-contributor-author</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="musical_librettos" mandatory="true">
+      <heading>submit.progressbar.describe.musical_librettos</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-dc-contributor-author" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-dc-contributor-author</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-inscription" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-inscription</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_material">
@@ -368,6 +418,54 @@
     </submission-process>
     <submission-process name="opera-edit">
       <step id="opera" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="coins">
+      <step id="collection" />
+      <step id="coins" />
+      <step id="coins-glam-bibliography" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="coins-edit">
+      <step id="coins" />
+      <step id="coins-glam-bibliography" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="musical_librettos">
+      <step id="collection" />
+      <step id="musical_librettos" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="musical_librettos-edit">
+      <step id="musical_librettos" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="scientific_materials">
+      <step id="collection" />
+      <step id="scientific_materials" />
+      <step id="scientific_materials-dc-contributor-author" />
+      <step id="scientific_materials-glam-inscription" />
+      <step id="scientific_materials-glam-bibliography" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="scientific_materials-edit">
+      <step id="scientific_materials" />
+      <step id="scientific_materials-dc-contributor-author" />
+      <step id="scientific_materials-glam-inscription" />
+      <step id="scientific_materials-glam-bibliography" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="artworks">
+      <step id="collection" />
+      <step id="artworks" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="artworks-edit">
+      <step id="artworks" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>
