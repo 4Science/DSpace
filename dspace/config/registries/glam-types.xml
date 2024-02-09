@@ -809,4 +809,32 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>general-information</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>history-digital-lid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>offered-services</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>organizational-structure</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
