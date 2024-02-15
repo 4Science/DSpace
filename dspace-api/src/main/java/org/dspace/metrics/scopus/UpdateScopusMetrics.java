@@ -110,6 +110,13 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
                             .filter(BooleanUtils::isTrue)
                             .count();
                 apiCalls++;
+                itemList.stream().forEach(item -> {
+                    try {
+                        context.uncacheEntity(item);
+                    } catch (Exception e) {
+                        logAndCacheError("cannot remove the item from the context cache", e);
+                    }
+                });
                 context.commit();
             }
         } catch (SQLException e) {
