@@ -76,8 +76,14 @@ public abstract class MetricsExternalServices {
     public long updateMetric(Context context, Iterator<Item> itemIterator, String param) {
         long count = 0;
         while (itemIterator.hasNext()) {
-            if (this.updateMetric(context, itemIterator.next(), param)) {
+            Item item = itemIterator.next();
+            if (this.updateMetric(context, item, param)) {
                 count++;
+            }
+            try {
+                context.uncacheEntity(item);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
         return count;
