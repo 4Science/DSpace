@@ -170,7 +170,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))
-                .andExpect(jsonPath("$.page.totalElements", is(10)));
+                .andExpect(jsonPath("$.page.totalElements", is(12)));
     }
 
     @Test
