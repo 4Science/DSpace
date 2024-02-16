@@ -270,10 +270,9 @@
       <step id="publication_references" />
       <step id="correction" />
       <step id="detect-duplicate" />
+      <step id="unpaywall" />
       <step id="upload" />
-      <step id="unpaywall" />
       <step id="license" />
-      <step id="unpaywall" />
     </submission-process>
     <submission-process name="publication-edit">
       <step id="extractionstep" />
