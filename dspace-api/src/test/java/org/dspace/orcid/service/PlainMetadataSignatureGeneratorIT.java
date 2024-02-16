@@ -134,11 +134,15 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
     public void testSignatureGenerationWithManyEqualsMetadataValues() {
         context.turnOffAuthorisationSystem();
 
+        Item person = ItemBuilder.createItem(context, collection)
+                .withTitle("Jesse Pinkman")
+                .build();
+
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Item title")
             .withDescription("Description")
-            .withAuthor("Jesse Pinkman")
-            .withAuthor("Jesse Pinkman")
+            .withAuthor("Jesse Pinkman", person.getID().toString())
+            .withAuthor("Jesse Pinkman", person.getID().toString())
             .build();
 
         context.restoreAuthSystemState();
@@ -146,12 +150,12 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
         MetadataValue firstAuthor = getMetadata(item, "dc.contributor.author", 0);
         String firstSignature = generator.generate(context, List.of(firstAuthor));
         assertThat(firstSignature, notNullValue());
-        assertThat(firstSignature, equalTo("dc.contributor.author::Jesse Pinkman"));
+        assertThat(firstSignature, equalTo("dc.contributor.author::Jesse Pinkman::" + person.getID().toString()));
 
         MetadataValue secondAuthor = getMetadata(item, "dc.contributor.author", 1);
         String secondSignature = generator.generate(context, List.of(secondAuthor));
         assertThat(secondSignature, notNullValue());
-        assertThat(secondSignature, equalTo("dc.contributor.author::Jesse Pinkman"));
+        assertThat(secondSignature, equalTo("dc.contributor.author::Jesse Pinkman::" + person.getID().toString()));
 
         List<MetadataValue> metadataValues = generator.findBySignature(context, item, firstSignature);
         assertThat(metadataValues, hasSize(1));

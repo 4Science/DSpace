@@ -19,7 +19,9 @@ import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.eperson.Group;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBox2SecurityGroup;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.LayoutSecurity;
@@ -160,6 +162,17 @@ public class CrisLayoutBoxBuilder extends AbstractBuilder<CrisLayoutBox, CrisLay
             this.box.setMetadataSecurityFields(new HashSet<>());
         }
         this.box.getMetadataSecurityFields().add(field);
+        return this;
+    }
+
+    public CrisLayoutBoxBuilder addBox2SecurityGroups(Group group, CrisLayoutBox alternativeBox) throws SQLException {
+        if (this.box.getBox2SecurityGroups() == null) {
+            this.box.setBox2SecurityGroups(new HashSet<>());
+        }
+        this.box.getBox2SecurityGroups().add(
+            new CrisLayoutBox2SecurityGroup(new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box, group),
+                box, group, alternativeBox)
+        );
         return this;
     }
 

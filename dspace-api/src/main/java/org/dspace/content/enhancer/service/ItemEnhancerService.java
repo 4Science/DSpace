@@ -24,15 +24,9 @@ public interface ItemEnhancerService {
      *
      * @param context the DSpace Context
      * @param item    the item to enhance
+     * @param deepMode <code>false</code>, if the implementation can assume that only the target
+     *        item as been updated since the eventual previous computation of enhanced metadata
      */
-    void enhance(Context context, Item item);
+    void enhance(Context context, Item item, boolean deepMode);
 
-    /**
-     * Remove all the already calculated virtual metadata fields from the given item
-     * and perform a new enhancement.
-     *
-     * @param context the DSpace Context
-     * @param item    the item to enhance
-     */
-    void forceEnhancement(Context context, Item item);
 }

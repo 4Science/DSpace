@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import javax.annotation.PreDestroy;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.EventService;
@@ -107,7 +108,11 @@ public final class SystemEventService implements EventService {
         }
         ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         int threadSize = configurationService.getIntProperty("system-event.thread.size", DEFAULT_THREAD_SIZE);
-        this.executorService = Executors.newFixedThreadPool(threadSize);
+        if (threadSize == 0) {
+            this.executorService = MoreExecutors.newDirectExecutorService();
+        } else {
+            this.executorService = Executors.newFixedThreadPool(threadSize);
+        }
     }
 
     /* (non-Javadoc)
