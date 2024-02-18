@@ -154,6 +154,16 @@ public interface DOIService {
         throws SQLException;
 
     /**
+     * Find the first n DOIs where n is the specified limit parameter that have one of a given set of statuses.
+     * @param context current DSpace session.
+     * @param statuses desired statuses.
+     * @param limit the maximum DOIs returned
+     * @return the first n DOIs where n is the specified limit parameter DOIs having any of the given statuses.
+     * @throws SQLException passed through.
+     */
+    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int limit) throws SQLException;
+
+    /**
      * Find all DOIs that are similar to the specified pattern and not in the
      * specified states.
      *

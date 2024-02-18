@@ -65,6 +65,7 @@ public class DOIOrganiser {
     protected ItemService itemService;
     protected DOIService doiService;
     protected ConfigurationService configurationService;
+    private int limit = 50;
 
     protected boolean skipFilter;
 
@@ -84,6 +85,7 @@ public class DOIOrganiser {
         this.itemService = ContentServiceFactory.getInstance().getItemService();
         this.doiService = IdentifierServiceFactory.getInstance().getDOIService();
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        this.limit = configurationService.getIntProperty("doi-organiser-limit", 50);
         this.filter = DSpaceServicesFactory.getInstance().getServiceManager().getServiceByName(
                 "always_true_filter", TrueFilter.class);
     }
@@ -214,7 +216,7 @@ public class DOIOrganiser {
             organiser.list("deletion", null, null, DOIIdentifierProvider.TO_BE_DELETED);
         }
 
-        int limit = -1;
+        int limit = organiser.getLimit();
         int offset = -1;
 
         if (line.hasOption("li")) {
@@ -237,7 +239,7 @@ public class DOIOrganiser {
         if (line.hasOption('s')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
+                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be reserved.");
@@ -265,7 +267,7 @@ public class DOIOrganiser {
         if (line.hasOption('r')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
+                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be registered.");
@@ -293,7 +295,7 @@ public class DOIOrganiser {
 
         if (line.hasOption('u')) {
             try {
-                List<DOI> dois = doiService.getDOIsByStatus(context, Arrays.asList(
+                List<DOI> dois = doiService.getDOIsByStatus(context, List.of(
                     DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
                     DOIIdentifierProvider.UPDATE_RESERVED,
                     DOIIdentifierProvider.UPDATE_REGISTERED), offset, limit);
@@ -317,7 +319,7 @@ public class DOIOrganiser {
         if (line.hasOption('d')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
+                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be deleted.");
@@ -423,9 +425,9 @@ public class DOIOrganiser {
         }
 
         try {
-            List<DOI> doiList = doiService.getDOIsByStatus(context, Arrays.asList(status));
-            if (0 < doiList.size()) {
-                out.println("DOIs queued for " + processName + ": ");
+            List<DOI> doiList = doiService.getDOIsByStatus(context, List.of(status), limit);
+            if (!doiList.isEmpty()) {
+                out.println("First " + limit + " DOIs queued for " + processName + ": ");
             } else {
                 out.println("There are no DOIs queued for " + processName + ".");
             }
@@ -799,6 +801,10 @@ public class DOIOrganiser {
         }
 
         return doiRow;
+    }
+
+    public int getLimit() {
+        return limit;
     }
 
     /**
