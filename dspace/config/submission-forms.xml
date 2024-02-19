@@ -511,7 +511,7 @@
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
-          <label>Subject Classifications</label>
+          <label>Subject Keywords</label>
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />

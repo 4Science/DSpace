@@ -66,6 +66,7 @@
         <addon-video.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-video.version>
         <addon-docviewer.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-docviewer.version>
         <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
+        <addon-dataquality.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-dataquality.version>
 
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -955,6 +956,26 @@
                          <groupId>it.4science.dspace</groupId>
                          <artifactId>addon-analytics-api</artifactId>
                          <version>${addon-analytics.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds Data Quality addon for DSpace
+        -->
+        <profile>
+            <id>addon-dataquality</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-dataquality</artifactId>
+                         <version>${addon-dataquality.version}</version>
                          <type>jar</type>
                     </dependency>
                 </dependencies>
