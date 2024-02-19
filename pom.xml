@@ -1215,8 +1215,6 @@
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <version>cris-2024.01.00-SNAPSHOT</version>
-                <type>jar</type>
-                <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>

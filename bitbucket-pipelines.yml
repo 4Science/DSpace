@@ -69,7 +69,7 @@ definitions:
 
 pipelines:
   branches:
-    'dspace-cris-7':
+    'main-cris':
       - parallel:
         - step: *unit-test-code-checks
         - step: *integration-tests

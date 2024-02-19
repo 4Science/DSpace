@@ -113,7 +113,7 @@ public class OrcidAuthority extends ItemAuthority {
         String title = getTitle(result);
         String authority = composeAuthorityValue(result.getOrcidId());
         Map<String, String> extras = composeExtras(result);
-        return new Choice(authority, title, title, extras);
+        return new Choice(authority, title, title, extras, getSource());
     }
 
     private String getTitle(ExpandedResult result) {
