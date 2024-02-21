@@ -34,7 +34,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.OrcidProductWorkFieldMapping;
-import org.dspace.orcid.model.OrcidWorkFieldMapping;
 import org.dspace.orcid.model.factory.OrcidCommonObjectFactory;
 import org.dspace.orcid.model.factory.OrcidEntityFactory;
 import org.dspace.util.UUIDUtils;
