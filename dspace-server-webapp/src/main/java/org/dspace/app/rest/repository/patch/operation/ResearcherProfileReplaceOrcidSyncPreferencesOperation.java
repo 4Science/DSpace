@@ -8,6 +8,7 @@
 package org.dspace.app.rest.repository.patch.operation;
 
 import static org.dspace.orcid.model.OrcidEntityType.FUNDING;
+import static org.dspace.orcid.model.OrcidEntityType.PRODUCT;
 import static org.dspace.orcid.model.OrcidEntityType.PUBLICATION;
 
 import java.sql.SQLException;
@@ -53,6 +54,8 @@ public class ResearcherProfileReplaceOrcidSyncPreferencesOperation extends Patch
     private static final String OPERATION_ORCID_SYNCH = "/orcid";
 
     private static final String PUBLICATIONS_PREFERENCES = "/publications";
+
+    private static final String PRODUCTS_PREFERENCES = "/products";
 
     private static final String FUNDINGS_PREFERENCES = "/fundings";
 
@@ -121,6 +124,9 @@ public class ResearcherProfileReplaceOrcidSyncPreferencesOperation extends Patch
             case PUBLICATIONS_PREFERENCES:
                 OrcidEntitySyncPreference preference = parsePreference(value);
                 return synchronizationService.setEntityPreference(context, profileItem, PUBLICATION, preference);
+            case PRODUCTS_PREFERENCES:
+                OrcidEntitySyncPreference productPreference = parsePreference(value);
+                return synchronizationService.setEntityPreference(context, profileItem, PRODUCT, productPreference);
             case FUNDINGS_PREFERENCES:
                 OrcidEntitySyncPreference fundingPreference = parsePreference(value);
                 return synchronizationService.setEntityPreference(context, profileItem, FUNDING, fundingPreference);
@@ -137,9 +143,16 @@ public class ResearcherProfileReplaceOrcidSyncPreferencesOperation extends Patch
     private void reloadOrcidQueue(Context context, String path, String value, Item profileItem)
         throws SQLException, AuthorizeException {
 
-        if (path.equals(PUBLICATIONS_PREFERENCES) || path.equals(FUNDINGS_PREFERENCES)) {
+        if (path.equals(PUBLICATIONS_PREFERENCES) || path.equals(FUNDINGS_PREFERENCES)
+            || path.equals(PRODUCTS_PREFERENCES)) {
             OrcidEntitySyncPreference preference = parsePreference(value);
-            OrcidEntityType entityType = path.equals(PUBLICATIONS_PREFERENCES) ? PUBLICATION : FUNDING;
+            OrcidEntityType entityType = FUNDING;
+            if (path.equals(PUBLICATIONS_PREFERENCES)) {
+                entityType = PUBLICATION;
+            }
+            if (path.equals(PRODUCTS_PREFERENCES)) {
+                entityType = PRODUCT;
+            }
             orcidQueueService.recalculateOrcidQueue(context, profileItem, entityType, preference);
         }
 

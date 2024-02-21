@@ -44,6 +44,9 @@
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidWorkFactory">
     				<property name="fieldMapping" ref="orcidWorkFactoryFieldMapping" />
     			</bean>
+				<bean class="org.dspace.orcid.model.factory.impl.OrcidProductWorkFactory">
+					<property name="fieldMapping" ref="orcidProductWorkFactoryFieldMapping" />
+				</bean>
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidFundingFactory">
     				<property name="fieldMapping" ref="orcidFundingFactoryFieldMapping" />
     			</bean>
@@ -63,6 +66,32 @@
 		<property name="languageConverter" ref="${orcid.mapping.work.language.converter}" />
 		<property name="typeField" value="${orcid.mapping.work.type}" />
 		<property name="typeConverter" ref="${orcid.mapping.work.type.converter}" />
+	</bean>
+
+	<bean id="orcidProductWorkFactoryFieldMapping" class="org.dspace.orcid.model.OrcidProductWorkFieldMapping" >
+		<property name="contributorFields" value="${orcid.mapping.work.product.contributors}" />
+		<property name="externalIdentifierFields" value="${orcid.mapping.work.external-ids}" />
+		<property name="publicationDateField" value="${orcid.mapping.work.publication-date}" />
+		<property name="titleField" value="${orcid.mapping.work.title}" />
+		<property name="journalTitleField" value="${orcid.mapping.work.journal-title}" />
+		<property name="shortDescriptionField" value="${orcid.mapping.work.short-description}" />
+		<property name="subTitleField" value="${orcid.mapping.work.sub-title}" />
+		<property name="languageField" value="${orcid.mapping.work.language}" />
+		<property name="languageConverter" ref="${orcid.mapping.work.language.converter}" />
+		<property name="typeField" value="${orcid.mapping.work.type}" />
+		<property name="typeConverter" ref="${orcid.mapping.work.product.type.converter}" />
+		<property name="fundingField" value="${orcid.mapping.work.funding}" />
+		<property name="fundingUrlField" value="${orcid.mapping.work.funding.url}" />
+		<property name="fundingExternalIdType" value="${orcid.mapping.work.funding.external-id.type}" />
+		<property name="fundingExternalId" value="${orcid.mapping.work.funding.external-id.value}" />
+		<property name="fundingEntityExternalId" value="${orcid.mapping.work.funding.external-id.entity-value}" />
+		<property name="citationType" value="${orcid.mapping.work.citation.type}" />
+		<!-- Citation might be restricted to Publication entity only -->
+		<property name="citationCrosswalks">
+			<util:map>
+				<entry key="bibtex" value-ref="cslItemDataCrosswalkBibtex" />
+			</util:map>
+		</property>
 	</bean>
 	
 	<bean id="orcidFundingFactoryFieldMapping" class="org.dspace.orcid.model.OrcidFundingFieldMapping" >
@@ -131,6 +160,12 @@
     
     <bean name="mapConverterDSpaceToOrcidPublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-dspace-to-orcid-publication-type.properties" />
+		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+		<property name="defaultValue" value="other"/>
+	</bean>
+
+	<bean name="mapConverterDSpaceToOrcidProductType" class="org.dspace.util.SimpleMapConverter" init-method="init">
+		<property name="converterNameFile" value="orcid/mapConverter-dspace-to-orcid-product-type.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value="other"/>
 	</bean>
