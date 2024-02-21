@@ -34,6 +34,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.OrcidProductWorkFieldMapping;
+import org.dspace.orcid.model.OrcidWorkFieldMapping;
 import org.dspace.orcid.model.factory.OrcidCommonObjectFactory;
 import org.dspace.orcid.model.factory.OrcidEntityFactory;
 import org.dspace.util.UUIDUtils;
@@ -62,6 +63,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Implementation of {@link OrcidEntityFactory} that creates instances of
  * {@link Work}. Copy of {@link OrcidWorkFactory}
  * Adapted for Product Entity with own mapping in {@link org.dspace.orcid.model.OrcidProductWorkFieldMapping}
+ *
+ * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
 public class OrcidProductWorkFactory implements OrcidEntityFactory {

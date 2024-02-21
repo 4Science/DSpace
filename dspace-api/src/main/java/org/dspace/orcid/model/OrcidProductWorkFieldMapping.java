@@ -26,7 +26,10 @@ import org.orcid.jaxb.model.v3.release.record.Work;
 
 /**
  * Class that contains all the mapping between {@link Work} and DSpace metadata
- * fields. Adapted from {@link org.dspace.orcid.model.OrcidWorkFieldMapping} for Product entity
+ * fields. Adapted for Product entity
+ *
+ * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ *
  */
 public class OrcidProductWorkFieldMapping {
 
