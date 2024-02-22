@@ -73,6 +73,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     private Collection products;
 
+    private Collection products;
+
     private Collection projects;
 
     @Before
@@ -94,6 +96,11 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         publications = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Collection")
             .withEntityType("Publication")
+            .build();
+
+        products = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Collection")
+            .withEntityType("Product")
             .build();
 
         products = CollectionBuilder.createCollection(context, parentCommunity)
@@ -160,6 +167,69 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
         assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
         assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
+
+    }
+
+    @Test
+    public void testProductWorkCreation() {
+
+        context.turnOffAuthorisationSystem();
+
+        Item author = ItemBuilder.createItem(context, persons)
+            .withTitle("Jesse Pinkman")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withPersonEmail("test@test.it")
+            .build();
+
+        Item product = ItemBuilder.createItem(context, products)
+            .withTitle("Test dataset")
+            .withAuthor("Walter White")
+            .withAuthor("Jesse Pinkman", author.getID().toString())
+            .withEditor("Editor")
+            .withIssueDate("2021-04-30")
+            .withDescriptionAbstract("Product description")
+            .withLanguage("en_US")
+            .withType("http://purl.org/coar/resource_type/c_ddb1")
+            .withIsPartOf("Collection of Products")
+            .withDoiIdentifier("doi-id")
+            .withScopusIdentifier("scopus-id")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        Activity activity = entityFactoryService.createOrcidObject(context, product);
+        assertThat(activity, instanceOf(Work.class));
+
+        Work work = (Work) activity;
+        assertThat(work.getJournalTitle(), notNullValue());
+        assertThat(work.getJournalTitle().getContent(), is("Collection of Products"));
+        assertThat(work.getLanguageCode(), is("en"));
+        assertThat(work.getPublicationDate(), matches(date("2021", "04", "30")));
+        assertThat(work.getShortDescription(), is("Product description"));
+        assertThat(work.getPutCode(), nullValue());
+        // assertThat(work.getWorkCitation(), notNullValue());
+        // assertThat(work.getWorkCitation().getCitation(), containsString("Test product"));
+        assertThat(work.getWorkType(), is(WorkType.DATA_SET));
+        assertThat(work.getWorkTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test dataset"));
+        assertThat(work.getWorkContributors(), notNullValue());
+        assertThat(work.getUrl(), matches(urlEndsWith(product.getHandle())));
+
+        List<Contributor> contributors = work.getWorkContributors().getContributor();
+        assertThat(contributors, hasSize(2));
+        assertThat(contributors, has(contributor("Walter White", AUTHOR, FIRST)));
+        // assertThat(contributors, has(contributor("Editor", EDITOR, FIRST)));
+        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL,
+            "0000-1111-2222-3333", "test@test.it")));
+
+        assertThat(work.getExternalIdentifiers(), notNullValue());
+
+        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
+        assertThat(externalIds, hasSize(3));
+        assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
+        assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
+        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
 
     }
 
@@ -484,7 +554,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .build();
 
         Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test product")
+            .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_18cc")
@@ -554,10 +624,10 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .build();
 
         Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test product")
+            .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_18cc")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
             .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
@@ -627,7 +697,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(work.getShortDescription(), nullValue());
         assertThat(work.getPutCode(), nullValue());
         // assertThat(work.getWorkCitation(), notNullValue());
-        assertThat(work.getWorkType(), is(WorkType.DATA_SET));
+        assertThat(work.getWorkType(), is(WorkType.OTHER));
         assertThat(work.getWorkTitle(), nullValue());
         assertThat(work.getWorkContributors(), notNullValue());
         assertThat(work.getWorkContributors().getContributor(), empty());
