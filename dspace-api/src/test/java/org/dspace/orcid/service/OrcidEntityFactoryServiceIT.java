@@ -381,7 +381,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         context.turnOffAuthorisationSystem();
 
-        Item funding = ItemBuilder.createItem(context, publications)
+        Item funding = ItemBuilder.createItem(context, fundings)
             .withTitle("Test funding")
             .build();
 
@@ -443,7 +443,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         context.turnOffAuthorisationSystem();
 
-        Item funding = ItemBuilder.createItem(context, publications)
+        Item funding = ItemBuilder.createItem(context, fundings)
             .withHandle("123456789/0001")
             .withTitle("Test funding")
             .withFundingIdentifier("987654")
@@ -512,7 +512,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         context.turnOffAuthorisationSystem();
 
-        Item funding = ItemBuilder.createItem(context, publications)
+        Item funding = ItemBuilder.createItem(context, fundings)
             .withHandle("123456789/0001")
             .withTitle("Test funding")
             .withFundingIdentifier("987654")
