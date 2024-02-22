@@ -10,6 +10,13 @@
 			<name>Person</name>
 			<entity-type>Person</entity-type>
 			<submission-type>person</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
 			<description />
 			<intro />
 			<copyright />
@@ -21,6 +28,13 @@
             <name>Project</name>
             <entity-type>Project</entity-type>
 			<submission-type>project</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -32,6 +46,13 @@
             <name>Funding</name>
             <entity-type>Funding</entity-type>
             <submission-type>funding</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -43,6 +64,13 @@
             <name>OrgUnit</name>
             <entity-type>OrgUnit</entity-type>
 			<submission-type>orgunit</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -54,6 +82,13 @@
             <name>Journal</name>
             <entity-type>Journal</entity-type>
 			<submission-type>journal</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -65,6 +100,13 @@
             <name>Publication</name>
             <entity-type>Publication</entity-type>
 			<submission-type>publication</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -76,6 +118,13 @@
             <name>Patent</name>
             <entity-type>Patent</entity-type>
 			<submission-type>patent</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -86,6 +135,13 @@
         <collection>
             <name>Dataset or other products</name>
             <entity-type>Product</entity-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -97,6 +153,13 @@
             <name>Event</name>
             <entity-type>Event</entity-type>
 			<submission-type>event</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />
@@ -108,6 +171,13 @@
             <name>Equipment</name>
             <entity-type>Equipment</entity-type>
 			<submission-type>equipment</submission-type>
+<!--            <templateItem>-->
+<!--                <metadata schema="schema" element="element" qualifier="qualifier">-->
+<!--                    <value></value>-->
+<!--                    <authority></authority>-->
+<!--                    <confidence></confidence>-->
+<!--                </metadata>-->
+<!--            </templateItem>-->
             <description />
             <intro />
             <copyright />

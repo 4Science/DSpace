@@ -128,6 +128,14 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         String authorId = author.getID().toString();
 
+        Item testUser = ItemBuilder.createItem(context, persons)
+                .withTitle("Test User")
+                .build();
+
+        Item jesse = ItemBuilder.createItem(context, persons)
+                .withTitle("Jesse Pinkman")
+                .build();
+
         context.restoreAuthSystemState();
 
         List<MetadataValueDTO> metadata = new ArrayList<>();
@@ -153,9 +161,11 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
         metadata.add(new MetadataValueDTO("dc", "date", "issued", "2022/02/15"));
         metadata.add(new MetadataValueDTO("dc", "type", null, "Book"));
         metadata.add(new MetadataValueDTO("dc", "language", "iso", "it"));
-        metadata.add(new MetadataValueDTO("dc", "contributor", "author", "Jesse Pinkman"));
+        metadata.add(new MetadataValueDTO("dc", "contributor", "author", null, "Jesse Pinkman",
+                jesse.getID().toString(), 600));
         metadata.add(new MetadataValueDTO("oairecerif", "author", "affiliation", PLACEHOLDER_PARENT_METADATA_VALUE));
-        metadata.add(new MetadataValueDTO("dc", "contributor", "author", "Test User"));
+        metadata.add(new MetadataValueDTO("dc", "contributor", "author", null, "Test User",
+                testUser.getID().toString(), 600));
         metadata.add(new MetadataValueDTO("oairecerif", "author", "affiliation", "Company"));
 
         bitstreams = new ArrayList<BitstreamDTO>();
@@ -199,7 +209,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         Item firstItem = getItemFromMessage(handler.getInfoMessages().get(7));
         assertThat(firstItem, notNullValue());
-        assertThat(firstItem.getMetadata(), hasSize(14));
+        assertThat(firstItem.getMetadata(), hasSize(18));
         assertThat(firstItem.getMetadata(), hasItems(
             with("dc.title", "Test Publication"),
             with("dc.date.issued", "2020/02/15"),
@@ -209,7 +219,9 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.subject", "Java", 1),
             with("dc.subject", "DSpace", 2),
             with("dc.contributor.author", "White, Walter", authorId, 600),
-            with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
 
         assertThat(getItemBitstreamsByBundle(firstItem, "ORIGINAL"), contains(
             bitstreamWith("Bitstream 1", "First bitstream content"),
@@ -217,17 +229,22 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         Item secondItem = getItemFromMessage(handler.getInfoMessages().get(10));
         assertThat(secondItem, notNullValue());
-        assertThat(secondItem.getMetadata(), hasSize(14));
+        assertThat(secondItem.getMetadata(), hasSize(22));
         assertThat(secondItem.getMetadata(), hasItems(
             with("dc.title", "Second Publication"),
             with("dc.date.issued", "2022/02/15"),
             with("dspace.entity.type", "Publication"),
             with("dc.type", "Book"),
             with("dc.language.iso", "it"),
-            with("dc.contributor.author", "Jesse Pinkman"),
-            with("dc.contributor.author", "Test User", 1),
+            with("dc.contributor.author", "Jesse Pinkman", jesse.getID().toString(), 600),
+            with("dc.contributor.author", "Test User", testUser.getID().toString(), 1, 600),
             with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("oairecerif.author.affiliation", "Company", 1)));
+            with("oairecerif.author.affiliation", "Company", 1),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
+        ));
 
         assertThat(getItemBitstreamsByBundle(secondItem, "ORIGINAL"), contains(
             bitstreamWith("Bitstream 3", "Third bitstream content")));

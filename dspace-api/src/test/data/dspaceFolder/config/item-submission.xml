@@ -297,6 +297,17 @@
             <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
         </step-definition>
 
+        <step-definition id="green" mandatory="true">
+            <heading>submit.progressbar.describe.green</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        <step-definition id="orange" mandatory="true">
+            <heading>submit.progressbar.describe.green</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -357,6 +368,7 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="unpaywall"/>
+            <step id="upload"/>
         </submission-process>
 
         <submission-process name="traditional-with-correction">
@@ -483,6 +495,17 @@
         <submission-process name="controlled-vocabulary-test">
             <step id="collection"/>
             <step id="controlled-vocabulary-test"/>
+        </submission-process>
+
+        <submission-process name="green">
+            <step id="extractionstep" />
+            <step id="green" />
+            <step id="upload" />
+        </submission-process>
+        <submission-process name="orange">
+            <step id="extractionstep" />
+            <step id="orange" />
+            <step id="upload" />
         </submission-process>
 
     </submission-definitions>
