@@ -484,7 +484,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .build();
 
         Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test publication")
+            .withTitle("Test product")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_18cc")
@@ -554,10 +554,10 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .build();
 
         Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test publication")
+            .withTitle("Test product")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("http://purl.org/coar/resource_type/c_18cc")
             .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
@@ -627,7 +627,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(work.getShortDescription(), nullValue());
         assertThat(work.getPutCode(), nullValue());
         // assertThat(work.getWorkCitation(), notNullValue());
-        assertThat(work.getWorkType(), is(WorkType.OTHER));
+        assertThat(work.getWorkType(), is(WorkType.DATA_SET));
         assertThat(work.getWorkTitle(), nullValue());
         assertThat(work.getWorkContributors(), notNullValue());
         assertThat(work.getWorkContributors().getContributor(), empty());
