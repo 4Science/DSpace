@@ -44,9 +44,9 @@
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidWorkFactory">
     				<property name="fieldMapping" ref="orcidWorkFactoryFieldMapping" />
     			</bean>
-				<bean class="org.dspace.orcid.model.factory.impl.OrcidProductWorkFactory">
-					<property name="fieldMapping" ref="orcidProductWorkFactoryFieldMapping" />
-				</bean>
+    			<bean class="org.dspace.orcid.model.factory.impl.OrcidProductWorkFactory">
+    				<property name="fieldMapping" ref="orcidProductWorkFactoryFieldMapping" />
+    			</bean>
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidFundingFactory">
     				<property name="fieldMapping" ref="orcidFundingFactoryFieldMapping" />
     			</bean>
@@ -167,7 +167,7 @@
 	<bean name="mapConverterDSpaceToOrcidProductType" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-dspace-to-orcid-product-type.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
-		<property name="defaultValue" value="other"/>
+		<property name="defaultValue" value="data-set"/>
 	</bean>
     
     <bean name="mapConverterDSpaceToOrcidLanguageCode" class="org.dspace.util.SimpleMapConverter" init-method="init">
