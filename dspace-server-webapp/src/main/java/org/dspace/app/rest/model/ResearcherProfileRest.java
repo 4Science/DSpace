@@ -95,6 +95,8 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
         private String fundingsPreference;
 
+        private String patentsPreference;
+
         private List<String> profilePreferences;
 
         public String getMode() {
@@ -127,6 +129,14 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
         public void setProductsPreference(String productsPreference) {
             this.productsPreference = productsPreference;
+        }
+
+        public String getPatentsPreference() {
+            return patentsPreference;
+        }
+
+        public void setPatentsPreference(String patentsPreference) {
+            this.patentsPreference = patentsPreference;
         }
 
         public String getFundingsPreference() {

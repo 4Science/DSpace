@@ -28,6 +28,11 @@ public enum OrcidEntityType {
     PRODUCT("Product", "/work"),
 
     /**
+     * The ORCID patent/work activity.
+     */
+    PATENT("Patent", "/work"),
+
+    /**
      * The ORCID funding activity.
      */
     FUNDING("Project", "/funding");
