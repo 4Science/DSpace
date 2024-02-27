@@ -63,8 +63,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * {@link Work}. Copy of {@link OrcidWorkFactory}
  * Adapted for Product Entity with own mapping in {@link org.dspace.orcid.model.OrcidProductWorkFieldMapping}
  *
- * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
  */
 public class OrcidProductWorkFactory implements OrcidEntityFactory {
 
