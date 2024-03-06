@@ -57,6 +57,20 @@
         <property name="relatedItemMetadataField" value="person.identifier.orcid" />
         <property name="virtualQualifier" value="editor-orcid" />
     </bean>
-    
+
+    <!--  Set dc.title of person from some of their other name fields -->
+    <bean class="org.dspace.content.enhancer.impl.NameEnhancer" >
+        <property name="sourceEntityType" value="Person" />
+        <property name="targetItemMetadataField" value="dc.title" />
+        <property name="relatedItemMetadataFields">
+        	<list>
+        		<value>crisrp.name</value>
+        		<value>crisrp.name.translated</value>
+                <value>crisrp.name.variants</value>
+        	</list>
+        </property>
+        <!-- using some defaultValue might not work with creating profiles -->
+        <!-- <property name="defaultValue" value="N.N." /> -->
+    </bean>
 
 </beans>
