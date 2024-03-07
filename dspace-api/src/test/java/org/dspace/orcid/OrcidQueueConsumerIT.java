@@ -645,6 +645,41 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testOrcidQueueRecordCreationForPatent() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .withOrcidSynchronizationPatentsPreference(ALL)
+            .build();
+
+        Collection patentCollection = createCollection("Patents", "Patent");
+
+        Item patent = ItemBuilder.createItem(context, patentCollection)
+            .withTitle("Test patent")
+            .withAuthor("Test User", profile.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(1));
+        assertThat(orcidQueueRecords.get(0), matches(profile, patent, "Patent", null, INSERT));
+
+        addMetadata(patent, "dc", "type", null, "http://purl.org/coar/resource_type/scheme/Z907-YMBB", null);
+        context.commit();
+
+        List<OrcidQueue> newOrcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(newOrcidQueueRecords, hasSize(1));
+
+        assertThat(orcidQueueRecords.get(0), equalTo(newOrcidQueueRecords.get(0)));
+    }
+
+    @Test
     public void testOrcidQueueRecordCreationToUpdateFunding() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -715,6 +750,38 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testOrcidQueueRecordCreationToUpdatePatent() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .withOrcidSynchronizationPatentsPreference(ALL)
+            .build();
+
+        Collection patentCollection = createCollection("Patents", "Patent");
+
+        Item patent = ItemBuilder.createItem(context, patentCollection)
+            .withTitle("Test patent")
+            .build();
+
+        createOrcidHistory(context, profile, patent)
+            .withPutCode("123456")
+            .build();
+
+        addMetadata(patent, "dc", "contributor", "author", "Test User", profile.getID().toString());
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(1));
+        assertThat(orcidQueueRecords.get(0), matches(profile, patent, "Patent", "123456", UPDATE));
+    }
+
+    @Test
     public void testNoOrcidQueueRecordCreationOccursIfFundingSynchronizationIsDisabled() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -775,6 +842,36 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testNoOrcidQueueRecordCreationOccursIfPatentSynchronizationIsDisabled() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .build();
+
+        Collection patentCollection = createCollection("Patents", "Patent");
+
+        Item patent = ItemBuilder.createItem(context, patentCollection)
+            .withTitle("Test patent")
+            .withAuthor("Test User", profile.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        assertThat(orcidQueueService.findAll(context), empty());
+
+        addMetadata(profile, "dspace", "orcid", "sync-patents", DISABLED.name(), null);
+        addMetadata(patent, "dc", "description", "abstract", "Patent Ptent Pent Pnt Pt P", null);
+        context.commit();
+
+        assertThat(orcidQueueService.findAll(context), empty());
+    }
+
+    @Test
     public void testNoOrcidQueueRecordCreationOccursIfProfileHasNotOrcidIdentifier() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -784,6 +881,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
             .withOrcidSynchronizationFundingsPreference(ALL)
             .withOrcidSynchronizationProductsPreference(ALL)
+            .withOrcidSynchronizationPatentsPreference(ALL)
             .build();
 
         Collection fundingCollection = createCollection("Fundings", "Funding");
@@ -797,6 +895,13 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
+            .withAuthor("Test User", profile.getID().toString())
+            .build();
+
+        Collection patentsCollection = createCollection("Patents", "Patent");
+
+        ItemBuilder.createItem(context, patentsCollection)
+            .withTitle("Test patent")
             .withAuthor("Test User", profile.getID().toString())
             .build();
 
@@ -919,6 +1024,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withOrcidSynchronizationFundingsPreference(ALL)
             .withOrcidSynchronizationPublicationsPreference(ALL)
             .withOrcidSynchronizationProductsPreference(ALL)
+            .withOrcidSynchronizationPatentsPreference(ALL)
             .build();
 
         Collection publicationCollection = createCollection("Publications", "Publication");
@@ -955,6 +1061,13 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item firstProduct = ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
+            .withAuthor("Test User", profile.getID().toString())
+            .build();
+
+        Collection patentCollection = createCollection("Patents", "Patent");
+
+        Item firstPatent = ItemBuilder.createItem(context, patentCollection)
+            .withTitle("Test patent")
             .withAuthor("Test User", profile.getID().toString())
             .build();
 
