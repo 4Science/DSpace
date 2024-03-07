@@ -1346,7 +1346,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
                             .andExpect(jsonPath("$.orcidSynchronization.mode", is("MANUAL")))
                             .andExpect(jsonPath("$.orcidSynchronization.publicationsPreference", is("DISABLED")))
                             .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is("DISABLED")))
-                            .andExpect(jsonPath("$.orcidSynchronization.profilePreferences", empty()));
+                            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is("DISABLED")))
+            .andExpect(jsonPath("$.orcidSynchronization.profilePreferences", empty()));
 
         String itemId = getItemIdByProfileId(authToken, ePersonId);
 
@@ -1448,6 +1449,65 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
                             .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(ALL.name())));
 
         operations = asList(new ReplaceOperation("/orcid/fundings", "INVALID_VALUE"));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
+            .content(getPatchContent(operations))
+            .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isUnprocessableEntity());
+
+    }
+
+    @Test
+    public void testPatchToSetOrcidSynchronizationPreferenceForProduct() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withOrcid("0000-1111-2222-3333")
+            .withEmail("test@email.it")
+            .withPassword(password)
+            .withNameInMetadata("Test", "User")
+            .withOrcidScope("/first-scope")
+            .withOrcidScope("/second-scope")
+            .build();
+
+        OrcidTokenBuilder.create(context, ePerson, "af097328-ac1c-4a3e-9eb4-069897874910").build();
+
+        context.restoreAuthSystemState();
+
+        String ePersonId = ePerson.getID().toString();
+        String authToken = getAuthToken(ePerson.getEmail(), password);
+
+        getClient(authToken).perform(post("/api/eperson/profiles/")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isCreated());
+
+        List<Operation> operations = asList(new ReplaceOperation("/orcid/products", ALL.name()));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
+                .content(getPatchContent(operations))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(ALL.name())));
+
+        getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(ALL.name())));
+
+        operations = asList(new ReplaceOperation("/orcid/products", MINE.name()));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
+                .content(getPatchContent(operations))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(MINE.name())));
+
+        getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(MINE.name())));
+
+        operations = asList(new ReplaceOperation("/orcid/products", "INVALID_VALUE"));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
                                          .content(getPatchContent(operations))
@@ -2286,9 +2346,13 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         Collection publications = createCollection("Publications", "Publication");
 
+        Collection products = createCollection("Products", "Product");
+
         Collection orgUnits = createCollection("OrgUnits", "OrgUnit");
 
         Item publication = createPublication(publications, "Test publication", profile, isAuthorOfPublication);
+
+        Item product = createProduct(products, "Test product", profile);
 
         Collection projects = createCollection("Projects", "Project");
 
@@ -2325,18 +2389,40 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondProject)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
+                .content(getPatchContent(asList(new ReplaceOperation("/orcid/products", "ALL"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk());
+
+        queueRecords = orcidQueueService.findByProfileItemId(context, profileItemId);
+        assertThat(queueRecords, hasSize(4));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(publication)));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(firstFunding)));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondFunding)));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(product)));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
             .content(getPatchContent(asList(new ReplaceOperation("/orcid/publications", "DISABLED"))))
             .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
 
         queueRecords = orcidQueueService.findByProfileItemId(context, profileItemId);
-        assertThat(queueRecords, hasSize(2));
+        assertThat(queueRecords, hasSize(3));
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(firstProject)));
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondProject)));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(product)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
             .content(getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
             .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk());
+
+        queueRecords = orcidQueueService.findByProfileItemId(context, profileItemId);
+        assertThat(queueRecords, hasSize(1));
+        assertThat(queueRecords, has(orcidQueueRecordWithEntity(product)));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
+                .content(getPatchContent(asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
 
         assertThat(orcidQueueService.findByProfileItemId(context, profileItemId), empty());
@@ -2581,6 +2667,13 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         return publication;
 
+    }
+
+    private Item createProduct(Collection collection, String title, Item author) {
+        return ItemBuilder.createItem(context, collection)
+            .withTitle(title)
+            .withAuthor(author.getName(), author.getID().toString())
+            .build();
     }
 
     private Item createOrgUnit(Collection collection, String title, Item person,
