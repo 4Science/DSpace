@@ -41,7 +41,9 @@ public class ItemEnhancerScriptConfiguration<T extends ItemEnhancerScript> exten
         if (options == null) {
             Options options = new Options();
 
-            options.addOption("f", "force", false, "force the recalculation of all the virtual fields");
+            options.addOption("f", "force", false,
+                    "force the usage of the deep mode"
+                    + " (always compute the enhanced metadata to verify if the item need an update)");
             options.getOption("f").setType(boolean.class);
             options.getOption("f").setRequired(false);
 

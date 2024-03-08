@@ -61,7 +61,7 @@ public class ItemEnhancerConsumer implements Consumer {
 
         context.turnOffAuthorisationSystem();
         try {
-            itemEnhancerService.enhance(context, item);
+            itemEnhancerService.enhance(context, item, false);
         } finally {
             context.restoreAuthSystemState();
         }
