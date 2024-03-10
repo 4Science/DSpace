@@ -87,19 +87,19 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
             .andExpect(jsonPath("$._embedded.sections",
                         hasItem(withIdAndTextRowComponent("site", 2, 0 ,
-                                "col-md-5 pad-left-title align-items-center d-flex flex", "text-metadata"))))
+                                "py-3 col-md-5 pad-left-title align-items-center d-flex flex", "text-metadata"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 2, 1, "col-md-7 pad-right", Arrays.asList("fonds",
+                hasItem(withIdAndCountersComponent("site", 2, 1, "py-3 col-md-7 pad-right", Arrays.asList("fonds",
                                                                                                  "journalfonds",
                                                                                                  "aggregations",
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndAdvancedTopComponent("site", 3, 0, "py-4 col-12 pad-left pad-right bg-light",
+              hasItem(withIdAndAdvancedTopComponent("site", 3, 0, "py-4 col-12 pad-left pad-right",
                                             List.of("aggregations", "fonds", "journalfonds"),
                                             "dc.date.accessioned", "desc", 8, true, true, "card",
-                                            "", "col-6 col-lg-3", "", true, "default", "advanced-top-component"))))
+                                            "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
             ;
     }
 
