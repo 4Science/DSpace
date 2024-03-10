@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -200,7 +201,7 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getQuery(), is(query));
         assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
         assertThat(discoverQuery.getSortFields().keySet(), contains("dc.title_sort"));
-        assertThat(discoverQuery.getSortFields().entrySet(), contains(DiscoverQuery.SORT_ORDER.asc));
+        assertEquals(discoverQuery.getSortFields().values().stream().findFirst().get(), DiscoverQuery.SORT_ORDER.asc);
         assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(10));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
@@ -229,7 +230,7 @@ public class DiscoverQueryBuilderTest {
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
         assertThat(discoverQuery.getSortFields().keySet(), contains("dc.date.accessioned_sort"));
-        assertThat(discoverQuery.getSortFields().entrySet(), contains(DiscoverQuery.SORT_ORDER.desc));
+        assertEquals(discoverQuery.getSortFields().values().stream().findFirst().get(), DiscoverQuery.SORT_ORDER.desc);
         assertThat(discoverQuery.getMaxResults(), is(100));
         assertThat(discoverQuery.getStart(), is(0));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
@@ -258,7 +259,7 @@ public class DiscoverQueryBuilderTest {
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
         assertThat(discoverQuery.getSortFields().keySet(), contains("score_sort"));
-        assertThat(discoverQuery.getSortFields().entrySet(), contains(DiscoverQuery.SORT_ORDER.asc));
+        assertEquals(discoverQuery.getSortFields().values().stream().findFirst().get(), DiscoverQuery.SORT_ORDER.asc);
         assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(20));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
