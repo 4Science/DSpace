@@ -334,3 +334,19 @@ iiif.enabled = false
 # iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
 # iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
 # ocr.tesseract.path =
+
+###############################
+# AUDIO and VIDEO Integration #
+###############################
+
+## Audio Video configuration
+
+# av-stream.stream.original = true
+# audiowaveform.path = /usr/bin/audiowaveform
+# ffmpeg.path = /usr/bin/ffmpeg
+# ffprobe.path = /usr/bin/ffprobe
+# m4box.path = /usr/bin/MP4Box
+# av-stream.transcribe-service.plugin = whisper-service
+# whisper.fullpath =
+# whisper.default.transcription-model = base
+# whisper.transcription-format = vtt

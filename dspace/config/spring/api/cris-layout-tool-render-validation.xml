@@ -120,8 +120,14 @@
 
     <bean id="valuePairSupplier" class="org.dspace.layout.script.supplier.ValuePairSupplier"/>
 
-    <bean id="mapRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
-        <property name="name" value="map"/>
+    <bean id="googleMapsRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="googlemaps"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="openStreetMapRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="openstreetmap"/>
         <property name="fieldType" value="METADATA"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
