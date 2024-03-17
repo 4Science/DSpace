@@ -11,5 +11,7 @@
            http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
     <bean id="unpaywallService" class="org.dspace.unpaywall.service.impl.UnpaywallServiceImpl"/>
+    
+    <bean id="unpaywallClientAPI" class="org.dspace.unpaywall.service.impl.MockUnpaywallClientAPIImpl"/>
 
 </beans>
