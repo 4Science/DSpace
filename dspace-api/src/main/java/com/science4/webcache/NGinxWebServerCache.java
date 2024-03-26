@@ -128,6 +128,7 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
             }
             refreshCache(url);
         } catch (IOException | URISyntaxException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException("Error invalidating the cache");
         }
     }
@@ -138,11 +139,11 @@ public class NGinxWebServerCache extends AbstractWebServerCache {
                 .setHeader(CACHE_CONTROL, "refresh")
                 .build();
 
-        CloseableHttpResponse response = client.execute(refreshCacheRequest);
-        if (log.isDebugEnabled()) {
-            log.debug("Invalidate cache response code {}", response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = client.execute(refreshCacheRequest)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Invalidate cache response code {}", response.getStatusLine().getStatusCode());
+            }
         }
-        response.close();
     }
 
     private void addCookie(String url, String language) throws IOException, URISyntaxException {
