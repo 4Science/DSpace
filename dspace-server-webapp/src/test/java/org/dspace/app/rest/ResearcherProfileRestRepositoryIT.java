@@ -2434,7 +2434,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         String authToken = getAuthToken(ePerson.getEmail(), password);
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/publications", "ALL"))))
+                                         .content(getPatchContent(
+                                             asList(new ReplaceOperation("/orcid/publications", "ALL"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2443,7 +2444,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(publication)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "ALL"))))
+                                         .content(
+                                             getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "ALL"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2454,7 +2456,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondProject)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/patents", "ALL"))))
+                                         .content(
+                                             getPatchContent(asList(new ReplaceOperation("/orcid/patents", "ALL"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2468,7 +2471,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondPatent)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                .content(getPatchContent(asList(new ReplaceOperation("/orcid/products", "ALL"))))
+                .content(getPatchContent(
+                                             asList(new ReplaceOperation("/orcid/products", "ALL"))))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
 
@@ -2481,7 +2485,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondPatent)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
+                                         .content(getPatchContent(
+                                             asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2492,7 +2497,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondPatent)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
+                                         .content(getPatchContent(
+                                             asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2502,7 +2508,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(secondPatent)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/patents", "DISABLED"))))
+                                         .content(getPatchContent(
+                                             asList(new ReplaceOperation("/orcid/patents", "DISABLED"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2511,7 +2518,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         configurationService.setProperty("orcid.linkable-metadata-fields.ignore", "crisfund.coinvestigators");
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                                         .content(getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
+                                         .content(
+                                             getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2520,7 +2528,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(queueRecords, has(orcidQueueRecordWithEntity(product)));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
-                .content(getPatchContent(asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
+                .content(
+                                             getPatchContent(asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
 
