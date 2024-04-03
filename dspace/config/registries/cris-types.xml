@@ -152,14 +152,7 @@
     <dc-type>
         <schema>cris</schema>
         <element>virtual</element>
-        <qualifier>author-orcid</qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>cris</schema>
-        <element>virtual</element>
-        <qualifier>editor-orcid</qualifier>
+        <qualifier>orcid</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
@@ -173,14 +166,7 @@
     <dc-type>
         <schema>cris</schema>
         <element>virtualsource</element>
-        <qualifier>author-orcid</qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>cris</schema>
-        <element>virtualsource</element>
-        <qualifier>editor-orcid</qualifier>
+        <qualifier>orcid</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

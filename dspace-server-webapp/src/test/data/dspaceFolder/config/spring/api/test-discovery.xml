@@ -70,7 +70,36 @@
     <bean id="hasContentInOriginalBundlePlugin" class="org.dspace.discovery.SolrServiceContentInOriginalBundleFilterPlugin"/>
 
     <!-- Additional indexing plugin enables searching by filenames and by file descriptions for files in ORIGINAL bundle -->
-    <bean id="solrServiceFileInfoPlugin" class="org.dspace.discovery.SolrServiceFileInfoPlugin"/>
+    <bean id="solrServiceFileInfoPlugin" class="org.dspace.discovery.SolrServiceFileInfoPlugin">
+        <property name="mappableMetadata">
+            <map>
+                <entry key="oaire.licenseCondition" value-ref="oaireLicenseMapper"/>
+                <entry key="datacite.rights" value-ref="dataciteRightsMapper"/>
+                <entry key="datacite.available" value-ref="dataciteAvailableMapper"/>
+            </map>
+        </property>
+        <property name="simpleIndexAdder" ref="simpleIndexAdder"/>
+        <property name="bitstreamMetadataIndexAdder" ref="bitstreamMetadataIndexAdder"/>
+        <property name="defaultIndexAdder" ref="defaultIndexAdder"/>
+    </bean>
+
+    <bean id="oaireLicenseMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
+        <constructor-arg name="metadata" value="original_bundle_oaire_licenseCondition"/>
+        <constructor-arg name="indexAdder" ref="defaultIndexAdder"/>
+    </bean>
+    <bean id="dataciteRightsMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
+        <constructor-arg name="metadata" value="original_bundle_datacite_rights"/>
+        <constructor-arg name="indexAdder" ref="defaultIndexAdder"/>
+    </bean>
+    <bean id="dataciteAvailableMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
+        <constructor-arg name="metadata" value="original_bundle_datacite_available"/>
+        <constructor-arg name="indexAdder" ref="yearIndexAdder"/>
+    </bean>
+
+    <bean id="bitstreamMetadataIndexAdder" class="org.dspace.discovery.index.adder.BitstreamMetadataSolrIndexAdder"/>
+    <bean id="defaultIndexAdder" class="org.dspace.discovery.index.adder.DefaultSolrIndexAdder"/>
+    <bean id="simpleIndexAdder" class="org.dspace.discovery.index.adder.SimpleSolrIndexAdder"/>
+    <bean id="yearIndexAdder" class="org.dspace.discovery.index.adder.YearSolrIndexAdder"/>
 
     <!--Bean that is used for mapping communities/collections to certain discovery configurations.-->
     <bean id="org.dspace.discovery.configuration.DiscoveryConfigurationService" class="org.dspace.discovery.configuration.DiscoveryConfigurationService">

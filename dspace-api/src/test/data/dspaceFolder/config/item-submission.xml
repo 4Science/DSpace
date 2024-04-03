@@ -307,6 +307,11 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
+        <step-definition id="funding" mandatory="true">
+            <heading>submit.progressbar.describe.funding</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
 
     </step-definitions>
 
@@ -506,6 +511,13 @@
             <step id="extractionstep" />
             <step id="orange" />
             <step id="upload" />
+        </submission-process>
+
+        <submission-process name="funding">
+            <step id="collection" />
+            <step id="funding" />
+            <step id="detect-duplicate" />
+            <step id="license" />
         </submission-process>
 
     </submission-definitions>
