@@ -341,12 +341,12 @@ iiif.enabled = false
 
 ## Audio Video configuration
 
-# av-stream.stream.original = true
-# audiowaveform.path = /usr/bin/audiowaveform
-# ffmpeg.path = /usr/bin/ffmpeg
-# ffprobe.path = /usr/bin/ffprobe
-# m4box.path = /usr/bin/MP4Box
-# av-stream.transcribe-service.plugin = whisper-service
-# whisper.fullpath =
-# whisper.default.transcription-model = base
-# whisper.transcription-format = vtt
+av-stream.stream.original = true
+audiowaveform.path = /usr/bin/audiowaveform
+ffmpeg.path = /usr/bin/ffmpeg
+ffprobe.path = /usr/bin/ffprobe
+m4box.path = /usr/bin/MP4Box
+av-stream.transcribe-service.plugin = whisper-service
+whisper.fullpath =
+whisper.default.transcription-model = base
+whisper.transcription-format = vtt
