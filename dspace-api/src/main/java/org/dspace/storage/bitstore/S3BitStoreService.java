@@ -27,6 +27,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -104,6 +105,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     private String awsAccessKey;
     private String awsSecretKey;
     private String awsRegionName;
+    private String awsSessionToken;
     private boolean useRelativePath;
 
     /**
@@ -190,13 +192,16 @@ public class S3BitStoreService extends BaseBitStoreService {
                     }
                 }
                 // init client
-                s3Service = FunctionalUtils.getDefaultOrBuild(
-                        this.s3Service,
-                        amazonClientBuilderBy(
-                                regions,
-                                new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey())
-                                )
-                        );
+                AWSCredentials awsCredentials = null;
+                if (StringUtils.isNotBlank(getAwsSessionToken())) {
+                    awsCredentials = new BasicSessionCredentials(getAwsAccessKey(),
+                                                                 getAwsSecretKey(),
+                                                                 getAwsSessionToken());
+                } else {
+                    awsCredentials = new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
+                }
+
+                s3Service = FunctionalUtils.getDefaultOrBuild(s3Service,amazonClientBuilderBy(regions, awsCredentials));
                 log.warn("S3 Region set to: " + regions.getName());
             } else {
                 log.info("Using a IAM role or aws environment credentials");
@@ -634,6 +639,14 @@ public class S3BitStoreService extends BaseBitStoreService {
             IOUtils.copy(get(bitstream), out);
         }
         return tempFile.getAbsolutePath();
+    }
+
+    public String getAwsSessionToken() {
+        return awsSessionToken;
+    }
+
+    public void setAwsSessionToken(String awsSessionToken) {
+        this.awsSessionToken = awsSessionToken;
     }
 
 }
