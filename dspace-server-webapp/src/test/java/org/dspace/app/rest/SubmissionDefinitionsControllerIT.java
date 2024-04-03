@@ -321,10 +321,10 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                         Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
-                        Matchers.containsString("page=20"), Matchers.containsString("size=1"))))
+                        Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(21)))
-                .andExpect(jsonPath("$.page.totalPages", is(21)))
+                .andExpect(jsonPath("$.page.totalElements", is(22)))
+                .andExpect(jsonPath("$.page.totalPages", is(22)))
                 .andExpect(jsonPath("$.page.number", is(0)));
 
         getClient(tokenAdmin).perform(get("/api/config/submissiondefinitions")
@@ -332,7 +332,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("patent")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("funding")))
                 .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
                         Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -347,10 +347,10 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                         Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
-                        Matchers.containsString("page=20"), Matchers.containsString("size=1"))))
+                        Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(21)))
-                .andExpect(jsonPath("$.page.totalPages", is(21)))
+                .andExpect(jsonPath("$.page.totalElements", is(22)))
+                .andExpect(jsonPath("$.page.totalPages", is(22)))
                 .andExpect(jsonPath("$.page.number", is(1)));
     }
 

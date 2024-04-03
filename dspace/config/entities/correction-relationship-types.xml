@@ -73,6 +73,34 @@
         </rightCardinality>
     </type>
     <type>
+        <leftType>JournalVolume</leftType>
+        <rightType>JournalVolume</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+            <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+            <max>1</max>
+        </rightCardinality>
+    </type>
+    <type>
+        <leftType>JournalIssue</leftType>
+        <rightType>JournalIssue</rightType>
+        <leftwardType>isCorrectionOfItem</leftwardType>
+        <rightwardType>isCorrectedByItem</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+            <max>1</max>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+            <max>1</max>
+        </rightCardinality>
+    </type>
+    <type>
         <leftType>Publication</leftType>
         <rightType>Publication</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>

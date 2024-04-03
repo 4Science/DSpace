@@ -219,6 +219,36 @@ public class CrisLayoutBoxServiceImplTest {
     }
 
     @Test
+    public void testHasContentWithBoxWithBitstreamWithBlankMetadataValue() throws SQLException {
+
+        MetadataField titleField = metadataField("dc", "title", null);
+        MetadataField typeField = metadataField("dc", "type", null);
+
+        Item item = item();
+
+        Bitstream bitstream = mock(Bitstream.class);
+
+        CrisLayoutFieldBitstream fieldBitstream = new CrisLayoutFieldBitstream();
+        fieldBitstream.setBundle("ORIGINAL");
+        fieldBitstream.setMetadataField(typeField);
+        fieldBitstream.setMetadataValue(null);
+
+        CrisLayoutBox box = new CrisLayoutBox();
+        box.addLayoutField(crisLayoutField(titleField));
+        box.addLayoutField(fieldBitstream);
+        box.setShortname("Main Box");
+        box.setType("METADATA");
+
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false))
+                .thenReturn(List.of(bitstream));
+
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
+
+        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false);
+
+    }
+
+    @Test
     public void testHasMetricsBoxContent() throws SQLException {
 
         when(authorizeService.authorizeActionBoolean(eq(context), any(), eq(Constants.READ))).thenReturn(true);

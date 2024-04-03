@@ -221,7 +221,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.contributor.author", "White, Walter", authorId, 600),
             with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
             with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
 
         assertThat(getItemBitstreamsByBundle(firstItem, "ORIGINAL"), contains(
             bitstreamWith("Bitstream 1", "First bitstream content"),
@@ -242,8 +242,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("oairecerif.author.affiliation", "Company", 1),
             with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
             with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.author-orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
         ));
 
         assertThat(getItemBitstreamsByBundle(secondItem, "ORIGINAL"), contains(

@@ -11,12 +11,17 @@ import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choices;
@@ -45,15 +50,27 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     @Autowired
     private ItemService itemService;
 
-    private String sourceEntityType;
+    @Autowired
+    private RelatedEntityItemEnhancerUtils relatedEntityItemEnhancerUtils;
 
-    private String sourceItemMetadataField;
+    /**
+     * the entities that can be extended by this enhancer, i.e. Publication
+     */
+    private List<String> sourceEntityTypes;
 
-    private String relatedItemMetadataField;
+    /**
+     * the metadata used to navigate the relation, i.e. dc.contributor.author
+     */
+    private List<String> sourceItemMetadataFields;
+
+    /**
+     * the metadata that is copied from the linked entity, i.e. person.identifier.orcid
+     */
+    private List<String> relatedItemMetadataFields;
 
     @Override
     public boolean canEnhance(Context context, Item item) {
-        return sourceEntityType == null || sourceEntityType.equals(itemService.getEntityTypeLabel(item));
+        return sourceEntityTypes == null || sourceEntityTypes.contains(itemService.getEntityTypeLabel(item));
     }
 
     @Override
@@ -62,18 +79,18 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         if (!deepMode) {
             try {
                 result = cleanObsoleteVirtualFields(context, item);
-                result = updateVirtualFieldsPlaces(context, item) || result;
                 result = performEnhancement(context, item) || result;
             } catch (SQLException e) {
                 LOGGER.error("An error occurs enhancing item with id {}: {}", item.getID(), e.getMessage(), e);
                 throw new SQLRuntimeException(e);
             }
         } else {
-            List<MetadataValue> currMetadataValues = getCurrentVirtualMetadata(context, item);
-            List<MetadataValueDTO> toBeMetadataValues = getToBeVirtualMetadata(context, item);
+            Map<String, List<MetadataValue>> currMetadataValues = relatedEntityItemEnhancerUtils
+                    .getCurrentVirtualsMap(item, getVirtualQualifier());
+            Map<String, List<MetadataValueDTO>> toBeMetadataValues = getToBeVirtualMetadata(context, item);
             if (!equivalent(currMetadataValues, toBeMetadataValues)) {
                 try {
-                    itemService.removeMetadataValues(context, item, currMetadataValues);
+                    clearAllVirtualMetadata(context, item);
                     addMetadata(context, item, toBeMetadataValues);
                 } catch (SQLException e) {
                     throw new SQLRuntimeException(e);
@@ -84,20 +101,44 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return result;
     }
 
-    private void addMetadata(Context context, Item item, List<MetadataValueDTO> toBeMetadataValues)
+    private void clearAllVirtualMetadata(Context context, Item item) throws SQLException {
+        itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT,
+                getVirtualQualifier(), Item.ANY);
+        itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
+                getVirtualQualifier(), Item.ANY);
+    }
+
+    private void addMetadata(Context context, Item item, Map<String, List<MetadataValueDTO>> toBeMetadataValues)
             throws SQLException {
-        for (MetadataValueDTO dto : toBeMetadataValues) {
-            itemService.addMetadata(context, item, dto.getSchema(), dto.getElement(), dto.getQualifier(), null,
-                    dto.getValue(), dto.getAuthority(), dto.getConfidence());
+        for (Entry<String, List<MetadataValueDTO>> metadataValues : toBeMetadataValues.entrySet()) {
+            for (MetadataValueDTO dto : metadataValues.getValue()) {
+                addVirtualSourceField(context, item, metadataValues.getKey());
+                addVirtualField(context, item, dto.getValue(), dto.getAuthority(), dto.getLanguage(),
+                        dto.getConfidence());
+            }
         }
     }
 
-    private boolean equivalent(List<MetadataValue> currMetadataValues, List<MetadataValueDTO> toBeMetadataValues) {
+    private boolean equivalent(Map<String, List<MetadataValue>> currMetadataValues,
+            Map<String, List<MetadataValueDTO>> toBeMetadataValues) {
         if (currMetadataValues.size() != toBeMetadataValues.size()) {
             return false;
         } else {
-            for (int idx = 0; idx < currMetadataValues.size(); idx++) {
-                if (!equivalent(currMetadataValues.get(idx), toBeMetadataValues.get(idx))) {
+            for (String key : currMetadataValues.keySet()) {
+                if (!equivalent(currMetadataValues.get(key), toBeMetadataValues.get(key))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean equivalent(List<MetadataValue> metadataValue, List<MetadataValueDTO> metadataValueDTO) {
+        if (metadataValue.size() != metadataValueDTO.size()) {
+            return false;
+        } else {
+            for (int i = 0; i < metadataValue.size(); i++) {
+                if (!equivalent(metadataValue.get(i), metadataValueDTO.get(i))) {
                     return false;
                 }
             }
@@ -114,23 +155,14 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
                 && StringUtils.equals(metadataValue.getAuthority(), metadataValueDTO.getAuthority());
     }
 
-    private List<MetadataValueDTO> getToBeVirtualMetadata(Context context, Item item) {
-        List<MetadataValueDTO> tobeVirtualMetadata = new ArrayList<>();
-        List<MetadataValue> virtualSourceFields = getEnhanceableMetadataValue(item);
-        for (MetadataValue virtualSourceField : virtualSourceFields) {
-            MetadataValueDTO mv = new MetadataValueDTO();
-            mv.setSchema(VIRTUAL_METADATA_SCHEMA);
-            mv.setElement(VIRTUAL_SOURCE_METADATA_ELEMENT);
-            mv.setQualifier(getVirtualQualifier());
-            String authority = virtualSourceField.getAuthority();
+    private Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
+        Map<String, List<MetadataValueDTO>> tobeVirtualMetadataMap = new HashMap<String, List<MetadataValueDTO>>();
+
+        Set<String> virtualSources = getVirtualSources(item);
+        for (String authority : virtualSources) {
+            List<MetadataValueDTO> tobeVirtualMetadata = new ArrayList<>();
             Item relatedItem = null;
-            if (StringUtils.isNotBlank(authority)) {
-                mv.setValue(authority);
-                relatedItem = findRelatedEntityItem(context, virtualSourceField);
-            } else {
-                mv.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
-            }
-            tobeVirtualMetadata.add(mv);
+            relatedItem = findRelatedEntityItem(context, authority);
             if (relatedItem == null) {
                 MetadataValueDTO mvRelated = new MetadataValueDTO();
                 mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
@@ -138,44 +170,38 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
                 mvRelated.setQualifier(getVirtualQualifier());
                 mvRelated.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
                 tobeVirtualMetadata.add(mvRelated);
-                continue;
-            }
-
-            List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem, relatedItemMetadataField);
-            if (relatedItemMetadataValues.isEmpty()) {
-                MetadataValueDTO mvRelated = new MetadataValueDTO();
-                mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
-                mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
-                mvRelated.setQualifier(getVirtualQualifier());
-                mvRelated.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
-                tobeVirtualMetadata.add(mvRelated);
-                continue;
-            }
-            for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
-                MetadataValueDTO mvRelated = new MetadataValueDTO();
-                mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
-                mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
-                mvRelated.setQualifier(getVirtualQualifier());
-                mvRelated.setValue(relatedItemMetadataValue.getValue());
-                String authorityRelated = relatedItemMetadataValue.getAuthority();
-                if (StringUtils.isNotBlank(authorityRelated)) {
-                    mvRelated.setAuthority(authorityRelated);
-                    mvRelated.setConfidence(Choices.CF_ACCEPTED);
+            } else {
+                boolean foundAtLeastOneValue = false;
+                for (String relatedItemMetadataField : relatedItemMetadataFields) {
+                    List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem,
+                            relatedItemMetadataField);
+                    for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
+                        MetadataValueDTO mvRelated = new MetadataValueDTO();
+                        mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
+                        mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
+                        mvRelated.setQualifier(getVirtualQualifier());
+                        mvRelated.setValue(relatedItemMetadataValue.getValue());
+                        String authorityRelated = relatedItemMetadataValue.getAuthority();
+                        if (StringUtils.isNotBlank(authorityRelated)) {
+                            mvRelated.setAuthority(authorityRelated);
+                            mvRelated.setConfidence(Choices.CF_ACCEPTED);
+                        }
+                        tobeVirtualMetadata.add(mvRelated);
+                        foundAtLeastOneValue = true;
+                    }
                 }
-                tobeVirtualMetadata.add(mvRelated);
+                if (!foundAtLeastOneValue) {
+                    MetadataValueDTO mvRelated = new MetadataValueDTO();
+                    mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
+                    mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
+                    mvRelated.setQualifier(getVirtualQualifier());
+                    mvRelated.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
+                    tobeVirtualMetadata.add(mvRelated);
+                }
             }
+            tobeVirtualMetadataMap.put(authority, tobeVirtualMetadata);
         }
-        return tobeVirtualMetadata;
-    }
-
-    private List<MetadataValue> getCurrentVirtualMetadata(Context context, Item item) {
-        List<MetadataValue> currentVirtualMetadata = new ArrayList<>();
-        List<MetadataValue> virtualSourceFields = getVirtualSourceFields(item);
-        for (MetadataValue virtualSourceField : virtualSourceFields) {
-            currentVirtualMetadata.add(virtualSourceField);
-            getRelatedVirtualField(item, virtualSourceField).ifPresent(currentVirtualMetadata::add);
-        }
-        return currentVirtualMetadata;
+        return tobeVirtualMetadataMap;
     }
 
     private boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
@@ -188,66 +214,18 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return result;
     }
 
-    private boolean updateVirtualFieldsPlaces(Context context, Item item) {
-        boolean result = false;
-        List<MetadataValue> virtualSourceFields = getVirtualSourceFields(item);
-        List<MetadataValue> enhanceableMetadataValue = getEnhanceableMetadataValue(item);
-        for (MetadataValue virtualSourceField : virtualSourceFields) {
-            Optional<MetadataValue> metadataWithPlaceToUpdate = metadataWithPlaceToUpdate(item,
-                    enhanceableMetadataValue, virtualSourceField);
-            if (metadataWithPlaceToUpdate.isPresent()) {
-                updatePlaces(item, metadataWithPlaceToUpdate.get(), virtualSourceField);
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    private Optional<MetadataValue> metadataWithPlaceToUpdate(Item item, List<MetadataValue> enhanceableMetadataValue,
-            MetadataValue virtualSourceField) {
-        return findMetadataValueToUpdatePlace(enhanceableMetadataValue, virtualSourceField,
-                item);
-    }
-
-    private boolean hasToUpdatePlace(MetadataValue metadataValue, MetadataValue virtualSourceField) {
-        return metadataValue.getPlace() != virtualSourceField.getPlace();
-    }
-
-    private void updatePlaces(Item item, MetadataValue mv, MetadataValue virtualSourceField) {
-        virtualSourceField.setPlace(mv.getPlace());
-        getRelatedVirtualField(item, mv)
-            .ifPresent(relatedMv -> relatedMv.setPlace(mv.getPlace()));
-    }
-
-    private Optional<MetadataValue> findMetadataValueToUpdatePlace(List<MetadataValue> enhanceableMetadataValue,
-            MetadataValue virtualSourceField, Item item) {
-        Optional<MetadataValue> exactMatch = enhanceableMetadataValue.stream()
-                .filter(metadataValue -> hasAuthorityEqualsTo(metadataValue,
-                        virtualSourceField.getValue()) && !hasToUpdatePlace(metadataValue, virtualSourceField))
-                .findFirst();
-        if (exactMatch.isPresent()) {
-            enhanceableMetadataValue.remove(exactMatch.get());
-            return Optional.empty();
-        } else {
-            Optional<MetadataValue> authorityOnlyMatch = enhanceableMetadataValue.stream()
-                    .filter(metadataValue -> hasAuthorityEqualsTo(metadataValue,
-                            virtualSourceField.getValue()) && hasToUpdatePlace(metadataValue, virtualSourceField))
-                    .findFirst();
-            enhanceableMetadataValue.remove(authorityOnlyMatch.get());
-            return authorityOnlyMatch;
-        }
-    }
-
     private List<MetadataValue> getObsoleteVirtualFields(Item item) {
 
         List<MetadataValue> obsoleteVirtualFields = new ArrayList<>();
-
-        List<MetadataValue> virtualSourceFields = getVirtualSourceFields(item);
-        List<MetadataValue> enhanceableMetadata = getEnhanceableMetadataValue(item);
-        for (MetadataValue virtualSourceField : virtualSourceFields) {
-            if (isRelatedSourceNoMorePresent(item, enhanceableMetadata, virtualSourceField)) {
-                obsoleteVirtualFields.add(virtualSourceField);
-                getRelatedVirtualField(item, virtualSourceField).ifPresent(obsoleteVirtualFields::add);
+        Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
+                .getCurrentVirtualsMap(item, getVirtualQualifier());
+        Set<String> virtualSources = getVirtualSources(item);
+        for (String authority : currentVirtualsMap.keySet()) {
+            if (!virtualSources.contains(authority)) {
+                for (MetadataValue mv : getVirtualSourceFields(item, authority)) {
+                    obsoleteVirtualFields.add(mv);
+                    getRelatedVirtualField(item, mv.getPlace()).ifPresent(obsoleteVirtualFields::add);
+                }
             }
         }
 
@@ -255,141 +233,88 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
 
     }
 
-    /**
-     * This method will look in the enhanceableMetadata if the source metadata is still present. If so, it will remove
-     * form the list as it would not be used to validate other potential duplicate source metadata
-     * 
-     * @param item
-     * @param enhanceableMetadata
-     * @param virtualSourceField
-     * @return true if the metadata containing a source of enhancement is still present in the list of the metadata to
-     * use to enhance the item
-     */
-    private boolean isRelatedSourceNoMorePresent(Item item, List<MetadataValue> enhanceableMetadata,
-            MetadataValue virtualSourceField) {
-        Optional<MetadataValue> mv = enhanceableMetadata.stream()
-                .filter(metadataValue -> hasAuthorityEqualsTo(metadataValue, virtualSourceField.getValue()))
-                .findFirst();
-        if (mv.isPresent()) {
-            enhanceableMetadata.remove(mv.get());
-            return false;
-        }
-        return true;
+    private Set<String> getVirtualSources(Item item) {
+        return sourceItemMetadataFields.stream()
+                .flatMap(field -> itemService.getMetadataByMetadataString(item, field).stream())
+                .filter(mv -> UUIDUtils.fromString(mv.getAuthority()) != null)
+                .map(mv -> mv.getAuthority())
+                .collect(Collectors.toSet());
     }
 
-    private Optional<MetadataValue> getRelatedVirtualField(Item item, MetadataValue virtualSourceField) {
+    private Optional<MetadataValue> getRelatedVirtualField(Item item, int pos) {
         return getVirtualFields(item).stream()
-            .filter(metadataValue -> metadataValue.getPlace() == virtualSourceField.getPlace())
+            .skip(pos)
             .findFirst();
     }
 
     private boolean performEnhancement(Context context, Item item) throws SQLException {
         boolean result = false;
-        if (noEnhanceableMetadata(context, item)) {
-            return false;
-        }
+        Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
+                .getCurrentVirtualsMap(item, getVirtualQualifier());
+        Set<String> virtualSources = getVirtualSources(item);
+        for (String authority : virtualSources) {
+            boolean foundAtLeastOne = false;
+            if (!currentVirtualsMap.containsKey(authority)) {
+                result = true;
+                Item relatedItem = findRelatedEntityItem(context, authority);
+                if (relatedItem == null) {
+                    addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE, null, null, Choices.CF_UNSET);
+                    addVirtualSourceField(context, item, authority);
+                    continue;
+                }
 
-        for (MetadataValue metadataValue : getEnhanceableMetadataValue(item)) {
-
-            if (wasValueAlreadyUsedForEnhancement(item, metadataValue)) {
-                continue;
+                for (String relatedItemMetadataField : relatedItemMetadataFields) {
+                    List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem,
+                            relatedItemMetadataField);
+                    for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
+                        foundAtLeastOne = true;
+                        addVirtualField(context, item, relatedItemMetadataValue.getValue(),
+                                relatedItemMetadataValue.getAuthority(), relatedItemMetadataValue.getLanguage(),
+                                relatedItemMetadataValue.getConfidence());
+                        addVirtualSourceField(context, item, authority);
+                    }
+                }
+                if (!foundAtLeastOne) {
+                    addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE, null, null, Choices.CF_UNSET);
+                    addVirtualSourceField(context, item, authority);
+                    continue;
+                }
             }
-
-            Item relatedItem = findRelatedEntityItem(context, metadataValue);
-            if (relatedItem == null) {
-                addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE);
-                addVirtualSourceField(context, item, metadataValue);
-                continue;
-            }
-
-            List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem, relatedItemMetadataField);
-            if (relatedItemMetadataValues.isEmpty()) {
-                addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE);
-                addVirtualSourceField(context, item, metadataValue);
-                continue;
-            }
-            for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
-                addVirtualField(context, item, relatedItemMetadataValue.getValue());
-                addVirtualSourceField(context, item, metadataValue);
-            }
-            result = true;
         }
         return result;
     }
 
-    private boolean noEnhanceableMetadata(Context context, Item item) {
-
-        return getEnhanceableMetadataValue(item)
-            .stream()
-            .noneMatch(metadataValue -> validAuthority(context, metadataValue));
-    }
-
-    private boolean validAuthority(Context context, MetadataValue metadataValue) {
-        Item relatedItem = findRelatedEntityItem(context, metadataValue);
-        return Objects.nonNull(relatedItem);
-    }
-
-    private List<MetadataValue> getEnhanceableMetadataValue(Item item) {
-        return getMetadataValues(item, sourceItemMetadataField);
-    }
-
-    private boolean wasValueAlreadyUsedForEnhancement(Item item, MetadataValue metadataValue) {
-
-        if (isPlaceholderAtPlace(getVirtualFields(item), metadataValue.getPlace())) {
-            return true;
-        }
-
-        return getVirtualSourceFields(item).stream()
-            .anyMatch(virtualSourceField -> virtualSourceField.getPlace() == metadataValue.getPlace()
-                && hasAuthorityEqualsTo(metadataValue, virtualSourceField.getValue()));
-
-    }
-
-    private boolean isPlaceholderAtPlace(List<MetadataValue> metadataValues, int place) {
-        return place < metadataValues.size() ? isPlaceholder(metadataValues.get(place)) : false;
-    }
-
-    private boolean hasAuthorityEqualsTo(MetadataValue metadataValue, String authority) {
-        return Objects.equals(metadataValue.getAuthority(), authority)
-                || (StringUtils.isBlank(metadataValue.getAuthority())
-                        && Objects.equals(PLACEHOLDER_PARENT_METADATA_VALUE, authority));
-    }
-
-    private Item findRelatedEntityItem(Context context, MetadataValue metadataValue) {
+    private Item findRelatedEntityItem(Context context, String authority) {
         try {
-            UUID relatedItemUUID = UUIDUtils.fromString(metadataValue.getAuthority());
+            UUID relatedItemUUID = UUIDUtils.fromString(authority);
             return relatedItemUUID != null ? itemService.find(context, relatedItemUUID) : null;
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
     }
 
-    private boolean isPlaceholder(MetadataValue metadataValue) {
-        return PLACEHOLDER_PARENT_METADATA_VALUE.equals(metadataValue.getValue());
-    }
-
     private List<MetadataValue> getMetadataValues(Item item, String metadataField) {
         return itemService.getMetadataByMetadataString(item, metadataField);
     }
 
-    private List<MetadataValue> getVirtualSourceFields(Item item) {
-        return getMetadataValues(item, getVirtualSourceMetadataField());
+    private List<MetadataValue> getVirtualSourceFields(Item item, String authority) {
+        return getMetadataValues(item, getVirtualSourceMetadataField()).stream()
+                .filter(mv -> StringUtils.equals(authority, mv.getValue())).collect(Collectors.toList());
     }
 
     private List<MetadataValue> getVirtualFields(Item item) {
         return getMetadataValues(item, getVirtualMetadataField());
     }
 
-    private void addVirtualField(Context context, Item item, String value) throws SQLException {
-        itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
-            getVirtualQualifier(), null, value);
-    }
-
-    private void addVirtualSourceField(Context context, Item item, MetadataValue sourceValue) throws SQLException {
-        if (StringUtils.isNotBlank(sourceValue.getAuthority())) {
-            addVirtualSourceField(context, item, sourceValue.getAuthority());
+    private void addVirtualField(Context context, Item item, String value, String authority, String lang,
+            int confidence) throws SQLException {
+        if (StringUtils.startsWith(authority, AuthorityValueService.GENERATE)
+                || StringUtils.startsWith(authority, AuthorityValueService.REFERENCE)) {
+            itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
+                    getVirtualQualifier(), lang, value, null, Choices.CF_UNSET);
         } else {
-            addVirtualSourceField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE);
+            itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
+                    getVirtualQualifier(), lang, value, authority, confidence);
         }
     }
 
@@ -398,16 +323,16 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
                                 getVirtualQualifier(), null, sourceValueAuthority);
     }
 
-    public void setSourceEntityType(String sourceEntityType) {
-        this.sourceEntityType = sourceEntityType;
+    public void setSourceEntityTypes(List<String> sourceEntityTypes) {
+        this.sourceEntityTypes = sourceEntityTypes;
     }
 
-    public void setSourceItemMetadataField(String sourceItemMetadataField) {
-        this.sourceItemMetadataField = sourceItemMetadataField;
+    public void setRelatedItemMetadataFields(List<String> relatedItemMetadataFields) {
+        this.relatedItemMetadataFields = relatedItemMetadataFields;
     }
 
-    public void setRelatedItemMetadataField(String relatedItemMetadataField) {
-        this.relatedItemMetadataField = relatedItemMetadataField;
+    public void setSourceItemMetadataFields(List<String> sourceItemMetadataFields) {
+        this.sourceItemMetadataFields = sourceItemMetadataFields;
     }
 
 }

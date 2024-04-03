@@ -125,9 +125,13 @@ public class IIIFCacheEventConsumer implements Consumer {
 
     private void addToCacheEviction(DSpaceObject subject, DSpaceObject subject2, int type) {
         if (type == Constants.BITSTREAM) {
-            toEvictFromCanvasCache.add(subject2);
+            if (subject2 != null) {
+                toEvictFromCanvasCache.add(subject2);
+            }
         }
-        toEvictFromManifestCache.add(subject);
+        if (subject != null) {
+            toEvictFromManifestCache.add(subject);
+        }
     }
 
     @Override

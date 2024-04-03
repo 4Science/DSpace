@@ -10,6 +10,8 @@ package org.dspace.app.rest.model;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.dspace.app.rest.RestResourceController;
 
 /**
@@ -28,6 +30,8 @@ public class VocabularyEntryDetailsRest extends BaseObjectRest<String> {
     public static final String CHILDREN = "children";
     private String display;
     private String value;
+    @JsonInclude(Include.NON_NULL)
+    private String authority;
     private Map<String, String> otherInformation;
     private String source;
     private boolean selectable;
@@ -59,6 +63,14 @@ public class VocabularyEntryDetailsRest extends BaseObjectRest<String> {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public String getAuthority() {
+        return authority;
     }
 
     public static String getName() {
