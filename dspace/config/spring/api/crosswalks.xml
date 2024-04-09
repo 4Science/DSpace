@@ -509,7 +509,14 @@
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
 	</bean>
 	
-	<bean class="org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk" id="xlsCrosswalkCollection"/>
+	<bean class="org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk" id="xlsCrosswalkCollection">
+		<property name="allowedGroups">
+			<list>
+				<value>Administrator</value>
+				<value>Anonymous</value>
+			</list>
+		</property>
+	</bean>
 
     <bean class="org.dspace.content.integration.crosswalks.ZipItemExportCrosswalk" id="zipCrosswalk">
         <property name="zipName" value="items.zip"/>

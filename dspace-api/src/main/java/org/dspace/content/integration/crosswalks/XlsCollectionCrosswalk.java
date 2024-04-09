@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.dspace.app.bulkedit.BulkImport;
@@ -31,6 +33,9 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -52,6 +57,9 @@ public class XlsCollectionCrosswalk implements ItemExportCrosswalk {
     @Autowired
     private BulkImportWorkbookBuilder bulkImportWorkbookBuilder;
 
+    @Autowired
+    private GroupService groupService;
+
     @Override
     public boolean canDisseminate(Context context, DSpaceObject dso) {
         return dso.getType() == Constants.COLLECTION;
@@ -71,12 +79,26 @@ public class XlsCollectionCrosswalk implements ItemExportCrosswalk {
         return CrosswalkMode.MULTIPLE;
     }
 
+    private List<String> allowedGroups;
+
+    public List<String> getAllowedGroups() {
+        return allowedGroups;
+    }
+
+    public void setAllowedGroups(List<String> allowedGroups) {
+        this.allowedGroups = allowedGroups;
+    }
+
     @Override
     public void disseminate(Context context, DSpaceObject dso, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException {
 
         if (!canDisseminate(context, dso)) {
             throw new CrosswalkObjectNotSupported("Can only crosswalk a Collection");
+        }
+
+        if (!isAuthorized(context)) {
+            throw new AuthorizeException("The current user is not allowed to perform a xls collection export");
         }
 
         Collection collection = (Collection) dso;
@@ -131,6 +153,30 @@ public class XlsCollectionCrosswalk implements ItemExportCrosswalk {
             throw new IllegalArgumentException("No collection found for item with id: " + item.getID());
         }
         return collection;
+    }
+
+    @Override
+    public boolean isAuthorized(Context context) {
+        if (CollectionUtils.isEmpty(getAllowedGroups())) {
+            return true;
+        }
+
+        EPerson ePerson = context.getCurrentUser();
+        if (ePerson == null) {
+            return getAllowedGroups().contains(Group.ANONYMOUS);
+        }
+
+        return getAllowedGroups().stream()
+            .anyMatch(groupName -> isMemberOfGroupNamed(context, ePerson, groupName));
+    }
+
+    private boolean isMemberOfGroupNamed(Context context, EPerson ePerson, String groupName) {
+        try {
+            Group group = groupService.findByName(context, groupName);
+            return groupService.isMember(context, ePerson, group);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

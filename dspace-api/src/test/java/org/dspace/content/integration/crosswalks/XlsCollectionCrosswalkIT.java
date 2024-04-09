@@ -63,6 +63,9 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
 import org.dspace.core.CrisConstants;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -86,6 +89,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     private ConfigurationService configurationService;
 
+    private GroupService groupService;
+
     private Community community;
 
     private static final String BITSTREAM_URL_FORMAT = "%s/api/core/bitstreams/%s/content";
@@ -103,6 +108,9 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .getServicesByType(BulkImportWorkbookBuilderImpl.class).get(0);
 
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
+        groupService = EPersonServiceFactory.getInstance().getGroupService();
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
@@ -315,6 +323,109 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         context.restoreAuthSystemState();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCollectionCrosswalk.disseminate(context, collection, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(2));
+
+        Sheet mainSheet = workbook.getSheetAt(0);
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.contributor.author", "dc.title", "dc.title.alternative",
+            "dc.date.issued", "dc.publisher", "dc.identifier.citation", "dc.relation.ispartofseries",
+            "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi", "dc.identifier.adsbibcode",
+            "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn", "dc.identifier.other",
+            "dc.identifier.ismn", "dc.identifier.govdoc", "dc.identifier.uri", "dc.identifier.isbn",
+            "dc.type", "dc.language.iso", "dc.subject", "dc.description.abstract", "dc.description.sponsorship",
+            "dc.description" };
+        assertThat(mainSheet.getPhysicalNumberOfRows(), equalTo(1));
+        assertThat(getRowValues(mainSheet.getRow(0), mainSheetHeader.length), contains(mainSheetHeader));
+    }
+
+    @Test
+    public void testCollectionIsNotAuthorized() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection collection = createCollection(context, community)
+            .withAdminGroup(eperson)
+            .build();
+        context.restoreAuthSystemState();
+
+        List<String> groups = new ArrayList<>();
+        groups.add("Test1");
+        xlsCollectionCrosswalk.setAllowedGroups(groups);
+        context.commit();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        assertThat(xlsCollectionCrosswalk.isAuthorized(context), equalTo(false));
+
+        AuthorizeException authorizeException = Assert.assertThrows(AuthorizeException.class,
+            () -> xlsCollectionCrosswalk.disseminate(context, collection, baos));
+
+        assertThat(authorizeException.getMessage(),
+            is("The current user is not allowed to perform a xls collection export"));
+
+
+    }
+
+    @Test
+    public void testCollectionIsAuthorizedEmptyCollection() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection collection = createCollection(context, community)
+            .withAdminGroup(eperson)
+            .build();
+
+        Group group = groupService.create(context);
+        groupService.setName(group, "Test");
+        groupService.addMember(context, group, eperson);
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        List<String> groups = new ArrayList<>();
+        groups.add("Test");
+
+        xlsCollectionCrosswalk.setAllowedGroups(groups);
+
+        assertThat(xlsCollectionCrosswalk.isAuthorized(context), equalTo(true));
+
+        xlsCollectionCrosswalk.disseminate(context, collection, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(2));
+
+        Sheet mainSheet = workbook.getSheetAt(0);
+        String[] mainSheetHeader = { "ID", "DISCOVERABLE", "dc.contributor.author", "dc.title", "dc.title.alternative",
+            "dc.date.issued", "dc.publisher", "dc.identifier.citation", "dc.relation.ispartofseries",
+            "dc.identifier.doi", "dc.identifier.scopus", "dc.identifier.isi", "dc.identifier.adsbibcode",
+            "dc.identifier.pmid", "dc.identifier.arxiv", "dc.identifier.issn", "dc.identifier.other",
+            "dc.identifier.ismn", "dc.identifier.govdoc", "dc.identifier.uri", "dc.identifier.isbn",
+            "dc.type", "dc.language.iso", "dc.subject", "dc.description.abstract", "dc.description.sponsorship",
+            "dc.description" };
+        assertThat(mainSheet.getPhysicalNumberOfRows(), equalTo(1));
+        assertThat(getRowValues(mainSheet.getRow(0), mainSheetHeader.length), contains(mainSheetHeader));
+    }
+
+    @Test
+    public void testCollectionIsAuthorizedAnonymousEmptyCollection() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection collection = createCollection(context, community)
+            .withAdminGroup(eperson)
+            .build();
+        context.restoreAuthSystemState();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        List<String> groups = new ArrayList<>();
+        groups.add("Anonymous");
+
+        xlsCollectionCrosswalk.setAllowedGroups(groups);
+
+        assertThat(xlsCollectionCrosswalk.isAuthorized(context), equalTo(true));
+
         xlsCollectionCrosswalk.disseminate(context, collection, baos);
 
         Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
