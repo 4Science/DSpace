@@ -1776,7 +1776,7 @@
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire le  keywords legate all'evento</hint>
+          <hint>Inserire le keywords legate all'evento</hint>
         </field>
       </row>
       <row>
@@ -3687,7 +3687,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>subject</dc-element>
           <label>Indicazioni sul soggetto</label>
           <input-type>onebox</input-type>
@@ -3712,7 +3712,6 @@
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
-          <dc-qualifier>keywords</dc-qualifier>
           <label>Parole chiave</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -4562,7 +4561,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto / Argomento</label>
           <input-type>onebox</input-type>
@@ -4767,7 +4766,6 @@
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
-          <dc-qualifier>keywords</dc-qualifier>
           <label>Parole chiave / keywords</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
