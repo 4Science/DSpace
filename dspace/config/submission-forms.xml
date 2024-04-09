@@ -1776,7 +1776,7 @@
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire le  keywords legate all'evento</hint>
+          <hint>Inserire le keywords legate all'evento</hint>
         </field>
       </row>
       <row>
@@ -2400,6 +2400,29 @@
           <hint />
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>entity</dc-element>
+          <dc-qualifier>enabled</dc-qualifier>
+          <label>Visibile in Home Page</label>
+          <input-type value-pairs-name="truefalse">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Scegliere se da mostrare in home page</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>priority</dc-element>
+          <label>Posizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+        </field>
+      </row>
     </form>
     <form name="fonds-glamfonds-editor">
       <row>
@@ -2763,17 +2786,6 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
-          <dc-element>type</dc-element>
-          <label>Tipo</label>
-          <input-type value-pairs-name="aggregation_types">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il tipo</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <label>Descrizione</label>
           <input-type>textarea</input-type>
@@ -2819,7 +2831,7 @@
       <row>
         <field>
           <dc-schema>glam</dc-schema>
-          <dc-element>aggregation</dc-element>
+          <dc-element>entity</dc-element>
           <dc-qualifier>enabled</dc-qualifier>
           <label>Visibile in Home Page</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
@@ -3474,6 +3486,29 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>entity</dc-element>
+          <dc-qualifier>enabled</dc-qualifier>
+          <label>Visibile in Home Page</label>
+          <input-type value-pairs-name="truefalse">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Scegliere se da mostrare in home page</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>priority</dc-element>
+          <label>Posizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
         </field>
       </row>
     </form>
