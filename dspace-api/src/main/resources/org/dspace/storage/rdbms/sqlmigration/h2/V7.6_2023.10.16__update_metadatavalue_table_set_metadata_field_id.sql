@@ -30,7 +30,10 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamfonds')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -59,7 +62,10 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamfonds')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -98,7 +104,10 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamjournalfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamjournalfonds')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -126,7 +135,10 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamjournalfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamjournalfonds')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
