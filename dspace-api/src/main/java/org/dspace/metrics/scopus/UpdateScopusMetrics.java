@@ -236,7 +236,8 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
         newScopusMetrics.setLast(true);
         newScopusMetrics.setMetricCount(scopusMetric.getMetricCount());
         newScopusMetrics.setAcquisitionDate(new Date());
-        newScopusMetrics.setRemark(scopusMetric.getRemark().replaceAll("link", "detailUrl"));
+        newScopusMetrics.setRemark(
+            scopusMetric.getRemark() == null ? null : scopusMetric.getRemark().replaceAll("link", "detailUrl"));
         newScopusMetrics.setDeltaPeriod1(deltaPeriod1);
         newScopusMetrics.setDeltaPeriod2(deltaPeriod2);
     }
