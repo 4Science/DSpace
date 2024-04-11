@@ -17,6 +17,18 @@ BEGIN
         SELECT 1
         FROM metadataschemaregistry
         WHERE short_id = 'glamfonds'
+    ) AND EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'dc'
+    ) AND EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'cris'
+    ) AND EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'glam'
     ) THEN
         INSERT INTO metadatafieldregistry (metadata_schema_id, element)
         SELECT (SELECT metadata_schema_id FROM metadataschemaregistry WHERE short_id='glamfonds'), 'index'
@@ -93,6 +105,18 @@ BEGIN
         SELECT 1
         FROM metadataschemaregistry
         WHERE short_id = 'glamjournalfonds'
+    ) and EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'dc'
+    ) and EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'cris'
+    ) and EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'glam'
     ) THEN
         -- Add 'glamjournalfonds.index' field to registry (if missing)
         INSERT INTO metadatafieldregistry (metadata_schema_id, element)
@@ -166,7 +190,16 @@ END$$ language 'plpgsql';
 -- DELETE glam.index from aggregation
 delete
 from metadatavalue mv
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS (
+    SELECT 1
+    FROM metadataschemaregistry
+    WHERE short_id = 'glam'
+) and EXISTS (
+    SELECT 1
+    FROM metadataschemaregistry
+    WHERE short_id = 'cris'
+)
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                               from metadatafieldregistry mfr
                                        inner join metadataschemaregistry msr
                                                   on mfr.metadata_schema_id = msr.metadata_schema_id
