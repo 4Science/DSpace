@@ -522,6 +522,58 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testOrcidQueueRecordCreationToUpdatePublicationAndNotInMetadata() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .withOrcidSynchronizationPublicationsPreference(ALL)
+            .build();
+
+        Collection publicationCollection = createCollection("Publications", "Publication");
+
+        Item publication = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Test publication")
+            .build();
+
+        Item publication1 = ItemBuilder.createItem(context, publicationCollection)
+            .withTitle("Test publication1")
+            .build();
+
+        createOrcidHistory(context, profile, publication)
+            .withPutCode("123456")
+            .withOperation(INSERT)
+            .build();
+
+        addMetadata(publication, "dc", "contributor", "author", "Test User", profile.getID().toString());
+        addMetadata(publication1, "dc", "contributor", "author", "Test User", profile.getID().toString());
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecordsMore = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecordsMore, hasSize(2));
+        assertThat(orcidQueueRecordsMore, hasItem(matches(profile, publication, "Publication", "123456", UPDATE)));
+        assertThat(orcidQueueRecordsMore, hasItem(matches(profile, publication1, "Publication", INSERT)));
+
+        context.turnOffAuthorisationSystem();
+
+        removeMetadata(publication1, "dc", "contributor", "author");
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecordsAfterDeletion = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecordsAfterDeletion, hasSize(1));
+        assertThat(orcidQueueRecordsAfterDeletion.get(0),
+            matches(profile, publication, "Publication", "123456", UPDATE));
+
+    }
+
+    @Test
     public void testNoOrcidQueueRecordCreationOccursIfPublicationSynchronizationIsDisabled() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -616,6 +668,56 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
         assertThat(orcidQueueRecords, hasSize(1));
         assertThat(orcidQueueRecords.get(0), matches(profile, funding, "Funding", "123456", UPDATE));
+    }
+
+    @Test
+    public void testOrcidQueueRecordCreationToUpdateFundingWithNoMetadata() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+            .withOrcidSynchronizationFundingsPreference(ALL)
+            .build();
+
+        Collection fundingCollection = createCollection("Fundings", "Funding");
+
+        Item funding = ItemBuilder.createItem(context, fundingCollection)
+            .withTitle("Test funding")
+            .build();
+
+        Item funding1 = ItemBuilder.createItem(context, fundingCollection)
+            .withTitle("Test funding1")
+            .build();
+
+        createOrcidHistory(context, profile, funding)
+            .withPutCode("123456")
+            .build();
+
+        addMetadata(funding, "crisfund", "coinvestigators", null, "Test User", profile.getID().toString());
+        addMetadata(funding1, "crisfund", "investigators", null, "Test User", profile.getID().toString());
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(2));
+        assertThat(orcidQueueRecords, hasItem(matches(profile, funding, "Funding", "123456", UPDATE)));
+        assertThat(orcidQueueRecords, hasItem(matches(profile, funding1, "Funding", INSERT)));
+
+        context.turnOffAuthorisationSystem();
+
+        removeMetadata(funding1, "crisfund", "investigators", null);
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        List<OrcidQueue> orcidQueueRecordsAfterDeletion = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecordsAfterDeletion, hasSize(1));
+        assertThat(orcidQueueRecordsAfterDeletion.get(0), matches(profile, funding, "Funding", "123456", UPDATE));
+
     }
 
     @Test

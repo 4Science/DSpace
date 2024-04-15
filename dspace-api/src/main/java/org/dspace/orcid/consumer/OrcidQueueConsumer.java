@@ -36,6 +36,7 @@ import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.orcid.OrcidHistory;
 import org.dspace.orcid.OrcidOperation;
+import org.dspace.orcid.OrcidQueue;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.factory.OrcidProfileSectionFactory;
@@ -181,7 +182,48 @@ public class OrcidQueueConsumer implements Consumer {
             orcidQueueService.create(context, relatedItem, entity);
 
         }
+        deleteOrcidQueueEntriesNotInMetadata(context, entity, metadataValues);
+    }
 
+    /**
+     * Loop through all orcid queue entries of entity and check if there is some metadata with authority between the
+     * entity and the profileitem of the orcidqueue entry. If no metadata is found and it the record is some
+     * insert action delete the entry
+     */
+    private void deleteOrcidQueueEntriesNotInMetadata(Context context, Item entity,
+                                                          List<MetadataValue> metadataValues) throws SQLException {
+        for (OrcidQueue oq : orcidQueueService.findByProfileItemOrEntity(context, entity)) {
+            boolean anyexistence = false;
+            for (MetadataValue metadata : metadataValues) {
+
+                String authority = metadata.getAuthority();
+
+                if (isNestedMetadataPlaceholder(metadata) || shouldBeIgnoredForOrcid(metadata)) {
+                    continue;
+                }
+
+                UUID relatedItemUuid = UUIDUtils.fromString(authority);
+                if (relatedItemUuid == null) {
+                    // possible some authority from controlled vocabulary
+                    continue;
+                }
+
+                Item relatedItem = itemService.find(context, relatedItemUuid);
+
+                if (relatedItem == null || isNotProfileItem(relatedItem)) {
+                    LOGGER.warn("Item " + entity.getID() +
+                        " relates to missing entity reference with uuid" + authority);
+                    continue;
+                }
+
+                if (oq.getProfileItem().getID().equals(relatedItemUuid)) {
+                    anyexistence = true;
+                }
+            }
+            if (!anyexistence && oq.isInsertAction()) {
+                orcidQueueService.delete(context, oq);
+            }
+        }
     }
 
     private void consumeProfile(Context context, Item item) throws SQLException {
