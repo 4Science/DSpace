@@ -170,4 +170,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
     </bean>
 
+    <bean id="beacon-file" class="org.dspace.beacon.BeaconFileScriptConfiguration">
+        <property name="description" value="Generate some beacon file of some configured identifier and print it to the specified option (handler, file)"/>
+        <property name="dspaceRunnableClass" value="org.dspace.beacon.BeaconFileScript"/>
+    </bean>
+
 </beans>
