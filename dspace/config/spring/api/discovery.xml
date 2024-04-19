@@ -23,6 +23,9 @@
     default-autowire-candidates="*Service,*DAO,javax.sql.DataSource,*Plugin,sharedWorkspaceAuthorMetadataFields" default-lazy-init="true">
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
+    
+    <!-- Uncomment the following entry to enable the indexing for LoginMIUR -->
+    <!--<bean id="rPSourceIDSolrIndexPlugin" class="org.dspace.discovery.RPSourceIDSolrIndexer"/>-->
 
     <bean id="solrServiceResourceIndexPlugin" class="org.dspace.discovery.SolrServiceResourceRestrictionPlugin" scope="prototype"/>
     <bean id="solrServiceWorkspaceWorkflowPlugin" class="org.dspace.discovery.SolrServiceWorkspaceWorkflowRestrictionPlugin" scope="prototype"/>

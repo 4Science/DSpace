@@ -68,7 +68,8 @@
         <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
         <addon-dataquality.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-dataquality.version>
         <addon-orchestrator.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-orchestrator.version>
-
+		<addon-loginmiur.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-loginmiur.version>
+        
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
@@ -957,6 +958,26 @@
                          <groupId>it.4science.dspace</groupId>
                          <artifactId>addon-analytics-api</artifactId>
                          <version>${addon-analytics.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+        
+        <!--
+            Builds loginmiur addon for DSpace
+        -->
+        <profile>
+            <id>addon-loginmiur</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-loginmiur-api</artifactId>
+                         <version>${addon-loginmiur.version}</version>
                          <type>jar</type>
                     </dependency>
                 </dependencies>

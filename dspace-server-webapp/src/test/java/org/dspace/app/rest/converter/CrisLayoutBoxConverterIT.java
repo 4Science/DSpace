@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.LayoutSecurity;
 import org.junit.Test;
@@ -311,5 +313,44 @@ public class CrisLayoutBoxConverterIT extends AbstractControllerIntegrationTest 
         CrisLayoutMetricsConfigurationRest config = (CrisLayoutMetricsConfigurationRest) rest.getConfiguration();
         assertThat(config.getMaxColumns(), is(1));
         assertThat(config.getMetrics(), contains("metric1", "metric2"));
+    }
+
+    @Test
+    public void testVersioningBoxConversion() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+
+        CrisLayoutBox box = CrisLayoutBoxBuilder.createBuilder(context, entityType, true, true)
+            .withContainer(true)
+            .withHeader("Box Header")
+            .withShortname("versioning")
+            .withType(CrisLayoutBoxTypes.VERSIONING.name())
+            .withSecurity(LayoutSecurity.OWNER_ONLY)
+            .withMaxColumns(1)
+            .build();
+
+        CrisLayoutMetric2BoxBuilder.create(context, box, "metric1", 0).build();
+        CrisLayoutMetric2BoxBuilder.create(context, box, "metric2", 1).build();
+
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        CrisLayoutBoxRest rest = converter.convert(box, Projection.DEFAULT);
+        assertThat(rest, notNullValue());
+        assertThat(rest.getBoxType(), is(CrisLayoutBoxTypes.VERSIONING.name()));
+        assertThat(rest.isContainer(), is(true));
+        assertThat(rest.getCollapsed(), is(true));
+        assertThat(rest.getEntityType(), is("Publication"));
+        assertThat(rest.getHeader(), is("Box Header"));
+        assertThat(rest.getShortname(), is("versioning"));
+        assertThat(rest.getMaxColumns(), is(1));
+        assertThat(rest.getMinor(), is(true));
+        assertThat(rest.getSecurity(), is(2));
+        assertThat(rest.getStyle(), nullValue());
+        assertThat(rest.getMetadataSecurityFields(), empty());
+        assertEquals(rest.getConfiguration(), null);
     }
 }
