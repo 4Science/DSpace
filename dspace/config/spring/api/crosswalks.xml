@@ -733,6 +733,20 @@
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.AuthorityNotBlankCondition" id="authorityConditionEvaluator"/>
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.HasMetadataCondition" id="metadataConditionEvaluator"/>
 
+	<!-- MetadataValue Evaluators Configuration -->
+	<bean class="org.dspace.content.integration.crosswalks.evaluators.MetadataValueConditionEvaluatorMapper"
+	id="metadatavalueconditionEvaluatorMapper">
+		<constructor-arg name="conditionEvaluators">
+			<map>
+				<entry key="nullorplaceholder" value-ref="metadataValueNullOrPlaceholderConditionEvaluator" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.evaluators.MetadataValuePlaceholderOrNullCondition"
+	id="metadataValueNullOrPlaceholderConditionEvaluator"/>
+
+
 	<!-- Item export format SERVICE -->
 	<bean class="org.dspace.content.integration.crosswalks.service.ItemExportFormatServiceImpl"/>
 	<bean class="org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService"/>

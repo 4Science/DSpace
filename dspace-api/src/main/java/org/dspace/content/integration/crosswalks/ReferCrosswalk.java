@@ -50,6 +50,8 @@ import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
 import org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluator;
 import org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper;
+import org.dspace.content.integration.crosswalks.evaluators.MetadataValueConditionEvaluator;
+import org.dspace.content.integration.crosswalks.evaluators.MetadataValueConditionEvaluatorMapper;
 import org.dspace.content.integration.crosswalks.model.TemplateLine;
 import org.dspace.content.integration.crosswalks.virtualfields.VirtualField;
 import org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper;
@@ -71,6 +73,7 @@ import org.springframework.core.convert.converter.Converter;
  * Item starting from a template.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ * @author Florian Gantner (florian.gantner@uni-bamberg.de)
  *
  */
 public class ReferCrosswalk implements ItemExportCrosswalk {
@@ -93,6 +96,9 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     @Autowired
     private ConditionEvaluatorMapper conditionEvaluatorMapper;
+
+    @Autowired
+    private MetadataValueConditionEvaluatorMapper metadataconditionEvaluatorMapper;
 
     @Autowired
     private MetadataSecurityService metadataSecurityService;
@@ -264,7 +270,8 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
         if (templateLineObj.isIfGroupField()) {
             String conditionName = templateLineObj.getIfConditionName();
-            if (!conditionEvaluatorMapper.contains(conditionName)) {
+            if (!conditionEvaluatorMapper.contains(conditionName)
+                && !metadataconditionEvaluatorMapper.contains(conditionName)) {
                 throw new IllegalStateException("Unknown condition evaluator found in the template '" + templateFileName
                     + "': " + conditionName);
             }
@@ -356,6 +363,24 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     }
 
+    private List<String> getMetadataValuesForField(Context context, String field, Item item) {
+        if (field.contains("-")) {
+            field = field.replaceAll("-",".");
+        }
+        if (field.contains("_")) {
+            String[] langs = field.split("_");
+            String lang = langs[1];
+            field = langs[0];
+            return metadataSecurityService.getPermissionFilteredMetadataValues(context, item, field).stream()
+                .filter(md -> md.getLanguage() != null && md.getLanguage().startsWith(lang))
+                .map(MetadataValue::getValue)
+                .collect(Collectors.toList());
+        }
+        return metadataSecurityService.getPermissionFilteredMetadataValues(context, item, field).stream()
+                .map(MetadataValue::getValue)
+                .collect(Collectors.toList());
+    }
+
     private void handleMetadataGroup(Context context, Item item, Iterator<TemplateLine> iterator, String groupName,
         List<String> lines) throws IOException {
 
@@ -365,17 +390,71 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         Map<String, List<String>> metadataValues = new HashMap<>();
 
         for (int i = 0; i < groupSize; i++) {
+            String ifgroup = null;
+            boolean ifconditionresult = false;
+            String currentrelationname = null;
 
-            for (TemplateLine line : groupLines) {
+            for (int gi = 0; gi < groupLines.size(); gi++) {
+                TemplateLine line = groupLines.get(gi);
+                // Uniba Added Check for relations
+                if (currentrelationname != null && !line.isRelationGroupEndField(currentrelationname)) {
+                    continue; // if within relation, Skip line until end of relation
+                }
 
+                if (currentrelationname != null && line.isRelationGroupEndField(currentrelationname)) {
+                    currentrelationname = null;
+                    continue;
+                }
+
+                if (ifgroup != null && !line.isIfGroupEndField(ifgroup) && !ifconditionresult) {
+                    continue;
+                }
+
+                // Uniba added checks for one single if condition inside metadatagroup to check the metadatavalue
+                // at the specific position. Nested Conditions are more complex and not supported (yet)
+                if (line.isIfGroupStartField()) {
+                    ifgroup = line.getIfCondition();
+                    //Perhaps create some own method?
+                    String fieldname = line.getIfConditionValue();
+                    String metadatatocheck = null;
+                    List<String> metadatastocheck = getMetadataValuesForField(context, fieldname, item);
+                    if (metadatastocheck != null && !metadatastocheck.isEmpty() && (i < metadatastocheck.size())) {
+                        metadatatocheck = metadatastocheck.get(i);
+                    }
+
+                    if (!metadataconditionEvaluatorMapper.contains(line.getIfConditionName())) {
+                        throw new IllegalStateException("Unknown condition evaluator found in the template '"
+                            + templateFileName + "': " + line.getIfConditionName());
+                    }
+                    MetadataValueConditionEvaluator evaluator =
+                        metadataconditionEvaluatorMapper.getConditionEvaluator(line.getIfConditionName());
+                    ifconditionresult = evaluator.test(context, metadatatocheck, line.getIfCondition());
+                    continue; //otherwise field is being requested
+                }
+
+                if (ifgroup != null && line.isIfGroupEndField(ifgroup)) {
+                    ifgroup = null;
+                    ifconditionresult = false;
+                    continue;
+                }
                 String field = line.getField();
+
+                if (line.isRelationGroupStartField()) {
+                    //this considers the whole item
+                    //Should only handle the item at position gi+1
+                    List<TemplateLine> relatedgroup = groupLines.subList(gi + 1, groupLines.size());
+                    handleRelationWithinGroup(context, item,relatedgroup.iterator(), line.getRelationName(), lines,
+                        true, i);
+                    currentrelationname = line.getRelationName();
+                    continue;
+                }
 
                 if (StringUtils.isBlank(line.getField())) {
                     lines.add(line.getBeforeField());
                     continue;
                 }
 
-                List<String> metadata = null;
+                List<String> metadata;
                 if (metadataValues.containsKey(field)) {
                     metadata = metadataValues.get(field);
                 } else {
@@ -418,6 +497,28 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     }
 
+    private void handleRelationWithinGroup(Context context, Item item, Iterator<TemplateLine> iterator,
+               String relationName, List<String> lines, boolean findRelatedItems, int position) throws IOException {
+
+        List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isRelationGroupEndField(relationName));
+
+        if (!findRelatedItems) {
+            return;
+        }
+
+        Iterator<Item> relatedItems = findRelatedItems(context, item, relationName);
+        int cnt = 0;
+        while (relatedItems.hasNext()) {
+            Item relatedItem = relatedItems.next();
+            if (cnt == position) {
+                Iterator<TemplateLine> lineIterator = groupLines.iterator();
+                appendLines(context, relatedItem, lineIterator, lines, findRelatedItems);
+            }
+            cnt++;
+        }
+
+    }
+
     private void handleIfGroup(Context context, Item item, Iterator<TemplateLine> iterator, TemplateLine conditionLine,
         List<String> lines, boolean findRelatedItems) throws IOException {
 
@@ -430,7 +531,6 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         if (evaluator.test(context, item, condition)) {
             appendLines(context, item, groupLines.iterator(), lines, findRelatedItems);
         }
-
     }
 
     private List<TemplateLine> getGroupLines(Iterator<TemplateLine> iterator, Predicate<TemplateLine> breakPredicate) {

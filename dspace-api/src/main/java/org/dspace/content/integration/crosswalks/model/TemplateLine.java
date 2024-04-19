@@ -151,6 +151,12 @@ public final class TemplateLine {
 
     }
 
+    public String getIfConditionValue() {
+        return isIfGroupField() ?
+        join(".", Arrays.copyOfRange(fieldBits, (fieldBits[1].equals("not")) ? 3 : 2, fieldBits.length - 1)) : null;
+
+    }
+
     public String getIfConditionName() {
         if (!isIfGroupField()) {
             return null;
