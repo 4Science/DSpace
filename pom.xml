@@ -1007,6 +1007,23 @@
             </dependencyManagement>
         </profile>
 
+        <profile>
+            <id>addon-networklab</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-networklab</artifactId>
+                        <version>${addon-networklab.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
        <!-- REST Jersey (Deprecated REST API from DSpace 6.x or below) -->
        <!-- As this module is deprecated, it only builds if you activate it via -Pdspace-rest -->
        <profile>

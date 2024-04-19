@@ -321,6 +321,24 @@
             </dependency>
          </dependencies>
       </profile>
+
+       <!-- Builds Networklab addon for DSpace -->
+       <profile>
+           <id>addon-networklab</id>
+           <activation>
+               <property>
+                   <name>nl.on</name>
+               </property>
+           </activation>
+           <dependencies>
+               <dependency>
+                   <groupId>it.4science.dspace</groupId>
+                   <artifactId>addon-networklab</artifactId>
+                   <version>${addon-networklab.version}</version>
+                   <type>jar</type>
+               </dependency>
+           </dependencies>
+       </profile>
    </profiles>
 
    <!--
