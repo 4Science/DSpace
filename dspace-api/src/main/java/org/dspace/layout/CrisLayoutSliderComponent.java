@@ -17,6 +17,7 @@ public class CrisLayoutSliderComponent implements CrisLayoutSectionComponent {
     private String sortField;
     private String order;
     private int numberOfItems;
+    private int maxNumberOfElements;
 
     public void setStyle(String style) {
         this.style = style;
@@ -57,5 +58,13 @@ public class CrisLayoutSliderComponent implements CrisLayoutSectionComponent {
 
     public void setNumberOfItems(int numberOfItems) {
         this.numberOfItems = numberOfItems;
+    }
+
+    public int getMaxNumberOfElements() {
+        return maxNumberOfElements;
+    }
+
+    public void setMaxNumberOfElements(int maxNumberOfElements) {
+        this.maxNumberOfElements = maxNumberOfElements;
     }
 }

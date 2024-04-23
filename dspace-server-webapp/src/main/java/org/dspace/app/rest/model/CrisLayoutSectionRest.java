@@ -999,6 +999,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String order;
         private String sortField;
         private int numberOfItems;
+        private int maxNumberOfElements;
 
         /**
          * Initializes the rest component using the
@@ -1012,6 +1013,7 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             order = component.getOrder();
             sortField = component.getSortField();
             numberOfItems = component.getNumberOfItems();
+            maxNumberOfElements = component.getMaxNumberOfElements();
         }
 
         /**
@@ -1051,6 +1053,13 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
          */
         public int getNumberOfItems() {
             return numberOfItems;
+        }
+
+        /**
+         * @return the maxPageNumber
+         */
+        public int getMaxNumberOfElements() {
+            return maxNumberOfElements;
         }
 
     }
