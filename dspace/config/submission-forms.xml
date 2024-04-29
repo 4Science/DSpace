@@ -4767,7 +4767,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave / keywords</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Descrittore del contenuto attraverso parole chiave</hint>
