@@ -31,7 +31,7 @@ public class ItemAuthorityLookupIndexPlugin implements SolrServiceIndexPlugin {
 
     public static String ITEM_AUTHORITY_LOOKUP_INDEX = "itemauthoritylookup";
 
-    public static List<String> additionalFields;
+    private List<String> additionalFields;
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -58,12 +58,12 @@ public class ItemAuthorityLookupIndexPlugin implements SolrServiceIndexPlugin {
             .collect(Collectors.toList());
     }
 
-    public static List<String> getAdditionalFields() {
+    public List<String> getAdditionalFields() {
         return additionalFields;
     }
 
-    public static void setAdditionalFields(List<String> additionalFields) {
-        ItemAuthorityLookupIndexPlugin.additionalFields = additionalFields;
+    public void setAdditionalFields(List<String> additionalFields) {
+        this.additionalFields = additionalFields;
     }
 
 }
