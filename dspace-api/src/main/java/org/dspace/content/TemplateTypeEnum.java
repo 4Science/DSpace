@@ -15,8 +15,8 @@ package org.dspace.content;
  */
 public enum TemplateTypeEnum {
     DEFAULT("default"),
-    IMAGE("image"),
-    CARD("card");
+    IMAGES("images"),
+    SLIDER("slider");
 
     /**
      * The String representation of the MetadataSchemaEnum
