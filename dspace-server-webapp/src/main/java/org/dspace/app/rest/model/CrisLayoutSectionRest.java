@@ -152,6 +152,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         private boolean showThumbnails;
 
+        private String template;
+
         public String getDiscoveryConfigurationName() {
             return discoveryConfigurationName;
         }
@@ -317,6 +319,20 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         public void setShowThumbnails(boolean showThumbnails) {
             this.showThumbnails = showThumbnails;
+        }
+
+        /**
+         * @return the template
+         */
+        public String getTemplate() {
+            return template;
+        }
+
+        /**
+         * @param template the template to set
+         */
+        public void setTemplate(String template) {
+            this.template = template;
         }
 
     }

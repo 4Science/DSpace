@@ -152,6 +152,7 @@
                      <property name="cardColumnStyle" value="col-12 col-lg-6"/>
                      <property name="itemListStyle" value=""/>
                      <property name="showAllResults" value="true"/>
+                     <property name="template" value="DEFAULT"/>
                  </bean>
                  <bean class="org.dspace.layout.CrisLayoutTopComponent">
                      <property name="discoveryConfigurationName" value="documents" />
@@ -166,6 +167,7 @@
                      <property name="cardColumnStyle" value="col-12 col-lg-6"/>
                      <property name="itemListStyle" value=""/>
                      <property name="showAllResults" value="true"/>
+                     <property name="template" value="DEFAULT"/>
                  </bean>
              </list>
           </list>
