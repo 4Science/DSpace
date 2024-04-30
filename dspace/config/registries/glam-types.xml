@@ -837,4 +837,11 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>privacy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
