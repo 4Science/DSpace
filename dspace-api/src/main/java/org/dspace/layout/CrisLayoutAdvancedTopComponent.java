@@ -7,15 +7,17 @@
  */
 package org.dspace.layout;
 
+import java.util.List;
+
+import org.dspace.content.TemplateTypeEnum;
+
 /**
  * An implementation of {@link CrisLayoutSectionComponent} that model the Top
  * section.
  *
- * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  */
-public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
-
-    private String discoveryConfigurationName;
+public class CrisLayoutAdvancedTopComponent implements CrisLayoutSectionComponent {
+    private List<String> discoveryConfigurationName;
 
     private String sortField;
 
@@ -31,7 +33,7 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private boolean showLayoutSwitch;
 
-    private LayoutMode defaultLayoutMode;
+    private CrisLayoutAdvancedTopComponent.LayoutMode defaultLayoutMode;
 
     private String cardStyle;
 
@@ -43,19 +45,19 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private Boolean showThumbnails;
 
-    private String template;
+    private TemplateTypeEnum template;
 
     /**
      * @return the discoveryConfigurationName
      */
-    public String getDiscoveryConfigurationName() {
+    public List<String> getDiscoveryConfigurationName() {
         return discoveryConfigurationName;
     }
 
     /**
      * @param discoveryConfigurationName the discoveryConfigurationName to set
      */
-    public void setDiscoveryConfigurationName(String discoveryConfigurationName) {
+    public void setDiscoveryConfigurationName(List<String> discoveryConfigurationName) {
         this.discoveryConfigurationName = discoveryConfigurationName;
     }
 
@@ -159,14 +161,14 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
     /**
      * @return the defaultLayoutMode
      */
-    public LayoutMode getDefaultLayoutMode() {
+    public CrisLayoutAdvancedTopComponent.LayoutMode getDefaultLayoutMode() {
         return defaultLayoutMode;
     }
 
     /**
      * @param defaultLayoutMode the defaultLayoutMode to set
      */
-    public void setDefaultLayoutMode(LayoutMode defaultLayoutMode) {
+    public void setDefaultLayoutMode(CrisLayoutAdvancedTopComponent.LayoutMode defaultLayoutMode) {
         this.defaultLayoutMode = defaultLayoutMode;
     }
 
@@ -227,6 +229,20 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
     }
 
     /**
+     * @return the template
+     */
+    public TemplateTypeEnum getTemplate() {
+        return template;
+    }
+
+    /**
+     * @param template the template to set
+     */
+    public void setTemplate(TemplateTypeEnum template) {
+        this.template = template;
+    }
+
+    /**
      * @author Stefano Maffei (steph-ieffam @ 4Science)
      *  Defines the layout mode used in the CrisLayoutTopComponent
      */
@@ -246,19 +262,5 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     public void setShowThumbnails(Boolean showThumbnails) {
         this.showThumbnails = showThumbnails;
-    }
-
-    /**
-     * @return the template
-     */
-    public String getTemplate() {
-        return template;
-    }
-
-    /**
-     * @param template the template to set
-     */
-    public void setTemplate(String template) {
-        this.template = template;
     }
 }

@@ -9,32 +9,33 @@ package org.dspace.app.rest.converter;
 
 import java.util.Objects;
 
-import org.dspace.app.rest.model.CrisLayoutSectionRest.CrisLayoutTopComponentRest;
+import org.dspace.app.rest.model.CrisLayoutSectionRest;
+import org.dspace.layout.CrisLayoutAdvancedTopComponent;
 import org.dspace.layout.CrisLayoutSectionComponent;
-import org.dspace.layout.CrisLayoutTopComponent;
 import org.springframework.stereotype.Component;
 
 /**
  * Implementation of {@link CrisLayoutSectionComponentConverter} for
- * {@link CrisLayoutTopComponent}.
- * 
- * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ * {@link CrisLayoutAdvancedTopComponent}.
+ *
  */
 @Component
-public class CrisLayoutTopComponentConverter implements CrisLayoutSectionComponentConverter {
+public class CrisLayoutAdvancedTopComponentConverter implements CrisLayoutSectionComponentConverter {
 
     @Override
     public boolean support(CrisLayoutSectionComponent component) {
-        return component instanceof CrisLayoutTopComponent;
+        return component instanceof CrisLayoutAdvancedTopComponent;
     }
 
     @Override
-    public CrisLayoutTopComponentRest convert(CrisLayoutSectionComponent component) {
-        CrisLayoutTopComponent topComponent = (CrisLayoutTopComponent) component;
-        CrisLayoutTopComponentRest rest = new CrisLayoutTopComponentRest();
+    public CrisLayoutSectionRest.CrisLayoutAdvancedTopComponentRest convert(CrisLayoutSectionComponent component) {
+        CrisLayoutAdvancedTopComponent topComponent = (CrisLayoutAdvancedTopComponent) component;
+        CrisLayoutSectionRest.CrisLayoutAdvancedTopComponentRest rest = new CrisLayoutSectionRest
+                .CrisLayoutAdvancedTopComponentRest();
         boolean showThumbnails =
-            Objects.isNull(topComponent.getShowThumbnails()) ?
-                false : topComponent.getShowThumbnails();
+                Objects.isNull(topComponent.getShowThumbnails()) ?
+                        false : topComponent.getShowThumbnails();
+        String template = Objects.isNull(topComponent.getTemplate()) ? "default" : topComponent.getTemplate().getName();
 
         rest.setDiscoveryConfigurationName(topComponent.getDiscoveryConfigurationName());
         rest.setOrder(topComponent.getOrder());
@@ -50,8 +51,7 @@ public class CrisLayoutTopComponentConverter implements CrisLayoutSectionCompone
         rest.setItemListStyle(topComponent.getItemListStyle());
         rest.setShowAllResults(topComponent.isShowAllResults());
         rest.setShowThumbnails(showThumbnails);
-        rest.setTemplate(topComponent.getTemplate());
+        rest.setTemplate(template);
         return rest;
     }
-
 }
