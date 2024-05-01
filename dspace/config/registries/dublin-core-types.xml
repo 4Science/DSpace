@@ -897,13 +897,6 @@
     <scope_note></scope_note>
   </dc-type>
 
-  <dc-type>
-    <schema>dc</schema>
-    <element>subject</element>
-    <qualifier>keywords</qualifier>
-    <scope_note></scope_note>
-  </dc-type>
-
 <!-- GLAM additions -->
   <dc-type>
     <schema>dc</schema>
