@@ -376,7 +376,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto, Parola chiave</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
@@ -806,7 +806,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
@@ -2940,7 +2940,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Keyword(s)</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserisci alcuni keywords per la pagina</hint>
@@ -2975,7 +2975,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Keyword(s)</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserisci alcuni keywords per la pagina</hint>
@@ -3713,7 +3713,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare le parole chiave legate alla fotografia</hint>
@@ -4767,7 +4767,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave / keywords</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Descrittore del contenuto attraverso parole chiave</hint>
