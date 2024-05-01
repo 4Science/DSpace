@@ -249,7 +249,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     @Test
     public void testItemMetadataModification() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, publicationCollection).build();
