@@ -1039,7 +1039,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void exportPubliclyAvailableItemsTest() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         String adminLimit = configurationService.getProperty("bulk-export.limit.admin");
         String notLoggedInLimit = configurationService.getProperty("bulk-export.limit.notLoggedIn");

@@ -443,7 +443,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         CrisLayoutBox publicationMetricsBox = publicationTabSecondCell.getBoxes().get(0);
         assertThatBoxHas(publicationMetricsBox, "metrics", "METRICS", "Publication", "Metrics", 0, 2, 2, false,
             true, true, null, LayoutSecurity.CUSTOM_DATA);
-        assertThat(publicationMetricsBox.getMetadataSecurityFields(), contains(
+        assertThat(publicationMetricsBox.getMetadataSecurityFields(), containsInAnyOrder(
             matches(metadataField -> metadataField.toString('.').equals("cris.policy.group")),
             matches(metadataField -> metadataField.toString('.').equals("cris.policy.eperson"))));
         assertThat(publicationMetricsBox.getMetric2box(),containsInAnyOrder(

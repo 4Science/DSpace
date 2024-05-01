@@ -28,8 +28,17 @@ DECLARE
     new_qualifier       text;
     updated_rows        integer;
 BEGIN
-    -- Iterate through each old metadata field
-    FOR i IN 1..array_length(old_metadata_fields, 1)
+    IF EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'dc'
+    ) AND EXISTS (
+        SELECT 1
+        FROM metadataschemaregistry
+        WHERE short_id = 'glam'
+    ) THEN
+        -- Iterate through each old metadata field
+        FOR i IN 1..array_length(old_metadata_fields, 1)
         LOOP
 
             old_element = CASE WHEN split_part(old_metadata_fields[i], '.', 2) = '' THEN null ELSE split_part(old_metadata_fields[i], '.', 2) END;
@@ -78,10 +87,20 @@ BEGIN
               AND ((new_qualifier is NULL AND mf2.qualifier is NULL) OR ((new_qualifier <> '' OR new_qualifier IS NOT NULL) AND mf2.qualifier =  new_qualifier));
 
             -- If both old and new fields exist, update the metadatavalue table
+            -- in case of Picture or AudioVideo items
             IF old_field_id IS NOT NULL AND new_field_id IS NOT NULL THEN
                 UPDATE metadatavalue
                 SET metadata_field_id = new_field_id
-                WHERE metadata_field_id = old_field_id;
+                WHERE metadata_field_id = old_field_id
+                    -- custom filter to check if the item is Picture or AudioVideo
+                    AND dspace_object_id in (select distinct mv.dspace_object_id
+                        from metadatavalue mv
+                        inner join metadatafieldregistry mfr on mv.metadata_field_id = mfr.metadata_field_id
+                        inner join metadataschemaregistry msr on mfr.metadata_schema_id = msr.metadata_schema_id
+                        where msr.short_id = 'dspace'
+                            and mfr.element = 'entity'
+                            and mfr.qualifier = 'type'
+                            and (mv.text_value = 'Picture' or mv.text_value = 'AudioVideo'));
 
                 RAISE INFO 'Replacing Old Metadata: % with %', old_metadata_fields[i], new_metadata_fields[i];
 
@@ -91,4 +110,5 @@ BEGIN
 
             END IF;
         END LOOP;
+    END IF;
 END $$;
