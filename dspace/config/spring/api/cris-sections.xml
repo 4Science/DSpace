@@ -255,7 +255,7 @@
                     </property>
                     <property name="sortField" value="dc.date.accessioned" />
                     <property name="order" value="desc" />
-                    <property name="style" value="col-md-12 pad-left pad-right bg-light"/>
+                    <property name="style" value="py-4 col-12 pad-left pad-right bg-light"/>
                     <property name="numberOfItems" value="8"/>
                     <property name="showAsCard" value="true"/>
                     <property name="showLayoutSwitch" value="true"/>
@@ -264,7 +264,7 @@
                     <property name="cardColumnStyle" value="col-6 col-lg-3"/>
                     <property name="itemListStyle" value=""/>
                     <property name="showAllResults" value="true"/>
-                    <property name="template" value="CARD"/>
+                    <property name="template" value="DEFAULT"/>
                 </bean>
             </list>
             <list>
