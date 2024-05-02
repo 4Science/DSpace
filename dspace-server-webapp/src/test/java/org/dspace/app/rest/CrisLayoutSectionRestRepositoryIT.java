@@ -10,6 +10,7 @@ package org.dspace.app.rest;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withFacetComponent;
+import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndAdvancedTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCarouselComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCountersComponent;
@@ -95,9 +96,10 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndTopComponent("site", 3, 0, "col-md-12 pad-left pad-right bg-light", "additions",
-                                            "lastModified", "desc", 8, true, true, "card",
-                                            "", "col-6 col-lg-3", "", true, "top"))))
+              hasItem(withIdAndAdvancedTopComponent("site", 3, 0, "py-4 col-12 pad-left pad-right bg-light",
+                                            List.of("aggregations", "fonds", "journalfonds"),
+                                            "dc.date.accessioned", "desc", 8, true, true, "card",
+                                            "", "col-6 col-lg-3", "", true, "default", "advanced-top-component"))))
             ;
     }
 
