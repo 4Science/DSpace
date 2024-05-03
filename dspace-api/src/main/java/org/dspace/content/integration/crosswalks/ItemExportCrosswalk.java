@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.dspace.content.crosswalk.CrosswalkMode;
 import org.dspace.content.crosswalk.StreamDisseminationCrosswalk;
+import org.dspace.core.Context;
 
 /**
  * Implementation of {@link StreamDisseminationCrosswalk} related to item
@@ -39,5 +40,9 @@ public interface ItemExportCrosswalk extends StreamDisseminationCrosswalk, FileN
      */
     public default CrosswalkMode getCrosswalkMode() {
         return CrosswalkMode.SINGLE;
+    }
+
+    public default boolean isAuthorized(Context context) {
+        return true;
     }
 }

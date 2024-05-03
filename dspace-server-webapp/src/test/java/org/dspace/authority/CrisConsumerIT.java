@@ -1148,9 +1148,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
 
-            final String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
-            List<String> propKeys = configurationService.getPropertyKeys(CHOICES_PLUGIN_PREFIX);
-
             String issn = "2731-0582";
 
             context.turnOffAuthorisationSystem();

@@ -121,7 +121,9 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
         Item organizationItem = findRelatedItem(context, metadataValue);
         if (organizationItem != null) {
             organization.setAddress(createOrganizationAddress(organizationItem));
-            organization.setDisambiguatedOrganization(createDisambiguatedOrganization(organizationItem));
+            organization.setDisambiguatedOrganization(
+                createDisambiguatedOrganization(context, organizationItem)
+            );
         }
 
         return of(organization);
@@ -156,7 +158,7 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
 
         FundingContributor contributor = new FundingContributor();
         contributor.setCreditName(new CreditName(metadataValue.getValue()));
-        contributor.setContributorAttributes(getFundingContributorAttributes(metadataValue, role));
+        contributor.setContributorAttributes(getFundingContributorAttributes(role));
 
         Item authorItem = findItem(context, UUIDUtils.fromString(metadataValue.getAuthority()));
         if (authorItem != null) {
@@ -190,7 +192,7 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
             throw new OrcidValidationException(OrcidValidationError.INVALID_COUNTRY);
         }
 
-        return country.map(isoCountry -> new Country(isoCountry));
+        return country.map(Country::new);
     }
 
     private ContributorAttributes getContributorAttributes(MetadataValue metadataValue, ContributorRole role) {
@@ -211,8 +213,7 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
         return address;
     }
 
-    private FundingContributorAttributes getFundingContributorAttributes(MetadataValue metadataValue,
-        FundingContributorRole role) {
+    private FundingContributorAttributes getFundingContributorAttributes(FundingContributorRole role) {
         FundingContributorAttributes attributes = new FundingContributorAttributes();
         attributes.setContributorRole(role != null ? role.value() : null);
         return attributes;
@@ -237,16 +238,41 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
         return null;
     }
 
+    private DisambiguatedOrganization createDisambiguatedOrganization(Context context, Item organizationItem) {
+        DisambiguatedOrganization disambiguatedOrganization = createDisambiguatedOrganization(organizationItem);
+        Item parentOrganization = findParentOrganization(context, organizationItem);
+
+        while (disambiguatedOrganization == null && parentOrganization != null) {
+            disambiguatedOrganization = createDisambiguatedOrganization(parentOrganization);
+            parentOrganization = findParentOrganization(context, parentOrganization);
+        }
+
+        return disambiguatedOrganization;
+    }
+
     private Optional<Iso3166Country> convertToIso3166Country(String countryValue) {
         return ofNullable(countryValue)
             .map(value -> countryConverter != null ? countryConverter.getValue(value) : value)
             .filter(value -> isValidEnum(Iso3166Country.class, value))
-            .map(value -> Iso3166Country.fromValue(value));
+            .map(Iso3166Country::fromValue);
     }
 
     private boolean isUnprocessableValue(MetadataValue value) {
         return value == null || isBlank(value.getValue())
             || value.getValue().equals(PLACEHOLDER_PARENT_METADATA_VALUE);
+    }
+
+    private Item findParentOrganization(Context context, Item item) {
+        try {
+            Optional<MetadataValue> metadataValue =
+                itemService.getMetadataByMetadataString(item, "organization.parentOrganization")
+                           .stream().findFirst();
+            return metadataValue.isPresent()
+                ? itemService.find(context, UUIDUtils.fromString(metadataValue.get().getAuthority()))
+                : null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Item findRelatedItem(Context context, MetadataValue metadataValue) {

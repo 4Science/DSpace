@@ -1,0 +1,19 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DataQuality Addon metadata types</title>
+    </dspace-header>
+
+    <dc-schema>
+        <name>dq</name>
+        <namespace>http://dspace.org/dq</namespace>
+    </dc-schema>
+
+    <dc-type>
+        <schema>dq</schema>
+        <element>merge</element>
+        <qualifier>target-uri</qualifier>
+        <scope_note>stores the value of uri of target item</scope_note>
+    </dc-type>
+
+</dspace-dc-types>
