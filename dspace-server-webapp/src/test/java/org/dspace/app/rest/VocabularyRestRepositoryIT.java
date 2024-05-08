@@ -200,7 +200,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("channel_type", "channel_type", true, false),
                      VocabularyMatcher.matchProperties("samplerate", "samplerate", true, false),
                      VocabularyMatcher.matchProperties("bitsample", "bitsample", true, false),
-                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false)
+                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false),
+                     VocabularyMatcher.matchProperties("currency", "currency", true, false)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))
