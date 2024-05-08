@@ -10,7 +10,6 @@
 # Test environment for DSpace + Cantaloupe for IIIF support. See README for instructions.
 # This should NEVER be used in production scenarios.
 #
-version: '3.7'
 networks:
   dspacenet:
 services:
