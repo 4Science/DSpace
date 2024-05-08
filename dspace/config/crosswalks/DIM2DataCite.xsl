@@ -11,7 +11,7 @@
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:dspace="http://www.dspace.org/xmlns/dspace/dim"
-                xmlns="http://datacite.org/schema/kernel-3"
+                xmlns="http://datacite.org/schema/kernel-4"
                 version="2.0">
     
     <!-- CONFIGURATION -->
@@ -47,9 +47,9 @@
             properties are in the metadata of the item to export.
             The classe named above respects this.
         -->
-        <resource xmlns="http://datacite.org/schema/kernel-3"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd">
+        <resource xmlns="http://datacite.org/schema/kernel-4"
+                  xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
             <!--
                 MANDATORY PROPERTIES
