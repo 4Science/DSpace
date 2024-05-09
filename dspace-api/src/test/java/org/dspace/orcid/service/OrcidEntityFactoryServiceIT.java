@@ -547,8 +547,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithoutGrantNumberCreation() {
-        // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 
@@ -642,9 +640,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithGrantNumberCreation() {
-        // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
-
         context.turnOffAuthorisationSystem();
 
         Item funding = ItemBuilder.createItem(context, fundings)
@@ -747,8 +742,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testWorkWithFundingEntityWithGrantNumberAndUrlCreation() {
-        // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 
