@@ -68,6 +68,7 @@
         <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
         <addon-dataquality.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-dataquality.version>
         <addon-orchestrator.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-orchestrator.version>
+        <addon-networklab.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-networklab.version>
 
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
