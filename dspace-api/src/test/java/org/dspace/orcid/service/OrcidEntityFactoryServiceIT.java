@@ -39,7 +39,6 @@ import org.dspace.core.CrisConstants;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.orcid.jaxb.model.common.ContributorRole;
