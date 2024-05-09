@@ -150,8 +150,9 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @throws SQLException if database error
      */
     @Override
-    public List<MetadataSchema> findAllByNamespaceAndElementAndQualifier(Context context, String namespace,
-                                                                         String element, String qualifier) throws SQLException {
+    public List<MetadataSchema> findAllByNamespaceAndElementAndQualifier(
+        Context context, String namespace, String element, String qualifier
+    ) throws SQLException {
 
         String queryDefinition = "SELECT DISTINCT mf.metadataSchema FROM MetadataField mf"
                 + " LEFT JOIN mf.metadataSchema WHERE";
