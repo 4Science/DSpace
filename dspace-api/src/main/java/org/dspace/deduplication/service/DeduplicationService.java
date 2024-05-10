@@ -15,6 +15,7 @@ import org.dspace.core.Context;
 import org.dspace.deduplication.Deduplication;
 
 public interface DeduplicationService {
+
     /**
      * Create a new Deduplication object
      *
@@ -23,7 +24,7 @@ public interface DeduplicationService {
      * @throws SQLException An exception that provides information on a database
      *                      access error or other errors.
      */
-    public Deduplication create(Context context, Deduplication dedup) throws SQLException;
+    Deduplication create(Context context, Deduplication dedup) throws SQLException;
 
     /***
      * Return all deduplication objects
@@ -35,7 +36,7 @@ public interface DeduplicationService {
      * @throws SQLException An exception that provides information on a database
      *                      access error or other errors.
      */
-    public List<Deduplication> findAll(Context context, int pageSize, int offset) throws SQLException;
+    List<Deduplication> findAll(Context context, int pageSize, int offset) throws SQLException;
 
     /**
      * Count all accounts.
@@ -55,11 +56,11 @@ public interface DeduplicationService {
      * @throws SQLException An exception that provides information on a database
      *                      access error or other errors.
      */
-    public void update(Context context, Deduplication dedup) throws SQLException;
+    void update(Context context, Deduplication dedup) throws SQLException;
 
-    public List<Deduplication> getDeduplicationByFirstAndSecond(Context context, UUID firstId, UUID secondId)
+    List<Deduplication> getDeduplicationByFirstAndSecond(Context context, UUID firstId, UUID secondId)
             throws SQLException;
 
-    public Deduplication uniqueDeduplicationByFirstAndSecond(Context context, UUID firstId, UUID secondId)
+    Deduplication uniqueDeduplicationByFirstAndSecond(Context context, UUID firstId, UUID secondId)
             throws SQLException;
 }

@@ -10156,4 +10156,135 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                              "ExtraEntry")
                                  )));
     }
+
+    @Test
+    public void patchAddMetadataToInlineGroupTypeMetadataShouldCompletedWithoutErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1")
+                .withEntityType("Funding")
+                .withSubmissionDefinition("funding")
+                .build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1")
+                .withEntityType("OrgUnit")
+                .withSubmissionDefinition("orgunit")
+                .build();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        Item orgUnit = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit")
+                .withIssueDate("1957")
+                .build();
+
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withTitle("Test witem")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
+        context.restoreAuthSystemState();
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> funderValues = new ArrayList<>();
+        Map<String, String> funderValuesMap = new HashMap<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        funderValuesMap.put("value", "OrgUnit");
+        funderValuesMap.put("authority", orgUnit.getID().toString());
+        funderValues.add(funderValuesMap);
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.funder", funderValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].value",
+                        is("OrgUnit")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].authority",
+                        is(orgUnit.getID().toString())))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));
+    }
+
+    @Test
+    public void patchAddMetadataToInlineGroupTypeMetadataShouldReturnErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1")
+                .withEntityType("Funding")
+                .withSubmissionDefinition("funding")
+                .build();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
+                .withTitle("Test witem")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
+        context.restoreAuthSystemState();
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
+                        contains(
+                                hasJsonPath("$.paths", contains(
+                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder"))
+                                )))))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));
+    }
 }
