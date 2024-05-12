@@ -44,6 +44,7 @@ public class CrisLayoutBoxServiceImplIT extends AbstractControllerIntegrationTes
         parentCommunity = CommunityBuilder.createCommunity(context).build();
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Test collection")
+            .withEntityType("Product")
             .build();
 
         Item item = ItemBuilder

@@ -457,9 +457,6 @@ public class SubmissionConfigReader {
      * by the collection handle.
      */
     private void processMap(Node e) throws SAXException, SearchServiceException {
-        // create a context
-        Context context = new Context();
-
         NodeList nl = e.getChildNodes();
         int len = nl.getLength();
         for (int i = 0; i < len; i++) {
@@ -484,14 +481,8 @@ public class SubmissionConfigReader {
                 }
                 if (id != null) {
                     collectionToSubmissionConfig.put(id, value);
-
                 } else {
-                    // get all collections for this entity-type
-                    List<Collection> collections = collectionService.findAllCollectionsByEntityType( context,
-                                    entityType);
-                    for (Collection collection : collections) {
-                        collectionToSubmissionConfig.putIfAbsent(collection.getHandle(), value);
-                    }
+                    collectionToSubmissionConfig.putIfAbsent(entityType, value);
                 }
             } // ignore any child node that isn't a "name-map"
         }

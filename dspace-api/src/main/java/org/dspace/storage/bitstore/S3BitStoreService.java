@@ -19,14 +19,18 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.SystemDefaultDnsResolver;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -105,6 +109,9 @@ public class S3BitStoreService extends BaseBitStoreService {
     private String awsSecretKey;
     private String awsRegionName;
     private boolean useRelativePath;
+    private Integer maxConnections;
+    private Integer connectionTimeout;
+    private String endpoint;
 
     /**
      * container for all the assets
@@ -131,21 +138,118 @@ public class S3BitStoreService extends BaseBitStoreService {
             = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     /**
+     * Utility method for generate ClientConfiguration
+     *
+     * @param maxConnections maximum number of connections for the S3 Service
+     * @param connectionTimeout maximum timeout for those connections
+     * @return ClientConfiguration with the specified parameters
+     */
+    protected static Supplier<ClientConfiguration> getClientConfiguration(
+        Integer maxConnections, Integer connectionTimeout
+    ) {
+        return () -> new ClientConfiguration()
+            .withDnsResolver(
+                new SystemDefaultDnsResolver()
+            )
+            .withMaxConnections(
+                Optional.ofNullable(maxConnections).orElse(ClientConfiguration.DEFAULT_MAX_CONNECTIONS)
+            )
+            .withConnectionTimeout(
+                Optional.ofNullable(connectionTimeout).orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
+            );
+    }
+
+    /**
      * Utility method for generate AmazonS3 builder
      *
      * @param regions wanted regions in client
-     * @param awsCredentials credentials of the client
+     * @param credentialsProvider credentials of the client
+     * @param clientConfiguration client connection details
+     * @param endpoint optional custom endpoint
      * @return builder with the specified parameters
      */
     protected static Supplier<AmazonS3> amazonClientBuilderBy(
             @NotNull Regions regions,
-            @NotNull AWSCredentials awsCredentials
+            @NotNull Supplier<AWSStaticCredentialsProvider> credentialsProvider,
+            @NotNull Supplier<ClientConfiguration> clientConfiguration,
+            String endpoint
     ) {
-        return () -> AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .withRegion(regions)
-                .build();
+        return () ->
+            withEndpointConfiguration(
+                AmazonS3ClientBuilder.standard()
+                                     .withCredentials(credentialsProvider.get())
+                                     //.withClientConfiguration(clientConfiguration.get())
+                ,
+                regions,
+                endpoint
+            ).build();
     }
+
+    /**
+     * Utility method for generate AmazonS3 builder
+     *
+     * @param clientConfigurationSupplier client connection details
+     * @param endpoint optional custom endpoint
+     * @return builder with the specified parameters
+     */
+    protected static Supplier<AmazonS3> amazonClientBuilderBy(
+        @NotNull Supplier<ClientConfiguration> clientConfigurationSupplier,
+        String endpoint
+    ) {
+        return () ->
+            withEndpointConfiguration(
+                AmazonS3ClientBuilder.standard()
+                                     .withClientConfiguration(clientConfigurationSupplier.get()),
+                Regions.DEFAULT_REGION,
+                endpoint
+            ).build();
+    }
+
+    /**
+     * Additional builder that enriches a given {@link AmazonS3ClientBuilder} with a custom {@link EndpointConfiguration}
+     * if any endpoint is set.
+     * <br/>
+     * Otherwise proceeds to set the {@link Regions} inside the builder.
+     *
+     * @param clientBuilder The builder that contains all the client details
+     * @param regions The region of the client to be built
+     * @param endpoint The custom optional endpoint to set
+     * @return {@link AmazonS3ClientBuilder} enriched with the given details
+     */
+    protected static AmazonS3ClientBuilder withEndpointConfiguration(
+        @NotNull AmazonS3ClientBuilder clientBuilder,
+        @NotNull Regions regions,
+        String endpoint
+    ) {
+        if (StringUtils.isNotBlank(endpoint)) {
+            clientBuilder =
+                clientBuilder.withEndpointConfiguration(getEndpointConfiguration(endpoint, regions));
+        } else {
+            clientBuilder = clientBuilder.withRegion(regions);
+        }
+        return clientBuilder;
+    }
+
+    protected static EndpointConfiguration getEndpointConfiguration(String endpoint, Regions region) {
+        return new EndpointConfiguration(
+            endpoint, region.getName()
+        );
+    }
+
+    protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
+        String awsAccessKey, String awsSecretKey
+    ) {
+        return getAwsCredentialsSupplier(
+            new BasicAWSCredentials(awsAccessKey, awsSecretKey)
+        );
+    }
+
+    protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
+        AWSCredentials credentials
+    ) {
+        return () -> new AWSStaticCredentialsProvider(credentials);
+    }
+
 
     public S3BitStoreService() {}
 
@@ -173,7 +277,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     @Override
     public void init() throws IOException {
 
-        if (this.isInitialized()) {
+        if (this.isInitialized() || !this.isEnabled()) {
             return;
         }
 
@@ -190,20 +294,27 @@ public class S3BitStoreService extends BaseBitStoreService {
                     }
                 }
                 // init client
-                s3Service = FunctionalUtils.getDefaultOrBuild(
+                s3Service =
+                    FunctionalUtils.getDefaultOrBuild(
                         this.s3Service,
                         amazonClientBuilderBy(
-                                regions,
-                                new BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey())
-                                )
-                        );
+                            regions,
+                            getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey()),
+                            getClientConfiguration(maxConnections, connectionTimeout),
+                            endpoint
+                        )
+                    );
                 log.warn("S3 Region set to: " + regions.getName());
             } else {
                 log.info("Using a IAM role or aws environment credentials");
-                s3Service = FunctionalUtils.getDefaultOrBuild(
+                s3Service =
+                    FunctionalUtils.getDefaultOrBuild(
                         this.s3Service,
-                        AmazonS3ClientBuilder::defaultClient
-                        );
+                        amazonClientBuilderBy(
+                            getClientConfiguration(maxConnections, connectionTimeout),
+                            endpoint
+                        )
+                    );
             }
 
             // bucket name
@@ -220,7 +331,8 @@ public class S3BitStoreService extends BaseBitStoreService {
                     log.info("Creating new S3 Bucket: " + bucketName);
                 }
             } catch (AmazonClientException e) {
-                throw new IOException(e);
+                log.error("Cannot locate or create the bucket: ", e);
+                // throw new IOException(e);
             }
             this.initialized = true;
             log.info("AWS S3 Assetstore ready to go! bucket:" + bucketName);
@@ -506,6 +618,30 @@ public class S3BitStoreService extends BaseBitStoreService {
 
     public void setUseRelativePath(boolean useRelativePath) {
         this.useRelativePath = useRelativePath;
+    }
+
+    public Integer getMaxConnections() {
+        return maxConnections;
+    }
+
+    public void setMaxConnections(Integer maxConnections) {
+        this.maxConnections = maxConnections;
+    }
+
+    public Integer getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(Integer connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     /**

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableRunnable;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -60,11 +61,13 @@ import org.dspace.content.virtual.VirtualMetadataPopulator;
 import org.dspace.core.Constants;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.kernel.ServiceManager;
+import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersioningService;
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -85,6 +88,9 @@ public class VersioningWithRelationshipsIT extends AbstractIntegrationTestWithDa
         ContentServiceFactory.getInstance().getItemService();
     private final SolrSearchCore solrSearchCore =
         DSpaceServicesFactory.getInstance().getServiceManager().getServicesByType(SolrSearchCore.class).get(0);
+
+    protected ConfigurationService configurationService =
+            DSpaceServicesFactory.getInstance().getConfigurationService();
 
     protected Community community;
     protected Collection personCollection;
@@ -107,10 +113,16 @@ public class VersioningWithRelationshipsIT extends AbstractIntegrationTestWithDa
     protected RelationshipType isIssueOfJournalVolume;
     protected RelationshipType isProjectOfPerson;
 
+    private String[] versioningEntities;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
+        versioningEntities = configurationService.getArrayProperty("versioning.enabled.entities");
+        configurationService.setProperty("versioning.enabled.entities",
+                "Publication,Person,OrgUnit,Project,JournalIssue,JournalVolume");
 
         context.turnOffAuthorisationSystem();
 
@@ -4189,6 +4201,13 @@ public class VersioningWithRelationshipsIT extends AbstractIntegrationTestWithDa
             person1V1.getID().toString(), person1V2.getID().toString(),
             person2V1.getID().toString(), person2V2.getID().toString()
         ));
+    }
+
+    @After
+    @Override
+    public void destroy() throws Exception {
+        configurationService.setProperty("versioning.enabled.entities", StringUtils.joinWith(",", versioningEntities));
+        super.destroy();
     }
 
 }
