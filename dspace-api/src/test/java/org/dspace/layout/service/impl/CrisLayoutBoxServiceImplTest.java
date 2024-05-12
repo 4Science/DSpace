@@ -350,6 +350,39 @@ public class CrisLayoutBoxServiceImplTest {
 
     }
 
+    @Test
+    public void testNetworkLabBoxHasContentWithMetadataTrue() {
+        Item item = item();
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dspace", "networklab", "enabled"),
+                Item.ANY)).thenReturn("true");
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
+
+        assertTrue(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
+    @Test
+    public void testNetworkLabBoxHasNoContentWithMetadataFalse() {
+        Item item = item();
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dspace", "networklab", "enabled"),
+                Item.ANY)).thenReturn("false");
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
+    @Test
+    public void testNetworkLabBoxHasNoContentWithMetadataUndefined() {
+        Item item = item();
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
     private CrisLayoutBox crisLayoutMetadataBox(String shortname, MetadataField... metadataFields) {
         return crisLayoutBox(shortname, CrisLayoutBoxTypes.METADATA.name(), metadataFields);
     }

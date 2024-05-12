@@ -515,7 +515,7 @@
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint />
+          <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
         </field>
       </row>
       <row>
@@ -638,7 +638,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter appropriate subject keywords or phrases.</hint>
+          <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
         </field>
       </row>
       <row>
@@ -1022,7 +1022,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter appropriate subject keywords or phrases.</hint>
+          <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
         </field>
       </row>
       <row>
@@ -1324,11 +1324,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
-          <label>Subject Keyword(s)</label>
-          <input-type>onebox</input-type>
+          <label>Subject Keywords</label>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Enter appropriate subject keywords or phrases.</hint>
+          <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
         </field>
       </row>
       <row>

@@ -25,6 +25,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -71,6 +75,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 /**
  * Integration tests for the {@link XlsCollectionCrosswalk}.
@@ -648,11 +653,12 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        IllegalArgumentException argumentException = Assert.assertThrows(IllegalArgumentException.class,
-            () -> xlsCollectionCrosswalk.disseminate(context, itemIterator, baos));
+        XlsCollectionCrosswalk spy = spy(xlsCollectionCrosswalk);
 
-        assertThat(argumentException.getMessage(), is("It is not possible to export items from two different"
-            + " collections: item " + secondItem.getID() + " is not in collection " + collection1.getID()));
+        spy.disseminate(context, itemIterator, baos);
+
+        verify(spy, times(1))
+            .logMessage(ArgumentMatchers.eq(Level.WARNING), ArgumentMatchers.contains(secondItem.getID().toString()));
     }
 
     @Test

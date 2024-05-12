@@ -175,7 +175,7 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
             }
         }
         Choice[] vArray = new Choice[v.size()];
-        return new Choices(v.toArray(vArray), start, found, Choices.CF_AMBIGUOUS, false, dflt);
+        return new Choices(v.toArray(vArray), start, found, Choices.CF_UNSET, false, dflt);
     }
 
     @Override
@@ -187,8 +187,8 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
         for (int i = 0; i < valuesLocale.length; ++i) {
             if (text.equalsIgnoreCase(valuesLocale[i])) {
                 Choice v[] = new Choice[1];
-                v[0] = new Choice(String.valueOf(i), valuesLocale[i], labelsLocale[i]);
-                return new Choices(v, 0, v.length, Choices.CF_UNCERTAIN, false, 0);
+                v[0] = new Choice(null, valuesLocale[i], labelsLocale[i]);
+                return new Choices(v, 0, v.length, Choices.CF_UNSET, false, 0);
             }
         }
         return new Choices(Choices.CF_NOTFOUND);

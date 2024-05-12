@@ -163,21 +163,33 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     private List<Choice> getChoiceListFromQueryResults(SolrDocumentList results, String searchTitle,
         boolean onlyExactMatches) {
         return results
-        .stream()
-        .map(doc ->  {
-            String title;
-            if (onlyExactMatches && isForceInternalTitle() || !onlyExactMatches) {
-                Object fieldValue = doc.getFieldValue("dc.title");
-                title = fieldValue instanceof String ? (String) fieldValue
-                    : ((ArrayList<String>) fieldValue).get(0);
-            } else {
-                title = searchTitle;
-            }
-            Map<String, String> extras = ItemAuthorityUtils.buildExtra(getPluginInstanceName(), doc);
-            return new Choice((String) doc.getFieldValue("search.resourceid"),
-                title,
-                title, extras, DEFAULT);
-        }).collect(Collectors.toList());
+            .stream()
+            .map(doc -> {
+                String title = searchTitle;
+                List<String> objectNames = List.of();
+                if (onlyExactMatches && isForceInternalTitle() || !onlyExactMatches) {
+                    Object fieldValue = doc.getFieldValue("objectname");
+                    if (fieldValue != null) {
+                        if (fieldValue instanceof String) {
+                            title = (String) fieldValue;
+                        } else {
+                            objectNames = (ArrayList<String>) fieldValue;
+                            title = objectNames.get(0);
+                        }
+                    } else {
+                        title = ((ArrayList<String>) doc.getFieldValue("dc.title"))
+                            .stream()
+                            .findFirst()
+                            .orElse(searchTitle);
+                    }
+                }
+                String uuid = (String) doc.getFieldValue("search.resourceid");
+                Map<String, String> extras = ItemAuthorityUtils.buildExtra(getPluginInstanceName(),
+                    doc, objectNames, uuid);
+                return new Choice(uuid,
+                    title,
+                    title, extras);
+            }).collect(Collectors.toList());
     }
 
     @Override

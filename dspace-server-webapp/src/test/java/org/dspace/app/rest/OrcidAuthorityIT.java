@@ -866,11 +866,10 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
 
     private Matcher<? super Object> affiliationEntry(Item item, String title, String otherInfoValue) {
         return ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(id(item), title,
-            title, "vocabularyEntry", Map.of(
-                "data-oairecerif_author_affiliation", otherInfoValue,
-                "oairecerif_author_affiliation", otherInfoValue,
-                "data-" + ORCID_INFO, "",
-                ORCID_INFO, ""));
+                title, "vocabularyEntry",
+                otherInfoValue.equals("") ? Map.of() :
+                        Map.of("data-oairecerif_author_affiliation", otherInfoValue,
+                                "oairecerif_author_affiliation", otherInfoValue));
     }
 
     private Matcher<? super Object> orcidEntry(String title, String authorityPrefix, String orcid) {

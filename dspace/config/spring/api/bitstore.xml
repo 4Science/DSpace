@@ -34,6 +34,9 @@
         <!-- Subfolder to organize assets within the bucket, in case this bucket is shared  -->
         <!-- Optional, default is root level of bucket -->
         <property name="subfolder" value="${assetstore.s3.subfolder}"/>
+        <property name="maxConnections" value="${assetstore.s3.maxConnections}"/>
+        <property name="connectionTimeout" value="${assetstore.s3.connectionTimeout}"/>
+        <property name="endpoint" value="${assetstore.s3.endpoint}"/>
     </bean>
 
     <!-- <bean name="localStore2 ... -->

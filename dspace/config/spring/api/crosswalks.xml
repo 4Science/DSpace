@@ -698,7 +698,7 @@
 	<bean name="mapConverterScopusToCoarPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="mapConverter-scopusToCoarPublicationTypes.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
-		<property name="defaultValue" value=""/>
+		<property name="defaultValue" value="other"/>
 	</bean>
 
     <bean name="mapConverterDataciteToPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">

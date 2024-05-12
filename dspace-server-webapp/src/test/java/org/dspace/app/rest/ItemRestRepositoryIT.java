@@ -4846,6 +4846,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -4908,7 +4909,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                                           .build();
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
-                                          .withName("Collection test").build();
+                                          .withName("Collection test").withEntityType("Publication").build();
 
         Item item = ItemBuilder.createItem(context, col)
                                .withTitle("Public test item")
@@ -4937,6 +4938,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -4967,6 +4969,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
