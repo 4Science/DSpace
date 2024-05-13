@@ -492,6 +492,12 @@
             <groupId>org.webjars.bowergithub.codeseven</groupId>
             <artifactId>toastr</artifactId>
             <version>2.1.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars.bowergithub.jquery</groupId>
+                    <artifactId>jquery-dist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Pull in current version of URI.js (https://medialize.github.io/URI.js/) via WebJars
              Made available at: webjars/urijs/src/URI.min.js -->
@@ -513,6 +519,12 @@
             <groupId>org.webjars.bowergithub.jashkenas</groupId>
             <artifactId>backbone</artifactId>
             <version>1.4.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars.bowergithub.jashkenas</groupId>
+                    <artifactId>underscore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Pull in current version of json-editor.js (https://github.com/json-editor/json-editor) via WebJars
              Made available at: webjars/json-editor__json-editor/2.6.1/dist/jsoneditor.js
