@@ -913,13 +913,13 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             solrQuery.setRows(discoveryQuery.getMaxResults());
         }
 
-        if (discoveryQuery.getSortField() != null) {
+        for (DiscoverQuery.SortEntry<String, DiscoverQuery.SORT_ORDER> config : discoveryQuery.getSortFields()) {
             SolrQuery.ORDER order = SolrQuery.ORDER.asc;
-            if (discoveryQuery.getSortOrder().equals(DiscoverQuery.SORT_ORDER.desc)) {
+            if (config.getValue().equals(DiscoverQuery.SORT_ORDER.desc)) {
                 order = SolrQuery.ORDER.desc;
             }
 
-            solrQuery.addSort(discoveryQuery.getSortField(), order);
+            solrQuery.addSort(config.getKey(), order);
         }
 
         for (String property : discoveryQuery.getProperties().keySet()) {
