@@ -58,8 +58,7 @@ public class DiscoverQuery {
         asc
     }
 
-    private String sortField;
-    private SORT_ORDER sortOrder;
+    private List<SortEntry<String, SORT_ORDER>> sortFields = new ArrayList<SortEntry<String, SORT_ORDER>>();
 
     /**
      * Attributes required for the faceting of values
@@ -115,17 +114,17 @@ public class DiscoverQuery {
         this.start = start;
     }
 
+    public void addSortField(String sortField, SORT_ORDER sortOrder) {
+        this.sortFields.add(new SortEntry<String, SORT_ORDER>(sortField, sortOrder));
+    }
+
     public void setSortField(String sortField, SORT_ORDER sortOrder) {
-        this.sortField = sortField;
-        this.sortOrder = sortOrder;
+        this.sortFields.clear();
+        this.sortFields.add(new SortEntry<String, SORT_ORDER>(sortField, sortOrder));
     }
 
-    public String getSortField() {
-        return sortField;
-    }
-
-    public SORT_ORDER getSortOrder() {
-        return sortOrder;
+    public List<SortEntry<String, SORT_ORDER>> getSortFields() {
+        return sortFields;
     }
 
     /**
@@ -449,5 +448,22 @@ public class DiscoverQuery {
 
     public void setIncludeNotDiscoverableOrWithdrawn(boolean includeNotDiscoverableAndWithdrawn) {
         this.includeNotDiscoverableOrWithdrawn = includeNotDiscoverableAndWithdrawn;
+    }
+
+    public class SortEntry<K, V> {
+        private K key;
+        private V value;
+
+        public SortEntry(final K key, final V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public K getKey() {
+            return key;
+        }
+        public V getValue() {
+            return value;
+        }
     }
 }
