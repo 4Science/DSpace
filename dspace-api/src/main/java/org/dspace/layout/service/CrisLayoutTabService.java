@@ -152,4 +152,6 @@ public interface CrisLayoutTabService extends DSpaceCRUDService<CrisLayoutTab> {
      * @throws SQLException An exception that provides information on a database errors.
      */
     public List<CrisLayoutTab> findByItem(Context context, String itemUuid) throws SQLException;
+
+    public boolean hasAccess(Context context, CrisLayoutTab tab, Item item);
 }

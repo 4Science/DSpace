@@ -247,6 +247,181 @@ public class OrcidProfileSectionFactoryServiceIT extends AbstractIntegrationTest
     }
 
     @Test
+    public void testDisambiguationFromOrgUnitHierarchyOnEmploymentCreation() {
+
+        context.turnOffAuthorisationSystem();
+
+        Item orgUnitWithRinId = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science with rin")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .withOrgUnitRinggoldIdentifier("12345")
+                                  .build();
+
+        Item orgUnit = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .withParentOrganization("4Science with rin", orgUnitWithRinId.getID().toString())
+                                  .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("Test profile")
+                               .withPersonAffiliation("4Science", orgUnit.getID().toString())
+                               .withPersonAffiliationStartDate("2020-02")
+                               .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                               .withPersonAffiliationRole("Researcher")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        List<MetadataValue> values = new ArrayList<>();
+        values.add(getMetadata(item, "oairecerif.person.affiliation", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.startDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.endDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.role", 0));
+
+        Object firstOrcidObject = profileSectionFactoryService.createOrcidObject(context, values, AFFILIATION);
+        assertThat(firstOrcidObject, instanceOf(Employment.class));
+        Employment qualification = (Employment) firstOrcidObject;
+        assertThat(qualification.getStartDate(), notNullValue());
+        assertThat(qualification.getStartDate().getYear().getValue(), is("2020"));
+        assertThat(qualification.getStartDate().getMonth().getValue(), is("02"));
+        assertThat(qualification.getStartDate().getDay().getValue(), is("01"));
+        assertThat(qualification.getEndDate(), nullValue());
+        assertThat(qualification.getRoleTitle(), is("Researcher"));
+        assertThat(qualification.getDepartmentName(), is("4Science"));
+
+        Organization organization = qualification.getOrganization();
+        assertThat(organization, notNullValue());
+        assertThat(organization.getName(), is("4Science"));
+        assertThat(organization.getAddress(), notNullValue());
+        assertThat(organization.getAddress().getCountry(), is(Iso3166Country.IT));
+        assertThat(organization.getAddress().getCity(), is("Milan"));
+        assertThat(organization.getDisambiguatedOrganization(), notNullValue());
+        assertThat(organization.getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier(), is("12345"));
+        assertThat(organization.getDisambiguatedOrganization().getDisambiguationSource(), is("RINGGOLD"));
+    }
+
+    @Test
+    public void testDisambiguationFromOrgUnitHierarchyOnEmploymentCreationWithAncestor() {
+
+        context.turnOffAuthorisationSystem();
+
+        Item orgUnitGranfather = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science with rin")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .withOrgUnitRinggoldIdentifier("12345")
+                                  .build();
+
+        Item orgUnitFather = ItemBuilder.createItem(context, orgUnits)
+                .withTitle("4Science without rin")
+                .withOrgUnitCountry("IT")
+                .withOrgUnitLocality("Milan")
+                .withParentOrganization("4Science with rin", orgUnitGranfather.getID().toString())
+                .build();
+
+        Item orgUnit = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .withParentOrganization("4Science without rin", orgUnitFather.getID().toString())
+                                  .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("Test profile")
+                               .withPersonAffiliation("4Science", orgUnit.getID().toString())
+                               .withPersonAffiliationStartDate("2020-02")
+                               .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                               .withPersonAffiliationRole("Researcher")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        List<MetadataValue> values = new ArrayList<>();
+        values.add(getMetadata(item, "oairecerif.person.affiliation", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.startDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.endDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.role", 0));
+
+        Object firstOrcidObject = profileSectionFactoryService.createOrcidObject(context, values, AFFILIATION);
+        assertThat(firstOrcidObject, instanceOf(Employment.class));
+        Employment qualification = (Employment) firstOrcidObject;
+        assertThat(qualification.getStartDate(), notNullValue());
+        assertThat(qualification.getStartDate().getYear().getValue(), is("2020"));
+        assertThat(qualification.getStartDate().getMonth().getValue(), is("02"));
+        assertThat(qualification.getStartDate().getDay().getValue(), is("01"));
+        assertThat(qualification.getEndDate(), nullValue());
+        assertThat(qualification.getRoleTitle(), is("Researcher"));
+        assertThat(qualification.getDepartmentName(), is("4Science"));
+
+        Organization organization = qualification.getOrganization();
+        assertThat(organization, notNullValue());
+        assertThat(organization.getName(), is("4Science"));
+        assertThat(organization.getAddress(), notNullValue());
+        assertThat(organization.getAddress().getCountry(), is(Iso3166Country.IT));
+        assertThat(organization.getAddress().getCity(), is("Milan"));
+        assertThat(organization.getDisambiguatedOrganization(), notNullValue());
+        assertThat(organization.getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier(), is("12345"));
+        assertThat(organization.getDisambiguatedOrganization().getDisambiguationSource(), is("RINGGOLD"));
+    }
+
+    @Test
+    public void testDisambiguationFromOrgUnitHierarchyOnEmploymentCreationWithNoId() {
+
+        context.turnOffAuthorisationSystem();
+
+        Item orgUnitWithRinId = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science with rin")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .build();
+
+        Item orgUnit = ItemBuilder.createItem(context, orgUnits)
+                                  .withTitle("4Science")
+                                  .withOrgUnitCountry("IT")
+                                  .withOrgUnitLocality("Milan")
+                                  .withParentOrganization("4Science with rin", orgUnitWithRinId.getID().toString())
+                                  .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("Test profile")
+                               .withPersonAffiliation("4Science", orgUnit.getID().toString())
+                               .withPersonAffiliationStartDate("2020-02")
+                               .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                               .withPersonAffiliationRole("Researcher")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        List<MetadataValue> values = new ArrayList<>();
+        values.add(getMetadata(item, "oairecerif.person.affiliation", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.startDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.endDate", 0));
+        values.add(getMetadata(item, "oairecerif.affiliation.role", 0));
+
+        Object firstOrcidObject = profileSectionFactoryService.createOrcidObject(context, values, AFFILIATION);
+        assertThat(firstOrcidObject, instanceOf(Employment.class));
+        Employment qualification = (Employment) firstOrcidObject;
+        assertThat(qualification.getStartDate(), notNullValue());
+        assertThat(qualification.getStartDate().getYear().getValue(), is("2020"));
+        assertThat(qualification.getStartDate().getMonth().getValue(), is("02"));
+        assertThat(qualification.getStartDate().getDay().getValue(), is("01"));
+        assertThat(qualification.getEndDate(), nullValue());
+        assertThat(qualification.getRoleTitle(), is("Researcher"));
+        assertThat(qualification.getDepartmentName(), is("4Science"));
+
+        Organization organization = qualification.getOrganization();
+        assertThat(organization, notNullValue());
+        assertThat(organization.getName(), is("4Science"));
+        assertThat(organization.getAddress(), notNullValue());
+        assertThat(organization.getAddress().getCountry(), is(Iso3166Country.IT));
+        assertThat(organization.getAddress().getCity(), is("Milan"));
+        assertThat(organization.getDisambiguatedOrganization(), nullValue());
+    }
+
+    @Test
     public void testQualificationCreation() {
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, collection)

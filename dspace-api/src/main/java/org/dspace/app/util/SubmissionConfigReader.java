@@ -30,7 +30,10 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.services.RequestService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.versioning.ItemCorrectionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -58,6 +61,10 @@ import org.xml.sax.SAXException;
  */
 
 public class SubmissionConfigReader {
+
+    @Autowired
+    RequestService requestService;
+
     /**
      * The ID of the default collection. Will never be the ID of a named
      * collection
@@ -117,6 +124,16 @@ public class SubmissionConfigReader {
      */
     protected static final CollectionService collectionService
                 = ContentServiceFactory.getInstance().getCollectionService();
+
+    /**
+     * itemCorrectionService instance, needed to retrieve the handle correctly
+     * item correction actions
+     *
+     */
+    protected static final  ItemCorrectionService itemCorrectionService =
+            DSpaceServicesFactory.getInstance().getServiceManager()
+                    .getServicesByType(ItemCorrectionService.class)
+                    .get(0);
 
     /**
      * Load Submission Configuration from the
@@ -429,6 +446,9 @@ public class SubmissionConfigReader {
                 "No 'submission-definitions' section found in 'item-submission.xml'");
         }
     }
+
+
+
 
     /**
      * Process the submission-map section of the XML file. Each element looks
@@ -758,12 +778,25 @@ public class SubmissionConfigReader {
         return results;
     }
 
-    public SubmissionConfig getSubmissionConfigByInProgressSubmission(InProgressSubmission<?> object) {
+    public SubmissionConfig getSubmissionConfigByInProgressSubmission(InProgressSubmission<?> object, Context context) {
         if (object instanceof EditItem) {
             String submissionDefinition = ((EditItem) object).getMode().getSubmissionDefinition();
             return getSubmissionConfigByName(submissionDefinition);
         }
 
-        return getSubmissionConfigByCollection(object.getCollection());
+        if (isCorrectionItem(object.getItem(), context)) {
+            return getCorrectionSubmissionConfigByCollection(object.getCollection());
+        } else {
+            return getSubmissionConfigByCollection(object.getCollection());
+        }
+    }
+
+    private boolean isCorrectionItem(Item item, Context context) {
+        try {
+            return itemCorrectionService.checkIfIsCorrectionItem(context, item);
+        } catch (Exception ex) {
+            log.error("An error occurs checking if the given item is a correction item.", ex);
+            return false;
+        }
     }
 }

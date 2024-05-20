@@ -8,6 +8,7 @@
 package org.dspace.app.rest.matcher;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasNoJsonPath;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -25,6 +26,14 @@ public class VocabularyEntryDetailsMatcher {
     public static Matcher<? super Object> matchAuthorityEntry(String id, String display, String value) {
         return allOf(
             matchProperties(id, display, value),
+            hasJsonPath("$.authority", is(id)),
+            matchLinks(id));
+    }
+
+    public static Matcher<? super Object> matchNoAuthorityEntry(String id, String display, String value) {
+        return allOf(
+            matchProperties(id, display, value),
+            hasNoJsonPath("$.authority"),
             matchLinks(id));
     }
 

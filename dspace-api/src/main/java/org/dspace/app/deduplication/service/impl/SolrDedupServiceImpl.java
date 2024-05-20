@@ -43,8 +43,8 @@ import org.dspace.app.deduplication.model.DuplicateDecisionValue;
 import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.app.deduplication.service.SearchDeduplication;
 import org.dspace.app.deduplication.service.SolrDedupServiceIndexPlugin;
-import org.dspace.app.deduplication.utils.DedupUtils;
 import org.dspace.app.deduplication.utils.DuplicateItemInfo;
+import org.dspace.app.deduplication.utils.IDedupUtils;
 import org.dspace.app.deduplication.utils.Signature;
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
@@ -174,7 +174,7 @@ public class SolrDedupServiceImpl implements DedupService {
     protected VersioningService versioningService;
 
     @Autowired(required = true)
-    protected DedupUtils dedupUtils;
+    protected IDedupUtils dedupUtils;
 
     /***
      * Deduplication status
@@ -750,8 +750,8 @@ public class SolrDedupServiceImpl implements DedupService {
     private List<DuplicateItemInfo> findDuplicationWithDecisions(Context context, Item item) {
         try {
             return dedupUtils.getAdminDuplicateByIdAndType(context, item.getID(), item.getType()).stream()
-                .filter(duplication -> isNotEmpty(duplication.getDecisionTypes()))
-                .collect(Collectors.toList());
+                             .filter(duplication -> isNotEmpty(duplication.getDecisionTypes()))
+                             .collect(Collectors.toList());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e);
         }

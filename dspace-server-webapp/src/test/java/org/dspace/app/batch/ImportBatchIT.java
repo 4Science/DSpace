@@ -1157,10 +1157,10 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             ImpRecordService.INSERT_OR_UPDATE_OPERATION, admin, publicationCollection);
 
         createImpMetadatavalue(context, impRecord, MetadataSchemaEnum.DC.getName(), "title",
-            null, null, "New Test publication", 0);
+            null, null, "New Test publication", null);
 
         createImpMetadatavalue(context, impRecord, MetadataSchemaEnum.DC.getName(), "contributor",
-            "author", null, "John Smith", 0);
+            "author", null, "John Smith", null);
 
         context.restoreAuthSystemState();
 

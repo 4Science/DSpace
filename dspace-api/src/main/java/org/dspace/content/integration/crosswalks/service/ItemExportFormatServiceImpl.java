@@ -45,6 +45,7 @@ public class ItemExportFormatServiceImpl implements ItemExportFormatService {
     public List<ItemExportFormat> getAll(Context context) {
 
         return this.streamDissiminatorCrosswalkMapper.getAllItemExportCrosswalks().entrySet().stream()
+            .filter(entry -> entry.getValue().isAuthorized(context))
             .map(entry -> buildItemExportFormat(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
 
@@ -58,6 +59,7 @@ public class ItemExportFormatServiceImpl implements ItemExportFormatService {
             .entrySet().stream()
             .filter(entry -> hasSameMolteplicity(entry.getValue(), molteplicity))
             .filter(entry -> hasSameEntityType(entry.getValue(), entityType))
+            .filter(entry -> entry.getValue().isAuthorized(context))
             .map(entry -> buildItemExportFormat(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
 
