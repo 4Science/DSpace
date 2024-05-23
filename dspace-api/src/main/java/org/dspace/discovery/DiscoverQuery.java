@@ -58,8 +58,7 @@ public class DiscoverQuery {
         asc
     }
 
-    private String sortField;
-    private SORT_ORDER sortOrder;
+    private Map<String, SORT_ORDER> sortFields = new HashMap<String, DiscoverQuery.SORT_ORDER>();
 
     /**
      * Attributes required for the faceting of values
@@ -115,17 +114,17 @@ public class DiscoverQuery {
         this.start = start;
     }
 
+    public void addSortFields(String sortField, SORT_ORDER sortOrder) {
+        this.sortFields.putIfAbsent(sortField, sortOrder);
+    }
+
     public void setSortField(String sortField, SORT_ORDER sortOrder) {
-        this.sortField = sortField;
-        this.sortOrder = sortOrder;
+        this.sortFields.clear();
+        this.sortFields.put(sortField, sortOrder);
     }
 
-    public String getSortField() {
-        return sortField;
-    }
-
-    public SORT_ORDER getSortOrder() {
-        return sortOrder;
+    public Map<String, SORT_ORDER> getSortFields() {
+        return sortFields;
     }
 
     /**

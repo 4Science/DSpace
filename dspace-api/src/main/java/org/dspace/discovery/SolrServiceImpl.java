@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -913,13 +914,13 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             solrQuery.setRows(discoveryQuery.getMaxResults());
         }
 
-        if (discoveryQuery.getSortField() != null) {
+        for (Entry<String, DiscoverQuery.SORT_ORDER> config : discoveryQuery.getSortFields().entrySet()) {
             SolrQuery.ORDER order = SolrQuery.ORDER.asc;
-            if (discoveryQuery.getSortOrder().equals(DiscoverQuery.SORT_ORDER.desc)) {
+            if (config.getValue().equals(DiscoverQuery.SORT_ORDER.desc)) {
                 order = SolrQuery.ORDER.desc;
             }
 
-            solrQuery.addSort(discoveryQuery.getSortField(), order);
+            solrQuery.addSort(config.getKey(), order);
         }
 
         for (String property : discoveryQuery.getProperties().keySet()) {

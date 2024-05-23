@@ -7,7 +7,10 @@
  */
 package org.dspace.content.authority;
 
+import java.util.List;
+
 import org.dspace.content.authority.mapper.ItemControlledVocabularyMapper;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 
 /*
  * @author Jurgen Mamani
@@ -28,7 +31,7 @@ public class  ItemControlledVocabulary {
 
     private String labelMetadata;
 
-    private String sortFieldAndOrder;
+    private List<DiscoverySortFieldConfiguration> sortFields;
 
     private ItemControlledVocabularyMapper extraValuesMapper;
 
@@ -98,11 +101,11 @@ public class  ItemControlledVocabulary {
         this.extraValuesMapper = extraValuesMapper;
     }
 
-    public String getSortFieldAndOrder() {
-        return sortFieldAndOrder;
+    public List<DiscoverySortFieldConfiguration> getSortFields() {
+        return sortFields;
     }
 
-    public void setSortFieldAndOrder(String sortFieldAndOrder) {
-        this.sortFieldAndOrder = sortFieldAndOrder;
+    public void setSortFields(List<DiscoverySortFieldConfiguration> sortFields) {
+        this.sortFields = sortFields;
     }
 }
