@@ -39,7 +39,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.CombinableMatcher.both;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +58,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.bulkimport.util.ImportFileUtil;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.matcher.DSpaceObjectMatcher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -85,6 +90,12 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.scripts.configuration.ScriptConfiguration;
+import org.dspace.scripts.factory.ScriptServiceFactory;
+import org.dspace.scripts.service.ScriptService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,6 +127,10 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     private SearchService searchService = SearchUtils.getSearchService();
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
+    private final ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
 
     private Community community;
 
@@ -1464,9 +1479,9 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), contains(
             bitstreamWith("Test title 2", "test file description 2",
-                "this is a second test file for uploading bitstreams"),
-            bitstreamWith("Test title 3", "test file description 3",
-                "this is a second test file for uploading bitstreams")));
+                "this is a test file for uploading bitstreams"),
+                bitstreamWith("Test title 3", "test file description 3",
+                        "this is a second test file for uploading bitstreams")));
 
         assertThat(getItemBitstreams(item), hasSize(4));
 
@@ -1520,6 +1535,203 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), contains(
             bitstreamWith("Test title 3", "test file description 3",
                 "this is a third test file for uploading bitstreams")));
+
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathNotFromAllowedIps() throws Exception {
+
+        try {
+            context.turnOffAuthorisationSystem();
+            Collection publication = createCollection(context, community)
+                    .withSubmissionDefinition("publication")
+                    .withAdminGroup(eperson)
+                    .build();
+            context.commit();
+            context.restoreAuthSystemState();
+
+            configurationService.setProperty("allowed.ips.import", new String[]{"127.0.1.2"});
+
+            String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+            String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                    "-e", eperson.getEmail()};
+            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+            handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+            assertThat(handler.getErrorMessages(), contains(
+                    "Cannot create bitstream from file at path http://127.0.1.1"));
+            assertThat(handler.getWarningMessages(), contains(
+                    containsString("Row 2 - Invalid item left in workspace"),
+                    containsString("Row 3 - Invalid item left in workspace")));
+            assertThat(handler.getInfoMessages(), contains(
+                    is("Start reading all the metadata group rows"),
+                    is("Found 4 metadata groups to process"),
+                    is("Start reading all the bitstream rows"),
+                    is("Found 1 bitstreams to process"),
+                    is("Found 2 items to process")));
+
+            Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+            Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), empty());
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+            assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), empty());
+
+        } finally {
+            configurationService.setProperty("allowed.ips.import", new String[]{});
+        }
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathFromAllowedIps() throws Exception {
+        try {
+            InputStream mockInputStream = new ByteArrayInputStream("mocked content".getBytes());
+
+            context.turnOffAuthorisationSystem();
+            Collection publication = createCollection(context, community)
+                    .withSubmissionDefinition("publication")
+                    .withAdminGroup(eperson)
+                    .build();
+            context.commit();
+            context.restoreAuthSystemState();
+
+            configurationService.setProperty("allowed.ips.import", new String[]{"127.0.1.1"});
+
+            String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+            String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                    "-e", eperson.getEmail()};
+            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+            ImportFileUtil importFileUtilSpy = spy(new ImportFileUtil(handler));
+            doReturn(mockInputStream).when(importFileUtilSpy).generateUrl(anyString());
+
+            ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
+            ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(args[0]);
+
+            BulkImport script = null;
+            if (scriptConfiguration != null) {
+                script = (BulkImport) scriptService.createDSpaceRunnableForScriptConfiguration(scriptConfiguration);
+                script.setImportFileUtil(importFileUtilSpy);
+            }
+            if (script != null) {
+                if (DSpaceRunnable.StepResult.Continue.equals(script.initialize(args, handler, eperson))) {
+                    script.run();
+                }
+            }
+
+            assertThat(handler.getErrorMessages(), empty());
+            assertThat(handler.getWarningMessages(), contains(
+                    containsString("Row 2 - Invalid item left in workspace"),
+                    containsString("Row 3 - Invalid item left in workspace")));
+            assertThat(handler.getInfoMessages(), contains(
+                    is("Start reading all the metadata group rows"),
+                    is("Found 4 metadata groups to process"),
+                    is("Start reading all the bitstream rows"),
+                    is("Found 1 bitstreams to process"),
+                    is("Found 2 items to process"),
+                    containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully")));
+
+            Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), contains(
+            bitstreamWith("Test title", "test file description",
+                "mocked content")));
+
+        } finally {
+            configurationService.setProperty("allowed.ips.import", new String[]{});
+        }
+    }
+
+    @Test
+    public void testUploadMultipleBitstreamWithCorrectLocalPath() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-multiple-bitstreams-with-local-path.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), contains(
+                containsString("Row 2 - Invalid item left in workspace"),
+                containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+                is("Start reading all the metadata group rows"),
+                is("Found 4 metadata groups to process"),
+                is("Start reading all the bitstream rows"),
+                is("Found 2 bitstreams to process"),
+                is("Found 2 items to process"),
+                containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully"),
+                containsString("Sheet bitstream-metadata - Row 3 - Bitstream created successfully")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+        Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+
+        assertThat(getItemBitstreamsByBundle(item, "FIRST-BUNDLE"), contains(
+                bitstreamWith("Test title 2", "test file description 2",
+                        "this is a second test file for uploading bitstreams")));
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+        assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), contains(
+                bitstreamWith("Test title 3", "test file description 3",
+                        "this is a third test file for uploading bitstreams")));
+
+    }
+
+    @Test
+    public void testUploadMultipleBitstreamWithWrongLocalPath() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-multiple-bitstreams-with-wrong-local-path.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), contains(
+                "Access to the specified file file://../test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file://../test_2.txt",
+                "Access to the specified file file:///bulk-uploads/test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file:///bulk-uploads/test_2.txt",
+                "Access to the specified file file:///subfolder/test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file:///subfolder/test_2.txt"));
+        assertThat(handler.getWarningMessages(), contains(
+                containsString("Row 2 - Invalid item left in workspace"),
+                containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+                is("Start reading all the metadata group rows"),
+                is("Found 4 metadata groups to process"),
+                is("Start reading all the bitstream rows"),
+                is("Found 3 bitstreams to process"),
+                is("Found 2 items to process")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+        Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+
+        assertThat(getItemBitstreamsByBundle(item, "FIRST-BUNDLE"), empty());
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+        assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), empty());
 
     }
 
