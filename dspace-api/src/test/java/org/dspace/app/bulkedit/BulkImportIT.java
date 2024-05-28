@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.CombinableMatcher.both;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -47,6 +47,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -93,6 +94,7 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.factory.ScriptServiceFactory;
+import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.scripts.service.ScriptService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -108,6 +110,18 @@ import org.junit.Test;
  */
 @SuppressWarnings("unchecked")
 public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
+
+    protected static final class ImportFileUtilMockClass extends ImportFileUtil {
+
+        public ImportFileUtilMockClass(DSpaceRunnableHandler handler) {
+            super(handler);
+        }
+
+        @Override
+        public InputStream openStream(URL url) {
+            return super.openStream(url);
+        }
+    }
 
     private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/bulk-import/";
 
@@ -1605,8 +1619,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
                     "-e", eperson.getEmail()};
             TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-            ImportFileUtil importFileUtilSpy = spy(new ImportFileUtil(handler));
-            doReturn(mockInputStream).when(importFileUtilSpy).generateUrl(anyString());
+            ImportFileUtilMockClass importFileUtilSpy = spy(new ImportFileUtilMockClass(handler));
+            doReturn(mockInputStream).when(importFileUtilSpy).openStream(any(URL.class));
 
             ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
             ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(args[0]);

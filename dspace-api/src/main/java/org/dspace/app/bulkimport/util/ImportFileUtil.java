@@ -15,8 +15,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +61,12 @@ public class ImportFileUtil {
             parent = parent.getParentFile();
         }
         return false;
+    }
+
+    private static String[] getAllowedIps() {
+        return DSpaceServicesFactory.getInstance()
+                                    .getConfigurationService()
+                                    .getArrayProperty("allowed.ips.import");
     }
 
     protected DSpaceRunnableHandler handler;
@@ -114,7 +120,6 @@ public class ImportFileUtil {
         return Optional.empty();
     }
 
-
     private Optional<InputStream> getInputStreamOfLocalFile(String path) throws IOException {
         Path uploadPath = Paths.get(
             DSpaceServicesFactory.getInstance()
@@ -135,17 +140,17 @@ public class ImportFileUtil {
     }
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
-        String url = path.replace(HTTPS_PREFIX + "//", "").replace(HTTP_PREFIX + "//", "");
-        String[] allowedIpsImport = DSpaceServicesFactory.getInstance().getConfigurationService()
-                        .getArrayProperty("allowed.ips.import");
-        if (Arrays.stream(allowedIpsImport).noneMatch(allowedIp -> allowedIp.equals(url))) {
-            return Optional.empty();
-        }
-        return Optional.of(generateUrl(path));
+        return Optional.of(new URL(path))
+                       .filter(url -> Set.of(getAllowedIps()).contains(url.getHost()))
+                       .map(this::openStream);
     }
 
-    public InputStream generateUrl(String path) throws IOException {
-        return new URL(path).openStream();
+    protected InputStream openStream(URL url) {
+        try {
+            return url.openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Optional<InputStream> getInputStreamOfFtpFile(String url) throws IOException {
