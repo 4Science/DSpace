@@ -13,16 +13,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
-import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.utils.DSpace;
 
 /*
  * @author Jurgen Mamani
@@ -44,6 +43,25 @@ public class ImportFileUtil {
     private static final String FTP_PREFIX = "ftp:";
 
     private static final String UNKNOWN = "UNKNOWN";
+
+    /**
+     * This method check if the given {@param possibleChild} is contained in the specified
+     * {@param possibleParent}, i.e. it's a sub-path of it.
+     *
+     * @param possibleParent
+     * @param possibleChild
+     * @return true if sub-path, false otherwise.
+     */
+    private static boolean isChild(File possibleParent, File possibleChild) {
+        File parent = possibleChild.getParentFile();
+        while (parent != null) {
+            if (parent.equals(possibleParent)) {
+                return true;
+            }
+            parent = parent.getParentFile();
+        }
+        return false;
+    }
 
     protected DSpaceRunnableHandler handler;
 
@@ -98,51 +116,22 @@ public class ImportFileUtil {
 
 
     private Optional<InputStream> getInputStreamOfLocalFile(String path) throws IOException {
-        String originalPath = path;
-        path = path.replace(LOCAL_PREFIX + "//", "");
-        ConfigurationService configurationService = new DSpace().getConfigurationService();
-        String bulkUploadFolder = configurationService.getProperty("uploads.local-folder");
-        if (path.startsWith("../")) {
-            validateRelativePath(bulkUploadFolder, originalPath, path);
-            path = bulkUploadFolder + (StringUtils.endsWith(bulkUploadFolder, "/") ? path : "/" + path);
-        } else if (path.startsWith("/") && !path.startsWith(bulkUploadFolder)) {
-            throw new IOException("Access to the specified file " + originalPath + " is not allowed");
-        }
-
-        File file = new File(path);
-        String canonicalPath = file.getCanonicalPath();
-        if (!StringUtils.startsWith(canonicalPath, bulkUploadFolder)) {
-            throw new IOException("Access to the specified file " + originalPath + " is not allowed");
+        Path uploadPath = Paths.get(
+            DSpaceServicesFactory.getInstance()
+                                 .getConfigurationService()
+                                 .getProperty("uploads.local-folder")
+        );
+        File file = uploadPath.resolve(path.replace(LOCAL_PREFIX + "//", ""))
+                              .toFile()
+                              .getCanonicalFile();
+        File possibleParent = uploadPath.toFile().getCanonicalFile();
+        if (!isChild(possibleParent, file)) {
+            throw new IOException("Access to the specified file " + path + " is not allowed");
         }
         if (!file.exists()) {
-            throw new IOException("file " + originalPath + " is not found");
+            throw new IOException("file " + path + " is not found");
         }
         return Optional.of(FileUtils.openInputStream(file));
-    }
-
-    private void validateRelativePath(String bulkUploadFolder, String originalPath, String path) throws IOException {
-        String[] splittedUploadFolderPath = bulkUploadFolder.split("/");
-        String endUploadFolderPath = splittedUploadFolderPath[splittedUploadFolderPath.length - 1];
-        if (!path.contains(endUploadFolderPath)) {
-            throw new IOException("Access to the specified file " + originalPath + " is not allowed");
-        }
-        String[] splittedFilePath = path.split("/");
-        int endUploadFolderPathPlace = 0;
-        for ( int i = 0; i < splittedFilePath.length - 1; i++) {
-            if (Objects.equals(splittedFilePath[i], endUploadFolderPath)) {
-                endUploadFolderPathPlace = i;
-                break;
-            }
-        }
-        String relativePath = "/" + splittedFilePath[endUploadFolderPathPlace];
-        int iterator = endUploadFolderPathPlace - 1;
-        while (iterator > 0 || !splittedFilePath[iterator].equals("..")) {
-            relativePath = "/" + splittedFilePath[iterator] + relativePath;
-            iterator--;
-        }
-        if (!bulkUploadFolder.contains(relativePath) || relativePath.equals(bulkUploadFolder)) {
-            throw new IOException("Access to the specified file " + originalPath + " is not allowed");
-        }
     }
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
