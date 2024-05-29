@@ -53,5 +53,10 @@
         </property>
         <property name="filter" ref="funding-has-at-least-one-investigator-or-one-lead-organization_filter"/>
     </bean>
+
+
+    <bean name="externalFileUploadValidator" class="org.dspace.validation.ExternalFileUploadValidator">
+        <property name="name" value="external-upload"/>
+    </bean>
     
 </beans>

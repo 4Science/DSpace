@@ -502,6 +502,7 @@
                             </includes>
                             <excludes>
                                 <exclude>**/target/**</exclude>
+                                <exclude>.idea/**</exclude>
                             </excludes>
                         </validationSet>
                     </validationSets>

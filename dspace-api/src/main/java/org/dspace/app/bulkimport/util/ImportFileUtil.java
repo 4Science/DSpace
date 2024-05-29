@@ -20,6 +20,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
@@ -27,6 +29,8 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  * @author Jurgen Mamani
  */
 public class ImportFileUtil {
+
+    private static final Logger log = LogManager.getLogger(ImportFileUtil.class);
 
     public static final String REMOTE = "REMOTE";
 
@@ -71,6 +75,8 @@ public class ImportFileUtil {
 
     protected DSpaceRunnableHandler handler;
 
+    public ImportFileUtil() {}
+
     public ImportFileUtil(DSpaceRunnableHandler handler) {
         this.handler = handler;
     }
@@ -79,11 +85,18 @@ public class ImportFileUtil {
         String fileLocationType = getFileLocationTypeByPath(path);
 
         if (UNKNOWN.equals(fileLocationType)) {
-            handler.logWarning("File path is of UNKNOWN type: [" + path + "]");
+            logWarning("File path is of UNKNOWN type: [" + path + "]");
             return Optional.empty();
         }
 
         return getInputStream(path, fileLocationType);
+    }
+
+    protected void logWarning(String message) {
+        log.warn(message);
+        if (handler != null) {
+            handler.logWarning(message);
+        }
     }
 
     private String getFileLocationTypeByPath(String path) {
@@ -114,10 +127,17 @@ public class ImportFileUtil {
                 default:
             }
         } catch (IOException e) {
-            handler.logError(e.getMessage());
+            logError(e.getMessage());
         }
 
         return Optional.empty();
+    }
+
+    private void logError(String message) {
+        log.error(message);
+        if (handler != null) {
+            handler.logError(message);
+        }
     }
 
     private Optional<InputStream> getInputStreamOfLocalFile(String path) throws IOException {

@@ -206,6 +206,11 @@
       <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
       <type>unpaywall</type>
     </step-definition>
+    <step-definition id="external-upload" mandatory="false">
+      <heading>submit.progressbar.external-upload</heading>
+      <processing-class>org.dspace.app.rest.submit.step.ExternalUploadStep</processing-class>
+      <type>external-upload</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="product">
@@ -270,6 +275,7 @@
       <step id="publication_references" />
       <step id="correction" />
       <step id="detect-duplicate" />
+      <step id="external-upload" />
       <step id="unpaywall" />
       <step id="upload" />
       <step id="license" />
