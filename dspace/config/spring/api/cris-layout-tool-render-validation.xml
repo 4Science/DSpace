@@ -75,6 +75,12 @@
         </constructor-arg>
     </bean>
 
+    <bean id="authorityLinkRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="authoritylink"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
     <bean id="longtextRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="longtext"/>
         <property name="fieldType" value="METADATA"/>
