@@ -29,6 +29,7 @@ import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
@@ -941,6 +942,58 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
             .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
             .andExpect(jsonPath("$._embedded.entries", contains(matchItemAuthorityProperties(
                 person4Id, "Cortese, Claudio", "Cortese, Claudio", "vocabularyEntry"))));
+    }
+
+    @Test
+    public void itemAuthoritySourceReferenceTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = PersonAuthority" });
+
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.entityType", "EntityPerson");
+
+        // set authority source reference
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.source", "ORCID");
+
+        // These clears have to happen so that the config is actually reloaded in those
+        // classes. This is needed for
+        // the properties that we're altering above and this is only used within the
+        // tests
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        Item person1 = ItemBuilder.createItem(context, col1)
+                                  .withTitle("Person 1")
+                                  .withType("mytype")
+                                  .withEntityType("EntityPerson").build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Person 2")
+                   .withEntityType("EntityPerson")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Person 3")
+                   .withType("anotherType")
+                   .withEntityType("EntityPerson").build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token)
+            .perform(get("/api/submission/vocabularies/PersonAuthority/entries").param("filter", "Person"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries",
+                Matchers.containsInAnyOrder(ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(
+                    person1.getID().toString(), "Person 1", "Person 1", "vocabularyEntry", Map.of(),
+                    ItemAuthority.DEFAULT))));
     }
 
     @Override

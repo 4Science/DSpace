@@ -33,6 +33,7 @@ public class VocabularyEntryDetailsRest extends BaseObjectRest<String> {
     @JsonInclude(Include.NON_NULL)
     private String authority;
     private Map<String, String> otherInformation;
+    private String source;
     private boolean selectable;
     @JsonIgnore
     private boolean inHierarchicalVocabulary = false;
@@ -114,4 +115,13 @@ public class VocabularyEntryDetailsRest extends BaseObjectRest<String> {
     public boolean isInHierarchicalVocabulary() {
         return inHierarchicalVocabulary;
     }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
 }

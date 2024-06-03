@@ -8,6 +8,7 @@
 package org.dspace.content;
 
 import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -434,7 +435,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             for (Item item : bundle.getItems()) {
                 for (Bundle thumbnails : itemService.getBundles(item, "THUMBNAIL")) {
                     for (Bitstream thumbnail : thumbnails.getBitstreams()) {
-                        if (pattern.matcher(thumbnail.getName()).matches()) {
+                        if (pattern.matcher(thumbnail.getName()).matches() &&
+                            isValidThumbnail(context, thumbnail)) {
                             return thumbnail;
                         }
                     }
@@ -442,14 +444,14 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
                 for (Bundle thumbnails : itemService.getBundles(item, "PREVIEW")) {
                     for (Bitstream thumbnail : thumbnails.getBitstreams()) {
-                        if (pattern.matcher(thumbnail.getName()).matches()) {
+                        if (pattern.matcher(thumbnail.getName()).matches() &&
+                            isValidThumbnail(context, thumbnail)) {
                             return thumbnail;
                         }
                     }
                 }
-                String mimetype = bitstream.getFormat(context).getMIMEType();
-                if (configurationService.getIntProperty("cris.layout.thumbnail.maxsize", 250000) >=
-                        bitstream.getSizeBytes() && StringUtils.containsIgnoreCase(mimetype, "image/")) {
+
+                if (isValidThumbnail(context, bitstream)) {
                     return bitstream;
                 }
             }
@@ -463,6 +465,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             return Pattern.compile("^" + Pattern.quote(bitstream.getName()) + ".([^.]+)$");
         }
         return Pattern.compile("^" + bitstream.getName() + ".([^.]+)$");
+    }
+
+    @Override
+    public boolean isValidThumbnail(Context context, Bitstream thumbnail) throws SQLException {
+        return thumbnail != null &&
+            configurationService.getIntProperty("cris.layout.thumbnail.maxsize", 250000) >= thumbnail.getSizeBytes() &&
+            containsIgnoreCase(thumbnail.getFormat(context).getMIMEType(), "image/");
     }
 
     @Override

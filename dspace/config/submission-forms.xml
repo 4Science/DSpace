@@ -446,32 +446,6 @@
         </field>
       </row>
     </form>
-    <form name="person-oairecerif-identifier-url">
-      <row>
-        <field>
-          <dc-schema>oairecerif</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>url</dc-qualifier>
-          <label>Site URL</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required>You must enter at least the site url.</required>
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>crisrp</dc-schema>
-          <dc-element>site</dc-element>
-          <dc-qualifier>title</dc-qualifier>
-          <label>Site Title</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-    </form>
     <form name="journal">
       <row>
         <field>
@@ -1533,7 +1507,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>identifier</dc-element>
           <dc-qualifier>url</dc-qualifier>
           <label>Personal Site(s)</label>
-          <input-type>group</input-type>
+          <input-type>link</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint />
@@ -1788,7 +1762,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>identifier</dc-element>
           <dc-qualifier>url</dc-qualifier>
           <label>Website(s)</label>
-          <input-type>onebox</input-type>
+          <input-type>link</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint />

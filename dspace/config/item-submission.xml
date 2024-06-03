@@ -201,6 +201,11 @@
       <type>correction</type>
       <scope visibilityOutside="hidden">workflow</scope>
     </step-definition>
+    <step-definition id="identifiers" mandatory="true">
+      <heading>submit.progressbar.identifiers</heading>
+      <processing-class>org.dspace.app.rest.submit.step.ShowIdentifiersStep</processing-class>
+      <type>identifiers</type>
+    </step-definition>
     <step-definition id="unpaywall" mandatory="false">
       <heading>submit.progressbar.unpaywall</heading>
       <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
@@ -217,6 +222,7 @@
       <step id="detect-duplicate" />
       <step id="upload" />
       <step id="cclicense" />
+      <step id="identifiers" />
       <step id="license" />
     </submission-process>
     <submission-process name="product-edit">

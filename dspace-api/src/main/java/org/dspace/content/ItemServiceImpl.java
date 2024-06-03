@@ -247,6 +247,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 thumbBitstream = bitstreamService.getThumbnail(context, primaryBitstream);
                 if (thumbBitstream == null) {
                     thumbBitstream = bitstreamService.getFirstBitstream(item, "THUMBNAIL");
+                    if (!bitstreamService.isValidThumbnail(context, thumbBitstream)) {
+                        thumbBitstream = null;
+                    }
                 }
             }
 

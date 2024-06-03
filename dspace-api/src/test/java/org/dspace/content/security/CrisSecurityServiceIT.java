@@ -311,6 +311,33 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testHasAccessWithGroupChildOfResearchersConfig() throws SQLException {
+        context.turnOffAuthorisationSystem();
+        Group researchersMainGroup = GroupBuilder.createGroup(context)
+                .withName("Researchers")
+                .build();
+        Group researcherSubGroup = GroupBuilder.createGroup(context)
+                .withName("Researcher")
+                .withParent(researchersMainGroup)
+                .build();
+        EPerson firstUser = EPersonBuilder.createEPerson(context)
+                .withEmail("user@mail.it")
+                .withGroupMembership(researcherSubGroup)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitle("Test item")
+                .withDspaceObjectOwner("Owner", owner.getID().toString())
+                //.withCrisOwner("Owner", owner.getID().toString())
+                .build();
+        context.restoreAuthSystemState();
+        AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.GROUP);
+        when(accessMode.getGroups()).thenReturn(List.of("Researcher"));
+        assertThat(crisSecurityService.hasAccess(context, item, firstUser, accessMode), is(true));
+        assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, owner, accessMode), is(false));
+    }
+
+    @Test
     public void testHasAccessWithGroupConfig() throws SQLException, AuthorizeException {
 
         context.turnOffAuthorisationSystem();

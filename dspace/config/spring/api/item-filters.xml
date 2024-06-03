@@ -11,11 +11,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 >
     <!--   default-autowire-candidates="*Service,*DAO,javax.sql.DataSource"> -->
 
@@ -412,16 +411,19 @@
          collection(s). This could be used for example while configuring the edititem modes to set a specific mode
          whether the item belong to a specific collection
      -->
-<!--    <bean id="in-collection_condition" class="org.dspace.content.logic.InCollectionFilter">
+<!--    <bean id="collectionCond" class="org.dspace.content.logic.condition.InCollectionCondition">
         <property name="parameters">
             <map>
                 <entry key="collections">
                     <list>
-                        <value>collection-handle</value>
+                        <value>{values}</value>
                     </list>
                 </entry>
             </map>
         </property>
+    </bean>
+    <bean id="belongsToColl" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement" ref="collectionCond"/>
     </bean>-->
 
 </beans>
