@@ -202,5 +202,11 @@
         <property name="subTypeValidationRule" value="MANDATORY"/>
     </bean>
 
+    <bean id="youTubeRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderSearchValidatorImpl">
+        <property name="name" value="youtube"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
 </beans>
 
