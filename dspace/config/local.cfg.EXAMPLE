@@ -326,14 +326,8 @@ usage-statistics.dbfile=/var/lib/GeoIP/GeoLite2-City.mmdb
 # IIIF and OCR Integration #
 ############################
 
-## IIIF configuration
-iiif.enabled = false
-# iiif.image.server =
-
-## OCR configuration
-# iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
-# iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
-# ocr.tesseract.path =
+## IIIF configuration (see modules/iiif.cfg)
+#iiif.enabled = true
 
 ###############################
 # AUDIO and VIDEO Integration #

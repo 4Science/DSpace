@@ -9,14 +9,17 @@ package org.dspace.app.rest.layout;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasNoJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutBoxMatcher.matchBox;
 import static org.dspace.app.rest.matcher.CrisLayoutTabMatcher.matchRest;
 import static org.dspace.app.rest.matcher.CrisLayoutTabMatcher.matchTab;
 import static org.dspace.builder.RelationshipTypeBuilder.createRelationshipTypeBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -91,6 +94,8 @@ import org.dspace.layout.service.CrisLayoutTabService;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 
 /**
  * This test class verify the REST Services for the Layout Tabs functionality (endpoint /api/layout/tabs)
@@ -128,6 +133,9 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
     protected GroupService groupService;
 
     private final String METADATASECURITY_URL = "http://localhost:8080/api/core/metadatafield/";
+
+    @Value("classpath:org/dspace/app/rest/simple-article.pdf")
+    private Resource simpleArticle;
 
     /**
      * Test for endpoint /api/layout/tabs/<ID_TAB>.
@@ -2878,6 +2886,145 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                    .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells", hasSize(1)))
                    .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].style", is("cellOfRowTwoStyle")))
                    .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))));
+    }
+
+    @Test
+    public void findByItemWithAttachment() throws Exception {
+        context.turnOffAuthorisationSystem();
+        // Create new community
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .withTitle("Title test community")
+                                              .build();
+        // Create new collection
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+        // Create entity Type
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication")
+                                                 .build();
+
+        // Create new Publication item
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("test item")
+                               .withEntityType(entityType.getLabel())
+                               .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                   simpleArticle.getInputStream())
+                               .build();
+        MetadataSchema schema = mdss.find(context, "dc");
+        MetadataField title = mfss.findByElement(context, schema, "title", null);
+
+        // Create tabs for Publication Entity
+        CrisLayoutBox boxOne = CrisLayoutBoxBuilder.createBuilder(context, entityType, false, false)
+                                                   .withShortname("Box shortname 1")
+                                                   .withSecurity(LayoutSecurity.PUBLIC)
+                                                   .withContainer(false)
+                                                   .build();
+
+        CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 1)
+                              .withLabel("TITLE")
+                              .withRendering("TEXT")
+                              .withBox(boxOne)
+                              .build();
+
+        CrisLayoutField attachField = CrisLayoutFieldBuilder.createBistreamField(context, null, "ORIGINAL", 1, 0, 0)
+                                                            .withLabel("ADVANCED ATTACHMENT")
+                                                            .withRendering("advancedattachment")
+                                                            .withBox(boxOne)
+                                                            .build();
+
+        CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, entityType, 0)
+                                                .withShortName("TabOne For Publication - priority 0")
+                                                .withSecurity(LayoutSecurity.PUBLIC)
+                                                .withHeader("New Tab header")
+                                                .addBoxIntoNewRow(boxOne)
+                                                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/layout/tabs/search/findByItem").param("uuid", item.getID().toString()))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                   .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.rows", hasSize(2)))
+                   .andExpect(jsonPath(
+                       "$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.rows[1].cells[0].fields[0]",
+                       allOf(
+                       hasJsonPath("$.label", is("ADVANCED ATTACHMENT")),
+                       hasJsonPath("$.rendering", is( "advancedattachment")),
+                       hasJsonPath("$.fieldType", is("BITSTREAM")),
+                       hasJsonPath("$.bitstream.bundle", is( "ORIGINAL")))));
+
+    }
+
+    @Test
+    public void findByItemWithoutAttachment() throws Exception {
+        context.turnOffAuthorisationSystem();
+        // Create new community
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .withTitle("Title test community")
+                                              .build();
+        // Create new collection
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+        // Create entity Type
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication")
+                                                 .build();
+
+        // Create new person item
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("test item")
+                               .withEntityType(entityType.getLabel())
+                               .build();
+        MetadataSchema schema = mdss.find(context, "dc");
+        MetadataField title = mfss.findByElement(context, schema, "title", null);
+
+        // Create tabs for Publication Entity
+        CrisLayoutBox boxOne = CrisLayoutBoxBuilder.createBuilder(context, entityType, false, false)
+                                                   .withShortname("Box shortname 1")
+                                                   .withSecurity(LayoutSecurity.PUBLIC)
+                                                   .withContainer(false)
+                                                   .build();
+        CrisLayoutFieldBuilder.createMetadataField(context, title, 0, 1)
+                              .withLabel("TITLE")
+                              .withRendering("TEXT")
+                              .withBox(boxOne)
+                              .build();
+
+        CrisLayoutFieldBuilder.createBistreamField(context, null, "ORIGINAL", 1, 0, 1)
+                              .withLabel("ADVANCED ATTACHMENT")
+                              .withRendering("advancedattachment")
+                              .withBox(boxOne)
+                              .build();
+
+        CrisLayoutTab tab = CrisLayoutTabBuilder.createTab(context, entityType, 0)
+                                                .withShortName("TabOne For Publication - priority 0")
+                                                .withSecurity(LayoutSecurity.PUBLIC)
+                                                .withHeader("New Tab header")
+                                                .addBoxIntoNewRow(boxOne)
+                                                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/layout/tabs/search/findByItem").param("uuid", item.getID().toString()))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+                   .andExpect(jsonPath("$._embedded.tabs", contains(matchTab(tab))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes", contains(matchBox(boxOne))))
+                   .andExpect(jsonPath("$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.rows", hasSize(1)))
+                   .andExpect(jsonPath(
+                       "$._embedded.tabs[0].rows[0].cells[0].boxes[0].configuration.rows[0].cells[0].fields[0]",
+                       allOf(
+                           hasJsonPath("$.label", not(equalTo("ADVANCED ATTACHMENT"))),
+                           hasJsonPath("$.rendering", not(equalTo( "advancedattachment"))),
+                           hasJsonPath("$.fieldType", not(equalTo("BITSTREAM"))),
+                           hasNoJsonPath("$.bitstream"))));
+
     }
 
     private CrisLayoutTabRest parseJson(String name) throws Exception {

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2023.02.04-SNAPSHOT</version>
+        <version>cris-2023.02.05-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 

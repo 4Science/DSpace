@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +48,7 @@ import org.dspace.identifier.doi.DOIConnector;
 import org.dspace.identifier.doi.DOIIdentifierException;
 import org.dspace.identifier.doi.DOIIdentifierNotApplicableException;
 import org.dspace.identifier.factory.IdentifierServiceFactory;
+import org.dspace.identifier.generators.DoiGenerationStrategy;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -73,6 +75,8 @@ public class DOIIdentifierProviderTest
     private static final String PREFIX = "10.5072";
     private static final String NAMESPACE_SEPARATOR = "dspaceUnitTests-";
 
+    private static final String CFG_NAMESPACE_SEPARATOR = "identifier.doi.namespaceseparator";
+
     private static ConfigurationService config = null;
 
     protected DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
@@ -80,7 +84,8 @@ public class DOIIdentifierProviderTest
     protected CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
-
+    protected Set<DoiGenerationStrategy> doiGenerationStrategies =
+        IdentifierServiceFactory.getInstance().getDoiGenerationStrategies();
 
     private static Community community;
     private static Collection collection;
@@ -120,7 +125,7 @@ public class DOIIdentifierProviderTest
             config = DSpaceServicesFactory.getInstance().getConfigurationService();
             // Configure the service under test.
             config.setProperty(DOIIdentifierProvider.CFG_PREFIX, PREFIX);
-            config.setProperty(DOIIdentifierProvider.CFG_NAMESPACE_SEPARATOR,
+            config.setProperty(CFG_NAMESPACE_SEPARATOR,
                                NAMESPACE_SEPARATOR);
 
             connector = mock(DOIConnector.class);
@@ -132,6 +137,7 @@ public class DOIIdentifierProviderTest
             provider.setConfigurationService(config);
             provider.setDOIConnector(connector);
             provider.setFilter(null);
+            provider.setDoiGenerationStrategies(doiGenerationStrategies);
         } catch (AuthorizeException ex) {
             log.error("Authorization Error in init", ex);
             fail("Authorization Error in init: " + ex.getMessage());
@@ -346,7 +352,166 @@ public class DOIIdentifierProviderTest
         context.restoreAuthSystemState();
 
         assertEquals("Failed to recognize DOI in item metadata.",
-                doi, provider.getDOIOutOfObject(item));
+                doi, provider.getDOIOutOfObject(context, item));
+    }
+
+    @Test
+    public void testGet_DOI_Belongs_To_Community() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        community = communityService.create(null, context, "123456789/9");
+        communityService.setMetadataSingleValue(context, community,
+            CommunityService.MD_NAME, null, "A Test Community");
+        communityService.update(context, community);
+
+        collection = collectionService.create(context, community);
+        collectionService.setMetadataSingleValue(context, collection,
+            CollectionService.MD_NAME, null, "A Test Collection");
+        collectionService.update(context, collection);
+
+        context.restoreAuthSystemState();
+
+        Item item = newItem();
+        String doi = DOI.SCHEME + PREFIX + "/" + "units/custom/" +
+            Long.toHexString(new Date().getTime());
+
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, item, provider.MD_SCHEMA,
+            provider.DOI_ELEMENT,
+            provider.DOI_QUALIFIER,
+            null,
+            doiService.DOIToExternalForm(doi));
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
+
+        assertEquals("Failed to recognize DOI in item metadata.",
+            doi, provider.getDOIOutOfObject(context, item));
+    }
+
+    @Test
+    public void testGet_DOI_Belongs_To_Colletion() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        community = communityService.create(null, context, "123456789/7521");
+        communityService.setMetadataSingleValue(context, community,
+            CommunityService.MD_NAME, null, "A Test Community");
+        communityService.update(context, community);
+
+        collection = collectionService.create(context, community, "123456789/7520");
+        collectionService.setMetadataSingleValue(context, collection,
+            CollectionService.MD_NAME, null, "A Test Collection");
+        collectionService.update(context, collection);
+
+        context.restoreAuthSystemState();
+
+        Item item = newItem();
+
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, item, "dc", "identifier", "issn", null, "test-identifier");
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
+
+        String doi = DOI.SCHEME + PREFIX + "/" +
+            itemService.getMetadata(item, "dc.identifier.issn") + "/" +
+            Long.toHexString(new Date().getTime());
+
+        context.turnOffAuthorisationSystem();
+
+        itemService.addMetadata(context, item, provider.MD_SCHEMA,
+            provider.DOI_ELEMENT,
+            provider.DOI_QUALIFIER,
+            null,
+            doiService.DOIToExternalForm(doi));
+        itemService.update(context, item);
+
+        context.restoreAuthSystemState();
+
+        assertEquals("Failed to recognize DOI in item metadata.",
+            doi, provider.getDOIOutOfObject(context, item));
+    }
+
+    @Test
+    public void testGet_DOI_Belongs_To_Collection_ISBNIdentifier() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        community = communityService.create(null, context, "123456789/7521");
+        communityService.setMetadataSingleValue(context, community,
+            CommunityService.MD_NAME, null, "A Test Community");
+        communityService.update(context, community);
+
+        collection = collectionService.create(context, community, "123456789/7520");
+        collectionService.setMetadataSingleValue(context, collection,
+            CollectionService.MD_NAME, null, "A Test Collection");
+        collectionService.update(context, collection);
+
+        context.restoreAuthSystemState();
+
+        Item item = newItem();
+
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, item, "dc", "identifier", "isbn", null, "test-identifier");
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
+
+        String doi = DOI.SCHEME + PREFIX + "/" +
+            itemService.getMetadata(item, "dc.identifier.isbn") + "/" +
+            Long.toHexString(new Date().getTime());
+
+        context.turnOffAuthorisationSystem();
+
+        itemService.addMetadata(context, item, provider.MD_SCHEMA,
+            provider.DOI_ELEMENT,
+            provider.DOI_QUALIFIER,
+            null,
+            doiService.DOIToExternalForm(doi));
+        itemService.update(context, item);
+
+        context.restoreAuthSystemState();
+
+        assertEquals("Failed to recognize DOI in item metadata.",
+            doi, provider.getDOIOutOfObject(context, item));
+    }
+
+    @Test
+    public void testGet_DOI_Belongs_To_GenericCollection() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        collection = collectionService.create(context, community, "123456789/9000");
+        collectionService.setMetadataSingleValue(
+            context, collection, CollectionService.MD_NAME, null,
+            "A Test Collection With Generic Handles"
+        );
+        collectionService.update(context, collection);
+
+        context.restoreAuthSystemState();
+
+        Item item = newItem();
+
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, item, "dc", "identifier", "isbn", null, "generic-handle-identifier");
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
+
+        String doi = DOI.SCHEME + PREFIX + "/" +
+            itemService.getMetadata(item, "dc.identifier.isbn") + "/" +
+            Long.toHexString(new Date().getTime());
+
+        context.turnOffAuthorisationSystem();
+
+        itemService.addMetadata(context, item, provider.MD_SCHEMA,
+                                provider.DOI_ELEMENT,
+                                provider.DOI_QUALIFIER,
+                                null,
+                                doiService.DOIToExternalForm(doi));
+        itemService.update(context, item);
+
+        context.restoreAuthSystemState();
+
+        assertEquals(
+            "Failed to recognize DOI in item metadata with generic collection configuration.",
+            doi,
+            provider.getDOIOutOfObject(context, item)
+        );
     }
 
     @Test

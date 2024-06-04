@@ -1371,7 +1371,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>identifier</dc-element>
           <dc-qualifier>url</dc-qualifier>
           <label>Personal Site(s)</label>
-          <input-type>group</input-type>
+          <input-type>link</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint />

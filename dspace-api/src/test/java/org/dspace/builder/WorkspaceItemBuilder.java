@@ -260,6 +260,10 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return setMetadataSingleValue("cris", "customurl", null, url);
     }
 
+    public WorkspaceItemBuilder withCustomIdentifierUrl(String url, String authority) {
+        return addMetadataValue("oairecerif", "identifier", "url", Item.ANY, url, authority, 600);
+    }
+
     public WorkspaceItemBuilder withOldCustomUrl(String url) {
         return addMetadataValue("cris", "customurl", "old", url);
 

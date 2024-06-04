@@ -140,6 +140,7 @@ public class AuthorityUtils {
         if (StringUtils.isNotBlank(choice.authority)) {
             entry.setVocabularyEntryDetailsRest(converter.toRest(choice, projection));
         }
+        entry.setSource(choice.source);
         return entry;
     }
 

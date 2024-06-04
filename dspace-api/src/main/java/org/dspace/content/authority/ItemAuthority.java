@@ -79,6 +79,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     // map of field key to presentation type
     protected Map<String, String> externalSource = new HashMap<String, String>();
 
+    public static final String DEFAULT = "local";
+
     // punt!  this is a poor implementation..
     @Override
     public Choices getBestMatch(String text, String locale) {
@@ -307,6 +309,11 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     private Context getContext() {
         Context context = ContextUtil.obtainCurrentRequestContext();
         return context != null ? context : new Context();
+    }
+
+    protected String getSource() {
+        return configurationService.getProperty(
+            "cris.ItemAuthority." + authorityName + ".source", DEFAULT);
     }
 
 }
