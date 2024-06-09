@@ -72,7 +72,6 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
-import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration;
@@ -1737,8 +1736,33 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
+            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc, null));
             solrClient.request(req);
+        } catch (SolrServerException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void updateLastPublicationImport(Context context, Item item, String serviceName, String lastImport) {
+        UpdateRequest req = new UpdateRequest();
+        SolrClient solrClient = solrSearchCore.getSolr();
+        Optional<String> id = findUniqueId(Constants.ITEM, item.getID());
+        if (id.isEmpty()) {
+            log.warn("Unable to define unique id for item {}", item.getID());
+            return;
+        }
+        try {
+            SolrInputDocument solrInDoc = new SolrInputDocument();
+            solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
+            Map<String, Object> lastFieldMap = Collections.singletonMap("set", lastImport);
+            String lastField = "cris.lastimport." + serviceName + "-publication";
+            String lastFieldDt = lastField + "_dt";
+            solrInDoc.addField(lastField, lastFieldMap);
+            solrInDoc.addField(lastFieldDt, lastFieldMap);
+            req.add(solrInDoc);
+            solrClient.request(req);
+            solrClient.commit();
         } catch (SolrServerException | IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -1794,19 +1818,4 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         + "-" + resource.toString());
     }
 
-    @SuppressWarnings("rawtypes")
-    private Optional<IndexableObject> findIndexableObject(Context context, DSpaceObject resource) {
-        String indexableType = Constants.typeText[resource.getType()];
-        return Optional.ofNullable(indexObjectFactoryFactory.getIndexFactoryByType(indexableType))
-            .flatMap(indexableFactory -> findIndexableObject(context, indexableFactory, resource.getID().toString()));
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Optional<IndexableObject> findIndexableObject(Context context, IndexFactory factory, String id) {
-        try {
-            return factory.findIndexableObject(context, id);
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
-    }
 }
