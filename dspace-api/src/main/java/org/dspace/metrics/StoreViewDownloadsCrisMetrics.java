@@ -75,7 +75,6 @@ public class StoreViewDownloadsCrisMetrics extends
         assignSpecialGroupsInContext();
         try {
             context.turnOffAuthorisationSystem();
-            context.setMode(Mode.READ_ONLY);
             performUpdateAndStorage(context);
             context.complete();
         } catch (Exception e) {

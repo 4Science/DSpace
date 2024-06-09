@@ -141,7 +141,7 @@ public class UpdateCrisMetricsWithExternalSource extends
         Iterator<Item> itemsSortedByLastImport = findItemsSortedByLastImport(service);
 
         Iterator<Item> chainedIterator = chainedIterator(itemsWithoutLastImport, itemsSortedByLastImport);
-        return IteratorUtils.boundedIterator(chainedIterator, limit);
+        return IteratorUtils.boundedIterator(chainedIterator, service.getFetchSize() * limit);
 
     }
 
