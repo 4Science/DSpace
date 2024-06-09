@@ -229,7 +229,7 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
             Double deltaPeriod1 = getDeltaPeriod(scopusMetric, metricLastWeek);
             Double deltaPeriod2 = getDeltaPeriod(scopusMetric, metricLastMonth);
 
-            createNewScopusMetrics(context,currentItem, scopusMetric, deltaPeriod1, deltaPeriod2);
+            createNewScopusMetrics(context, currentItem, scopusMetric, deltaPeriod1, deltaPeriod2);
         } catch (SQLException | AuthorizeException e) {
             logsCache.add(e.getMessage());
             log.error(e.getMessage(), e);

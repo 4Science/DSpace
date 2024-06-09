@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.app.metrics.CrisMetrics;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 
 /**
@@ -95,4 +96,6 @@ public interface IndexingService {
      */
     void atomicUpdate(Context context, String uniqueIndexId, String field, Map<String,Object> fieldModifier)
             throws SolrServerException, IOException;
+
+    void updateLastPublicationImport(Context context, Item item, String serviceName, String lastImport);
 }

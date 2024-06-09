@@ -30,6 +30,7 @@ import org.dspace.app.metrics.service.CrisMetricsServiceImpl;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.Context.Mode;
 import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchService;
 import org.dspace.eperson.EPerson;
@@ -74,6 +75,7 @@ public class StoreViewDownloadsCrisMetrics extends
         assignSpecialGroupsInContext();
         try {
             context.turnOffAuthorisationSystem();
+            context.setMode(Mode.READ_ONLY);
             performUpdateAndStorage(context);
             context.complete();
         } catch (Exception e) {
