@@ -8,6 +8,9 @@
 package org.dspace.orcid.service.impl;
 
 import static org.apache.commons.lang3.ArrayUtils.contains;
+import static org.dspace.profile.OrcidEntitySyncPreference.DISABLED;
+import static org.dspace.profile.OrcidEntitySyncPreference.MINE;
+import static org.dspace.profile.OrcidEntitySyncPreference.MY_SELECTED;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -220,9 +223,27 @@ public class OrcidQueueServiceImpl implements OrcidQueueService {
         OrcidEntitySyncPreference preference) throws SQLException {
 
         String entityType = orcidEntityType.getEntityType();
-        if (preference == OrcidEntitySyncPreference.DISABLED) {
+        if (preference == DISABLED) {
             deleteByProfileItemAndRecordType(context, profileItem, entityType);
+        } else if (preference == MY_SELECTED || preference == MINE) {
+            // delete existing queue
+            deleteByProfileItemAndRecordType(context, profileItem, entityType);
+            // add additional filterquery
+            String relationname =
+                configurationService.getProperty("orcid.relation." + entityType + "." + preference.name());
+            boolean exclusion = configurationService.getBooleanProperty("orcid.relation."
+                + entityType + "." + preference.name() + ".exclusion", false);
+            if (StringUtils.isBlank(relationname)) {
+                return;
+            }
+            Iterator<Item> entities;
+            entities = findAllRelationShipEntitiesLinkableWith(context, profileItem, entityType, relationname,
+                exclusion);
+            while (entities.hasNext()) {
+                create(context, profileItem, entities.next());
+            }
         } else {
+            deleteByProfileItemAndRecordType(context, profileItem, entityType);
             Iterator<Item> entities = findAllEntitiesLinkableWith(context, profileItem, entityType);
             while (entities.hasNext()) {
                 create(context, profileItem, entities.next());
@@ -253,6 +274,40 @@ public class OrcidQueueServiceImpl implements OrcidQueueService {
         return new DiscoverResultItemIterator(context, discoverQuery);
 
     }
+
+    private Iterator<Item> findAllRelationShipEntitiesLinkableWith(
+        Context context, Item owner, String entityType, String filterrelationname, boolean exclusion) {
+
+        String ownerType = itemService.getEntityType(owner);
+
+        String query = choiceAuthorityService.getAuthorityControlledFieldsByEntityType(ownerType).stream()
+                .map(metadataField -> metadataField.replaceAll("_", "."))
+                .filter(metadataField -> shouldNotBeIgnoredForOrcid(metadataField))
+                .map(metadataField -> metadataField + "_allauthority: \"" + owner.getID().toString() + "\"")
+                .collect(Collectors.joining(" OR "));
+
+        if (StringUtils.isEmpty(query)) {
+            return Collections.emptyIterator();
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (exclusion) {
+            sb.append("-");
+        }
+        sb.append("relation." + filterrelationname + ":");
+        sb.append(owner.getID().toString());
+
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
+        discoverQuery.addFilterQueries(query);
+        discoverQuery.addFilterQueries("search.entitytype:" + entityType);
+
+        discoverQuery.addFilterQueries(sb.toString());
+
+        return new DiscoverResultItemIterator(context, discoverQuery);
+
+    }
+
 
     private boolean shouldNotBeIgnoredForOrcid(String metadataField) {
         return !contains(configurationService.getArrayProperty("orcid.linkable-metadata-fields.ignore"), metadataField);

@@ -15,7 +15,6 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.EnumUtils.isValidEnum;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.dspace.content.Item.ANY;
-import static org.dspace.profile.OrcidEntitySyncPreference.DISABLED;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -30,6 +29,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.RelationshipService;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResultItemIterator;
@@ -80,6 +80,9 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
     @Autowired
     private ResearcherProfileService researcherProfileService;
+
+    @Autowired
+    private RelationshipService relationshipService;
 
     @Override
     public void linkProfile(Context context, Item profile, OrcidTokenResponseDTO token) throws SQLException {
@@ -181,7 +184,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     }
 
     @Override
-    public boolean isSynchronizationAllowed(Item profile, Item item) {
+    public boolean isSynchronizationAllowed(Context context, Item profile, Item item) {
 
         if (isOrcidSynchronizationDisabled()) {
             return false;
@@ -193,9 +196,41 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         }
 
         if (OrcidEntityType.isValidEntityType(entityType)) {
-            return getEntityPreference(profile, OrcidEntityType.fromEntityType(entityType))
-                .filter(pref -> pref != DISABLED)
-                .isPresent();
+            Optional<OrcidEntitySyncPreference> option;
+            option = getEntityPreference(profile, OrcidEntityType.fromEntityType(entityType));
+            if (option.isPresent()) {
+                try {
+                    switch (option.get()) {
+                        case DISABLED:
+                            return false;
+                        case ALL:
+                            return true;
+                        case MINE:
+                        case MY_SELECTED:
+                            String relationname = configurationService.getProperty("orcid.relation." + entityType + "."
+                                + option.get().name());
+                            if (isBlank(relationname)) {
+                                return false;
+                            }
+                            if (configurationService.getBooleanProperty("orcid.relation." + entityType + "."
+                                + option.get().name() + ".exclusion", false)) {
+                                //check if no relationship exists between profile and item (e.g. MINE)
+                                return relationShipMatchForOrcidSync(context, profile, item, relationname, false);
+                            } else {
+                                //check, if any relationship exists between profile and item(e.g. MY_SELECTED)
+
+                                return relationShipMatchForOrcidSync(context, profile, item, relationname, true);
+
+                            }
+                        default:
+                            return false;
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return false;
+            }
         }
 
         if (entityType.equals(researcherProfileService.getProfileType())) {
@@ -204,6 +239,58 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         return false;
 
+    }
+
+    @Override
+    public boolean isSyncSettingsBasedOnRelationshipCriteriaNotValid(Context context, Item profile, Item item) {
+        String entityType = itemService.getEntityTypeLabel(item);
+        if (entityType == null) {
+            return false;
+        }
+        Optional<OrcidEntitySyncPreference> option =
+            getEntityPreference(profile, OrcidEntityType.fromEntityType(entityType));
+        if (option.isPresent()) {
+            try {
+                switch (option.get()) {
+                    case MINE:
+                    case MY_SELECTED:
+                        String relationname = configurationService.getProperty("orcid.relation." + entityType + "."
+                            + option.get().name());
+                        if (isBlank(relationname)) {
+                            return false;
+                        }
+
+                        //because we check the criteria is not valid we have to check the opposite
+                        if (configurationService.getBooleanProperty("orcid.relation." + entityType + "."
+                            + option.get().name() + ".exclusion", false)) {
+                            //check, if any relationship exists between profile and item (e.g. MINE)
+                            return relationShipMatchForOrcidSync(context, profile, item, relationname, true);
+                        } else {
+                            //check if none relationship exist between profile and item (e.g. MY_SELECT)
+                            return relationShipMatchForOrcidSync(context, profile, item, relationname, false);
+                        }
+
+                    default:
+                        return false;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return false;
+    }
+
+    protected boolean relationShipMatchForOrcidSync(Context context, Item profile, Item item, String relationname,
+                                                    boolean any) throws SQLException {
+        if (any) {
+            return relationshipService.findByItem(context, profile).stream().anyMatch(relationship ->
+                relationship.getLeftItem().getID().toString().equals(item.getID().toString()) &&
+                    relationship.getLeftwardValue().contentEquals(relationname));
+        } else {
+            return relationshipService.findByItem(context, profile).stream().noneMatch(relationship ->
+                relationship.getLeftItem().getID().toString().equals(item.getID().toString()) &&
+                    relationship.getLeftwardValue().contentEquals(relationname));
+        }
     }
 
     @Override

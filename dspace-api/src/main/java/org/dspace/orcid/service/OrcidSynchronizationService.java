@@ -22,7 +22,7 @@ import org.dspace.profile.OrcidProfileSyncPreference;
 import org.dspace.profile.OrcidSynchronizationMode;
 
 /**
- * Service that handle the the syncronization between a DSpace profile and the
+ * Service that handle the syncronization between a DSpace profile and the
  * relative ORCID profile, if any.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
@@ -117,10 +117,10 @@ public interface OrcidSynchronizationService {
      *
      * @param  profile the researcher profile item
      * @param  item    the entity type to check
-     * @return         true if the given entity type can be synchronize with ORCID,
+     * @return         true if the given entity type can be synchronized with ORCID,
      *                 false otherwise
      */
-    public boolean isSynchronizationAllowed(Item profile, Item item);
+    public boolean isSynchronizationAllowed(Context context, Item profile, Item item);
 
     /**
      * Returns the ORCID synchronization mode configured for the given profile item.
@@ -129,6 +129,18 @@ public interface OrcidSynchronizationService {
      * @return         the synchronization mode
      */
     Optional<OrcidSynchronizationMode> getSynchronizationMode(Item profile);
+
+    /**
+     * Check if the current sync setting for the items is related to some relationship.
+     * And if so than check if the relationship criteria is not valid.
+     *
+     * @param  profile the researcher profile item
+     * @param  item    the entity type to check
+     * @return         true if the given entity type is bases on relationship
+     *                 false otherwise
+     */
+    boolean isSyncSettingsBasedOnRelationshipCriteriaNotValid(Context context, Item profile, Item item);
+
 
     /**
      * Returns the ORCID synchronization preference related to the given entity type
