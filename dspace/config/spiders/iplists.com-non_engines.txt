@@ -1,13 +1,13 @@
 # Alexa
 # UA "ia_archiver"
 # Has many IPs
-crawl8-public.alexa.com
+# crawl8-public.alexa.com # unresolvable (2018-10)
 209.247.40.99
 
 # Almaden
 # UA "http://www.almaden.ibm.com/cs/crawler"
 # IBM research project
-wfp2.almaden.ibm.com
+# wfp2.almaden.ibm.com # unresolvable (2018-10)
 198.4.83.49
 
 # Cyveillance
@@ -29,7 +29,7 @@ wfp2.almaden.ibm.com
 # Eidetica.com
 # UA "Mozilla/4.7 (compatible; http://eidetica.com/spider)"
 # Search engine hosting/spidering service
-idle.eidetica.com
+# idle.eidetica.com. # unresolvable (2018-10)
 62.58.2.5
 
 # e-SocietyRobot
@@ -160,7 +160,7 @@ dsl081-243-066.sfo1.dsl.speakeasy.net
 # UA "NPBot-1/2.0 (http://www.nameprotect.com/botinfo.html)"
 # UA "aipbot/1.0 (aipbot; http://www.aipbot.com; aipbot@aipbot.com)"
 # snoop bot to check for trademark violations
-crawler918.com
+# crawler918.com # unresolvable (2018-10)
 12.40.85
 12.148.209.196
 
@@ -189,7 +189,7 @@ crawler918.com
 # ScoutAbout
 # UA "ScoutAbout"
 # is not a SE spider -- it's for sale to anybody
-zeus.nj.nec.com
+# zeus.nj.nec.com # unresolvable (2018-10)
 138.15.164.9
 
 # SlySearch
@@ -241,7 +241,7 @@ tracerlock.com
 # Webrank
 # UA "webrank"
 # looks like a ranking checker
-xs4.kso.co.uk
+# xs4.kso.co.uk # unresolvable (2018-10)
 207.235.6.157
 
 # Websquash.com
@@ -258,10 +258,11 @@ xs4.kso.co.uk
 # Whizbang
 # UA "ozilla/4.7 (compatible; Whizbang)"
 # WhizBang is a company that sells a spider to build databases
-pixnat06.whizbang.com
-63.173.190.16
-pixnat09.whizbang.com
-63.173.190.19
+# name server timeout (2018-10)
+# pixnat06.whizbang.com
+#63.173.190.16
+#pixnat09.whizbang.com
+#63.173.190.19
 
 # X-Crawler
 # UA "TECOMAC-Crawler/0.3"
@@ -277,7 +278,7 @@ pixnat09.whizbang.com
 
 # Yahoo.com URL verifiers
 # UA "Mozilla/4.05"
-morgue1.corp.yahoo.com
+# morgue1.corp.yahoo.com # unresolvable (2018-10)
 216.145.54.35
 hanta.yahoo.com
 216.145.50.40
