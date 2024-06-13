@@ -32,6 +32,8 @@ ALTER TABLE subscription ADD COLUMN if NOT EXISTS type CHARACTER VARYING(255);
 ALTER TABLE subscription DROP CONSTRAINT IF EXISTS subscription_dspaceobject_fkey;
 ALTER TABLE subscription ADD CONSTRAINT subscription_dspaceobject_fkey FOREIGN KEY (dspace_object_id) REFERENCES dspaceobject (uuid);
 --
+UPDATE subscription SET dspace_object_id = collection_id , type = 'content';
+--
 ALTER TABLE subscription DROP CONSTRAINT IF EXISTS subscription_collection_id_fkey;
 -- --
 ALTER TABLE subscription DROP COLUMN IF EXISTS collection_id;
