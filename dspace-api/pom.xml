@@ -850,34 +850,46 @@
 		</dependency>
 
         <dependency>
-	        <groupId>de.undercouch</groupId>
-	        <artifactId>citeproc-java</artifactId>
-	        <version>1.0.1</version>
-	        <exclusions>
-	            <exclusion>
-	               <groupId>org.apache.commons</groupId>
-	               <artifactId>commons-lang3</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.jbibtex</groupId>
-	               <artifactId>jbibtex</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
-         	</exclusions>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>locales</artifactId>
-	      <version>1.0</version>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>styles</artifactId>
-	      <version>1.0</version>
-      </dependency>
+            <groupId>de.undercouch</groupId>
+            <artifactId>citeproc-java</artifactId>
+            <version>2.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jbibtex</groupId>
+                    <artifactId>jbibtex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-tree</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-analysis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>locales</artifactId>
+            <version>23.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>23.5</version>
+        </dependency>
 
         <!-- required for openaire api integration -->
         <dependency>
