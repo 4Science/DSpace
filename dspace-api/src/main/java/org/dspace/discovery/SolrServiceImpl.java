@@ -2183,7 +2183,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 		String displayedValue = transformDisplayedValue(context, facetField.getName(), facetValue.getName());
 		String authorityValue = transformAuthorityValue(context, facetField.getName(), facetValue.getName());
 		String sortValue = transformSortValue(context, facetField.getName(), facetValue.getName());
-		String filterValue = displayedValue;
+		String filterValue = transformFilterValue(context, facetField.getName(), facetValue.getName());
 		if (StringUtils.isNotBlank(authorityValue))
 		{
 		    filterValue = authorityValue;
@@ -2507,6 +2507,45 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             {
                 String[] split = fqParts[i].split(AUTHORITY_SEPARATOR, 2);
                 valueBuffer.append(split[0]);
+            }
+            value = valueBuffer.toString();
+        }else if(value.matches("\\((.*?)\\)"))
+        {
+            //The brackets where added for better solr results, remove the first & last one
+            value = value.substring(1, value.length() -1);
+        }
+        return value;
+    }
+
+    protected String transformFilterValue(Context context, String field,
+            String value) throws SQLException
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        if(field.equals("location.comm") || field.equals("location.coll"))
+        {
+            value = locationToName(context, field, value);
+        }
+        else if (field.endsWith("_filter") || field.endsWith("_ac")
+          || field.endsWith("_acid"))
+        {
+            //We have a filter make sure we split !
+            String separator = new DSpace().getConfigurationService().getProperty("discovery.solr.facets.split.char");
+            if(separator == null)
+            {
+                separator = FILTER_SEPARATOR;
+            }
+            //Escape any regex chars
+            separator = java.util.regex.Pattern.quote(separator);
+            String[] fqParts = value.split(separator);
+            StringBuffer valueBuffer = new StringBuffer();
+            int start = fqParts.length / 2;
+            for(int i = start; i < fqParts.length; i++)
+            {
+                String[] fqPartsParts = fqParts[i].split(AUTHORITY_SEPARATOR, 2);
+                valueBuffer.append(fqPartsParts[0]);
             }
             value = valueBuffer.toString();
         }else if(value.matches("\\((.*?)\\)"))

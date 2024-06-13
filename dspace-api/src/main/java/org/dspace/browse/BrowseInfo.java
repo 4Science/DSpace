@@ -486,13 +486,13 @@ public class BrowseInfo
 
     /**
      * Return the results of the Browse as an array of String array.
-     * The first element (i.e. index 0) is the value, the second is the authority key
+     * The first element (i.e. index 0) is the value, the second is the query value and the third is the authority key
      *
      * @return The results of the Browse as a String array.
      */
     public String[][] getStringResults()
     {
-        return (String[][]) results.toArray(new String[results.size()][2]);
+        return (String[][]) results.toArray(new String[results.size()][3]);
     }
 
     /**
