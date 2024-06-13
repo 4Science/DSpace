@@ -135,6 +135,16 @@
         <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerScript"/>
     </bean>
 
+    <bean id="item-enhancer-type" class="org.dspace.content.enhancer.script.ItemEnhancerEntityTypeScriptConfiguration" >
+        <property name="description" value="Script that allows to enhance specific items of specific entity types or collections"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerEntityTypeScript"/>
+    </bean>
+
+    <bean id="item-enhancer-date" class="org.dspace.content.enhancer.script.ItemEnhancerByDateScriptConfiguration" >
+        <property name="description" value="Script that allows to enhance specific items by some solrquery"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerByDateScript"/>
+    </bean>
+
     <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
         <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
