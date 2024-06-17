@@ -37,11 +37,10 @@ public class ExternalFileUploadValidator implements SubmissionStepValidator {
 
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionStepConfig config) {
-        return List.of(
-            Optional.ofNullable((String) getCurrentRequest().getAttribute(ERROR_KEY))
+        return Optional.ofNullable((String) getCurrentRequest().getAttribute(ERROR_KEY))
                 .map(errorMessage -> addError(errorMessage, config))
-                .orElseGet(ValidationError::new)
-        );
+                       .map(List::of)
+                       .orElseGet(List::of);
     }
 
     protected ValidationError addError(String message, SubmissionStepConfig config) {
