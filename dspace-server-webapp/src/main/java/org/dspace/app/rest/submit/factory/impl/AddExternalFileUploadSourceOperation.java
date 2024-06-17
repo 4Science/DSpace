@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.bulkimport.util.ImportFileUtil;
@@ -38,6 +39,8 @@ import org.dspace.core.Context;
  **/
 public class AddExternalFileUploadSourceOperation extends AddPatchOperation<ExternalFileUpload> {
 
+    protected static final String LOCAL_PREFIX = "file://";
+    protected static final UrlValidator URL_VALIDATOR = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
     protected static final Pattern FILE_PATTERN =
         Pattern.compile("(?:\\/)?(?<fullname>(?<name>\\w+)\\.?(?<ext>\\w+))$");
 
@@ -48,6 +51,11 @@ public class AddExternalFileUploadSourceOperation extends AddPatchOperation<Exte
     void add(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
              Object value) throws Exception {
         String filePath = (String) value;
+
+        if (!URL_VALIDATOR.isValid(filePath) && !filePath.startsWith(LOCAL_PREFIX)) {
+            filePath = LOCAL_PREFIX + filePath;
+        }
+
         Optional<InputStream> inputStream$ = fileUtil.getInputStream(filePath);
 
         if (inputStream$.isEmpty()) {
