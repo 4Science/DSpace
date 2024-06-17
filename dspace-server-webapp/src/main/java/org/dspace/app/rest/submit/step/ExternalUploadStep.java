@@ -40,8 +40,7 @@ public class ExternalUploadStep extends AbstractProcessingStep {
      *            the in progress submission
      * @param config
      *            the submission step configuration
-     * @return
-     * @param <T>
+     * @return ExternalFileUpload object
      * @throws Exception
      */
     @Override
