@@ -13,8 +13,6 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -41,8 +39,6 @@ public class AddExternalFileUploadSourceOperation extends AddPatchOperation<Exte
 
     protected static final String LOCAL_PREFIX = "file://";
     protected static final UrlValidator URL_VALIDATOR = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-    protected static final Pattern FILE_PATTERN =
-        Pattern.compile("(?:\\/)?(?<fullname>(?<name>\\w+)\\.?(?<ext>\\w+))$");
 
     private static final Logger log = LogManager.getLogger(AddExternalFileUploadSourceOperation.class);
     protected final ImportFileUtil fileUtil = new ImportFileUtil();
@@ -62,9 +58,6 @@ public class AddExternalFileUploadSourceOperation extends AddPatchOperation<Exte
             currentRequest.setAttribute(ERROR_KEY, "error.validation.filenotfound");
             return;
         }
-
-        Matcher matcher = FILE_PATTERN.matcher(filePath);
-        String fullname = matcher.results().map(mr -> mr.group(1)).findFirst().orElse(null);
 
         Bitstream bitstreamSource = null;
         BitstreamFormat bf = null;
@@ -88,7 +81,7 @@ public class AddExternalFileUploadSourceOperation extends AddPatchOperation<Exte
                 bitstreamSource = bitstreamService.create(context, bundles.get(0), inputStream);
             }
 
-            bitstreamSource.setName(context, fullname);
+            bitstreamSource.setName(context, extractFullName(filePath));
             bitstreamSource.setSource(context, filePath);
 
             // Identify the format
@@ -103,6 +96,15 @@ public class AddExternalFileUploadSourceOperation extends AddPatchOperation<Exte
             log.error(e.getMessage(), e);
             currentRequest.setAttribute(ERROR_KEY, "error.validation.filenotprocessed");
         }
+    }
+
+    protected String extractFullName(String filePath) {
+        int lastSlash = filePath.lastIndexOf("/");
+        String fullname = filePath;
+        if (lastSlash > 0) {
+            fullname = filePath.substring(lastSlash + 1);
+        }
+        return fullname;
     }
 
     @Override
