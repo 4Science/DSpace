@@ -394,7 +394,7 @@ public class ItemImportOA {
                 }
 
                 System.out.println(
-                        owningPrefix + " Collection: " + collectionService.getMetadata(mycollections[i], "name"));
+                        owningPrefix + " Collection: " + collectionService.getMetadata(mycollections[i], "dc.title"));
             }
         } // end of validating collections
 
