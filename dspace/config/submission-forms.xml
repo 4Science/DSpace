@@ -2511,8 +2511,9 @@ it, please enter the types and the actual numbers or codes.</hint>
     <form name="owner">
       <row>
         <field>
-          <dc-schema>cris</dc-schema>
-          <dc-element>owner</dc-element>
+          <dc-schema>dspace</dc-schema>
+          <dc-element>object</dc-element>
+          <dc-qualifier>owner</dc-qualifier>
           <label>Owner</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>

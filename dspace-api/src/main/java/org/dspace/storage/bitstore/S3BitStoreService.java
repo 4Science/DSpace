@@ -26,11 +26,14 @@ import javax.validation.constraints.NotNull;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.SystemDefaultDnsResolver;
+import com.amazonaws.ClientConfigurationFactory;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.regions.DefaultAwsRegionProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -42,6 +45,8 @@ import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -75,6 +80,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class S3BitStoreService extends BaseBitStoreService {
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
+    protected static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
     // Prefix indicating a registered bitstream
     protected final String REGISTERED_FLAG = "-R";
     /**
@@ -147,30 +153,37 @@ public class S3BitStoreService extends BaseBitStoreService {
     protected static Supplier<ClientConfiguration> getClientConfiguration(
         Integer maxConnections, Integer connectionTimeout
     ) {
-        return () -> new ClientConfiguration()
-            .withDnsResolver(
-                new SystemDefaultDnsResolver()
-            )
-            .withMaxConnections(
-                Optional.ofNullable(maxConnections).orElse(ClientConfiguration.DEFAULT_MAX_CONNECTIONS)
-            )
-            .withConnectionTimeout(
-                Optional.ofNullable(connectionTimeout).orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
+        return () -> {
+            ClientConfiguration clientConfiguration =
+                new ClientConfigurationFactory().getConfig()
+                                                .withMaxConnections(
+                                                    Optional.ofNullable(maxConnections)
+                                                            .orElse(ClientConfiguration.DEFAULT_MAX_CONNECTIONS)
+                                                )
+                                                .withConnectionTimeout(
+                                                    Optional.ofNullable(connectionTimeout)
+                                                            .orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
+                                                );
+            log.debug(
+                "AmazonS3Client client configuration: {}",
+                GSON.toJson(clientConfiguration)
             );
+            return clientConfiguration;
+        };
     }
 
     /**
      * Utility method for generate AmazonS3 builder
      *
-     * @param regions wanted regions in client
+     * @param regionsSupplier wanted regionsSupplier in client
      * @param credentialsProvider credentials of the client
      * @param clientConfiguration client connection details
      * @param endpoint optional custom endpoint
      * @return builder with the specified parameters
      */
     protected static Supplier<AmazonS3> amazonClientBuilderBy(
-            @NotNull Regions regions,
-            @NotNull Supplier<AWSStaticCredentialsProvider> credentialsProvider,
+            @NotNull Supplier<Regions> regionsSupplier,
+            @NotNull Supplier<? extends AWSCredentialsProvider> credentialsProvider,
             @NotNull Supplier<ClientConfiguration> clientConfiguration,
             String endpoint
     ) {
@@ -178,9 +191,8 @@ public class S3BitStoreService extends BaseBitStoreService {
             withEndpointConfiguration(
                 AmazonS3ClientBuilder.standard()
                                      .withCredentials(credentialsProvider.get())
-                                     //.withClientConfiguration(clientConfiguration.get())
-                ,
-                regions,
+                                     .withClientConfiguration(clientConfiguration.get()),
+                regionsSupplier.get(),
                 endpoint
             ).build();
     }
@@ -189,10 +201,12 @@ public class S3BitStoreService extends BaseBitStoreService {
      * Utility method for generate AmazonS3 builder
      *
      * @param clientConfigurationSupplier client connection details
+     * @param regionsSupplier the region of the configured endpoint
      * @param endpoint optional custom endpoint
      * @return builder with the specified parameters
      */
     protected static Supplier<AmazonS3> amazonClientBuilderBy(
+        @NotNull Supplier<Regions> regionsSupplier,
         @NotNull Supplier<ClientConfiguration> clientConfigurationSupplier,
         String endpoint
     ) {
@@ -200,7 +214,7 @@ public class S3BitStoreService extends BaseBitStoreService {
             withEndpointConfiguration(
                 AmazonS3ClientBuilder.standard()
                                      .withClientConfiguration(clientConfigurationSupplier.get()),
-                Regions.DEFAULT_REGION,
+                regionsSupplier.get(),
                 endpoint
             ).build();
     }
@@ -224,8 +238,16 @@ public class S3BitStoreService extends BaseBitStoreService {
         if (StringUtils.isNotBlank(endpoint)) {
             clientBuilder =
                 clientBuilder.withEndpointConfiguration(getEndpointConfiguration(endpoint, regions));
+            log.info(
+                "AmazonS3Client endpoint-configuration: {}",
+                GSON.toJson(clientBuilder.getEndpoint())
+            );
         } else {
             clientBuilder = clientBuilder.withRegion(regions);
+            log.info(
+                "AmazonS3Client regions: {}",
+                GSON.toJson(clientBuilder.getRegion())
+            );
         }
         return clientBuilder;
     }
@@ -239,9 +261,13 @@ public class S3BitStoreService extends BaseBitStoreService {
     protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
         String awsAccessKey, String awsSecretKey
     ) {
-        return getAwsCredentialsSupplier(
-            new BasicAWSCredentials(awsAccessKey, awsSecretKey)
+        BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
+        log.info(
+            "AmazonS3Client credentials - accessKey: {}, secretKey: {}",
+            credentials.getAWSAccessKeyId().replaceFirst("^(.{3})(.*)(.{3})$", "$1***$3"),
+            credentials.getAWSSecretKey().replaceFirst("^(.{3})(.*)(.{3})$", "$1***$3")
         );
+        return getAwsCredentialsSupplier(credentials);
     }
 
     protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
@@ -250,6 +276,21 @@ public class S3BitStoreService extends BaseBitStoreService {
         return () -> new AWSStaticCredentialsProvider(credentials);
     }
 
+    protected static Regions getDefaultRegion() {
+        return Optional.ofNullable(new DefaultAwsRegionProviderChain().getRegion())
+                       .filter(StringUtils::isNotBlank)
+                       .map(S3BitStoreService::parseRegion)
+                       .orElse(Regions.DEFAULT_REGION);
+    }
+
+    private static Regions parseRegion(String awsRegionName) {
+        try {
+            return Regions.fromName(awsRegionName);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid aws_region: " + awsRegionName);
+        }
+        return null;
+    }
 
     public S3BitStoreService() {}
 
@@ -282,40 +323,25 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         try {
+            Supplier<? extends AWSCredentialsProvider> awsCredentialsSupplier;
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
                 log.warn("Use local defined S3 credentials");
-                // region
-                Regions regions = Regions.DEFAULT_REGION;
-                if (StringUtils.isNotBlank(awsRegionName)) {
-                    try {
-                        regions = Regions.fromName(awsRegionName);
-                    } catch (IllegalArgumentException e) {
-                        log.warn("Invalid aws_region: " + awsRegionName);
-                    }
-                }
-                // init client
-                s3Service =
-                    FunctionalUtils.getDefaultOrBuild(
-                        this.s3Service,
-                        amazonClientBuilderBy(
-                            regions,
-                            getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey()),
-                            getClientConfiguration(maxConnections, connectionTimeout),
-                            endpoint
-                        )
-                    );
-                log.warn("S3 Region set to: " + regions.getName());
+                awsCredentialsSupplier = getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey());
             } else {
-                log.info("Using a IAM role or aws environment credentials");
-                s3Service =
-                    FunctionalUtils.getDefaultOrBuild(
-                        this.s3Service,
-                        amazonClientBuilderBy(
-                            getClientConfiguration(maxConnections, connectionTimeout),
-                            endpoint
-                        )
-                    );
+                log.info("Use an IAM role or aws environment credentials");
+                awsCredentialsSupplier = DefaultAWSCredentialsProviderChain::new;
             }
+            // init client
+            s3Service =
+                FunctionalUtils.getDefaultOrBuild(
+                    this.s3Service,
+                    amazonClientBuilderBy(
+                        this::getRegions,
+                        awsCredentialsSupplier,
+                        getClientConfiguration(maxConnections, connectionTimeout),
+                        endpoint
+                    )
+                );
 
             // bucket name
             if (StringUtils.isEmpty(bucketName)) {
@@ -341,12 +367,18 @@ public class S3BitStoreService extends BaseBitStoreService {
             log.error("Can't initialize this store!", e);
         }
 
-        log.info("AWS S3 Assetstore ready to go! bucket:" + bucketName);
-
         tm = FunctionalUtils.getDefaultOrBuild(tm, () -> TransferManagerBuilder.standard()
                                                                .withAlwaysCalculateMultipartMd5(true)
                                                                .withS3Client(s3Service)
                                                                .build());
+    }
+
+    protected Regions getRegions() {
+        // region
+        return Optional.ofNullable(awsRegionName)
+            .filter(StringUtils::isNotBlank)
+            .map(S3BitStoreService::parseRegion)
+            .orElseGet(S3BitStoreService::getDefaultRegion);
     }
 
     /**
