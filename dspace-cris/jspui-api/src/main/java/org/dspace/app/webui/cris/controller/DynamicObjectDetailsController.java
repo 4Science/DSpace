@@ -119,7 +119,7 @@ public class DynamicObjectDetailsController
         boolean isAdmin = CrisAuthorizeManager.isAdmin(context,dyn);
         boolean canEdit = isAdmin || CrisAuthorizeManager.canEdit(context, applicationService, EditTabDynamicObject.class, dyn);
         if ((dyn.getStatus() == null || dyn.getStatus().booleanValue() == false)
-                && !isAdmin)
+                && !canEdit)
         {
             
             if (currUser != null

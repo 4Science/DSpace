@@ -164,7 +164,7 @@ public class ResearcherPageDetailsController
 		boolean canEdit = isAdmin
 				|| CrisAuthorizeManager.canEdit(context, applicationService, EditTabResearcherPage.class, researcher);
         
-        if (isAdmin
+        if (canEdit
                 || (currUser != null && (researcher.getEpersonID() != null && currUser
                         .getID() == researcher.getEpersonID())))
         {
