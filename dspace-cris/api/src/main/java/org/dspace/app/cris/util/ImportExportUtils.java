@@ -303,12 +303,10 @@ public class ImportExportUtils {
 	private static <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>, ACO extends ACrisObject<P, TP, NP, NTP, ACNO, ATNO>> ACO getCrisObject(
 			ApplicationService applicationService, Class<ACO> objectTypeClass, ACO template, IBulkChange change, boolean status)
 			throws InstantiationException, IllegalAccessException {
-		String action = change.getAction();
 		String crisID = change.getCrisID();
 		String uuid = change.getUUID();
 		String sourceRef = change.getSourceRef();
 		String sourceId = change.getSourceID();
-		boolean buildAsNew = false;
 		
 		ACO crisObject = null;
 
@@ -321,65 +319,8 @@ public class ImportExportUtils {
 			crisObject = applicationService.getEntityBySourceId(sourceRef, sourceId, objectTypeClass);
 		}
 
-		// if action=create then we build the object, notify if already exist
-		if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_CREATE, action)) {
-			if (crisObject != null) {
-				log.warn("the object is already here... found a CREATE action on an existent entity, should we skip it?");
-			} else {
-				crisObject = internalCrisObjectBuilder(objectTypeClass,
-                        template);
-			}
-		} else if (!StringUtils.equalsIgnoreCase(IBulkChange.ACTION_DELETE, action)) {
-			// we create the new entity also in case of the main field are empty
-			// (except the delete and create signal)
-
-			if (StringUtils.isBlank(crisID) && StringUtils.isBlank(uuid) && StringUtils.isBlank(sourceRef)
-					&& StringUtils.isBlank(sourceId)) {
-				crisObject = internalCrisObjectBuilder(objectTypeClass,
-                        template);
-				buildAsNew = true;
-			} else {
-				if (crisObject != null) {
-					log.info("found a "+ action +" action on entity");
-				} else {
-					log.warn("the object is not found on database... found a "+ action +" action on an unexistent entity, should we skip it?");
-					crisObject = internalCrisObjectBuilder(objectTypeClass,
-                            template);
-					buildAsNew = true;
-				}
-			}
-		}
-
-		if (StringUtils.isNotBlank(crisID)) {
-			crisObject.setCrisID(crisID);
-		}
-
-		if (StringUtils.isNotBlank(uuid)) {
-			crisObject.setUuid(uuid);
-		}
-
-		if (StringUtils.isNotBlank(sourceRef)) {
-			crisObject.setSourceRef(sourceRef);
-		}
-		if (StringUtils.isNotBlank(sourceId)) {
-			crisObject.setSourceID(sourceId);
-		}
-		if (StringUtils.isNotBlank(action)) {
-			if (action.equalsIgnoreCase(IBulkChange.ACTION_HIDE)) {
-				crisObject.setStatus(false);
-			} else if (action.equalsIgnoreCase(IBulkChange.ACTION_SHOW)) {
-				crisObject.setStatus(true);
-			} else {
-			    if(buildAsNew) {
-			        crisObject.setStatus(status);
-			    }
-			}
-			
-			if (action.equalsIgnoreCase(IBulkChange.ACTION_CREATE) || buildAsNew) {
-                applicationService.saveOrUpdate(objectTypeClass, crisObject);
-            }
-		}
 		return crisObject;
+
 	}
 
     private static <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>, ACO extends ACrisObject<P, TP, NP, NTP, ACNO, ATNO>> ACO internalCrisObjectBuilder(
@@ -571,7 +512,6 @@ public class ImportExportUtils {
 		// foreach researcher element in xml
 		for (int i = 1; i <= bulkChanges.size(); i++) {
 			log.info("Number " + i + " of " + bulkChanges.size());
-			ACO crisObject = null;
 			try {
 				IBulkChange bulkChange = bulkChanges.getChanges(i);
                 String action = bulkChange.getAction();
@@ -580,52 +520,73 @@ public class ImportExportUtils {
                 String crisID = bulkChange.getCrisID();
                 String uuid = bulkChange.getUUID();
                 
-                boolean delete = false;
-                boolean update = false;
-                boolean actionStatus = false;
-                if (action.equalsIgnoreCase(IBulkChange.ACTION_DELETE))
-                {
-                        delete = true;
-                }
-                else
-                {
-                    if (action.equalsIgnoreCase(IBulkChange.ACTION_UPDATE))
-                    {
-                        update = true;
+                boolean CREATE = false;
+                boolean DELETE = false;
+                boolean UPDATE = false;
+                boolean HIDE = false;
+                boolean SHOW = false;
+                boolean modified = false;
+
+                if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_CREATE, action))
+                    CREATE = true;
+                if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_DELETE, action))
+                    DELETE = true;
+                if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_HIDE, action))
+                    HIDE = true;
+                if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_SHOW, action))
+                    SHOW = true;
+                if (StringUtils.equalsIgnoreCase(IBulkChange.ACTION_UPDATE, action))
+                    UPDATE = true;
+
+                if (bulkChange.isANestedBulkChange()) {
+                    importNested(applicationService, metadataNestedLevel, (IBulkChangeNested) bulkChange, UPDATE,
+                            crisObjectClazz, crisObjectNestedClazz, crisTypeObjectNestedClazz, format);
+                } else {
+                    log.info("Found action " + action + " on entity sourceRef: " + sourceRef + " sourceID: " + sourceId
+                            + " / crisID : " + crisID + " uuid: " + uuid);
+
+                    ACO crisObject = getCrisObject(applicationService, crisObjectClazz, template, bulkChange, status);
+                    
+                    // "fail-fast"
+                    if (CREATE && crisObject != null) {
+                        log.warn("Action " + action + " requires the object not to exist in the databse already, skipping!");
+                        rows_discarded++;
+                        continue;
                     }
-                    else {
-                        if (action.equalsIgnoreCase(IBulkChange.ACTION_SHOW) || action.equalsIgnoreCase(IBulkChange.ACTION_HIDE)) {
-                            actionStatus = true;
-                        }
+                    if ((DELETE || SHOW || HIDE) && crisObject == null) {
+                        log.warn("Action " + action + " requires a corresponding object in the database - none was found, skipping!");
+                        rows_discarded++;
+                        continue;
                     }
-                }
-                
-                if (bulkChange.isANestedBulkChange())
-                {
-                    importNested(applicationService, metadataNestedLevel, (IBulkChangeNested)bulkChange, update, crisObjectClazz, crisObjectNestedClazz, crisTypeObjectNestedClazz, format);
-                }
-                else
-                {
+                    
+                    if (crisObject == null) {
+                        if(!CREATE) log.warn("No matching object was found on the database, building new entity to apply action " + action + "!");
+                        crisObject = internalCrisObjectBuilder(crisObjectClazz, template);
+                        crisObject.setStatus(status);
+                        UPDATE = true;
+                    }
 
-                    ACrisObject<P, TP, NP, NTP, ACNO, ATNO> clone = null;
-                    // use dto to fill dynamic metadata
-                    AnagraficaObjectDTO dto = new AnagraficaObjectDTO();
-                    AnagraficaObjectDTO clonedto = new AnagraficaObjectDTO();
+                    if (StringUtils.isNotBlank(crisID)) {
+                        crisObject.setCrisID(crisID);
+                    }
+                    if (StringUtils.isNotBlank(uuid)) {
+                        crisObject.setUuid(uuid);
+                    }
+                    if (StringUtils.isNotBlank(sourceRef)) {
+                        crisObject.setSourceRef(sourceRef);
+                    }
+                    if (StringUtils.isNotBlank(sourceId)) {
+                        crisObject.setSourceID(sourceId);
+                    }
 
-                    log.info("Entity sourceRef: " + sourceRef + " sourceID: "
-                            + sourceId + " / crisID : " + crisID + " uuid: "
-                            + uuid);
-
-                    // if ACTION_CREATE then build object internally to the
-                    // getCrisObject (this need to the widgetfile to build the
-                    // correct path)
-                    crisObject = getCrisObject(applicationService,
-                            crisObjectClazz, template, bulkChange, status);
-
-                    if (delete)
-                    {
-                        for (IContainable metadataNested : metadataNestedLevel)
-                        {
+                    if (HIDE) {
+                        crisObject.setStatus(false);
+                        modified = true;
+                    } else if (SHOW) {
+                        crisObject.setStatus(true);
+                        modified = true;
+                    } else if (DELETE) {
+                        for (IContainable metadataNested : metadataNestedLevel)                        {
                             List<ACNO> toDelete = applicationService
                                     .getNestedObjectsByParentIDAndShortname(
                                             crisObject.getId(),
@@ -640,39 +601,36 @@ public class ImportExportUtils {
                         applicationService.delete(crisObjectClazz,
                                 crisObject.getId());
                     }
-                    else
-                    {
-                        clone = (ACrisObject<P, TP, NP, NTP, ACNO, ATNO>) crisObject
-                                .clone();
+
+                    if (UPDATE) {
+                        ACrisObject<P, TP, NP, NTP, ACNO, ATNO> clone = null;
+                        AnagraficaObjectDTO dto = new AnagraficaObjectDTO();
+                        AnagraficaObjectDTO clonedto = new AnagraficaObjectDTO();
+
+                        clone = (ACrisObject<P, TP, NP, NTP, ACNO, ATNO>) crisObject.clone();
                         dto.setParentId(crisObject.getId());
                         clonedto.setParentId(crisObject.getId());
 
                         AnagraficaUtils.fillDTO(dto, crisObject, realFillTPS);
 
-                        // one-shot fill and reverse to well-format clonedto and
-                        // clean
-                        // empty
-                        // data
                         AnagraficaUtils.fillDTO(clonedto, clone, realFillTPS);
 
-                        AnagraficaUtils.reverseDTO(clonedto, clone,
-                                realFillTPS);
+                        AnagraficaUtils.reverseDTO(clonedto, clone, realFillTPS);
 
                         AnagraficaUtils.fillDTO(clonedto, clone, realFillTPS);
-                        boolean toSaveOrUpdate = importDynA(applicationService, realFillTPS, bulkChange,
-                                dto, clonedto, update, format);
+                        modified = importDynA(applicationService, realFillTPS, bulkChange, dto, clonedto, true,
+                                format);
 
-                        importStructuralField(applicationService,
-                                structuralFillField, crisObject, bulkChange,
-                                update);
+                        importStructuralField(applicationService, structuralFillField, crisObject, bulkChange,
+                                true);
 
-                        AnagraficaUtils.reverseDTO(dto, crisObject,
-                                realFillTPS);
+                        AnagraficaUtils.reverseDTO(dto, crisObject, realFillTPS);
 
-                        if(toSaveOrUpdate || actionStatus) {
-                            applicationService.saveOrUpdate(crisObjectClazz,
-                                crisObject);
-                        }
+                    }
+
+                    if (modified || HIDE || SHOW) {
+                        applicationService.saveOrUpdate(crisObjectClazz,
+                            crisObject);
                     }
                     
                     log.info("Import entity: CRISID: " + crisObject.getCrisID() + " SOURCEID/SOURCEREF: "
