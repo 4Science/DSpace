@@ -68,7 +68,7 @@ public class ReferCrosswalk extends SelfNamedPlugin
 
 	private static Logger log = Logger.getLogger(ReferCrosswalk.class);
 
-    private List<TemplateLine> template = new ArrayList<TemplateLine>();
+	private List<TemplateLine> template = new ArrayList<TemplateLine>();
     
     private boolean initialized = false;
 
@@ -142,6 +142,8 @@ public class ReferCrosswalk extends SelfNamedPlugin
 		}
 		fieldCache.put("formAlias", aliasForm);
         
+        List<String> outLines = new ArrayList<String>();
+
         for (TemplateLine line : template)
         {
             if (line.mdField != null)
@@ -176,11 +178,10 @@ public class ReferCrosswalk extends SelfNamedPlugin
 							if (dvalue == null) {
 								continue;
 							}
-							
-							writer.write(line.beforeField);
-							writer.write(dvalue);
-                            writer.write(line.afterField);
-                            writer.newLine();
+
+							dvalue = dvalue.trim();
+
+							outLines.add(line.beforeField + dvalue + line.afterField);
                         }
                     }
                 }
@@ -204,22 +205,42 @@ public class ReferCrosswalk extends SelfNamedPlugin
 							if (dcValue == null) {
 								continue;
 							}
-							
-							writer.write(line.beforeField);
-							writer.write(dcValue);
-                            writer.write(line.afterField);
-                            writer.newLine();
+
+							dcValue = dcValue.trim();
+
+							outLines.add(line.beforeField + dcValue + line.afterField);
                         }
                     }
                 }
             }
             else if (line.beforeField != null)
             {
-                writer.write(line.beforeField);
-                writer.newLine();
+            	outLines.add(line.beforeField);
             }
         }
-        
+
+        /* Replace "@,@" by ",", except for the final "@,@", which is removed. */
+        boolean sawLastComma = false;
+        for (int i = outLines.size()-1; i >= 0; i--)
+        {
+        	String line = outLines.get(i);
+        	while (true) {
+        		int index = line.lastIndexOf("@,@");
+        		if (index == -1)
+        			break;
+        		String repl = sawLastComma ? "," : "";
+        		line = line.substring(0, index) + repl + line.substring(index + "@,@".length(), line.length());
+        		sawLastComma = true;
+        	}
+        	outLines.set(i, line);
+        }
+
+        for (String line : outLines)
+        {
+        	writer.write(line);
+        	writer.newLine();
+        }
+
         writer.flush();
     }
 
