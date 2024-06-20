@@ -49,6 +49,7 @@
                 <value>scopus</value>
                 <value>researcherid</value>
                 <value>mailto</value>
+                <value>ror</value>
             </list>
         </constructor-arg>
     </bean>
