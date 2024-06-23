@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.dspace.content.edit.service.impl.AssociateItemServiceImpl"/>
+
+    <bean class="org.dspace.content.edit.service.impl.AssociateItemModeServiceImpl">
+        <property name="associateModesMap">
+            <map>
+                <entry key="project">
+                    <list>
+                        <bean class="org.dspace.content.edit.AssociateItemMode">
+                            <property name="name" value="PROJECTPUBLICATION" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    CUSTOM
+                                </value>
+                            </property>
+                            <property name="items">
+                                <list>
+                                    <value>crispj.investigator</value>
+                                </list>
+                            </property>
+                            <!-- discovery index configuration that is shown on the associate-item-page -->
+                            <property name="discovery" value="researchoutputs" />
+                            <!-- metadatafield where the metadata is being created . It must be authority controlled -->
+                            <property name="metadatafield" value="dc.relation.project" />
+                            <!-- additional check for entity types. discovery indexes might display multiple types and the authority might only support one type -->
+                            <property name="itemTypeSource" value="Publication" />
+                            <property name="itemTypeTarget" value="Project" />
+                            <!-- disable the authorization at the item where the metadata is being created. -->
+                            <property name="disableAuthSource" value="true" />
+                            <!-- additional conditions can be specified which must be fulfilled on the source and/or target item, when some associateitem request is made -->
+                            <!--
+                            <property name="conditionSource" value-ref="" />
+                            <property name="conditionTarget" value-ref="" />
+                            -->
+                        </bean>
+
+
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+</beans>
