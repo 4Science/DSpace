@@ -125,6 +125,18 @@ public interface DOIService {
     public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses) throws SQLException;
 
     /**
+     * Find all DOIs that have one of a given set of statuses.
+     * @param  context      current DSpace session.
+     * @param  statuses     desired statuses.
+     * @param  offset       offset value
+     * @param  limit        limited number of items
+     * @return              all DOIs having any of the given statuses.
+     * @throws SQLException passed through.
+     */
+    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int offset, int limit)
+        throws SQLException;
+
+    /**
      * Find all DOIs that are similar to the specified pattern and not in the
      * specified states.
      *

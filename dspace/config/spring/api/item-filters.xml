@@ -408,4 +408,20 @@
         </property>
     </bean>
 
+    <!-- The following is an example on how to configure a collection filter used to check if item belong to the given
+         collection(s). This could be used for example while configuring the edititem modes to set a specific mode
+         whether the item belong to a specific collection
+     -->
+<!--    <bean id="in-collection_condition" class="org.dspace.content.logic.InCollectionFilter">
+        <property name="parameters">
+            <map>
+                <entry key="collections">
+                    <list>
+                        <value>collection-handle</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>-->
+
 </beans>

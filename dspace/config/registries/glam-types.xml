@@ -783,13 +783,6 @@
 
     <dc-type>
         <schema>glam</schema>
-        <element>aggregation</element>
-        <qualifier>enabled</qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
         <element>relation</element>
         <qualifier>ispartof</qualifier>
         <scope_note></scope_note>
@@ -834,6 +827,27 @@
         <schema>glam</schema>
         <element>cms</element>
         <qualifier>organizational-structure</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>entity</element>
+        <qualifier>enabled</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>privacy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>subject</element>
+        <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 

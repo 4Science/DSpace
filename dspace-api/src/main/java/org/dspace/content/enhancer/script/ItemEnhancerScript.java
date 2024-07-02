@@ -31,6 +31,7 @@ import org.dspace.utils.DSpace;
  *
  */
 public class ItemEnhancerScript extends DSpaceRunnable<ItemEnhancerScriptConfiguration<ItemEnhancerScript>> {
+    private final int PAGE_SIZE = 20;
 
     private ItemService itemService;
 
@@ -57,7 +58,7 @@ public class ItemEnhancerScript extends DSpaceRunnable<ItemEnhancerScriptConfigu
 
         context.turnOffAuthorisationSystem();
         try {
-            enhanceItems();
+            enhanceItems(context);
             context.complete();
             handler.logInfo("Enhancement completed with success");
         } catch (Exception e) {
@@ -68,28 +69,30 @@ public class ItemEnhancerScript extends DSpaceRunnable<ItemEnhancerScriptConfigu
         }
     }
 
-    private void enhanceItems() {
-        findItemsToEnhance().forEachRemaining(this::enhanceItem);
+    private void enhanceItems(Context context) {
+        try {
+            int total = itemService.countArchivedItems(context);
+            for (int offset = 0; offset < total; offset += PAGE_SIZE) {
+                findItemsToEnhance(offset).forEachRemaining(this::enhanceItem);
+                context.commit();
+                context.clear();
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
     }
 
-    private Iterator<Item> findItemsToEnhance() {
+    private Iterator<Item> findItemsToEnhance(int offset) {
         try {
-            return itemService.findAll(context);
+            return itemService.findAll(context, PAGE_SIZE, offset);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
     }
 
     private void enhanceItem(Item item) {
-
-        if (force) {
-            itemEnhancerService.forceEnhancement(context, item);
-        } else {
-            itemEnhancerService.enhance(context, item);
-        }
-
+        itemEnhancerService.enhance(context, item, force);
         uncacheItem(item);
-
     }
 
     private void uncacheItem(Item item) {

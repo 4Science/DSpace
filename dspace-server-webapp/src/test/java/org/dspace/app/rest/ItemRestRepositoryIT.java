@@ -411,10 +411,13 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
         String token = getAuthToken(admin.getEmail(), password);
 
-        // We want to test that only and exclusively existing items are returned.
+        // We want to test that only and exclusively existing items are returned
+        // and each item is returned just one time
         getClient(token).perform(get("/api/core/items/search/findAllById")
                    .param("id",
                            publicItem1.getID().toString(),
+                           publicItem1.getID().toString(),
+                           UUID.randomUUID().toString(),
                            publicItem2.getID().toString(),
                            UUID.randomUUID().toString()
                            ))
@@ -4163,6 +4166,181 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     }
 
+    @Test
+    public void testDeletionOfProductToBeSynchronizedWithOrcid() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection profileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Profiles")
+            .withEntityType("Person")
+            .build();
+
+        Collection productCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Products")
+            .withEntityType("Product")
+            .build();
+
+        EPerson firstOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner2@test.com")
+            .build();
+
+        EPerson secondOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner3@test.com")
+            .build();
+
+        EPerson thirdOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner1@test.com")
+            .build();
+
+        Item firstProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(firstOwner.getFullName(), firstOwner.getID().toString())
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", firstOwner)
+            .withOrcidSynchronizationProductsPreference(ALL)
+            .build();
+
+        Item secondProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(secondOwner.getFullName(), secondOwner.getID().toString())
+            .withOrcidIdentifier("4444-1111-2222-3333")
+            .withOrcidAccessToken("bb4d18a0-8d9a-40f1-b601-a417255c8d20", secondOwner)
+            .build();
+
+        Item thirdProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(thirdOwner.getFullName(), thirdOwner.getID().toString())
+            .withOrcidIdentifier("5555-1111-2222-3333")
+            .withOrcidAccessToken("cb4d18a0-8d9a-40f1-b601-a417255c8d20", thirdOwner)
+            .withOrcidSynchronizationProductsPreference(ALL)
+            .build();
+
+        Item product = ItemBuilder.createItem(context, productCollection)
+            .withTitle("Test product")
+
+            .build();
+
+        createOrcidQueue(context, firstProfile, product).build();
+        createOrcidQueue(context, secondProfile, product).build();
+
+        List<OrcidHistory> historyRecords = new ArrayList<>();
+        historyRecords.add(createOrcidHistory(context, firstProfile, product).build());
+        historyRecords.add(createOrcidHistory(context, firstProfile, product).withPutCode("12345").build());
+        historyRecords.add(createOrcidHistory(context, secondProfile, product).build());
+        historyRecords.add(createOrcidHistory(context, secondProfile, product).withPutCode("67891").build());
+        historyRecords.add(createOrcidHistory(context, thirdProfile, product).build());
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(delete("/api/core/items/" + product.getID()))
+            .andExpect(status().is(204));
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(1));
+        assertThat(orcidQueueRecords, hasItem(matches(firstProfile, null, "Product", "12345", DELETE)));
+
+        for (OrcidHistory historyRecord : historyRecords) {
+            historyRecord = context.reloadEntity(historyRecord);
+            assertThat(historyRecord, notNullValue());
+            assertThat(historyRecord.getEntity(), nullValue());
+        }
+
+    }
+
+    @Test
+    public void testDeletionOfPatentToBeSynchronizedWithOrcid() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection profileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Profiles")
+            .withEntityType("Person")
+            .build();
+
+        Collection patentCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Patents")
+            .withEntityType("Patent")
+            .build();
+
+        EPerson firstOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner2@test.com")
+            .build();
+
+        EPerson secondOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner3@test.com")
+            .build();
+
+        EPerson thirdOwner = EPersonBuilder.createEPerson(context)
+            .withEmail("owner1@test.com")
+            .build();
+
+        Item firstProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(firstOwner.getFullName(), firstOwner.getID().toString())
+            .withOrcidIdentifier("0000-1111-2222-3333")
+            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", firstOwner)
+            .withOrcidSynchronizationPatentsPreference(ALL)
+            .build();
+
+        Item secondProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(secondOwner.getFullName(), secondOwner.getID().toString())
+            .withOrcidIdentifier("4444-1111-2222-3333")
+            .withOrcidAccessToken("bb4d18a0-8d9a-40f1-b601-a417255c8d20", secondOwner)
+            .build();
+
+        Item thirdProfile = ItemBuilder.createItem(context, profileCollection)
+            .withTitle("Test User")
+            .withDspaceObjectOwner(thirdOwner.getFullName(), thirdOwner.getID().toString())
+            .withOrcidIdentifier("5555-1111-2222-3333")
+            .withOrcidAccessToken("cb4d18a0-8d9a-40f1-b601-a417255c8d20", thirdOwner)
+            .withOrcidSynchronizationPatentsPreference(ALL)
+            .build();
+
+        Item patent = ItemBuilder.createItem(context, patentCollection)
+            .withTitle("Test patent")
+            .build();
+
+        createOrcidQueue(context, firstProfile, patent).build();
+        createOrcidQueue(context, secondProfile, patent).build();
+
+        List<OrcidHistory> historyRecords = new ArrayList<>();
+        historyRecords.add(createOrcidHistory(context, firstProfile, patent).build());
+        historyRecords.add(createOrcidHistory(context, firstProfile, patent).withPutCode("12345").build());
+        historyRecords.add(createOrcidHistory(context, secondProfile, patent).build());
+        historyRecords.add(createOrcidHistory(context, secondProfile, patent).withPutCode("67891").build());
+        historyRecords.add(createOrcidHistory(context, thirdProfile, patent).build());
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token).perform(delete("/api/core/items/" + patent.getID()))
+            .andExpect(status().is(204));
+
+        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
+        assertThat(orcidQueueRecords, hasSize(1));
+        assertThat(orcidQueueRecords, hasItem(matches(firstProfile, null, "Patent", "12345", DELETE)));
+
+        for (OrcidHistory historyRecord : historyRecords) {
+            historyRecord = context.reloadEntity(historyRecord);
+            assertThat(historyRecord, notNullValue());
+            assertThat(historyRecord.getEntity(), nullValue());
+        }
+
+    }
+
     private void initPublicationAuthorsRelationships() throws SQLException {
         context.turnOffAuthorisationSystem();
 
@@ -4552,8 +4730,8 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             itemRest.setInArchive(true);
             itemRest.setDiscoverable(true);
             itemRest.setWithdrawn(false);
-            String token = getAuthToken(admin.getEmail(), password);
-            MvcResult mvcResult = getClient(token).perform(post("/api/core/items?owningCollection=" +
+            String adminToken = getAuthToken(admin.getEmail(), password);
+            MvcResult mvcResult = getClient(adminToken).perform(post("/api/core/items?owningCollection=" +
                             col1.getID().toString())
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
@@ -4569,12 +4747,25 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             itemRest.setHandle(itemHandleString);
             Group group = GroupBuilder.createGroup(context).build();
             configurationService.setProperty("edit.metadata.allowed-group", group.getID());
+            // add write rights to the user
+            ResourcePolicyBuilder.createResourcePolicy(context)
+                    .withUser(eperson)
+                    .withAction(WRITE)
+                    .withDspaceObject(itemService.find(context, UUID.fromString(itemUuidString)))
+                    .build();
+
             context.restoreAuthSystemState();
+            String token = getAuthToken(eperson.getEmail(), password);
             // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
             getClient(token).perform(put("/api/core/items/" + itemUuidString)
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
                     .andExpect(status().isForbidden());
+            // admins should still be able to use put
+            getClient(adminToken).perform(put("/api/core/items/" + itemUuidString)
+                            .content(mapper.writeValueAsBytes(itemRest))
+                            .contentType(contentType))
+                    .andExpect(status().isOk());
         } finally {
             ItemBuilder.deleteItem(UUID.fromString(itemUuidString));
         }
@@ -4635,7 +4826,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             context.restoreAuthSystemState();
             token = getAuthToken(eperson.getEmail(), password);
             configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-            // expect forbidden, the user is not part of the group set in property {{edit.metadata.allowed-group}}
+            // expect ok, the user is part of the group set in property {{edit.metadata.allowed-group}}
             getClient(token).perform(put("/api/core/items/" + itemUuidString)
                             .content(mapper.writeValueAsBytes(itemRest))
                             .contentType(contentType))
@@ -4907,7 +5098,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void patchItemMetadataWithUserPartOfGroupConfigured() throws Exception {
         context.turnOffAuthorisationSystem();
         // add admin person as member to the group
-        Group group = GroupBuilder.createGroup(context).addMember(admin).build();
+        Group group = GroupBuilder.createGroup(context).addMember(eperson).build();
         groupService.update(context, group);
         context.commit();
         // ** GIVEN **
@@ -4930,15 +5121,19 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
             .build();
         // add write permission to the user admin
         ResourcePolicyBuilder.createResourcePolicy(context)
-            .withUser(admin)
+            .withUser(eperson)
             .withAction(WRITE)
             .withDspaceObject(itemService.find(context, item.getID()))
             .build();
         context.restoreAuthSystemState();
         configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-        String token = getAuthToken(admin.getEmail(), password);
+        String token = getAuthToken(eperson.getEmail(), password);
         List<Operation> ops = new ArrayList<Operation>();
-        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        List<Map<String, String>> titleValue = new ArrayList<>();
+        Map value = new HashMap<String, String>();
+        value.put("value", "New title");
+        titleValue.add(value);
+        ReplaceOperation replaceOperation = new ReplaceOperation("/metadata/dc.title", titleValue);
         ops.add(replaceOperation);
         String patchBody = getPatchContent(ops);
         // withdraw item
@@ -4948,8 +5143,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid", Matchers.is(item.getID().toString())))
-                .andExpect(jsonPath("$.withdrawn", Matchers.is(true)))
-                .andExpect(jsonPath("$.inArchive", Matchers.is(false)));
+                .andExpect(jsonPath("$.metadata['dc.title'][0].value", Matchers.is("New title")));
     }
 
     @Test
@@ -4974,7 +5168,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .build();
         // add write rights to the user admin
         ResourcePolicyBuilder.createResourcePolicy(context)
-                .withUser(admin)
+                .withUser(eperson)
                 .withAction(WRITE)
                 .withDspaceObject(itemService.find(context, item.getID()))
                 .build();
@@ -4984,9 +5178,13 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.commit();
         context.restoreAuthSystemState();
         configurationService.setProperty("edit.metadata.allowed-group", group.getID());
-        String token = getAuthToken(admin.getEmail(), password);
+        String token = getAuthToken(eperson.getEmail(), password);
         List<Operation> ops = new ArrayList<Operation>();
-        ReplaceOperation replaceOperation = new ReplaceOperation("/withdrawn", true);
+        List<Map<String, String>> titleValue = new ArrayList<>();
+        Map value = new HashMap<String, String>();
+        value.put("value", "New title");
+        titleValue.add(value);
+        ReplaceOperation replaceOperation = new ReplaceOperation("/metadata/dc.title", titleValue);
         ops.add(replaceOperation);
         String patchBody = getPatchContent(ops);
         // withdraw item
@@ -4995,6 +5193,14 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .content(patchBody)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isForbidden());
+        token = getAuthToken(admin.getEmail(), password);
+        //expect ok as admin
+        getClient(token).perform(patch("/api/core/items/" + item.getID())
+                    .content(patchBody)
+                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid", Matchers.is(item.getID().toString())))
+                .andExpect(jsonPath("$.metadata['dc.title'][0].value", Matchers.is("New title")));
     }
 
     @Test
