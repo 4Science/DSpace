@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -48,6 +50,10 @@ public class OrcidAuthority extends ItemAuthority {
     public static final String DEFAULT_ORCID_KEY = "person_identifier_orcid";
 
     public static final String DEFAULT_INSTITUTION_KEY = "oairecerif_author_affiliation";
+
+    public static final String ORCID_REGEX = "\\d{4}-\\d{4}-\\d{4}-\\d{4}";
+
+    public static final Pattern ORCID_PATTERN = Pattern.compile(ORCID_REGEX);
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -92,6 +98,11 @@ public class OrcidAuthority extends ItemAuthority {
     }
 
     private String formatQuery(String text) {
+        text = text.trim();
+        Matcher matcher = ORCID_PATTERN.matcher(text);
+        if (matcher.matches()) {
+            return format("(orcid:%s)", text);
+        }
         return Arrays.stream(replaceCommaWithSpace(text).split(" "))
             .map(name -> format("(given-names:%s+OR+family-name:%s+OR+other-names:%s)", name, name, name))
             .collect(Collectors.joining("+AND+"));
