@@ -1059,4 +1059,107 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>wikipedialabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>otherbibliographiclabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>dbilabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>link</element>
+        <qualifier>geonameslabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>viaflabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>dbpedialabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>eilabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamevent</schema>
+        <element>theatre</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>printer</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>typographer</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>abbreviation</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misa</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misl</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misu</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
