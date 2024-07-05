@@ -1,0 +1,61 @@
+GLAM 5 Metadata,GLAM 7 Metadata,Entity
+dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication, Coins, Drawings"
+dc.relation.conference,dc.relation.event,AudioVideo
+dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
+dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial, Publication, MusicalLibrettos, Books_Amargine, Drawings"
+dc.subject,glam.subject,"Artwork, Coins, Picture, Drawings"
+dc.relation.url,dc.relation.otherlinks,"Artwork, Coins, ScientificMaterial, Drawings"
+dc.source.content,dc.description.abstract,ArchivalMaterial
+dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, ScientificMaterial"
+dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coins, ScientificMaterial, Drawings"
+dc.relation.bibliographyplace,glam.bibliography.place,"ArchivalMaterial, Picture, Coins, ScientificMaterial, Drawings"
+dc.relation.bibliographypublisher,glam.bibliography.publisher,"ArchivalMaterial, Picture, Coins, ScientificMaterial, Drawings"
+dc.relation.bibliographyeditor,glam.bibliography.editor,"ArchivalMaterial, Drawings"
+dc.relation.bibliographyauthors,glam.bibliography.author,"ArchivalMaterial, Picture, Coins, ScientificMaterial, Drawings"
+dc.relation.bibliographyabbreviation,glam.bibliography.abbreviation,ArchivalMaterial
+dc.description,dc.description.note,"MusicalLibrettos, Publication, Books_Amargine"
+dc.title.integration,glampicture.type.framing,Picture
+dc.relation.ispartof,dc.relation.ispartofcontainer,Picture
+dc.relation.inscriptionclass,glam.inscription.class,"Picture, ScientificMaterial, Drawings"
+dc.relation.inscriptionclanguage,glam.inscription.language,"Picture, ScientificMaterial, Drawings"
+dc.relation.inscriptiontechnique,glam.inscription.technique,"Picture, ScientificMaterial, Drawings"
+dc.relation.inscriptionfont,glam.inscription.font,"Picture, ScientificMaterial, Drawings"
+dc.relation.inscriptionposition,glam.inscription.position,"Picture, ScientificMaterial, Drawings"
+dc.relation.inscriptiontranscription,glam.inscription,"Picture, ScientificMaterial, Drawings"
+dc.relation.markclass,glam.mark.class,"Picture, Drawings"
+dc.relation.markquantity,glam.mark.quantity,"Picture, Drawings"
+dc.relation.markqualification,glam.mark.qualification,"Picture, Drawings"
+dc.relation.markidentification,glam.mark.identification,"Picture, Drawings"
+dc.relation.markposition,glam.mark.position,"Picture, Drawings"
+dc.relation.markdescription,glam.mark,"Picture, Drawings"
+dc.relation.bibliographytype,glam.bibliography.type,"Picture, Coins, ScientificMaterial"
+dc.coverage.culture,glam.culture,Coins
+dc.relation.mint,glamcoin.mint,Coins
+dc.contributor.issuingauthority,glamcoin.issuingauthority,Coins
+dc.format.misd,glam.misd,"Coins, ScientificMaterial"
+dc.format.misg,glam.misg,"Coins, ScientificMaterial"
+dc.format.mintingaxis,glamcoin.mintingaxis,Coins
+dc.description.obverse,glamcoin.obverse,Coins
+dc.description.reverse,glamcoin.reverse,Coins
+dc.description.obverselegend,glamcoin.obverselegend,Coins
+dc.description.reverselegend,glamcoin.reverselegend,Coins
+dc.subject,glam.subject,Coins
+dc.relation.bibliography,dc.relation.bibliographytitle,Coins
+dc.subject,dc.subject.classification,ScientificMaterial
+dc.subject.keywords,dc.subject,"ScientificMaterial, Picture "
+dc.format.misn,glam.misn,ScientificMaterial
+dc.format.misp,glam.misp,ScientificMaterial
+dc.format.miss,glam.miss,ScientificMaterial
+dc.format.misc,glam.misc,ScientificMaterial
+dc.format.misw,glam.misw,ScientificMaterial
+dc.format.misb,glam.misb,ScientificMaterial
+dc.format.misi,glam.misi,ScientificMaterial
+dc.identifier.archivalunit,glamfonds.index,"ArchivalMaterial, Picture, Publication, MusicalLibrettos, Coins, ScientificMaterial"
+dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
+dc.relation.references,dc.relation.isreferencedby,"ArchivalMaterial, ScientificMaterial"
+dc.relation.url ,dc.relation.uri,ArchivalMaterial
+dc.printer,glam.printer,Publication
+dc.typographer,glam.typographer,Publication
+dc.format.misu,glam.misu,ScientificMaterial
+dc.format.misa,glam.misa,ScientificMaterial
+dc.format.misl,glam.misl,ScientificMaterial

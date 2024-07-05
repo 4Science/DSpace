@@ -48,9 +48,26 @@ public class MigrateConnectionManager {
         // RP
         ResultSet rs = stmt.executeQuery();
         String[] result = new String[2];
+        int i = 0;
         while (rs.next()) {
+            i++;
             result[0] = rs.getString("crisid");
             result[1] = rs.getString("metadata_value");
+        }
+
+        if (i == 0) {
+            //  directly get crisid if it has no no name
+            stmt = connection
+                    .prepareStatement(sqlReader("get_pointer_noname.sql"));
+            stmt.setString(1, pointerType);
+            stmt.setLong(2, pointerId);
+            rs = stmt.executeQuery();
+            result = new String[2];
+            while (rs.next()) {
+                i++;
+                result[0] = rs.getString("crisid");
+                result[1] = result[0];
+            }
         }
 
         rs.close();

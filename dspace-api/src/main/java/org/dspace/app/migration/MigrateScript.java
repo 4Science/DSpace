@@ -172,7 +172,6 @@ public class MigrateScript extends DSpaceRunnable<MigrateScriptConfiguration<Mig
                 try {
                     doMigrate(DO_CSV, doEntity, doTypes.get(doEntity));
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             });
@@ -301,9 +300,11 @@ public class MigrateScript extends DSpaceRunnable<MigrateScriptConfiguration<Mig
                 createImpMetadatavalue(context, impRecord, "cris", "legacyId",
                     null, "", crisId,
                     Integer.parseInt(metadataVisibility.get(visibility)), null, 0);
-                createImpMetadatavalue(context, impRecord, "cris", "sourceId",
-                    null, "", record.get("sourceref") + "::" + record.get("sourceid"),
-                    Integer.parseInt(metadataVisibility.get(visibility)), null, 0);
+                if (StringUtils.isNotBlank(record.get("sourceref")) || StringUtils.isNotBlank(record.get("sourceid"))) {
+                    createImpMetadatavalue(context, impRecord, "cris", "sourceId",
+                            null, "", record.get("sourceref") + "::" + record.get("sourceid"),
+                            Integer.parseInt(metadataVisibility.get(visibility)), null, 0);
+                }
             }
             if ("-1".equals(nestedObjectId)) {
                 if (!"-1".equals(lastNestedObjectId)) {
@@ -632,7 +633,7 @@ public class MigrateScript extends DSpaceRunnable<MigrateScriptConfiguration<Mig
 
     private void addEntityMetadataMap(String entityType, String oldCrisField, String newMetadata, String language,
         String defaultValue) {
-        if (StringUtils.isBlank(entityType)) {
+        if (StringUtils.isBlank(entityType) || StringUtils.isBlank(oldCrisField)) {
             return;
         }
         if (!entityMetadataMap.containsKey(entityType)) {
