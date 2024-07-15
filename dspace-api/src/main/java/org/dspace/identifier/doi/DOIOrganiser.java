@@ -670,6 +670,9 @@ public class DOIOrganiser {
                                                 + DOI.SCHEME + doiRow.getDoi() + "!", ex);
         } catch (SQLException ex) {
             LOG.error("It wasn't possible to connect to the Database!", ex);
+        } catch (Exception ex) {
+            LOG.error("We hit an unexpected exception with the doi {} {}", doiRow.getDoi(), ex.getMessage());
+            throw ex;
         }
     }
 
