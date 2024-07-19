@@ -18,6 +18,7 @@ public class CrisLayoutSliderComponent implements CrisLayoutSectionComponent {
     private String order;
     private int numberOfItems;
     private int maxNumberOfElements;
+    private int maxNumberOfVisiblePages;
 
     public void setStyle(String style) {
         this.style = style;
@@ -66,5 +67,14 @@ public class CrisLayoutSliderComponent implements CrisLayoutSectionComponent {
 
     public void setMaxNumberOfElements(int maxNumberOfElements) {
         this.maxNumberOfElements = maxNumberOfElements;
+    }
+
+    public int getMaxNumberOfVisiblePages() {
+        return maxNumberOfVisiblePages;
+    }
+
+
+    public void setMaxNumberOfVisiblePages(int maxNumberOfVisiblePages) {
+        this.maxNumberOfVisiblePages = maxNumberOfVisiblePages;
     }
 }
