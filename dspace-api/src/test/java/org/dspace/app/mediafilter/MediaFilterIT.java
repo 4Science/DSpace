@@ -113,6 +113,10 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
                 .build();
         item2_1_a = ItemBuilder.createItem(context, col2_1).withTitle("Item 2_1_a").withIssueDate("2017-10-17").build();
         item2_1_b = ItemBuilder.createItem(context, col2_1).withTitle("Item 2_1_b").withIssueDate("2017-10-17").build();
+        pdfItem = ItemBuilder.createItem(context, col1_1)
+                .withTitle("PDF Item").withIssueDate("2024-07-22").build();
+        encryptedPdfItem = ItemBuilder.createItem(context, col1_1)
+                .withTitle("Encrypted PDF Item").withIssueDate("2024-07-22").build();
         addBitstream(item1_1_a, "test.csv");
         addBitstream(item1_1_b, "test.txt");
         addBitstream(item1_2_a, "test.csv");
@@ -127,15 +131,8 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
         addBitstream(item1_2_2_b, "test.txt");
         addBitstream(item2_1_a, "test.csv");
         addBitstream(item2_1_b, "test.txt");
-
-        pdfItem = ItemBuilder.createItem(context, col1_1)
-                .withTitle("PDF Item").withIssueDate("2024-07-22").build();
         addBitstream(pdfItem, "test.pdf");
-
-        encryptedPdfItem = ItemBuilder.createItem(context, col1_1)
-                        .withTitle("Encrypted PDF Item").withIssueDate("2024-07-22").build();
         addBitstream(encryptedPdfItem, "test_encrypted.pdf");
-
         context.restoreAuthSystemState();
     }
 
@@ -216,8 +213,55 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private void checkItemHasBeenProcessed(Item item) throws IOException, SQLException, AuthorizeException {
-        String expectedFileName = StringUtils.endsWith(item.getName(), "_a") ? "test.csv.txt" : "test.txt.txt";
-        String expectedContent = StringUtils.endsWith(item.getName(), "_a") ? "data3,3" : "quick brown fox";
+        String expectedFileName;
+        String expectedContent;
+
+        if (item.getName().contains("Encrypted PDF")) {
+            checkItemHasBeenNotProcessed(item);
+            return;
+        }
+
+        if (item.getName().contains("PDF")) {
+            expectedFileName = "test.pdf.txt";
+            expectedContent = "\n" +
+                    "A Text Extraction Test Document \n" +
+                    "for \n" +
+                    "\n" +
+                    "DSpace \n" +
+                    "\n" +
+                    " \n" +
+                    "This is a text.  For the next sixty seconds this software will conduct " +
+                    "a test of the DSpace text extraction \n" +
+                    "\n" +
+                    "facility.  This is only a text. \n" +
+                    "\n" +
+                    " \n" +
+                    "\n" +
+                    "This is a paragraph that followed the first that lived in the document that Jack built. \n" +
+                    "\n" +
+                    " \n" +
+                    "\n" +
+                    "Lorem ipsum dolor sit amet.  The quick brown fox jumped over the lazy dog. " +
+                    " Yow! Are we having fun \n" +
+                    "\n" +
+                    "yet? \n" +
+                    "\n" +
+                    " \n" +
+                    "\n" +
+                    "This has been a test of the DSpace text extraction system. " +
+                    " In the event of actual content you would \n" +
+                    "\n" +
+                    "care what is written here.1 \n" +
+                    "\n" +
+                    " \n" +
+                    "1 Tip o’ the hat to the U.S. Emergency Broadcast System for the format that " +
+                    "I have irreverently borrowed. \n" +
+                    "\n" +
+                    "\n";
+        } else {
+            expectedFileName = StringUtils.endsWith(item.getName(), "_a") ? "test.csv.txt" : "test.txt.txt";
+            expectedContent = StringUtils.endsWith(item.getName(), "_a") ? "data3,3" : "quick brown fox";
+        }
         List<Bundle> textBundles = item.getBundles("TEXT");
         assertTrue("The item " + item.getName() + " has NOT the TEXT bundle", textBundles.size() == 1);
         List<Bitstream> bitstreams = textBundles.get(0).getBitstreams();
