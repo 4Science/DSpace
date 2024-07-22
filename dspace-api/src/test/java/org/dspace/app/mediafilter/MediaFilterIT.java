@@ -7,6 +7,7 @@
  */
 package org.dspace.app.mediafilter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -69,6 +70,8 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
     protected Item item1_2_2_b;
     protected Item item2_1_a;
     protected Item item2_1_b;
+    protected Item pdfItem;
+    protected Item encryptedPdfItem;
 
     @Before
     public void setup() throws IOException, SQLException, AuthorizeException {
@@ -124,6 +127,15 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
         addBitstream(item1_2_2_b, "test.txt");
         addBitstream(item2_1_a, "test.csv");
         addBitstream(item2_1_b, "test.txt");
+
+        pdfItem = ItemBuilder.createItem(context, col1_1)
+                .withTitle("PDF Item").withIssueDate("2024-07-22").build();
+        addBitstream(pdfItem, "test.pdf");
+
+        encryptedPdfItem = ItemBuilder.createItem(context, col1_1)
+                        .withTitle("Encrypted PDF Item").withIssueDate("2024-07-22").build();
+        addBitstream(encryptedPdfItem, "test_encrypted.pdf");
+
         context.restoreAuthSystemState();
     }
 
@@ -186,6 +198,18 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
         checkItemHasBeenProcessed(item1_2_2_b);
     }
 
+    @Test
+    public void testBrandedPreviewCreationForPdf() throws Exception {
+        performMediaFilterScript(pdfItem);
+        checkBrandedPreviewCreated(pdfItem);
+    }
+
+    @Test
+    public void testNoBrandedPreviewForEncryptedPdf() throws Exception {
+        performMediaFilterScript(encryptedPdfItem);
+        checkNoBrandedPreviewCreated(encryptedPdfItem);
+    }
+
     private void checkItemHasBeenNotProcessed(Item item) throws IOException, SQLException, AuthorizeException {
         List<Bundle> textBundles = item.getBundles("TEXT");
         assertTrue("The item " + item.getName() + " should NOT have the TEXT bundle", textBundles.size() == 0);
@@ -203,6 +227,23 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
                 StringUtils.equals(bitstreams.get(0).getName(), expectedFileName));
         assertTrue("The text bistream in the " + item.getName() + " doesn't contain the proper content ["
                 + expectedContent + "]", StringUtils.contains(getContent(bitstreams.get(0)), expectedContent));
+    }
+
+    private void checkBrandedPreviewCreated(Item item) throws IOException, SQLException, AuthorizeException {
+        List<Bundle> brandedPreviewBundles = item.getBundles("BRANDED_PREVIEW");
+        assertEquals("The item " + item.getName() + " has NOT the BRANDED_PREVIEW bundle",
+                1, brandedPreviewBundles.size());
+        List<Bitstream> bitstreams = brandedPreviewBundles.get(0).getBitstreams();
+        assertEquals("The item " + item.getName() + " has NOT exactly 1 bitstream in the BRANDED_PREVIEW bundle",
+                1, bitstreams.size());
+        assertTrue("The branded preview bitstream in the " + item.getName() + " is NOT named properly",
+                bitstreams.get(0).getName().endsWith(".preview.jpg"));
+    }
+
+    private void checkNoBrandedPreviewCreated(Item item) throws IOException, SQLException, AuthorizeException {
+        List<Bundle> brandedPreviewBundles = item.getBundles("BRANDED_PREVIEW");
+        assertEquals("The item " + item.getName() + " should NOT have the BRANDED_PREVIEW bundle",
+                0, brandedPreviewBundles.size());
     }
 
     private CharSequence getContent(Bitstream bitstream) throws IOException, SQLException, AuthorizeException {
@@ -232,6 +273,7 @@ public class MediaFilterIT extends AbstractIntegrationTestWithDatabase {
         item1_2_2_b = context.reloadEntity(item1_2_2_b);
         item2_1_a = context.reloadEntity(item2_1_a);
         item2_1_b = context.reloadEntity(item2_1_b);
-
+        pdfItem = context.reloadEntity(pdfItem);
+        encryptedPdfItem = context.reloadEntity(encryptedPdfItem);
     }
 }
