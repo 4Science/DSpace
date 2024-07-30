@@ -61,15 +61,16 @@
         <jersey.version>2.35</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addon-iiif.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
-        <addon-ocr.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
-        <addon-video.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-video.version>
-        <addon-docviewer.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-docviewer.version>
-        <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
-        <addon-dataquality.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-dataquality.version>
-        <addon-networklab.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-networklab.version>
-        <addon-orchestrator.version>[CRIS-2023.02-SNAPSHOT,CRIS-2023.03-SNAPSHOT)</addon-orchestrator.version>
-		<addon-loginmiur.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-loginmiur.version>
+        <addons.version>cris-2023.02.05</addons.version>
+        <addon-iiif.version>${addons.version}</addon-iiif.version>
+        <addon-ocr.version>${addons.version}</addon-ocr.version>
+        <addon-video.version>${addons.version}</addon-video.version>
+        <addon-docviewer.version>${addons.version}</addon-docviewer.version>
+        <addon-analytics.version>${addons.version}</addon-analytics.version>
+        <addon-dataquality.version>${addons.version}</addon-dataquality.version>
+        <addon-networklab.version>${addons.version}</addon-networklab.version>
+        <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
+        <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
         
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -502,6 +503,9 @@
                             </includes>
                             <excludes>
                                 <exclude>**/target/**</exclude>
+                                <exclude>.idea/**</exclude>
+                                <exclude>.settings/**</exclude>
+                                <exclude>.github/**</exclude>
                             </excludes>
                         </validationSet>
                     </validationSets>
@@ -1279,12 +1283,6 @@
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <version>cris-2024.01.00-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.dspace</groupId>
-                <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2024.01.00-SNAPSHOT</version>
-                <type>war</type>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>

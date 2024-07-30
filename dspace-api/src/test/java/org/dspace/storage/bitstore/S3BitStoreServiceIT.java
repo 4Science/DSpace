@@ -7,7 +7,6 @@
  */
 package org.dspace.storage.bitstore;
 
-import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.dspace.storage.bitstore.S3BitStoreService.CSA;
 import static org.dspace.storage.bitstore.S3BitStoreService.getAwsCredentialsSupplier;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
@@ -406,7 +406,7 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
 
     private AmazonS3 createAmazonS3Client(String endpoint) {
         return S3BitStoreService.amazonClientBuilderBy(
-            DEFAULT_REGION,
+            () -> Regions.DEFAULT_REGION,
             getAwsCredentialsSupplier(new AnonymousAWSCredentials()),
             getClientConfiguration(MAX_CONNECTIONS, CONNECTION_TIMEOUT),
             endpoint

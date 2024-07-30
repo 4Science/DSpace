@@ -49,6 +49,7 @@
                 <value>scopus</value>
                 <value>researcherid</value>
                 <value>mailto</value>
+                <value>ror</value>
             </list>
         </constructor-arg>
     </bean>
@@ -73,6 +74,12 @@
                 <value>email</value>
             </list>
         </constructor-arg>
+    </bean>
+
+    <bean id="authorityLinkRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="authoritylink"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
     <bean id="longtextRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
@@ -129,6 +136,18 @@
     <bean id="openStreetMapRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="openstreetmap"/>
         <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="googleMapsGroupRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="googlemaps-group"/>
+        <property name="fieldType" value="METADATAGROUP"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="openStreetMapGroupRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="openstreetmap-group"/>
+        <property name="fieldType" value="METADATAGROUP"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 

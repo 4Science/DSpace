@@ -131,7 +131,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.@context", is("http://iiif.io/api/presentation/2/context.json")))
                 .andExpect(jsonPath("$.service.profile", is("http://iiif.io/api/search/0/search")))
-                .andExpect(jsonPath("$.thumbnail.@id", containsString("/iiif/2/"
+                .andExpect(jsonPath("$.thumbnail.@id", containsString("/iiif-server/"
                         + bitstream1.getID())))
                 .andExpect(jsonPath("$.metadata[0].label", is("Title")))
                 .andExpect(jsonPath("$.metadata[0].value", is("Public item 1")))

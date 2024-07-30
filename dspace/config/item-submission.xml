@@ -201,10 +201,20 @@
       <type>correction</type>
       <scope visibilityOutside="hidden">workflow</scope>
     </step-definition>
+    <step-definition id="identifiers" mandatory="true">
+      <heading>submit.progressbar.identifiers</heading>
+      <processing-class>org.dspace.app.rest.submit.step.ShowIdentifiersStep</processing-class>
+      <type>identifiers</type>
+    </step-definition>
     <step-definition id="unpaywall" mandatory="false">
       <heading>submit.progressbar.unpaywall</heading>
       <processing-class>org.dspace.app.rest.submit.step.UnpaywallStep</processing-class>
       <type>unpaywall</type>
+    </step-definition>
+    <step-definition id="external-upload" mandatory="false">
+      <heading>submit.progressbar.external-upload</heading>
+      <processing-class>org.dspace.app.rest.submit.step.ExternalUploadStep</processing-class>
+      <type>external-upload</type>
     </step-definition>
   </step-definitions>
   <submission-definitions>
@@ -217,6 +227,7 @@
       <step id="detect-duplicate" />
       <step id="upload" />
       <step id="cclicense" />
+      <step id="identifiers" />
       <step id="license" />
     </submission-process>
     <submission-process name="product-edit">
@@ -270,6 +281,7 @@
       <step id="publication_references" />
       <step id="correction" />
       <step id="detect-duplicate" />
+      <step id="external-upload" />
       <step id="unpaywall" />
       <step id="upload" />
       <step id="license" />

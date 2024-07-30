@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
@@ -1980,7 +1979,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void placeholderFieldMustBeReplacedWithEmptyStringTest() throws Exception {
+    public void placeholderFieldMustBeIgnoredTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         Item patent = ItemBuilder.createItem(context, collection)
@@ -1997,8 +1996,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         String json = out.toString();
         JSONObject obj = new JSONObject(json);
-        assertTrue(obj.has("title"));
-        assertTrue(StringUtils.equals(obj.getString("title"), StringUtils.EMPTY));
+        assertFalse(obj.has("title"));
     }
 
     @Test
@@ -2550,6 +2548,65 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testReferCrosswalkPublicationDataciteXml() throws Exception {
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        Item orgunit = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("OrgUnit Name")
+                .withOrgUnitRORIdentifier("rorID")
+                .build();
+        Item publisher = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("Publisher Name")
+                .withOrgUnitRORIdentifier("rorID2")
+                .build();
+
+        Item author = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Author, Name")
+                .withAffiliation("OrgUnit", orgunit.getID().toString())
+                .withOrcidIdentifier("1234-5678-9012")
+                .build();
+        Item author2 = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Author2, Name")
+                .withAffiliation("OrgUnit", orgunit.getID().toString())
+                .withOrcidIdentifier("9876-5432-1012")
+                .build();
+        Item item = createItem(context, collection)
+            .withEntityType("Publication")
+            .withTitle("Publication title")
+            .withAuthor("Author, Name in Pub", author.getID().toString())
+            .withAuthorAffiliation("OrgUnit in pub", orgunit.getID().toString())
+            .withAuthor("External, Auth")
+            .withAuthorAffiliationPlaceholder()
+            .withAuthor("Author, Name in Pub", author2.getID().toString())
+            .withAuthorAffiliation("OrgUnit in pub2")
+            .withPublisher("Publisher", publisher.getID().toString())
+            .withIssueDate("2023")
+            .withDateAvailable("2023-10-20")
+            .withType("text::journal article::review article", "publication-coar-types:c_dcae04bc")
+            .withHandle("123456789/99999")
+            .build();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
+
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
+
+        try (FileInputStream fis = getFileInputStream("journal-article-datacite.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
+        }
+
+    }
+
+    @Test
     public void testExportToDataciteFormatItemWithThreeDOI() throws Exception {
         String prefix;
         prefix = this.configurationService.getProperty(CFG_PREFIX);
@@ -2859,6 +2916,9 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             resultLines.length, equalTo(expectedResultLines.length));
 
         for (int i = 0; i < resultLines.length; i++) {
+            if (expectedResultLines[i].contains("SKIP-IN-COMPARING")) {
+                continue;
+            }
             assertThat(removeTabs(resultLines[i]), equalTo(removeTabs(expectedResultLines[i])));
         }
     }

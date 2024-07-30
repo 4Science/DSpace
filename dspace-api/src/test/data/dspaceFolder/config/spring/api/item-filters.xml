@@ -11,11 +11,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 >
     <!--   default-autowire-candidates="*Service,*DAO,javax.sql.DataSource"> -->
 
@@ -367,4 +366,50 @@
         </property>
     </bean>
 
+    <bean id="collectionCond" class="org.dspace.content.logic.condition.InCollectionCondition">
+        <property name="parameters">
+            <map>
+                <entry key="collections">
+                    <list>
+                        <value>123456789/7520</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+    <bean id="belongsToColl" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement" ref="collectionCond"/>
+    </bean>
+
+
+    <bean id="communityCond" class="org.dspace.content.logic.condition.InCommunityCondition">
+        <property name="parameters">
+            <map>
+                <entry key="communities">
+                    <list>
+                        <value>123456789/9</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="belongsToComm" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement" ref="communityCond"/>
+    </bean>
+
+    <bean id="inCollectionHandleCondition" class="org.dspace.content.logic.condition.InHandlesCondition">
+        <constructor-arg name="handles">
+            <set>
+                <value>123456789/9000</value>
+            </set>
+        </constructor-arg>
+        <constructor-arg
+            name="handleSupplier"
+            value="#{T(org.dspace.content.logic.supplier.HandleSupplierFactory).getInstance().relatedCollectionHandleSupplier()}"
+        />
+    </bean>
+    <bean id="belongsToInHandleColl" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement" ref="inCollectionHandleCondition"/>
+    </bean>
 </beans>

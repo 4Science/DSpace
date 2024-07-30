@@ -254,6 +254,33 @@ public class UnpaywallServiceImplIT extends AbstractIntegrationTestWithDatabase 
         configurationService.setProperty("unpaywall.email", null);
     }
 
+    @Test
+    public void testInitUnpaywallCallNotFoundDoiWithSpaces()
+            throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+
+        UUID itemId = UUID.randomUUID();
+        String doi = "10 1504/ijmso 2012 048507 44";
+
+        context.turnOffAuthorisationSystem();
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        mockHttpClient(unpaywallService, httpClient);
+        CloseableHttpResponse response = mockResponse(Strings.EMPTY, SC_NOT_FOUND, "NOT_FOUND");
+        when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+        context.restoreAuthSystemState();
+
+        unpaywallService.initUnpaywallCall(context, doi, itemId);
+        assertTrue(isRequestInitialized(unpaywallService));
+        Thread.sleep(1000);
+
+        Optional<Unpaywall> unpaywall = unpaywallService.findUnpaywall(context, doi, itemId);
+        assertTrue(unpaywall.isPresent());
+        Assert.assertEquals(UnpaywallStatus.NOT_FOUND, unpaywall.get().getStatus());
+        Assert.assertNull(unpaywall.get().getJsonRecord());
+        verify(httpClient).execute(any());
+        configurationService.setProperty("unpaywall.email", null);
+    }
+
     private static CloseableHttpResponse mockResponse(String xmlExample, int statusCode, String reason) {
         BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
         basicHttpEntity.setChunked(true);
