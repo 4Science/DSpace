@@ -11,10 +11,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-3.0.xsd"
 >
     <!--   default-autowire-candidates="*Service,*DAO,javax.sql.DataSource"> -->
 
@@ -285,7 +288,7 @@
         </property>
     </bean>
 
-    <!-- An example of an OpenAIRE compliance filter based on the same rules in xoai.xml
+    <!-- An example of an Openaire compliance filter based on the same rules in xoai.xml
          some sub-statements are defined within this bean, and some are referenced from earlier definitions
     -->
     <bean id="openaire_filter" class="org.dspace.content.logic.DefaultFilter">
@@ -328,7 +331,7 @@
                                 </list>
                             </property>
                         </bean>
-                        <!-- AND the dc.relation is a valid OpenAIRE identifier
+                        <!-- AND the dc.relation is a valid Openaire identifier
                              (starts with "info:eu-repo/grantAgreement/") -->
                         <bean id="has-openaire-relation_condition"
                               class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
@@ -364,7 +367,7 @@
             </bean>
         </property>
     </bean>
-    
+
     <!-- dspace.entity.type is exactly Funding -->
     <bean id="relationship-type-equals-funding_condition" class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
         <property name="parameters">
@@ -374,7 +377,7 @@
             </map>
         </property>
     </bean>
-    
+
     <bean id="has-investigators-set_condition" class="org.dspace.content.logic.condition.RequiredMetadataCondition">
         <property name="parameters">
             <map>
@@ -382,7 +385,7 @@
             </map>
         </property>
     </bean>
-    
+
     <bean id="has-co-investigators-set_condition" class="org.dspace.content.logic.condition.RequiredMetadataCondition">
         <property name="parameters">
             <map>
@@ -390,7 +393,7 @@
             </map>
         </property>
     </bean>
-    
+
     <bean id="has-lead-organizations-set_condition" class="org.dspace.content.logic.condition.RequiredMetadataCondition">
         <property name="parameters">
             <map>
@@ -398,7 +401,7 @@
             </map>
         </property>
     </bean>
-    
+
     <bean id="has-lead-co-organizations-set_condition" class="org.dspace.content.logic.condition.RequiredMetadataCondition">
         <property name="parameters">
             <map>
@@ -426,4 +429,12 @@
         <property name="statement" ref="collectionCond"/>
     </bean>-->
 
+    <util:map id="ldnItemFilters" key-type="java.lang.String"
+              value-type="org.dspace.content.logic.LogicalStatement">
+        <entry key="item-is-public_condition" value-ref="item-is-public_condition"/>
+        <entry key="title-starts-with-pattern_condition" value-ref="title-starts-with-pattern_condition"/>
+        <entry key="type-equals-journal-article_condition" value-ref="type-equals-journal-article_condition"/>
+        <entry key="type-equals-dataset_condition" value-ref="type-equals-dataset_condition"/>
+        <entry key="has-one-bitstream_condition" value-ref="has-one-bitstream_condition"/>
+    </util:map>
 </beans>

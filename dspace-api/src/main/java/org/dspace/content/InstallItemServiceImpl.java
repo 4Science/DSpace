@@ -151,7 +151,6 @@ public class InstallItemServiceImpl implements InstallItemService {
         return finishItem(c, item, is);
     }
 
-
     protected void populateMetadata(Context c, Item item)
         throws SQLException, AuthorizeException {
         // create accession date

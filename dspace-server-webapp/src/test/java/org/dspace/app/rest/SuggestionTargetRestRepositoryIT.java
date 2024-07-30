@@ -429,7 +429,7 @@ public class SuggestionTargetRestRepositoryIT extends AbstractControllerIntegrat
         SuggestionTarget targetFirstScopus = SuggestionTargetBuilder.createTarget(context, itemFirst)
                 .withSuggestionCount("scopus", 3).build();
         Item itemLast = ItemBuilder.createItem(context, colPeople).withTitle("Lombardi, Corrado")
-                .withDspaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
+                .withDSpaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
         SuggestionTarget targetLast = SuggestionTargetBuilder.createTarget(context, itemLast)
                 .withSuggestionCount("scopus", 2).build();
         context.restoreAuthSystemState();
@@ -547,7 +547,7 @@ public class SuggestionTargetRestRepositoryIT extends AbstractControllerIntegrat
         SuggestionTarget targetFirstScopus = SuggestionTargetBuilder.createTarget(context, itemFirst)
                 .withSuggestionCount("scopus", 3).build();
         Item itemLast = ItemBuilder.createItem(context, colPeople).withTitle("Lombardi, Corrado")
-                .withDspaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
+                .withDSpaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
         SuggestionTarget targetLast = SuggestionTargetBuilder.createTarget(context, itemLast)
                 .withSuggestionCount("scopus", 2).build();
         context.restoreAuthSystemState();
@@ -568,7 +568,7 @@ public class SuggestionTargetRestRepositoryIT extends AbstractControllerIntegrat
         SuggestionTarget targetFirstScopus = SuggestionTargetBuilder.createTarget(context, itemFirst)
                 .withSuggestionCount("scopus", 3).build();
         Item itemLast = ItemBuilder.createItem(context, colPeople).withTitle("Lombardi, Corrado")
-                .withDspaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
+                .withDSpaceObjectOwner(eperson.getFullName(), eperson.getID().toString()).build();
         SuggestionTarget targetLast = SuggestionTargetBuilder.createTarget(context, itemLast)
                 .withSuggestionCount("scopus", 2).build();
         EPerson anotherEPerson = EPersonBuilder.createEPerson(context).withEmail("another@example.com")

@@ -36,26 +36,31 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Autowired
-    private ApplicationContext context;
+    private PermissionEvaluator dSpacePermissionEvaluator;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private DefaultMethodSecurityExpressionHandler expressionHandler;
 
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {
         this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        this.expressionHandler.setApplicationContext(applicationContext);
         this.expressionHandler.setParameterNameDiscoverer(new LocalVariableTableParameterNameDiscoverer());
-        this.expressionHandler.setApplicationContext(context);
+        this.expressionHandler.setPermissionEvaluator(dSpacePermissionEvaluator);
         return expressionHandler;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
-        getSingleBean(PermissionEvaluator.class).ifPresent(this.expressionHandler::setPermissionEvaluator);
+        getSingleBean(PermissionEvaluator.class)
+            .ifPresent(((DefaultMethodSecurityExpressionHandler)this.expressionHandler)::setPermissionEvaluator);
     }
 
     private <T> Optional<T> getSingleBean(Class<T> type) {
         try {
-            return Optional.of(context.getBean(type));
+            return Optional.of(applicationContext.getBean(type));
         } catch (NoSuchBeanDefinitionException e) {
             return Optional.empty();
         }

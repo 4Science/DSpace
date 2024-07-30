@@ -20,6 +20,7 @@ public class LoginStatisticsRest extends BaseObjectRest<String> {
 
     public static final String NAME = "login";
     public static final String CATEGORY = RestModel.STATISTICS;
+    public static final String NAME_PLURAL = "logins";
 
     private String name;
 
@@ -54,6 +55,11 @@ public class LoginStatisticsRest extends BaseObjectRest<String> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
     }
 
     @Override

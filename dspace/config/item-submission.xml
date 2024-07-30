@@ -28,6 +28,14 @@
          If you are using that demo dataset, you can simply uncomment the below configuration to enable Entity
          submission into all of the above Collections.
     -->
+
+    <!-- Example of configuration using a community handle to map an Item Submission Process.
+
+    This configuration maps the submission process to the community's descendant
+    collections that do not have a mapping defined by collection-handle or entity-type
+
+    <name-map community-handle="123456789/1234" submission-name="xxxx"/>
+    -->
   </submission-map>
 
   <!-- The 'step-definitions' allows you to define steps which you may wish -->

@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 /**
  * Link repository for "subject" subresource of an audit event.
  */
-@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME + "." + AuditEventRest.SUBJECT)
+@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME_PLURAL + "." + AuditEventRest.SUBJECT)
 public class AuditEventSubjectLinkRepository extends AbstractDSpaceRestRepository
         implements LinkRestRepository {
 

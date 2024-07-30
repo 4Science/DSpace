@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 /**
  * Link repository for "eperson" subresource of an audit event.
  */
-@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME + "." + AuditEventRest.EPERSON)
+@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME_PLURAL + "." + AuditEventRest.EPERSON)
 public class AuditEventEPersonLinkRepository extends AbstractDSpaceRestRepository
         implements LinkRestRepository {
 

@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME + "." + CrisLayoutTabRest.SECURITY_METADATA)
+@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME_PLURAL + "." + CrisLayoutTabRest.SECURITY_METADATA)
 public class CrisLayoutTabMetadataLinkRepository extends AbstractDSpaceRestRepository
     implements LinkRestRepository {
 

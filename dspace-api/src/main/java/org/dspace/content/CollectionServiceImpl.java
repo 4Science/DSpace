@@ -222,7 +222,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
                                                                      "title", null);
         if (nameField == null) {
             throw new IllegalArgumentException(
-                    "Required metadata field '" + MetadataSchemaEnum.DC.getName() + ".title' doesn't exist!");
+                "Required metadata field '" + MetadataSchemaEnum.DC.getName() + ".title' doesn't exist!");
         }
 
         return collectionDAO.findAll(context, nameField, limit, offset);
@@ -611,7 +611,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public void removeTemplateItem(Context context, Collection collection)
-            throws SQLException, AuthorizeException, IOException {
+        throws SQLException, AuthorizeException, IOException {
         // Check authorisation
         AuthorizeUtil.authorizeManageTemplateItem(context, collection);
 
@@ -909,10 +909,15 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public Collection findByIdOrLegacyId(Context context, String id) throws SQLException {
-        if (StringUtils.isNumeric(id)) {
-            return findByLegacyId(context, Integer.parseInt(id));
-        } else {
-            return find(context, UUID.fromString(id));
+        try {
+            if (StringUtils.isNumeric(id)) {
+                return findByLegacyId(context, Integer.parseInt(id));
+            } else {
+                return find(context, UUID.fromString(id));
+            }
+        } catch (IllegalArgumentException e) {
+            // Not a valid legacy ID or valid UUID
+            return null;
         }
     }
 
@@ -964,6 +969,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);
         discoverQuery.setMaxResults(limit);
+        discoverQuery.setSortField(SOLR_SORT_FIELD, SORT_ORDER.asc);
         discoverQuery.setSortField(SOLR_SORT_FIELD, SORT_ORDER.asc);
         DiscoverResult resp = retrieveCollectionsWithSubmit(context, discoverQuery, entityType, community, q);
         for (IndexableObject solrCollections : resp.getIndexableObjects()) {
@@ -1059,6 +1065,61 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
+    public Collection retrieveCollectionWithSubmitByEntityType(Context context, Item item,
+        String entityType) throws SQLException {
+        Collection ownCollection = item.getOwningCollection();
+        return retrieveWithSubmitCollectionByEntityType(context, ownCollection.getCommunities(), entityType);
+    }
+
+    private Collection retrieveWithSubmitCollectionByEntityType(Context context, List<Community> communities,
+        String entityType) {
+
+        for (Community community : communities) {
+            Collection collection = retrieveCollectionWithSubmitByCommunityAndEntityType(context, community,
+                entityType);
+            if (collection != null) {
+                return collection;
+            }
+        }
+
+        for (Community community : communities) {
+            List<Community> parentCommunities = community.getParentCommunities();
+            Collection collection = retrieveWithSubmitCollectionByEntityType(context, parentCommunities, entityType);
+            if (collection != null) {
+                return collection;
+            }
+        }
+
+        return retrieveCollectionWithSubmitByCommunityAndEntityType(context, null, entityType);
+    }
+
+    @Override
+    public Collection retrieveCollectionWithSubmitByCommunityAndEntityType(Context context, Community community,
+        String entityType) {
+        context.turnOffAuthorisationSystem();
+        List<Collection> collections;
+        try {
+            collections = findCollectionsWithSubmit(null, context, community, entityType, 0, 1);
+        } catch (SQLException | SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
+        context.restoreAuthSystemState();
+        if (collections != null && collections.size() > 0) {
+            return collections.get(0);
+        }
+        if (community != null) {
+            for (Community subCommunity : community.getSubcommunities()) {
+                Collection collection = retrieveCollectionWithSubmitByCommunityAndEntityType(context,
+                    subCommunity, entityType);
+                if (collection != null) {
+                    return collection;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Collection retrieveCollectionByEntityType(Context context, Item item, String entityType)
             throws SQLException {
         Collection ownCollection = item.getOwningCollection();
@@ -1146,6 +1207,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);
         discoverQuery.setMaxResults(limit);
+        discoverQuery.setSortField(SOLR_SORT_FIELD, SORT_ORDER.asc);
 
         return retrieveCollectionsAdministeredByEntityType(context, discoverQuery,
                 query, entityType).getIndexableObjects().stream()
@@ -1255,5 +1317,4 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     public boolean exists(Context context, UUID id) throws SQLException {
         return this.collectionDAO.exists(context, Collection.class, id);
     }
-
 }

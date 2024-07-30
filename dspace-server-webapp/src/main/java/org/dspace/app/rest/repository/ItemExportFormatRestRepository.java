@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Alessandro Martelli (alessandro.martelli at 4science.it)
  */
-@Component(ItemExportFormatRest.CATEGORY + "." + ItemExportFormatRest.NAME)
+@Component(ItemExportFormatRest.CATEGORY + "." + ItemExportFormatRest.PLURAL_NAME)
 public class ItemExportFormatRestRepository extends DSpaceRestRepository<ItemExportFormatRest, String> {
 
     public static Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemExportFormatRestRepository.class);

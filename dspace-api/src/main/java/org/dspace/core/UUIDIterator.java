@@ -14,15 +14,14 @@ import java.util.UUID;
 
 import com.google.common.collect.AbstractIterator;
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.exception.SQLRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Iterator implementation which allows to iterate over items and commit while
- * iterating. Using a list of UUID the iterator doesn't get invalidated after a
- * commit
+ * iterating. Using an iterator over previous retrieved UUIDs the iterator doesn't
+ * get invalidated after a commit that would instead close the database ResultSet
  *
- * @author stefano.maffei at 4science.com
+ * @author Andrea Bollini (andrea.bollini at 4science.com)
  * @param  <T> class type
  */
 public class UUIDIterator<T extends DSpaceObject> extends AbstractIterator<T> {
@@ -57,7 +56,7 @@ public class UUIDIterator<T extends DSpaceObject> extends AbstractIterator<T> {
                 return endOfData();
             }
         } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 

@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
@@ -1203,6 +1204,29 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
         }
+    }
+
+    @Test
+    public void testAddItemEntityTypeIfNotExit() throws Exception {
+
+        InputStream pdf = simpleArticle.getInputStream();
+
+        WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
+                .withTitle("Submission Item")
+                .withIssueDate("2017-10-17")
+                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
+                .grantLicense()
+                .build();
+
+        // clear the entity type metadata
+        itemService.clearMetadata(context, wsitem.getItem(), "dspace", "entity", "type", null);
+        assertNull(itemService.getEntityType(wsitem.getItem()));
+
+        String authToken = getAuthToken(submitter.getEmail(), password);
+        submitItemViaRest(authToken, wsitem.getID());
+
+        // check that the entity type equals to the entity type of the owning collection
+        assertThat(itemService.getEntityType(context.reloadEntity(wsitem.getItem())), is("Publication"));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {

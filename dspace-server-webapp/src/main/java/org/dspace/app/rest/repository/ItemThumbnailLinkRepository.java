@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 /**
  * Link repository for the thumbnail Bitstream of an Item
  */
-@Component(ItemRest.CATEGORY + "." + ItemRest.NAME + "." + ItemRest.THUMBNAIL)
+@Component(ItemRest.CATEGORY + "." + ItemRest.PLURAL_NAME + "." + ItemRest.THUMBNAIL)
 public class ItemThumbnailLinkRepository extends AbstractDSpaceRestRepository implements LinkRestRepository {
     @Autowired
     ItemService itemService;
@@ -45,7 +45,7 @@ public class ItemThumbnailLinkRepository extends AbstractDSpaceRestRepository im
             if (item == null) {
                 throw new ResourceNotFoundException("No such item: " + itemId);
             }
-            Thumbnail thumbnail = itemService.getThumbnail(context, item);
+            Thumbnail thumbnail = itemService.getThumbnail(context, item, true);
             if (thumbnail == null) {
                 return null;
             }

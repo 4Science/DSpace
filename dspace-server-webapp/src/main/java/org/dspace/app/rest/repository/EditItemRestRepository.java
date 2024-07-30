@@ -64,7 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  */
-@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME)
+@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME_PLURAL)
 public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, String> {
 
     private static Logger log = LogManager.getLogger(EditItemRestRepository.class);

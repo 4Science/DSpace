@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -86,6 +87,11 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
      * The lines to import
      */
     List<DSpaceCSVLine> toImport;
+
+    /**
+     * The authority controlled fields
+     */
+    protected static Set<String> authorityControlled;
 
     /**
      * The prefix of the authority controlled field
@@ -187,6 +193,9 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         // Find the EPerson, assign to context
         assignCurrentUserInContext(c);
 
+        if (authorityControlled == null) {
+            setAuthorizedMetadataFields();
+        }
         // Read commandLines from the CSV file
         try {
 
@@ -349,6 +358,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         ArrayList<BulkEditChange> changes = new ArrayList<BulkEditChange>();
 
         // Make the changes
+        Context.Mode originalMode = c.getCurrentMode();
         c.setMode(Context.Mode.BATCH_EDIT);
 
         // Process each change
@@ -1372,10 +1382,25 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
     /**
      * is the field is defined as authority controlled
      */
-    private boolean isAuthorityControlledField(String md) {
+    private static boolean isAuthorityControlledField(String md) {
         String mdf = md.contains(":") ? StringUtils.substringAfter(md, ":") : md;
-        mdf = mdf.contains("[") ? StringUtils.substringBefore(mdf, "[") : mdf;
-        return metadataAuthorityService.isAuthorityAllowed(mdf.replaceAll("\\.", "_"), Constants.ITEM, null);
+        mdf = StringUtils.substringBefore(mdf, "[");
+        return authorityControlled.contains(mdf);
+    }
+
+    /**
+     * Set authority controlled fields
+     */
+    private void setAuthorizedMetadataFields() {
+        authorityControlled = new HashSet<>();
+        Enumeration propertyNames = configurationService.getProperties().propertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String key = ((String) propertyNames.nextElement()).trim();
+            if (key.startsWith(AC_PREFIX)
+                && configurationService.getBooleanProperty(key, false)) {
+                authorityControlled.add(key.substring(AC_PREFIX.length()));
+            }
+        }
     }
 
     /**

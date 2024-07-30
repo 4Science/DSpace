@@ -18,6 +18,7 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.DSpaceObjectLegacySupportService;
 import org.dspace.content.service.DSpaceObjectService;
+import org.dspace.content.service.DuplicateDetectionService;
 import org.dspace.content.service.EntityService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.InstallItemService;
@@ -82,6 +83,8 @@ public class ContentServiceFactoryImpl extends ContentServiceFactory {
     private EntityTypeService entityTypeService;
     @Autowired(required = true)
     private EntityService entityService;
+    @Autowired(required = true)
+    private DuplicateDetectionService duplicateDetectionService;
     @Autowired(required = true)
     private UnpaywallService unpaywallService;
 
@@ -182,6 +185,11 @@ public class ContentServiceFactoryImpl extends ContentServiceFactory {
     @Override
     public RelationshipMetadataService getRelationshipMetadataService() {
         return relationshipMetadataService;
+    }
+
+    @Override
+    public DuplicateDetectionService getDuplicateDetectionService() {
+        return duplicateDetectionService;
     }
 
     @Override

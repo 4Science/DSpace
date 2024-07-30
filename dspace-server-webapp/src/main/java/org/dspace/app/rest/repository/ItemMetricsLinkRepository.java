@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
-@Component(ItemRest.CATEGORY + "." + ItemRest.NAME + "." + ItemRest.METRICS)
+@Component(ItemRest.CATEGORY + "." + ItemRest.PLURAL_NAME + "." + ItemRest.METRICS)
 public class ItemMetricsLinkRepository extends AbstractDSpaceRestRepository
                                        implements LinkRestRepository {
 

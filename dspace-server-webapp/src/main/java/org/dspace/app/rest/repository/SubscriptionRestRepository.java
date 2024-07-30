@@ -59,7 +59,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
-@Component(SubscriptionRest.CATEGORY + "." + SubscriptionRest.NAME)
+@Component(SubscriptionRest.CATEGORY + "." + SubscriptionRest.PLURAL_NAME)
 public class SubscriptionRestRepository extends DSpaceRestRepository<SubscriptionRest, Integer>
                                          implements InitializingBean {
 
@@ -270,7 +270,7 @@ public class SubscriptionRestRepository extends DSpaceRestRepository<Subscriptio
     @Override
     public void afterPropertiesSet() throws Exception {
         discoverableEndpointsService.register(this, Arrays.asList(Link.of("/api/" + SubscriptionRest.CATEGORY +
-                       "/" + SubscriptionRest.NAME_PLURAL + "/search", SubscriptionRest.NAME_PLURAL + "-search")));
+                       "/" + SubscriptionRest.PLURAL_NAME + "/search", SubscriptionRest.PLURAL_NAME + "-search")));
     }
 
 }

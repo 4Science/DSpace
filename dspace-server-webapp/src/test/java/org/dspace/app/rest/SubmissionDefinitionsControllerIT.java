@@ -44,6 +44,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
  */
 public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegrationTest {
 
+    // The total number of expected submission definitions is referred to in multiple tests and assertions as
+    // is the last page (totalDefinitions - 1)
+    // This integer should be maintained along with any changes to item-submissions.xml
+    private static final int totalDefinitions = 24;
+
     @Test
     public void findAll() throws Exception {
         //When we call the root endpoint as anonymous user
@@ -103,6 +108,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                    //The status has to be 200 OK
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", SubmissionDefinitionsMatcher.matchFullEmbeds()))
+                   .andExpect(jsonPath("$", SubmissionDefinitionsMatcher.matchLinks()))
                    //We expect the content type to be "application/hal+json;charset=UTF-8"
                    .andExpect(content().contentType(contentType))
 
@@ -217,7 +223,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                    // We expect the content type to be "application/hal+json;charset=UTF-8"
                    .andExpect(content().contentType(contentType))
                    // Match only that a section exists with a submission configuration behind
-                   .andExpect(jsonPath("$._embedded.submissionsections", hasSize(10)))
+                   .andExpect(jsonPath("$._embedded.submissionsections", hasSize(11)))
                    .andExpect(jsonPath("$._embedded.submissionsections",
                                        Matchers.hasItem(
                                            allOf(
@@ -309,7 +315,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "0"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("test-hidden")))
+                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional")))
                 .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
                         Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -321,10 +327,10 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                         Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
-                        Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
+                        Matchers.containsString("page=" + (totalDefinitions - 1)), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(22)))
-                .andExpect(jsonPath("$.page.totalPages", is(22)))
+                .andExpect(jsonPath("$.page.totalElements", is(totalDefinitions)))
+                .andExpect(jsonPath("$.page.totalPages", is(totalDefinitions)))
                 .andExpect(jsonPath("$.page.number", is(0)));
 
         getClient(tokenAdmin).perform(get("/api/config/submissiondefinitions")
@@ -332,7 +338,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("funding")))
+                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-custom-url")))
                 .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
                         Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -347,16 +353,41 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                         Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                         Matchers.containsString("/api/config/submissiondefinitions?"),
-                        Matchers.containsString("page=21"), Matchers.containsString("size=1"))))
+                        Matchers.containsString("page=" + (totalDefinitions - 1)), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(22)))
-                .andExpect(jsonPath("$.page.totalPages", is(22)))
+                .andExpect(jsonPath("$.page.totalElements", is(totalDefinitions)))
+                .andExpect(jsonPath("$.page.totalPages", is(totalDefinitions)))
                 .andExpect(jsonPath("$.page.number", is(1)));
     }
 
     @Test
     public void testFindAllSortedAlphabetically() throws Exception {
-
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/config/submissiondefinitions")
+                .param("size", "1")
+                .param("page", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-correction")))
+                .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
+                    Matchers.containsString("/api/config/submissiondefinitions?"),
+                    Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
+                .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
+                    Matchers.containsString("/api/config/submissiondefinitions?"),
+                    Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
+                .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
+                    Matchers.containsString("/api/config/submissiondefinitions?"),
+                    Matchers.containsString("page=3"), Matchers.containsString("size=1"))))
+                .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
+                    Matchers.containsString("/api/config/submissiondefinitions?"),
+                    Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
+                .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
+                    Matchers.containsString("/api/config/submissiondefinitions?"),
+                    Matchers.containsString("page=" + (totalDefinitions - 1)), Matchers.containsString("size=1"))))
+                .andExpect(jsonPath("$.page.size", is(1)))
+                .andExpect(jsonPath("$.page.totalElements", is(totalDefinitions)))
+                .andExpect(jsonPath("$.page.totalPages", is(totalDefinitions)))
+                .andExpect(jsonPath("$.page.number", is(2)));
         AtomicReference<JSONArray> jsonArrayRef = new AtomicReference<>(new JSONArray());
         String token = getAuthToken(admin.getEmail(), password);
 
@@ -386,7 +417,6 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                         .map(o -> {
                             SubmissionDefinitionRest sd = new SubmissionDefinitionRest();
                             LinkedHashMap sdMap = ((LinkedHashMap) o);
-
                             sd.setId(String.valueOf(sdMap.get("id")));
                             sd.setName(String.valueOf(sdMap.get("name")));
                             sd.setDefaultConf(Boolean.valueOf(

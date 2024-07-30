@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -52,11 +53,14 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.core.Utils;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 
 /**
@@ -79,9 +83,13 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
 
     private File s3Directory;
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
+
     @Before
     public void setup() throws Exception {
 
+        configurationService.setProperty("assetstore.s3.enabled", "true");
         s3Directory = new File(System.getProperty("java.io.tmpdir"), "s3");
 
         s3Mock = S3Mock.create(8001, s3Directory.getAbsolutePath());
@@ -392,6 +400,17 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(computedPath, Matchers.not(Matchers.startsWith(File.separator)));
         assertThat(computedPath, Matchers.not(Matchers.endsWith(File.separator)));
         assertThat(computedPath, Matchers.not(Matchers.containsString(File.separator)));
+    }
+
+    @Test
+    public void testDoNotInitializeConfigured() throws Exception {
+        String assetstores3enabledOldValue = configurationService.getProperty("assetstore.s3.enabled");
+        configurationService.setProperty("assetstore.s3.enabled", "false");
+        s3BitStoreService = new S3BitStoreService(amazonS3Client);
+        s3BitStoreService.init();
+        assertFalse(s3BitStoreService.isInitialized());
+        assertFalse(s3BitStoreService.isEnabled());
+        configurationService.setProperty("assetstore.s3.enabled", assetstores3enabledOldValue);
     }
 
     private byte[] generateChecksum(String content) {

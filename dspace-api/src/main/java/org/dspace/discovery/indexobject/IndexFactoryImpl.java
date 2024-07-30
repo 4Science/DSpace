@@ -67,7 +67,14 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
 
         //Do any additional indexing, depends on the plugins
         for (SolrServiceIndexPlugin solrServiceIndexPlugin : ListUtils.emptyIfNull(solrServiceIndexPlugins)) {
-            solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            try {
+                solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            } catch (Exception e) {
+                log.error("An error occurred while indexing additional fields. " +
+                        "Could not fully index item with UUID: {}. Plugin: {}",
+                    indexableObject.getUniqueIndexID(), solrServiceIndexPlugin.getClass().getSimpleName());
+
+            }
         }
 
         return doc;
@@ -85,7 +92,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
             writeDocument(solrInputDocument, null);
         } catch (Exception e) {
             log.error("Error occurred while writing SOLR document for {} object {}",
-                      indexableObject.getType(), indexableObject.getID(), e);
+                indexableObject.getType(), indexableObject.getID(), e);
         }
     }
 
@@ -129,6 +136,18 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
         // Use Apache Tika to parse the full text stream(s)
         try {
             tikaParser.parse(stream, tikaHandler, tikaMetadata, tikaContext);
+
+            // Write Tika metadata to "tika_meta_*" fields.
+            // This metadata is not very useful right now,
+            // but we'll keep it just in case it becomes more useful.
+            for (String name : tikaMetadata.names()) {
+                for (String value : tikaMetadata.getValues(name)) {
+                    doc.addField("tika_meta_" + name, value);
+                }
+            }
+
+            // Save (parsed) full text to "fulltext" field
+            doc.addField("fulltext", tikaHandler.toString());
         } catch (SAXException saxe) {
             // Check if this SAXException is just a notice that this file was longer than the character limit.
             // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
@@ -142,7 +161,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 log.error("Tika parsing error. Could not index full text.", saxe);
                 throw new IOException("Tika parsing error. Could not index full text.", saxe);
             }
-        } catch (TikaException ex) {
+        } catch (TikaException | IOException ex) {
             log.error("Tika parsing error. Could not index full text.", ex);
             throw new IOException("Tika parsing error. Could not index full text.", ex);
         } finally {
@@ -150,17 +169,6 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 stream.close();
             }
         }
-
-        // Write Tika metadata to "tika_meta_*" fields.
-        // This metadata is not very useful right now, but we'll keep it just in case it becomes more useful.
-        for (String name : tikaMetadata.names()) {
-            for (String value : tikaMetadata.getValues(name)) {
-                doc.addField("tika_meta_" + name, value);
-            }
-        }
-
-        // Save (parsed) full text to the provided field
-        doc.addField(field, tikaHandler.toString());
     }
 
 

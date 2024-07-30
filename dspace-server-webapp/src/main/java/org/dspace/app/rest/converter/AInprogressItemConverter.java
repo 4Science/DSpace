@@ -97,7 +97,6 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
         // info
 
         if (collection != null) {
-
             addValidationErrorsToItem(obj, witem);
 
             SubmissionDefinitionRest def = converter.toRest(getSubmissionConfig(item, collection), projection);
