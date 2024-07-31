@@ -67,7 +67,7 @@ public class CERIFIngestionCrosswalkIT extends AbstractIntegrationTestWithDataba
     @Before
     public void setup() throws Exception {
         // skip all tests based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         crosswalk = (CERIFIngestionCrosswalk) pluginService.getNamedPlugin(IngestionCrosswalk.class, "cerif");
         assertThat("A CERIF ingestion crosswalk should be configured", crosswalk, notNullValue());

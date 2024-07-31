@@ -261,16 +261,16 @@ public class FullTextContentStreams extends ContentStreamBase {
         }
 
         public String getContentType(final Context context) throws SQLException {
-            BitstreamFormat format = bitstream != null ? bitstream.getFormat(context) : null;
+            BitstreamFormat format = bitstream.getFormat(context);
             return format == null ? null : StringUtils.trimToEmpty(format.getMIMEType());
         }
 
         public String getFileName() {
-            return bitstream != null ? StringUtils.trimToEmpty(bitstream.getName()) : null;
+            return StringUtils.trimToEmpty(bitstream.getName());
         }
 
         public long getSize() {
-            return bitstream != null ? bitstream.getSizeBytes() : -1;
+            return bitstream.getSizeBytes();
         }
 
         public InputStream getInputStream() throws SQLException, IOException, AuthorizeException {

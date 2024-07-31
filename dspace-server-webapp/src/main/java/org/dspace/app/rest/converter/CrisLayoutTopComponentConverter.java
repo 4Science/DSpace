@@ -50,6 +50,7 @@ public class CrisLayoutTopComponentConverter implements CrisLayoutSectionCompone
         rest.setItemListStyle(topComponent.getItemListStyle());
         rest.setShowAllResults(topComponent.isShowAllResults());
         rest.setShowThumbnails(showThumbnails);
+        rest.setTemplate(topComponent.getTemplate());
         return rest;
     }
 

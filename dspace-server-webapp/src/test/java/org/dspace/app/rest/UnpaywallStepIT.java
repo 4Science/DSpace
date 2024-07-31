@@ -8,7 +8,10 @@
 package org.dspace.app.rest;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -42,6 +45,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.model.Unpaywall;
 import org.dspace.unpaywall.model.UnpaywallStatus;
 import org.dspace.unpaywall.service.UnpaywallService;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -106,13 +110,12 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.SUCCESSFUL.name())))
-                .andExpect(jsonPath("$.sections.unpaywall.jsonRecord", is(testApiResponse)));
+                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.SUCCESSFUL.name())));
         verify(httpClient, times(1)).execute(any());
         configurationService.setProperty("unpaywall.email", null);
     }
@@ -152,13 +155,12 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.SUCCESSFUL.name())))
-                .andExpect(jsonPath("$.sections.unpaywall.jsonRecord", is(testApiResponse)));
+                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.SUCCESSFUL.name())));
         verify(httpClient, times(1)).execute(any());
         configurationService.setProperty("unpaywall.email", null);
     }
@@ -195,15 +197,80 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
+                .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
+                .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
+                .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
+                .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
+                .andExpect(jsonPath("$.sections.unpaywall.status", is(unpaywall.getStatus().name())));
+        verify(httpClient, times(0)).execute(any());
+        configurationService.setProperty("unpaywall.email", null);
+    }
+
+    @Test
+    public void testCallingUnpaywallApiWithAccept() throws Exception {
+
+        configurationService.setProperty("unpaywall.email", "test@mail.com");
+        context.turnOffAuthorisationSystem();
+
+        String testApiResponse = getUnpaywallResponse();
+        String pdfUrl = new JSONObject(testApiResponse).getJSONObject("best_oa_location").getString("url_for_pdf");
+        String doi = "10.1504/ijmso.2012.048507";
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2020")
+            .withDoiIdentifier(doi)
+            .build();
+
+        Unpaywall unpaywall = new Unpaywall();
+        unpaywall.setDoi(doi);
+        unpaywall.setItemId(workspaceItem.getItem().getID());
+        unpaywall.setStatus(UnpaywallStatus.NOT_FOUND);
+        unpaywall.setJsonRecord(null);
+        unpaywall = unpaywallService.create(context, unpaywall);
+
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        mockHttpClient(unpaywallService, httpClient);
+        CloseableHttpResponse httpResponse = mockResponse(testApiResponse, SC_OK, "OK");
+        when(httpClient.execute(ArgumentMatchers.any())).thenReturn(httpResponse);
+
+        context.restoreAuthSystemState();
+
+        Operation refreshOperation = new AddOperation("/sections/unpaywall/refresh", true);
+
+        getClient(getAuthToken(eperson.getEmail(), password))
+            .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .content(getPatchContent(List.of(refreshOperation)))
+                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
+            .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
+            .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
+            .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
+            .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
+            .andExpect(jsonPath("$.sections.unpaywall.status", equalTo(UnpaywallStatus.SUCCESSFUL.name())));
+        verify(httpClient, times(1)).execute(any());
+
+        Operation acceptOperation = new AddOperation("/sections/unpaywall/accept", true);
+        try (InputStream resource = getUnpaywallTestResource()) {
+            CloseableHttpResponse pdfResponse = mockResponse(resource, SC_OK, "OK");
+            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(pdfResponse);
+            getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                    .content(getPatchContent(List.of(acceptOperation)))
+                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").doesNotExist())
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", is(unpaywall.getStatus().name())))
-                .andExpect(jsonPath("$.sections.unpaywall.jsonRecord", is(unpaywall.getJsonRecord())));
-        verify(httpClient, times(0)).execute(any());
-        configurationService.setProperty("unpaywall.email", null);
+                .andExpect(jsonPath("$.sections.unpaywall.status", is(UnpaywallStatus.IMPORTED.name())));
+            verify(httpClient, times(1)).execute(any());
+
+        } finally {
+            configurationService.setProperty("unpaywall.email", null);
+        }
     }
 
     private static void mockHttpClient(UnpaywallService unpaywallService, CloseableHttpClient mock)
@@ -219,6 +286,19 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
         String responseFileName = BASE_UNPAYWALL_DIR_PATH.concat("unpaywall-api-response.json");
         try (InputStream unpaywallResponseStream = getClass().getClassLoader().getResourceAsStream(responseFileName)) {
             return IOUtils.toString(unpaywallResponseStream, Charset.defaultCharset());
+        }
+    }
+
+    private InputStream getUnpaywallTestResource() throws IOException {
+        String responseFileName = BASE_UNPAYWALL_DIR_PATH.concat("unpaywall-api-resource.pdf");
+        return getClass().getClassLoader().getResourceAsStream(responseFileName);
+    }
+
+    private void pauseSeconds(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

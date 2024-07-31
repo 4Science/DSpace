@@ -132,6 +132,8 @@ public class DOIOrganiser {
                           "Perform online deletion for all identifiers queued for deletion.");
         options.addOption("q", "quiet", false,
                           "Turn the command line output off.");
+        options.addOption("o", "offset", true, "The records offset");
+        options.addOption("li", "limit", true, "The records limit");
 
         Option filterDoi = Option.builder().optionalArg(true).longOpt("filter").hasArg().argName("filterName")
                 .desc("Use the specified filter name instead of the provider's filter. Defaults to a special " +
@@ -212,6 +214,17 @@ public class DOIOrganiser {
             organiser.list("deletion", null, null, DOIIdentifierProvider.TO_BE_DELETED);
         }
 
+        int limit = -1;
+        int offset = -1;
+
+        if (line.hasOption("li")) {
+            limit = Integer.valueOf(line.getOptionValue("li"));
+        }
+
+        if (line.hasOption("o")) {
+            offset = Integer.valueOf(line.getOptionValue("o"));
+        }
+
         DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
         // Do we get a filter?
         if (line.hasOption("filter")) {
@@ -224,7 +237,7 @@ public class DOIOrganiser {
         if (line.hasOption('s')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be reserved.");
@@ -243,7 +256,7 @@ public class DOIOrganiser {
         if (line.hasOption('r')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be registered.");
@@ -265,7 +278,7 @@ public class DOIOrganiser {
                 List<DOI> dois = doiService.getDOIsByStatus(context, Arrays.asList(
                     DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
                     DOIIdentifierProvider.UPDATE_RESERVED,
-                    DOIIdentifierProvider.UPDATE_REGISTERED));
+                    DOIIdentifierProvider.UPDATE_REGISTERED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "whose metadata needs an update.");
@@ -284,7 +297,7 @@ public class DOIOrganiser {
         if (line.hasOption('d')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be deleted.");

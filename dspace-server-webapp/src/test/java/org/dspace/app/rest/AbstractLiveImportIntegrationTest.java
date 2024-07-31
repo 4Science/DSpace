@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +70,14 @@ public class AbstractLiveImportIntegrationTest extends AbstractControllerIntegra
 
     protected CloseableHttpResponse mockResponse(String xmlExample, int statusCode, String reason)
             throws UnsupportedEncodingException {
+        return mockResponse(new StringInputStream(xmlExample), statusCode, reason);
+    }
+
+    protected CloseableHttpResponse mockResponse(InputStream inputStream, int statusCode, String reason)
+            throws UnsupportedEncodingException {
         BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
         basicHttpEntity.setChunked(true);
-        basicHttpEntity.setContent(new StringInputStream(xmlExample));
+        basicHttpEntity.setContent(inputStream);
 
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
         when(response.getStatusLine()).thenReturn(statusLine(statusCode, reason));
