@@ -58,7 +58,12 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="organization.parentOrganization"/>
 		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.identifier.archivalunit</value>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="orgunitsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
@@ -72,7 +77,12 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamfonds.parent"/>
 		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.identifier.archivalunit</value>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="fondsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
@@ -86,7 +96,12 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamjournalfonds.parent"/>
 		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.identifier.archivalunit</value>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="journalfondsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
@@ -100,7 +115,12 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamaggregation.parent"/>
 		<property name="selectableMetadata" value=""/>
-		<property name="labelMetadata" value="dc.title"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.identifier.archivalunit</value>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="authorityMetadata" value=""/>
 		<property name="extraValuesMapper" ref="aggregationsExtraValuesMapper"/>
 		<!-- <field_name> <order> - If empty no sorting is made -->
