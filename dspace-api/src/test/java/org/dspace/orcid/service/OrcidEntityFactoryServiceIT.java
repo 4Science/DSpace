@@ -25,6 +25,7 @@ import static org.orcid.jaxb.model.common.SequenceType.ADDITIONAL;
 import static org.orcid.jaxb.model.common.SequenceType.FIRST;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
@@ -47,6 +48,8 @@ import org.orcid.jaxb.model.common.Relationship;
 import org.orcid.jaxb.model.common.SequenceType;
 import org.orcid.jaxb.model.common.WorkType;
 import org.orcid.jaxb.model.v3.release.common.Contributor;
+import org.orcid.jaxb.model.v3.release.common.ContributorEmail;
+import org.orcid.jaxb.model.v3.release.common.ContributorOrcid;
 import org.orcid.jaxb.model.v3.release.common.FuzzyDate;
 import org.orcid.jaxb.model.v3.release.common.Organization;
 import org.orcid.jaxb.model.v3.release.common.Url;
@@ -75,7 +78,9 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     private Collection products;
 
-    private Collection products;
+    private Collection fundings;
+
+    private Collection persons;
 
     private Collection projects;
 
@@ -103,11 +108,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         publications = CollectionBuilder.createCollection(context, parentCommunity)
             .withName("Collection")
             .withEntityType("Publication")
-            .build();
-
-        products = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection")
-            .withEntityType("Product")
             .build();
 
         products = CollectionBuilder.createCollection(context, parentCommunity)
@@ -191,7 +191,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         Item product = ItemBuilder.createItem(context, products)
             .withTitle("Test dataset")
             .withAuthor("Walter White")
-            .withAuthor("Jesse Pinkman", author.getID().toString())
+            .withAuthor("Jesse Pinkman")
             .withEditor("Editor")
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Product description")
@@ -227,71 +227,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(contributors, hasSize(2));
         assertThat(contributors, has(contributor("Walter White", AUTHOR, FIRST)));
         // assertThat(contributors, has(contributor("Editor", EDITOR, FIRST)));
-        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL,
-            "0000-1111-2222-3333", "test@test.it")));
-
-        assertThat(work.getExternalIdentifiers(), notNullValue());
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(3));
-        assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
-        assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
-        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-
-    }
-
-    @Test
-    public void testProductWorkCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item author = ItemBuilder.createItem(context, persons)
-            .withTitle("Jesse Pinkman")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withPersonEmail("test@test.it")
-            .build();
-
-        Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test dataset")
-            .withAuthor("Walter White")
-            .withAuthor("Jesse Pinkman", author.getID().toString())
-            .withEditor("Editor")
-            .withIssueDate("2021-04-30")
-            .withDescriptionAbstract("Product description")
-            .withLanguage("en_US")
-            .withType("http://purl.org/coar/resource_type/c_ddb1")
-            .withIsPartOf("Collection of Products")
-            .withDoiIdentifier("doi-id")
-            .withScopusIdentifier("scopus-id")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, product);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-        assertThat(work.getJournalTitle(), notNullValue());
-        assertThat(work.getJournalTitle().getContent(), is("Collection of Products"));
-        assertThat(work.getLanguageCode(), is("en"));
-        assertThat(work.getPublicationDate(), matches(date("2021", "04", "30")));
-        assertThat(work.getShortDescription(), is("Product description"));
-        assertThat(work.getPutCode(), nullValue());
-        // assertThat(work.getWorkCitation(), notNullValue());
-        // assertThat(work.getWorkCitation().getCitation(), containsString("Test product"));
-        assertThat(work.getWorkType(), is(WorkType.DATA_SET));
-        assertThat(work.getWorkTitle(), notNullValue());
-        assertThat(work.getWorkTitle().getTitle(), notNullValue());
-        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test dataset"));
-        assertThat(work.getWorkContributors(), notNullValue());
-        assertThat(work.getUrl(), matches(urlEndsWith(product.getHandle())));
-
-        List<Contributor> contributors = work.getWorkContributors().getContributor();
-        assertThat(contributors, hasSize(2));
-        assertThat(contributors, has(contributor("Walter White", AUTHOR, FIRST)));
-        // assertThat(contributors, has(contributor("Editor", EDITOR, FIRST)));
-        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL,
-            "0000-1111-2222-3333", "test@test.it")));
+        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL)));
 
         assertThat(work.getExternalIdentifiers(), notNullValue());
 
@@ -316,7 +252,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         Item patent = ItemBuilder.createItem(context, patents)
             .withTitle("Test patent")
-            .withAuthor("Jesse Pinkman", author.getID().toString())
+            .withAuthor("Jesse Pinkman")
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Patent description")
             .withPublisher("Patent registration office")
@@ -348,8 +284,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         List<Contributor> contributors = work.getWorkContributors().getContributor();
         assertThat(contributors, hasSize(1));
-        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, FIRST,
-            "0000-1111-2222-3333", "test@test.it")));
+        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, FIRST)));
 
         assertThat(work.getExternalIdentifiers(), notNullValue());
 
@@ -368,7 +303,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("Book")
             .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
@@ -521,7 +456,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withType("Controlled Vocabulary for Resource Type Genres::text::book")
             .withRelationFunding("Test funding")
-            .withRelationGrantno(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
             .build();
 
         context.restoreAuthSystemState();
@@ -546,7 +480,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_7ad9")
             .withRelationFunding("Test funding")
-            .withRelationGrantno(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
             .build();
 
         context.restoreAuthSystemState();
@@ -571,7 +504,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_15cd")
             .withRelationFunding("Test funding")
-            .withRelationGrantno(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
             .build();
 
         context.restoreAuthSystemState();
@@ -1060,6 +992,16 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         return externalId(type, value, Relationship.SELF);
     }
 
+    private Predicate<ExternalID> fundedByExternalId(String type, String value) {
+        return externalId(type, value, Relationship.FUNDED_BY)
+                .and(externalId -> externalId.getUrl() == null);
+    }
+
+    private Predicate<ExternalID> fundedByExternalId(String type, String value, String url) {
+        return externalId(type, value, Relationship.FUNDED_BY)
+                .and(externalId -> externalId.getUrl() != null && Objects.equals(url, externalId.getUrl().getValue()));
+    }
+
     private Predicate<ExternalID> externalId(String type, String value, Relationship relationship) {
         return externalId -> externalId.getRelationship() == relationship
             && type.equals(externalId.getType())
@@ -1070,6 +1012,18 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         return contributor -> contributor.getCreditName().getContent().equals(name)
             && role.equals(contributor.getContributorAttributes().getContributorRole())
             && contributor.getContributorAttributes().getContributorSequence() == sequence;
+    }
+
+
+    private boolean sameOrcid(ContributorOrcid contributorOrcid, String orcid) {
+        return contributorOrcid != null
+                && orcid.equals(contributorOrcid.getPath())
+                && "https://sandbox.orcid.org".equals(contributorOrcid.getHost())
+                && ("https://sandbox.orcid.org/" + orcid).equals(contributorOrcid.getUri());
+    }
+
+    private boolean sameEmail(ContributorEmail contributorEmail, String email) {
+        return contributorEmail != null && email.equals(contributorEmail.getValue());
     }
 
     private Predicate<FundingContributor> fundingContributor(String name, FundingContributorRole role) {

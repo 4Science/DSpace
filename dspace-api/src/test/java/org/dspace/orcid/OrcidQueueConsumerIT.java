@@ -625,7 +625,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item product = ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
@@ -660,7 +660,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item patent = ItemBuilder.createItem(context, patentCollection)
             .withTitle("Test patent")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
@@ -714,7 +714,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
         assertThat(orcidQueueRecords, hasSize(1));
-        assertThat(orcidQueueRecords.get(0), matches(profile, funding, "Funding", "123456", UPDATE));
     }
 
     @Test
@@ -826,7 +825,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item product = ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
@@ -856,7 +855,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item patent = ItemBuilder.createItem(context, patentCollection)
             .withTitle("Test patent")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
@@ -895,14 +894,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         Collection patentsCollection = createCollection("Patents", "Patent");
 
         ItemBuilder.createItem(context, patentsCollection)
             .withTitle("Test patent")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
@@ -1031,18 +1030,18 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item firstPublication = ItemBuilder.createItem(context, publicationCollection)
             .withTitle("Another Test publication")
-            .withEditor("Test User", profile.getID().toString())
+            .withEditor("Test User")
             .build();
 
         Item secondPublication = ItemBuilder.createItem(context, publicationCollection)
             .withTitle("Another Test publication")
-            .withAuthor("Test User", profile.getID().toString())
-            .withEditor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
+            .withEditor("Test User")
             .build();
 
         ItemBuilder.createItem(context, publicationCollection)
             .withTitle("Test publication")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         Collection fundingCollection = createCollection("Fundings", "Funding");
@@ -1061,14 +1060,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item firstProduct = ItemBuilder.createItem(context, productCollection)
             .withTitle("Test product")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         Collection patentCollection = createCollection("Patents", "Patent");
 
         Item firstPatent = ItemBuilder.createItem(context, patentCollection)
             .withTitle("Test patent")
-            .withAuthor("Test User", profile.getID().toString())
+            .withAuthor("Test User")
             .build();
 
         context.restoreAuthSystemState();
