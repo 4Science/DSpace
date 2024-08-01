@@ -1497,17 +1497,17 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(ALL.name())));
 
-        operations = asList(new ReplaceOperation("/orcid/products", MINE.name()));
+        operations = asList(new ReplaceOperation("/orcid/products", ALL.name()));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
                 .content(getPatchContent(operations))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(ALL.name())));
 
         getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.productsPreference", is(ALL.name())));
 
         operations = asList(new ReplaceOperation("/orcid/products", "INVALID_VALUE"));
 
@@ -1556,17 +1556,17 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.orcidSynchronization.patentsPreference", is(ALL.name())));
 
-        operations = asList(new ReplaceOperation("/orcid/patents", MINE.name()));
+        operations = asList(new ReplaceOperation("/orcid/patents", ALL.name()));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
                 .content(getPatchContent(operations))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.patentsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.patentsPreference", is(ALL.name())));
 
         getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orcidSynchronization.patentsPreference", is(MINE.name())));
+            .andExpect(jsonPath("$.orcidSynchronization.patentsPreference", is(ALL.name())));
 
         operations = asList(new ReplaceOperation("/orcid/patents", "INVALID_VALUE"));
 
@@ -2577,6 +2577,13 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         Item firstPatent = createPatent(patents, "First patent", profile);
         Item secondPatent = createPatent(patents, "Second patent", profile);
 
+        Collection fundings = createCollection("Fundings", "Funding");
+
+
+        Item firstFunding = createFundingWithInvestigator(fundings, "First funding", profile);
+        Item secondFunding = createFundingWithCoInvestigator(fundings, "Second funding", profile);
+
+
         context.restoreAuthSystemState();
 
         // no preferences configured, so no orcid queue records created
@@ -2670,7 +2677,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
                                          .content(
-                                             getPatchContent(asList(new ReplaceOperation("/orcid/fundings", "DISABLED"))))
+                                             getPatchContent(asList(new ReplaceOperation(
+                                                     "/orcid/fundings",
+                                                     "DISABLED"))))
                                          .contentType(MediaType.APPLICATION_JSON_VALUE))
                             .andExpect(status().isOk());
 
@@ -2680,7 +2689,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId.toString())
                 .content(
-                                             getPatchContent(asList(new ReplaceOperation("/orcid/products", "DISABLED"))))
+                                             getPatchContent(asList(new ReplaceOperation(
+                                                     "/orcid/products",
+                                                     "DISABLED"))))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
 
@@ -2931,21 +2942,15 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     private Item createProduct(Collection collection, String title, Item author) {
         return ItemBuilder.createItem(context, collection)
             .withTitle(title)
-            .withAuthor(author.getName(), author.getID().toString())
+            .withAuthor(author.getName())
             .build();
     }
 
-    private Item createProduct(Collection collection, String title, Item author) {
-        return ItemBuilder.createItem(context, collection)
-            .withTitle(title)
-            .withAuthor(author.getName(), author.getID().toString())
-            .build();
-    }
 
     private Item createPatent(Collection collection, String title, Item author) {
         return ItemBuilder.createItem(context, collection)
             .withTitle(title)
-            .withAuthor(author.getName(), author.getID().toString())
+            .withAuthor(author.getName())
             .build();
     }
 
@@ -2991,6 +2996,20 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         token.setName("Test User");
         token.setScope(String.join(" ", scopes));
         return token;
+    }
+
+    private Item createFundingWithInvestigator(Collection collection, String title, Item investigator) {
+        return ItemBuilder.createItem(context, collection)
+                .withTitle(title)
+                .withFundingInvestigator(investigator.getName(), investigator.getID().toString())
+                .build();
+    }
+
+    private Item createFundingWithCoInvestigator(Collection collection, String title, Item investigator) {
+        return ItemBuilder.createItem(context, collection)
+                .withTitle(title)
+                .withFundingCoInvestigator(investigator.getName(), investigator.getID().toString())
+                .build();
     }
 
 }
