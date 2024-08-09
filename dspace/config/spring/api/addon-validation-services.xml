@@ -29,6 +29,11 @@
         <property name="uploadConfigurationService" ref="uploadConfigurationService"/>
     </bean>
 
+    <bean name="cclicenseValidation" class="org.dspace.validation.CclicenseValidator">
+        <property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
+        <property name="name" value="cclicense"/>
+    </bean>
+
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>
@@ -52,6 +57,11 @@
            </list>
         </property>
         <property name="filter" ref="funding-has-at-least-one-investigator-or-one-lead-organization_filter"/>
+    </bean>
+
+
+    <bean name="externalFileUploadValidator" class="org.dspace.validation.ExternalFileUploadValidator">
+        <property name="name" value="external-upload"/>
     </bean>
     
 </beans>

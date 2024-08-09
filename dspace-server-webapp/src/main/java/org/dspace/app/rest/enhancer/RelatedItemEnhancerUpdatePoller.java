@@ -36,6 +36,7 @@ public class RelatedItemEnhancerUpdatePoller {
         try {
             log.debug("item enhancer poller executed");
             Context context = new Context();
+            context.setDispatcher(RelatedItemEnhancerUpdatePoller.class.getSimpleName());
             context.turnOffAuthorisationSystem();
             UUID extractedUuid;
             while ((extractedUuid = itemEnhancerService.pollItemToUpdate(context)) != null) {

@@ -804,6 +804,32 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
                         .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
     }
 
+    @Test
+    public void testWithORCIDIdentifier() throws Exception {
+
+        List<ExpandedResult> orcidSearchResults = List.of(
+                expandedResult("Author", "From Orcid 1", "0000-1111-2222-3333"));
+
+        String expectedQuery = "(orcid:0000-1111-2222-3333)";
+
+        when(orcidClientMock.expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20))
+                .thenReturn(expandedSearch(2, orcidSearchResults));
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+                        .param("filter", "0000-1111-2222-3333"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                        orcidEntry("From Orcid 1 Author", REFERENCE, "0000-1111-2222-3333", getSource()))))
+                .andExpect(jsonPath("$.page.size", Matchers.is(20)))
+                .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
+                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+
+        verify(orcidClientMock).getReadPublicAccessToken();
+        verify(orcidClientMock).expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20);
+        verifyNoMoreInteractions(orcidClientMock);
+    }
+
     private ExpandedSearch buildExpandedSearchFromSublist(List<ExpandedResult> totalResults, int start, int rows) {
         int total = totalResults.size();
         if (start > total) {
