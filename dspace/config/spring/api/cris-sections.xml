@@ -248,12 +248,12 @@
                 <bean class="org.dspace.layout.CrisLayoutAdvancedTopComponent">
                     <property name="discoveryConfigurationName">
                         <list>
-                            <value>aggregations</value>
-                            <value>fonds</value>
-                            <value>journalfonds</value>
+                            <value>aggregationsHomePage</value>
+                            <value>fondsHomePage</value>
+                            <value>journalfondsHomePage</value>
                         </list>
                     </property>
-                    <property name="sortField" value="dc.date.accessioned" />
+                    <property name="sortField" value="cris.priority" />
                     <property name="order" value="desc" />
                     <property name="style" value="py-4"/>
                     <property name="numberOfItems" value="8"/>

@@ -2416,11 +2416,11 @@
         <field>
           <dc-schema>cris</dc-schema>
           <dc-element>priority</dc-element>
-          <label>Posizione</label>
-          <input-type>onebox</input-type>
+          <label>Ordine</label>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+          <hint>Inserire l'ordine</hint>
         </field>
       </row>
     </form>
@@ -3504,11 +3504,11 @@
         <field>
           <dc-schema>cris</dc-schema>
           <dc-element>priority</dc-element>
-          <label>Posizione</label>
-          <input-type>onebox</input-type>
+          <label>Ordine</label>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+          <hint>Inserire l'ordine</hint>
         </field>
       </row>
     </form>
@@ -6416,7 +6416,7 @@
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
+          <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
