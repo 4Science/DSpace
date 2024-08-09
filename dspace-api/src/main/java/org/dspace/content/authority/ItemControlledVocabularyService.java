@@ -247,10 +247,10 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     }
 
     private String getValueFromMetadataList(Item item, List<String> metadataList) {
-        List <String> value = new ArrayList<>();
+        List<String> value = new ArrayList<>();
         for (String mtd: metadataList) {
             String mtdValue = getValueFromMetadata(item, mtd);
-            if (!mtdValue.isEmpty()){
+            if (!mtdValue.isEmpty()) {
                 value.add(mtdValue);
             }
         }
