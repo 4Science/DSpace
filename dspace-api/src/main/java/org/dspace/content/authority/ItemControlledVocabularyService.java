@@ -11,6 +11,7 @@ import static org.dspace.content.authority.DSpaceControlledVocabulary.ID_SPLITTE
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -208,7 +209,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
                                      Item item) {
         Choice choice = new Choice();
 
-        String labelMeta = getValueFromMetadata(item, controlledVocabulary.getLabelMetadata());
+        String labelMeta = getValueFromMetadataList(item, controlledVocabulary.getLabelMetadata());
         choice.value = labelMeta;
         choice.label = labelMeta;
         choice.extras = controlledVocabulary.getExtraValuesMapper().buildExtraValues(item);
@@ -243,6 +244,17 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     private String getValueFromMetadata(Item item, String metadata) {
         String mtd = itemService.getMetadata(item, metadata);
         return mtd == null ? "" : mtd;
+    }
+
+    private String getValueFromMetadataList(Item item, List<String> metadataList) {
+        List<String> value = new ArrayList<>();
+        for (String mtd: metadataList) {
+            String mtdValue = getValueFromMetadata(item, mtd);
+            if (!mtdValue.isEmpty()) {
+                value.add(mtdValue);
+            }
+        }
+        return value.isEmpty() ? "" : String.join(" - ", value);
     }
 
     private boolean hasChildren(Item item) {
