@@ -5073,7 +5073,7 @@
           <label>Titolo dell'opera</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della risorsa</required>
           <hint>Inserire il titolo dell'opera</hint>
         </field>
       </row>
@@ -5118,7 +5118,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
