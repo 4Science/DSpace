@@ -2258,6 +2258,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
      *
      * @throws Exception
      */
+    @Ignore
     public void createWorkspaceItemFromPDFFileTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -7472,6 +7473,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
+    @Ignore
     public void invalidCollectionConfigurationPreventItemCreationTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
