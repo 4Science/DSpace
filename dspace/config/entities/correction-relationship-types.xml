@@ -283,8 +283,8 @@
         </rightCardinality>
     </type>
     <type>
-        <leftType>Coins</leftType>
-        <rightType>Coins</rightType>
+        <leftType>Coin</leftType>
+        <rightType>Coin</rightType>
         <leftwardType>isCorrectionOfItem</leftwardType>
         <rightwardType>isCorrectedByItem</rightwardType>
         <leftCardinality>
