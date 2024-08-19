@@ -5167,7 +5167,7 @@
           <dc-qualifier>path</dc-qualifier>
           <label>Percorso</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint />
         </field>
