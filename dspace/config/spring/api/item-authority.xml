@@ -60,7 +60,8 @@
 		<property name="selectableMetadata" value=""/>
 		<property name="labelMetadata">
 			<list>
-				<value>dc.identifier.archivalunit</value>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -79,7 +80,8 @@
 		<property name="selectableMetadata" value=""/>
 		<property name="labelMetadata">
 			<list>
-				<value>dc.identifier.archivalunit</value>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -98,7 +100,8 @@
 		<property name="selectableMetadata" value=""/>
 		<property name="labelMetadata">
 			<list>
-				<value>dc.identifier.archivalunit</value>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -117,7 +120,8 @@
 		<property name="selectableMetadata" value=""/>
 		<property name="labelMetadata">
 			<list>
-				<value>dc.identifier.archivalunit</value>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
