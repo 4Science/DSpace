@@ -64,9 +64,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Install Grobid (only IT)
-        run:  ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-        if: matrix.type == 'Integration Tests'
+      #- name: Install Grobid (only IT)
+      #  run:  ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
+      #  if: matrix.type == 'Integration Tests'
 
       # Run parallel Maven builds based on the above 'strategy.matrix'
       - name: Run Maven ${{ matrix.type }}

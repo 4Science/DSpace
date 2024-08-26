@@ -151,9 +151,13 @@
                 <entry key="fonds" value-ref="fonds"/>
                 <entry key="journalfonds" value-ref="journalfonds"/>
                 <entry key="aggregations" value-ref="aggregations"/>
+                <entry key="aggregationsHomePage" value-ref="aggregationsHomePage"/>
+                <entry key="journalfondsHomePage" value-ref="journalfondsHomePage"/>
+                <entry key="fondsHomePage" value-ref="fondsHomePage"/>
                 <entry key="path" value-ref="path"/>
                 <entry key="additions" value-ref="additions"/>
                 <entry key="news" value-ref="news"/>
+                <entry key="opera" value-ref="opera"/>
                 <entry key="homePageTopItems" value-ref="homePageTopItemsConfiguration"/>
                 <!-- search for an entity that can be a Person or an OrgUnit -->
                 <entry key="personOrOrgunit" value-ref="personOrOrgunit"/>
@@ -2275,6 +2279,7 @@
                 <ref bean="searchFilterPlace"/>
                 <ref bean="searchFilterEvent"/>
                 <ref bean="searchFilterOrganizationalUnit"/>
+                <ref bean="searchFilterOpera"/>
 	        </list>
 	    </property>
 	    <!-- Set TagCloud configuration per discovery configuration -->
@@ -2295,6 +2300,7 @@
                 <ref bean="searchFilterPlace"/>
                 <ref bean="searchFilterEvent"/>
                 <ref bean="searchFilterOrganizationalUnit"/>
+                <ref bean="searchFilterOpera"/>
 	        </list>
 	    </property>
 	    <!--The sort filters for the discovery search-->
@@ -2386,6 +2392,7 @@
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
                         <ref bean="glamfondsSortIndex"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2412,6 +2419,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="fondsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="fonds">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfonds.parent:* AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="journalfonds" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2456,6 +2473,7 @@
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
                         <ref bean="glamjournalfondsSortIndex"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2482,6 +2500,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="journalfondsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="journalfonds">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:JournalFonds AND -glamjournalfond.parent:* AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="aggregations" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2522,6 +2550,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2548,6 +2577,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="aggregationsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="aggregations">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Aggregation AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="additions" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2651,6 +2690,73 @@
             <bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
                 <property name="metadataSortField" value="cris.priority"/>
                 <property name="max" value="5"/>
+                <property name="useAsHomePage" value="false"/>
+            </bean>
+        </property>
+
+        <!-- When true a "did you mean" example will be displayed, value can be true or false -->
+        <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="opera" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <property name="id" value="opera"/>
+        <property name="indexAlways" value="true"/>
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterPath"/>
+                <ref bean="searchFilterAggregation"/>
+                <ref bean="searchFilterConference"/>
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterPath"/>
+                <ref bean="searchFilterAggregation"/>
+                <ref bean="searchFilterConference"/>
+            </list>
+        </property>
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortScore" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all
+            queries done by discovery for this configuration -->
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Opera</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
+        <!--The configuration for the recent submissions-->
+        <property name="recentSubmissionConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoveryRecentSubmissionsConfiguration">
+                <property name="metadataSortField" value="dc.date.accessioned" />
+                <property name="type" value="date"/>
+                <property name="max" value="20"/>
+                <!-- If enabled the collection home page will not display metadata but show a pageable list of recent submissions -->
                 <property name="useAsHomePage" value="false"/>
             </bean>
         </property>
@@ -4050,6 +4156,22 @@
         <property name="exposeMinAndMaxValue" value="false"/>
     </bean>
 
+    <bean id="searchFilterConference"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="aggregation" />
+        <property name="metadataFields">
+            <list>
+                <value>dc.relation.conference</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
     <bean id="searchFilterFileNameInOriginalBundle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="original_bundle_filenames"/>
         <property name="metadataFields">
@@ -4683,6 +4805,21 @@
         <property name="metadataFields">
             <list>
                 <value>dc.contributor.family</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterOpera" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="opera"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.relation.opera</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

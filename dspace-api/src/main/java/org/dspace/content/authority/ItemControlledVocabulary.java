@@ -7,6 +7,8 @@
  */
 package org.dspace.content.authority;
 
+import java.util.List;
+
 import org.dspace.content.authority.mapper.ItemControlledVocabularyMapper;
 
 /*
@@ -26,7 +28,7 @@ public class  ItemControlledVocabulary {
 
     private String selectableMetadata;
 
-    private String labelMetadata;
+    private List<String> labelMetadata;
 
     private String sortFieldAndOrder;
 
@@ -74,11 +76,11 @@ public class  ItemControlledVocabulary {
         this.selectableMetadata = selectableMetadata;
     }
 
-    public String getLabelMetadata() {
+    public List<String> getLabelMetadata() {
         return labelMetadata;
     }
 
-    public void setLabelMetadata(String labelMetadata) {
+    public void setLabelMetadata(List<String> labelMetadata) {
         this.labelMetadata = labelMetadata;
     }
 
