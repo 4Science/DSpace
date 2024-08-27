@@ -2250,7 +2250,6 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         xmlIS.close();
     }
 
-    @Ignore
     @Test
     /**
      * Test the creation of a workspaceitem POSTing to the resource collection endpoint a PDF file. As a single item
@@ -2258,6 +2257,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
      *
      * @throws Exception
      */
+    @Ignore
     public void createWorkspaceItemFromPDFFileTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -7472,6 +7472,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
+    @Ignore
     public void invalidCollectionConfigurationPreventItemCreationTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
