@@ -380,7 +380,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="coins">
+                <entry key="coin">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -397,7 +397,7 @@
                                     </value>
                                 </list>
                             </property>
-                            <property name="submissionDefinition" value="coins-edit" />
+                            <property name="submissionDefinition" value="coin-edit" />
                         </bean>
                     </list>
                 </entry>
