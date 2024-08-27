@@ -52,14 +52,13 @@ public class UserAgreementFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
-        Context context = ContextUtil.obtainContext(request);
-
         boolean filterEnabled = configurationService.getBooleanProperty("user-agreement.enabled", false);
         if (!filterEnabled) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        Context context = ContextUtil.obtainContext(request);
         EPerson currentUser = context.getCurrentUser();
         if (isNotOpenPath(request) && currentUser != null) {
             boolean isUserAgreementAccepted = BooleanUtils
