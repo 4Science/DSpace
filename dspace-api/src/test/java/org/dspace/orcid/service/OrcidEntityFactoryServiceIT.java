@@ -120,6 +120,16 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withEntityType("Project")
             .build();
 
+        fundings = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection")
+                .withEntityType("Funding")
+                .build();
+
+        persons = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection")
+                .withEntityType("person")
+                .build();
+
         context.restoreAuthSystemState();
     }
 
@@ -182,11 +192,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         context.turnOffAuthorisationSystem();
 
-        Item author = ItemBuilder.createItem(context, persons)
-            .withTitle("Jesse Pinkman")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withPersonEmail("test@test.it")
-            .build();
 
         Item product = ItemBuilder.createItem(context, products)
             .withTitle("Test dataset")
@@ -243,12 +248,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     public void testPatentWorkCreation() {
 
         context.turnOffAuthorisationSystem();
-
-        Item author = ItemBuilder.createItem(context, persons)
-            .withTitle("Jesse Pinkman")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withPersonEmail("test@test.it")
-            .build();
 
         Item patent = ItemBuilder.createItem(context, patents)
             .withTitle("Test patent")
@@ -533,7 +532,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -564,7 +563,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_7ad9")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -595,7 +594,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -628,7 +627,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -662,7 +661,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_18cc")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -696,7 +695,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -732,7 +731,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -766,7 +765,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_18cc")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
@@ -800,7 +799,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding", funding.getID().toString())
+            .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
 
