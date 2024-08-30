@@ -604,4 +604,20 @@
         <scope_note></scope_note>
     </dc-type>
 
+  <!-- Used by system: do not remove -->
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>funding</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <!-- Used by system: do not remove -->
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>grantno</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 </dspace-dc-types>

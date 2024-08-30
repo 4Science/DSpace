@@ -299,6 +299,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return this;
     }
 
+    public ItemBuilder withFundingIdentifier(String identifier) {
+        return addMetadataValue(item, "dc", "identifier", "other",  identifier);
+    }
+
     public ItemBuilder withHandle(String handle) {
         this.handle = handle;
         return this;
@@ -390,10 +394,6 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withFundingCoInvestigator(String investigator, String authority) {
         return addMetadataValue(item, "crisfund", "coinvestigators", null, null, investigator, authority, 600);
-    }
-
-    public ItemBuilder withFundingIdentifier(String identifier) {
-        return addMetadataValue(item, "oairecerif", "funding", "identifier", identifier);
     }
 
     public ItemBuilder withFundingAwardUrl(String url) {
