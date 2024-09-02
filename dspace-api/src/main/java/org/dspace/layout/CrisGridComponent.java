@@ -17,6 +17,8 @@ public class CrisGridComponent implements CrisLayoutSectionComponent {
     private String discoveryConfigurationName;
     private String style;
     private String mainContentLink;
+    private String sortField;
+    private String order;
 
     @Override
     public String getStyle() {
@@ -41,5 +43,21 @@ public class CrisGridComponent implements CrisLayoutSectionComponent {
 
     public void setMainContentLink(String mainContentLink) {
         this.mainContentLink = mainContentLink;
+    }
+
+    public String getSortField() {
+        return sortField;
+    }
+
+    public void setSortField(String sortField) {
+        this.sortField = sortField;
+    }
+
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
     }
 }

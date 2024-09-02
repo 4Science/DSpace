@@ -122,6 +122,7 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.supervision.SupervisionOrder;
 import org.dspace.util.UUIDUtils;
+import org.dspace.validation.CclicenseValidator;
 import org.dspace.validation.LicenseValidator;
 import org.dspace.versioning.ItemCorrectionProvider;
 import org.hamcrest.Matchers;
@@ -144,6 +145,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
     public static final String LICENSE_ERROR_MESSAGE_PATH =
         "$.errors[?(@.message=='" + LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + "')]";
+    public static final String CCLICENSE_ERROR_MESSAGE_PATH =
+            "$.errors[?(@.message=='" + CclicenseValidator.ERROR_VALIDATION_CCLICENSEREQUIRED + "')]";
     @Autowired
     private CollectionService cs;
     @Autowired
@@ -10316,4 +10319,50 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
                         is("12312")));
     }
+
+    @Test
+    public void createWorkspaceWithoutCclicense_CclicenseRequired() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //1. A community-collection structure with one parent community with sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                .withName("Sub Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1")
+                .withSubmitterGroup(eperson)
+                .build();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+        configurationService.setProperty("cc.license.required", true);
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // create an empty workspaceitem explicitly in the col1, check validation on creation
+            getClient(authToken).perform(post("/api/submission/workspaceitems")
+                            .param("owningCollection", col1.getID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    // cclicense is required
+                    .andExpect(jsonPath(CCLICENSE_ERROR_MESSAGE_PATH,
+                            contains( hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/cclicense")))))))
+                    .andExpect(jsonPath("$.errors[?(@.message=='error.validation.cclicense.required')]",
+                            contains(
+                                    hasJsonPath("$.paths", contains(
+                                            hasJsonPath("$", Matchers.is("/sections/cclicense"))
+                                    )))))
+                    .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
 }
