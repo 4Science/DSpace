@@ -605,7 +605,6 @@
         <scope_note></scope_note>
     </dc-type>
 
-  <!-- Used by system: do not remove -->
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
@@ -613,7 +612,6 @@
     <scope_note></scope_note>
   </dc-type>
 
-  <!-- Used by system: do not remove -->
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
@@ -621,4 +619,17 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>grantno</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>patentno</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
 </dspace-dc-types>

@@ -661,7 +661,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
             .withType("http://purl.org/coar/resource_type/c_18cc")
-            .withRelationFunding("Test funding")
+            .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
 
@@ -723,7 +723,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withHandle("123456789/0001")
             .withTitle("Test funding")
             .withFundingIdentifier("987654")
-            .withFundingAwardUrl("http://test-funding")
             .build();
 
         Item publication = ItemBuilder.createItem(context, publications)
@@ -757,7 +756,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withHandle("123456789/0001")
             .withTitle("Test funding")
             .withFundingIdentifier("987654")
-            .withFundingAwardUrl("http://test-funding")
             .build();
 
         Item product = ItemBuilder.createItem(context, products)
@@ -791,7 +789,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withHandle("123456789/0001")
             .withTitle("Test funding")
             .withFundingIdentifier("987654")
-            .withFundingAwardUrl("http://test-funding")
             .build();
 
         Item patent = ItemBuilder.createItem(context, patents)
