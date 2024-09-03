@@ -590,7 +590,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item funding = ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Test funding")
-            .withFundingInvestigator("Test User", profile.getID().toString())
             .build();
 
         context.restoreAuthSystemState();
@@ -795,7 +794,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item funding = ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Test funding")
-            .withFundingInvestigator("Test User", profile.getID().toString())
             .build();
 
         context.restoreAuthSystemState();
@@ -804,7 +802,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         assertThat(orcidQueueService.findAll(context), empty());
 
         addMetadata(profile, "dspace", "orcid", "sync-fundings", DISABLED.name(), null);
-        addMetadata(funding, "crispj", "partnerou", null, "Partner", null);
         context.commit();
 
         assertThat(orcidQueueService.findAll(context), empty());
@@ -887,7 +884,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Test funding")
-            .withFundingInvestigator("Test User", profile.getID().toString())
             .build();
 
         Collection productCollection = createCollection("Products", "Product");
@@ -925,7 +921,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Test funding")
-            .withFundingInvestigator("Test User", profile.getID().toString())
             .build();
 
         context.restoreAuthSystemState();
@@ -1048,12 +1043,10 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         Item firstFunding = ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Test funding")
-            .withFundingInvestigator("Test User", profile.getID().toString())
             .build();
 
         ItemBuilder.createItem(context, fundingCollection)
             .withTitle("Another funding")
-            .withFundingCoInvestigator("Test User", profile.getID().toString())
             .build();
 
         Collection productCollection = createCollection("Products", "Product");
