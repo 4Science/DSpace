@@ -205,7 +205,7 @@
                     <property name="showAllResults" value="true"/>
                 </bean>
             </list>
-            <list>
+            <!--<list>
                 <bean class="org.dspace.layout.CrisLayoutTwitterComponent">
                     <property name="style" value="col-12"/>
                     <property name="twitterSettings">
@@ -240,7 +240,7 @@
                         </list>
                     </property>
                 </bean>
-            </list>
+            </list>-->
             <list>
 	            <bean class="org.dspace.layout.CrisLayoutCarouselComponent">
 				    <property name="discoveryConfigurationName" value="person" />
