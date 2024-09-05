@@ -509,7 +509,7 @@ public class DataCiteConnector
             log.error("The URL we constructed to check a DOI "
                           + "produced a URISyntaxException. Please check the configuration parameters!");
             log.error("The URL was {}.", SCHEME + "://" + HOST +
-                DOI_PATH + "/" + doi.substring(DOI.SCHEME.length()));
+                DOI_PATH + "/" + getPlainDOI(doi));
             throw new RuntimeException("The URL we constructed to check a DOI "
                                            + "produced a URISyntaxException. Please check the configuration " +
                                            "parameters!",
@@ -519,7 +519,7 @@ public class DataCiteConnector
         // assemble request content:
         HttpEntity reqEntity = null;
         try {
-            String req = "doi=" + doi.substring(DOI.SCHEME.length()) + "\n" + "url=" + url + "\n";
+            String req = "doi=" + getPlainDOI(doi) + "\n" + "url=" + url + "\n";
             ContentType contentType = ContentType.create("text/plain", "UTF-8");
             reqEntity = new StringEntity(req, contentType);
             httppost.setEntity(reqEntity);
@@ -542,7 +542,7 @@ public class DataCiteConnector
         // delete mds/metadata/<doi>
         URIBuilder uribuilder = new URIBuilder();
         uribuilder.setScheme(SCHEME).setHost(HOST).setPath(METADATA_PATH
-                                                               + doi.substring(DOI.SCHEME.length()));
+                                                               + getPlainDOI(doi));
 
         HttpDelete httpdelete = null;
         try {
@@ -551,7 +551,7 @@ public class DataCiteConnector
             log.error("The URL we constructed to check a DOI "
                           + "produced a URISyntaxException. Please check the configuration parameters!");
             log.error("The URL was {}.", SCHEME + "://" + HOST +
-                DOI_PATH + "/" + doi.substring(DOI.SCHEME.length()));
+                DOI_PATH + "/" + getPlainDOI(doi));
             throw new RuntimeException("The URL we constructed to check a DOI "
                                            + "produced a URISyntaxException. Please check the configuration " +
                                            "parameters!",
@@ -574,7 +574,7 @@ public class DataCiteConnector
         throws DOIIdentifierException {
         URIBuilder uribuilder = new URIBuilder();
         uribuilder.setScheme(SCHEME).setHost(HOST).setPath(path
-                                                               + doi.substring(DOI.SCHEME.length()));
+                                                               + getPlainDOI(doi));
 
         HttpGet httpget = null;
         try {
@@ -583,7 +583,7 @@ public class DataCiteConnector
             log.error("The URL we constructed to check a DOI "
                           + "produced a URISyntaxException. Please check the configuration parameters!");
             log.error("The URL was {}.", SCHEME + "://" + HOST +
-                DOI_PATH + "/" + doi.substring(DOI.SCHEME.length()));
+                DOI_PATH + "/" + getPlainDOI(doi));
             throw new RuntimeException("The URL we constructed to check a DOI "
                                            + "produced a URISyntaxException. Please check the configuration " +
                                            "parameters!",
@@ -630,7 +630,7 @@ public class DataCiteConnector
             log.error("The URL we constructed to check a DOI "
                           + "produced a URISyntaxException. Please check the configuration parameters!");
             log.error("The URL was {}.", SCHEME + "://" + HOST +
-                DOI_PATH + "/" + doi.substring(DOI.SCHEME.length()));
+                DOI_PATH + "/" + getPlainDOI(doi));
             throw new RuntimeException("The URL we constructed to check a DOI "
                                            + "produced a URISyntaxException. Please check the configuration " +
                                            "parameters!",
@@ -826,7 +826,7 @@ public class DataCiteConnector
                                          configurationService.getProperty(CFG_NAMESPACE,
                                                                           "http://datacite.org/schema/kernel-4"));
         identifier.setAttribute("identifierType", "DOI");
-        identifier.addContent(doi.substring(DOI.SCHEME.length()));
+        identifier.addContent(getPlainDOI(doi));
         return root.addContent(0, identifier);
     }
 
@@ -855,5 +855,9 @@ public class DataCiteConnector
         protected String getContent() {
             return this.content;
         }
+    }
+
+    private String getPlainDOI(String doi) {
+        return doi.replace(DOI.SCHEME, "");
     }
 }

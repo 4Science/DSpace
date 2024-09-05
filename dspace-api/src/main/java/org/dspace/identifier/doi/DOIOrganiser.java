@@ -620,6 +620,9 @@ public class DOIOrganiser {
      */
     public void update(DOI doiRow) {
         DSpaceObject dso = doiRow.getDSpaceObject();
+        if (dso == null) {
+            return;
+        }
         if (Constants.ITEM != dso.getType()) {
             throw new IllegalArgumentException("Currently DSpace supports DOIs for Items only.");
         }
