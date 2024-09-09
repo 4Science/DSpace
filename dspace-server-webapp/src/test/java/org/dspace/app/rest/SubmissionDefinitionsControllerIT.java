@@ -47,7 +47,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
     // The total number of expected submission definitions is referred to in multiple tests and assertions as
     // is the last page (totalDefinitions - 1)
     // This integer should be maintained along with any changes to item-submissions.xml
-    private static final int totalDefinitions = 24;
+    private static final int totalDefinitions = 26;
 
     @Test
     public void findAll() throws Exception {
@@ -368,7 +368,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-correction")))
+                .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-unpaywall")))
                 .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                     Matchers.containsString("/api/config/submissiondefinitions?"),
                     Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
