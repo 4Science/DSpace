@@ -42,7 +42,9 @@ public class UnpaywallItemVersionsRest extends BaseObjectRest<String> {
     }
 
     @Override
-    public String getTypePlural() { return getType(); }
+    public String getTypePlural() {
+        return getType();
+    }
 
     public List<UnpaywallItemVersionDto> getVersions() {
         return versions;
