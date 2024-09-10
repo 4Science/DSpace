@@ -8,7 +8,6 @@
 package org.dspace.app.metadataupdate;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
@@ -19,8 +18,10 @@ import org.dspace.content.MetadataFieldName;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResultItemIterator;
 import org.dspace.discovery.SearchService;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.scripts.DSpaceRunnable;
@@ -72,13 +73,13 @@ public class MetadataUpdateScript
 
                 if (!value.isEmpty() && !value.equals(key)) {
 
-                    List<IndexableObject> indexableObjects = findIndexableObjects(key);
+                    DiscoverResultItemIterator iterator = findIndexableObjects(key);
 
-                    indexableObjects.forEach(indexableObject -> {
-                        Item item = ((Item) indexableObject.getIndexedObject());
+                    while (iterator.hasNext()) {
+                        Item item = iterator.next();
                         try {
                             String currentValue = itemService.getMetadataFirstValue(item,
-                                    metadata.schema, metadata.element, metadata.qualifier, Item.ANY);
+                                metadata.schema, metadata.element, metadata.qualifier, Item.ANY);
                             if (StringUtils.equals(currentValue, key)) {
                                 itemService.setMetadataSingleValue(context, item, metadata, Item.ANY, value);
                                 itemService.update(context, item);
@@ -86,7 +87,7 @@ public class MetadataUpdateScript
                         } catch (SQLException | AuthorizeException e) {
                             throw new RuntimeException(e);
                         }
-                    });
+                    }
                 }
 
             });
@@ -102,12 +103,16 @@ public class MetadataUpdateScript
         }
     }
 
-    private List<IndexableObject> findIndexableObjects(String value) {
-        return searchService.search(context, "*:*",
-                "lastModified", false, 0, Integer.MAX_VALUE,
-                "search.resourcetype:Item",
-                "dspace.entity.type:" + entityType,
-                metadata.toString() + ":\"" + searchService.escapeQueryChars(value) + "\"");
+    private DiscoverResultItemIterator findIndexableObjects(String value) {
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
+        discoverQuery.addFilterQueries("*:*");
+        discoverQuery.addFilterQueries("search.entitytype:" + entityType);
+        discoverQuery.addFilterQueries("entityType_keyword:" + entityType);
+        discoverQuery.addFilterQueries(metadata.toString() + ":\"" +
+            searchService.escapeQueryChars(value) + "\"");
+
+        return new DiscoverResultItemIterator(context, discoverQuery);
     }
 
     protected void assignCurrentUserInContext(Context context) throws ParseException {
