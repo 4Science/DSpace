@@ -117,6 +117,7 @@ public class MetadataUpdateScriptIT extends AbstractIntegrationTestWithDatabase 
             throws InstantiationException, IllegalAccessException {
         TestDSpaceRunnableHandler runnableHandler = new TestDSpaceRunnableHandler();
         String[] args = new String[] { "metadata-update", "-m", "dc.language.iso",
+                "-f", "mapConverter-metadataValues.properties",
                 "-en", entityType, "-e", admin.getEmail()};
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), runnableHandler, kernelImpl);
         return runnableHandler;
