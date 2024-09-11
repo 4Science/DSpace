@@ -55,6 +55,10 @@ public class MetadataUpdateScriptConfiguration<T extends MetadataUpdateScript>
             options.getOption("m").setType(String.class);
             options.getOption("m").setRequired(true);
 
+            options.addOption("f", "file", true, "the mapping file name");
+            options.getOption("f").setType(String.class);
+            options.getOption("f").setRequired(true);
+
             options.addOption("en", "entity", true, "entity type to be processed");
             options.getOption("en").setType(String.class);
             options.getOption("en").setRequired(true);

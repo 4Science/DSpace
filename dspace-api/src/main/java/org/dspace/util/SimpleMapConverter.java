@@ -38,6 +38,16 @@ public class SimpleMapConverter {
 
     private String defaultValue = "";
 
+    public SimpleMapConverter() {
+
+    }
+
+    public SimpleMapConverter(String converterNameFile, ConfigurationService configurationService) {
+        this.converterNameFile = converterNameFile;
+        this.configurationService = configurationService;
+        init();
+    }
+
     /**
      * This flag would inform the caller of the converter that it expects to deal
      * with authority values instead than text value

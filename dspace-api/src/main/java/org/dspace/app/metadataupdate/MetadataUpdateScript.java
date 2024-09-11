@@ -25,6 +25,8 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.SimpleMapConverter;
 import org.dspace.utils.DSpace;
 import org.slf4j.Logger;
@@ -36,10 +38,12 @@ public class MetadataUpdateScript
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataUpdateScript.class);
     private ItemService itemService;
     private SearchService searchService;
+    private ConfigurationService configurationService;
     private SimpleMapConverter simpleMapConverter;
     protected Context context;
     protected MetadataFieldName metadata;
     protected String entityType;
+    protected String file;
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -54,11 +58,13 @@ public class MetadataUpdateScript
         DSpace dSpace = new DSpace();
         this.itemService = ContentServiceFactory.getInstance().getItemService();
         this.searchService = dSpace.getSingletonService(SearchService.class);
-        this.simpleMapConverter = dSpace.getServiceManager()
-                .getServiceByName("mapConverterMetadataValues", SimpleMapConverter.class);
+        this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
         metadata = new MetadataFieldName(commandLine.getOptionValue("m"));
         entityType = commandLine.getOptionValue("en");
+        file = commandLine.getOptionValue("f");
+
+        this.simpleMapConverter = new SimpleMapConverter(file, configurationService);
     }
 
     @Override
