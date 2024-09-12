@@ -770,12 +770,14 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
         Item author_1 = ItemBuilder.createItem(context, col1)
                                    .withTitle("Author 1")
                                    .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                                   .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                                    .withEntityType("person")
                                    .build();
 
         Item author_2 = ItemBuilder.createItem(context, col1)
                                    .withTitle("Author 2")
                                    .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                   .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                                    .withEntityType("person")
                                    .build();
 
@@ -883,6 +885,7 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
             .withTitle(title)
             .withEntityType("Person")
             .withPersonMainAffiliation(affiliation.getName(), affiliation.getID().toString())
+            .withPersonAffiliation(affiliation.getName(), affiliation.getID().toString())
             .build();
     }
 

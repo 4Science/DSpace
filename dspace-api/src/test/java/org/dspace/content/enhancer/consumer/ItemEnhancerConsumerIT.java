@@ -455,6 +455,32 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     }
 
+    @Test
+    public void testSingleMetadataJournalAnceEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item journalItem = ItemBuilder.createItem(context, collection)
+                .withTitle("Test journal")
+                .withEntityType("Journal")
+                .withJournalAnce("AA110022")
+                .build();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+                .withTitle("Test publication")
+                .withEntityType("Publication")
+                .withRelationJournal(journalItem.getName(), journalItem.getID().toString())
+                .build();
+
+        context.restoreAuthSystemState();
+        publication = commitAndReload(publication);
+
+        List<MetadataValue> metadataValues = publication.getMetadata();
+        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasItem(with("cris.virtual.journalance", "AA110022")));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.journalance", journalItem.getID().toString())));
+    }
+
     private List<Integer> getPlacesAsVirtualSource(Item person1, Item publication, String metadata) {
         return getMetadataValues(publication, metadata).stream()
                 .filter(mv -> StringUtils.equals(mv.getValue(), person1.getID().toString())).map(mv -> mv.getPlace())

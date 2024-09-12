@@ -100,10 +100,6 @@ public abstract class ScriptConfiguration<T extends DSpaceRunnable> implements B
         }
     }
 
-    public boolean isAllowedToExecute(Context context) {
-        return this.isAllowedToExecute(context, List.of());
-    }
-
     /**
      * The getter for the options of the Script
      * @return the options value of this ScriptConfiguration

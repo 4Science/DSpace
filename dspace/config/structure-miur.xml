@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<import_structure>
+    <community>
+        <name>Prodotti della ricerca</name>
+        <community>
+            <name>A. Contributo su rivista</name>
+            <collection>
+                <name>A1. Articolo in rivista</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>262</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>A2. Recensione in rivista</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>263</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>A3. Scheda bibliografica</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>264</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>A4. Nota a sentenza</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>265</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>A5. Abstract su rivista</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>266</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>A6. Traduzione in rivista</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>article</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>267</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>B. Contributo in volume</name>
+            <collection>
+                <name>B1. Contributo in volume (Capitolo o Saggio)</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>268</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B2. Prefazione / Postfazione</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>269</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B3. Breve introduzione</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>270</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B4. Voce di dizionario o enciclopedia</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>271</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B5. Traduzione in volume</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>272</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B6. Recensione in volume</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>301</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>B7. Schede di catalogo, repertorio o corpus</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>bookPart</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>302</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>C. Libro</name>
+            <collection>
+                <name>C1. Monografia o trattato scientifico</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>276</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C2. Concordanza</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>277</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C3. Indice</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>278</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C4. Bibliografia</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>279</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C5. Edizione critica di testi/di scavo</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>280</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C6. Pubblicazione di fonti inedite</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>281</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C7. Commento scientifico</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>282</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>C8. Traduzione di libro</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>book</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>283</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>D. Contributo in Atti di convegno</name>
+            <collection>
+                <name>D1. Contributo in Atti di convegno</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>conferenceObject</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>273</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>D2. Abstract in Atti di convegno</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>conferenceObject</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>274</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>D3. Poster</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>conferenceObject</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>275</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>E. Brevetto</name>
+            <collection>
+                <name>E1. Brevetto</name>
+                <entity-type>Patent</entity-type>
+                <submission-type>patent</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>patent</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>285</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>F. Curatela</name>
+            <collection>
+                <name>F1. Curatela</name>
+                <entity-type>Publication</entity-type>
+                <submission-type>publication</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>review</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>284</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+        <community>
+            <name>G. Altra tipologia</name>
+            <collection>
+                <name>G01. Composizione</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>286</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G02. Disegno</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>287</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G03. Progetto architettonico</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>1037</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G04. Design</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>288</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G05. Performance</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>289</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G06. Esposizione</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>290</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G07. Mostra</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>291</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G08. Manufatto</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>292</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G09. Prototipo d'arte e relativi progetti</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>293</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G10. Cartografia</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>294</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G11. Banca dati</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>295</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G12. Software</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>296</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+            <collection>
+                <name>G13. Altro</name>
+                <entity-type>Product</entity-type>
+                <submission-type>product</submission-type>
+                <templateItem>
+                    <metadata schema="dc" element="type">
+                        <value>other</value>
+                    </metadata>
+                    <metadata schema="miur" element="type">
+                        <value>298</value>
+                    </metadata>
+                </templateItem>
+                <description/>
+                <intro/>
+                <copyright/>
+                <sidebar/>
+                <license/>
+                <provenance/>
+            </collection>
+        </community>
+    </community>
+</import_structure>

@@ -469,6 +469,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default, we expect: indexableObjects=2, totalFound=2
@@ -562,6 +563,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,
@@ -653,6 +655,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,

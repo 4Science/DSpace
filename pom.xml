@@ -71,6 +71,7 @@
         <addon-networklab.version>${addons.version}</addon-networklab.version>
         <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
         <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
+        <addon-importplus.version>${addons.version}</addon-importplus.version>
         
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1044,6 +1045,23 @@
                         <groupId>it.4science.dspace</groupId>
                         <artifactId>addon-orchestrator-rest</artifactId>
                         <version>${addon-orchestrator.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
+            <id>addon-importplus</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-importplus</artifactId>
+                        <version>${addon-importplus.version}</version>
                         <type>jar</type>
                     </dependency>
                 </dependencies>

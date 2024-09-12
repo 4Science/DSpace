@@ -45,9 +45,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataDeletionCli"/>
     </bean>
 
-    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
+    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterCliScriptConfiguration">
         <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterCliScript"/>
     </bean>
 
     <bean id="solr-database-resync" class="org.dspace.app.solrdatabaseresync.SolrDatabaseResyncCliScriptConfiguration">

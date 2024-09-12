@@ -27,11 +27,6 @@ public class ItemExportScriptConfiguration<T extends ItemExport> extends ScriptC
 
     @Override
     public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
-        return this.isAllowedToExecute(context);
-    }
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
         return true;
     }
 

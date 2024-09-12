@@ -7,7 +7,12 @@
  */
 package org.dspace.app.bulkedit;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.commons.cli.Options;
+import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 
 /**
@@ -16,6 +21,16 @@ import org.dspace.scripts.configuration.ScriptConfiguration;
 public class MetadataExportScriptConfiguration<T extends MetadataExport> extends ScriptConfiguration<T> {
 
     private Class<T> dspaceRunnableClass;
+
+    public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
+        try {
+            return authorizeService.isAdmin(context) || authorizeService.isComColAdmin(context) ||
+                authorizeService.isItemAdmin(context);
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                "SQLException occurred when checking if the current user is eligible to run the script", e);
+        }
+    }
 
     @Override
     public Class<T> getDspaceRunnableClass() {

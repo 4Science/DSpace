@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -69,6 +70,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
@@ -76,6 +78,7 @@ import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.EntityTypeService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.CrisConstants;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
@@ -113,6 +116,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     @Autowired
     ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    ItemService itemService;
 
     /**
      * This field has been created to easily modify the tests when updating the defaultConfiguration's sidebar facets
@@ -7696,4 +7702,62 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                         FacetValueMatcher.entryDateIssuedWithLabelAndCount("journal article", 1)
                 )));
     }
+
+    @Test
+    public void discoverFilterBasedOnVirtualMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community").build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("OrgUnit Collection")
+                .withEntityType("OrgUnit")
+                .build();
+        Collection personCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Person Collection")
+                .withEntityType("Person")
+                .build();
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Publication Collection")
+                .withEntityType("Publication")
+                .build();
+
+        Item orgUnitItem = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit Test")
+                .build();
+        Item personItem = ItemBuilder.createItem(context, personCollection)
+                .withTitle("Scognamiglio, Francesco Pio")
+                .withAffiliation(orgUnitItem.getName(), orgUnitItem.getID().toString())
+                .build();
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                .withTitle("Publication Test")
+                .withAuthor(personItem.getName(), personItem.getID().toString())
+                .build();
+
+        context.restoreAuthSystemState();
+
+        publicationItem = context.reloadEntity(publicationItem);
+
+        List<MetadataValue> departments = itemService.getMetadataByMetadataString(
+                publicationItem, "cris.virtual.department");
+        assertEquals(1, departments.size(), 0);
+        MetadataValue department = departments.get(0);
+        assertEquals(orgUnitItem.getName(), department.getValue());
+        assertEquals(orgUnitItem.getID().toString(), department.getAuthority());
+        assertEquals(600, department.getConfidence());
+
+        getClient().perform(get("/api/discover/search/objects")
+                        .param("configuration", "publication")
+                        .param("query", "department:" + orgUnitItem.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type", is("discover")))
+                .andExpect(jsonPath("$._embedded.searchResult.page", is(PageMatcher.pageEntry(0, 20))))
+                .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)))
+                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                        Matchers.containsInAnyOrder(
+                                SearchResultMatcher.matchOnItemName("item", "items", publicationItem.getName()))));
+
+    }
+
 }

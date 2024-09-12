@@ -16,6 +16,8 @@ import org.dspace.content.enhancer.service.ItemEnhancerService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.services.ConfigurationService;
@@ -37,6 +39,8 @@ public class ItemEnhancerConsumer implements Consumer {
     private ItemEnhancerService itemEnhancerService;
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    private IndexingService indexService = new DSpace().getSingletonService(IndexingService.class);
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -73,12 +77,23 @@ public class ItemEnhancerConsumer implements Consumer {
     public void end(Context ctx) throws Exception {
         ctx.turnOffAuthorisationSystem();
         try {
+            boolean solrRequireCommit = false;
             for (UUID uuid : itemsToProcess) {
                 Item item = itemService.find(ctx, uuid);
                 if (item != null) {
-                    itemEnhancerService.enhance(ctx, item, false);
+                    boolean isUpdated = itemEnhancerService.enhance(ctx, item, false);
+                    if (isUpdated) {
+                        solrRequireCommit = true;
+                        indexService.indexContent(ctx, new IndexableItem(item), true);
+                    }
+                    // we need to put in the queue all the related items also if the current item
+                    // doesn't require enhancement as the related items could depends on normal
+                    // metadata of this item changed in the context
                     itemEnhancerService.saveAffectedItemsForUpdate(ctx, item.getID());
                 }
+            }
+            if (solrRequireCommit) {
+                indexService.commit();
             }
         } finally {
             ctx.restoreAuthSystemState();

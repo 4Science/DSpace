@@ -85,7 +85,7 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
         timeUntilReindex = getTimeUntilReindex();
         maxTime = getMaxTime();
 
-        Context context = new Context();
+        Context context = new Context(Context.Mode.READ_ONLY);
 
         try {
             context.turnOffAuthorisationSystem();
@@ -128,6 +128,7 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
                     if (indexableObject.isPresent()) {
                         logDebugAndOut("Item exists in DB, updating solr document");
                         updateItem(context, indexableObject.get());
+                        context.uncacheEntity(indexableObject.get().getIndexedObject());
                     } else {
                         logDebugAndOut("Item doesn't exist in DB, removing solr document");
                         removeItem(context, uniqueId);
