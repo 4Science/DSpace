@@ -96,6 +96,11 @@ public class VocabularyEntryDetailsRest extends BaseObjectRest<String> {
     }
 
     @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
+    }
+
+    @Override
     public Class getController() {
         return RestResourceController.class;
     }

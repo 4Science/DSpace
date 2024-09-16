@@ -2257,7 +2257,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
-        getClient(tokenAdmin).perform(get("/api/core/edititem/" + itemA.getID() + ":MODE1"))
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + itemA.getID() + ":MODE1"))
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$.sections.traditionalpageone-cris", Matchers.allOf(
                                      hasJsonPath("$['dc.contributor.author'][0].value", is("Smith, Maria")),

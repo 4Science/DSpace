@@ -24,7 +24,7 @@ import org.dspace.app.rest.RestResourceController;
 public class RegistrationRest extends RestAddressableModel {
 
     public static final String NAME = "registration";
-    public static final String NAME_PLURAL = "registrations";
+    public static final String PLURAL_NAME = "registrations";
     public static final String CATEGORY = EPERSON;
 
     private Integer id;
@@ -137,5 +137,10 @@ public class RegistrationRest extends RestAddressableModel {
 
     public void setGroupNames(List<String> groupNames) {
         this.groupNames = groupNames;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 }

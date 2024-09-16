@@ -15,6 +15,7 @@ import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Period;
 import java.util.Date;
 import java.util.UUID;
 
@@ -92,8 +93,25 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
                 "date", "issued", new DCDate(issueDate).toString());
     }
 
+    public ItemBuilder withDateAvailable(final String dateAvailable) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(),
+                "date", "available", new DCDate(dateAvailable).toString());
+    }
+
     public ItemBuilder withIdentifierOther(final String identifierOther) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "other", identifierOther);
+    }
+
+    public ItemBuilder withIdentifierDoi(final String identifierDoi) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "doi", identifierDoi);
+    }
+
+    public ItemBuilder withIdentifierArxiv(final String identifierArxiv) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "arxiv", identifierArxiv);
+    }
+
+    public ItemBuilder withIdentifierPmid(final String identifierPmid) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "pmid", identifierPmid);
     }
 
     public ItemBuilder withAuthor(final String authorName) {
@@ -115,6 +133,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withAuthorAffiliation(String affiliation) {
         return addMetadataValue(item, "oairecerif", "author", "affiliation", affiliation);
+    }
+
+    public ItemBuilder withAuthorAffiliation(String affiliation, String authority) {
+        return addMetadataValue(item, "oairecerif", "author", "affiliation", null, affiliation, authority, 600);
     }
 
     public ItemBuilder withAuthorAffiliationForLanguage(String affiliation, String language) {
@@ -211,6 +233,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withIIIFCanvasHeight(int i) {
         return addMetadataValue(item, "iiif", "image", "height", String.valueOf(i));
+    }
+
+    public ItemBuilder withDSpaceObjectOwner(String name, String authority) {
+        return addMetadataValue(item, "dspace", "object", "owner", null, name, authority, 600);
     }
 
     public ItemBuilder withMetadata(final String schema, final String element, final String qualifier,
@@ -475,6 +501,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withPublisher(String publisher) {
         return addMetadataValue(item, "dc", "publisher", null, publisher);
+    }
+
+    public ItemBuilder withPublisher(String publisher, String authority) {
+        return addMetadataValue(item, "dc", "publisher", null, null, publisher, authority, 600);
     }
 
     public ItemBuilder withRelationPublication(String publication) {
@@ -810,7 +840,13 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return this;
     }
 
-    public ItemBuilder withEmbargoPeriod(String embargoPeriod) {
+    /**
+     * Set an embargo to end after some time from "now".
+     *
+     * @param embargoPeriod embargo starting "now", for this long.
+     * @return the ItemBuilder.
+     */
+    public ItemBuilder withEmbargoPeriod(Period embargoPeriod) {
         return setEmbargo(embargoPeriod, item);
     }
 
@@ -833,6 +869,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withOrgUnitCrossrefIdentifier(String crossrefid) {
         return addMetadataValue(item, "organization", "identifier", "crossrefid", crossrefid);
+    }
+
+    public ItemBuilder withOrgUnitRORIdentifier(String ror) {
+        return addMetadataValue(item, "organization", "identifier", "ror", ror);
     }
 
     public ItemBuilder withProjectStartDate(String startDate) {

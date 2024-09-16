@@ -21,6 +21,7 @@ public class ItemExportFormatRest extends BaseObjectRest<String> {
 
     public static final String CATEGORY = RestModel.INTEGRATION;
     public static final String NAME = "itemexportformat";
+    public static final String PLURAL_NAME = "itemexportformats";
 
     private String mimeType;
     private String entityType;
@@ -29,6 +30,11 @@ public class ItemExportFormatRest extends BaseObjectRest<String> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 
     @Override

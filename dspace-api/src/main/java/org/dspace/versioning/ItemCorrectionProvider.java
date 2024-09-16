@@ -71,8 +71,11 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
         workspaceItem.setItem(itemNew);
         workspaceItemService.update(context, workspaceItem);
 
-        log.info("Created new correction item " + workspaceItem.getItem().getID().toString()
-                + "from item " + nativeItem.getID().toString());
+        log.info(
+            "Created new correction item {} from item {}",
+             workspaceItem.getItem().getID().toString(),
+             nativeItem.getID().toString()
+        );
 
         return workspaceItem;
 

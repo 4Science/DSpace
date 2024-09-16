@@ -7,8 +7,6 @@
  */
 package org.dspace.app.util;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,10 +16,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -159,10 +157,9 @@ public class DCInputsReader {
      * Returns the set of DC inputs used for a particular collection, or the default
      * set if no inputs defined for the collection
      *
-     * @param  collection              collection
-     * @return                         DC input set
+     * @param collection collection for which search the set of DC inputs
+     * @return DC input set
      * @throws DCInputsReaderException if no default set defined
-     * @throws ServletException
      */
     public List<DCInputSet> getInputsByCollection(Collection collection)
         throws DCInputsReaderException {
@@ -880,7 +877,7 @@ public class DCInputsReader {
     public List<String> getLanguagesForMetadata(Collection collection, String metadata, boolean group)
         throws DCInputsReaderException {
 
-        return getAllInputsByCollection(collection)
+        Optional<DCInput> dcInputMetadata = getAllInputsByCollection(collection)
             .filter(dcInput -> group ? isGroupType(dcInput) : !isGroupType(dcInput))
             .filter(dcInput -> {
                 try {
@@ -891,9 +888,11 @@ public class DCInputsReader {
                     throw new RuntimeException(e);
                 }
             })
-            .findFirst()
-            .orElseThrow(() -> new DCInputsReaderException("No DCInput found for the metadata field " + metadata))
-            .getAllLanguageValues();
+            .findFirst();
+        if (dcInputMetadata.isPresent()) {
+            dcInputMetadata.get().getAllLanguageValues();
+        }
+        return List.of();
 
     }
 
@@ -953,7 +952,7 @@ public class DCInputsReader {
         }
 
         return dcInput.getAllStoredValues().stream()
-            .map(value -> isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName())
+            .map(value -> StringUtils.isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName())
             .collect(Collectors.toList());
     }
 

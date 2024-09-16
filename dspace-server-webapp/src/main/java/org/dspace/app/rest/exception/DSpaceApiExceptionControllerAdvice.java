@@ -105,7 +105,7 @@ public class DSpaceApiExceptionControllerAdvice extends ResponseEntityExceptionH
                           HttpServletResponse.SC_FORBIDDEN);
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, MultipartException.class})
+    @ExceptionHandler({IllegalArgumentException.class, MultipartException.class, InvalidLDNMessageException.class})
     protected void handleWrongRequestException(HttpServletRequest request, HttpServletResponse response,
                                                   Exception ex) throws IOException {
         sendErrorResponse(request, response, ex, "Request is invalid or incorrect", HttpServletResponse.SC_BAD_REQUEST);
@@ -202,6 +202,18 @@ public class DSpaceApiExceptionControllerAdvice extends ResponseEntityExceptionH
                                                                             HttpServletResponse response,
                                                                             UnprocessableEditException ex)
                                                                      throws IOException {
+        String location;
+        String exceptionMessage;
+        if (null == ex) {
+            exceptionMessage = "none";
+            location = "unknown";
+        } else {
+            exceptionMessage = ex.getMessage();
+            StackTraceElement[] trace = ex.getStackTrace();
+            location = trace.length <= 0 ? "unknown" : trace[0].toString();
+        }
+        log.warn("{} (status:{} exception: {} at: {})", "unprocessable edit item", HttpStatus.UNPROCESSABLE_ENTITY,
+                exceptionMessage, location);
         return new ResponseEntity<>(ex.getErrors(), null, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 

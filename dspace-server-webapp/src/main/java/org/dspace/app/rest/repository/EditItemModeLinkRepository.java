@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME + "." + EditItemRest.MODE)
+@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME_PLURAL + "." + EditItemRest.MODE)
 public class EditItemModeLinkRepository extends AbstractDSpaceRestRepository
     implements LinkRestRepository {
 

@@ -8,14 +8,17 @@
 package org.dspace.app.suggestion;
 
 /**
- * 
+ * This DTO class is used to pass around the number of items interested by suggestion provided by a specific source
+ * (i.e. openaire)
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 public class SuggestionSource {
 
+    /** source name of the suggestion */
     private String name;
 
+    /** number of targeted items */
     private int total;
 
     public SuggestionSource() {
@@ -24,7 +27,7 @@ public class SuggestionSource {
     /**
      * Summarize the available suggestions from a source.
      * 
-     * @param name must be not null
+     * @param name the name must be not null
      */
     public SuggestionSource(String name) {
         super();

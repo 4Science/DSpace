@@ -111,7 +111,7 @@
         <entry key="http://www.w3.org/2001/XMLSchema-instance" value="xsi" />
     </util:map>
     
-    
+
     <util:map id="openaireProjectsMetadataFieldMap" key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
               value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
         <description>Defines which metadatum is mapped on which metadatum. Note that while the key must be unique it
@@ -173,7 +173,7 @@
     <bean id="openaireFunding.endDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="oairecerif.funding.endDate"/>
     </bean>
-    
+
     <!-- <bean id="openaireFundingKeywords" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="openaireFunding.keywords"/>
         <property name="query" value=".//keywords"/>

@@ -31,7 +31,7 @@ public class AuthorityNotBlankCondition extends ConditionEvaluator {
     private ItemService itemService;
 
     @Override
-    public boolean doTest(Context context, Item item, String condition) {
+    public boolean doTest(Context context, Item item, String condition, int place) {
 
         String[] conditionSections = condition.split("\\.");
         if (conditionSections.length != 2) {
@@ -45,9 +45,14 @@ public class AuthorityNotBlankCondition extends ConditionEvaluator {
             return false;
         }
 
-        return metadata.stream()
-            .map(metadataValue -> metadataValue.getAuthority())
-            .allMatch(authority -> isNotBlank(authority));
+        if (place != -1) {
+            return metadata.stream().skip(place).limit(1).map(metadataValue -> metadataValue.getAuthority())
+                    .allMatch(authority -> isNotBlank(authority));
+        } else {
+            return metadata.stream()
+                .map(metadataValue -> metadataValue.getAuthority())
+                .allMatch(authority -> isNotBlank(authority));
+        }
     }
 
 }

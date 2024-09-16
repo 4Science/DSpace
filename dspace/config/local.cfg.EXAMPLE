@@ -76,19 +76,9 @@ solr.server = http://localhost:8983/solr
 # URL for connecting to database
 db.url = jdbc:postgresql://localhost:5432/dspace
 
-# JDBC Driver for PostgreSQL
-db.driver = org.postgresql.Driver
-
-# PostgreSQL Database Dialect (for Hibernate)
-db.dialect = org.hibernate.dialect.PostgreSQL94Dialect
-
 # Database username and password
 db.username = dspace
 db.password = dspace
-
-# Database Schema name
-# For PostgreSQL, this is often "public" (default schema)
-db.schema = public
 
 ## Connection pool parameters
 
@@ -326,14 +316,8 @@ usage-statistics.dbfile=/var/lib/GeoIP/GeoLite2-City.mmdb
 # IIIF and OCR Integration #
 ############################
 
-## IIIF configuration
-iiif.enabled = false
-# iiif.image.server =
-
-## OCR configuration
-# iiif.search.url = ${solr.server}/${solr.multicorePrefix}ocr
-# iiif.search.plugin = org.dspace.app.iiif.service.WordHighlightSolrSearch
-# ocr.tesseract.path =
+## IIIF configuration (see modules/iiif.cfg)
+#iiif.enabled = true
 
 ###############################
 # AUDIO and VIDEO Integration #
@@ -382,3 +366,9 @@ aws.sqs.heartbeat_queue_uri =
 
 # List of scripts name that are required to be processed locally instead to be delegated to the orchestrator.
 orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cris-layout-tool, export-cris-layout-tool, deduplication-merge-items, bulk-access-control, export-schema
+
+
+########################
+#  LDN INBOX SETTINGS  #
+########################
+ldn.enabled = true

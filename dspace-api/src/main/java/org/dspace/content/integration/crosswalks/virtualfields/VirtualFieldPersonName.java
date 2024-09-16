@@ -8,6 +8,8 @@
 package org.dspace.content.integration.crosswalks.virtualfields;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -21,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  */
 public class VirtualFieldPersonName implements VirtualField {
+
+    private static Logger log = LogManager.getLogger(VirtualFieldPersonName.class);
 
     public static final String LAST_NAME = "lastName";
     public static final String FIRST_NAME = "firstName";
@@ -48,13 +52,19 @@ public class VirtualFieldPersonName implements VirtualField {
         String[] virtualFieldName = fieldName.split("\\.");
         String qualifier = virtualFieldName[2];
 
-        switch (qualifier) {
-            case FIRST_NAME:
-                return new String[] { title.split(",")[1].trim() };
-            case LAST_NAME:
-                return new String[] { title.split(",")[0].trim() };
-            default:
-                throw new IllegalArgumentException("Invalid qualifier for personName virtual field: " + qualifier);
+        try {
+            switch (qualifier) {
+                case FIRST_NAME:
+                    return new String[] { title.split(",")[1].trim() };
+                case LAST_NAME:
+                    return new String[] { title.split(",")[0].trim() };
+                default:
+                    throw new IllegalArgumentException("Invalid qualifier for personName virtual field: "
+                + qualifier);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            log.warn("Something went wrong for metadata: " + title, e);
+            return new String[] { title.replace(",", "") };
         }
 
     }

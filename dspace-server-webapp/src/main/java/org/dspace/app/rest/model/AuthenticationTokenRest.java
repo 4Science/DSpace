@@ -15,6 +15,8 @@ import org.dspace.app.rest.model.wrapper.AuthenticationToken;
  * adding support for the links and embedded resources
  */
 public class AuthenticationTokenRest extends RestAddressableModel {
+    public static final String NAME = "shortlivedtoken";
+    public static final String PLURAL_NAME = "shortlivedtokens";
     public static final String CATEGORY = RestAddressableModel.AUTHENTICATION;
 
     private String token;
@@ -34,6 +36,11 @@ public class AuthenticationTokenRest extends RestAddressableModel {
     @Override
     public String getType() {
         return type;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 
     public String getToken() {

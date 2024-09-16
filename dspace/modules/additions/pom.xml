@@ -17,7 +17,7 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>modules</artifactId>
-      <version>cris-2024.01.00-SNAPSHOT</version>
+      <version>cris-2024.01.00</version>
       <relativePath>..</relativePath>
    </parent>
 
@@ -432,7 +432,7 @@
       </dependency>
       <dependency>
          <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
+         <artifactId>hamcrest</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>

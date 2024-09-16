@@ -13,36 +13,49 @@ import java.util.UUID;
 import org.dspace.core.Context;
 
 /**
- * 
+ * Service that handles {@link Suggestion}.
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 public interface SuggestionService {
 
-    public SuggestionTarget find(Context context, String source, UUID id);
+    /** find a {@link SuggestionTarget } by source name and suggestion id */
+    SuggestionTarget find(Context context, String source, UUID id);
 
-    public long countAll(Context context, String source);
+    /** count all suggetion targets by suggestion source */
+    long countAll(Context context, String source);
 
-    public List<SuggestionTarget> findAllTargets(Context context, String source, int pageSize, long offset);
+    /** find all suggestion targets by source (paged) */
+    List<SuggestionTarget> findAllTargets(Context context, String source, int pageSize, long offset);
 
-    public long countAllByTarget(Context context, UUID target);
+    /** count all (unprocessed) suggestions by the given target uuid */
+    long countAllByTarget(Context context, UUID target);
 
-    public List<SuggestionTarget> findByTarget(Context context, UUID target, int pageSize, long offset);
+    /** find suggestion target by targeted item (paged) */
+    List<SuggestionTarget> findByTarget(Context context, UUID target, int pageSize, long offset);
 
-    public SuggestionSource findSource(Context context, String source);
+    /** find suggestion source by source name */
+    SuggestionSource findSource(Context context, String source);
 
-    public long countSources(Context context);
+    /** count all suggestion sources */
+    long countSources(Context context);
 
-    public List<SuggestionSource> findAllSources(Context context, int pageSize, long offset);
+    /** find all suggestion sources (paged) */
+    List<SuggestionSource> findAllSources(Context context, int pageSize, long offset);
 
-    public Suggestion findUnprocessedSuggestion(Context context, String id);
+    /** find unprocessed suggestion by id */
+    Suggestion findUnprocessedSuggestion(Context context, String id);
 
-    public void rejectSuggestion(Context context, String id);
+    /** reject a specific suggestion by its id */
+    void rejectSuggestion(Context context, String id);
 
-    public List<Suggestion> findByTargetAndSource(Context context, UUID target, String source, int pageSize,
+    /** find all suggestions by targeted item and external source */
+    List<Suggestion> findByTargetAndSource(Context context, UUID target, String source, int pageSize,
             long offset, boolean ascending);
 
-    public long countAllByTargetAndSource(Context context, String source, UUID target);
+    /** count all suggestions by targeted item id and source name */
+    long countAllByTargetAndSource(Context context, String source, UUID target);
 
-    public List<SuggestionProvider> getSuggestionProviders();
+    /** returns all suggestion providers */
+    List<SuggestionProvider> getSuggestionProviders();
 }

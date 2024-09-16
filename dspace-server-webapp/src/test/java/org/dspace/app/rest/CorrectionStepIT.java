@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -202,7 +203,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                 .param("owningCollection", collection.getID().toString())
                 .param("relationship", "isCorrectionOfItem")
                 .param("item", itemToBeCorrected.getID().toString())
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 
@@ -285,7 +286,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                         .param("owningCollection", collection.getID().toString())
                         .param("relationship", "isCorrectionOfItem")
                         .param("item", itemToBeCorrected.getID().toString())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 
@@ -379,7 +380,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                 .param("owningCollection", collection.getID().toString())
                 .param("relationship", "isCorrectionOfItem")
                 .param("item", itemToBeCorrected.getID().toString())
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 

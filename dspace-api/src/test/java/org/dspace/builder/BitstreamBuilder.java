@@ -10,6 +10,7 @@ package org.dspace.builder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Period;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
@@ -238,6 +239,12 @@ public class BitstreamBuilder extends AbstractDSpaceObjectBuilder<Bitstream> {
         return this;
     }
 
+    public BitstreamBuilder withMetadata(String schema, String element, String qualifier, String value, String language)
+        throws SQLException {
+        bitstreamService.addMetadata(context, bitstream, schema, element, qualifier, language, value);
+        return this;
+    }
+
     private Bundle getOriginalBundle(Item item) throws SQLException, AuthorizeException {
         List<Bundle> bundles = itemService.getBundles(item, Constants.CONTENT_BUNDLE_NAME);
         Bundle targetBundle = null;
@@ -253,7 +260,7 @@ public class BitstreamBuilder extends AbstractDSpaceObjectBuilder<Bitstream> {
         return targetBundle;
     }
 
-    public BitstreamBuilder withEmbargoPeriod(String embargoPeriod) {
+    public BitstreamBuilder withEmbargoPeriod(Period embargoPeriod) {
         return setEmbargo(embargoPeriod, bitstream);
     }
 

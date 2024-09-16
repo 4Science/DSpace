@@ -29,6 +29,11 @@
         <property name="uploadConfigurationService" ref="uploadConfigurationService"/>
     </bean>
 
+    <bean name="cclicenseValidation" class="org.dspace.validation.CclicenseValidator">
+        <property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
+        <property name="name" value="cclicense"/>
+    </bean>
+
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>
@@ -81,6 +86,11 @@
             </bean>
         </property>
    </bean>
-    
-    
+
+    <bean name="COARNotifyValidation" class="org.dspace.validation.NotifyValidation" scope="prototype">
+        <property name="name" value="coarnotify"/>
+        <property name="coarNotifyConfigurationService" ref="org.dspace.coarnotify.NotifyConfigurationService"/>
+        <property name="notifyPatternToTriggerService" ref="org.dspace.app.ldn.service.impl.NotifyPatternToTriggerImpl"/>
+    </bean>
+
 </beans>

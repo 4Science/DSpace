@@ -23,8 +23,6 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.services.RequestService;
-import org.dspace.services.model.Request;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -32,18 +30,16 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * An authenticated user is allowed to view the suggestions summary
- * (SuggestionTarget) for the data that his own. This
- * {@link RestPermissionEvaluatorPlugin} implements that requirement.
+ * An authenticated user is allowed to view a suggestion summary
+ * (SuggestionTarget) related to a Target object that they own
+ * (as defined by "dspace.object.owner" metadata field)
+ * See {@link RestPermissionEvaluatorPlugin} for the inherited contract.
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  *
  */
 @Component
 public class SuggestionTargetRestPermissionEvaluatorPlugin extends RestObjectPermissionEvaluatorPlugin {
-
-    @Autowired
-    private RequestService requestService;
 
     @Autowired
     private ItemService itemService;
@@ -61,8 +57,7 @@ public class SuggestionTargetRestPermissionEvaluatorPlugin extends RestObjectPer
             return false;
         }
 
-        Request request = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(request.getServletRequest());
+        Context context = ContextUtil.obtainCurrentRequestContext();
 
         EPerson currentUser = context.getCurrentUser();
         if (currentUser == null) {

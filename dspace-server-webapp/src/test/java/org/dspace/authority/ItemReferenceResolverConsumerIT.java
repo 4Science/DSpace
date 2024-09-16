@@ -663,11 +663,17 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     }
 
     private Collection createCollection(String name, String entityType) throws Exception {
+        return createCollection(name, entityType, null);
+    }
+
+
+    private Collection createCollection(String name, String entityType, String submissionDefinition) throws Exception {
         return CollectionBuilder.createCollection(context, parentCommunity)
-            .withName(name)
-            .withEntityType(entityType)
-            .withSubmitterGroup(submitter)
-            .build();
+                                .withName(name)
+                                .withEntityType(entityType)
+                                .withSubmitterGroup(submitter)
+                                .withSubmissionDefinition(submissionDefinition)
+                                .build();
     }
 
     private void submitItemViaRest(String authToken, Integer wsId) throws Exception, SQLException {

@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -377,7 +378,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -430,7 +431,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -584,7 +585,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -644,7 +645,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -705,7 +706,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -768,7 +769,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -835,7 +836,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -893,7 +894,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -2013,7 +2014,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                       .withTitle("Test")
                                       .withIssueDate("2010-10-17")
                                       .withAuthor("Smith, Donald")
-                                      .withEmbargoPeriod("6 months")
+                                      .withEmbargoPeriod(Period.ofMonths(6))
                                       .build();
 
         String bitstreamContent = "This is an archived bitstream";
@@ -2486,7 +2487,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -3478,6 +3479,99 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                      .content(patchBody)
                                      .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findThumbnailBitstreamByAnonymousUserTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                .withTitle("Test item -- thumbnail")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .withAuthor("Doe, John")
+                .build();
+
+        Bundle originalBundle = BundleBuilder.createBundle(context, item)
+                .withName(Constants.DEFAULT_BUNDLE_NAME)
+                .build();
+        Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
+                .withName("THUMBNAIL")
+                .build();
+
+        InputStream is = IOUtils.toInputStream("dummy", "utf-8");
+
+        // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
+        Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
+                .withName("test.pdf")
+                .withMimeType("application/pdf")
+                .build();
+
+        Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
+                .withName("test.pdf.jpg")
+                .withMimeType("image/jpeg")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
+                .andExpect(jsonPath("$.type", is("bitstream")));
+    }
+
+    @Test
+    public void findThumbnailBitstreamWithInvalidMIMETypeTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                .withTitle("Test item -- thumbnail")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .withAuthor("Doe, John")
+                .build();
+
+        Bundle originalBundle = BundleBuilder.createBundle(context, item)
+                .withName(Constants.DEFAULT_BUNDLE_NAME)
+                .build();
+        Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
+                .withName("THUMBNAIL")
+                .build();
+
+        InputStream is = IOUtils.toInputStream("dummy", "utf-8");
+
+        // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
+        Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
+                .withName("test.pdf")
+                .withMimeType("application/pdf")
+                .build();
+
+        // invalid thumbnail mime type
+        Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
+                .withName("test.pdf.jpg")
+                .withMimeType("application/pdf")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
+                .andExpect(status().isNoContent());
     }
 
     public boolean bitstreamExists(String token, Bitstream ...bitstreams) throws Exception {

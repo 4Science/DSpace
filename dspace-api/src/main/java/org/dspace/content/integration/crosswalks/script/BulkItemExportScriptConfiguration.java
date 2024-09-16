@@ -33,11 +33,6 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
 
     @Override
     public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
-        return this.isAllowedToExecute(context);
-    }
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
         StringBuilder property = new StringBuilder("bulk-export.limit.");
         AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         ConfigurationService configurationService = new DSpace().getConfigurationService();

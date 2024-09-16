@@ -7,6 +7,9 @@
  */
 package org.dspace.app.rest.exception;
 
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -19,14 +22,28 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class RepositoryNotFoundException extends RuntimeException {
     String apiCategory;
     String model;
+    Optional<String> rel;
 
     public RepositoryNotFoundException(String apiCategory, String model) {
+        this(apiCategory, model, null);
+    }
+
+    public RepositoryNotFoundException(String apiCategory, String model, String rel) {
         this.apiCategory = apiCategory;
         this.model = model;
+        this.rel = Optional.ofNullable(rel).filter(StringUtils::isNotBlank);
     }
 
     @Override
     public String getMessage() {
-        return String.format("The repository type %s.%s was not found", apiCategory, model);
+        return String.format(
+            "The repository type %s.%s was not found",
+            apiCategory,
+            getModelWithRel()
+        );
+    }
+
+    private String getModelWithRel() {
+        return rel.map(l -> String.format("%s.%s", model, l)).orElse(model);
     }
 }

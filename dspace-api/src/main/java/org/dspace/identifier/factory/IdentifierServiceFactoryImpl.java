@@ -7,6 +7,9 @@
  */
 package org.dspace.identifier.factory;
 
+import java.util.Set;
+
+import org.dspace.identifier.generators.DoiGenerationStrategy;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.identifier.service.IdentifierService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,8 @@ public class IdentifierServiceFactoryImpl extends IdentifierServiceFactory {
     private IdentifierService identifierService;
     @Autowired(required = true)
     private DOIService doiService;
+    @Autowired(required = true)
+    private Set<DoiGenerationStrategy> doiGenerationStrategies;
 
     @Override
     public IdentifierService getIdentifierService() {
@@ -32,5 +37,9 @@ public class IdentifierServiceFactoryImpl extends IdentifierServiceFactory {
     @Override
     public DOIService getDOIService() {
         return doiService;
+    }
+
+    public Set<DoiGenerationStrategy> getDoiGenerationStrategies() {
+        return doiGenerationStrategies;
     }
 }

@@ -130,7 +130,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(match("reviewstep", "reviewstep", 3))))
@@ -138,7 +138,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         ClaimedTask claimedTask = claimTask(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(match("reviewstep", "reviewstep", 3))))
@@ -147,7 +147,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         approveClaimedTaskViaRest(user, claimedTask);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -158,7 +158,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndReject(secondWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -169,7 +169,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(match("editstep", "editstep", 2))))
@@ -177,7 +177,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimedTask = claimTask(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(match("editstep", "editstep", 2))))
@@ -186,7 +186,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         rejectClaimedTaskViaRest(user, claimedTask, "Bad item");
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(match("editstep", "editstep", 1))))
@@ -194,7 +194,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps").doesNotExist());
 
@@ -220,7 +220,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/current")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/current")
             .param("size", "1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
@@ -243,7 +243,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -252,7 +252,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         ClaimedTask claimedTask = claimTask(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -263,7 +263,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         approveClaimedTaskViaRest(user, claimedTask);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -275,7 +275,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(4)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -291,7 +291,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndReject(secondWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -309,7 +309,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -327,7 +327,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -351,7 +351,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(fourthWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -369,7 +369,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndReject(fourthWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -401,7 +401,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -410,7 +410,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         ClaimedTask claimedTask = claimTask(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(1)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -419,7 +419,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         approveClaimedTaskViaRest(user, claimedTask);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
             .andExpect(jsonPath("$._embedded.workflowSteps", contains(
@@ -430,7 +430,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(firstWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(4)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -446,7 +446,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndReject(secondWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -464,7 +464,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -482,7 +482,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(thirdWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -506,7 +506,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndApprove(fourthWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -524,7 +524,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         claimTaskAndReject(fourthWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -560,7 +560,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("size", "2"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
@@ -590,7 +590,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), -1)))
             .param("endDate", formatDate(addDays(new Date(), 1))))
             .andExpect(status().isOk())
@@ -601,7 +601,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
             .andExpect(jsonPath("$._embedded.workflowSteps[0]", matchActionCounts("claimaction", 3, "reviewaction", 2)))
             .andExpect(jsonPath("$._embedded.workflowSteps[1]", matchActionCount("submit", 4)));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("endDate", formatDate(addDays(new Date(), 1))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
@@ -611,7 +611,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
             .andExpect(jsonPath("$._embedded.workflowSteps[0]", matchActionCounts("claimaction", 3, "reviewaction", 2)))
             .andExpect(jsonPath("$._embedded.workflowSteps[1]", matchActionCount("submit", 4)));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), -1))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(2)))
@@ -621,24 +621,24 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
             .andExpect(jsonPath("$._embedded.workflowSteps[0]", matchActionCounts("claimaction", 3, "reviewaction", 2)))
             .andExpect(jsonPath("$._embedded.workflowSteps[1]", matchActionCount("submit", 4)));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), 1)))
             .param("endDate", formatDate(addDays(new Date(), 2))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps").doesNotExist());
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), -2)))
             .param("endDate", formatDate(addDays(new Date(), -1))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps").doesNotExist());
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), 1))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps").doesNotExist());
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("endDate", formatDate(addDays(new Date(), -1))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps").doesNotExist());
@@ -672,7 +672,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(4)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -686,7 +686,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
                 matchActionCounts("claimaction", 2, "editaction", 1),
                 matchActionCount("approve", 1))));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("collection", collection.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(4)))
@@ -701,7 +701,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
                 matchActionCounts("claimaction", 1, "editaction", 1),
                 matchActionCount("approve", 1))));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("collection", anotherCollection.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(3)))
@@ -718,7 +718,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
         claimTaskAndApprove(fourthWorkflowItem, user);
         claimTaskAndApprove(fourthWorkflowItem, user);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
             .andExpect(jsonPath("$._embedded.workflowSteps", containsInAnyOrder(
@@ -734,7 +734,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
                 matchActionCount("approve", 2),
                 matchActionCount("reject", 1))));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("collection", collection.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(5)))
@@ -751,7 +751,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
                 matchActionCount("approve", 1),
                 matchActionCount("reject", 1))));
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("collection", anotherCollection.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workflowSteps", hasSize(4)))
@@ -772,7 +772,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
     public void testSearchByDateRangeWithInvalidCollectionScope() throws Exception {
 
         String adminToken = getAuthToken(admin.getEmail(), password);
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("collection", "invalid"))
             .andExpect(status().isBadRequest());
 
@@ -783,12 +783,12 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", "invalid date")
             .param("endDate", formatDate(addDays(new Date(), 1))))
             .andExpect(status().isUnprocessableEntity());
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/search/byDateRange")
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/search/byDateRange")
             .param("startDate", formatDate(addDays(new Date(), -1)))
             .param("endDate", "18/12/2021"))
             .andExpect(status().isUnprocessableEntity());
@@ -799,7 +799,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String token = getAuthToken(eperson.getEmail(), password);
 
-        getClient(token).perform(get("/api/statistics/workflowSteps/search/byDateRange"))
+        getClient(token).perform(get("/api/statistics/wfSteps/search/byDateRange"))
             .andExpect(status().isForbidden());
     }
 
@@ -826,28 +826,28 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String stepName = "reviewstep";
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", match(stepName, stepName, 6)))
             .andExpect(jsonPath("$", matchActionCounts("claimaction", 3, "reviewaction", 3)));
 
         configurationService.setProperty("statistics.workflow.actions-to-filter", "claimaction");
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", match(stepName, stepName, 3)))
             .andExpect(jsonPath("$", matchActionCount("reviewaction", 3)));
 
         stepName = "item";
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", match(stepName, stepName, 1)))
             .andExpect(jsonPath("$", matchActionCount("approve", 1)));
 
         stepName = "workspace";
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", match(stepName, stepName, 2)))
             .andExpect(jsonPath("$", matchActionCount("reject", 2)));
@@ -861,12 +861,12 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isNotFound());
 
         stepName = "archived";
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + stepName))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + stepName))
             .andExpect(status().isNotFound());
     }
 
@@ -875,7 +875,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String adminToken = getAuthToken(admin.getEmail(), password);
 
-        getClient(adminToken).perform(get("/api/statistics/workflowSteps/" + UUID.randomUUID().toString()))
+        getClient(adminToken).perform(get("/api/statistics/wfSteps/" + UUID.randomUUID().toString()))
             .andExpect(status().isNotFound());
     }
 
@@ -884,7 +884,7 @@ public class WorkflowStepStatisticsRestRepositoryIT extends AbstractControllerIn
 
         String token = getAuthToken(eperson.getEmail(), password);
 
-        getClient(token).perform(get("/api/statistics/workflowSteps/archived"))
+        getClient(token).perform(get("/api/statistics/wfSteps/archived"))
             .andExpect(status().isForbidden());
     }
 
