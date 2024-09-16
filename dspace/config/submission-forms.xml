@@ -5185,79 +5185,6 @@
         </field>
       </row>
     </form>
-    <form name="coin-glam-bibliography">
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <label>Titolo</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il titolo della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>year</dc-qualifier>
-          <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>publisher</dc-qualifier>
-          <label>Editore</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'editore della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>place</dc-qualifier>
-          <label>Luogo di edizione</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>author</dc-qualifier>
-          <label>Autore/i</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>type</dc-qualifier>
-          <label>Tipo di bibliografia</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Indicare il tipo di bibliografia</hint>
-        </field>
-      </row>
-    </form>
     <form name="coin">
       <row>
         <field>
@@ -5532,17 +5459,6 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la descrizione del soggetto della moneta.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <label>Bibliografia</label>
-          <input-type>group</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>Inserire la bibliografia relativa alla fotografia catalogata</hint>
         </field>
       </row>
       <row>
@@ -6299,6 +6215,152 @@
         </field>
       </row>
     </form>
+    <form name="scientific_materials-glam-bibliography">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <label>Titolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il titolo della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>year</dc-qualifier>
+          <label>Anno di pubblicazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>publisher</dc-qualifier>
+          <label>Editore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'editore della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo di edizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore/i</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo di bibliografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il tipo di bibliografia</hint>
+        </field>
+      </row>
+    </form>
+    <form name="scientific_materials-glam-inscription">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <label>Trascrizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la trascrizione dell'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>position</dc-qualifier>
+          <label>Posizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la posizione in cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>font</dc-qualifier>
+          <label>Carattere dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il carattere con cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>technique</dc-qualifier>
+          <label>Tecnica dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la tecnica di realizzazione dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>language</dc-qualifier>
+          <label>Lingua dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la lingua dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>class</dc-qualifier>
+          <label>Classe di appartenenza</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la classe di appartenenza dell'iscrizione</hint>
+        </field>
+      </row>
+    </form>
     <form name="scientific_materials">
       <row>
         <field>
@@ -6867,7 +6929,7 @@
           <dc-schema>glam</dc-schema>
           <dc-element>inscription</dc-element>
           <label>Trascrizione dell'iscrizione</label>
-          <input-type>onebox</input-type>
+          <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la trascrizione dell'iscrizione.</hint>
@@ -6902,7 +6964,7 @@
           <dc-schema>glam</dc-schema>
           <dc-element>bibliography</dc-element>
           <label>Bibliografia</label>
-          <input-type>onebox</input-type>
+          <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la bibliografia relativa alla fotografia catalogata</hint>
