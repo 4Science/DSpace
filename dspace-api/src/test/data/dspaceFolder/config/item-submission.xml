@@ -26,6 +26,8 @@
         <name-map collection-handle="123456789/test-hidden" submission-name="test-hidden"/>
         <name-map collection-handle="123456789/collection-test" submission-name="collectiontest"/>
         <name-map collection-entity-type="CustomEntityType" submission-name="entitytypetest"/>
+        <name-map collection-handle="123456789/test-product" submission-name="producttestform"/>
+        <name-map collection-handle="123456789/test-patent" submission-name="patenttestform"/>
     </submission-map>
 
 
@@ -275,6 +277,24 @@
 
         <submission-process name="entitytypetest">
             <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="producttestform">
+
+            <step id="collection"/>
+            <step id="productStep"/>
+            <step id="upload"/>
+            <step id="license"/>
+
+        </submission-process>
+
+        <submission-process name="patenttestform">
+
+            <step id="collection"/>
+            <step id="patentStep"/>
+            <step id="upload"/>
+            <step id="license"/>
+
         </submission-process>
 
     </submission-definitions>
