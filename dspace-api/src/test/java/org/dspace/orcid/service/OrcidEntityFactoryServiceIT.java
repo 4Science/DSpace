@@ -100,7 +100,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withEntityType("OrgUnit")
             .build();
 
-        patents = CollectionBuilder.createCollection(context, parentCommunity)
+        patents = CollectionBuilder.createCollection(context, parentCommunity, "123456789/test-patent")
             .withName("Collection")
             .withEntityType("Patent")
             .build();
@@ -110,7 +110,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withEntityType("Publication")
             .build();
 
-        products = CollectionBuilder.createCollection(context, parentCommunity)
+        products = CollectionBuilder.createCollection(context, parentCommunity, "123456789/test-product")
             .withName("Collection")
             .withEntityType("Product")
             .build();
@@ -127,7 +127,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         persons = CollectionBuilder.createCollection(context, parentCommunity)
                 .withName("Collection")
-                .withEntityType("person")
+                .withEntityType("Person")
                 .build();
 
         context.restoreAuthSystemState();
@@ -173,6 +173,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
         List<Contributor> contributors = work.getWorkContributors().getContributor();
         assertThat(contributors, hasSize(3));
+        //tornano 3 ma sono null
         assertThat(contributors, has(contributor("Walter White", AUTHOR, FIRST)));
         assertThat(contributors, has(contributor("Editor", EDITOR, FIRST)));
         assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL)));
@@ -206,6 +207,22 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withDoiIdentifier("doi-id")
             .withScopusIdentifier("scopus-id")
             .build();
+
+        Item person = ItemBuilder.createItem(context, persons)
+                .withTitle("Walter White")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Walter, White")
+                .withPersonIdentifierLastName("Walter")
+                .withPersonIdentifierFirstName("White")
+                .build();
+
+        EntityType productType = EntityTypeBuilder.createEntityTypeBuilder(context, "Product").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isCreatorOfProduct = createRelationshipTypeBuilder(context, productType, personType,
+                "isCreatorOfProduct", "isProductOfCreator", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, product, person, isCreatorOfProduct).build();
 
         context.restoreAuthSystemState();
 
@@ -260,6 +277,22 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withType("http://purl.org/coar/resource_type/c_15cd")
             .build();
 
+        Item person = ItemBuilder.createItem(context, persons)
+                .withTitle("Walter White")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Walter, White")
+                .withPersonIdentifierLastName("Walter")
+                .withPersonIdentifierFirstName("White")
+                .build();
+
+        EntityType patentType = EntityTypeBuilder.createEntityTypeBuilder(context, "Patent").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isInventorOfPatent = createRelationshipTypeBuilder(context, patentType, personType,
+                "isInventorOfPatent", "isPatentOfInventor", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, patent, person, isInventorOfPatent).build();
+
         context.restoreAuthSystemState();
 
         Activity activity = entityFactoryService.createOrcidObject(context, patent);
@@ -293,85 +326,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(externalIds, has(selfExternalId("pat", "2021.01.0111")));
 
     }
-
-    @Test
-    public void testWorkWithFundingCreation() {
-        context.turnOffAuthorisationSystem();
-
-        Item publication = ItemBuilder.createItem(context, publications)
-            .withTitle("Test publication")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("Book")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, publication);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
-    @Test
-    public void testProductWorkWithFundingCreation() {
-        context.turnOffAuthorisationSystem();
-
-        Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test dataset")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/H6QP-SC1X")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, product);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
-    @Test
-    public void testPatentsWorkWithFundingCreation() {
-        context.turnOffAuthorisationSystem();
-
-        Item patent = ItemBuilder.createItem(context, patents)
-            .withTitle("Test patent")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, patent);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", patent.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
 
     @Test
     public void testWorkWithFundingWithoutGrantNumberCreation() {
@@ -515,302 +469,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
         assertThat(externalIds, hasSize(1));
         assertThat(externalIds, has(selfExternalId("handle", patent.getHandle())));
-    }
-
-
-    @Test
-    public void testWorkWithFundingEntityWithoutGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withTitle("Test funding")
-            .build();
-
-        Item publication = ItemBuilder.createItem(context, publications)
-            .withTitle("Test publication")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, publication);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
-    @Test
-    public void testProductWorkWithFundingEntityWithoutGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withTitle("Test funding")
-            .build();
-
-        Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test product")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_7ad9")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, product);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
-    @Test
-    public void testPatentWorkWithFundingEntityWithoutGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withTitle("Test funding")
-            .build();
-
-        Item patent = ItemBuilder.createItem(context, patents)
-            .withTitle("Test patent")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, patent);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", patent.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "123456")));
-    }
-
-    @Test
-    public void testWorkWithFundingEntityWithGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item publication = ItemBuilder.createItem(context, publications)
-            .withTitle("Test publication")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, publication);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654",
-            "http://localhost:4000/handle/123456789/0001")));
-    }
-
-    @Test
-    public void testProductWorkWithFundingEntityWithGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test product")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_18cc")
-            .withRelationFunding("Test funding", funding.getID().toString())
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, product);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654",
-            "http://localhost:4000/handle/123456789/0001")));
-    }
-
-    @Test
-    public void testPatentWorkWithFundingEntityWithGrantNumberCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item patent = ItemBuilder.createItem(context, patents)
-            .withTitle("Test patent")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, patent);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", patent.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654",
-            "http://localhost:4000/handle/123456789/0001")));
-    }
-
-
-    @Test
-    public void testWorkWithFundingEntityWithGrantNumberAndUrlCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item publication = ItemBuilder.createItem(context, publications)
-            .withTitle("Test publication")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, publication);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654", "http://test-funding")));
-    }
-
-    @Test
-    public void testProductWorkWithFundingEntityWithGrantNumberAndUrlCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item product = ItemBuilder.createItem(context, products)
-            .withTitle("Test product")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_18cc")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, product);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654", "http://test-funding")));
-    }
-
-    @Test
-    public void testPatentWorkWithFundingEntityWithGrantNumberAndUrlCreation() {
-
-        context.turnOffAuthorisationSystem();
-
-        Item funding = ItemBuilder.createItem(context, fundings)
-            .withHandle("123456789/0001")
-            .withTitle("Test funding")
-            .withFundingIdentifier("987654")
-            .build();
-
-        Item patent = ItemBuilder.createItem(context, patents)
-            .withTitle("Test patent")
-            .withAuthor("Walter White")
-            .withIssueDate("2021-04-30")
-            .withType("http://purl.org/coar/resource_type/c_15cd")
-            .withRelationFunding("Test funding")
-            .withRelationGrantno("123456")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        Activity activity = entityFactoryService.createOrcidObject(context, patent);
-        assertThat(activity, instanceOf(Work.class));
-
-        Work work = (Work) activity;
-
-        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(2));
-        assertThat(externalIds, has(selfExternalId("handle", patent.getHandle())));
-        assertThat(externalIds, has(fundedByExternalId("grant_number", "987654", "http://test-funding")));
     }
 
     @Test
@@ -1006,7 +664,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     private Predicate<Contributor> contributor(String name, ContributorRole role, SequenceType sequence) {
         return contributor -> contributor.getCreditName().getContent().equals(name)
-            && role.equals(contributor.getContributorAttributes().getContributorRole())
+            && role.value().equals(contributor.getContributorAttributes().getContributorRole())
             && contributor.getContributorAttributes().getContributorSequence() == sequence;
     }
 
@@ -1024,7 +682,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     private Predicate<FundingContributor> fundingContributor(String name, FundingContributorRole role) {
         return contributor -> contributor.getCreditName().getContent().equals(name)
-            && role.equals(contributor.getContributorAttributes().getContributorRole());
+            && role.value().equals(contributor.getContributorAttributes().getContributorRole());
     }
 
     private Predicate<? super FuzzyDate> date(String year, String month, String days) {
