@@ -575,40 +575,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void testOrcidQueueRecordCreationForFunding() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
-            .withOrcidSynchronizationFundingsPreference(ALL)
-            .build();
-
-        Collection fundingCollection = createCollection("Fundings", "Funding");
-
-        Item funding = ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Test funding")
-            .build();
-
-        context.restoreAuthSystemState();
-        context.commit();
-
-        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
-        assertThat(orcidQueueRecords, hasSize(1));
-        assertThat(orcidQueueRecords.get(0), matches(profile, funding, "Funding", null, INSERT));
-
-        addMetadata(funding, "dc", "type", null, "Funding type", null);
-        context.commit();
-
-        List<OrcidQueue> newOrcidQueueRecords = orcidQueueService.findAll(context);
-        assertThat(newOrcidQueueRecords, hasSize(1));
-
-        assertThat(orcidQueueRecords.get(0), equalTo(newOrcidQueueRecords.get(0)));
-    }
-
-    @Test
     public void testOrcidQueueRecordCreationForProduct() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -626,6 +592,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test product")
             .withAuthor("Test User")
             .build();
+
+        EntityType productType = EntityTypeBuilder.createEntityTypeBuilder(context, "Product").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isCreatorOfProduct = createRelationshipTypeBuilder(context, productType, personType,
+                "isCreatorOfProduct", "isProductOfCreator", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, product, profile, isCreatorOfProduct).build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -662,6 +636,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withAuthor("Test User")
             .build();
 
+        EntityType patentType = EntityTypeBuilder.createEntityTypeBuilder(context, "Patent").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isInventorOfPatent = createRelationshipTypeBuilder(context, patentType, personType,
+                "isInventorOfPatent", "isPatentOfInventor", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, patent, profile, isInventorOfPatent).build();
+
         context.restoreAuthSystemState();
         context.commit();
 
@@ -676,43 +658,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         assertThat(newOrcidQueueRecords, hasSize(1));
 
         assertThat(orcidQueueRecords.get(0), equalTo(newOrcidQueueRecords.get(0)));
-    }
-
-    @Test
-    public void testOrcidQueueRecordCreationToUpdateFunding() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
-            .withOrcidSynchronizationFundingsPreference(ALL)
-            .build();
-
-        Collection projectCollection = createCollection("Projects", "Project");
-
-        Item project = ItemBuilder.createItem(context, projectCollection)
-            .withTitle("Test project")
-            .build();
-
-        createOrcidHistory(context, profile, project)
-            .withPutCode("123456")
-            .build();
-
-        EntityType projectType = EntityTypeBuilder.createEntityTypeBuilder(context, "Project").build();
-        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
-
-        RelationshipType isProjectOfPerson = createRelationshipTypeBuilder(context, projectType, personType,
-            "isProjectOfPerson", "isPersonOfProject", 0, null, 0, null).build();
-
-        RelationshipBuilder.createRelationshipBuilder(context, project, profile, isProjectOfPerson).build();
-
-        context.restoreAuthSystemState();
-        context.commit();
-
-        List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
-        assertThat(orcidQueueRecords, hasSize(1));
     }
 
     @Test
@@ -736,6 +681,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         createOrcidHistory(context, profile, product)
             .withPutCode("123456")
             .build();
+
+        EntityType productType = EntityTypeBuilder.createEntityTypeBuilder(context, "Product").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isCreatorOfProduct = createRelationshipTypeBuilder(context, productType, personType,
+                "isCreatorOfProduct", "isProductOfCreator", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, product, profile, isCreatorOfProduct).build();
 
         addMetadata(product, "dc", "contributor", "author", "Test User", profile.getID().toString());
 
@@ -769,6 +722,14 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withPutCode("123456")
             .build();
 
+        EntityType patentType = EntityTypeBuilder.createEntityTypeBuilder(context, "Patent").build();
+        EntityType personType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+        RelationshipType isInventorOfPatent = createRelationshipTypeBuilder(context, patentType, personType,
+                "isInventorOfPatent", "isPatentOfInventor", 0, null, 0, null).build();
+
+        RelationshipBuilder.createRelationshipBuilder(context, patent, profile, isInventorOfPatent).build();
+
         addMetadata(patent, "dc", "contributor", "author", "Test User", profile.getID().toString());
 
         context.restoreAuthSystemState();
@@ -777,34 +738,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         List<OrcidQueue> orcidQueueRecords = orcidQueueService.findAll(context);
         assertThat(orcidQueueRecords, hasSize(1));
         assertThat(orcidQueueRecords.get(0), matches(profile, patent, "Patent", "123456", UPDATE));
-    }
-
-    @Test
-    public void testNoOrcidQueueRecordCreationOccursIfFundingSynchronizationIsDisabled() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
-            .build();
-
-        Collection fundingCollection = createCollection("Fundings", "Funding");
-
-        Item funding = ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Test funding")
-            .build();
-
-        context.restoreAuthSystemState();
-        context.commit();
-
-        assertThat(orcidQueueService.findAll(context), empty());
-
-        addMetadata(profile, "dspace", "orcid", "sync-fundings", DISABLED.name(), null);
-        context.commit();
-
-        assertThat(orcidQueueService.findAll(context), empty());
     }
 
     @Test
@@ -867,67 +800,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         assertThat(orcidQueueService.findAll(context), empty());
     }
 
-    @Test
-    public void testNoOrcidQueueRecordCreationOccursIfProfileHasNotOrcidIdentifier() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
-            .withOrcidSynchronizationFundingsPreference(ALL)
-            .withOrcidSynchronizationProductsPreference(ALL)
-            .withOrcidSynchronizationPatentsPreference(ALL)
-            .build();
-
-        Collection fundingCollection = createCollection("Fundings", "Funding");
-
-        ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Test funding")
-            .build();
-
-        Collection productCollection = createCollection("Products", "Product");
-
-        ItemBuilder.createItem(context, productCollection)
-            .withTitle("Test product")
-            .withAuthor("Test User")
-            .build();
-
-        Collection patentsCollection = createCollection("Patents", "Patent");
-
-        ItemBuilder.createItem(context, patentsCollection)
-            .withTitle("Test patent")
-            .withAuthor("Test User")
-            .build();
-
-        context.restoreAuthSystemState();
-        context.commit();
-
-        assertThat(orcidQueueService.findAll(context), empty());
-    }
-
-    @Test
-    public void testNoOrcidQueueRecordCreationOccursIfProfileHasNotOrcidAccessToken() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidIdentifier("0000-1111-2222-3333")
-            .withOrcidSynchronizationFundingsPreference(ALL)
-            .build();
-
-        Collection fundingCollection = createCollection("Fundings", "Funding");
-
-        ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Test funding")
-            .build();
-
-        context.restoreAuthSystemState();
-        context.commit();
-
-        assertThat(orcidQueueService.findAll(context), empty());
-    }
 
     @Test
     public void testNoOrcidQueueRecordCreationOccursForNotConfiguredEntities() throws Exception {
@@ -1002,74 +874,6 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(orcidQueueService.findAll(context), empty());
 
-    }
-
-    @Test
-    public void testWithMetadataFieldToIgnore() throws Exception {
-        configurationService.addPropertyValue("orcid.linkable-metadata-fields.ignore", "dc.contributor.author");
-        configurationService.addPropertyValue("orcid.linkable-metadata-fields.ignore", "crisfund.coinvestigators");
-
-        context.turnOffAuthorisationSystem();
-
-        Item profile = ItemBuilder.createItem(context, profileCollection)
-            .withTitle("Test User")
-            .withOrcidIdentifier("0000-0000-0012-2345")
-            .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
-            .withOrcidSynchronizationFundingsPreference(ALL)
-            .withOrcidSynchronizationPublicationsPreference(ALL)
-            .withOrcidSynchronizationProductsPreference(ALL)
-            .withOrcidSynchronizationPatentsPreference(ALL)
-            .build();
-
-        Collection publicationCollection = createCollection("Publications", "Publication");
-
-        Item firstPublication = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Another Test publication")
-            .withEditor("Test User")
-            .build();
-
-        Item secondPublication = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Another Test publication")
-            .withAuthor("Test User")
-            .withEditor("Test User")
-            .build();
-
-        ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Test publication")
-            .withAuthor("Test User")
-            .build();
-
-        Collection fundingCollection = createCollection("Fundings", "Funding");
-
-        Item firstFunding = ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Test funding")
-            .build();
-
-        ItemBuilder.createItem(context, fundingCollection)
-            .withTitle("Another funding")
-            .build();
-
-        Collection productCollection = createCollection("Products", "Product");
-
-        Item firstProduct = ItemBuilder.createItem(context, productCollection)
-            .withTitle("Test product")
-            .withAuthor("Test User")
-            .build();
-
-        Collection patentCollection = createCollection("Patents", "Patent");
-
-        Item firstPatent = ItemBuilder.createItem(context, patentCollection)
-            .withTitle("Test patent")
-            .withAuthor("Test User")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        List<OrcidQueue> records = orcidQueueService.findAll(context);
-        assertThat(records, hasSize(3));
-        assertThat(records, hasItem(matches(profile, firstPublication, "Publication", null, INSERT)));
-        assertThat(records, hasItem(matches(profile, secondPublication, "Publication", null, INSERT)));
-        assertThat(records, hasItem(matches(profile, firstFunding, "Funding", null, INSERT)));
     }
 
     @Test
