@@ -52,10 +52,10 @@ dc.format.misb,glam.misb,ScientificMaterial
 dc.format.misi,glam.misi,ScientificMaterial
 dc.identifier.archivalunit,glamfonds.index,"ArchivalMaterial, Picture, Publication, MusicalLibrettos, Coins, ScientificMaterial"
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
-dc.relation.references,dc.relation.isreferencedby,"ArchivalMaterial, ScientificMaterial"
 dc.relation.url ,dc.relation.uri,ArchivalMaterial
 dc.printer,glam.printer,Publication
 dc.typographer,glam.typographer,Publication
 dc.format.misu,glam.misu,ScientificMaterial
 dc.format.misa,glam.misa,ScientificMaterial
 dc.format.misl,glam.misl,ScientificMaterial
+dc.contributor.person,dc.relation.person,ArchivalMaterial
