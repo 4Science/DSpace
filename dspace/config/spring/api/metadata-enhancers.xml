@@ -63,4 +63,19 @@
         <property name="virtualQualifier" value="orcid" />
     </bean>
 
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancerWithFilter">
+        <property name="sourceEntityTypes" value="Fonds"/>
+        <property name="sourceItemMetadataFields" value="glamfonds.parent"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="filter" ref="root-fond-filter" />
+        <property name="virtualQualifier" value="rootFond" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="ArchivalMaterial"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="archivalMaterialRootFond" />
+    </bean>
+
 </beans>

@@ -424,4 +424,22 @@
         </property>
     </bean>-->
 
+    <bean id="root-fond-filter" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement">
+            <bean class="org.dspace.content.logic.operator.Not">
+                <property name="statements">
+                    <ref bean="has-parent-fond_condition"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="has-parent-fond_condition"
+          class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
+        <property name="parameters">
+            <map>
+                <entry key="field" value="glamfonds.parent" />
+                <entry key="pattern" value=".*" />
+            </map>
+        </property>
+    </bean>
 </beans>
