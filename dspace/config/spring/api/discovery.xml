@@ -4094,7 +4094,7 @@
         <property name="indexFieldName" value="fonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.fonds</value>
+                <value>cris.virtual.treeFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4110,7 +4110,7 @@
         <property name="indexFieldName" value="journalfonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.journalfonds</value>
+                <value>cris.virtual.treeJournalFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

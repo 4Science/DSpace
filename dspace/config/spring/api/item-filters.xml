@@ -442,4 +442,23 @@
             </map>
         </property>
     </bean>
+
+    <bean id="root-journalfond-filter" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement">
+            <bean class="org.dspace.content.logic.operator.Not">
+                <property name="statements">
+                    <ref bean="has-parent-journalfond_condition"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="has-parent-journalfond_condition"
+          class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
+        <property name="parameters">
+            <map>
+                <entry key="field" value="glamjournalfonds.parent" />
+                <entry key="pattern" value=".*" />
+            </map>
+        </property>
+    </bean>
 </beans>
