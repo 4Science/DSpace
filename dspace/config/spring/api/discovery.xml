@@ -2272,6 +2272,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
 	            <ref bean="searchFilterAggregation"/>
 	            <ref bean="searchFilterJournalFonds"/>
@@ -2292,6 +2293,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
                 <ref bean="searchFilterAggregation"/>
                 <ref bean="searchFilterJournalFonds"/>
@@ -3956,7 +3958,21 @@
         <property name="indexFieldName" value="subject"/>
         <property name="metadataFields">
             <list>
+                <value>dc.subject</value>
                 <value>dc.subject.*</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
+        
+    <bean id="searchFilterGlamSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="glamsubject"/>
+        <property name="metadataFields">
+            <list>
+                <value>glam.subject</value>
+                <value>glam.subject.*</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
