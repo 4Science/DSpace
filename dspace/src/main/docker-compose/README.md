@@ -51,33 +51,49 @@ Documentation for all Dockerfiles used by these compose scripts can be found in 
 
 Documentation for all Dockerfiles used by these compose scripts can be found in the ["docker" folder README](../docker/README.md)
 
-
-## To refresh / pull DSpace images from Dockerhub
+## To build DSpace-CRIS images using code in your branch
 ```
-docker-compose -f docker-compose.yml -f docker-compose-cli.yml pull
-```
-
-## To build DSpace images using code in your branch
-```
-docker-compose -f docker-compose.yml -f docker-compose-cli.yml build
+docker compose -f docker-compose.yml -f docker-compose-cli.yml build
 ```
 
 OPTIONALLY, you can build DSpace images using a different JDK_VERSION like this:
 ```
-docker-compose -f docker-compose.yml -f docker-compose-cli.yml build --build-arg JDK_VERSION=17
+docker compose -f docker-compose.yml -f docker-compose-cli.yml build --build-arg JDK_VERSION=17
 ```
 Default is Java 11, but other LTS releases (e.g. 17) are also supported.
 
-## Run DSpace 7 REST from your current branch
+## Install/Run DSpace-CRIS 7 REST from your current branch
+
+First, start up the containers
 ```
-docker-compose -p d7 up -d
+docker compose -p dcris7 up -d
 ```
 
-## Run DSpace 7 REST and Angular from your branch
+Then, you will need to create an Administrator account to initialize the DSpace-CRIS community/collection structure.
+This example creates an Admin "dspacedemo+admin@gmail.com" with a password of "dspace":
+```
+docker compose -p dcris7 -f docker-compose-cli.yml run --rm dspace-cli create-administrator -e dspacedemo+admin@gmail.com -f Demo -l Administrator -p dspace -c en
+```
+
+Next, create the sample Community/Collection structure (using that Admin account)
+```
+docker compose -p dcris7 -f docker-compose-cli.yml run --rm dspace-cli dsrun org.dspace.administer.StructBuilder -e dspacedemo+admin@gmail.com -f /dspace/config/sample-structure.xml -o -
+```
+
+Finally, initialize the layout using the provided XLS config file
+```
+docker compose -p dcris7 -f docker-compose-cli.yml run --rm dspace-cli cris-layout-tool -f /dspace/etc/conftool/cris-layout-configuration.xls
+```
+
+## Run DSpace-CRIS 7 REST and Angular from your branch
+
+NOTE: If this is your first time running the DSpace-CRIS backend, make sure to follow the "Install/Run" instructions
+above *first*.
 
 ```
-docker-compose -p d7 -f docker-compose.yml -f dspace/src/main/docker-compose/docker-compose-angular.yml up -d
+docker compose -p dcris7 -f docker-compose.yml -f dspace/src/main/docker-compose/docker-compose-angular.yml up -d
 ```
+NOTE: This starts the UI in development mode. It will take a few minutes to see the UI as the Angular code needs to be compiled.
 
 ## Run DSpace REST and DSpace Angular from local branches
 

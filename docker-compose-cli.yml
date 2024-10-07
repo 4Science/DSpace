@@ -1,8 +1,12 @@
-version: "3.7"
-
+networks:
+  # Default to using network named 'dspacenet' from docker-compose.yml.
+  # Its full name will be prepended with the project name (e.g. "-p d7" means it will be named "d7_dspacenet")
+  default:
+    name: ${COMPOSE_PROJECT_NAME}_dspacenet
+    external: true
 services:
   dspace-cli:
-    image: "${DOCKER_OWNER:-dspace}/dspace-cli:${DSPACE_VER:-dspace-7_x}"
+    image: "${DOCKER_OWNER:-dspace}/dspace-cli:${DSPACE_VER:-dspace-cris-7_x}"
     container_name: dspace-cli
     build:
       context: .
@@ -24,15 +28,13 @@ services:
     # Mount local [src]/dspace/config/ to container. This syncs your local configs with container
     # NOTE: Environment variables specified above will OVERRIDE any configs in local.cfg or dspace.cfg
     - ./dspace/config:/dspace/config
+    # Mount local [src]/dspace/etc/ to container. This syncs local etc files with container.
+    # These etc files are used to initialize DSpace-CRIS layout
+    - ./dspace/etc:/dspace/etc
     entrypoint: /dspace/bin/dspace
     command: help
-    networks:
-      - dspacenet
     tty: true
     stdin_open: true
 
 volumes:
   assetstore:
-
-networks:
-  dspacenet:
