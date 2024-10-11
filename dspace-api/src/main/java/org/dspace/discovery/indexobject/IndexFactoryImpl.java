@@ -168,7 +168,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 log.error("Tika parsing error. Could not index full text.", saxe);
                 throw new IOException("Tika parsing error. Could not index full text.", saxe);
             }
-                } catch (TikaException | IOException ex) {
+        } catch (TikaException | IOException ex) {
             log.error("Tika parsing error. Could not index full text.", ex);
             throw new IOException("Tika parsing error. Could not index full text.", ex);
         } finally {
