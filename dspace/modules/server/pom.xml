@@ -12,7 +12,6 @@
     </parent>
 
     <properties>
-        <dspace.version>cris-2023.02.02-SNAPSHOT</dspace.version>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>

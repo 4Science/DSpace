@@ -42,9 +42,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.RelationshipTypeBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
@@ -128,6 +130,19 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .withEntityType("Publication")
                 .withSubmissionDefinition("traditional")
                 .build();
+
+        EntityType publicationType =
+            entityTypeService.findByEntityType(context, "Publication");
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(
+            context,
+            publicationType,
+            publicationType,
+            "isCorrectionOfItem",
+            "isCorrectedByItem",
+            0, 1,
+            0, 1
+        );
 
         context.restoreAuthSystemState();
     }
@@ -1617,18 +1632,19 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
      */
     private void patchAddEntireArray(List<MetadataValue> metadataValues) throws Exception {
         List<Operation> ops = new ArrayList<Operation>();
-        List<MetadataValueRest> value = new ArrayList<MetadataValueRest>();
-
         // generates the MetadataValueRest list
-        metadataValues.stream().forEach(mv -> {
-            MetadataValueRest mrv = new MetadataValueRest();
-            value.add(mrv);
-            mrv.setValue(mv.getValue());
-            if (mv.getAuthority() != null && mv.getAuthority().startsWith("virtual::")) {
-                mrv.setAuthority(mv.getAuthority());
-                mrv.setConfidence(mv.getConfidence());
-            }
-        });
+        List<MetadataValueRest> value =
+            metadataValues.stream()
+                          .map(mv -> {
+                              MetadataValueRest mrv = new MetadataValueRest();
+                              mrv.setValue(mv.getValue());
+                              if (mv.getAuthority() != null && mv.getAuthority().startsWith("virtual::")) {
+                                  mrv.setAuthority(mv.getAuthority());
+                                  mrv.setConfidence(mv.getConfidence());
+                              }
+                              return mrv;
+                          })
+                          .collect(Collectors.toList());
 
         AddOperation add = new AddOperation("/sections/traditionalpageone/dc.contributor.author", value);
         ops.add(add);

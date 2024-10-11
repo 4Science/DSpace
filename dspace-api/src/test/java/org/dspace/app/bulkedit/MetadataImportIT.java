@@ -9,6 +9,7 @@ package org.dspace.app.bulkedit;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -231,9 +232,10 @@ public class MetadataImportIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void metadataImportRemovingValueTest() throws Exception {
-
         context.turnOffAuthorisationSystem();
-        Item item = ItemBuilder.createItem(context,personCollection).withAuthor("TestAuthorToRemove").withTitle("title")
+        String itemTitle = "Testing removing author";
+        Item item = ItemBuilder.createItem(context,personCollection).withAuthor("TestAuthorToRemove")
+                               .withTitle(itemTitle)
                                .build();
         context.restoreAuthSystemState();
 
@@ -245,19 +247,21 @@ public class MetadataImportIT extends AbstractIntegrationTestWithDatabase {
         String[] csv = {"id,collection,dc.title,dc.contributor.author[*]",
             item.getID().toString() + "," + personCollection.getHandle() + "," + item.getName() + ","};
         performImportScript(csv);
-        item = findItemByName("title");
+        item = findItemByName(itemTitle);
         assertEquals(0, itemService.getMetadata(item, "dc", "contributor", "author", Item.ANY).size());
     }
 
-    private Item findItemByName(String name) throws SQLException {
-        Item importedItem = null;
-        List<Item> allItems = IteratorUtils.toList(itemService.findAll(context));
-        for (Item item : allItems) {
-            if (item.getName().equals(name)) {
-                importedItem = item;
-            }
+    private Item findItemByName(String name) throws Exception {
+        List<Item> items =
+            IteratorUtils.toList(itemService.findByMetadataField(context, "dc", "title", null, name));
+
+        if (items != null && !items.isEmpty()) {
+            // Just return first matching Item. Tests should ensure name/title is unique.
+            return items.get(0);
+        } else {
+            fail("Could not find expected Item with dc.title = '" + name + "'");
+            return null;
         }
-        return importedItem;
     }
 
     public void performImportScript(String[] csv) throws Exception {
