@@ -202,7 +202,7 @@ public class DiscoverQueryBuilderTest {
                 .equals("dc.title_sort")), is(true));
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
                 .equals(DiscoverQuery.SORT_ORDER.asc)), is(true));
-        assertThat(discoverQuery.getMaxResults(), is(true));
+        assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(10));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
         assertThat(discoverQuery.getFacetOffset(), is(0));
