@@ -8,20 +8,13 @@
 package org.dspace.app.rest;
 
 import static org.dspace.app.rest.configuration.ActuatorConfiguration.UP_WITH_ISSUES_STATUS;
-import static org.dspace.app.rest.link.search.HealthIndicatorMatcher.match;
-import static org.dspace.app.rest.link.search.HealthIndicatorMatcher.matchDatabase;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Map;
-
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.junit.Test;
-import org.springframework.boot.actuate.health.Status;
 
 /**
  * Integration tests to verify the health indicators configuration.
