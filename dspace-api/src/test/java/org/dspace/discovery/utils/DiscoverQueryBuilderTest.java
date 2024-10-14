@@ -199,10 +199,10 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getQuery(), is(query));
         assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
-                .equals("dc.title_sort")), is(1));
+                .equals("dc.title_sort")), is(true));
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
                 .equals(DiscoverQuery.SORT_ORDER.asc)), is(true));
-        assertThat(discoverQuery.getMaxResults(), is(true));
+        assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(10));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
         assertThat(discoverQuery.getFacetOffset(), is(0));
@@ -230,7 +230,7 @@ public class DiscoverQueryBuilderTest {
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
-                .equals("dc.date.accessioned_sort")), is(1));
+                .equals("dc.date.accessioned_sort")), is(true));
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
                 .equals(DiscoverQuery.SORT_ORDER.desc)), is(true));
         assertThat(discoverQuery.getMaxResults(), is(100));
@@ -261,7 +261,7 @@ public class DiscoverQueryBuilderTest {
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
-                .equals("score_sort")), is(1));
+                .equals("score_sort")), is(true));
         assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
                 .equals(DiscoverQuery.SORT_ORDER.asc)), is(true));
         assertThat(discoverQuery.getMaxResults(), is(10));
