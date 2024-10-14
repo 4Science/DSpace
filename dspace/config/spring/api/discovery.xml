@@ -1776,6 +1776,7 @@
                 <ref bean="searchFilterKnowsLanguage"/>
                 <ref bean="searchFilterPersonOrgUnit"/>
                 <ref bean="searchFilterBirthdate"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1834,6 +1835,7 @@
                 <ref bean="searchFilterIsPublicationOfProjectRelation"/>
                 <ref bean="searchFilterProjectInvestigator"/>
                 <ref bean="searchFilterProjectOrganisation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1946,6 +1948,7 @@
                 <ref bean="searchFilterInvestigators"/>
                 <ref bean="searchFilterProjectOrgUnits"/>
                 <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2003,6 +2006,7 @@
                 <ref bean="searchFilterOrganizationAddressCountry"/>
                 <ref bean="searchFilterOrganizationAddressLocality"/>
                 <ref bean="searchFilterOrganizationFoundingDate"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2071,6 +2075,7 @@
                 <ref bean="searchFilterTitle"/>
                 <ref bean="searchFilterFunderName"/>
                 <ref bean="searchFilterFundingProgram"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--Any default filter queries, these filter queries will be used for all
@@ -2100,6 +2105,7 @@
             <list>
                 <ref bean="searchFilterEquipmentOwner"/>
                 <ref bean="searchFilterEquipmentOrgUnit"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2159,6 +2165,7 @@
                 <ref bean="searchFilterCreativeWorkKeywords"/>
                 <ref bean="searchFilterCreativeWorkDatePublished"/>
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2218,6 +2225,7 @@
                 <ref bean="searchFilterCreativeWorkDatePublished"/>
                 <ref bean="searchFilterIsIssueOfJournalVolumeRelation"/>
                 <ref bean="searchFilterIsJournalVolumeRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2278,6 +2286,7 @@
                 <ref bean="searchFilterCreativeWorkEditor"/>
                 <ref bean="searchFilterIsIssueOfJournalVolumeRelation"/>
                 <ref bean="searchFilterIsVolumeOfJournalRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->

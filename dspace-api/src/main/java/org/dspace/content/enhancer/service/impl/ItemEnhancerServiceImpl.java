@@ -44,7 +44,7 @@ public class ItemEnhancerServiceImpl implements ItemEnhancerService {
     private ItemForMetadataEnhancementUpdateDAO itemForMetadataEnhancementUpdateDAO;
 
     @Override
-    public void enhance(Context context, Item item, boolean deepMode) {
+    public boolean enhance(Context context, Item item, boolean deepMode) {
         boolean isUpdateNeeded = false;
         if (deepMode) {
             final UUID id = item.getID();
@@ -64,6 +64,7 @@ public class ItemEnhancerServiceImpl implements ItemEnhancerService {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
+        return isUpdateNeeded;
     }
 
     @Override

@@ -48,6 +48,19 @@ public class ConfigurationRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
+    public void getAdminRestrictedValue() throws Exception {
+        getClient().perform(get("/api/config/properties/loginmiur.dlexporter.url"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getAdminRestrictedValueRetrieved() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/config/properties/loginmiur.dlexporter.url"))
+            .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
     public void getAll() throws Exception {
         getClient().perform(get("/api/config/properties/"))
             .andExpect(status().isMethodNotAllowed());

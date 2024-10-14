@@ -182,10 +182,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         // Create a context
         Context c = null;
         c = new Context();
-        c.turnOffAuthorisationSystem();
 
         // Find the EPerson, assign to context
         assignCurrentUserInContext(c);
+        assignSpecialGroupsInContext(c);
 
         // Read commandLines from the CSV file
         try {
@@ -207,6 +207,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         initMetadataImport(csv);
         List<BulkEditChange> changes;
 
+        handleAuthorizationSystem(c);
         if (!commandLine.hasOption('s') || validateOnly) {
             // See what has changed
             try {
@@ -250,7 +251,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             }
 
             // Finsh off and tidy up
-            c.restoreAuthSystemState();
+            handleAuthorizationSystem(c);
             c.complete();
         } catch (Exception e) {
             c.abort();
@@ -269,6 +270,12 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             } catch (SQLException e) {
                 log.error("Something went wrong trying to fetch the eperson for uuid: " + uuid, e);
             }
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
         }
     }
 

@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -880,7 +881,7 @@ public class DCInputsReader {
     public List<String> getLanguagesForMetadata(Collection collection, String metadata, boolean group)
         throws DCInputsReaderException {
 
-        return getAllInputsByCollection(collection)
+        Optional<DCInput> dcInputMetadata = getAllInputsByCollection(collection)
             .filter(dcInput -> group ? isGroupType(dcInput) : !isGroupType(dcInput))
             .filter(dcInput -> {
                 try {
@@ -891,9 +892,11 @@ public class DCInputsReader {
                     throw new RuntimeException(e);
                 }
             })
-            .findFirst()
-            .orElseThrow(() -> new DCInputsReaderException("No DCInput found for the metadata field " + metadata))
-            .getAllLanguageValues();
+            .findFirst();
+        if (dcInputMetadata.isPresent()) {
+            dcInputMetadata.get().getAllLanguageValues();
+        }
+        return List.of();
 
     }
 

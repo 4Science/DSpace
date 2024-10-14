@@ -932,6 +932,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "person", "email", null, email);
     }
 
+    public ItemBuilder withJournalAnce(String ance) {
+        return addMetadataValue(item, "miur", "journal", "ance", ance);
+    }
+
     @Override
     public Item build() {
         try {

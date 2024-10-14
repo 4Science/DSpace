@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +52,7 @@ import org.dspace.identifier.generators.DoiGenerationStrategy;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowException;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
@@ -84,8 +85,8 @@ public class DOIIdentifierProviderTest
     protected CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
-    protected Set<DoiGenerationStrategy> doiGenerationStrategies =
-        IdentifierServiceFactory.getInstance().getDoiGenerationStrategies();
+    protected List<DoiGenerationStrategy> doiGenerationStrategies = new DSpace().getServiceManager()
+            .getServicesByType(DoiGenerationStrategy.class);
 
     private static Community community;
     private static Collection collection;
@@ -137,7 +138,7 @@ public class DOIIdentifierProviderTest
             provider.setConfigurationService(config);
             provider.setDOIConnector(connector);
             provider.setFilter(null);
-            provider.setDoiGenerationStrategies(doiGenerationStrategies);
+            provider.setDoiGenerationStrategies(new HashSet<>(doiGenerationStrategies));
         } catch (AuthorizeException ex) {
             log.error("Authorization Error in init", ex);
             fail("Authorization Error in init: " + ex.getMessage());

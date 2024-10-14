@@ -47,6 +47,7 @@ public class RelatedItemEnhancerUpdatePoller {
                 }
                 log.debug("item enhancer poller committing");
                 context.commit();
+                context.clear();
             }
             context.restoreAuthSystemState();
             context.complete();
