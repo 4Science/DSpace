@@ -33,6 +33,9 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.dspace.identifier.DOI;
+import org.dspace.identifier.doi.DOIIdentifierException;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.service.UnpaywallClientAPI;
@@ -55,6 +58,9 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance()
                              .getConfigurationService();
+
+    private final DOIService doiService = DSpaceServicesFactory.getInstance().getServiceManager()
+            .getServicesByType(DOIService.class).get(0);
 
     private int timeout;
 
@@ -109,11 +115,18 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
     @Override
     public Optional<String> callUnpaywallApi(String doi) {
         String endpoint = configurationService.getProperty("unpaywall.url");
+        String normDoi;
+        try {
+            normDoi = doiService.formatIdentifier(doi).substring(DOI.SCHEME.length());
+        } catch (DOIIdentifierException | IllegalArgumentException e) {
+            logger.warn("cannot use {} to lookup in unpaywall", doi);
+            return empty();
+        }
         String email = getEmail();
         HttpGet method = null;
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(endpoint + doi);
+            URIBuilder uriBuilder = new URIBuilder(endpoint + normDoi);
             uriBuilder.addParameter("email", email);
             method = new HttpGet(uriBuilder.build());
 

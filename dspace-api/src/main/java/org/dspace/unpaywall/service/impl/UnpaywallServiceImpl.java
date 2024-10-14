@@ -262,8 +262,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     }
 
     private void callApiAndUpdateUnpaywallRecord(String doi, UUID itemId) {
-        try {
-            Context context = new Context(Context.Mode.READ_WRITE);
+        try (Context context = new Context(Context.Mode.READ_WRITE);) {
             Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
             unpaywall.setStatus(PENDING);
             unpaywallDAO.save(context, unpaywall);
@@ -282,8 +281,7 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             }
         } catch (Exception e) {
             logger.error("Cannot retrieve unpaywall details for doi: " + doi, e);
-            Context context = new Context(Context.Mode.READ_WRITE);
-            try {
+            try (Context context = new Context(Context.Mode.READ_WRITE);) {
                 Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
                 mapNotFound(unpaywall);
                 unpaywallDAO.save(context, unpaywall);
