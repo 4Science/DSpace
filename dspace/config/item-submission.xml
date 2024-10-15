@@ -191,11 +191,6 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="coin-glam-bibliography" mandatory="true">
-      <heading>submit.progressbar.describe.coin-glam-bibliography</heading>
-      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-      <type>submission-form</type>
-    </step-definition>
     <step-definition id="artworks" mandatory="true">
       <heading>submit.progressbar.describe.artworks</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
@@ -218,6 +213,16 @@
     </step-definition>
     <step-definition id="scientific_materials" mandatory="true">
       <heading>submit.progressbar.describe.scientific_materials</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-inscription" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-inscription</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -408,13 +413,11 @@
     <submission-process name="coin">
       <step id="collection" />
       <step id="coin" />
-      <step id="coin-glam-bibliography" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="coin-edit">
       <step id="coin" />
-      <step id="coin-glam-bibliography" />
       <step id="upload" />
     </submission-process>
     <submission-process name="musical_librettos">
@@ -430,11 +433,15 @@
     <submission-process name="scientific_materials">
       <step id="collection" />
       <step id="scientific_materials" />
+      <step id="scientific_materials-glam-bibliography" />
+      <step id="scientific_materials-glam-inscription" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="scientific_materials-edit">
       <step id="scientific_materials" />
+      <step id="scientific_materials-glam-bibliography" />
+      <step id="scientific_materials-glam-inscription" />
       <step id="upload" />
     </submission-process>
     <submission-process name="artworks">
