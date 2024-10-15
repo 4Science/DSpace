@@ -1249,6 +1249,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testRunHarvestWithEmailSentIfItemValidationFails() throws Exception {
 
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
         OAIHarvesterEmailSender originalEmailSender = harvester.getOaiHarvesterEmailSender();
 
         try {
@@ -1382,6 +1385,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testRunHarvestWithEmailSentIfItemAndRecordValidationFails() throws Exception {
+
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
 
         OAIHarvesterEmailSender originalEmailSender = harvester.getOaiHarvesterEmailSender();
 
