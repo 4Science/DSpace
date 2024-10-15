@@ -254,9 +254,7 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 2 warning messages", warningMessages, hasSize(2));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(1), containsString("Row 3 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat("Expected 1 error message", errorMessages, hasSize(1));
@@ -264,10 +262,12 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             + "metadata group sheets: Author1 || Author2"));
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info message", infoMessages, hasSize(3));
+        assertThat("Expected 3 info message", infoMessages, hasSize(5));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 1 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 2 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(4), containsString("Row 3 - WorkflowItem created successfully"));
     }
 
     @Test
@@ -316,19 +316,19 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("Expected no errors", handler.getErrorMessages(), empty());
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 1 warning message", warningMessages, hasSize(1));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 4 info messages", infoMessages, hasSize(4));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 0 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 1 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(0));
+        Item createdItem = getItemFromMessage(infoMessages.get(3));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.title", "Patent")));
@@ -406,19 +406,19 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("Expected no errors", handler.getErrorMessages(), empty());
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 1 warning message", warningMessages, hasSize(1));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 3 info messages", infoMessages, hasSize(4));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 2 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 1 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(0));
+        Item createdItem = getItemFromMessage(infoMessages.get(3));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author", "Author1", null, "authority1", 0, 600)));
@@ -656,21 +656,21 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             + "value Author1$$authority1$$xxx: invalid security level or confidence value xxx"));
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 3 warning messages", warningMessages, hasSize(3));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(1), containsString("Row 3 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(2), containsString("Row 4 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 3 info messages", infoMessages, hasSize(6));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 1 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 3 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(4), containsString("Row 3 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(5), containsString("Row 4 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(1));
+        Item createdItem = getItemFromMessage(infoMessages.get(4));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author", "Author2")));

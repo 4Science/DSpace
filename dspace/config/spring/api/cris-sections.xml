@@ -254,7 +254,7 @@
                         </list>
                     </property>
                     <property name="sortField" value="cris.priority" />
-                    <property name="order" value="desc" />
+                    <property name="order" value="asc" />
                     <property name="style" value="py-4"/>
                     <property name="numberOfItems" value="8"/>
                     <property name="showAsCard" value="true"/>
