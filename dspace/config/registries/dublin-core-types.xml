@@ -897,6 +897,13 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>keywords</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 <!-- GLAM additions -->
   <dc-type>
     <schema>dc</schema>
@@ -1490,6 +1497,139 @@
     <schema>dc</schema>
     <element>relation</element>
     <qualifier>hasPicture</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+  
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>otherlinkslabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>urilabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>opaclabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>highlight</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>mark</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>annotation</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>dedica</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>library</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>annotatedbook</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>dedicatedbook</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>highlightedbook</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>markedbook</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>book</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>represents</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>attachment</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+  
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>nmh</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcl</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpy</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpx</qualifier>
     <scope_note></scope_note>
   </dc-type>
 

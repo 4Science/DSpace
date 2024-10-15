@@ -112,4 +112,6 @@ public interface MetadataValueService {
         throws SQLException;
 
     int countTotal(Context context) throws SQLException;
+
+    public List<MetadataValue> findAllHavingAuthority(Context context) throws SQLException;
 }

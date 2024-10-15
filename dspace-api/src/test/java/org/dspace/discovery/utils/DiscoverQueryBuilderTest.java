@@ -65,7 +65,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-
 /**
  * Unit tests for {@link DiscoverQueryBuilder}
  */
@@ -199,8 +198,10 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getFilterQueries(), containsInAnyOrder("archived:true", "subject:\"Java\""));
         assertThat(discoverQuery.getQuery(), is(query));
         assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
-        assertThat(discoverQuery.getSortField(), is("dc.title_sort"));
-        assertThat(discoverQuery.getSortOrder(), is(DiscoverQuery.SORT_ORDER.asc));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
+                .equals("dc.title_sort")), is(true));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
+                .equals(DiscoverQuery.SORT_ORDER.asc)), is(true));
         assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(10));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
@@ -228,8 +229,10 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getDSpaceObjectFilters(), is(empty()));
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
-        assertThat(discoverQuery.getSortField(), is("dc.date.accessioned_sort"));
-        assertThat(discoverQuery.getSortOrder(), is(DiscoverQuery.SORT_ORDER.desc));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
+                .equals("dc.date.accessioned_sort")), is(true));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
+                .equals(DiscoverQuery.SORT_ORDER.desc)), is(true));
         assertThat(discoverQuery.getMaxResults(), is(100));
         assertThat(discoverQuery.getStart(), is(0));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
@@ -257,8 +260,10 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getDSpaceObjectFilters(), is(empty()));
         //Note this should actually be "dc.date.accessioned_dt"  but remember that our searchService is just a stupid
         // mock
-        assertThat(discoverQuery.getSortField(), is("score_sort"));
-        assertThat(discoverQuery.getSortOrder(), is(DiscoverQuery.SORT_ORDER.asc));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getKey()
+                .equals("score_sort")), is(true));
+        assertThat(discoverQuery.getSortFields().stream().anyMatch(field -> field.getValue()
+                .equals(DiscoverQuery.SORT_ORDER.asc)), is(true));
         assertThat(discoverQuery.getMaxResults(), is(10));
         assertThat(discoverQuery.getStart(), is(20));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
@@ -318,7 +323,7 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getFilterQueries(), containsInAnyOrder("archived:true", "subject:\"Java\""));
         assertThat(discoverQuery.getQuery(), is(query));
         assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
-        assertThat(discoverQuery.getSortField(), isEmptyOrNullString());
+        assertThat(discoverQuery.getSortFields(), hasSize(0));
         assertThat(discoverQuery.getMaxResults(), is(0));
         assertThat(discoverQuery.getStart(), is(0));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
