@@ -85,6 +85,8 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,6 +118,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     private SearchService searchService = SearchUtils.getSearchService();
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private Community community;
 
@@ -239,6 +243,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testMetadataGroupRowWithManyValuesImport() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
@@ -300,6 +306,9 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePatent() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
         Collection patents = createCollection(context, community)
             .withSubmissionDefinition("patent")
             .withAdminGroup(eperson)
@@ -390,6 +399,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePublicationWithAuthority() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
@@ -636,6 +647,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePublicationWithOneInvalidAuthorityAndNoAbortOnError() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
