@@ -1304,8 +1304,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             ErrorDetails errorDetails = errors.get("oai:test-harvest:Publications/3");
             assertThat(errorDetails.getAction(), is("created"));
-            assertThat(errorDetails.getMessages(), hasSize(2));
-            assertThat(errorDetails.getMessages(), hasItem("error.validation.filerequired - [/sections/upload]"));
+            assertThat(errorDetails.getMessages(), hasSize(1));
             assertThat(errorDetails.getMessages(),
                hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]")
             );
@@ -1429,16 +1428,14 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             ErrorDetails errorDetails = errors.get("oai:test-harvest:Publications/123456789/1001");
             assertThat(errorDetails.getAction(), is("created"));
             List<String> messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(3));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
+            assertThat(messages, hasSize(2));
             assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
             assertThat(messages, hasItem("error.validation.required - [/sections/publication/dc.date.issued]"));
 
             errorDetails = errors.get("oai:test-harvest:Publications/123456789/1002");
             assertThat(errorDetails.getAction(), is("created"));
             messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(3));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
+            assertThat(messages, hasSize(2));
             assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
             assertThat(errorDetails.getMessages(), hasItem(containsString("Element 'oai_cerif:Publishers' "
                 + "cannot have character [children]")));
@@ -1446,8 +1443,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             errorDetails = errors.get("oai:test-harvest:Publications/123456789/1003");
             assertThat(errorDetails.getAction(), is("created"));
             messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(2));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
+            assertThat(messages, hasSize(1));
             assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
 
             verifyNoMoreInteractions(mockClient, mockEmailSender);

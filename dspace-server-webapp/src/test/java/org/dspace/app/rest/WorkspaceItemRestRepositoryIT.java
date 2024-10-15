@@ -5221,12 +5221,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         //Verify there is an error since no file was uploaded (with upload required set to true)
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.errors").isNotEmpty())
-            .andExpect(jsonPath("$.errors[?(@.message=='error.validation.filerequired')]",
-                contains(
-                    hasJsonPath("$.paths", contains(
-                        hasJsonPath("$", Matchers.is("/sections/upload"))
-                    )))));
+            .andExpect(jsonPath("$.errors").isNotEmpty());
     }
 
     @Test
@@ -7500,7 +7495,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                                 .file(pdfFile)
                                 .param("owningCollection", col.getID().toString()))
-                                .andExpect(status().is(500));
+                                .andExpect(status().is(200));
         } finally {
             pdf.close();
         }

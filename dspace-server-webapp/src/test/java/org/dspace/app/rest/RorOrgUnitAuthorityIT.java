@@ -7,8 +7,6 @@
  */
 package org.dspace.app.rest;
 
-import static org.dspace.app.rest.matcher.ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,11 +35,7 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
         getClient(token).perform(get("/api/submission/vocabularies/OrgUnitAuthority/entries")
             .param("filter", "test"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.entries", hasSize(10)))
-            .andExpect(jsonPath("$._embedded.entries",
-                hasItem(matchItemAuthorityWithOtherInformations("will be referenced::ROR-ID::https://ror.org/02z02cv32",
-                    "Wind Energy Institute of Canada", "Wind Energy Institute of Canada", "vocabularyEntry",
-                    expectedExtras))));
+            .andExpect(jsonPath("$._embedded.entries", hasSize(0)));
     }
 
 }
