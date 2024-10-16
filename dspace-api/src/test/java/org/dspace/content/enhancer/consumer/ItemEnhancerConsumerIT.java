@@ -34,6 +34,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.Choices;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ReloadableEntity;
@@ -42,9 +43,19 @@ import org.junit.Test;
 
 public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase {
 
+    public static final String CRIS_VIRTUALSOURCE_ROOT_FOND = "cris.virtualsource.rootFond";
+    public static final String CRIS_VIRTUAL_ROOT_FOND = "cris.virtual.rootFond";
+    public static final String GLAMFONDS_PARENT = "glamfonds.parent";
+    public static final String CRIS_VIRTUAL_TREE_FONDS_ROOT = "cris.virtual.treeFondsRoot";
+    public static final String CRIS_VIRTUALSOURCE_TREE_FONDS_ROOT = "cris.virtualsource.treeFondsRoot";
+
     private ItemService itemService;
 
     private Collection collection;
+    private Collection fondsCollection;
+    private Item rootFond;
+    private Item childFond;
+    private Item leafFond;
 
     @Before
     public void setup() {
@@ -453,6 +464,209 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(getMetadataValues(testEntity, "cris.virtualsource.testmultival"), hasSize(5));
         assertThat(getMetadataValues(testEntity, "cris.virtual.testmultival"), hasSize(5));
 
+    }
+
+
+    @Test
+    public void testRelatedFondFilterEnhancements() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        initFonds();
+
+        context.restoreAuthSystemState();
+
+        childFond = commitAndReload(childFond);
+
+        List<MetadataValue> metadataValues = childFond.getMetadata();
+
+        // check that the root fond reference has been pushed to the child
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(GLAMFONDS_PARENT, "Root Fond", rootFond.getID().toString(), Choices.CF_ACCEPTED)
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUAL_ROOT_FOND,
+                    String.format("Root Fond::%s", rootFond.getID())
+                )
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUALSOURCE_ROOT_FOND,
+                    rootFond.getID().toString()
+                )
+            )
+        );
+
+        leafFond = context.reloadEntity(leafFond);
+
+        context.turnOffAuthorisationSystem();
+
+        // adds a glamfonds.parent after
+        itemService.addMetadata(
+            context, leafFond, "glamfonds", "parent", null, null, "Child Fond",
+            childFond.getID().toString(), Choices.CF_ACCEPTED
+        );
+
+        itemService.update(context, leafFond);
+
+        context.restoreAuthSystemState();
+
+        leafFond = commitAndReload(leafFond);
+
+        metadataValues = leafFond.getMetadata();
+
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(GLAMFONDS_PARENT, "Child Fond", childFond.getID().toString(), Choices.CF_ACCEPTED)
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUAL_ROOT_FOND,
+                    "Root Fond",
+                    rootFond.getID().toString(),
+                    Choices.CF_ACCEPTED
+                )
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUALSOURCE_ROOT_FOND,
+                    childFond.getID().toString()
+                )
+            )
+        );
+
+    }
+
+    @Test
+    public void testPublicationRelatedFondFilterEnhancements() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        initFonds();
+
+        Item publication =
+            ItemBuilder.createItem(context, collection)
+                       .withEntityType("Publication")
+                       .withTitle("My Publication")
+                       .withRelationFonds("Leaf Fond", leafFond.getID().toString())
+                       .build();
+
+        Item customPublication =
+            ItemBuilder.createItem(context, collection)
+                       .withEntityType("Publication")
+                       .withTitle("Custom Publication")
+                       .build();
+
+        context.restoreAuthSystemState();
+
+        publication = commitAndReload(publication);
+
+        List<MetadataValue> metadataValues = publication.getMetadata();
+
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUAL_TREE_FONDS_ROOT,
+                    "Root Fond",
+                    rootFond.getID().toString(),
+                    Choices.CF_ACCEPTED
+                )
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUALSOURCE_TREE_FONDS_ROOT,
+                    leafFond.getID().toString()
+                )
+            )
+        );
+
+        customPublication = context.reloadEntity(customPublication);
+
+        context.turnOffAuthorisationSystem();
+
+        // adds a glamfonds.parent after
+        itemService.addMetadata(
+            context, customPublication, "dc", "relation", "fonds", null, "Leaf Fond",
+            leafFond.getID().toString(), Choices.CF_ACCEPTED
+        );
+
+        itemService.update(context, customPublication);
+
+        context.restoreAuthSystemState();
+
+        customPublication = commitAndReload(customPublication);
+
+        metadataValues = customPublication.getMetadata();
+
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUAL_TREE_FONDS_ROOT,
+                    "Root Fond",
+                    rootFond.getID().toString(),
+                    Choices.CF_ACCEPTED
+                )
+            )
+        );
+        assertThat(
+            metadataValues,
+            hasItem(
+                with(
+                    CRIS_VIRTUALSOURCE_TREE_FONDS_ROOT,
+                    leafFond.getID().toString()
+                )
+            )
+        );
+
+    }
+
+
+    private void initFonds() {
+        fondsCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Fonds Collection")
+                             .withEntityType("Fonds")
+                             .build();
+
+        rootFond =
+            ItemBuilder.createItem(context, fondsCollection)
+                       .withTitle("Root Fond")
+                       .build();
+
+
+        childFond =
+            ItemBuilder.createItem(context, fondsCollection)
+                       .withTitle("Child Fond")
+                       .withFondParent("Root Fond", rootFond.getID())
+                       .build();
+
+
+        leafFond =
+            ItemBuilder.createItem(context, fondsCollection)
+                       .withTitle("Leaf Fond")
+                       .withFondParent("Child Fond", childFond.getID())
+                       .build();
     }
 
     private List<Integer> getPlacesAsVirtualSource(Item person1, Item publication, String metadata) {
