@@ -840,8 +840,20 @@
 		        	<groupId>javax.servlet</groupId>
 	      			<artifactId>servlet-api</artifactId>
 		        </exclusion>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
             </exclusions>
+            <scope>compile</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>${xalan.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
 		<dependency>
 		    <groupId>org.apache.xmlgraphics</groupId>
