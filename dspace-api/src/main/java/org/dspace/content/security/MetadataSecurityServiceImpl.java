@@ -235,6 +235,9 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
     }
 
     private boolean metadataMatch(MetadataField metadataField, String publicField) {
+        if (metadataField == null || publicField == null) {
+            return false;
+        }
         if (publicField.contains(".*")) {
             final String exactMatch = publicField.replace(".*", "");
             StringBuffer qualifiedMatch = new StringBuffer(exactMatch).append(".");
@@ -325,8 +328,9 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
 
     private boolean isNotHidden(Context context, MetadataField metadataField) {
         try {
-            return !metadataExposureService.isHidden(context, metadataField.getMetadataSchema().getName(),
-                metadataField.getElement(), metadataField.getQualifier());
+            return metadataField != null &&
+                    !metadataExposureService.isHidden(context, metadataField.getMetadataSchema().getName(),
+                            metadataField.getElement(), metadataField.getQualifier());
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
