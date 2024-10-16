@@ -363,7 +363,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "2"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-correction")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-unpaywall")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -389,7 +389,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "3"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("test-hidden")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-with-correction")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -415,7 +415,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "4"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-cris")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("test-hidden")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -441,7 +441,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "5"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("publication")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("traditional-cris")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -467,7 +467,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "6"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("patent")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("publication")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -493,7 +493,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "7"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("person")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("patent")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -519,7 +519,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "8"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("languagetestprocess")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("person")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
