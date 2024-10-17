@@ -155,7 +155,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
                 && StringUtils.equals(metadataValue.getAuthority(), metadataValueDTO.getAuthority());
     }
 
-    private Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
+    protected Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
         Map<String, List<MetadataValueDTO>> tobeVirtualMetadataMap = new HashMap<String, List<MetadataValueDTO>>();
 
         Set<String> virtualSources = getVirtualSources(item);
@@ -236,8 +236,8 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     protected Set<String> getVirtualSources(Item item) {
         return sourceItemMetadataFields.stream()
                 .flatMap(field -> itemService.getMetadataByMetadataString(item, field).stream())
-                .filter(mv -> UUIDUtils.fromString(mv.getAuthority()) != null)
-                .map(mv -> mv.getAuthority())
+                .map(MetadataValue::getAuthority)
+                .filter(authority -> UUIDUtils.fromString(authority) != null)
                 .collect(Collectors.toSet());
     }
 
@@ -247,7 +247,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
             .findFirst();
     }
 
-    private boolean performEnhancement(Context context, Item item) throws SQLException {
+    protected boolean performEnhancement(Context context, Item item) throws SQLException {
         boolean result = false;
         Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
                 .getCurrentVirtualsMap(item, getVirtualQualifier());
