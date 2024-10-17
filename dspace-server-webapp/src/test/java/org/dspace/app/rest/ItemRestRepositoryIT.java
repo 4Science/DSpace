@@ -5287,6 +5287,10 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                 .param("q", "http://example.com/sample"))
                 .andExpect(status().isNoContent());
 
+        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
+                .param("q", ""))
+                .andExpect(status().isNoContent());
+
     }
 
     @Test

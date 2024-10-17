@@ -6434,9 +6434,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.containsInAnyOrder(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals"),
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover"),
                             SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                         "discover")
                             )));
 
     }
@@ -6496,7 +6498,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover")
                             )));
 
         getClient(adminToken).perform(get("/api/discover/facets/discoverable")
@@ -6513,7 +6516,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                  "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                 .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                            SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                        "discover")
                            )));
     }
 
