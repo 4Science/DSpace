@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ import java.util.regex.Pattern;
 import javax.el.MethodNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -61,6 +64,8 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     @Autowired
     private LiveImportClient liveImportClient;
+
+    private final static Logger log = LogManager.getLogger();
 
     public LiveImportClient getLiveImportClient() {
         return liveImportClient;
@@ -395,10 +400,16 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
             saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
-            List<Element> records = root.getChildren("entry",Namespace.getNamespace("http://www.w3.org/2005/Atom"));
+            String totalResults = root.getChildText("totalResults", Namespace.getNamespace("http://a9.com/-/spec/opensearch/1.1/"));
+            if (totalResults != null && "0".equals(totalResults)) {
+                log.debug("got Scopus API with empty response");
+                return Collections.emptyList();
+            }
+            List<Element> records = root.getChildren("entry", Namespace.getNamespace("http://www.w3.org/2005/Atom"));
             return records;
         } catch (JDOMException | IOException e) {
-            return new ArrayList<Element>();
+            log.warn("got unexpected XML response from Scopus API: " + e.getMessage());
+            return Collections.emptyList();
         }
     }
 

@@ -2172,9 +2172,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             .withName("Original bitstream title")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
             .withDspaceObject(bitstream)
-            .withUser(eperson)
             .withName("test")
             .withAction(READ)
             .withPolicyType(TYPE_CUSTOM)
