@@ -623,6 +623,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(delete("/api/submission/workspaceitems/" + witem.getID()))
                     .andExpect(status().is(204));
 
+        // a second attempt should return 404
+        getClient(token).perform(delete("/api/submission/workspaceitems/" + witem.getID()))
+                    .andExpect(status().is(404));
         //Trying to get deleted item should fail with 404
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                    .andExpect(status().is(404));
@@ -2505,6 +2508,24 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.test')]", allOf(
                 contains(hasJsonPath("$.paths[0]", is("/sections/traditionalpageone/dc.title"))),
                 contains(hasJsonPath("$.paths[1]", is("/sections/traditionalpageone/dc.identifier.doi"))))));
+    }
+
+    @Test
+    public void patchNotExistingWorkspaceItemTest() throws Exception {
+        List<Operation> update = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "Title");
+        values.add(value);
+        update.add(new AddOperation("/sections/traditionalpageone/dc.title", values));
+
+        String patchBody = getPatchContent(update);
+        String authToken = getAuthToken(admin.getEmail(), password);
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + Integer.MAX_VALUE)
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isNotFound());
+
     }
 
     /**
