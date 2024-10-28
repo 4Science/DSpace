@@ -45,11 +45,13 @@ FROM  (SELECT 'project'        AS pointer_table,
        FROM   old_cris_do entity,
               old_cris_do_prop properties,
               old_cris_do_pdef property_def,
+	   		  old_cris_do_tp entitytp,
               old_jdyna_values values
        WHERE  property_def.id = properties.typo_id
+              AND entity.typo_id = entitytp.id
               AND values.id = properties.value_id
               AND properties.parent_id = entity.id
               AND ( property_def.shortname = 'title'
-                     OR property_def.shortname LIKE '%name' ))AS innerquery
+                     OR property_def.shortname LIKE concat(entitytp.shortname,'name') ))AS innerquery
 WHERE  pointer_table = ?
        AND id = ? 
