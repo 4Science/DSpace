@@ -191,30 +191,31 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
 
     protected void updateBundlesAndBitstreams(Context c, Item itemNew, Item nativeItem)
             throws SQLException, AuthorizeException, IOException {
+        if (bundles != null && bundles.size() > 0) {
+            for (String bundleName : bundles) {
+                List<Bundle> nativeBundles = nativeItem.getBundles(bundleName);
+                List<Bundle> correctedBundles = itemNew.getBundles(bundleName);
 
-        for (String bundleName : bundles) {
-            List<Bundle> nativeBundles = nativeItem.getBundles(bundleName);
-            List<Bundle> correctedBundles = itemNew.getBundles(bundleName);
+                if (CollectionUtils.isEmpty(nativeBundles) && CollectionUtils.isEmpty(correctedBundles)) {
+                    continue;
+                }
 
-            if (CollectionUtils.isEmpty(nativeBundles) && CollectionUtils.isEmpty(correctedBundles)) {
-                continue;
+                Bundle nativeBundle;
+                if (CollectionUtils.isEmpty(nativeBundles)) {
+                    nativeBundle = bundleService.create(c, nativeItem, bundleName);
+                } else {
+                    nativeBundle = nativeBundles.get(0);
+                }
+
+                Bundle correctedBundle;
+                if (CollectionUtils.isEmpty(correctedBundles)) {
+                    correctedBundle = bundleService.create(c, nativeItem, bundleName);
+                } else {
+                    correctedBundle = correctedBundles.get(0);
+                }
+
+                updateBundleAndBitstreams(c, nativeBundle, correctedBundle);
             }
-
-            Bundle nativeBundle;
-            if (CollectionUtils.isEmpty(nativeBundles)) {
-                nativeBundle = bundleService.create(c, nativeItem, bundleName);
-            } else {
-                nativeBundle = nativeBundles.get(0);
-            }
-
-            Bundle correctedBundle;
-            if (CollectionUtils.isEmpty(correctedBundles)) {
-                correctedBundle = bundleService.create(c, nativeItem, bundleName);
-            } else {
-                correctedBundle = correctedBundles.get(0);
-            }
-
-            updateBundleAndBitstreams(c, nativeBundle, correctedBundle);
         }
     }
 
