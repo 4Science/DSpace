@@ -34,7 +34,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.authority.service.MetadataAuthorityService;
-import org.dspace.discovery.MockSolrSearchCore;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -51,9 +50,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
  * @author Tom Desair (tom dot desair at atmire dot com)
  */
 public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTest {
-
-    @Autowired
-    MockSolrSearchCore mockSolrSearchCore;
 
     @Autowired
     ConfigurationService configurationService;
