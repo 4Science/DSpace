@@ -34,6 +34,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.discovery.MockSolrSearchCore;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -50,6 +51,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
  * @author Tom Desair (tom dot desair at atmire dot com)
  */
 public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTest {
+
+    @Autowired
+    MockSolrSearchCore mockSolrSearchCore;
+
     @Autowired
     ConfigurationService configurationService;
 
@@ -1769,4 +1774,174 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                 // The status has to be 400 BAD REQUEST
                 .andExpect(status().isBadRequest());
     }
+
+
+    @Test
+    public void testBrowseTitleExcludesSpecificEntityTypes() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // GIVEN: A community-collection structure containing collections for each specified entity type
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each specified entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .withName("Fonds Collection").build();
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                             .withEntityType("JournalFonds")
+                                                             .withName("JournalFonds Collection").build();
+        Collection aggregationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Aggregation")
+                                                            .withName("Aggregation Collection").build();
+        Collection pathCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Path")
+                                                     .withName("Path Collection").build();
+        Collection staticPageCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("StaticPage")
+                                                           .withName("StaticPage Collection").build();
+        Collection newsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("News")
+                                                     .withName("News Collection").build();
+
+        // Create one item in each collection and assign to variables
+        ItemBuilder.createItem(context, fondsCollection).withTitle("Fonds Example").withIssueDate("2024-11-04").build();
+        ItemBuilder.createItem(context, journalFondsCollection).withTitle("JournalFonds Example")
+                   .withIssueDate("2024-11-04").build();
+        ItemBuilder.createItem(context, aggregationCollection).withTitle("Aggregation Example")
+                   .withIssueDate("2024-11-04").build();
+        ItemBuilder.createItem(context, pathCollection).withTitle("Path Example").withIssueDate("2024-11-04").build();
+        ItemBuilder.createItem(context, staticPageCollection).withTitle("StaticPage Example")
+                   .withIssueDate("2024-11-04").build();
+        ItemBuilder.createItem(context, newsCollection).withTitle("News Example").withIssueDate("2024-11-04").build();
+
+        context.restoreAuthSystemState();
+
+        // WHEN: Fetch items sorted by title from /api/discover/browses/title/items
+        getClient().perform(get("/api/discover/browses/title/items").param("sort", "dc.title"))
+
+                   // THEN: Expect HTTP status 200 OK and correct content type
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+
+                   // Verify the total number of elements returned is 0
+                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void testBrowseTitleIncludesOtherTypeEntityTypes() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // GIVEN: A collection with an unspecified entity type
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community childCommunity = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                   .withName("Sub Community")
+                                                   .build();
+
+        Collection otherTypeCollection = CollectionBuilder.createCollection(context, childCommunity)
+                                                          .withEntityType("OtherType")
+                                                          .withName("Other Type Collection").build();
+
+        // Add one item to the unspecified entity type collection
+        Item otherTypeItem = ItemBuilder.createItem(context, otherTypeCollection)
+                                        .withTitle("OtherType Example")
+                                        .withIssueDate("2024-11-04")
+                                        .build();
+
+        context.restoreAuthSystemState();
+
+        // WHEN: Fetch items sorted by title from /api/discover/browses/title/items
+        getClient().perform(get("/api/discover/browses/title/items").param("sort", "dc.title"))
+
+                   // THEN: Expect HTTP status 200 OK and correct content type
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+
+                   // Verify the collection with the OtherType entity type is included
+                   .andExpect(jsonPath("$.page.totalElements", is(1)))
+                   .andExpect(jsonPath("$._embedded.items",
+                                       containsInAnyOrder(
+                                           ItemMatcher
+                                               .matchItemWithTitleAndDateIssued(otherTypeItem, "OtherType Example",
+                                                                                "2024-11-04")
+                                       )));
+    }
+
+    @Test
+    public void testBrowseTitleIncludesSpecifiedEntityTypes() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // GIVEN: A community-collection structure with specific entity types
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community childCommunity = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                   .withName("Sub Community")
+                                                   .build();
+
+        // Create collections with the specified entity types
+        Collection publicationCollection = CollectionBuilder.createCollection(context, childCommunity)
+                                                            .withEntityType("Publication")
+                                                            .withName("Publication Collection")
+                                                            .build();
+        Collection personCollection = CollectionBuilder.createCollection(context, childCommunity)
+                                                       .withEntityType("Person")
+                                                       .withName("Person Collection")
+                                                       .build();
+        Collection orgUnitCollection = CollectionBuilder.createCollection(context, childCommunity)
+                                                        .withEntityType("OrgUnit")
+                                                        .withName("OrgUnit Collection")
+                                                        .build();
+        Collection aggregationCollection = CollectionBuilder.createCollection(context, childCommunity)
+                                                            .withEntityType("Aggregation")
+                                                            .withName("Aggregation Collection")
+                                                            .build();
+
+        // Add items to each collection
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                                          .withTitle("Publication Example")
+                                          .withIssueDate("2023-01-01")
+                                          .build();
+
+        Item personItem = ItemBuilder.createItem(context, personCollection)
+                                     .withTitle("Person Example")
+                                     .withIssueDate("2023-02-01")
+                                     .build();
+
+        Item orgUnitItem = ItemBuilder.createItem(context, orgUnitCollection)
+                                      .withTitle("OrgUnit Example")
+                                      .withIssueDate("2023-03-01")
+                                      .build();
+
+        ItemBuilder.createItem(context, aggregationCollection)
+                   .withTitle("Aggregation Example")
+                   .withIssueDate("2023-04-01")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        // WHEN: Fetch items sorted by title from /api/discover/browses/title/items
+        getClient().perform(get("/api/discover/browses/title/items").param("sort", "dc.title"))
+
+                   // THEN: Expect HTTP status 200 OK and correct content type
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+
+                   // Verify that only the first three items are included
+                   .andExpect(jsonPath("$.page.totalElements", is(3)))
+                   .andExpect(jsonPath("$._embedded.items",
+                                       containsInAnyOrder(
+                                           ItemMatcher.matchItemWithTitleAndDateIssued(publicationItem,
+                                                                                       "Publication Example",
+                                                                                       "2023-01-01"),
+                                           ItemMatcher.matchItemWithTitleAndDateIssued(personItem, "Person Example",
+                                                                                       "2023-02-01"),
+                                           ItemMatcher.matchItemWithTitleAndDateIssued(orgUnitItem, "OrgUnit Example",
+                                                                                       "2023-03-01")
+                                       )));
+    }
+
 }
