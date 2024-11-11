@@ -42,6 +42,9 @@ import org.dspace.unpaywall.service.UnpaywallClientAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of {@link UnpaywallClientAPI}
+ */
 public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
     private static final String LOCATION_HEADER = "Location";

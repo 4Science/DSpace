@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+/**
+ * Unpaywall Client Api
+ */
 public interface UnpaywallClientAPI {
 
     InputStream downloadResource(String pdfUrl) throws IOException;
