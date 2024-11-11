@@ -24,7 +24,8 @@ public class VersionMatcher {
             hasJsonPath("$.id", is(version.getID())),
             hasJsonPath("$.version", is(version.getVersionNumber())),
             hasJsonPath("$.summary", is(version.getSummary())),
-            hasJsonPath("$.type", is("version"))
+            hasJsonPath("$.type", is("version")),
+            hasJsonPath("$.uniqueType", is("versioning.version"))
 
         );
     }

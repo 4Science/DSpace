@@ -67,6 +67,9 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
 import org.dspace.core.CrisConstants;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -93,6 +96,10 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     private Community community;
 
+    private Group anonymousGroup;
+
+    private Group adminGroup;
+
     private static final String BITSTREAM_URL_FORMAT = "%s/api/core/bitstreams/%s/content";
 
     @Before
@@ -108,9 +115,12 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .getServicesByType(BulkImportWorkbookBuilderImpl.class).get(0);
 
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
+        anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+        adminGroup = groupService.findByName(context, Group.ADMIN);
         context.restoreAuthSystemState();
 
     }
@@ -759,7 +769,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withDescription("desc 2")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(secondBitstream)
             .withAction(Constants.READ)
             .withName("openaccess")
@@ -840,7 +850,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withMetadata("dc", "contributor", null, "Unknown author")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withDescription("Test policy")
@@ -848,27 +858,27 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.WRITE)
             .withName("administrator")
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("openaccess")
             .withPolicyType(ResourcePolicy.TYPE_INHERITED)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("embargo")
@@ -876,7 +886,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("lease")
@@ -1012,12 +1022,12 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         // add metadata dc.description[en]
         Bitstream bitstream = createBitstream(context, bundle, getBitstreamSample("First bitstream sample"))
                 .withName("test.txt")
-                .withMetadata("dc", "description", null, "test description 1", "en")
+                .withMetadata("dc", "description", null, "en", "test description 1")
                 .withMetadata("dc", "date", null, "2023-02-23")
                 .withMetadata("dc", "contributor", null, "Unknown author")
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withDescription("Test policy")
@@ -1025,27 +1035,27 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.WRITE)
                 .withName("administrator")
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withName("openaccess")
                 .withPolicyType(ResourcePolicy.TYPE_INHERITED)
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withName("embargo")
@@ -1053,7 +1063,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withName("lease")

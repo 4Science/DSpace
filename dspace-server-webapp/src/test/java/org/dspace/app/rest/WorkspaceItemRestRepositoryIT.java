@@ -181,6 +181,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     private Group embargoedGroups;
     private Group embargoedGroup1;
     private Group embargoedGroup2;
+    private Group adminGroup;
     private Group anonymousGroup;
     private EntityType publicationType;
     private EntityType journalType;
@@ -220,6 +221,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         if (orgUnitType == null) {
             orgUnitType = EntityTypeBuilder.createEntityTypeBuilder(context, "OrgUnit").build();
         }
+        adminGroup = EPersonServiceFactory.getInstance().getGroupService().findByName(context, Group.ADMIN);
+
         context.restoreAuthSystemState();
     }
 
@@ -620,6 +623,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(delete("/api/submission/workspaceitems/" + witem.getID()))
                     .andExpect(status().is(204));
 
+        // a second attempt should return 404
+        getClient(token).perform(delete("/api/submission/workspaceitems/" + witem.getID()))
+                    .andExpect(status().is(404));
         //Trying to get deleted item should fail with 404
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                    .andExpect(status().is(404));
@@ -954,6 +960,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create a workspaceitem explicitly in the col1
         getClient(authToken).perform(post("/api/submission/workspaceitems")
                     .param("owningCollection", col1.getID().toString())
+                    .param("embed", "collection")
                     .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.collection.id", is(col1.getID().toString())))
@@ -962,6 +969,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create a workspaceitem explicitly in the col2
         getClient(authToken).perform(post("/api/submission/workspaceitems")
                     .param("owningCollection", col2.getID().toString())
+                    .param("embed", "collection")
                     .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.collection.id", is(col2.getID().toString())))
@@ -970,10 +978,10 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create a workspaceitem without an explicit collection, this will go in the first valid collection for the
         // user: the col1
         getClient(authToken).perform(post("/api/submission/workspaceitems")
+                    .param("embed", "collection")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.collection.id", is(col1.getID().toString())))
-                .andExpect(jsonPath("$", WorkspaceItemMatcher.matchFullEmbeds()))
                 .andDo(result -> idRef3.set(read(result.getResponse().getContentAsString(), "$.id")));
 
 
@@ -1025,7 +1033,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(bibtexFile))
+                    .file(bibtexFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1054,6 +1063,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                     .file(bibtexFile)
+                    .param("embed", "collection")
                     .param("owningCollection", col2.getID().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1119,7 +1129,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                            .file(bibtexFile))
+                            .file(bibtexFile)
+                            .param("embed", "collection"))
                     // create should return 200, 201 (created) is better for single resource
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0]" +
@@ -1153,6 +1164,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                             .file(bibtexFile)
+                            .param("embed", "collection")
                             .param("owningCollection", col2.getID().toString()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0]" +
@@ -1218,7 +1230,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                            .file(bibtexFile))
+                            .file(bibtexFile)
+                            .param("embed", "collection"))
                     // create should return 200, 201 (created) is better for single resource
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0].sections." +
@@ -1249,6 +1262,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                             .file(bibtexFile)
+                            .param("embed", "collection")
                             .param("owningCollection", col2.getID().toString()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0].sections." +
@@ -1317,7 +1331,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                            .file(bibtexFile))
+                            .file(bibtexFile)
+                            .param("embed", "collection"))
                     // create should return 200, 201 (created) is better for single resource
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0]" +
@@ -1357,6 +1372,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                             .file(bibtexFile)
+                            .param("embed", "collection")
                             .param("owningCollection", col2.getID().toString()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$._embedded.workspaceitems[0]" +
@@ -1426,7 +1442,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         AtomicReference<List<Integer>> idRef = new AtomicReference<>();
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(csvFile))
+                    .file(csvFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1466,6 +1483,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                     .file(csvFile)
+                    .param("embed", "collection")
                     .param("owningCollection", col2.getID().toString()))
                     .andExpect(status().isOk())
                  .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone"
@@ -1547,7 +1565,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                .file(csvFile))
+                .file(csvFile)
+                .param("embed", "collection"))
             // create should return 200, 201 (created) is better for single resource
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1629,7 +1648,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create workspaceitems in the default collection (col1)
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(tsvFile))
+                    .file(tsvFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1709,7 +1729,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create workspaceitems in the default collection (col1)
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(tsvFile))
+                    .file(tsvFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1790,7 +1811,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create workspaceitems in the default collection (col1)
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(endnoteFile))
+                    .file(endnoteFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1873,7 +1895,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create workspaceitems in the default collection (col1)
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                .file(csvFile))
+                .file(csvFile)
+                .param("embed", "collection"))
             // create should return 200, 201 (created) is better for single resource
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1958,7 +1981,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
-                    .file(bibtexFile).file(pubmedFile))
+                    .file(bibtexFile)
+                    .file(pubmedFile)
+                    .param("embed", "collection"))
                 // create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -1993,6 +2018,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         try {
             getClient(authToken).perform(multipart("/api/submission/workspaceitems")
                     .file(bibtexFile).file(pubmedFile)
+                    .param("embed", "collection")
                     .param("owningCollection", col2.getID().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone['dc.title'][0].value",
@@ -2070,7 +2096,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             // create a workspaceitem from a single bibliographic entry file explicitly in the default collection (col1)
             getClient(authToken)
                 .perform(
-                    multipart("/api/submission/workspaceitems").file(bibtexFile)
+                    multipart("/api/submission/workspaceitems")
+                        .file(bibtexFile)
                 )
                 // bulk create should return 200, 201 (created) is better for single resource
                 .andExpect(status().isOk())
@@ -2082,32 +2109,14 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 )
                 .andExpect(
                     jsonPath(
-                        "$._embedded.workspaceitems[0]._embedded.collection.id",
-                        is(col1.getID().toString())
-                    )
-                )
-                .andExpect(
-                    jsonPath(
                         "$._embedded.workspaceitems[1].sections.traditionalpageone['dc.title'][0].value",
                         is("My Article 2")
                     )
                 )
                 .andExpect(
                     jsonPath(
-                        "$._embedded.workspaceitems[1]._embedded.collection.id",
-                        is(col1.getID().toString())
-                    )
-                )
-                .andExpect(
-                    jsonPath(
                         "$._embedded.workspaceitems[2].sections.traditionalpageone['dc.title'][0].value",
                         is("My Article 3")
-                    )
-                )
-                .andExpect(
-                    jsonPath(
-                        "$._embedded.workspaceitems[2]._embedded.collection.id",
-                        is(col1.getID().toString())
                     )
                 )
                 .andExpect(
@@ -2127,20 +2136,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 )
                 .andExpect(
                     jsonPath(
-                        "$._embedded.workspaceitems[0]._embedded.collection.id",
-                        is(col2.getID().toString())
-                    )
-                )
-                .andExpect(
-                    jsonPath(
                         "$._embedded.workspaceitems[1].sections.traditionalpageone['dc.title'][0].value",
                         is("My Article 2")
-                    )
-                )
-                .andExpect(
-                    jsonPath(
-                        "$._embedded.workspaceitems[1]._embedded.collection.id",
-                        is(col2.getID().toString())
                     )
                 )
                 .andExpect(
@@ -2254,13 +2251,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
+    @Ignore
     /**
      * Test the creation of a workspaceitem POSTing to the resource collection endpoint a PDF file. As a single item
      * will be created we expect to have the pdf file stored as a bitstream
      *
      * @throws Exception
      */
-    @Ignore
     public void createWorkspaceItemFromPDFFileTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -2366,6 +2363,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         getClient(authToken).perform(post("/api/submission/workspaceitems")
                             .param("owningCollection", col1.getID().toString())
+                            .param("embed", "item")
+                            .param("embed", "collection")
                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))
@@ -2509,6 +2508,24 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.errors[?(@.message=='error.validation.test')]", allOf(
                 contains(hasJsonPath("$.paths[0]", is("/sections/traditionalpageone/dc.title"))),
                 contains(hasJsonPath("$.paths[1]", is("/sections/traditionalpageone/dc.identifier.doi"))))));
+    }
+
+    @Test
+    public void patchNotExistingWorkspaceItemTest() throws Exception {
+        List<Operation> update = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "Title");
+        values.add(value);
+        update.add(new AddOperation("/sections/traditionalpageone/dc.title", values));
+
+        String patchBody = getPatchContent(update);
+        String authToken = getAuthToken(admin.getEmail(), password);
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + Integer.MAX_VALUE)
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isNotFound());
+
     }
 
     /**
@@ -5256,6 +5273,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         String token = getAuthToken(admin.getEmail(), password);
         MvcResult mvcResult = getClient(token).perform(post("/api/submission/workspaceitems?owningCollection="
                                                                 + col1.getID().toString())
+                                                           .param("embed", "item")
                                                            .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
                                                            .content("https://localhost:8080/server/api/integration/" +
                                                                         "externalsources/mock/entryValues/one"))
@@ -5266,7 +5284,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         workspaceItemId = (Integer) map.get("id");
         String itemUuidString = String.valueOf(((Map) ((Map) map.get("_embedded")).get("item")).get("uuid"));
 
-        getClient(token).perform(get("/api/submission/workspaceitems/" + workspaceItemId))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + workspaceItemId)
+                        .param("embed", "item"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
                             hasJsonPath("$.id", is(workspaceItemId)),
@@ -5461,6 +5480,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(post("/api/submission/workspaceitems")
+                            .param("embed", "collection")
                             .param("owningCollection", col1.getID().toString())
                             .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
                             .content("https://localhost:8080/server/api/integration/externalsources/" +
@@ -5470,7 +5490,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                             .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
         workspaceItemId = idRef.get();
 
-        getClient(token).perform(get("/api/submission/workspaceitems/" + workspaceItemId))
+        getClient(token).perform(get("/api/submission/workspaceitems/" + workspaceItemId)
+                                    .param("embed", "collection")
+                                    .param("embed", "item"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", Matchers.allOf(
             hasJsonPath("$.id", is(workspaceItemId)),
@@ -6647,6 +6669,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             getClient(authToken).perform(post("/api/submission/workspaceitems")
                     .param("entityType", "Publication")
                     .param("projection", "full")
+                    .param("embed", "collection")
                     .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$._embedded.collection.metadata.['dspace.entity.type'][0].value",
@@ -6657,6 +6680,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             // create a workspaceitem explicitly with entityType Journal
             getClient(authToken).perform(post("/api/submission/workspaceitems")
                     .param("entityType", "Journal")
+                    .param("embed", "collection")
                     .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$._embedded.collection.metadata.['dspace.entity.type'][0].value",
@@ -6773,6 +6797,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
             getClient(getAuthToken(submitter1.getEmail(), password)).perform(post("/api/submission/workspaceitems")
                 .param("owningCollection", col1.getID().toString())
+                .param("embed", "collection")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.collection.id", is(col1.getID().toString())))
@@ -6852,6 +6877,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
             getClient(getAuthToken(submitter1.getEmail(), password)).perform(post("/api/submission/workspaceitems")
                 .param("owningCollection", col1.getID().toString())
+                .param("embed", "collection")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.collection.id", is(col1.getID().toString())))
@@ -8170,13 +8196,12 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .build();
         witem.getItem().setDiscoverable(false);
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup).withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("administrator")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8230,7 +8255,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8277,7 +8302,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8330,7 +8355,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8388,7 +8413,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8503,13 +8528,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("administrator")
@@ -8563,17 +8588,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
-                             .withPolicyType(TYPE_CUSTOM)
-                             .withName("administrator")
-                             .build();
+ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                     .withDspaceObject(witem.getItem())
+                     .withPolicyType(TYPE_CUSTOM)
+                     .withName("administrator")
+                     .build();
 
         Calendar calendar = Calendar.getInstance();
 
@@ -8583,7 +8608,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         Date data = calendar.getTime();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, embargoedGroup1)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("embargoed")
@@ -8645,17 +8670,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
-                             .withPolicyType(TYPE_CUSTOM)
-                             .withName("administrator")
-                             .build();
+ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                     .withDspaceObject(witem.getItem())
+                     .withPolicyType(TYPE_CUSTOM)
+                     .withName("administrator")
+                     .build();
 
         context.restoreAuthSystemState();
 
@@ -8708,17 +8733,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
-                             .withPolicyType(TYPE_CUSTOM)
-                             .withName("administrator")
-                             .build();
+ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                     .withDspaceObject(witem.getItem())
+                     .withPolicyType(TYPE_CUSTOM)
+                     .withName("administrator")
+                     .build();
 
         context.restoreAuthSystemState();
 
@@ -8773,17 +8798,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
-                             .withPolicyType(TYPE_CUSTOM)
-                             .withName("administrator")
-                             .build();
+ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                     .withDspaceObject(witem.getItem())
+                     .withPolicyType(TYPE_CUSTOM)
+                     .withName("administrator")
+                     .build();
 
         context.restoreAuthSystemState();
 
@@ -8838,17 +8863,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
                              .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withDspaceObject(witem.getItem())
-                             .withPolicyType(TYPE_CUSTOM)
-                             .withName("administrator")
-                             .build();
+ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                     .withDspaceObject(witem.getItem())
+                     .withPolicyType(TYPE_CUSTOM)
+                     .withName("administrator")
+                     .build();
 
         context.restoreAuthSystemState();
 
@@ -8908,7 +8933,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -8922,7 +8947,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         Date data = calendar.getTime();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, embargoedGroup1)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("embargo")
@@ -8988,7 +9013,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                   .withSubject("ExtraEntry")
                                                   .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
                              .withDspaceObject(witem.getItem())
                              .withPolicyType(TYPE_CUSTOM)
                              .withName("openaccess")
@@ -9458,6 +9483,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                     .param("owningCollection", collection.getID().toString())
                     .param("item", item.getID().toString())
                     .param("relationship", "isCorrectionOfItem")
+                    .param("embed", "item")
                     .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.item.metadata['dc.title'].[0].value", is ("Test item")))

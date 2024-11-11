@@ -11,7 +11,9 @@ import java.util.UUID;
 
 import org.dspace.content.Item;
 import org.dspace.core.Context;
+import org.dspace.discovery.indexobject.IndexableClaimedTask;
 import org.dspace.discovery.indexobject.IndexableItem;
+import org.dspace.discovery.indexobject.IndexablePoolTask;
 import org.dspace.discovery.indexobject.IndexableWorkflowItem;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
 
@@ -59,6 +61,14 @@ public class DiscoverResultItemIterator extends DiscoverResultIterator<Item, UUI
 
         if (IndexableWorkspaceItem.TYPE.equals(objectType)) {
             return ((IndexableWorkspaceItem) nextIndexableObject).getIndexedObject().getItem();
+        }
+
+        if (IndexablePoolTask.TYPE.equals(objectType)) {
+            return ((IndexablePoolTask) nextIndexableObject).getIndexedObject().getWorkflowItem().getItem();
+        }
+
+        if (IndexableClaimedTask.TYPE.equals(objectType)) {
+            return ((IndexableClaimedTask) nextIndexableObject).getIndexedObject().getWorkflowItem().getItem();
         }
 
         throw new IllegalStateException("Invalid object type for discover item iterator:" + objectType);

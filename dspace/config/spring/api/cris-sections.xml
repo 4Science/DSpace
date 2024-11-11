@@ -257,6 +257,7 @@
                     <property name="carouselHeightPx" value="500" />
                     <property name="captionStyle" value="text-justify" />
                     <property name="titleStyle" value="text-center" />
+                    <property name="numberOfItems" value="20" />
                 </bean>
             </list>
           </list>

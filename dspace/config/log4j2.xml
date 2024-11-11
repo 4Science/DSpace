@@ -188,6 +188,18 @@
             <AppenderRef ref='A5'/>
         </Logger>
 
+        <!--
+             Block beanutil logging except on exceptions
+             https://issues.apache.org/jira/browse/BEANUTILS-477
+        -->
+        <Logger name='org.apache.commons.beanutils'
+                level='ERROR'/>
+        <!--
+             Block Hibernate DefaultLoadEventListeer logging except on exceptions
+             https://github.com/DSpace/DSpace/issues/8883
+        -->
+        <Logger name='org.hibernate.event.internal.DefaultLoadEventListener'
+                level='ERROR'/>
         <!-- Block services logging except on exceptions -->
         <Logger name='org.dspace.kernel'
                 level='ERROR'/>

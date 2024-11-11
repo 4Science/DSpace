@@ -77,7 +77,6 @@ import org.dspace.xmlworkflow.storedcomponents.ClaimedTask;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RestMediaTypes;
@@ -686,6 +685,10 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(token).perform(delete("/api/workflow/workflowitems/" + witem.getID()))
                     .andExpect(status().is(204));
 
+        // Delete the workflowitem a second time should result in 404
+        getClient(token).perform(delete("/api/workflow/workflowitems/" + witem.getID()))
+                    .andExpect(status().is(404));
+
         // Trying to get deleted workflowitem should fail with 404
         getClient(token).perform(get("/api/workflow/workflowitems/" + witem.getID()))
                    .andExpect(status().is(404));
@@ -1035,6 +1038,24 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     @Test
+    public void patchNotExistingWorkflowItemTest() throws Exception {
+        List<Operation> update = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "Title");
+        values.add(value);
+        update.add(new AddOperation("/sections/traditionalpageone/dc.title", values));
+
+        String patchBody = getPatchContent(update);
+        String authToken = getAuthToken(admin.getEmail(), password);
+        getClient(authToken).perform(patch("/api/workflow/workflowitems/" + Integer.MAX_VALUE)
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
     /**
      * Test the update of metadata
      *
@@ -1104,7 +1125,6 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     @Test
-    @Ignore(value = "This demonstrate the bug logged in DS-4179")
     /**
      * Verify that update of metadata is forbidden in step 1.
      *
@@ -1159,7 +1179,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .andExpect(status().isOk())
             .andExpect(jsonPath("$",
                     Matchers.is(WorkflowItemMatcher.matchItemWithTitleAndDateIssuedAndSubject(witem,
-                            "New Title", "2017-10-17", "ExtraEntry"))))
+                            "Workflow Item 1", "2017-10-17", "ExtraEntry"))))
         ;
     }
 
