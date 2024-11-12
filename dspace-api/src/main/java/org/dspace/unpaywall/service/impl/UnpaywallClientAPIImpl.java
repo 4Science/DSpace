@@ -21,7 +21,8 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -54,7 +55,6 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
     public static final String URL = "url";
     private final Logger logger = LoggerFactory.getLogger(UnpaywallClientAPIImpl.class);
     private final CloseableHttpClient client;
-    private final long downloadTimeout;
     public static final String UNPAYWALL_DOWNLOAD_TIMEOUT = "unpaywall.download.timeout";
     public static final Long DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT = 60L;
 
@@ -63,16 +63,17 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
                              .getConfigurationService();
 
     private final DOIService doiService = DSpaceServicesFactory.getInstance().getServiceManager()
-            .getServicesByType(DOIService.class).get(0);
-
+                                                               .getServicesByType(DOIService.class).get(0);
+    private final long downloadTimeout;
     private int timeout;
 
     public UnpaywallClientAPIImpl() {
         HttpClientBuilder custom = HttpClients.custom();
         client = custom.disableAutomaticRetries().setMaxConnTotal(5)
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build()).build();
+                       .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build())
+                       .build();
         downloadTimeout = this.configurationService.getLongProperty(UNPAYWALL_DOWNLOAD_TIMEOUT,
-                DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT);
+                                                                    DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT);
     }
 
     public void setTimeout(int timeout) {
@@ -81,13 +82,22 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
     @Override
     public InputStream downloadResource(String pdfUrl) throws IOException {
-        try (CloseableHttpClient client = HttpClientBuilder.create()
-                .setConnectionTimeToLive(downloadTimeout, TimeUnit.SECONDS).build()) {
-            HttpGet httpGet = new HttpGet(pdfUrl);
-            httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*");
-            HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
-            return new BufferedInputStream(response.getEntity().getContent());
-        }
+        HttpGet httpGet = buildGetRequest(pdfUrl);
+        HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
+        return new BufferedInputStream(response.getEntity().getContent());
+    }
+
+    private HttpGet buildGetRequest(String pdfUrl) {
+        HttpGet httpGet = new HttpGet(pdfUrl);
+        httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*");
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                httpGet.abort();
+            }
+        };
+        new Timer(true).schedule(task, downloadTimeout * 1000);
+        return httpGet;
     }
 
     private static HttpResponse executeHttpCall(HttpClient client, String pdfUrl, HttpGet httpGet) throws IOException {
