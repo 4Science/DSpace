@@ -6,6 +6,12 @@
 
     <bean id="unpaywallService" class="org.dspace.unpaywall.service.impl.UnpaywallServiceImpl"/>
     
-    <bean id="unpaywallClientAPI" class="org.dspace.unpaywall.service.impl.UnpaywallClientAPIImpl"/>
+    <bean id="unpaywallClientAPI" class="org.dspace.unpaywall.service.impl.UnpaywallClientAPIImpl">
+        <constructor-arg name="connectionPoolService" ref="unpaywallHttpConnectionPoolService" />
+    </bean>
+
+    <bean class='org.dspace.service.impl.HttpConnectionPoolService' id='unpaywallHttpConnectionPoolService'>
+        <constructor-arg name='configPrefix' value='unpaywall'/>
+    </bean>
 
 </beans>

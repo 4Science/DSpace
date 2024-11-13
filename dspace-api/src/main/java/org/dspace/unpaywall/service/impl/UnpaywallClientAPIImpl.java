@@ -14,15 +14,15 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.copy;
 
-import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -30,13 +30,12 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.dspace.identifier.DOI;
 import org.dspace.identifier.doi.DOIIdentifierException;
 import org.dspace.identifier.service.DOIService;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.service.UnpaywallClientAPI;
@@ -50,13 +49,9 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
     private static final String LOCATION_HEADER = "Location";
     private static final String REFERER_HEADER = "Referer";
-    public static final String BEST_OA_LOCATION = "best_oa_location";
-    public static final String URL_FOR_PDF = "url_for_pdf";
     public static final String URL = "url";
     private final Logger logger = LoggerFactory.getLogger(UnpaywallClientAPIImpl.class);
     private final CloseableHttpClient client;
-    public static final String UNPAYWALL_DOWNLOAD_TIMEOUT = "unpaywall.download.timeout";
-    public static final Long DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT = 60L;
 
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance()
@@ -64,40 +59,38 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
     private final DOIService doiService = DSpaceServicesFactory.getInstance().getServiceManager()
                                                                .getServicesByType(DOIService.class).get(0);
-    private final long downloadTimeout;
-    private int timeout;
 
-    public UnpaywallClientAPIImpl() {
-        HttpClientBuilder custom = HttpClients.custom();
-        client = custom.disableAutomaticRetries().setMaxConnTotal(5)
-                       .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build())
-                       .build();
-        downloadTimeout = this.configurationService.getLongProperty(UNPAYWALL_DOWNLOAD_TIMEOUT,
-                                                                    DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT);
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public UnpaywallClientAPIImpl(HttpConnectionPoolService connectionPoolService) {
+        client = connectionPoolService.getClient();
     }
 
     @Override
-    public InputStream downloadResource(String pdfUrl) throws IOException {
-        HttpGet httpGet = buildGetRequest(pdfUrl);
-        HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
-        return new BufferedInputStream(response.getEntity().getContent());
+    public File downloadResource(String pdfUrl) throws IOException {
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+            HttpGet httpGet = buildHttpGetRequest(pdfUrl);
+            HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
+            return tempFile(response);
+        }
     }
 
-    private HttpGet buildGetRequest(String pdfUrl) {
+    private static HttpGet buildHttpGetRequest(String pdfUrl) {
         HttpGet httpGet = new HttpGet(pdfUrl);
-        httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*");
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                httpGet.abort();
-            }
-        };
-        new Timer(true).schedule(task, downloadTimeout * 1000);
+        httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*, */*");
         return httpGet;
+    }
+
+    private static File tempFile(HttpResponse response) throws IOException {
+        File file = File.createTempFile("unpaywall", "download");
+        try (
+            InputStream inputStream = response.getEntity().getContent();
+            OutputStream outputStream = new FileOutputStream(file)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
+        return file;
     }
 
     private static HttpResponse executeHttpCall(HttpClient client, String pdfUrl, HttpGet httpGet) throws IOException {

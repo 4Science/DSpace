@@ -18,6 +18,7 @@ import static org.dspace.unpaywall.model.UnpaywallStatus.NO_FILE;
 import static org.dspace.unpaywall.model.UnpaywallStatus.PENDING;
 import static org.dspace.unpaywall.model.UnpaywallStatus.SUCCESSFUL;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -149,11 +150,12 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
     protected Unpaywall resolveResourceForItem(Unpaywall unpaywall, Item item) {
         Context context = new Context(Context.Mode.READ_WRITE);
-        try (InputStream inputstream = unpaywallClientAPI.downloadResource(unpaywall.getPdfUrl())) {
+        try (InputStream inputStream =
+                 new FileInputStream(unpaywallClientAPI.downloadResource(unpaywall.getPdfUrl()))) {
             createUnpaywallBitstream(
                 context, unpaywall,
                 getOrCreateBundle(item, item.getBundles(Constants.DEFAULT_BUNDLE_NAME), context),
-                inputstream
+                inputStream
             );
             updateStatus(context, unpaywall, IMPORTED);
         } catch (IOException e) {

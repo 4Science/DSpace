@@ -7,7 +7,7 @@
  */
 package org.dspace.unpaywall.service.impl;
 
-import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -21,10 +21,9 @@ public class MockUnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
 
     @Override
-    public InputStream downloadResource(String pdfUrl) throws IOException {
+    public File downloadResource(String pdfUrl) throws IOException {
         String responseFileName = BASE_UNPAYWALL_DIR_PATH.concat("unpaywall-api-resource.pdf");
-        InputStream unpaywallResponseStream = getClass().getClassLoader().getResourceAsStream(responseFileName);
-        return new BufferedInputStream(unpaywallResponseStream);
+        return new File(getClass().getClassLoader().getResource(responseFileName).getFile());
     }
 
     @Override

@@ -7,8 +7,8 @@
  */
 package org.dspace.unpaywall.service;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 
 /**
@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public interface UnpaywallClientAPI {
 
-    InputStream downloadResource(String pdfUrl) throws IOException;
+    File downloadResource(String pdfUrl) throws IOException;
 
     Optional<String> callUnpaywallApi(String doi);
 
