@@ -906,16 +906,16 @@
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>misd</element>
-        <qualifier></qualifier>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misd</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>misg</element>
-        <qualifier></qualifier>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misg</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
@@ -990,51 +990,52 @@
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>misn</element>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misn</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misp</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>miss</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misc</qualifier>
         <qualifier></qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>misp</element>
-        <qualifier></qualifier>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misw</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>miss</element>
-        <qualifier></qualifier>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misb</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>misc</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>misw</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>misb</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>misi</element>
-        <qualifier></qualifier>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misi</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

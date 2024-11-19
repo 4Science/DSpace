@@ -5448,8 +5448,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misd</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misd</dc-qualifier>
           <label>Diametro</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -5459,8 +5460,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misg</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misg</dc-qualifier>
           <label>Peso</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -6911,8 +6913,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misn</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misn</dc-qualifier>
           <label>Lunghezza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6922,8 +6925,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misp</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misp</dc-qualifier>
           <label>Profondità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6933,8 +6937,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misd</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misd</dc-qualifier>
           <label>Diametro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6945,7 +6950,8 @@
       <row>
         <field>
           <dc-schema>glam</dc-schema>
-          <dc-element>miss</dc-element>
+          <dc-element>format</dc-element>
+          <dc-qualifier>miss</dc-qualifier>
           <label>Spessore</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6955,8 +6961,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misg</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misg</dc-qualifier>
           <label>Peso</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6966,8 +6973,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misc</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misc</dc-qualifier>
           <label>Capacità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6977,8 +6985,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misw</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misw</dc-qualifier>
           <label>Potenza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6988,8 +6997,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misb</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misb</dc-qualifier>
           <label>Capacità di memoria</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6999,8 +7009,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misi</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misi</dc-qualifier>
           <label>Ingombro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
