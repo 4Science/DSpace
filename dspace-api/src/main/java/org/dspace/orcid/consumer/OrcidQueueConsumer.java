@@ -36,6 +36,7 @@ import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.orcid.OrcidHistory;
 import org.dspace.orcid.OrcidOperation;
+import org.dspace.orcid.OrcidQueue;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.factory.OrcidProfileSectionFactory;
@@ -170,7 +171,20 @@ public class OrcidQueueConsumer implements Consumer {
                 continue;
             }
 
-            if (shouldNotBeSynchronized(relatedItem, entity) || isAlreadyQueued(context, relatedItem, entity)) {
+            if (shouldNotBeSynchronized(context, relatedItem, entity) ||
+                isAlreadyQueued(context, relatedItem, entity)) {
+                // delete queue entries which are queued and relate on relationships,
+                // but where the relation does not exist anymore.
+                // Using the shouldNotBySynchonized might not be actual, because the solr
+                // might be behind the database state
+                if (isAlreadyQueued(context, relatedItem, entity)
+                    && isSyncSettingsBasedOnRelationshipCriteriaNotValid(context, relatedItem, entity)) {
+                    List<OrcidQueue> queueentries =
+                            orcidQueueService.findByProfileItemAndEntity(context, relatedItem, entity);
+                    for (OrcidQueue queueentry : queueentries) {
+                        orcidQueueService.delete(context, queueentry);
+                    }
+                }
                 continue;
             }
 
@@ -305,8 +319,14 @@ public class OrcidQueueConsumer implements Consumer {
         return orcidTokenService.findByProfileItem(context, profileItemItem) == null;
     }
 
-    private boolean shouldNotBeSynchronized(Item profileItem, Item entity) {
-        return !orcidSynchronizationService.isSynchronizationAllowed(profileItem, entity);
+    private boolean shouldNotBeSynchronized(Context context, Item profileItem, Item entity) {
+        return !orcidSynchronizationService.isSynchronizationAllowed(context, profileItem, entity);
+    }
+
+    private boolean isSyncSettingsBasedOnRelationshipCriteriaNotValid(
+        Context context, Item profileItem, Item entity) {
+        return orcidSynchronizationService.
+            isSyncSettingsBasedOnRelationshipCriteriaNotValid(context, profileItem, entity);
     }
 
     private boolean isNotProfileItem(Item profileItemItem) {

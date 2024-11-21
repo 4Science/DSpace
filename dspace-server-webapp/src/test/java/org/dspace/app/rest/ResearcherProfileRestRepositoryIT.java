@@ -20,6 +20,7 @@ import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataNotEmpty;
 import static org.dspace.app.rest.matcher.ResourcePolicyMatcher.matchResourcePolicyProperties;
 import static org.dspace.profile.OrcidEntitySyncPreference.ALL;
 import static org.dspace.profile.OrcidEntitySyncPreference.MINE;
+import static org.dspace.profile.OrcidEntitySyncPreference.MY_SELECTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -1242,6 +1243,19 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.orcidSynchronization.publicationsPreference", is(MINE.name())));
 
+        operations = asList(new ReplaceOperation("/orcid/publications", MY_SELECTED.name()));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
+                .content(getPatchContent(operations))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.publicationsPreference", is(MY_SELECTED.name())));
+
+        getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.publicationsPreference", is(MY_SELECTED.name())));
+
+
         operations = asList(new ReplaceOperation("/orcid/publications", "INVALID_VALUE"));
 
         getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
@@ -1300,6 +1314,19 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(MINE.name())));
+
+        operations = asList(new ReplaceOperation("/orcid/fundings", MY_SELECTED.name()));
+
+        getClient(authToken).perform(patch("/api/eperson/profiles/{id}", ePersonId)
+                .content(getPatchContent(operations))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(MY_SELECTED.name())));
+
+        getClient(authToken).perform(get("/api/eperson/profiles/{id}", ePersonId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.orcidSynchronization.fundingsPreference", is(MY_SELECTED.name())));
+
 
         operations = asList(new ReplaceOperation("/orcid/fundings", "INVALID_VALUE"));
 
