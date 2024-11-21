@@ -140,6 +140,16 @@
         <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerScript"/>
     </bean>
 
+    <bean id="item-enhancer-type" class="org.dspace.content.enhancer.script.ItemEnhancerEntityTypeScriptConfiguration" >
+        <property name="description" value="Script that allows to enhance all items of specific entity types or collections"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerEntityTypeScript"/>
+    </bean>
+
+    <bean id="item-enhancer-date" class="org.dspace.content.enhancer.script.ItemEnhancerByDateScriptConfiguration" >
+        <property name="description" value="Script that allows to enhance specific items by some solrquery"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.enhancer.script.ItemEnhancerByDateScript"/>
+    </bean>
+
     <!-- Keep as last script; for test ScriptRestRepository#findOneScriptByNameTest -->
     <bean id="mock-script" class="org.dspace.scripts.MockDSpaceRunnableScriptConfiguration" scope="prototype">
         <property name="description" value="Mocking a script for testing purposes" />
