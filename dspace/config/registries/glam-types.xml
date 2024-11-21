@@ -1116,36 +1116,6 @@
         <scope_note></scope_note>
     </dc-type>
 
-    <dc-type>
-        <schema>glamevent</schema>
-        <element>theatre</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>printer</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>typographer</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-    
-
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>bibliography</element>
-        <qualifier>abbreviation</qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
 
     <dc-type>
         <schema>glam</schema>
