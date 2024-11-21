@@ -50,7 +50,11 @@ public class MigrateEntityScriptConfiguration<T extends MigrateEntity> extends S
 
             options.addOption("n", "entitytype", true, "new EntityType");
             options.getOption("n").setType(String.class);
-            options.getOption("n").setRequired(true);
+            options.getOption("n").setRequired(false);
+
+            options.addOption("f", "formname", true, "new Submission form name");
+            options.getOption("f").setType(String.class);
+            options.getOption("f").setRequired(false);
             super.options = options;
         }
         return options;
