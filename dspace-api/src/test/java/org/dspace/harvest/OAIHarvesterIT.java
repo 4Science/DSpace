@@ -1090,7 +1090,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         Item item = workflowItems.get(0).getItem();
         assertThat(item.isArchived(), equalTo(false));
-        assertThat(item.getMetadata(), hasSize(7));
+        assertThat(item.getMetadata(), hasSize(8));
         assertThat(harvestedItemService.find(context, item), notNullValue());
     }
 

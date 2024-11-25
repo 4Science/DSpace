@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -2884,6 +2885,32 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                         is("Euro")))
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
                         is("12312")));;
+    }
+
+    @Test
+    public void checkStartDateTimeTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        context.setCurrentUser(admin);
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .withWorkflowGroup(1, admin).build();
+
+        XmlWorkflowItem workflowItem = WorkflowItemBuilder.createWorkflowItem(context, col1)
+                                                          .withTitle("Workflow Item 1")
+                                                          .withIssueDate("2024-10-07")
+                                                          .build();
+
+        Item item = workflowItem.getItem();
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/core/items/" + item.getID()))
+                             .andExpect(status().isOk())
+                           .andExpect(jsonPath("$.inArchive", is(false)))
+                           .andExpect(jsonPath("$.metadata['dspace.workflow.startDateTime'][0].value", notNullValue()));
     }
 
 }
