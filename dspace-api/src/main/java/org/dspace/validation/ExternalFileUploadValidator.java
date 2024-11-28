@@ -11,8 +11,8 @@ import static org.dspace.validation.service.ValidationService.OPERATION_PATH_SEC
 
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.core.Context;

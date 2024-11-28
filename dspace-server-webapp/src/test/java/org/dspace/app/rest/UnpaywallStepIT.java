@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
