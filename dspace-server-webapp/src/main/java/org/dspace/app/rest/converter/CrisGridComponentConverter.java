@@ -27,6 +27,9 @@ public class CrisGridComponentConverter implements CrisLayoutSectionComponentCon
         CrisGridComponent gridComponent = (CrisGridComponent) component;
 
         return new CrisLayoutSectionRest.CrisGridComponentRest(gridComponent.getDiscoveryConfigurationName(),
-            gridComponent.getStyle(), gridComponent.getMainContentLink());
+            gridComponent.getStyle(),
+            gridComponent.getMainContentLink(),
+            gridComponent.getSortField(),
+            gridComponent.getOrder());
     }
 }
