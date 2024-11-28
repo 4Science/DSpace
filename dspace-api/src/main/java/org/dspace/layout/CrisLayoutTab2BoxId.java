@@ -8,8 +8,9 @@
 package org.dspace.layout;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 /**
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)

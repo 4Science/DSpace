@@ -62,7 +62,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
 
-        context.turnOffAuthorisationSystem();
+        handleAuthorizationSystem(context);
 
         Collection collection = getCollection();
         if (collection == null) {
@@ -76,7 +76,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
         try {
             performExport(collection);
             context.complete();
-            context.restoreAuthSystemState();
+            handleAuthorizationSystem(context);
         } catch (Exception e) {
             handler.handleException(e);
             context.abort();

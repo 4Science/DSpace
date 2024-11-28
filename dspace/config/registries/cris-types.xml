@@ -242,6 +242,20 @@
     <dc-type>
         <schema>cris</schema>
         <element>lastimport</element>
+        <qualifier>ads</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-ads</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
         <qualifier>scopus</qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -283,8 +297,43 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-pubmed</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-pubmedeu</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-scopus</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>entity</element>
         <qualifier>style</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>journalance</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>journalance</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

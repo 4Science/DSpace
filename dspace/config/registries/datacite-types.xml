@@ -54,4 +54,16 @@
 		<scope_note>Supplemented by</scope_note>
 	</dc-type>
 
+    <dc-type>
+        <schema>datacite</schema>
+        <element>rights</element>
+        <scope_note>Name of the TYPE_CUSTOM policy for target Bitstream, derived from OpenAIRE Access Rights</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>datacite</schema>
+        <element>available</element>
+        <scope_note>Ending date of the policy for target Bitstream, used with datacite.rights</scope_note>
+    </dc-type>
+
 </dspace-dc-types>

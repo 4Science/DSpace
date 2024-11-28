@@ -7,18 +7,17 @@
  */
 package org.dspace.batch;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import org.hibernate.Length;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 /***
  * Contains all the metadata associated with an item that need to be created or
@@ -50,8 +49,7 @@ public class ImpMetadatavalue {
     private String impQualifier;
 
     @Lob
-    @Column(name = "imp_value")
-    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
+    @Column(name = "imp_value", length = Length.LONG32)
     private String impValue;
 
     @Column(name = "imp_authority", length = 256)

@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -188,10 +188,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         // Create a context
         Context c = null;
         c = new Context();
-        c.turnOffAuthorisationSystem();
 
         // Find the EPerson, assign to context
         assignCurrentUserInContext(c);
+        assignSpecialGroupsInContext(c);
 
         if (authorityControlled == null) {
             setAuthorizedMetadataFields();
@@ -216,6 +216,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         initMetadataImport(csv);
         List<BulkEditChange> changes;
 
+        handleAuthorizationSystem(c);
         if (!commandLine.hasOption('s') || validateOnly) {
             // See what has changed
             try {
@@ -259,7 +260,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             }
 
             // Finsh off and tidy up
-            c.restoreAuthSystemState();
+            handleAuthorizationSystem(c);
             c.complete();
         } catch (Exception e) {
             c.abort();
@@ -278,6 +279,12 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             } catch (SQLException e) {
                 log.error("Something went wrong trying to fetch the eperson for uuid: " + uuid, e);
             }
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
         }
     }
 
@@ -830,8 +837,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                 addRelationships(c, item, element, values);
             } else {
                 itemService.clearMetadata(c, item, schema, element, qualifier, language);
-                itemService.addMetadata(c, item, schema, element, qualifier,
-                                        language, values, authorities, confidences);
+                if (!values.isEmpty()) {
+                    itemService.addMetadata(c, item, schema, element, qualifier,
+                                            language, values, authorities, confidences);
+                }
                 itemService.update(c, item);
             }
         }
@@ -1126,8 +1135,8 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                     .getAuthoritySeparator() + dcv.getConfidence();
             }
 
-            // Add it
-            if ((value != null) && (!"".equals(value))) {
+            // Add it, if value is not blank
+            if (value != null && StringUtils.isNotBlank(value)) {
                 changes.registerAdd(dcv);
             }
         }

@@ -158,8 +158,7 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
 
         NotifyServiceEntity notifyService =
-            NotifyServiceBuilder.createNotifyServiceBuilder(context)
-                                .withName("service name")
+            NotifyServiceBuilder.createNotifyServiceBuilder(context, "service name")
                                 .withDescription("service description")
                                 .withUrl("https://www.notify-inbox.info/")
                                 .withLdnUrl("https://notify-inbox.info/inbox/")
@@ -210,8 +209,7 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
         // ldnUrl should be https://notify-inbox.info/inbox/
         // but used https://notify-inbox.info/inbox for redirection
         NotifyServiceEntity notifyService =
-            NotifyServiceBuilder.createNotifyServiceBuilder(context)
-                                .withName("service name")
+            NotifyServiceBuilder.createNotifyServiceBuilder(context, "service name")
                                 .withDescription("service description")
                                 .withUrl("https://www.notify-inbox.info/")
                                 .withLdnUrl("https://notify-inbox.info/inbox")
@@ -259,8 +257,7 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
 
         NotifyServiceEntity notifyService =
-            NotifyServiceBuilder.createNotifyServiceBuilder(context)
-                                .withName("service name")
+            NotifyServiceBuilder.createNotifyServiceBuilder(context, "service name")
                                 .withDescription("service description")
                                 .withUrl("https://www.notify-inbox.info/")
                                 .withLdnUrl("https://notify-inbox.info/invalidLdnUrl/")

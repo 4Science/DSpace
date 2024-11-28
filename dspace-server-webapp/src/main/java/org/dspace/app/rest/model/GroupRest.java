@@ -17,20 +17,22 @@ import org.dspace.app.rest.RestResourceController;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
-                name = GroupRest.SUBGROUPS,
-                method = "getGroups"
+            name = GroupRest.SUBGROUPS,
+            method = "getGroups"
         ),
         @LinkRest(
-                name = GroupRest.EPERSONS,
-                method = "getMembers"
+            name = GroupRest.EPERSONS,
+            method = "getMembers"
         ),
         @LinkRest(
-                name = GroupRest.OBJECT,
-                method = "getParentObject"
+            name = GroupRest.OBJECT,
+            method = "getParentObject"
         )
-})
+    }
+)
 public class GroupRest extends DSpaceObjectRest {
     public static final String NAME = "group";
     public static final String PLURAL_NAME = "groups";

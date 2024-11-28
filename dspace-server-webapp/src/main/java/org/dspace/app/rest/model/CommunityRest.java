@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
                 name = CommunityRest.COLLECTIONS,
                 method = "getCollections"
@@ -35,7 +36,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
                 name = CommunityRest.ADMIN_GROUP,
                 method = "getAdminGroup"
         )
-})
+    }
+)
 public class CommunityRest extends DSpaceObjectRest {
     public static final String NAME = "community";
     public static final String PLURAL_NAME = "communities";

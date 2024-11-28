@@ -8,8 +8,8 @@
 package org.dspace.app.rest.submit;
 
 import java.io.Serializable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;

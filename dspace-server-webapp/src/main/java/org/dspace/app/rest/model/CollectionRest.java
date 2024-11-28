@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
                 name = CollectionRest.LICENSE,
                 method = "getLicense"
@@ -47,7 +48,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
                 name = CollectionRest.BITSTREAM_READ_GROUP,
                 method = "getBitstreamReadGroup"
         ),
-})
+    }
+)
 public class CollectionRest extends DSpaceObjectRest {
     public static final String NAME = "collection";
     public static final String PLURAL_NAME = "collections";

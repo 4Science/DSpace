@@ -77,7 +77,7 @@ public class PublicationLoaderRunnable
         Iterator<Item> researchers = getResearchers(profile);
         while (researchers.hasNext()) {
             Item researcher = researchers.next();
-            oairePublicationLoader.importAuthorRecords(context, researcher);
+            oairePublicationLoader.importRecords(context, researcher, null);
         }
 
     }

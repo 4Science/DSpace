@@ -7,9 +7,7 @@
  */
 package org.dspace.app.rest.converter;
 
-import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.model.ErrorRest;
@@ -136,11 +134,6 @@ public class EditItemConverter
                 }
 
             }
-        }
-        rest.setCollection(collection != null ? converter.toRest(collection, projection) : null);
-        rest.setItem(converter.toRest(item, projection));
-        if (Objects.nonNull(submitter)) {
-            rest.setSubmitter(converter.toRest(submitter, projection));
         }
     }
 

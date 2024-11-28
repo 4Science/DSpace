@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Jelle Pelgrims (jelle.pelgrims at atmire.com)
  */
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
                 name = BundleRest.ITEM,
                 method = "getItem"
@@ -28,7 +29,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
                 name = BundleRest.PRIMARY_BITSTREAM,
                 method = "getPrimaryBitstream"
         )
-})
+    }
+)
 public class BundleRest extends DSpaceObjectRest {
     public static final String NAME = "bundle";
     public static final String PLURAL_NAME = "bundles";

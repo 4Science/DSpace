@@ -8,8 +8,8 @@
 package org.dspace.importer.external.openaire.service.metadatamapping;
 
 import java.util.Map;
-import javax.annotation.Resource;
 
+import jakarta.annotation.Resource;
 import org.dspace.importer.external.metadatamapping.AbstractMetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.contributor.MetadataContributor;

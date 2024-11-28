@@ -42,9 +42,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.RelationshipTypeBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
@@ -94,8 +96,8 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     @Autowired
     private ConfigurationService configurationService;
 
-    private Collection collection;
-    private Collection collection2;
+    private Collection personCollection;
+    private Collection publicationCollection;
     private WorkspaceItem publicationWorkspaceItem;
     private Item publicationItem;
     private Item personItem1;
@@ -118,16 +120,29 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
         Community community = CommunityBuilder.createCommunity(context)
                 .withName("Parent community")
                 .build();
-        collection = CollectionBuilder.createCollection(context, community)
+        personCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
                 .withEntityType("Person")
                 .withSubmissionDefinition("traditional")
                 .build();
-        collection2 = CollectionBuilder.createCollection(context, community)
+        publicationCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
                 .withEntityType("Publication")
                 .withSubmissionDefinition("traditional")
                 .build();
+
+        EntityType publicationType =
+            entityTypeService.findByEntityType(context, "Publication");
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(
+            context,
+            publicationType,
+            publicationType,
+            "isCorrectionOfItem",
+            "isCorrectedByItem",
+            0, 1,
+            0, 1
+        );
 
         context.restoreAuthSystemState();
     }
@@ -164,17 +179,17 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         context.turnOffAuthorisationSystem();
 
-        personItem1 = ItemBuilder.createItem(context, collection)
+        personItem1 = ItemBuilder.createItem(context, personCollection)
                 .withTitle("Person 1")
                 .withPersonIdentifierFirstName("Sarah")
                 .withPersonIdentifierLastName("Dahlen")
                 .build();
-        personItem2 = ItemBuilder.createItem(context, collection)
+        personItem2 = ItemBuilder.createItem(context, personCollection)
                 .withTitle("Person 2")
                 .withPersonIdentifierFirstName("Oliver")
                 .withPersonIdentifierLastName("Linton")
                 .build();
-        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection2)
+        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
                                                        .withTitle("Publication 1")
                                                        .build();
         publicationPersonRelationshipType = relationshipTypeService.findbyTypesAndTypeName(context,
@@ -256,7 +271,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         context.turnOffAuthorisationSystem();
 
-        publicationItem = ItemBuilder.createItem(context, collection)
+        publicationItem = ItemBuilder.createItem(context, publicationCollection)
                                      .withTitle("Publication 1")
                                      .build();
 
@@ -306,7 +321,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         context.turnOffAuthorisationSystem();
 
-        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+        publicationWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
                                                        .withTitle("Publication 1")
                                                        .withEntityType("Publication")
                                                        .build();
@@ -1229,7 +1244,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
-                                         .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
@@ -1296,7 +1311,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
-                                         .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isUnprocessableEntity());
 
     }
@@ -1456,7 +1471,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/core/items/" + publicationItem.getID())
                                      .content(patchBody)
-                                     .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                     .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
@@ -1517,7 +1532,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
             .perform(
                 patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                 .content(patchBody)
-                .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON)
+                .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON)
             )
             .andExpect(status().isOk());
 
@@ -1561,7 +1576,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
-                                         .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
@@ -1595,7 +1610,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
-                                         .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         String authorField = "dc.contributor.author";
@@ -1617,18 +1632,19 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
      */
     private void patchAddEntireArray(List<MetadataValue> metadataValues) throws Exception {
         List<Operation> ops = new ArrayList<Operation>();
-        List<MetadataValueRest> value = new ArrayList<MetadataValueRest>();
-
         // generates the MetadataValueRest list
-        metadataValues.stream().forEach(mv -> {
-            MetadataValueRest mrv = new MetadataValueRest();
-            value.add(mrv);
-            mrv.setValue(mv.getValue());
-            if (mv.getAuthority() != null && mv.getAuthority().startsWith("virtual::")) {
-                mrv.setAuthority(mv.getAuthority());
-                mrv.setConfidence(mv.getConfidence());
-            }
-        });
+        List<MetadataValueRest> value =
+            metadataValues.stream()
+                          .map(mv -> {
+                              MetadataValueRest mrv = new MetadataValueRest();
+                              mrv.setValue(mv.getValue());
+                              if (mv.getAuthority() != null && mv.getAuthority().startsWith("virtual::")) {
+                                  mrv.setAuthority(mv.getAuthority());
+                                  mrv.setConfidence(mv.getConfidence());
+                              }
+                              return mrv;
+                          })
+                          .collect(Collectors.toList());
 
         AddOperation add = new AddOperation("/sections/traditionalpageone/dc.contributor.author", value);
         ops.add(add);
@@ -1638,7 +1654,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         getClient(token).perform(patch("/api/submission/workspaceitems/" + publicationWorkspaceItem.getID())
                                          .content(patchBody)
-                                         .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk());
 
         final String authorField = "dc.contributor.author";

@@ -12,8 +12,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -94,7 +94,7 @@ public class SHERPAService {
      * @param query ISSN string to pass in an "issn equals" API query
      * @return      SHERPAResponse containing an error or journal policies
      */
-    @Cacheable(key = "#query", cacheNames = "sherpa.searchByJournalISSN")
+    @Cacheable(key = "#query", condition = "#query != null", cacheNames = "sherpa.searchByJournalISSN")
     public SHERPAResponse searchByJournalISSN(String query) {
         return performRequest("publication", "issn", "equals", query, 0, 1);
     }

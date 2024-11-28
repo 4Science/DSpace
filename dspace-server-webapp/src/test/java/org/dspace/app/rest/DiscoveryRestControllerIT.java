@@ -762,6 +762,15 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void discoverFacetsWithInvalidQuery() throws Exception {
+        getClient().perform(get("/api/discover/search/facets").param("query", "title:"))
+                .andExpect(status().isUnprocessableEntity());
+
+        getClient().perform(get("/api/discover/facets/author_editor").param("query", "title:"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void discoverFacetsDateTest() throws Exception {
         //We turn off the authorization system in order to create the structure defined below
         context.turnOffAuthorisationSystem();
@@ -1200,11 +1209,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("organization.legalName",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressCountry",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressCountry",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressLocality",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressLocality",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.foundingDate",
+                       SortOptionMatcher.sortOptionMatcher("organization.foundingDate",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("dc.date.accessioned",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
@@ -5516,6 +5525,201 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void discoverSearchObjectsTestForAdministrativeViewCollCommAdministrators() throws Exception {
+
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+
+        EPerson commAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("community-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("Community", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        EPerson subCommAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("sub-community-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("SubCommunity", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        EPerson collAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("collection-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("Collection", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        parentCommunity = CommunityBuilder
+            .createCommunity(context)
+            .withName("Parent Community")
+            .withAdminGroup(commAdmin)
+            .build();
+        Community child1 = CommunityBuilder
+            .createSubCommunity(context, parentCommunity)
+            .withName("Sub Community")
+            .withAdminGroup(subCommAdmin)
+            .build();
+        Collection col1 = CollectionBuilder
+            .createCollection(context, child1)
+            .withName("Collection 1")
+            .withAdminGroup(collAdmin)
+            .build();
+        Collection col2 = CollectionBuilder
+            .createCollection(context, child1)
+            .withName("Collection 2")
+            .build();
+        Collection col3 = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("Collection 3")
+            .build();
+
+        //2. One public item, one private, one withdrawn.
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("COL1 Test Item")
+                   .withIssueDate("2010-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry")
+                   .build();
+
+        ItemBuilder.createItem(context, col2)
+                   .withTitle("COL2 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        ItemBuilder.createItem(context, col2)
+                   .withTitle("COL2-1 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        ItemBuilder.createItem(context, col3)
+                   .withTitle("COL3 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("configuration", "administrativeView")
+                                          .param("query", "Test"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                 PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4)
+                             )))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                 Matchers.containsInAnyOrder(
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2-1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL3 Test Item"
+                                                     )
+                                                 )
+                             ))
+                             .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
+
+        String commAdminToken = getAuthToken(commAdmin.getEmail(), password);
+
+        getClient(commAdminToken).perform(get("/api/discover/search/objects")
+                                          .param("configuration", "administrativeView")
+                                          .param("query", "Test"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                 PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4)
+                             )))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                 Matchers.containsInAnyOrder(
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2-1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL3 Test Item"
+                                                     )
+                                                 )
+                             ))
+                             .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
+
+        String collAdminToken = getAuthToken(collAdmin.getEmail(), password);
+
+        getClient(collAdminToken).perform(get("/api/discover/search/objects")
+                                              .param("configuration", "administrativeView")
+                                              .param("query", "Test"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.type", is("discover")))
+                                 .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                     PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 1)
+                                 )))
+                                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                     Matchers.containsInAnyOrder(
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL1 Test Item"
+                                                         )
+                                                     )
+                                 ))
+                                 .andExpect(jsonPath("$._links.self.href",
+                                     containsString("/api/discover/search/objects"))
+                                 );
+
+        String subCommAdminToken = getAuthToken(subCommAdmin.getEmail(), password);
+
+        getClient(subCommAdminToken).perform(get("/api/discover/search/objects")
+                                              .param("configuration", "administrativeView")
+                                              .param("query", "Test"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.type", is("discover")))
+                                 .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                     PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 3)
+                                 )))
+                                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                     Matchers.containsInAnyOrder(
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL1 Test Item"
+                                                         ),
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL2 Test Item"
+                                                         ),
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL2-1 Test Item"
+                                                         )
+                                                     )
+                                 ))
+                                 .andExpect(jsonPath("$._links.self.href",
+                                     containsString("/api/discover/search/objects"))
+                                 );
+    }
+
+    @Test
     public void discoverSearchObjectsTestForAdministrativeViewWithFilters() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -6105,10 +6309,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                          .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                           )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.contains(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
@@ -6122,12 +6322,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
     }
 
@@ -6192,14 +6386,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)));
     }
 
@@ -6257,9 +6443,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.containsInAnyOrder(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals"),
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover"),
                             SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                         "discover")
                             )));
 
     }
@@ -6319,7 +6507,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover")
                             )));
 
         getClient(adminToken).perform(get("/api/discover/facets/discoverable")
@@ -6336,7 +6525,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                  "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                 .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                            SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                        "discover")
                            )));
     }
 
@@ -6952,8 +7142,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         String object = configurationService.getProperty("dspace.ui.url") + "/handle/" + item.getHandle();
 
         NotifyServiceEntity notifyService =
-            NotifyServiceBuilder.createNotifyServiceBuilder(context)
-                                .withName("service name")
+            NotifyServiceBuilder.createNotifyServiceBuilder(context, "service name")
                                 .withDescription("service description")
                                 .withUrl("service url")
                                 .withLdnUrl("https://overlay-journal.com/inbox/")
@@ -7016,8 +7205,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         String object = configurationService.getProperty("dspace.ui.url") + "/handle/" + item.getHandle();
 
         NotifyServiceEntity notifyService =
-            NotifyServiceBuilder.createNotifyServiceBuilder(context)
-                                .withName("service name")
+            NotifyServiceBuilder.createNotifyServiceBuilder(context, "service name")
                                 .withDescription("service description")
                                 .withUrl("service url")
                                 .withLdnUrl("https://generic-service.com/system/inbox/")

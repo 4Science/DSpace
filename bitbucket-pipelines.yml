@@ -1,4 +1,4 @@
-image: maven:3.6.1
+image: maven:3.9.8-eclipse-temurin-17-focal
 
 definitions:
   docker:
@@ -43,7 +43,7 @@ definitions:
           - maven
         script:
           - export MAVEN_OPTS="-Xmx4096M"
-          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
+          #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
           - mvn clean install -DskipUnitTests=true -DskipITs=true -DskipIntegrationTests=true -P !assembly -B -V
           - mvn test -pl dspace-iiif,dspace-oai,dspace-rdf,dspace-server-webapp,dspace-services,dspace-sword,dspace-swordv2 -Dmaven.test.skip=false -DskipUnitTests=false -DskipITs=false -DskipIntegrationTests=false -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=*IT,!Abstract*,!ItemImportIT,!GenericAuthorizationFeatureIT,!ItemRestRepositoryIT,!LeftTiltedRelationshipRestRepositoryIT,!RelationshipRestRepositoryIT,!StatisticsRestRepositoryIT,!WorkspaceItemRestRepositoryIT,!DiscoveryRestControllerIT,!PatchMetadataIT,!RightTiltedRelationshipRestRepositoryIT
         artifacts:
@@ -72,7 +72,7 @@ definitions:
           - maven
         script:
           - export MAVEN_OPTS="-Xmx4096M"
-          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
+          #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
           - mvn clean install -DskipUnitTests=true -DskipITs=true -DskipIntegrationTests=true -P !assembly -B -V
           - mvn test -Dmaven.test.skip=false -DskipUnitTests=false -DskipITs=false -DskipIntegrationTests=false -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=ItemImportIT,GenericAuthorizationFeatureIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,WorkspaceItemRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,RightTiltedRelationshipRestRepositoryIT
         artifacts:

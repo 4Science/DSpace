@@ -15,13 +15,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.el.MethodNotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
+import jakarta.el.MethodNotFoundException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
@@ -192,7 +192,8 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
     public void init() throws Exception {
         Client client = ClientBuilder.newClient();
         if (baseAddress == null) {
-            baseAddress = configurationService.getProperty("openaire.base.url");
+            baseAddress = configurationService.getProperty("openaire.search.url",
+                                                           "https://api.openaire.eu/search/publications");
         }
         if (queryParam == null) {
             queryParam = "title";
@@ -258,8 +259,9 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
                 XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/header/total",
                     Filters.element(), null);
 
-                List<Element> recordsList = xpath.evaluate(root);
-                return recordsList.size();
+                Element totalItem = xpath.evaluateFirst(root);
+                return totalItem != null ? Integer.parseInt(totalItem.getText()) : null;
+
             } else {
                 return 0;
             }

@@ -25,7 +25,6 @@ import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.service.BitstreamService;
@@ -81,6 +80,8 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     protected SubscribeService subscribeService;
     @Autowired(required = true)
     protected CrisMetricsService crisMetricsService;
+    @Autowired
+    protected ItemCounter itemCounter;
 
     protected CommunityServiceImpl() {
         super();
@@ -247,8 +248,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = authorizeService
-                    .getPoliciesActionFilter(context, community, Constants.READ);
+            List<ResourcePolicy> policies = authorizeService.getPolicies(context, community);
             authorizeService.addPolicies(context, policies, newLogo);
 
             log.info(LogHelper.getHeader(context, "set_logo",
@@ -722,13 +722,13 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     /**
      * Returns total community archived items
      *
+     * @param context         DSpace context
      * @param community       Community
      * @return                total community archived items
-     * @throws ItemCountException
      */
     @Override
-    public int countArchivedItems(Community community) throws ItemCountException {
-        return ItemCounter.getInstance().getCount(community);
+    public int countArchivedItems(Context context, Community community) {
+        return itemCounter.getCount(context, community);
     }
 
     @Override

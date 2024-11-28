@@ -62,6 +62,11 @@ public class OrcidPublicationLoader extends SolrSuggestionProvider {
         solrSuggestionStorageService.commit();
     }
 
+    @Override
+    public void importRecords(Context context, Item researcher, String additionalQuery) throws Exception {
+        importWorks(context, researcher, itemService.getMetadata(researcher, "person.identifier.orcid"));
+    }
+
     private List<Suggestion> convertToSuggestions(Item profile, List<ExternalDataObject> externalDataObjects) {
         return externalDataObjects.stream()
             .map(externalDataObject -> convertToSuggestion(profile, externalDataObject))
@@ -122,6 +127,11 @@ public class OrcidPublicationLoader extends SolrSuggestionProvider {
 
     public void setProvider(ExternalDataProvider provider) {
         this.provider = provider;
+    }
+
+    @Override
+    public void importRecords(Context context, String query) throws Exception {
+        throw new UnsupportedOperationException("This operation is not supported by orcid loader");
     }
 
 }
