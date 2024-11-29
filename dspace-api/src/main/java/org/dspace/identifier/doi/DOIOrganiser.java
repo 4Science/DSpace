@@ -244,7 +244,7 @@ public class DOIOrganiser {
                 }
 
                 for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
+                    context.reloadEntity(doi);
                     try {
                         organiser.reserve(doi);
                         context.uncacheEntity(doi);
@@ -271,7 +271,7 @@ public class DOIOrganiser {
                                            + "that could be registered.");
                 }
                 for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
+                    context.reloadEntity(doi);
                     try {
                         organiser.register(doi);
                         context.uncacheEntity(doi);
@@ -303,8 +303,9 @@ public class DOIOrganiser {
                 }
 
                 for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
+                    context.reloadEntity(doi);
                     organiser.update(doi);
+                    context.uncacheEntity(doi);
                     context.commit();
                 }
             } catch (SQLException ex) {
