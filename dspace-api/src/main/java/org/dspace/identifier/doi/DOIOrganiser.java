@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -246,11 +247,12 @@ public class DOIOrganiser {
                     doi = context.reloadEntity(doi);
                     try {
                         organiser.reserve(doi);
+                        context.uncacheEntity(doi);
                         context.commit();
                     } catch (RuntimeException e) {
                         System.err.format("DOI %s for object %s reservation failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
+                                          doi.getDSpaceObject().getID().toString(),
+                                          doi.getDoi(), e.getMessage());
                         context.rollback();
                     }
                 }
@@ -272,11 +274,12 @@ public class DOIOrganiser {
                     doi = context.reloadEntity(doi);
                     try {
                         organiser.register(doi);
+                        context.uncacheEntity(doi);
                         context.commit();
                     } catch (SQLException e) {
                         System.err.format("DOI %s for object %s registration failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
+                                          doi.getDSpaceObject().getID().toString(),
+                                          doi.getDoi(), e.getMessage());
                         context.rollback();
                     }
                 }
@@ -319,15 +322,19 @@ public class DOIOrganiser {
                                            + "that could be deleted.");
                 }
 
-                for (DOI doi : dois) {
+                Iterator<DOI> iterator = dois.iterator();
+                while (iterator.hasNext()) {
+                    DOI doi = iterator.next();
                     doi = context.reloadEntity(doi);
+                    iterator.remove();
                     try {
                         organiser.delete(doi.getDoi());
+                        context.uncacheEntity(doi);
                         context.commit();
                     } catch (SQLException e) {
                         System.err.format("DOI %s for object %s deletion failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
+                                          doi.getDSpaceObject().getID().toString(),
+                                          doi.getDoi(), e.getMessage());
                         context.rollback();
                     }
                 }

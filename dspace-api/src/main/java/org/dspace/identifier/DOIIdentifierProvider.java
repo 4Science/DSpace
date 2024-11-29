@@ -1071,7 +1071,7 @@ public class DOIIdentifierProvider extends FilteredIdentifierProvider {
             throw new IllegalArgumentException("We currently support DOIs for Items only, not for " +
                 contentServiceFactory.getDSpaceObjectService(dso).getTypeText(dso) + ".");
         }
-        Item item = (Item) dso;
+        Item item = (Item) context.reloadEntity(dso);
 
         itemService.addMetadata(context, item, MD_SCHEMA, DOI_ELEMENT, DOI_QUALIFIER, null,
             doiService.DOIToExternalForm(doi));

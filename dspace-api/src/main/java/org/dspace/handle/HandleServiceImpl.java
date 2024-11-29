@@ -257,7 +257,7 @@ public class HandleServiceImpl implements HandleService {
     @Override
     public String findHandle(Context context, DSpaceObject dso)
         throws SQLException {
-        List<Handle> handles = dso.getHandles();
+        List<Handle> handles = handleDAO.getHandlesByDSpaceObject(context, dso);
         if (CollectionUtils.isEmpty(handles)) {
             return null;
         } else {

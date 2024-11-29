@@ -440,7 +440,8 @@ public class DataCiteConnector
         DataCiteResponse resp = null;
         try {
             resp = this.sendDOIPostRequest(doi,
-                                           handleService.resolveToURL(context, dso.getHandle()));
+                                           handleService.resolveToURL(context,
+                                               handleService.findHandle(context, dso)));
         } catch (SQLException e) {
             log.error("Caught SQL-Exception while resolving handle to URL: {}",
                     e::getMessage);
