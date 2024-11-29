@@ -15,8 +15,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.ws.rs.NotFoundException;
 
+import jakarta.ws.rs.NotFoundException;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
@@ -132,7 +132,7 @@ public class EditItemServiceImpl implements EditItemService {
      */
     @Override
     public int countBySubmitter(Context context, EPerson ep) throws SQLException {
-        return itemDAO.countItems(context, ep, true, false);
+        return itemDAO.countItems(context, ep, true, false, true);
     }
 
     /* (non-Javadoc)

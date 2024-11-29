@@ -8,8 +8,9 @@
 package org.dspace.layout;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 /**
  * This class defines the Id for the relation beetwen the objects CrisLayoutBox and CrisLayoutBox

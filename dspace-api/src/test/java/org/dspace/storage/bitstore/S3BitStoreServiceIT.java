@@ -42,6 +42,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import io.findify.s3mock.S3Mock;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.matcher.LambdaMatcher;
 import org.dspace.authorize.AuthorizeException;
@@ -98,8 +99,9 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         amazonS3Client = createAmazonS3Client(S3_ENDPOINT);
 
         s3BitStoreService = new S3BitStoreService(amazonS3Client);
-        s3BitStoreService.setEnabled(true);
-
+        s3BitStoreService.setEnabled(BooleanUtils.toBoolean(
+                configurationService.getProperty("assetstore.s3.enabled")));
+        s3BitStoreService.setBufferSize(22);
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -139,12 +141,25 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(amazonS3Client.listBuckets(), contains(bucketNamed(bucketName)));
 
         context.turnOffAuthorisationSystem();
-        String content = "Test bitstream content";
+        String content                = "Test bitstream content";
+        String contentOverOneSpan     = "This content span two chunks";
+        String contentExactlyTwoSpans = "Test bitstream contentTest bitstream content";
+        String contentOverOneTwoSpans = "Test bitstream contentThis content span three chunks";
         Bitstream bitstream = createBitstream(content);
+        Bitstream bitstreamOverOneSpan = createBitstream(contentOverOneSpan);
+        Bitstream bitstreamExactlyTwoSpans = createBitstream(contentExactlyTwoSpans);
+        Bitstream bitstreamOverOneTwoSpans = createBitstream(contentOverOneTwoSpans);
         context.restoreAuthSystemState();
 
-        s3BitStoreService.put(bitstream, toInputStream(content));
+        checkGetPut(bucketName, content, bitstream);
+        checkGetPut(bucketName, contentOverOneSpan, bitstreamOverOneSpan);
+        checkGetPut(bucketName, contentExactlyTwoSpans, bitstreamExactlyTwoSpans);
+        checkGetPut(bucketName, contentOverOneTwoSpans, bitstreamOverOneTwoSpans);
 
+    }
+
+    private void checkGetPut(String bucketName, String content, Bitstream bitstream) throws IOException {
+        s3BitStoreService.put(bitstream, toInputStream(content));
         String expectedChecksum = Utils.toHex(generateChecksum(content));
 
         assertThat(bitstream.getSizeBytes(), is((long) content.length()));
@@ -157,7 +172,6 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         String key = s3BitStoreService.getFullKey(bitstream.getInternalId());
         ObjectMetadata objectMetadata = amazonS3Client.getObjectMetadata(bucketName, key);
         assertThat(objectMetadata.getContentMD5(), is(expectedChecksum));
-
     }
 
     @Test

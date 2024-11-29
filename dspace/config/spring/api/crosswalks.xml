@@ -551,6 +551,7 @@
 				<entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
                 <entry key="metric" value-ref="virtualFieldMetric" />
                 <entry key="citations" value-ref="virtualFieldCitations" />
+                <entry key="place" value-ref="virtualFieldAtPlace" />
 			</map>
 		</constructor-arg>
 	</bean>
@@ -606,7 +607,8 @@
     
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.FirstSelectedCitationsPostProcessor" />
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.GroupByTypeCitationsPostProcessor" />
-	
+	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAtPlace" id="virtualFieldAtPlace"/>
+
 	<!-- MapConverter configuration -->
 
 	<bean id="org.dspace.util.MapConverters"  class="org.dspace.util.MapConverters"> 

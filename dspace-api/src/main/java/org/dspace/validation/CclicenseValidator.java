@@ -13,8 +13,8 @@ import static org.dspace.validation.util.ValidationUtils.addError;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
+import jakarta.inject.Inject;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;

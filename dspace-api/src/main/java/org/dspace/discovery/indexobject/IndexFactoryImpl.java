@@ -114,10 +114,17 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 final int charLimit = DSpaceServicesFactory.getInstance()
                                                            .getConfigurationService()
                                                            .getIntProperty("discovery.solr.fulltext.charLimit", 100000);
-
-                addField(doc, "fulltext", streams.getFullTextStreamStream(), charLimit);
-                addField(doc, "fulltext.mirador", streams.getMiradorStream(), charLimit);
-                addField(doc, "fulltext.video", streams.getVideoStream(), charLimit);
+                try (InputStream fullStream = streams.getFullTextStreamStream();
+                     InputStream miradorStream = streams.getMiradorStream();
+                     InputStream videoStream = streams.getVideoStream();
+                ) {
+                    addField(doc, "fulltext", fullStream, charLimit);
+                    addField(doc, "fulltext.mirador", miradorStream, charLimit);
+                    addField(doc, "fulltext.video", videoStream, charLimit);
+                } finally {
+                    // Add document to index
+                    solr.add(doc);
+                }
             }
             // Add document to index
             solr.add(doc);
@@ -146,8 +153,8 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 }
             }
 
-            // Save (parsed) full text to "fulltext" field
-            doc.addField("fulltext", tikaHandler.toString());
+            // Save (parsed) full text to the provided field
+            doc.addField(field, tikaHandler.toString());
         } catch (SAXException saxe) {
             // Check if this SAXException is just a notice that this file was longer than the character limit.
             // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
@@ -169,6 +176,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 stream.close();
             }
         }
+
     }
 
 

@@ -11,16 +11,6 @@
           class="org.dspace.identifier.IdentifierServiceImpl"
           autowire="byType"
           scope="singleton">
-        <!-- ADDITIONAL PROVIDERS -->
-        <!--
-        <property name="providers">
-            <list>
-                <ref bean="org.dspace.identifier.HandleIdentifierProvider"/>
-                <ref bean="org.dspace.identifier.DOIIdentifierProvider"/>
-            </list>
-        </property>
-        -->
-        <!-- ADDITIONAL PROVIDERS -->
     </bean>
 
     <!-- If you disable versioning, you need to use the default HandleIdentifierProvider. -->
@@ -52,13 +42,12 @@
     </bean>
     -->
 
-    <!-- provider to mint and register DOIs with DSpace.
-         To mint DOIs you need a registration agency. The DOIIdentifierProvider
-         maintains the doi database table and handling of DSpaceObject. It uses
-         a DOIConnector that handles all API calls to your DOI registration
-         agency. Please configure a DOIConnector as well! -->
+    <!-- DOIIdentifierProvider mints and registers DOIs with DSpace.
+         The DOIIdentifierProvider maintains the doi database table and handling
+         of DSpaceObject. It uses a DOIConnector that handles all API calls to
+         your DOI registration agency. Please configure a DOIConnector as well!
 
-    <!-- In order to mint DOIs with DSpace, get an agreement with a DOI
+         In order to mint DOIs with DSpace, get an agreement with a DOI
          registration agency,  take a look into dspace.cfg, and activate either
          the DOIIdentifierProvider or the VersionedDOIIdentifierProvider,
          depending on whether you have Item Level Versioning activated or not.
@@ -72,6 +61,7 @@
         <property name="DOIConnector"
                   ref="org.dspace.identifier.doi.DOIConnector"/>
         <property name="filter" ref="doi-filter" />
+            ref="org.dspace.identifier.doi.DOIConnector" />
     </bean>
     -->
     <!--
@@ -86,7 +76,9 @@
     -->
 
     <!-- An optional logical item filter can be included in provider configuration based
-    on the filters defined in item-filters.xml, eg. -->
+    on the filters defined in item-filters.xml, eg.
+    Of course, you can use a filter on the VersionedDOIIdentifierProvider as well.
+    -->
     <!--
     <bean id="org.dspace.identifier.DOIIdentifierProvider"
         class="org.dspace.identifier.DOIIdentifierProvider"

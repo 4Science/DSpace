@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * iterating. Using an iterator over previous retrieved UUIDs the iterator doesn't
  * get invalidated after a commit that would instead close the database ResultSet
  *
+ * @author stefano.maffei at 4science.com
  * @author Andrea Bollini (andrea.bollini at 4science.com)
  * @param  <T> class type
  */

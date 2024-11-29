@@ -52,7 +52,8 @@ public class PoolTaskMatcher {
     public static Matcher<? super Object> matchProperties(PoolTask pTask) {
         return allOf(
                 pTask != null ? hasJsonPath("$.id", is(pTask.getID())) : hasJsonPath("$.id"),
-                hasJsonPath("$.type", is("pooltask"))
+                hasJsonPath("$.type", is("pooltask")),
+                hasJsonPath("$.uniqueType", is("workflow.pooltask"))
         );
     }
 

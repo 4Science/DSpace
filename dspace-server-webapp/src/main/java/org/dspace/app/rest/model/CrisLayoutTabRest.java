@@ -22,12 +22,14 @@ import org.dspace.app.rest.RestResourceController;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
                 name = CrisLayoutTabRest.SECURITY_METADATA,
                 method = "getSecurityMetadata"
         )
-})
+    }
+)
 public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
 
     private static final long serialVersionUID = -6032412882381032490L;

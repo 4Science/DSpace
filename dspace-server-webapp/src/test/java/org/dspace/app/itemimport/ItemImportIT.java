@@ -48,6 +48,7 @@ import org.dspace.content.ProcessStatus;
 import org.dspace.content.Relationship;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.RelationshipService;
+import org.dspace.eperson.EPerson;
 import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.Process;
 import org.dspace.scripts.service.ProcessService;
@@ -123,7 +124,39 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         parameters.add(new DSpaceCommandLineParameter("-z", "saf-bitstreams.zip"));
         MockMultipartFile bitstreamFile = new MockMultipartFile("file", "saf-bitstreams.zip",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, getClass().getResourceAsStream("saf-bitstreams.zip"));
-        perfomImportScript(parameters, bitstreamFile);
+        perfomImportScript(parameters, bitstreamFile, admin);
+
+        checkMetadata();
+        checkMetadataWithAnotherSchema();
+        checkBitstream();
+
+        // confirm that TEMP_DIR still exists
+        File workTempDir = new File(workDir + File.separator + TEMP_DIR);
+        assertTrue(workTempDir.exists());
+    }
+
+    @Test
+    public void importItemIntoAdministeredCollectionByZipSafWithBitstreams() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection epersonCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Collection")
+                             .withEntityType("Publication")
+                             .withAdminGroup(eperson)
+                             .build();
+        context.restoreAuthSystemState();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-a", ""));
+        parameters.add(new DSpaceCommandLineParameter("-c", epersonCollection.getID().toString()));
+        parameters.add(new DSpaceCommandLineParameter("-z", "saf-bitstreams.zip"));
+        MockMultipartFile bitstreamFile =
+            new MockMultipartFile(
+                "file", "saf-bitstreams.zip",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE, getClass().getResourceAsStream("saf-bitstreams.zip")
+            );
+        perfomImportScript(parameters, bitstreamFile, eperson);
 
         checkMetadata();
         checkMetadataWithAnotherSchema();
@@ -155,7 +188,7 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         parameters.add(new DSpaceCommandLineParameter("-z", "saf-relationships.zip"));
         MockMultipartFile bitstreamFile = new MockMultipartFile("file", "saf-relationships.zip",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, getClass().getResourceAsStream("saf-relationships.zip"));
-        perfomImportScript(parameters, bitstreamFile);
+        perfomImportScript(parameters, bitstreamFile, admin);
 
         checkMetadata();
         checkRelationship();
@@ -222,29 +255,30 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
                    .andExpect(jsonPath("$", Matchers.is(RelationshipMatcher.matchRelationship(relationships.get(0)))));
     }
 
-    private void perfomImportScript(LinkedList<DSpaceCommandLineParameter> parameters, MockMultipartFile bitstreamFile)
-            throws Exception {
+    private void perfomImportScript(
+        LinkedList<DSpaceCommandLineParameter> parameters, MockMultipartFile bitstreamFile, EPerson user)
+        throws Exception {
         Process process = null;
 
         List<ParameterValueRest> list = parameters.stream()
-                .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                        .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
-                .collect(Collectors.toList());
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
 
         try {
             AtomicReference<Integer> idRef = new AtomicReference<>();
 
-            getClient(getAuthToken(admin.getEmail(), password))
+            getClient(getAuthToken(user.getEmail(), password))
                 .perform(multipart("/api/system/scripts/import/processes")
-                        .file(bitstreamFile)
-                        .param("properties", new ObjectMapper().writeValueAsString(list)))
+                             .file(bitstreamFile)
+                             .param("properties", new ObjectMapper().writeValueAsString(list)))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$", is(
-                        ProcessMatcher.matchProcess("import",
-                                String.valueOf(admin.getID()), parameters,
-                                ProcessStatus.COMPLETED))))
+                    ProcessMatcher.matchProcess("import",
+                                                String.valueOf(user.getID()), parameters,
+                                                ProcessStatus.COMPLETED))))
                 .andDo(result -> idRef
-                        .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
 
             process = processService.find(context, idRef.get());
             checkProcess(process);

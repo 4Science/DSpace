@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.mail.MessagingException;
 import javax.xml.transform.TransformerException;
 
+import jakarta.mail.MessagingException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;

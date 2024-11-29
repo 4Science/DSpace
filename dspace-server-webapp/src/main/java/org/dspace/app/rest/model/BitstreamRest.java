@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links = {
+@LinksRest(links =
+    {
         @LinkRest(
                 name = BitstreamRest.BUNDLE,
                 method = "getBundle"
@@ -28,7 +29,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
                 name = BitstreamRest.THUMBNAIL,
                 method = "getThumbnail"
         )
-})
+    }
+)
 public class BitstreamRest extends DSpaceObjectRest {
     public static final String PLURAL_NAME = "bitstreams";
     public static final String NAME = "bitstream";

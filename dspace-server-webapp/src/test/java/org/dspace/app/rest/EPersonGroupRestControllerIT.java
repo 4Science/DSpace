@@ -21,9 +21,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.model.RegistrationRest;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.EPersonBuilder;
@@ -34,9 +34,6 @@ import org.dspace.eperson.service.RegistrationDataService;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-
-
 
 public class EPersonGroupRestControllerIT extends AbstractControllerIntegrationTest {
     @Autowired

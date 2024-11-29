@@ -55,12 +55,17 @@ public class WorkspaceItemFromTemplateIT extends AbstractControllerIntegrationTe
 
         String authToken = getAuthToken(eperson.getEmail(), password);
 
+        context.commit();
         context.restoreAuthSystemState();
 
         final String today = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now());
 
         getClient(authToken).perform(post("/api/submission/workspaceitems")
+                                         .param("embed", "item")
+                                         .param("embed", "collection")
                                          .param("owningCollection", col1.getID().toString())
+                                         .param("embed", "item")
+                                         .param("embed", "collection")
                                          .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                             .andExpect(status().isCreated())
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))

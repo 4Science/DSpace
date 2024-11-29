@@ -7,19 +7,19 @@
  */
 package org.dspace.app.metrics;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ReloadableEntity;
-import org.hibernate.annotations.Type;
+import org.hibernate.Length;
 
 /**
  * 
@@ -50,8 +50,7 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     private boolean last;
 
-    @Lob
-    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
+    @Column(name = "remark", length = Length.LONG32)
     private String remark;
 
     private Double deltaPeriod1;

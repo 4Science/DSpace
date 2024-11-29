@@ -10,9 +10,9 @@ package org.dspace.unpaywall.dao.impl;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.core.Context;
 import org.dspace.unpaywall.dao.UnpaywallDAO;

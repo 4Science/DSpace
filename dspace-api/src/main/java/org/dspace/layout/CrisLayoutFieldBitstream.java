@@ -7,9 +7,9 @@
  */
 package org.dspace.layout;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 /**
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)

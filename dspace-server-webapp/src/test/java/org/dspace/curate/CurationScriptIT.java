@@ -287,6 +287,61 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void curateScript_collectionAdmin_Test() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 =
+            CollectionBuilder.createCollection(context, child1)
+                             .withAdminGroup(context.reloadEntity(eperson))
+                             .withName("Collection 1")
+                             .build();
+
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Public item 1")
+                                      .withIssueDate("2017-10-17")
+                                      .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                      .withSubject("ExtraEntry")
+                                      .build();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+
+        parameters.add(new DSpaceCommandLineParameter("-i", publicItem1.getHandle()));
+        parameters.add(new DSpaceCommandLineParameter("-s", "open"));
+        parameters.add(new DSpaceCommandLineParameter("-t", CurationClientOptions.getTaskOptions().get(0)));
+
+        List<ParameterValueRest> list = parameters.stream()
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
+
+        context.restoreAuthSystemState();
+
+        try {
+            getClient(token)
+                .perform(multipart(CURATE_SCRIPT_ENDPOINT)
+                             .param("properties", new ObjectMapper().writeValueAsString(list)))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("curate",
+                                                String.valueOf(eperson.getID()), parameters,
+                                                ProcessStatus.COMPLETED))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
+        } finally {
+            ProcessBuilder.deleteProcess(idRef.get());
+        }
+    }
+
+    @Test
     public void curateScript_validRequest_TaskFile() throws Exception {
         context.turnOffAuthorisationSystem();
 

@@ -13,8 +13,8 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

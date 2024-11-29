@@ -14,8 +14,8 @@ import static org.dspace.app.rest.utils.RegexUtils.REGEX_REQUESTMAPPING_IDENTIFI
 
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.model.UnpaywallItemVersionsRest;
 import org.dspace.app.rest.model.hateoas.UnpaywallItemVersionsResource;

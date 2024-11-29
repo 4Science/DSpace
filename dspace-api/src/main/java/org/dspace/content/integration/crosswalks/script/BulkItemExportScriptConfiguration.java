@@ -37,11 +37,15 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
         AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         ConfigurationService configurationService = new DSpace().getConfigurationService();
         try {
-            if (authorizeService.isAdmin(context) || authorizeService.isComColAdmin(context)) {
+            if (
+                    authorizeService.isAdmin(context) ||
+                    authorizeService.isComColAdmin(context) ||
+                    authorizeService.isItemAdmin(context)
+            ) {
                 property.append("admin");
             } else {
                 property.append(Optional.ofNullable(context.getCurrentUser()).map(ignored -> "loggedIn")
-                                    .orElse("notLoggedIn"));
+                                        .orElse("notLoggedIn"));
             }
         } catch (SQLException e) {
             return false;

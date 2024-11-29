@@ -8,8 +8,8 @@
 package org.dspace.app.rest.submit.factory.impl;
 
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.deduplication.model.DuplicateDecisionObjectRest;
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
 import org.dspace.app.deduplication.utils.IDedupUtils;

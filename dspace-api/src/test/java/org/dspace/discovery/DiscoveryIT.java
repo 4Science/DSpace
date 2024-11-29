@@ -19,8 +19,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -469,6 +469,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default, we expect: indexableObjects=2, totalFound=2
@@ -562,6 +563,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,
@@ -653,6 +655,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,

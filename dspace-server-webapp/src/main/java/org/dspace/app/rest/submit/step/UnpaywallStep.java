@@ -10,8 +10,8 @@ package org.dspace.app.rest.submit.step;
 import static java.lang.Boolean.TRUE;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;

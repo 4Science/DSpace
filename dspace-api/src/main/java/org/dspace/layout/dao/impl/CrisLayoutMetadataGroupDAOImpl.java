@@ -10,13 +10,13 @@ package org.dspace.layout.dao.impl;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.annotation.Nullable;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.Root;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.Root;
 import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutField;

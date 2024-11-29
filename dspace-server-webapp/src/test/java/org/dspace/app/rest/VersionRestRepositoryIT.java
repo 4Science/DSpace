@@ -1006,7 +1006,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$", Matchers.allOf(
                                      hasJsonPath("$.version", is(v2.getVersionNumber())),
@@ -1054,7 +1054,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$", Matchers.allOf(
                                      hasJsonPath("$.version", is(v2.getVersionNumber())),
@@ -1102,7 +1102,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$", Matchers.allOf(
                                         hasJsonPath("$.version", is(v2.getVersionNumber())),
@@ -1129,7 +1129,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + Integer.MAX_VALUE)
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isNotFound());
     }
 
@@ -1164,7 +1164,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isBadRequest());
     }
 
@@ -1199,7 +1199,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isUnprocessableEntity());
     }
 
@@ -1234,7 +1234,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isUnprocessableEntity());
     }
 
@@ -1270,7 +1270,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient().perform(patch("/api/versioning/versions/" + v2.getID())
                    .content(patchBody)
-                   .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                   .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                    .andExpect(status().isUnauthorized());
     }
 
@@ -1303,7 +1303,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient().perform(patch("/api/versioning/versions/" + v2.getID())
                    .content(patchBody)
-                   .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                   .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                    .andExpect(status().isUnauthorized());
     }
 
@@ -1337,7 +1337,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String epersonToken = getAuthToken(eperson.getEmail(), password);
         getClient(epersonToken).perform(patch("/api/versioning/versions/" + v2.getID())
                                .content(patchBody)
-                               .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                               .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                                .andExpect(status().isForbidden());
     }
 
@@ -1374,7 +1374,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
         String colAdminToken = getAuthToken(eperson.getEmail(), password);
         getClient(colAdminToken).perform(patch("/api/versioning/versions/" + v2.getID())
                                 .content(patchBody)
-                                .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$", Matchers.allOf(
                                         hasJsonPath("$.version", is(v2.getVersionNumber())),
@@ -1437,7 +1437,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(adminCommBToken).perform(patch("/api/versioning/versions/" + v2.getID())
                                   .content(patchBody)
-                                  .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                  .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                                   .andExpect(status().isForbidden());
 
         getClient(adminCommAToken).perform(get("/api/versioning/versions/" + v2.getID()))
@@ -1446,7 +1446,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(adminCommAToken).perform(patch("/api/versioning/versions/" + v2.getID())
                                   .content(patchBody)
-                                  .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                                  .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                                   .andExpect(status().isOk());
 
         getClient(adminCommAToken).perform(get("/api/versioning/versions/" + v2.getID()))
@@ -1490,17 +1490,17 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(adminToken).perform(patch("/api/versioning/versions/" + Integer.MAX_VALUE)
                              .content(patchBody)
-                             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                              .andExpect(status().isForbidden());
 
         getClient(epersonToken).perform(patch("/api/versioning/versions/" + Integer.MAX_VALUE)
                                .content(patchBody)
-                               .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                               .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                                .andExpect(status().isForbidden());
 
         getClient().perform(patch("/api/versioning/versions/" + Integer.MAX_VALUE)
                    .content(patchBody)
-                   .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                   .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
                    .andExpect(status().isUnauthorized());
     }
 
