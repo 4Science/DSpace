@@ -8,7 +8,9 @@
 package org.dspace.app.metadataupdate;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
@@ -84,11 +86,24 @@ public class MetadataUpdateScript
                     while (iterator.hasNext()) {
                         Item item = iterator.next();
                         try {
-                            String currentValue = itemService.getMetadataFirstValue(item,
+                            Item reloadedItem = context.reloadEntity(item);
+                            String currentValue = itemService.getMetadataFirstValue(reloadedItem,
                                 metadata.schema, metadata.element, metadata.qualifier, Item.ANY);
                             if (StringUtils.equals(currentValue, key)) {
-                                itemService.setMetadataSingleValue(context, item, metadata, Item.ANY, value);
-                                itemService.update(context, item);
+                                List.of(value.split(Pattern.quote("|")))
+                                    .stream()
+                                    .map(String::trim)
+                                    .forEach(v -> {
+                                        try {
+                                            itemService.setMetadataSingleValue(context, reloadedItem, metadata,
+                                                Item.ANY, v);
+                                        } catch (SQLException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    });
+                                itemService.update(context, reloadedItem);
+                                context.commit();
+                                context.uncacheEntity(reloadedItem);
                             }
                         } catch (SQLException | AuthorizeException e) {
                             throw new RuntimeException(e);
