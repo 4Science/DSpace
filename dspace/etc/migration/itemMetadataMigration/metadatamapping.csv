@@ -1,34 +1,34 @@
 GLAM 5 Metadata,GLAM 7 Metadata,Entity
-dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication, Coin, Drawings"
+dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial"
 dc.relation.conference,dc.relation.event,AudioVideo
 dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
-dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial, Publication, MusicalLibrettos, Books_Amargine, Drawings"
-dc.subject,glam.subject,"Artwork, Coin, Picture, Drawings"
-dc.relation.url,dc.relation.otherlinks,"Artwork, Coin, ScientificMaterial, Drawings"
+dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial"
+dc.subject,glam.subject,"Artwork, Coin, Picture"
+dc.relation.url,dc.relation.otherlinks,"Artwork, ArchivalMaterial, Coin, ScientificMaterial"
 dc.source.content,dc.description.abstract,ArchivalMaterial
-dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, ScientificMaterial"
-dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coin, ScientificMaterial, Drawings"
-dc.relation.bibliographyplace,glam.bibliography.place,"ArchivalMaterial, Picture, Coin, ScientificMaterial, Drawings"
-dc.relation.bibliographypublisher,glam.bibliography.publisher,"ArchivalMaterial, Picture, Coin, ScientificMaterial, Drawings"
-dc.relation.bibliographyeditor,glam.bibliography.editor,"ArchivalMaterial, Drawings"
-dc.relation.bibliographyauthors,glam.bibliography.author,"ArchivalMaterial, Picture, Coin, ScientificMaterial, Drawings"
+dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
+dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
+dc.relation.bibliographyplace,glam.bibliography.place,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
+dc.relation.bibliographypublisher,glam.bibliography.publisher,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
+dc.relation.bibliographyeditor,glam.bibliography.editor,ArchivalMaterial
+dc.relation.bibliographyauthors,glam.bibliography.author,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyabbreviation,glam.bibliography.abbreviation,ArchivalMaterial
-dc.description,dc.description.note,"MusicalLibrettos, Publication, Books_Amargine"
+dc.description,dc.description.note,MusicalLibrettos
 dc.title.integration,glampicture.type.framing,Picture
 dc.relation.ispartof,dc.relation.ispartofcontainer,Picture
-dc.relation.inscriptionclass,glam.inscription.class,"Picture, ScientificMaterial, Drawings"
-dc.relation.inscriptionclanguage,glam.inscription.language,"Picture, ScientificMaterial, Drawings"
-dc.relation.inscriptiontechnique,glam.inscription.technique,"Picture, ScientificMaterial, Drawings"
-dc.relation.inscriptionfont,glam.inscription.font,"Picture, ScientificMaterial, Drawings"
-dc.relation.inscriptionposition,glam.inscription.position,"Picture, ScientificMaterial, Drawings"
-dc.relation.inscriptiontranscription,glam.inscription,"Picture, ScientificMaterial, Drawings"
-dc.relation.markclass,glam.mark.class,"Picture, Drawings"
-dc.relation.markquantity,glam.mark.quantity,"Picture, Drawings"
-dc.relation.markqualification,glam.mark.qualification,"Picture, Drawings"
-dc.relation.markidentification,glam.mark.identification,"Picture, Drawings"
-dc.relation.markposition,glam.mark.position,"Picture, Drawings"
-dc.relation.markdescription,glam.mark,"Picture, Drawings"
-dc.relation.bibliographytype,glam.bibliography.type,"Picture, Coin, ScientificMaterial"
+dc.relation.inscriptionclass,glam.inscription.class,"Picture, ScientificMaterial"
+dc.relation.inscriptionclanguage,glam.inscription.language,"Picture, ScientificMaterial"
+dc.relation.inscriptiontechnique,glam.inscription.technique,"Picture, ScientificMaterial"
+dc.relation.inscriptionfont,glam.inscription.font,"Picture, ScientificMaterial"
+dc.relation.inscriptionposition,glam.inscription.position,"Picture, ScientificMaterial"
+dc.relation.inscriptiontranscription,glam.inscription,"Picture, ScientificMaterial"
+dc.relation.markclass,glam.mark.class,Picture
+dc.relation.markquantity,glam.mark.quantity,Picture
+dc.relation.markqualification,glam.mark.qualification,Picture
+dc.relation.markidentification,glam.mark.identification,Picture
+dc.relation.markposition,glam.mark.position,Picture
+dc.relation.markdescription,glam.mark,Picture
+dc.relation.bibliographytype,glam.bibliography.type,"Picture, Coin"
 dc.coverage.culture,glam.culture,Coin
 dc.relation.mint,glamcoin.mint,Coin
 dc.contributor.issuingauthority,glamcoin.issuingauthority,Coin
@@ -42,7 +42,7 @@ dc.description.reverselegend,glamcoin.reverselegend,Coin
 dc.subject,glam.subject,Coin
 dc.relation.bibliography,dc.relation.bibliographytitle,Coin
 dc.subject,dc.subject.classification,ScientificMaterial
-dc.subject.keywords,dc.subject,"ScientificMaterial, Picture "
+dc.subject.keywords,dc.subject,"ScientificMaterial, Picture"
 dc.format.misn,glam.misn,ScientificMaterial
 dc.format.misp,glam.misp,ScientificMaterial
 dc.format.miss,glam.miss,ScientificMaterial
@@ -50,10 +50,7 @@ dc.format.misc,glam.misc,ScientificMaterial
 dc.format.misw,glam.misw,ScientificMaterial
 dc.format.misb,glam.misb,ScientificMaterial
 dc.format.misi,glam.misi,ScientificMaterial
-dc.identifier.archivalunit,glamfonds.index,"ArchivalMaterial, Picture, Publication, MusicalLibrettos, Coin, ScientificMaterial"
+dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
-dc.relation.url ,dc.relation.uri,ArchivalMaterial
-dc.format.misu,glam.misu,ScientificMaterial
-dc.format.misa,glam.misa,ScientificMaterial
-dc.format.misl,glam.misl,ScientificMaterial
-dc.contributor.person,dc.relation.person,ArchivalMaterial
+dc.accessRights,dcterms.accessRights,ArchivalMaterial
+dc.relation.url,dc.relation.uri,ArchivalMaterial
