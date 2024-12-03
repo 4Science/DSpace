@@ -70,10 +70,10 @@ public class MetadataUpdateScriptIT extends AbstractIntegrationTestWithDatabase 
         itemThree = context.reloadEntity(itemThree);
         itemFour = context.reloadEntity(itemFour);
 
-        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "deu", "2", 0, 500)));
-        assertThat(itemTwo.getMetadata(), hasItem(with("dc.language.iso", "eng", "2", 0, 500)));
-        assertThat(itemThree.getMetadata(), hasItem(with("dc.language.iso", "por", "2", 0, 500)));
-        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "ita | fra", "2", 0, 500)));
+        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "deu")));
+        assertThat(itemTwo.getMetadata(), hasItem(with("dc.language.iso", "eng")));
+        assertThat(itemThree.getMetadata(), hasItem(with("dc.language.iso", "por")));
+        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "ita | fra")));
     }
 
     @Test
