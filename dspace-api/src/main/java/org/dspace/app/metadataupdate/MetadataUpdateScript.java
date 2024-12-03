@@ -90,6 +90,9 @@ public class MetadataUpdateScript
                             String currentValue = itemService.getMetadataFirstValue(reloadedItem,
                                 metadata.schema, metadata.element, metadata.qualifier, Item.ANY);
                             if (StringUtils.equals(currentValue, key)) {
+                                itemService.clearMetadata(context, reloadedItem, metadata.schema,
+                                    metadata.element, metadata.qualifier,
+                                    null);
                                 List.of(value.split(Pattern.quote("|")))
                                     .stream()
                                     .map(String::trim)
