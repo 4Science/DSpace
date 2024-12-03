@@ -95,8 +95,9 @@ public class MetadataUpdateScript
                                     .map(String::trim)
                                     .forEach(v -> {
                                         try {
-                                            itemService.setMetadataSingleValue(context, reloadedItem, metadata,
-                                                Item.ANY, v);
+                                            itemService.addMetadata(context, reloadedItem, metadata.schema,
+                                                metadata.element, metadata.qualifier,
+                                                null, v);
                                         } catch (SQLException e) {
                                             throw new RuntimeException(e);
                                         }
