@@ -29,6 +29,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.ItemServiceImpl;
+import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -49,6 +50,7 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
     private String uuid;
     private String handle;
     private String newEntityType;
+    private String newFormName;
 
     private DSpaceObjectUtils dspaceObjectUtil;
     private ItemService itemService;
@@ -67,12 +69,18 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
         uuid = commandLine.getOptionValue('u');
         handle = commandLine.getOptionValue("i");
         newEntityType = commandLine.getOptionValue('n');
+        newFormName = commandLine.getOptionValue('f');
     }
 
     @Override
     public void internalRun() throws Exception {
         if (!commandLine.hasOption('i') && !commandLine.hasOption('u')) {
             throw new RuntimeException("Collection or Community handle/uuid must be provided");
+        }
+        boolean changeType = commandLine.hasOption('n');
+        boolean changeForm = commandLine.hasOption('f');
+        if (!changeType && !changeForm) {
+            throw new RuntimeException("New entity type or form must be provided");
         }
         context = new Context();
         try {
@@ -94,24 +102,35 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
                 collections.add(col);
             }
 
+
             for (Collection collection : collections) {
                 int countItems = 0;
                 int processedItems = 0;
                 int notProcessed = 0;
                 String currentEt = collection.getEntityType();
+                String currentForm = collectionService.getMetadataFirstValue(collection,
+                        MetadataSchemaEnum.CRIS.getName(), "submission", "definition", Item.ANY);
                 System.out
-                    .println("Current EntityType:" + currentEt + " of collection with name:" + collection.getName());
-                collectionService.setMetadataSingleValue(context, collection, "dspace", "entity", "type", null,
-                    this.newEntityType);
-                Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);
-                handler.logInfo("Script start");
-                while (itemIterator.hasNext()) {
-                    Item item = itemIterator.next();
-                    countItems++;
-                    String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
-                    processedItems++;
-                    itemService.setMetadataSingleValue(context, item, "dspace", "entity", "type", null,
+                    .println("Current EntityType:" + currentEt + " and current form " +
+                            currentForm + " of collection with name:" + collection.getName());
+                if (changeType) {
+                    collectionService.setMetadataSingleValue(context, collection, "dspace", "entity", "type", null,
                             this.newEntityType);
+                    Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);
+                    handler.logInfo("Script start");
+                    while (itemIterator.hasNext()) {
+                        Item item = itemIterator.next();
+                        countItems++;
+                        String entityType = itemService.getMetadataFirstValue(item, "dspace",
+                                "entity", "type", Item.ANY);
+                        processedItems++;
+                        itemService.setMetadataSingleValue(context, item, "dspace", "entity", "type", null,
+                                this.newEntityType);
+                    }
+                }
+                if (changeForm) {
+                    collectionService.setMetadataSingleValue(context, collection, MetadataSchemaEnum.CRIS.getName(),
+                            "submission", "definition", Item.ANY,this.newFormName);
                 }
                 collection = context.reloadEntity(collection);
                 currentEt = collection.getEntityType();
