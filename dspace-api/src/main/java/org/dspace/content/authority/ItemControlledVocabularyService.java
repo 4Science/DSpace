@@ -97,27 +97,11 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setQuery(controlledVocabulary.getParentQuery());
 
         if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
+            String[] sortAndOrder = controlledVocabulary.getSortFieldAndOrder().split(" ");
             discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
         }
 
-        try {
-            DiscoverResult result = searchService.search(ContextUtil.obtainCurrentRequestContext(), discoverQuery);
-
-            if (!result.getIndexableObjects().isEmpty()) {
-                int total = (int) result.getTotalSearchResults();
-
-                List<Choice> choices = getChoicesFromResult(authorityName, controlledVocabulary, result);
-
-                return new Choices(choices.toArray(new Choice[choices.size()]), start, total, Choices.CF_AMBIGUOUS,
-                                   total > start + limit);
-            }
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return new Choices(true);
-        }
-
-        return new Choices(false);
+        return getChoices(authorityName, start, limit, controlledVocabulary, discoverQuery);
     }
 
     @Override
@@ -135,13 +119,18 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setMaxResults(limit);
 
         if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
+            String[] sortAndOrder = controlledVocabulary.getSortFieldAndOrder().split(" ");
             discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
         }
 
         String childrenQuery = MessageFormat.format(controlledVocabulary.getChildrenQuery(), parentId);
         discoverQuery.setQuery(childrenQuery);
 
+        return getChoices(authorityName, start, limit, controlledVocabulary, discoverQuery);
+    }
+
+    private Choices getChoices(String authorityName, int start, int limit,
+        ItemControlledVocabulary controlledVocabulary, DiscoverQuery discoverQuery) {
         try {
             DiscoverResult result = searchService.search(ContextUtil.obtainCurrentRequestContext(), discoverQuery);
 
