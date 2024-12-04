@@ -100,17 +100,20 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                 .withTitle("Author 1")
                 .withEntityType("person")
                 .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .build();
 
         Item author_2 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 2")
                 .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .withEntityType("person")
                 .build();
 
         Item author_3 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 3")
                 .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                 .withEntityType("person")
                 .build();
 
@@ -162,19 +165,19 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                 .withTitle("Author 1")
                 .withVariantName("Author Variant")
                 .withEntityType("person")
-                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .build();
 
         Item author_2 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 2")
                 .withVariantName("Author 2 Variant")
-                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .withEntityType("person")
                 .build();
 
         Item author_3 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 3")
-                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .withEntityType("person")
                 .build();
 
@@ -247,14 +250,14 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
        Item author_1 = ItemBuilder.createItem(context, col1)
                                   .withTitle("Author 1")
-                                  .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
-                                  .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                  .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                                  .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                                   .withEntityType("person")
                                   .build();
 
        Item author_2 = ItemBuilder.createItem(context, col1)
                                   .withTitle("Author 2")
-                                  .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                  .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                                   .withEntityType("person")
                                   .build();
 

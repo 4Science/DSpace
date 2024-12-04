@@ -6,15 +6,11 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.metrics;
-import java.sql.SQLException;
 
 import org.apache.commons.cli.Options;
-import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.core.Context;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -27,19 +23,6 @@ public class UpdateCrisMetricsInSolrDocScriptConfiguration<T extends UpdateCrisM
             .getLogger(UpdateCrisMetricsInSolrDocScriptConfiguration.class);
 
     private Class<T> dspaceRunnableClass;
-
-    @Autowired
-    private AuthorizeService authorizeService;
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
-        try {
-            return authorizeService.isAdmin(context);
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        }
-        return false;
-    }
 
     @Override
     public Options getOptions() {

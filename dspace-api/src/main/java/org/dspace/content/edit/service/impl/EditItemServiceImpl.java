@@ -132,7 +132,7 @@ public class EditItemServiceImpl implements EditItemService {
      */
     @Override
     public int countBySubmitter(Context context, EPerson ep) throws SQLException {
-        return itemDAO.countItems(context, ep, true, false);
+        return itemDAO.countItems(context, ep, true, false, true);
     }
 
     /* (non-Javadoc)

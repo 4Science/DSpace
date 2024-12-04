@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -77,7 +78,6 @@ import org.dspace.xmlworkflow.storedcomponents.ClaimedTask;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RestMediaTypes;
@@ -686,6 +686,10 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(token).perform(delete("/api/workflow/workflowitems/" + witem.getID()))
                     .andExpect(status().is(204));
 
+        // Delete the workflowitem a second time should result in 404
+        getClient(token).perform(delete("/api/workflow/workflowitems/" + witem.getID()))
+                    .andExpect(status().is(404));
+
         // Trying to get deleted workflowitem should fail with 404
         getClient(token).perform(get("/api/workflow/workflowitems/" + witem.getID()))
                    .andExpect(status().is(404));
@@ -1035,6 +1039,24 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     @Test
+    public void patchNotExistingWorkflowItemTest() throws Exception {
+        List<Operation> update = new ArrayList<Operation>();
+        List<Map<String, String>> values = new ArrayList<>();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("value", "Title");
+        values.add(value);
+        update.add(new AddOperation("/sections/traditionalpageone/dc.title", values));
+
+        String patchBody = getPatchContent(update);
+        String authToken = getAuthToken(admin.getEmail(), password);
+        getClient(authToken).perform(patch("/api/workflow/workflowitems/" + Integer.MAX_VALUE)
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
     /**
      * Test the update of metadata
      *
@@ -1104,7 +1126,6 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     @Test
-    @Ignore(value = "This demonstrate the bug logged in DS-4179")
     /**
      * Verify that update of metadata is forbidden in step 1.
      *
@@ -1159,7 +1180,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .andExpect(status().isOk())
             .andExpect(jsonPath("$",
                     Matchers.is(WorkflowItemMatcher.matchItemWithTitleAndDateIssuedAndSubject(witem,
-                            "New Title", "2017-10-17", "ExtraEntry"))))
+                            "Workflow Item 1", "2017-10-17", "ExtraEntry"))))
         ;
     }
 
@@ -2864,6 +2885,32 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                         is("Euro")))
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
                         is("12312")));;
+    }
+
+    @Test
+    public void checkStartDateTimeTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        context.setCurrentUser(admin);
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .withWorkflowGroup(1, admin).build();
+
+        XmlWorkflowItem workflowItem = WorkflowItemBuilder.createWorkflowItem(context, col1)
+                                                          .withTitle("Workflow Item 1")
+                                                          .withIssueDate("2024-10-07")
+                                                          .build();
+
+        Item item = workflowItem.getItem();
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/core/items/" + item.getID()))
+                             .andExpect(status().isOk())
+                           .andExpect(jsonPath("$.inArchive", is(false)))
+                           .andExpect(jsonPath("$.metadata['dspace.workflow.startDateTime'][0].value", notNullValue()));
     }
 
 }

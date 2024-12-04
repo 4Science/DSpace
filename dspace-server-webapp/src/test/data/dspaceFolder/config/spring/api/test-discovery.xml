@@ -52,6 +52,7 @@
     </bean>
     <bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>
     <bean id="solrServiceBestMatchStrictIndexingPlugin" class="org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin"/>
+    <bean id="solrServiceAdministrativeSearchRestrictionPlugin" class="org.dspace.discovery.SolrServiceAdministrativeSearchRestrictionPlugin"/>
     <bean id="sharedWorkspaceSolrIndexPlugin" class="org.dspace.discovery.SharedWorkspaceSolrIndexPlugin">
         <constructor-arg name="additionalReadMetadata" ref="sharedWorkspaceAuthorMetadataFields"/>
     </bean>
@@ -2163,6 +2164,7 @@
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterContentInOriginalBundle"/>
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterDepartment"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2178,6 +2180,7 @@
                 <ref bean="searchFilterFileNameInOriginalBundle" />
                 <ref bean="searchFilterFileDescriptionInOriginalBundle" />
                 <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterDepartment"/>
                 <ref bean="searchFilterIsAuthorOfPublicationRelation"/>
                 <ref bean="searchFilterIsProjectOfPublicationRelation"/>
                 <ref bean="searchFilterIsOrgUnitOfPublicationRelation"/>
@@ -4551,6 +4554,24 @@
         <property name="exposeMinAndMaxValue" value="false"/>
     </bean>
 
+    <bean id="searchFilterProjectOrganisation"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="involvedorganisation" />
+        <property name="metadataFields">
+            <list>
+                <value>crispj.coordinator</value>
+                <value>crispj.partnerou</value>
+                <value>crispj.organization</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
     <bean id="searchFilterEditor" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="editor"/>
         <property name="metadataFields">
@@ -4691,16 +4712,16 @@
     </bean>
     <bean id="sortOrganizationAddressCountry"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressCountry"/>
+        <property name="metadataField" value="organization.address.addressCountry"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
     <bean id="sortOrganizationAddressLocality"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressLocality"/>
+        <property name="metadataField" value="organization.address.addressLocality"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
     <bean id="sortOrganizationFoundingDate" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.foundingDate"/>
+        <property name="metadataField" value="organization.foundingDate"/>
         <property name="type" value="date"/>
         <property name="defaultSortOrder" value="desc"/>
     </bean>
@@ -4926,6 +4947,21 @@
         <property name="exposeMissing" value="true" />
         <property name="exposeMore" value="true" />
         <property name="exposeTotalElements" value="true" />
+    </bean>
+
+    <bean id="searchFilterDepartment" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="department"/>
+        <property name="metadataFields">
+            <list>
+                <value>cris.virtual.department</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
 
 </beans>

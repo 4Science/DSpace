@@ -67,6 +67,9 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
 import org.dspace.core.CrisConstants;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -93,6 +96,10 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
     private Community community;
 
+    private Group anonymousGroup;
+
+    private Group adminGroup;
+
     private static final String BITSTREAM_URL_FORMAT = "%s/api/core/bitstreams/%s/content";
 
     @Before
@@ -108,9 +115,12 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .getServicesByType(BulkImportWorkbookBuilderImpl.class).get(0);
 
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
+        anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+        adminGroup = groupService.findByName(context, Group.ADMIN);
         context.restoreAuthSystemState();
 
     }
@@ -759,7 +769,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withDescription("desc 2")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(secondBitstream)
             .withAction(Constants.READ)
             .withName("openaccess")
@@ -840,7 +850,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withMetadata("dc", "contributor", null, "Unknown author")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withDescription("Test policy")
@@ -848,27 +858,27 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.WRITE)
             .withName("administrator")
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("openaccess")
             .withPolicyType(ResourcePolicy.TYPE_INHERITED)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("embargo")
@@ -876,7 +886,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("lease")
@@ -989,6 +999,99 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
         rows.add(mainSheetRow);
         asserThatSheetHas(mainSheet, "items", 2, mainSheetHeader, rows);
 
+    }
+
+    @Test
+    public void testCollectionDisseminateWithBitstreamSheetWithMetadataLanguages() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection collection = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+
+        Item firstItem = ItemBuilder.createItem(context, collection)
+                .withEntityType("Publication")
+                .withTitle("Test Publication")
+                .withDescription("Description")
+                .build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, firstItem)
+                .withName("TEST-BUNDLE")
+                .build();
+
+        // add metadata dc.description[en]
+        Bitstream bitstream = createBitstream(context, bundle, getBitstreamSample("First bitstream sample"))
+                .withName("test.txt")
+                .withMetadata("dc", "description", null, "en", "test description 1")
+                .withMetadata("dc", "date", null, "2023-02-23")
+                .withMetadata("dc", "contributor", null, "Unknown author")
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.READ)
+                .withDescription("Test policy")
+                .withName("administrator")
+                .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.WRITE)
+                .withName("administrator")
+                .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.READ)
+                .withName("openaccess")
+                .withPolicyType(ResourcePolicy.TYPE_INHERITED)
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.READ)
+                .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.READ)
+                .withName("embargo")
+                .withStartDate(parse("2025-03-25"))
+                .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
+                .withDspaceObject(bitstream)
+                .withAction(Constants.READ)
+                .withName("lease")
+                .withDescription("Test")
+                .withEndDate(parse("2025-03-25"))
+                .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                .build();
+
+        context.restoreAuthSystemState();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCollectionCrosswalk.disseminate(context, collection, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(5));
+
+        String firstItemId = firstItem.getID().toString();
+        String bitstreamLocation = getBitstreamLocationUrl(bitstream);
+        String expectedPolicies = "administrator$$Test policy||embargo$$2025-03-25||lease$$2025-03-25$$Test";
+
+        String[] bitstreamHeaders = ArrayUtils.addAll(BITSTREAMS_SHEET_HEADERS, "dc.title", "dc.description");
+        String[] firstRow = { firstItemId, bitstreamLocation, "TEST-BUNDLE", "1", expectedPolicies, "N",
+                "test.txt"};
+
+        List<String[]> rowList = new ArrayList<>();
+        rowList.add(firstRow);
+
+        asserThatSheetHas(workbook.getSheetAt(4), "bitstream-metadata", 2, bitstreamHeaders, rowList);
     }
 
     private InputStream getBitstreamSample(String text) {

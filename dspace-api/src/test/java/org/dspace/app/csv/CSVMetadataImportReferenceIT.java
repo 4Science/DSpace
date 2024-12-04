@@ -700,9 +700,9 @@ public class CSVMetadataImportReferenceIT extends AbstractIntegrationTestWithDat
         try {
             String[] args = null;
             if (validateOnly) {
-                args = new String[] {"metadata-import", "-f", fileLocation, "-e", eperson.getEmail(), "-s", "-v"};
+                args = new String[] {"metadata-import", "-f", fileLocation, "-e", admin.getEmail(), "-s", "-v"};
             } else {
-                args = new String[] {"metadata-import", "-f", fileLocation, "-e", eperson.getEmail(), "-s",};
+                args = new String[] {"metadata-import", "-f", fileLocation, "-e", admin.getEmail(), "-s",};
             }
             TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
 

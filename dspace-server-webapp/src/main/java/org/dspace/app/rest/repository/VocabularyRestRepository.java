@@ -101,6 +101,9 @@ public class VocabularyRestRepository extends DSpaceRestRepository<VocabularyRes
         }
 
         String authorityName = cas.getChoiceAuthorityName(tokens[0], tokens[1], tokens[2], Constants.ITEM, collection);
+        if (authorityName == null) {
+            return null;
+        }
         ChoiceAuthority source = cas.getChoiceAuthorityByAuthorityName(authorityName);
         return authorityUtils.convertAuthority(source, authorityName, utils.obtainProjection());
     }

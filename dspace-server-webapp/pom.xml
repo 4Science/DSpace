@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.05-SNAPSHOT</version>
+        <version>cris-2023.02.07-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -406,7 +406,7 @@
                 </dependency>
             </dependencies>
         </profile>
-        
+
         <!-- Builds LoginMIUR addon for DSpace -->
 	   	<profile>
 			<id>addon-loginmiur</id>
@@ -420,6 +420,24 @@
 					<groupId>it.4science.dspace</groupId>
 					<artifactId>addon-loginmiur-api</artifactId>
 					<version>${addon-loginmiur.version}</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>
+
+        <!-- Builds Import Plus addon for DSpace -->
+	   	<profile>
+			<id>addon-importplus</id>
+	         <activation>
+	            <property>
+	               <name>importplus.on</name>
+	            </property>
+	         </activation>
+			<dependencies>
+				<dependency>
+					<groupId>it.4science.dspace</groupId>
+					<artifactId>addon-importplus</artifactId>
+					<version>${addon-importplus.version}</version>
 					<type>jar</type>
 				</dependency>
 			</dependencies>
@@ -482,7 +500,7 @@
         <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
-            <version>0.4.14</version>
+            <version>0.4.16</version>
         </dependency>
 
         <!-- HAL Browser (via WebJars) : https://github.com/mikekelly/hal-browser -->
@@ -502,7 +520,7 @@
         <dependency>
             <groupId>org.webjars.bowergithub.jquery</groupId>
             <artifactId>jquery-dist</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.1</version>
         </dependency>
         <!-- Pull in current version of Toastr (toastrjs.com) via WebJars
              Made available at: webjars/toastr/build/toastr.min.js -->
@@ -560,7 +578,7 @@
         <dependency>
             <groupId>org.webjars.bowergithub.twbs</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>4.6.1</version>
+            <version>4.6.2</version>
         </dependency>
 
         <!-- Add in Spring Security for AuthN and AuthZ -->
@@ -658,12 +676,12 @@
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>${nimbus-jose-jwt.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
         </dependency>
 
         <dependency>
@@ -689,6 +707,12 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${ehcache.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- TEST DEPENDENCIES -->
@@ -718,7 +742,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

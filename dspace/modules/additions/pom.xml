@@ -17,7 +17,7 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>modules</artifactId>
-      <version>cris-2023.02.05-SNAPSHOT</version>
+      <version>cris-2023.02.07-SNAPSHOT</version>
       <relativePath>..</relativePath>
    </parent>
 
@@ -357,6 +357,24 @@
            </dependencies>
        </profile>
 
+       <!-- Builds Import plus addon for DSpace -->
+        <profile>
+            <id>addon-importplus</id>
+             <activation>
+                <property>
+                   <name>importplus.on</name>
+                </property>
+             </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-importplus</artifactId>
+                    <version>${addon-importplus.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
    </profiles>
 
    <!--
@@ -432,7 +450,7 @@
       </dependency>
       <dependency>
          <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
+         <artifactId>hamcrest</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>

@@ -23,11 +23,13 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.SiteBuilder;
+import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.eperson.Group;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -292,6 +294,39 @@ public class UUIDLookupRestControllerIT extends AbstractControllerIntegrationTes
     public void testInvalidUUID() throws Exception {
         getClient().perform(get("/api/dso/find?uuid={uuid}","invalidUUID"))
                         .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    /**
+     * Test that a request with a valid uuid related to a object not accessible to
+     * the current or anonymous user return a 401/403 error code as appropriate
+     *
+     * @throws Exception
+     */
+    public void testUnauthorizedUUID() throws Exception {
+        context.turnOffAuthorisationSystem();
+        // We create a community and a collection to get the uuid to lookup
+        context.setCurrentUser(admin);
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("A Community")
+                                          .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                            .withName("A Collection")
+                                            .build();
+
+        WorkspaceItem wi = WorkspaceItemBuilder.createWorkspaceItem(context, collection).build();
+
+        context.restoreAuthSystemState();
+        getClient().perform(get("/api/dso/find?uuid={uuid}", wi.getItem().getID().toString()))
+                        .andExpect(status().isUnauthorized());
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/dso/find?uuid={uuid}", wi.getItem().getID().toString()))
+                        .andExpect(status().isForbidden());
+        // admin should get the redirection
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/dso/find?uuid={uuid}", wi.getItem().getID().toString()))
+                        .andExpect(status().is3xxRedirection());
     }
 
     @Test

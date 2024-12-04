@@ -157,8 +157,20 @@
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
+    <bean id="longmarkdownRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="longmarkdown"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
     <bean id="htmlRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="html"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="longhtmlRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="longhtml"/>
         <property name="fieldType" value="METADATA"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
@@ -189,6 +201,18 @@
         <property name="name" value="tag-search"/>
         <property name="fieldType" value="METADATA"/>
         <property name="subTypeValidationRule" value="MANDATORY"/>
+    </bean>
+
+    <bean id="youTubeRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderSearchValidatorImpl">
+        <property name="name" value="youtube"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="imageRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="image"/>
+        <property name="fieldType" value="BITSTREAM"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
 </beans>

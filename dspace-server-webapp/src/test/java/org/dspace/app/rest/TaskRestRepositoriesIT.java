@@ -2656,7 +2656,7 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
             bibtex);
         getClient(reviewer1Token).perform(multipart("/api/workflow/workflowitems/" + witem.getID())
             .file(bibtexFile))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isForbidden());
 
         bibtex.close();
     }
@@ -2695,7 +2695,7 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
 
         context.setCurrentUser(submitter);
 
-        //3. create a workflowitem (so a pool task in step1)
+        //3. create a workflowitem (so a pool task in step2 as step1 is undefined)
         XmlWorkflowItem witem = WorkflowItemBuilder.createWorkflowItem(context, col1)
             .withTitle("Test item full workflow")
             .withIssueDate("2019-03-06")
@@ -2725,9 +2725,6 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
             .andDo((result -> idRef
                 .set(read(result.getResponse().getContentAsString(), "$._embedded.pooltasks[0].id"))));
 
-        // try to patch a workspace item while it is unclaimed
-        String authToken = getAuthToken(eperson.getEmail(), password);
-
         // a simple patch to update an existent metadata
         List<Operation> updateTitle = new ArrayList<>();
         Map<String, String> value = new HashMap<>();
@@ -2736,10 +2733,17 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
 
         String patchBody = getPatchContent(updateTitle);
 
+        getClient(reviewer2Token).perform(patch("/api/workflow/workflowitems/" + witem.getID())
+                .content(patchBody)
+                .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+
+        // try to patch with an unrelated eperson while it is unclaimed
+        String authToken = getAuthToken(eperson.getEmail(), password);
         getClient(authToken).perform(patch("/api/workflow/workflowitems/" + witem.getID())
             .content(patchBody)
             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -2797,7 +2801,7 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
             bibtex);
         getClient(authToken).perform(multipart("/api/workflow/workflowitems/" + witem.getID())
             .file(bibtexFile))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isForbidden());
 
         bibtex.close();
     }
@@ -2890,10 +2894,15 @@ public class TaskRestRepositoriesIT extends AbstractControllerIntegrationTest {
 
         String patchBody = getPatchContent(updateTitle);
 
+        getClient(reviewer1Token).perform(patch("/api/workflow/workflowitems/" + witem.getID())
+                .content(patchBody)
+                .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+
         getClient(authToken).perform(patch("/api/workflow/workflowitems/" + witem.getID())
             .content(patchBody)
             .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isForbidden());
     }
 
     @Test
