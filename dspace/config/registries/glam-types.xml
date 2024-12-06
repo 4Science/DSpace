@@ -1313,5 +1313,47 @@
         <qualifier>wikidatalabel</qualifier>
         <scope_note></scope_note>
     </dc-type>
+    
+       <dc-type>
+        <schema>glam</schema>
+        <element>type</element>
+        <qualifier>coar</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>intermediateprovider</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>dataprovider</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>relation</element>
+        <qualifier>relatedDocument</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>provider</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>subject</element>
+        <qualifier>iconclass</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
 </dspace-dc-types>

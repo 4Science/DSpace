@@ -54,3 +54,6 @@ dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
+unibo.title.alternative_ar,unibo.title.alternative-ar,Ambulo
+unibo.date.issued_hijra,unibo.date.issued-hijra,Ambulo
+unibo.subject_ar,unibo.subject-ar,Ambulo

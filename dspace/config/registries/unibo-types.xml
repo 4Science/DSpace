@@ -1,0 +1,143 @@
+<dspace-dc-types>
+
+    <dspace-header>
+        <title>DSpace GLAM unibo Types</title>
+    </dspace-header>
+    
+    <dc-schema>
+        <name>unibo</name>
+        <namespace>https://www.4science.it/dspace-glam/unibo</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>mag</name>
+        <namespace>https://www.4science.it/dspace-glam/mag</namespace>
+    </dc-schema>
+    
+    <dc-schema>
+        <name>pico</name>
+        <namespace>https://www.4science.it/dspace-glam/pico</namespace>
+    </dc-schema>
+    
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>aldrovandimanuscript</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>mag</schema>
+        <element>biblevel</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>pico</schema>
+        <element>chi</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>pico</schema>
+        <element>cosa</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>pico</schema>
+        <element>quando</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>aldrovandidocument</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>title</element>
+        <qualifier>alternative-ar</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>title</element>
+        <qualifier>parallel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>date</element>
+        <qualifier>issued-hijra</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>subject-ar</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>arabicdocument</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>ancientbook</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>relatedPicture</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>subjectPicture</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>Shivadharmamanuscript</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>geographicmap</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>unibo</schema>
+        <element>relation</element>
+        <qualifier>SupinoPicture</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    
+</dspace-dc-types>
