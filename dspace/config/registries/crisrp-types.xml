@@ -165,7 +165,7 @@
     </dc-type>
     
     <dc-type>
-        <schema>crisp</schema>
+        <schema>crisrp</schema>
         <element>coordinator</element>
         <qualifier>name</qualifier>
         <scope_note></scope_note>
