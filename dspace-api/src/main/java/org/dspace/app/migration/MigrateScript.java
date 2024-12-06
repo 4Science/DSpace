@@ -352,6 +352,9 @@ public class MigrateScript extends DSpaceRunnable<MigrateScriptConfiguration<Mig
         String textValue, String authority) throws SQLException {
 
         String[] linkMetadataFields = linkMapping.get(prefix).get(shortname);
+        if (linkMetadataFields == null) {
+            System.out.println("Warning: missing link mapping for " + prefix + " - " + shortname);
+        }
         String labelMetadata = linkMetadataFields[0];
         String valueMetadata = linkMetadataFields[1];
         checkMetadataExists(labelMetadata);
