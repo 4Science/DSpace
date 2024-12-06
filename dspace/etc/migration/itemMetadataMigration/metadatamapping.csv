@@ -54,6 +54,32 @@ dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
-unibo.title.alternative_ar,unibo.title.alternative-ar,Ambulo
-unibo.date.issued_hijra,unibo.date.issued-hijra,Ambulo
-unibo.subject_ar,unibo.subject-ar,Ambulo
+dc.relation.fond,dc.relation.fonds,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, byzart, igcyr-gvcyr, immagini_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.subject,glam.subject,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.subject.keywords,dc.subject,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.identifier.archivalunit,glamfonds.index,aldovrandi_manoscritti
+dc.identifier.archivalunit,glamjournalfonds.index,journal_file_unibo
+dc.relation.aldrovandimanuscript ,unibo.relation.aldrovandimanuscript ,aldovrandi_manoscritti
+dc.relation.bibliography ,glam.bibliography ,"aldovrandi_manoscritti, manoscritti, manoscritti-shivadharma, mappe-disci"
+dc.type.magbiblevel ,mag.biblevel ,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, byzart, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.type.coar ,glam.type.coar ,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, byzart, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.contributor.provider ,glam.provider ,"Appunti-ingegneria, atlas-archival_material, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci"
+dc.contributor.intermediateprovider ,glam.intermediateprovider ,"aldovrandi_manoscritti, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.contributor.dataprovider ,glam.dataprovider ,"Aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, byzart, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti, manoscritti-shivadharma, mappe-disci, supino"
+dc.subject.picochi ,pico.chi ,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti-shivadharma, mappe-disci, supino"
+dc.subject.picocosa ,pico.cosa ,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti-shivadharma, mappe-disci, supino"
+dc.subject.picoquando ,pico.quando ,"aldovrandi_manoscritti, aldrovandi-opere, ambulo, appunti-ingegneria, architettura-libro-antico, atlas-archival_material, igcyr-gvcyr, immagini_unibo, journal_file_unibo, libro-antico, manoscritti-shivadharma, mappe-disci, supino"
+dc.relation.aldrovandidocument ,unibo.relation.aldrovandidocument ,aldrovandi-opere
+dc.title.alternative_ar ,unibo.title.alternative-ar ,ambulo
+dc.title.parallel ,unibo.title.parallel ,ambulo
+dc.date.issued_hijra ,unibo.date.issued-hijra ,ambulo
+dc.subject.keywords_ar ,unibo.subject-ar ,ambulo
+dc.relation.arabicdocument ,unibo.relation.arabicdocument ,ambulo
+dc.relation.relatedDocument ,glam.relation.relatedDocument ,"Appunti-ingegneria, atlas-archival_material, libro-antico, manoscritti"
+dc.relation.ancientbook ,unibo.relation.ancientbook ,Architettura-libro-antico
+dc.subject.iconclass ,glam.subject.iconclass ,byzart
+dc.relation.relatedPicture ,unibo.relation.relatedPicture ,Igcyr-gvcyr
+dc.relation.subjectPicture ,unibo.relation.subjectPicture ,immagini_unibo
+dc.relation.Shivadharmamanuscript ,unibo.relation.Shivadharmamanuscript ,Manoscritti-shivadharma
+dc.relation.geographicmap ,unibo.relation.geographicmap ,Mappe-disci
+dc.relation.SupinoPicture ,unibo.relation.SupinoPicture ,supino
