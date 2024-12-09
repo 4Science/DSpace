@@ -2,7 +2,22 @@
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 <item-submission>
   <submission-map>
-    <name-map collection-handle="default" submission-name="archival_material" />
+    <name-map collection-handle="default" submission-name="publication" />
+    <name-map collection-handle="20.500.14008/76563" submission-name="ambulo" />
+    <name-map collection-handle="20.500.14008/55" submission-name="architettura-libro-antico" />
+    <name-map collection-handle="20.500.14008/42" submission-name="byzart" />
+    <name-map collection-handle="20.500.14008/87" submission-name="libro-antico" />
+    <name-map collection-handle="20.500.14008/78074" submission-name="journal_file_unibo" />
+    <name-map collection-handle="20.500.14008/85" submission-name="journal_file_unibo" />
+    <name-map collection-handle="20.500.14008/80973" submission-name="appunti-ingegneria" />
+    <name-map collection-handle="20.500.14008/78073" submission-name="libro-antico" />
+    <name-map collection-handle="20.500.14008/48" submission-name="igcyr-gvcyr" />
+    <name-map collection-handle="20.500.14008/78075" submission-name="libro-antico" />
+    <name-map collection-handle="20.500.14008/88" submission-name="journal_file_unibo" />
+    <name-map collection-handle="20.500.14008/78072" submission-name="journal_file_unibo" />
+    <name-map collection-handle="20.500.14008/84" submission-name="libro-antico" />
+    <name-map collection-handle="20.500.14008/76565" submission-name="aldovrandi_manoscritti" />
+    <name-map collection-handle="20.500.14008/76566" submission-name="aldrovandi-opere" />
   </submission-map>
   <step-definitions>
     <step-definition id="collection" mandatory="true">
@@ -218,6 +233,81 @@
     </step-definition>
     <step-definition id="scientific_materials" mandatory="true">
       <heading>submit.progressbar.describe.scientific_materials</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="aldovrandi_manoscritti" mandatory="true">
+      <heading>submit.progressbar.describe.aldovrandi_manoscritti</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="aldrovandi-opere" mandatory="true">
+      <heading>submit.progressbar.describe.aldrovandi-opere</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="ambulo" mandatory="true">
+      <heading>submit.progressbar.describe.ambulo</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="appunti-ingegneria" mandatory="true">
+      <heading>submit.progressbar.describe.appunti-ingegneria</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="architettura-libro-antico" mandatory="true">
+      <heading>submit.progressbar.describe.architettura-libro-antico</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="atlas-archival_material" mandatory="true">
+      <heading>submit.progressbar.describe.atlas-archival_material</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="byzart" mandatory="true">
+      <heading>submit.progressbar.describe.byzart</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="igcyr-gvcyr" mandatory="true">
+      <heading>submit.progressbar.describe.igcyr-gvcyr</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="immagini_unibo" mandatory="true">
+      <heading>submit.progressbar.describe.immagini_unibo</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="journal_file_unibo" mandatory="true">
+      <heading>submit.progressbar.describe.journal_file_unibo</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="libro-antico" mandatory="true">
+      <heading>submit.progressbar.describe.libro-antico</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="manoscritti" mandatory="true">
+      <heading>submit.progressbar.describe.manoscritti</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="manoscritti-shivadharma" mandatory="true">
+      <heading>submit.progressbar.describe.manoscritti-shivadharma</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="mappe-disci" mandatory="true">
+      <heading>submit.progressbar.describe.mappe-disci</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="supino" mandatory="true">
+      <heading>submit.progressbar.describe.supino</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
@@ -445,6 +535,156 @@
     </submission-process>
     <submission-process name="artworks-edit">
       <step id="artworks" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="aldovrandi_manoscritti">
+      <step id="collection" />
+      <step id="aldovrandi_manoscritti" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="aldovrandi_manoscritti-edit">
+      <step id="aldovrandi_manoscritti" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="aldrovandi-opere">
+      <step id="collection" />
+      <step id="aldrovandi-opere" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="aldrovandi-opere-edit">
+      <step id="aldrovandi-opere" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="ambulo">
+      <step id="collection" />
+      <step id="ambulo" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="ambulo-edit">
+      <step id="ambulo" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="appunti-ingegneria">
+      <step id="collection" />
+      <step id="appunti-ingegneria" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="appunti-ingegneria-edit">
+      <step id="appunti-ingegneria" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="architettura-libro-antico">
+      <step id="collection" />
+      <step id="architettura-libro-antico" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="architettura-libro-antico-edit">
+      <step id="architettura-libro-antico" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="atlas-archival_material">
+      <step id="collection" />
+      <step id="atlas-archival_material" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="atlas-archival_material-edit">
+      <step id="atlas-archival_material" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="byzart">
+      <step id="collection" />
+      <step id="byzart" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="byzart-edit">
+      <step id="byzart" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="igcyr-gvcyr">
+      <step id="collection" />
+      <step id="igcyr-gvcyr" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="igcyr-gvcyr-edit">
+      <step id="igcyr-gvcyr" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="immagini_unibo">
+      <step id="collection" />
+      <step id="immagini_unibo" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="immagini_unibo-edit">
+      <step id="immagini_unibo" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="journal_file_unibo">
+      <step id="collection" />
+      <step id="journal_file_unibo" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="journal_file_unibo-edit">
+      <step id="journal_file_unibo" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="libro-antico">
+      <step id="collection" />
+      <step id="libro-antico" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="libro-antico-edit">
+      <step id="libro-antico" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="manoscritti">
+      <step id="collection" />
+      <step id="manoscritti" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="manoscritti-edit">
+      <step id="manoscritti" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="manoscritti-shivadharma">
+      <step id="collection" />
+      <step id="manoscritti-shivadharma" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="manoscritti-shivadharma-edit">
+      <step id="manoscritti-shivadharma" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="mappe-disci">
+      <step id="collection" />
+      <step id="mappe-disci" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="mappe-disci-edit">
+      <step id="mappe-disci" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="supino">
+      <step id="collection" />
+      <step id="supino" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="supino-edit">
+      <step id="supino" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>
