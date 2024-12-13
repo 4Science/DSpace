@@ -64,6 +64,10 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
         this.handler = dSpaceRunnableHandler;
     }
 
+    public DSpaceRunnableHandler getHandler() {
+        return this.handler;
+    }
+
     /**
      * This method sets the appropriate DSpaceRunnableHandler depending on where it was ran from and it parses
      * the arguments given to the script

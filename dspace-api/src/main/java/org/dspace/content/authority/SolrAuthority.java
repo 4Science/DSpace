@@ -7,12 +7,15 @@
  */
 package org.dspace.content.authority;
 
+import static org.dspace.content.authority.ChoiceAuthorityServiceImpl.CHOICES_PLUGIN_PREFIX;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +32,7 @@ import org.dspace.authority.SolrAuthorityInterface;
 import org.dspace.authority.factory.AuthorityServiceFactory;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.core.NameAwarePlugin;
+import org.dspace.kernel.ServiceManager;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
@@ -39,34 +43,34 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  * @author Mark Diggory (markd at atmire dot com)
  */
 public class SolrAuthority implements ChoiceAuthority {
+
+    private static final Logger log = LogManager.getLogger(SolrAuthority.class);
+
     /** the name assigned to the specific instance by the PluginService, @see {@link NameAwarePlugin} **/
-    private String authorityName;
+    protected String authorityName;
 
     /**
      * the metadata managed by the plugin instance, derived from its authority name
      * in the form schema_element_qualifier
      */
-    private String field;
-    protected SolrAuthorityInterface source =
-        DSpaceServicesFactory.getInstance().getServiceManager()
-                             .getServiceByName("AuthoritySource", SolrAuthorityInterface.class);
+    protected String field;
 
-    private static final Logger log = LogManager.getLogger(SolrAuthority.class);
+    private SolrAuthorityInterface source = DSpaceServicesFactory.getInstance().getServiceManager()
+                                                  .getServiceByName("AuthoritySource", SolrAuthorityInterface.class);
 
-    protected final AuthorityValueService authorityValueService
-            = AuthorityServiceFactory.getInstance().getAuthorityValueService();
+    protected final AuthorityValueService authorityValueService = AuthorityServiceFactory.getInstance()
+                                                                                         .getAuthorityValueService();
 
-    protected final ConfigurationService configurationService
-            = DSpaceServicesFactory.getInstance().getConfigurationService();
+    protected final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                                     .getConfigurationService();
 
-    public Choices getMatches(String text, int start, int limit, String locale,
-                              boolean bestMatch) {
+    public Choices getMatches(String text, int start, int limit, String locale, boolean bestMatch) {
         if (limit == 0) {
             limit = 10;
         }
 
         SolrQuery queryArgs = new SolrQuery();
-        if (text == null || text.trim().equals("")) {
+        if (StringUtils.isBlank(text)) {
             queryArgs.setQuery("*:*");
         } else {
             String searchField = "value";
@@ -160,17 +164,15 @@ public class SolrAuthority implements ChoiceAuthority {
             log.error("Error while retrieving authority values {field: " + field + ", prefix:" + text + "}", e);
             result = new Choices(true);
         }
-
         return result;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     protected void addExternalResults(String text, ArrayList<Choice> choices, List<AuthorityValue> alreadyPresent,
                                       int max) {
-        if (source != null) {
+        if (Objects.nonNull(source)) {
             try {
              // max has been already adapted to consider the need to filter already found entries
-                List<AuthorityValue> values = source
-                    .queryAuthorities(text, max);
+                List<AuthorityValue> values = source.queryAuthorities(text, max);
 
                 // filtering loop
                 Iterator<AuthorityValue> iterator = values.iterator();
@@ -274,25 +276,22 @@ public class SolrAuthority implements ChoiceAuthority {
         } catch (IOException | SolrServerException e) {
             log.error("error occurred while trying to get label for key " + key, e);
         }
-
         return key;
     }
 
-
     public static AuthoritySearchService getSearchService() {
-        org.dspace.kernel.ServiceManager manager = DSpaceServicesFactory.getInstance().getServiceManager();
-
+        ServiceManager manager = DSpaceServicesFactory.getInstance().getServiceManager();
         return manager.getServiceByName(AuthoritySearchService.class.getName(), AuthoritySearchService.class);
     }
 
     @Override
     public void setPluginInstanceName(String name) {
-        authorityName = name;
-        for (Entry conf : configurationService.getProperties().entrySet()) {
-            if (StringUtils.startsWith((String) conf.getKey(), ChoiceAuthorityServiceImpl.CHOICES_PLUGIN_PREFIX)
-                    && StringUtils.equals((String) conf.getValue(), authorityName)) {
-                field = ((String) conf.getKey()).substring(ChoiceAuthorityServiceImpl.CHOICES_PLUGIN_PREFIX.length())
-                        .replace(".", "_");
+        this.authorityName = name;
+        for (Entry<?, ?> conf : configurationService.getProperties().entrySet()) {
+            var key = (String) conf.getKey();
+            var value = (String) conf.getValue();
+            if (StringUtils.startsWith(key, CHOICES_PLUGIN_PREFIX) && StringUtils.equals(value, authorityName)) {
+                this.field = key.substring(CHOICES_PLUGIN_PREFIX.length()).replace(".", "_");
                 // exit the look immediately as we have found it
                 break;
             }
@@ -301,6 +300,7 @@ public class SolrAuthority implements ChoiceAuthority {
 
     @Override
     public String getPluginInstanceName() {
-        return authorityName;
+        return this.authorityName;
     }
+
 }

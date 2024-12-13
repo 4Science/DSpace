@@ -37,7 +37,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
-import org.dspace.core.UUIDIterator;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -133,19 +132,21 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCommunity(Context context, Community community)
         throws Exception {   //only apply filters if community not in skip-list
+        // ensure that the community is attached to the current hibernate session
+        // as we are committing after each item (handles, sub-communties and
+        // collections are lazy attributes)
+        community = context.reloadEntity(community);
         if (!inSkipList(community.getHandle())) {
             List<Community> subcommunities = community.getSubcommunities();
-            List<Collection> collections = community.getCollections();
-
-            UUIDIterator<Community> communityIterator = new UUIDIterator<>(context, subcommunities, Community.class);
-            UUIDIterator<Collection> collectionIterator = new UUIDIterator<>(context, collections, Collection.class);
-
-            while (communityIterator.hasNext()) {
-                applyFiltersCommunity(context, communityIterator.next());
+            for (Community subcommunity : subcommunities) {
+                applyFiltersCommunity(context, subcommunity);
             }
-
-            while (collectionIterator.hasNext()) {
-                applyFiltersCollection(context, collectionIterator.next());
+            // ensure that the community is attached to the current hibernate session
+            // as we are committing after each item
+            community = context.reloadEntity(community);
+            List<Collection> collections = community.getCollections();
+            for (Collection collection : collections) {
+                applyFiltersCollection(context, collection);
             }
         }
     }
@@ -153,6 +154,9 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCollection(Context context, Collection collection)
         throws Exception {
+        // ensure that the collection is attached to the current hibernate session
+        // as we are committing after each item (handles are lazy attributes)
+        collection = context.reloadEntity(collection);
         //only apply filters if collection not in skip-list
         if (!inSkipList(collection.getHandle())) {
             Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);

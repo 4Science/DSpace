@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -80,13 +81,8 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
     )
     private Set<MetadataField> metadataSecurityFields = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cris_layout_box2securitygroup",
-        joinColumns = {@JoinColumn(name = "box_id")},
-        inverseJoinColumns = {@JoinColumn(name = "group_id")}
-    )
-    private Set<Group> groupSecurityFields = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CrisLayoutBox2SecurityGroup> box2SecurityGroups = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "box", cascade = CascadeType.ALL)
     @OrderBy(value = "row, cell, priority")
@@ -300,20 +296,19 @@ public class CrisLayoutBox implements ReloadableEntity<Integer> {
         this.hierarchicalVocabulary2Box = hierarchicalVocabulary2Box;
     }
 
-    public void setGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields = groupSecurityFields;
-    }
-
-    public void addGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields.addAll(groupSecurityFields);
-    }
-
-    public void addGroupSecurityFields(Group group) {
-        this.groupSecurityFields.add(group);
-    }
-
     public Set<Group> getGroupSecurityFields() {
-        return groupSecurityFields;
+        return box2SecurityGroups.stream()
+                                 .map(crisLayoutBox2SecurityGroup ->
+                                     crisLayoutBox2SecurityGroup.getGroup())
+                                 .collect(Collectors.toSet());
+    }
+
+    public Set<CrisLayoutBox2SecurityGroup> getBox2SecurityGroups() {
+        return box2SecurityGroups;
+    }
+
+    public void setBox2SecurityGroups(Set<CrisLayoutBox2SecurityGroup> box2SecurityGroups) {
+        this.box2SecurityGroups = box2SecurityGroups;
     }
 
     @Override

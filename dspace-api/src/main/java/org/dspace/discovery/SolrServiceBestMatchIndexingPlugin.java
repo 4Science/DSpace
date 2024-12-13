@@ -75,7 +75,7 @@ public class SolrServiceBestMatchIndexingPlugin implements SolrServiceIndexPlugi
         String lastName = getMetadataValue(item, LASTNAME_FIELD);
         List<String> fullNames = getMetadataValues(item, FULLNAME_FIELDS);
 
-        getAllNameVariants(firstName, lastName, fullNames)
+        getAllNameVariants(firstName, lastName, fullNames, item.getID().toString())
             .forEach(variant -> addIndexValue(document, variant));
     }
 

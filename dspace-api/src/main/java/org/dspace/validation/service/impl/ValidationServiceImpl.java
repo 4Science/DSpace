@@ -55,7 +55,8 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj) {
 
-        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByInProgressSubmission(obj);
+        SubmissionConfig submissionConfig = submissionConfigReader
+                .getSubmissionConfigByInProgressSubmission(obj, context);
 
         List<ValidationError> errors = new ArrayList<ValidationError>();
 

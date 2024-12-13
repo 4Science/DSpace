@@ -407,6 +407,8 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 .content(mapper.writeValueAsBytes(viewEventRest))
                 .contentType(contentType))
                 .andExpect(status().isCreated());
+
+        Thread.sleep(1000);
     }
 
     @Test

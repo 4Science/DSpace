@@ -44,7 +44,7 @@
     <!-- -->
     <step-definitions>
         <!-- The "collection" step is a "special step" which is *REQUIRED* -->
-        <!-- In DSpace, all submitted items must be immediately assigned --> 
+        <!-- In DSpace, all submitted items must be immediately assigned -->
         <!-- to a collection. This step ensures that a collection is always selected. -->
         <step-definition id="collection">
             <heading></heading>
@@ -106,14 +106,14 @@
             <scope visibilityOutside="read-only">submission</scope>
         </step-definition>
 
-        <!-- Step Upload Item with Embargo Features to enable this step, please 
+        <!-- Step Upload Item with Embargo Features to enable this step, please
             make sure to comment-out the previous step "UploadStep" <step-definition id="upload-with-embargo">
-            <heading>submit.progressbar.upload</heading> <processing-class>org.dspace.submit.step.UploadWithEmbargoStep</processing-class> 
+            <heading>submit.progressbar.upload</heading> <processing-class>org.dspace.submit.step.UploadWithEmbargoStep</processing-class>
             <type>uploadWithEmbargo</type> </step-definition> -->
 
 
         <!--Step will be to select a Creative Commons License -->
-        <!-- Uncomment this step to allow the user to select a Creative Commons 
+        <!-- Uncomment this step to allow the user to select a Creative Commons
             license -->
          <step-definition id="cclicense"> <heading>submit.progressbar.CClicense</heading>
             <processing-class>org.dspace.app.rest.submit.step.CCLicenseStep</processing-class>
@@ -121,7 +121,7 @@
 
         <!--Step will be to Check for potential duplicate -->
         <!-- <step-definition id="detect-duplicate"> <heading>submit.progressbar.detect.duplicate</heading>
-            <processing-class>org.dspace.submit.step.DetectPotentialDuplicate</processing-class> 
+            <processing-class>org.dspace.submit.step.DetectPotentialDuplicate</processing-class>
             <type>duplicate</type> </step-definition> -->
 
         <!--Step will be to Verify/Review everything -->
@@ -130,9 +130,9 @@
 
         <!-- Fake Steps to test parsing of all options -->
         <!-- <step-definition mandatory="false"> <heading>fake.submission.readonly</heading>
-            <processing-class>org.dspace.submit.step.SampleStep</processing-class> <type>sample</type> 
+            <processing-class>org.dspace.submit.step.SampleStep</processing-class> <type>sample</type>
             <scope visibility="read-only">submission</scope> </step-definition> <step-definition mandatory="false">
-            <heading>fake.workflow.readonly</heading> <processing-class>org.dspace.submit.step.SampleStep</processing-class> 
+            <heading>fake.workflow.readonly</heading> <processing-class>org.dspace.submit.step.SampleStep</processing-class>
             <type>sample</type> <scope visibility="read-only">workflow</scope> </step-definition> -->
 
         <!-- OpenAIRE submission steps/forms -->
@@ -297,6 +297,7 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="unpaywall"/>
+            <step id="upload"/>
         </submission-process>
     </submission-definitions>
 

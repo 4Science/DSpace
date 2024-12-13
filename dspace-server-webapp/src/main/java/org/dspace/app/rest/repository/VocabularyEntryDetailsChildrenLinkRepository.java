@@ -72,7 +72,7 @@ public class VocabularyEntryDetailsChildrenLinkRepository extends AbstractDSpace
                     pageable.getPageSize(), context.getCurrentLocale().toString());
             for (Choice value : choices.values) {
                 results.add(authorityUtils.convertEntryDetails(fix, value, vocabularyName, authority.isHierarchical(),
-                        utils.obtainProjection()));
+                        authority.storeAuthorityInMetadata(), utils.obtainProjection()));
             }
             Page<VocabularyEntryDetailsRest> resources = new PageImpl<VocabularyEntryDetailsRest>(results, pageable,
                     choices.total);

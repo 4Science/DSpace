@@ -58,6 +58,9 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +97,9 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     @Autowired
     private MetadataSecurityService metadataSecurityService;
 
+    @Autowired
+    private GroupService groupService;
+
     private Converter<String, String> converter;
 
     private Consumer<List<String>> linesPostProcessor;
@@ -116,6 +122,8 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     private CrosswalkMode crosswalkMode;
 
+    private List<String> allowedGroups;
+
     @PostConstruct
     private void postConstruct() throws IOException {
         String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
@@ -129,11 +137,30 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     }
 
     @Override
+    public boolean isAuthorized(Context context) {
+        if (CollectionUtils.isEmpty(allowedGroups)) {
+            return true;
+        }
+
+        EPerson ePerson = context.getCurrentUser();
+        if (ePerson == null) {
+            return allowedGroups.contains(Group.ANONYMOUS);
+        }
+
+        return allowedGroups.stream()
+            .anyMatch(groupName -> isMemberOfGroupNamed(context, ePerson, groupName));
+    }
+
+    @Override
     public void disseminate(Context context, DSpaceObject dso, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException {
 
         if (!canDisseminate(context, dso)) {
             throw new CrosswalkObjectNotSupported("Can only crosswalk an Item with the configured type: " + entityType);
+        }
+
+        if (!isAuthorized(context)) {
+            throw new AuthorizeException("The current user is not allowed to perform a zip item export");
         }
 
         List<String> lines = getItemLines(context, dso, true);
@@ -152,6 +179,10 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
         if (CollectionUtils.isEmpty(multipleItemsTemplateLines)) {
             throw new UnsupportedOperationException("No template defined for multiple items");
+        }
+
+        if (!isAuthorized(context)) {
+            throw new AuthorizeException("The current user is not allowed to perform a zip item export");
         }
 
         List<String> lines = new ArrayList<String>();
@@ -466,6 +497,15 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return Objects.equals(itemEntityType, entityType);
     }
 
+    private boolean isMemberOfGroupNamed(Context context, EPerson ePerson, String groupName) {
+        try {
+            Group group = groupService.findByName(context, groupName);
+            return groupService.isMember(context, ePerson, group);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void setConverter(Converter<String, String> converter) {
         this.converter = converter;
     }
@@ -523,6 +563,14 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     public void setPubliclyReadable(boolean isPubliclyReadable) {
         this.publiclyReadable = isPubliclyReadable;
+    }
+
+    public List<String> getAllowedGroups() {
+        return allowedGroups;
+    }
+
+    public void setAllowedGroups(List<String> allowedGroups) {
+        this.allowedGroups = allowedGroups;
     }
 
 }

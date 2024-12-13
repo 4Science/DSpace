@@ -117,6 +117,12 @@
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
+    <bean id="imageRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="image"/>
+        <property name="fieldType" value="BITSTREAM"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
     <bean id="valuepairRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="valuepair"/>
         <property name="fieldType" value="METADATA"/>
@@ -126,9 +132,27 @@
 
     <bean id="valuePairSupplier" class="org.dspace.layout.script.supplier.ValuePairSupplier"/>
 
-    <bean id="mapRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
-        <property name="name" value="map"/>
+    <bean id="googleMapsRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="googlemaps"/>
         <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="openStreetMapRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="openstreetmap"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="googleMapsGroupRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="googlemaps-group"/>
+        <property name="fieldType" value="METADATAGROUP"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="openStreetMapGroupRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="openstreetmap-group"/>
+        <property name="fieldType" value="METADATAGROUP"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 

@@ -28,7 +28,6 @@ import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.UUIDIterator;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
@@ -464,10 +463,10 @@ public class Curator {
 
             //Then, perform this task for all Top-Level Communities in the Site
             // (this will recursively perform task for all objects in DSpace)
-            Iterator<Community> iterator = new UUIDIterator<Community>(ctx, communityService.findAllTop(ctx),
-                Community.class);
-            while (iterator.hasNext()) {
-                if (!doCommunity(tr, iterator.next())) {
+            for (Community subcomm : communityService.findAllTop(ctx)) {
+                // force a reload of the community in case a commit was performed
+                subcomm = ctx.reloadEntity(subcomm);
+                if (!doCommunity(tr, subcomm)) {
                     return false;
                 }
             }
@@ -488,27 +487,26 @@ public class Curator {
      * @throws SQLException
      */
     protected boolean doCommunity(TaskRunner tr, Community comm) throws IOException, SQLException {
-        UUIDIterator<Community> subComIter = new UUIDIterator<Community>(curationContext(), comm.getSubcommunities(),
-            Community.class);
-        UUIDIterator<Collection> collectionsIter = new UUIDIterator<Collection>(curationContext(),
-            comm.getCollections(),
-            Collection.class);
-
         if (!tr.run(comm)) {
             return false;
         }
-
-        while (subComIter.hasNext()) {
-            if (!doCommunity(tr, subComIter.next())) {
+        Context context = curationContext();
+        // force a reload in case we are committing after each object
+        comm = context.reloadEntity(comm);
+        for (Community subcomm : comm.getSubcommunities()) {
+            if (!doCommunity(tr, subcomm)) {
                 return false;
             }
         }
-
-        while (collectionsIter.hasNext()) {
-            if (!doCollection(tr, collectionsIter.next())) {
+        // force a reload in case we are committing after each object
+        comm = context.reloadEntity(comm);
+        for (Collection coll : comm.getCollections()) {
+            context.reloadEntity(coll);
+            if (!doCollection(tr, coll)) {
                 return false;
             }
         }
+        context.uncacheEntity(comm);
         return true;
     }
 
@@ -535,6 +533,7 @@ public class Curator {
                     return false;
                 }
             }
+            context.uncacheEntity(coll);
         } catch (SQLException sqlE) {
             throw new IOException(sqlE.getMessage(), sqlE);
         }

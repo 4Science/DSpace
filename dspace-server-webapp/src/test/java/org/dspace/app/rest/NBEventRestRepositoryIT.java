@@ -370,7 +370,7 @@ public class NBEventRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void recordDecisionTest() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();

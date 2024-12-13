@@ -12,6 +12,7 @@ import static java.lang.Boolean.TRUE;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
+import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;
 import org.dspace.app.rest.submit.AbstractProcessingStep;
@@ -27,13 +28,18 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.service.UnpaywallService;
 import org.dspace.web.ContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unpaywall submission step.
  */
 public class UnpaywallStep extends AbstractProcessingStep {
 
+    private final Logger logger = LoggerFactory.getLogger(UnpaywallStep.class);
+
     private final static String REFRESH_OPERATION = "refresh";
+    private final static String ACCEPT_OPERATION = "accept";
 
     private final UnpaywallService unpaywallService = ContentServiceFactory.getInstance().getUnpaywallService();
 
@@ -64,13 +70,25 @@ public class UnpaywallStep extends AbstractProcessingStep {
             Operation operation,
             SubmissionStepConfig stepConf
     ) throws Exception {
-        getDoiValue(source.getItem()).ifPresent(doi -> {
-            if (isRefreshRequired(operation)) {
-                unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
-            } else {
-                unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
-            }
-        });
+        if (operation.getPath().contains(ACCEPT_OPERATION) && TRUE.equals(operation.getValue())) {
+            getDoiValue(source.getItem())
+                .flatMap(doi -> this.unpaywallService.findUnpaywall(context, doi, source.getItem().getID()))
+                .ifPresentOrElse(
+                    unpaywall -> this.unpaywallService.downloadResource(context, unpaywall, source.getItem()),
+                    () -> new UnprocessableEntityException(
+                        "Cannot find any unpaywall related to item: " + source.getItem().getID()
+                    )
+                );
+        } else if (operation.getPath().contains(REFRESH_OPERATION)) {
+            getDoiValue(source.getItem())
+                .ifPresent(doi -> {
+                    if (isRefreshRequired(operation)) {
+                        unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
+                    } else {
+                        unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
+                    }
+                });
+        }
     }
 
     private static boolean isRefreshRequired(Operation operation) {

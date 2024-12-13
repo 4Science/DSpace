@@ -58,7 +58,7 @@ public class MetadataValueDAOImpl extends AbstractHibernateDAO<MetadataValue> im
         Query query = createQuery(context, queryString);
         query.setParameter("metadata_field_id", metadataField.getID());
         query.setParameter("text_value", value);
-        return iterate(context, query, MetadataValue.class);
+        return iterate(query);
     }
 
     @Override
@@ -69,7 +69,11 @@ public class MetadataValueDAOImpl extends AbstractHibernateDAO<MetadataValue> im
         Query query = createQuery(context, queryString);
         query.setParameter("searchString", value);
 
-        return iterate(context, query, MetadataValue.class);
+        return iterate(query);
+    }
+
+    public List<MetadataValue> findAllHavingAuthority(Context context) throws SQLException {
+        return list(createQuery(context, "SELECT m FROM MetadataValue m WHERE m.authority IS NOT NULL"));
     }
 
     @Override

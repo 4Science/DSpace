@@ -348,10 +348,6 @@ public class DSpaceMAGIngester extends AbstractPackageIngester {
                 "glam", "relation", "ispartof");
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:relation",
                 "glam", "relation", "references");
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:xsamplingfrequency",
-                "mix", "xsamplingfrequency", null);
-        addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:img/mag:image_metrics/niso:ysamplingfrequency",
-                "mix", "ysamplingfrequency", null);
         addMetadataByXPath(context, item, manifest, "/mag:metadigit/mag:bib/dc:identifier",
                 "dc", "identifier", "other");
         addTitleMetadata(context, item, manifest);

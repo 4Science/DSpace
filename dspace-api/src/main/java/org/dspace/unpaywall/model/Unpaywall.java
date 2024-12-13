@@ -61,6 +61,9 @@ public class Unpaywall implements ReloadableEntity<Integer> {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestampLastModified;
 
+    @Column(name = "pdf_url")
+    private String pdfUrl;
+
     @Override
     public Integer getID() {
         return id;
@@ -116,5 +119,13 @@ public class Unpaywall implements ReloadableEntity<Integer> {
 
     public void setStatus(UnpaywallStatus status) {
         this.status = status;
+    }
+
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
     }
 }

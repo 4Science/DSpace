@@ -31,12 +31,14 @@ public class CrisLayoutTabAccessServiceImpl implements CrisLayoutTabAccessServic
     }
 
     @Override
-    public boolean hasAccess(Context context, EPerson user, CrisLayoutTab tab, Item item) throws SQLException {
-        return layoutSecurityService.hasAccess(LayoutSecurity.valueOf(tab.getSecurity()),
-                                               context,
-                                               user,
-                                               tab.getMetadataSecurityFields(),
-                                               tab.getGroupSecurityFields(),
-                                               item);
+    public boolean hasAccess(Context context, EPerson user, CrisLayoutTab tab, Item item) {
+        try {
+            return layoutSecurityService.hasAccess(
+                LayoutSecurity.valueOf(tab.getSecurity()), context, user, tab.getMetadataSecurityFields(),
+                tab.getGroupSecurityFields(), item
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

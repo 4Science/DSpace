@@ -7,8 +7,12 @@
  */
 package org.dspace.administer;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
@@ -30,6 +34,8 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Context;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -61,10 +67,18 @@ import org.xml.sax.SAXException;
  * }
  */
 public class MetadataImporter {
+    public static final String BASE = DSpaceServicesFactory.getInstance()
+            .getConfigurationService().getProperty("dspace.dir") + File.separator + "config" + File.separator
+            + "registries" + File.separator;
+    public static final String REGISTRY_METADATA_PROPERTY = "registry.metadata.load";
+    public static final String REGISTRY_BITSTREAM_FORMAT_PROPERTY = "registry.bitstream-formats.load";
+
     protected static MetadataSchemaService metadataSchemaService = ContentServiceFactory.getInstance()
                                                                                         .getMetadataSchemaService();
     protected static MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance()
                                                                                       .getMetadataFieldService();
+    protected static ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+            .getConfigurationService();
 
     /**
      * logging category
@@ -100,16 +114,33 @@ public class MetadataImporter {
         Options options = new Options();
         options.addOption("f", "file", true, "source xml file for DC fields");
         options.addOption("u", "update", false, "update an existing schema");
+        options.addOption("h", "help", false, "help message");
         CommandLine line = parser.parse(options, args);
 
-        if (line.hasOption('f')) {
+        if (line.hasOption('h')) {
+            usage();
+            System.exit(1);
+        } else if (line.hasOption('f')) {
             String file = line.getOptionValue('f');
             boolean forceUpdate = line.hasOption('u');
             loadRegistry(file, forceUpdate);
         } else {
-            usage();
-            System.exit(1);
+            boolean forceUpdate = line.hasOption('u');
+            for (String file : getAllRegistryFiles(REGISTRY_METADATA_PROPERTY)) {
+                loadRegistry(file, forceUpdate);
+            }
         }
+    }
+
+    /**
+     * Load all registry file names from config
+     *
+     * @param propertyName name of the property that used in config
+     * @return list of all registry files
+     */
+    public static List<String> getAllRegistryFiles(String propertyName) {
+        List<String> files = Arrays.asList(configurationService.getArrayProperty(propertyName));
+        return files.stream().map(file -> BASE + file).collect(Collectors.toList());
     }
 
     /**
@@ -285,7 +316,10 @@ public class MetadataImporter {
     public static void usage() {
         String usage = "Use this class with the following option:\n" +
             " -f <xml source file> : specify which xml source file " +
-            "contains the DC fields to import.\n";
+            "contains the DC fields to import.\n" +
+            "If you use the script without the -f parameter, then all" +
+            " registries will be loaded from the config/registries folder\n";
+
         System.out.println(usage);
     }
 }

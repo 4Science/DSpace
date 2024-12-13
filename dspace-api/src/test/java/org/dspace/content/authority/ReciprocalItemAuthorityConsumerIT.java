@@ -45,21 +45,27 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
-    private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
-            .getConfigurationService();
-
-    private final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory.getInstance()
-            .getMetadataAuthorityService();
-
-    private final EventService eventService = EventServiceFactory.getInstance().getEventService();
-
     private MockSolrSearchCore searchService;
+
+    private ConfigurationService configurationService;
+
+    private MetadataAuthorityService metadataAuthorityService;
+
+    private EventService eventService;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         context.turnOffAuthorisationSystem();
+
+        ServiceManager serviceManager = DSpaceServicesFactory.getInstance().getServiceManager();
+        searchService = serviceManager.getServiceByName(null, MockSolrSearchCore.class);
+        configurationService = DSpaceServicesFactory.getInstance()
+                .getConfigurationService();
+        metadataAuthorityService = ContentAuthorityServiceFactory.getInstance()
+                .getMetadataAuthorityService();
+        eventService = EventServiceFactory.getInstance().getEventService();
 
         configurationService.setProperty("ItemAuthority.reciprocalMetadata.Publication.dc.relation.product",
                 "dc.relation.publication");
@@ -68,9 +74,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
         metadataAuthorityService.clearCache();
 
         initializeReciprocalConfiguration();
-
-        ServiceManager serviceManager = DSpaceServicesFactory.getInstance().getServiceManager();
-        searchService = serviceManager.getServiceByName(null, MockSolrSearchCore.class);
 
         parentCommunity = CommunityBuilder.createCommunity(context)
                 .withName("Parent Community")
@@ -82,7 +85,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
         try {
             configurationService.setProperty("authority.controlled.dc.relation.product", "true");
             metadataAuthorityService.clearCache();
-
             String productTitle = "productTitle";
             Collection productItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
                     .withEntityType("product")
@@ -127,7 +129,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             List<String> publicationAuthorities = (List<String>) solrDoc.get("dc.relation.publication_authority");
             Assert.assertEquals(1, publicationAuthorities.size());
             Assert.assertEquals(publicationItem.getID().toString(), publicationAuthorities.get(0));
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
@@ -139,7 +140,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
         try {
             configurationService.setProperty("authority.controlled.dc.relation.product", "true");
             metadataAuthorityService.clearCache();
-
             String publicationTitle = "publicationTitle";
             Collection publicationItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
                     .withEntityType("publication")
@@ -184,7 +184,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             List<String> productAuthorities = (List<String>) solrDoc.get("dc.relation.product_authority");
             Assert.assertEquals(1, productAuthorities.size());
             Assert.assertEquals(productItem.getID().toString(), productAuthorities.get(0));
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
@@ -238,7 +237,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
             Item foundProductItem = itemService.findByIdOrLegacyId(new Context(), productItem.getID().toString());
             Assert.assertEquals(productItem.getID(), foundProductItem.getID());
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
@@ -276,7 +274,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
             Item foundProductItem = itemService.findByIdOrLegacyId(new Context(), productItem.getID().toString());
             Assert.assertEquals(productItem.getID(), foundProductItem.getID());
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
@@ -288,7 +285,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
         try {
             configurationService.setProperty("authority.controlled.dc.relation.product", "true");
             metadataAuthorityService.clearCache();
-
             String publicationTitle = "publicationTitle";
             Collection publicatoinItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
                     .withEntityType("publication")
@@ -329,7 +325,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
             Item foundProductItem = itemService.findByIdOrLegacyId(new Context(), productItem.getID().toString());
             Assert.assertEquals(productItem.getID(), foundProductItem.getID());
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
@@ -369,29 +364,27 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
             Item foundProductItem = itemService.findByIdOrLegacyId(new Context(), productItem.getID().toString());
             Assert.assertEquals(productItem.getID(), foundProductItem.getID());
-
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
             metadataAuthorityService.clearCache();
         }
     }
 
-    private void initializeReciprocalConfiguration() throws Exception {
-        Dispatcher dispatcher = eventService.getDispatcher("default");
-        Object object = dispatcher.getConsumers();
-        if (object instanceof Map) {
-            Map<String, ConsumerProfile> consumers = (LinkedHashMap<String, ConsumerProfile>)dispatcher.getConsumers();
-
-            ConsumerProfile consumerProfile = consumers.get("reciprocal");
-            consumerProfile.getConsumer().initialize();
-        }
-    }
-
-    public SolrDocumentList getSolrDocumentList(Item item) throws Exception {
+    private SolrDocumentList getSolrDocumentList(Item item) throws Exception {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("search.resourceid:" + item.getID());
         QueryResponse queryResponse = searchService.getSolr().query(solrQuery);
         return queryResponse.getResults();
     }
 
+    private void initializeReciprocalConfiguration() throws Exception {
+        Dispatcher dispatcher = eventService.getDispatcher("default");
+        Object object = dispatcher.getConsumers();
+        if (object instanceof Map) {
+            Map<String, ConsumerProfile> consumers = (LinkedHashMap<String, ConsumerProfile>) dispatcher.getConsumers();
+
+            ConsumerProfile consumerProfile = consumers.get("reciprocal");
+            consumerProfile.getConsumer().initialize();
+        }
+    }
 }

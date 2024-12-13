@@ -32,6 +32,5 @@ public interface CrisLayoutTabAccessService {
      * @return true if access has to be granded, false otherwise
      * @throws SQLException in case of error during database access
      */
-    boolean hasAccess(Context context, EPerson user, CrisLayoutTab tab, Item item)
-        throws SQLException;
+    boolean hasAccess(Context context, EPerson user, CrisLayoutTab tab, Item item);
 }

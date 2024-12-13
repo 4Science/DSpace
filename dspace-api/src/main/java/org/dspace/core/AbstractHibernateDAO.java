@@ -26,6 +26,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
+import com.google.common.collect.AbstractIterator;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 
@@ -341,14 +342,22 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
      * @param query
      *         The query for which an Iterator will be made
      * @return The Iterator for the results of this query
-     * @throws SQLException
      */
-    public Iterator<T> iterate(Context ctx, Query query, Class<?> entityType) throws SQLException {
+    public Iterator<T> iterate(Query query) {
         @SuppressWarnings("unchecked")
         org.hibernate.query.Query hquery = query.unwrap(org.hibernate.query.Query.class);
         Stream<T> stream = hquery.stream();
         Iterator<T> iter = stream.iterator();
-        return new UUIDIterator<T>(ctx, iter, entityType);
+        return new AbstractIterator<T> () {
+            @Override
+            protected T computeNext() {
+                return iter.hasNext() ? iter.next() : endOfData();
+            }
+            @Override
+            public void finalize() {
+                stream.close();
+            }
+        };
     }
 
     /**

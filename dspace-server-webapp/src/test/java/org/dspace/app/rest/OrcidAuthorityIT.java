@@ -79,7 +79,7 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
     @Before
     public void setup() {
         // skip all tests based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 

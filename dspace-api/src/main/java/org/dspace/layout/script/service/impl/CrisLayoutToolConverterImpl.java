@@ -33,14 +33,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.content.MetadataField;
-import org.dspace.eperson.Group;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBox2SecurityGroup;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.CrisLayoutFieldBitstream;
 import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.CrisLayoutTab2SecurityGroup;
 import org.dspace.layout.CrisMetadataGroup;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.script.service.CrisLayoutToolConverter;
@@ -267,9 +268,9 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
                 buildTabPolicyMetadataSecurityFieldRow(sheet, tab, metadataField)
             );
 
-        tab.getGroupSecurityFields()
-            .forEach(group ->
-                buildTabPolicyGroupSecurityFieldRow(sheet, tab, group)
+        tab.getTab2SecurityGroups()
+            .forEach(tab2SecurityGroup ->
+                buildTabPolicyGroupSecurityFieldRow(sheet, tab, tab2SecurityGroup)
             );
     }
 
@@ -279,14 +280,18 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         createCell(row, 1, tab.getShortName());
         createCell(row, 2, metadataField.toString('.'));
         createCell(row, 3, "");
+        createCell(row, 4, "");
     }
 
-    private void buildTabPolicyGroupSecurityFieldRow(Sheet sheet, CrisLayoutTab tab, Group group) {
+    private void buildTabPolicyGroupSecurityFieldRow(Sheet sheet, CrisLayoutTab tab,
+                                                     CrisLayoutTab2SecurityGroup tab2SecurityGroup) {
+        CrisLayoutTab alternativeTab = tab2SecurityGroup.getAlternativeTab();
         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
         createCell(row, 0, tab.getEntity().getLabel());
         createCell(row, 1, tab.getShortName());
         createCell(row, 2, "");
-        createCell(row, 3, group.getName());
+        createCell(row, 3, tab2SecurityGroup.getGroup().getName());
+        createCell(row, 4, alternativeTab == null ? "" : alternativeTab.getShortName());
     }
 
     private void buildBoxPolicy(Workbook workbook, List<CrisLayoutBox> boxes) {
@@ -297,9 +302,9 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
                     buildBoxPolicyMetadataSecurityFieldRow(sheet, box, metadataField)
                 );
 
-            box.getGroupSecurityFields()
-                .forEach(group ->
-                    buildBoxPolicyGroupSecurityFieldRow(sheet, box, group)
+            box.getBox2SecurityGroups()
+                .forEach(box2SecurityGroup ->
+                    buildBoxPolicyGroupSecurityFieldRow(sheet, box, box2SecurityGroup)
                 );
         });
     }
@@ -310,14 +315,19 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         createCell(row, 1, box.getShortname());
         createCell(row, 2, metadataField.toString('.'));
         createCell(row, 3, "");
+        createCell(row, 4, "");
     }
 
-    private void buildBoxPolicyGroupSecurityFieldRow(Sheet sheet, CrisLayoutBox box, Group group) {
+    private void buildBoxPolicyGroupSecurityFieldRow(Sheet sheet, CrisLayoutBox box,
+                                                     CrisLayoutBox2SecurityGroup box2SecurityGroup) {
+
+        CrisLayoutBox alternativeBox = box2SecurityGroup.getAlternativeBox();
         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
         createCell(row, 0, box.getCell().getRow().getTab().getEntity().getLabel());
         createCell(row, 1, box.getShortname());
         createCell(row, 2, "");
-        createCell(row, 3, group.getName());
+        createCell(row, 3, box2SecurityGroup.getGroup().getName());
+        createCell(row, 4, alternativeBox == null ? "" : alternativeBox.getShortname());
     }
 
     private String convertToString(boolean value) {

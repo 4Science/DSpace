@@ -152,6 +152,13 @@
     <dc-type>
         <schema>cris</schema>
         <element>virtual</element>
+        <qualifier>orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
         <qualifier>author-orcid</qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -173,6 +180,13 @@
     <dc-type>
         <schema>cris</schema>
         <element>virtualsource</element>
+        <qualifier>orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
         <qualifier>author-orcid</qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -181,6 +195,13 @@
         <schema>cris</schema>
         <element>virtualsource</element>
         <qualifier>editor-orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>privacy</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
@@ -320,6 +341,62 @@
         <schema>cris</schema>
         <element>entity</element>
         <qualifier>style</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootJournalFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootJournalFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeJournalFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeJournalFondsRoot</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

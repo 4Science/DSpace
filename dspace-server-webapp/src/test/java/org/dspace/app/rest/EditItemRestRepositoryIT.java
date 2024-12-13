@@ -1951,6 +1951,125 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
             .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
     }
 
+    @Test
+    public void testPatchWithValidationErrors3213() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Funding")
+                .withSubmissionDefinition("modeA")
+                .withName("Collection 1")
+                .build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .withEntityType("OrgUnit")
+                .withSubmissionDefinition("orgunit")
+                .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+                .withTitle("Title item")
+                .withIssueDate("2015-06-25")
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+
+        Item orgUnit = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit")
+                .withIssueDate("1957")
+                .grantLicense()
+                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> funderValues = new ArrayList<>();
+        Map<String, String> funderValuesMap = new HashMap<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        funderValuesMap.put("value", "OrgUnit");
+        funderValuesMap.put("authority", orgUnit.getID().toString());
+        funderValues.add(funderValuesMap);
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.funder", funderValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].value",
+                        is("OrgUnit")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].authority",
+                        is(orgUnit.getID().toString())))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));
+    }
+
+    @Test
+    public void testPatchWithValidationErrors32() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Funding")
+                .withSubmissionDefinition("modeA")
+                .withName("Collection 1")
+                .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+                .withIssueDate("2015-06-25")
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
+                .andExpect(jsonPath("$.[0].paths[0]", is("/sections/funding/dc.title")));
+    }
+
     private Bitstream getBitstream(Item item, String name) throws SQLException {
         return bitstreamService.getBitstreamByName(item, "ORIGINAL", name);
     }

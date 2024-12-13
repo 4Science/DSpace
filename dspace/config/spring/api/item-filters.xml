@@ -408,4 +408,57 @@
         </property>
     </bean>
 
+    <!-- The following is an example on how to configure a collection filter used to check if item belong to the given
+         collection(s). This could be used for example while configuring the edititem modes to set a specific mode
+         whether the item belong to a specific collection
+     -->
+<!--    <bean id="in-collection_condition" class="org.dspace.content.logic.InCollectionFilter">
+        <property name="parameters">
+            <map>
+                <entry key="collections">
+                    <list>
+                        <value>collection-handle</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>-->
+
+    <bean id="root-fond-filter" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement">
+            <bean class="org.dspace.content.logic.operator.Not">
+                <property name="statements">
+                    <ref bean="has-parent-fond_condition"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="has-parent-fond_condition"
+          class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
+        <property name="parameters">
+            <map>
+                <entry key="field" value="glamfonds.parent" />
+                <entry key="pattern" value=".*" />
+            </map>
+        </property>
+    </bean>
+
+    <bean id="root-journalfond-filter" class="org.dspace.content.logic.DefaultFilter">
+        <property name="statement">
+            <bean class="org.dspace.content.logic.operator.Not">
+                <property name="statements">
+                    <ref bean="has-parent-journalfond_condition"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="has-parent-journalfond_condition"
+          class="org.dspace.content.logic.condition.MetadataValueMatchCondition">
+        <property name="parameters">
+            <map>
+                <entry key="field" value="glamjournalfonds.parent" />
+                <entry key="pattern" value=".*" />
+            </map>
+        </property>
+    </bean>
 </beans>

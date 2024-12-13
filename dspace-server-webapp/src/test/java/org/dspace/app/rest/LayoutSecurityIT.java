@@ -53,6 +53,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBox2SecurityGroup;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.hamcrest.Matchers;
@@ -491,14 +492,20 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
             .build();
 
         // Create Group with member userA
-        Set<Group> groups = new HashSet<>();
+        Set<CrisLayoutBox2SecurityGroup> box2SecurityGroups = new HashSet<>();
         Group testGroup = GroupBuilder.createGroup(context)
                 .withName("testGroup")
                 .addMember(userA)
                 .build();
 
-        groups.add(testGroup);
-        box1.setGroupSecurityFields(groups);
+        new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
+            box1, testGroup, null);
+
+        box2SecurityGroups.add(new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
+            box1, testGroup, null));
+        box1.setBox2SecurityGroups(box2SecurityGroups);
 
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
             .withLabel("LABEL ABS")
@@ -577,7 +584,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
             .build();
 
         // Create Group with member userA
-        Set<Group> boxGroups = new HashSet<>();
+        Set<CrisLayoutBox2SecurityGroup> boxGroups = new HashSet<>();
 
         Group testGroup = GroupBuilder.createGroup(context)
             .withName("testGroup")
@@ -589,9 +596,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
             .addMember(userB)
             .build();
 
-        boxGroups.add(testGroup);
-        boxGroups.add(testGroup1);
-        box1.setGroupSecurityFields(boxGroups);
+        boxGroups.add(new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
+            box1, testGroup, null));
+        boxGroups.add(new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup1),
+            box1, testGroup, null));
+
+        box1.setBox2SecurityGroups(boxGroups);
 
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
             .withLabel("LABEL ABS")

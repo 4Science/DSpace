@@ -29,6 +29,7 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.core.AbstractHibernateDSODAO;
 import org.dspace.core.Context;
+import org.dspace.core.UUIDIterator;
 import org.dspace.eperson.EPerson;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
@@ -56,28 +57,34 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
 
     @Override
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException {
-        Query query = createQuery(context, "FROM Item WHERE inArchive=:in_archive ORDER BY id");
+        Query query = createQuery(context, "SELECT i.id FROM Item i WHERE inArchive=:in_archive ORDER BY id");
         query.setParameter("in_archive", archived);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findAll(Context context, boolean archived, int limit, int offset) throws SQLException {
-        Query query = createQuery(context, "FROM Item WHERE inArchive=:in_archive ORDER BY id");
+        Query query = createQuery(context, "SELECT i.id FROM Item i WHERE inArchive=:in_archive ORDER BY id");
         query.setParameter("in_archive", archived);
         query.setFirstResult(offset);
         query.setMaxResults(limit);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
 
     @Override
     public Iterator<Item> findAll(Context context, boolean archived, boolean withdrawn) throws SQLException {
         Query query = createQuery(context,
-                "FROM Item WHERE inArchive=:in_archive or withdrawn=:withdrawn ORDER BY id");
+                "SELECT i.id FROM Item i WHERE inArchive=:in_archive or withdrawn=:withdrawn ORDER BY id");
         query.setParameter("in_archive", archived);
         query.setParameter("withdrawn", withdrawn);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
@@ -86,12 +93,14 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         //       It does not include workspace, workflow or template items.
         Query query = createQuery(
             context,
-            "SELECT i FROM Item as i " +
+            "SELECT i.id FROM Item as i " +
             "LEFT JOIN Version as v ON i = v.item " +
             "WHERE i.inArchive=true or i.withdrawn=true or (i.inArchive=false and v.id IS NOT NULL) " +
             "ORDER BY i.id"
         );
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
@@ -99,7 +108,7 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
                                   boolean withdrawn, boolean discoverable, Date lastModified)
         throws SQLException {
         StringBuilder queryStr = new StringBuilder();
-        queryStr.append("SELECT i FROM Item i");
+        queryStr.append("SELECT i.id FROM Item i");
         queryStr.append(" WHERE (inArchive = :in_archive OR withdrawn = :withdrawn)");
         queryStr.append(" AND discoverable = :discoverable");
 
@@ -115,16 +124,20 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (lastModified != null) {
             query.setParameter("last_modified", lastModified, TemporalType.TIMESTAMP);
         }
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException {
         Query query = createQuery(context,
-                "FROM Item WHERE inArchive=:in_archive and submitter=:submitter ORDER BY id");
+                "SELECT i.id FROM Item i WHERE inArchive=:in_archive and submitter=:submitter ORDER BY id");
         query.setParameter("in_archive", true);
         query.setParameter("submitter", eperson);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
@@ -133,16 +146,18 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (!retrieveAllItems) {
             return findBySubmitter(context, eperson);
         }
-        Query query = createQuery(context, "FROM Item WHERE submitter=:submitter ORDER BY id");
+        Query query = createQuery(context, "SELECT i.id FROM Item i WHERE submitter=:submitter ORDER BY id");
         query.setParameter("submitter", eperson);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson, MetadataField metadataField, int limit)
         throws SQLException {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT item FROM Item as item ");
+        query.append("SELECT item.id FROM Item as item ");
         addMetadataLeftJoin(query, Item.class.getSimpleName().toLowerCase(), Collections.singletonList(metadataField));
         query.append(" WHERE item.inArchive = :in_archive");
         query.append(" AND item.submitter =:submitter");
@@ -154,13 +169,15 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         hibernateQuery.setParameter("in_archive", true);
         hibernateQuery.setParameter("submitter", eperson);
         hibernateQuery.setMaxResults(limit);
-        return iterate(context, hibernateQuery, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = hibernateQuery.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value,
                                               boolean inArchive) throws SQLException {
-        String hqlQueryString = "SELECT item FROM Item as item join item.metadata metadatavalue " +
+        String hqlQueryString = "SELECT item.id FROM Item as item join item.metadata metadatavalue " +
                 "WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field";
         if (value != null) {
             hqlQueryString += " AND STR(metadatavalue.value) = :text_value";
@@ -172,13 +189,15 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (value != null) {
             query.setParameter("text_value", value);
         }
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value)
         throws SQLException {
-        String hqlQueryString = "SELECT item FROM Item as item join item.metadata metadatavalue " +
+        String hqlQueryString = "SELECT item.id FROM Item as item join item.metadata metadatavalue " +
             "WHERE metadatavalue.metadataField = :metadata_field";
         if (value != null) {
             hqlQueryString += " AND STR(metadatavalue.value) = :text_value";
@@ -189,7 +208,9 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (value != null) {
             query.setParameter("text_value", value);
         }
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     enum OP {
@@ -310,20 +331,22 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     public Iterator<Item> findByAuthorityValue(Context context, MetadataField metadataField, String authority,
                                                boolean inArchive) throws SQLException {
         Query query = createQuery(context,
-                  "SELECT item FROM Item as item join item.metadata metadatavalue " +
+                  "SELECT item.id FROM Item as item join item.metadata metadatavalue " +
                   "WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field AND " +
                       "metadatavalue.authority = :authority ORDER BY item.id");
         query.setParameter("in_archive", inArchive);
         query.setParameter("metadata_field", metadataField);
         query.setParameter("authority", authority);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findArchivedByCollection(Context context, Collection collection, Integer limit,
                                                    Integer offset) throws SQLException {
         Query query = createQuery(context,
-              "select i from Item i join i.collections c " +
+              "select i.id from Item i join i.collections c " +
               "WHERE :collection IN c AND i.inArchive=:in_archive ORDER BY i.id");
         query.setParameter("collection", collection);
         query.setParameter("in_archive", true);
@@ -333,7 +356,9 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (limit != null) {
             query.setMaxResults(limit);
         }
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
@@ -368,17 +393,18 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     @Override
     public Iterator<Item> findAllByCollection(Context context, Collection collection) throws SQLException {
         Query query = createQuery(context,
-                "select i from Item i join i.collections c WHERE :collection IN c ORDER BY i.id");
+                "select i.id from Item i join i.collections c WHERE :collection IN c ORDER BY i.id");
         query.setParameter("collection", collection);
-
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findAllByCollection(Context context, Collection collection, Integer limit, Integer offset)
         throws SQLException {
         Query query = createQuery(context,
-                "select i from Item i join i.collections c WHERE :collection IN c ORDER BY i.id");
+                "select i.id from Item i join i.collections c WHERE :collection IN c ORDER BY i.id");
         query.setParameter("collection", collection);
 
         if (offset != null) {
@@ -387,8 +413,9 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         if (limit != null) {
             query.setMaxResults(limit);
         }
-
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
@@ -424,9 +451,12 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     public Iterator<Item> findByLastModifiedSince(Context context, Date since)
         throws SQLException {
         Query query = createQuery(context,
-                "SELECT i FROM Item i WHERE last_modified > :last_modified ORDER BY id");
+                "SELECT i.id FROM Item i WHERE last_modified > :last_modified ORDER BY id");
         query.setParameter("last_modified", since, TemporalType.TIMESTAMP);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
+
     }
 
     @Override
@@ -462,22 +492,21 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
             String likeAuthority, Boolean inArchive) throws SQLException {
         String allItems = Objects.isNull(inArchive) ? "" : " item.inArchive=:in_archive AND ";
         Query query = createQuery(context,
-                "SELECT DISTINCT item FROM Item as item join item.metadata metadatavalue "
+                "SELECT DISTINCT item.id FROM Item as item join item.metadata metadatavalue "
                         + "WHERE" + allItems
                         + " metadatavalue.authority like :authority ORDER BY item.id");
         if (Objects.nonNull(inArchive)) {
             query.setParameter("in_archive", inArchive);
         }
         query.setParameter("authority", likeAuthority);
-        return iterate(context, query, Item.class);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
     }
 
     @Override
     public Iterator<Item> findByIds(Context context, List<UUID> ids) throws SQLException {
-        Query query = createQuery(context,
-                "SELECT item " + "FROM Item as item WHERE item.id IN (:ids)");
-        query.setParameter("ids", ids);
-        return iterate(context, query, Item.class);
+        return new UUIDIterator<Item>(context, ids, Item.class, this);
     }
 
 }

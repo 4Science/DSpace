@@ -17,6 +17,7 @@ import org.dspace.app.rest.RestResourceController;
 import org.dspace.layout.CrisLayoutCarouselComponent;
 import org.dspace.layout.CrisLayoutCountersComponent;
 import org.dspace.layout.CrisLayoutMultiColumnTopComponent;
+import org.dspace.layout.CrisLayoutSliderComponent;
 import org.dspace.layout.CrisLayoutTwitterComponent;
 
 /**
@@ -151,6 +152,8 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private boolean showAllResults;
 
         private boolean showThumbnails;
+
+        private String template;
 
         public String getDiscoveryConfigurationName() {
             return discoveryConfigurationName;
@@ -317,6 +320,235 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
 
         public void setShowThumbnails(boolean showThumbnails) {
             this.showThumbnails = showThumbnails;
+        }
+
+        /**
+         * @return the template
+         */
+        public String getTemplate() {
+            return template;
+        }
+
+        /**
+         * @param template the template to set
+         */
+        public void setTemplate(String template) {
+            this.template = template;
+        }
+
+    }
+
+    public static class CrisLayoutAdvancedTopComponentRest implements CrisLayoutSectionComponentRest {
+
+        private List<String> discoveryConfigurationName;
+
+        private String sortField;
+
+        private String order;
+
+        private String style;
+
+        private String titleKey;
+
+        private Integer numberOfItems;
+
+        private boolean showAsCard;
+
+        private boolean showLayoutSwitch;
+
+        private String defaultLayoutMode;
+
+        private String cardStyle;
+
+        private String cardColumnStyle;
+
+        private String itemListStyle;
+
+        private boolean showAllResults;
+
+        private boolean showThumbnails;
+
+        private String template;
+
+        public List<String> getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+        public void setDiscoveryConfigurationName(List<String> discoveryConfigurationName) {
+            this.discoveryConfigurationName = discoveryConfigurationName;
+        }
+
+        public String getSortField() {
+            return sortField;
+        }
+
+        public void setSortField(String sortField) {
+            this.sortField = sortField;
+        }
+
+        public String getOrder() {
+            return order;
+        }
+
+        public void setOrder(String order) {
+            this.order = order;
+        }
+
+        @Override
+        public String getComponentType() {
+            return "advanced-top-component";
+        }
+
+        @Override
+        public String getStyle() {
+            return this.style;
+        }
+
+        /**
+         * @param style the style to set
+         */
+        public void setStyle(String style) {
+            this.style = style;
+        }
+
+        public String getTitleKey() {
+            return titleKey;
+        }
+
+        public void setTitleKey(String titleKey) {
+            this.titleKey = titleKey;
+        }
+
+        public void setNumberOfItems(Integer numberOfItems) {
+            this.numberOfItems = numberOfItems;
+        }
+
+        /**
+         *
+         * @return Number of items to be contained in layout section
+         */
+        public Integer getNumberOfItems() {
+            return numberOfItems;
+        }
+
+        /**
+         * @return the showAsCard
+         */
+        public boolean isShowAsCard() {
+            return showAsCard;
+        }
+
+        /**
+         * @param showAsCard the showAsCard to set
+         */
+        public void setShowAsCard(boolean showAsCard) {
+            this.showAsCard = showAsCard;
+        }
+
+        /**
+         * @return the showLayoutSwitch
+         */
+        public boolean isShowLayoutSwitch() {
+            return showLayoutSwitch;
+        }
+
+        /**
+         * @param showLayoutSwitch the showLayoutSwitch to set
+         */
+        public void setShowLayoutSwitch(boolean showLayoutSwitch) {
+            this.showLayoutSwitch = showLayoutSwitch;
+        }
+
+        /**
+         * @return the defaultLayoutMode
+         */
+        public String getDefaultLayoutMode() {
+            return defaultLayoutMode;
+        }
+
+        /**
+         * @param defaultLayoutMode the defaultLayoutMode to set
+         */
+        public void setDefaultLayoutMode(String defaultLayoutMode) {
+            this.defaultLayoutMode = defaultLayoutMode;
+        }
+
+        /**
+         * @return the cardStyle
+         */
+        public String getCardStyle() {
+            return cardStyle;
+        }
+
+        /**
+         * @param cardStyle the cardStyle to set
+         */
+        public void setCardStyle(String cardStyle) {
+            this.cardStyle = cardStyle;
+        }
+
+        /**
+         * @return the cardColumnStyle
+         */
+        public String getCardColumnStyle() {
+            return cardColumnStyle;
+        }
+
+        /**
+         * @param cardColumnStyle the cardColumnStyle to set
+         */
+        public void setCardColumnStyle(String cardColumnStyle) {
+            this.cardColumnStyle = cardColumnStyle;
+        }
+
+        /**
+         * @return the itemListStyle
+         */
+        public String getItemListStyle() {
+            return itemListStyle;
+        }
+
+        /**
+         * @param itemListStyle the itemListStyle to set
+         */
+        public void setItemListStyle(String itemListStyle) {
+            this.itemListStyle = itemListStyle;
+        }
+
+        /**
+         * @return the showAllResults
+         */
+        public boolean isShowAllResults() {
+            return showAllResults;
+        }
+
+        /**
+         * @param showAllResults the showAllResults to set
+         */
+        public void setShowAllResults(boolean showAllResults) {
+            this.showAllResults = showAllResults;
+        }
+
+        public boolean isShowThumbnails() {
+            return showThumbnails;
+        }
+
+        public void setShowThumbnails(boolean showThumbnails) {
+            this.showThumbnails = showThumbnails;
+        }
+
+        /**
+         * @return the template
+         */
+        public String getTemplate() {
+            return template;
+        }
+
+        /**
+         * @param template the template to set
+         */
+        public void setTemplate(String template) {
+            this.template = template;
         }
 
     }
@@ -990,4 +1222,86 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             return mainContentLink;
         }
     }
+
+    public static class CrisLayoutSliderComponentRest implements CrisLayoutSectionComponentRest {
+
+        private String discoveryConfigurationName;
+        private String style;
+        private String order;
+        private String sortField;
+        private int numberOfItems;
+        private int maxNumberOfElements;
+        private int maxNumberOfVisiblePages;
+
+        /**
+         * Initializes the rest component using the
+         * CrisLayoutCarouselComponent component
+         *
+         * @param component
+         */
+        public CrisLayoutSliderComponentRest(CrisLayoutSliderComponent component) {
+            discoveryConfigurationName = component.getDiscoveryConfigurationName();
+            style = component.getStyle();
+            order = component.getOrder();
+            sortField = component.getSortField();
+            numberOfItems = component.getNumberOfItems();
+            maxNumberOfElements = component.getMaxNumberOfElements();
+            maxNumberOfVisiblePages = component.getMaxNumberOfVisiblePages();
+        }
+
+        /**
+         * @return the discoveryConfigurationName
+         */
+        public String getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+
+        @Override
+        public String getComponentType() {
+            return "slider";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        /**
+         * @return the order
+         */
+        public String getOrder() {
+            return order;
+        }
+
+        /**
+         * @return the sortField
+         */
+        public String getSortField() {
+            return sortField;
+        }
+
+        /**
+         * @return the numberOfItems
+         */
+        public int getNumberOfItems() {
+            return numberOfItems;
+        }
+
+        /**
+         * @return the maxPageNumber
+         */
+        public int getMaxNumberOfElements() {
+            return maxNumberOfElements;
+        }
+
+        /**
+         * @return the maxNumberOfVisiblePages
+         */
+        public int getMaxNumberOfVisiblePages() {
+            return maxNumberOfVisiblePages;
+        }
+
+    }
+
 }

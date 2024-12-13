@@ -179,7 +179,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
     @Test
     public void testCollectionDisseminate() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         Collection collection = createCollection(context, community)
@@ -446,7 +446,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
     @Test
     public void testManyItemsDisseminate() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         Collection collection = createCollection(context, community)

@@ -93,6 +93,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public boolean storeAuthorityInMetadata() {
+        init();
         return storeAuthority;
     }
 

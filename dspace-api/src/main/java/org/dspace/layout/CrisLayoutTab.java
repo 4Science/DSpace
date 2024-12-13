@@ -87,14 +87,8 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         @JoinColumn(name = "tab_id") }, inverseJoinColumns = { @JoinColumn(name = "metadata_field_id") })
     private Set<MetadataField> metadataSecurityFields = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cris_layout_tab2securitygroup",
-        joinColumns = {@JoinColumn(name = "tab_id")},
-        inverseJoinColumns = {@JoinColumn(name = "group_id")}
-    )
-    private Set<Group> groupSecurityFields = new HashSet<>();
-
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "tab", cascade = CascadeType.ALL)
+    private Set<CrisLayoutTab2SecurityGroup> tab2SecurityGroups = new HashSet<>();
 
     @Column(name = "is_leading")
     private Boolean leading;
@@ -230,20 +224,19 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
             .collect(Collectors.toList());
     }
 
-    public void setGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields = groupSecurityFields;
-    }
-
-    public void addGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields.addAll(groupSecurityFields);
-    }
-
-    public void addGroupSecurityFields(Group group) {
-        this.groupSecurityFields.add(group);
-    }
-
     public Set<Group> getGroupSecurityFields() {
-        return groupSecurityFields;
+        return tab2SecurityGroups.stream()
+                                 .map(crisLayoutTab2SecurityGroup ->
+                                     crisLayoutTab2SecurityGroup.getGroup())
+                                 .collect(Collectors.toSet());
+    }
+
+    public Set<CrisLayoutTab2SecurityGroup> getTab2SecurityGroups() {
+        return tab2SecurityGroups;
+    }
+
+    public void setTab2SecurityGroups(Set<CrisLayoutTab2SecurityGroup> tab2SecurityGroups) {
+        this.tab2SecurityGroups = tab2SecurityGroups;
     }
 
     @Override

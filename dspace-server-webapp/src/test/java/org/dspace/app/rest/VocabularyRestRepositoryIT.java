@@ -158,7 +158,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         int size = cas.getChoiceAuthoritiesNames().size();
         getClient(token).perform(get("/api/submission/vocabularies")
                      .param("size", String.valueOf(size)))
-                 .andExpect(status().isOk())
+                .andExpect(status().isOk())
                  .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
                      VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
                      VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true, false),
@@ -188,8 +188,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("common_types", "common_types", true, false),
                      VocabularyMatcher.matchProperties("types", "types", false , true),
                      VocabularyMatcher.matchProperties("SolrAuthorAuthority", "SolrAuthorAuthority", false , false),
-                     VocabularyMatcher.matchProperties("patent_types", "patent_types", true , false),
-                     VocabularyMatcher.matchProperties("gender", "gender", true , false),
+                     VocabularyMatcher.matchProperties("patent_types", "patent_types", true, false),
+                     VocabularyMatcher.matchProperties("gender", "gender", true, false),
                      VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false , false),
                      VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false, false),
                      VocabularyMatcher.matchProperties(
@@ -200,7 +200,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("channel_type", "channel_type", true, false),
                      VocabularyMatcher.matchProperties("samplerate", "samplerate", true, false),
                      VocabularyMatcher.matchProperties("bitsample", "bitsample", true, false),
-                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false)
+                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false),
+                     VocabularyMatcher.matchProperties("currency", "currency", true, false)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))

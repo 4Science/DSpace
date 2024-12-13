@@ -45,6 +45,10 @@ public interface ItemEnhancer {
      *
      * @param  context the DSpace Context
      * @param  item    the item to enhance
+     * @param  deepMode <code>false</code>, if the implementation can assume that only the target
+     *         item as been updated since the eventual previous computation of enhanced metadata
+     * @return <code>true</code>, if any changes have been performed on the provided item
      */
-    void enhance(Context context, Item item);
+    boolean enhance(Context context, Item item, boolean deepMode);
+
 }

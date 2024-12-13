@@ -21,8 +21,8 @@ import java.util.UUID;
 
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
 import org.dspace.app.deduplication.model.DuplicateDecisionValue;
-import org.dspace.app.deduplication.utils.DedupUtils;
 import org.dspace.app.deduplication.utils.DuplicateItemInfo;
+import org.dspace.app.deduplication.utils.IDedupUtils;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.InProgressSubmission;
@@ -47,7 +47,7 @@ public class DetectPotentialDuplicateValidator implements SubmissionStepValidato
     private static final String ERROR_VALIDATION_DUPLICATION = "error.validation.detect-duplicate";
 
     @Autowired
-    private DedupUtils dedupUtils;
+    private IDedupUtils dedupUtils;
 
     @Autowired
     private ItemService itemService;

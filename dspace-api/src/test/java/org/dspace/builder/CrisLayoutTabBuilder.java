@@ -20,10 +20,12 @@ import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.eperson.Group;
 import org.dspace.layout.CrisLayoutBox;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.CrisLayoutTab2SecurityGroup;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.service.CrisLayoutTabService;
 
@@ -205,6 +207,17 @@ public class CrisLayoutTabBuilder extends AbstractBuilder<CrisLayoutTab, CrisLay
             this.tab.setMetadataSecurityFields(new HashSet<>());
         }
         this.tab.getMetadataSecurityFields().add(metadataField);
+        return this;
+    }
+
+    public CrisLayoutTabBuilder addTab2SecurityGroups(Group group, CrisLayoutTab alternativeTab) {
+        if (this.tab.getTab2SecurityGroups() == null) {
+            this.tab.setTab2SecurityGroups(new HashSet<>());
+        }
+        this.tab.getTab2SecurityGroups().add(
+            new CrisLayoutTab2SecurityGroup(new CrisLayoutTab2SecurityGroup.CrisLayoutTab2SecurityGroupId(tab, group),
+                tab, group, alternativeTab)
+        );
         return this;
     }
 }

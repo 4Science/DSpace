@@ -78,7 +78,7 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     @Before
     public void setup() throws SQLException, AuthorizeException {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();

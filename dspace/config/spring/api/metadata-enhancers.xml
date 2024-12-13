@@ -23,40 +23,81 @@
     <bean id="org.dspace.content.enhancer.service.ItemEnhancerService" 
         class="org.dspace.content.enhancer.service.impl.ItemEnhancerServiceImpl" />
 
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancerUtils" />
+
+    <util:list id="researchOutputsEntityTypes">
+        <value>Publication</value>
+        <value>Product</value>
+        <value>Patent</value>
+    </util:list>
+
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
-        <property name="sourceEntityType" value="Publication" />
-        <property name="sourceItemMetadataField" value="dc.contributor.author" />
-        <property name="relatedItemMetadataField" value="person.affiliation.name" />
+        <property name="sourceEntityTypes" ref="researchOutputsEntityTypes" />
+        <property name="sourceItemMetadataFields">
+            <list>
+                <value>dc.contributor.author</value>
+                <value>dc.contributor.editor</value>
+            </list>
+        </property>
+        <property name="relatedItemMetadataFields">
+            <list>
+                <value>person.affiliation.name</value>
+            </list>
+        </property>
         <property name="virtualQualifier" value="department" />
     </bean>
 
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
-        <property name="sourceEntityType" value="Publication" />
-        <property name="sourceItemMetadataField" value="dc.contributor.author" />
-        <property name="relatedItemMetadataField" value="person.identifier.orcid" />
-        <property name="virtualQualifier" value="author-orcid" />
+        <property name="sourceEntityTypes" ref="researchOutputsEntityTypes" />
+        <property name="sourceItemMetadataFields">
+            <list>
+                <value>dc.contributor.author</value>
+                <value>dc.contributor.editor</value>
+            </list>
+        </property>
+        <property name="relatedItemMetadataFields">
+            <list>
+                <value>person.identifier.orcid</value>
+            </list>
+        </property>
+        <property name="virtualQualifier" value="orcid" />
     </bean>
 
-    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
-        <property name="sourceEntityType" value="Publication" />
-        <property name="sourceItemMetadataField" value="dc.contributor.editor" />
-        <property name="relatedItemMetadataField" value="person.identifier.orcid" />
-        <property name="virtualQualifier" value="editor-orcid" />
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancerWithFilter">
+        <property name="sourceEntityTypes" value="Fonds"/>
+        <property name="sourceItemMetadataFields" value="glamfonds.parent"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="filter" ref="root-fond-filter" />
+        <property name="virtualQualifier" value="rootFond" />
     </bean>
 
-    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
-        <property name="sourceEntityType" value="Product" />
-        <property name="sourceItemMetadataField" value="dc.contributor.author" />
-        <property name="relatedItemMetadataField" value="person.identifier.orcid" />
-        <property name="virtualQualifier" value="author-orcid" />
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancerWithFilter">
+        <property name="sourceEntityTypes" value="JournalFonds"/>
+        <property name="sourceItemMetadataFields" value="glamjournalfonds.parent"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootJournalFond" />
+        <property name="filter" ref="root-journalfond-filter" />
+        <property name="virtualQualifier" value="rootJournalFond" />
     </bean>
 
-    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
-        <property name="sourceEntityType" value="Product" />
-        <property name="sourceItemMetadataField" value="dc.contributor.editor" />
-        <property name="relatedItemMetadataField" value="person.identifier.orcid" />
-        <property name="virtualQualifier" value="editor-orcid" />
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="ArchivalMaterial"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
     </bean>
-    
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Publication"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="JournalFile"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.journalfonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootJournalFond" />
+        <property name="virtualQualifier" value="treeJournalFondsRoot" />
+    </bean>
 
 </beans>

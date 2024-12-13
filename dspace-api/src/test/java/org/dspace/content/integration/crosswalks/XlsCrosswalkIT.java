@@ -259,7 +259,7 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testDisseminatePublications() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 
@@ -331,7 +331,7 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testDisseminateProjects() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 

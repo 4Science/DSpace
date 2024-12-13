@@ -79,6 +79,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return setMetadataSingleValue(item, MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
+    public ItemBuilder withFondParent(final String title, final UUID authority) {
+        return addMetadataValue(item, "glamfonds", "parent", null, null, title, authority.toString(), CF_ACCEPTED);
+    }
+
     public ItemBuilder withAlternativeTitle(final String title) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "title", "alternative", title);
     }
@@ -521,6 +525,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dc", "relation", "equipment", null, equipment, authority, 600);
     }
 
+    public ItemBuilder withRelationFonds(String fondsTitle, String authority) {
+        return addMetadataValue(item, "dc", "relation", "fonds", null, fondsTitle, authority, 600);
+    }
+
     public ItemBuilder withVolume(String volume) {
         return addMetadataValue(item, "oaire", "citation", "volume", volume);
     }
@@ -591,6 +599,22 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withOrcidSynchronizationFundingsPreference(String value) {
         return setMetadataSingleValue(item, "dspace", "orcid", "sync-fundings", value);
+    }
+
+    public ItemBuilder withOrcidSynchronizationProductsPreference(OrcidEntitySyncPreference value) {
+        return withOrcidSynchronizationProductsPreference(value.name());
+    }
+
+    public ItemBuilder withOrcidSynchronizationProductsPreference(String value) {
+        return setMetadataSingleValue(item, "dspace", "orcid", "sync-products", value);
+    }
+
+    public ItemBuilder withOrcidSynchronizationPatentsPreference(OrcidEntitySyncPreference value) {
+        return withOrcidSynchronizationPatentsPreference(value.name());
+    }
+
+    public ItemBuilder withOrcidSynchronizationPatentsPreference(String value) {
+        return setMetadataSingleValue(item, "dspace", "orcid", "sync-patents", value);
     }
 
     public ItemBuilder withOrcidSynchronizationProfilePreference(OrcidProfileSyncPreference value) {

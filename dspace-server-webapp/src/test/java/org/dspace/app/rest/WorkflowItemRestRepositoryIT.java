@@ -15,6 +15,7 @@ import static org.dspace.authorize.ResourcePolicy.TYPE_WORKFLOW;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -2705,6 +2706,164 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
             .andExpect(jsonPath("$.errors", hasSize(1)))
             .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
             .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
+    }
+
+    @Test
+    /**
+     * Test the addition of metadata
+     *
+     * @throws Exception
+     */
+    public void patchAddMetadataToInlineGroupTypeMetadataShouldReturnErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community with one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .withEntityType("Funding")
+                .withWorkflowGroup(1, eperson).build();
+
+        //2. create a normal user to use as submitter
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                .withEmail("submitter@example.com")
+                .withPassword("dspace")
+                .build();
+
+        context.setCurrentUser(submitter);
+
+        //3. a claimed task with workflow item in edit step
+        ClaimedTask claimedTask = ClaimedTaskBuilder.createClaimedTask(context, col1, eperson)
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+        claimedTask.setStepID("editstep");
+        claimedTask.setActionID("editaction");
+        XmlWorkflowItem witem = claimedTask.getWorkflowItem();
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(authToken).perform(patch("/api/workflow/workflowitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
+                        contains(
+                                hasJsonPath("$.paths", containsInAnyOrder(
+                                        hasJsonPath("$", Matchers.is("/sections/funding/dc.title")),
+                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder"))
+                                )))))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));
+
+    }
+
+    @Test
+    /**
+     * Test the addition of metadata
+     *
+     * @throws Exception
+     */
+    public void patchAddMetadataToInlineGroupTypeMetadataShouldCompletedWithoutErrorsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community with one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .withEntityType("Funding")
+                .withWorkflowGroup(1, eperson).build();
+
+        //2. create a normal user to use as submitter
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                .withEmail("submitter@example.com")
+                .withPassword("dspace")
+                .build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .withEntityType("OrgUnit")
+                .withSubmissionDefinition("orgunit")
+                .build();
+
+        context.setCurrentUser(submitter);
+
+        Item orgUnit = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit")
+                .withIssueDate("1957")
+                .build();
+
+        //3. a claimed task with workflow item in edit step
+        ClaimedTask claimedTask = ClaimedTaskBuilder.createClaimedTask(context, col1, eperson)
+                .withTitle("Title")
+                .withIssueDate("2017-10-17")
+                .withSubject("ExtraEntry")
+                .grantLicense()
+                .build();
+        claimedTask.setStepID("editstep");
+        claimedTask.setActionID("editaction");
+        XmlWorkflowItem witem = claimedTask.getWorkflowItem();
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> funderValues = new ArrayList<>();
+        Map<String, String> funderValuesMap = new HashMap<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        funderValuesMap.put("value", "OrgUnit");
+        funderValuesMap.put("authority", orgUnit.getID().toString());
+        funderValues.add(funderValuesMap);
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.funder", funderValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(authToken).perform(patch("/api/workflow/workflowitems/" + witem.getID())
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].value",
+                        is("OrgUnit")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].authority",
+                        is(orgUnit.getID().toString())))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));;
     }
 
 }

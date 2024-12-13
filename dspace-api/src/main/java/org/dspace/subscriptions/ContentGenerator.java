@@ -85,7 +85,7 @@ public class ContentGenerator {
             for (SubscriptionItem item : subscriptionItems) {
                 out.write("\n".getBytes(UTF_8));
                 out.write("List of new content for the\n".getBytes(UTF_8));
-                out.write((type + " " + item.getName() + " - " + item.getUrl() + "\n")
+                out.write((type + " \"" + item.getName() + "\" - " + item.getUrl() + "\n")
                               .getBytes(UTF_8));
 
                 for (Entry<String, String> entry : item.getItemUrlsByItemName().entrySet()) {
