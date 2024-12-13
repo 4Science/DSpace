@@ -115,6 +115,12 @@ definitions:
 
 pipelines:
   branches:
+    'glam7':
+      - parallel:
+        - step: *unit-test-code-checks
+        - step: *integration-tests
+        - step: *integration-tests-slow
+        - step: *integration-tests-dspace-api
     'dspace-cris-7':
       - parallel:
         - step: *unit-test-code-checks
