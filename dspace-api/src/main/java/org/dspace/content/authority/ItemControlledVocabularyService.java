@@ -95,7 +95,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         DiscoverQuery discoverQuery = new DiscoverQuery();
 
         discoverQuery.setStart(start);
-        discoverQuery.setMaxResults(limit);
+        discoverQuery.setMaxResults(limit > 0 ? limit : Integer.MAX_VALUE);
         discoverQuery.setQuery(controlledVocabulary.getParentQuery());
 
         if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
