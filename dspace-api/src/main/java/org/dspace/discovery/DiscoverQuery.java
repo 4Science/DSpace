@@ -10,6 +10,7 @@ package org.dspace.discovery;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -450,20 +451,13 @@ public class DiscoverQuery {
         this.includeNotDiscoverableOrWithdrawn = includeNotDiscoverableAndWithdrawn;
     }
 
-    public class SortEntry<K, V> {
-        private K key;
-        private V value;
-
-        public SortEntry(final K key, final V value) {
-            this.key = key;
-            this.value = value;
+    public class SortEntry<K, V> extends AbstractMap.SimpleEntry<K, V> {
+        public SortEntry(K key, V value) {
+            super(key, value);
         }
 
-        public K getKey() {
-            return key;
-        }
-        public V getValue() {
-            return value;
+        public SortEntry(Map.Entry<? extends K, ? extends V> entry) {
+            super(entry);
         }
     }
 }
