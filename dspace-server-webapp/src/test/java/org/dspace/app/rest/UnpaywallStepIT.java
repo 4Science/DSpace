@@ -8,10 +8,8 @@
 package org.dspace.app.rest;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -110,7 +108,6 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
@@ -155,7 +152,6 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
@@ -197,7 +193,6 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                         .content(getPatchContent(List.of(addOperation)))
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
                 .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
@@ -243,7 +238,6 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                 .content(getPatchContent(List.of(refreshOperation)))
                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
             .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
             .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
             .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))

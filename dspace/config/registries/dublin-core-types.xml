@@ -897,6 +897,13 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>keywords</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 <!-- GLAM additions -->
   <dc-type>
     <schema>dc</schema>
@@ -1413,6 +1420,118 @@
     <schema>dc</schema>
     <element>format</element>
     <qualifier>bitsample</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>opera</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>coins</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>scientificmaterial</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>artwork</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>musicallibrettos</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>isPictureOf</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>internal</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>note</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>temporalperiod</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcm</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>hasPicture</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+  
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>otherlinkslabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>urilabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+    
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>opaclabel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>represents</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialpvcl</qualifier>
     <scope_note></scope_note>
   </dc-type>
 

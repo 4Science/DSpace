@@ -914,7 +914,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             solrQuery.setRows(discoveryQuery.getMaxResults());
         }
 
-        for (Entry<String, DiscoverQuery.SORT_ORDER> config : discoveryQuery.getSortFields().entrySet()) {
+        for (DiscoverQuery.SortEntry<String, DiscoverQuery.SORT_ORDER> config : discoveryQuery.getSortFields()) {
             SolrQuery.ORDER order = SolrQuery.ORDER.asc;
             if (config.getValue().equals(DiscoverQuery.SORT_ORDER.desc)) {
                 order = SolrQuery.ORDER.desc;

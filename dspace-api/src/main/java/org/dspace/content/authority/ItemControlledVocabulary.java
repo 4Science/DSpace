@@ -29,7 +29,7 @@ public class  ItemControlledVocabulary {
 
     private String selectableMetadata;
 
-    private String labelMetadata;
+    private List<String> labelMetadata;
 
     private List<DiscoverySortFieldConfiguration> sortFields;
 
@@ -77,11 +77,11 @@ public class  ItemControlledVocabulary {
         this.selectableMetadata = selectableMetadata;
     }
 
-    public String getLabelMetadata() {
+    public List<String> getLabelMetadata() {
         return labelMetadata;
     }
 
-    public void setLabelMetadata(String labelMetadata) {
+    public void setLabelMetadata(List<String> labelMetadata) {
         this.labelMetadata = labelMetadata;
     }
 
