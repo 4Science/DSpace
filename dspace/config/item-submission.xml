@@ -216,6 +216,11 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="web_annotation" mandatory="true">
+      <heading>submit.progressbar.describe.web_annotation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_material">
@@ -438,6 +443,16 @@
     </submission-process>
     <submission-process name="artworks-edit">
       <step id="artworks" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="web_annotation">
+      <step id="collection" />
+      <step id="web_annotation" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="web_annotation-edit">
+      <step id="web_annotation" />
       <step id="upload" />
     </submission-process>
   </submission-definitions>
