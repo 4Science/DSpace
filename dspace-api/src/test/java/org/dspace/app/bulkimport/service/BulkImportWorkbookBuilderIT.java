@@ -118,7 +118,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
     @SuppressWarnings("unchecked")
     public void testWorkbookBuildingFromItemDtos() throws Exception {
 
-        configurationService.setProperty("bulk-uploads.local-folder", System.getProperty("java.io.tmpdir"));
+        configurationService.setProperty("uploads.local-folder", System.getProperty("java.io.tmpdir"));
 
         context.turnOffAuthorisationSystem();
 

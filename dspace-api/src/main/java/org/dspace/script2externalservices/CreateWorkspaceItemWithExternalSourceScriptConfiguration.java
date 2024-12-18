@@ -6,18 +6,15 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.script2externalservices;
-import java.sql.SQLException;
+
 import java.util.Map;
 
 import org.apache.commons.cli.Options;
-import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.core.Context;
 import org.dspace.external.provider.impl.LiveImportDataProvider;
 import org.dspace.external.service.ExternalDataService;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * {@link ScriptConfiguration} for the {@link CreateWorkspaceItemWithExternalSource}.
@@ -35,19 +32,6 @@ public class CreateWorkspaceItemWithExternalSourceScriptConfiguration<T extends 
     protected Map<String, LiveImportDataProvider> nameToPrider;
 
     protected ExternalDataService externalDataService;
-
-    @Autowired
-    private AuthorizeService authorizeService;
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
-        try {
-            return authorizeService.isAdmin(context);
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        }
-        return false;
-    }
 
     @Override
     public Options getOptions() {

@@ -134,9 +134,8 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                         "Please give the date", "col-sm-4",
                                         "dc.date.issued"),
                                 SubmissionFormFieldMatcher.matchFormFieldDefinition("onebox", "Publisher",
-                                        null, false,"Enter the name of",
-                                        "col-sm-8","dc.publisher"))))
-        ;
+                                        null, false, "Enter the name of",
+                                        "col-sm-8", "dc.publisher", "OrgUnitAuthority"))));
     }
 
     @Test
@@ -163,8 +162,8 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                         "Please give the date", "col-sm-4",
                                         "dc.date.issued"),
                                 SubmissionFormFieldMatcher.matchFormFieldDefinition("onebox", "Publisher",
-                                        null, false,"Enter the name of",
-                                        "col-sm-8","dc.publisher"))));
+                                        null, false, "Enter the name of",
+                                        "col-sm-8", "dc.publisher", "OrgUnitAuthority"))));
     }
 
     @Test

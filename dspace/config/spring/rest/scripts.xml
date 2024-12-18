@@ -123,4 +123,10 @@
         <property name="description" value="Packager Ingestion and Dissemination" />
         <property name="dspaceRunnableClass" value="org.dspace.app.packager.Packager"/>
     </bean>
+
+    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
+        <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
+    </bean>
+
 </beans>

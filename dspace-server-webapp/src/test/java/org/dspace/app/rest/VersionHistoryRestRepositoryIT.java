@@ -83,7 +83,10 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
                                            .withName("Sub Community")
                                            .build();
-        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                .withName("Collection 1")
+                .withEntityType("Publication")
+                .build();
 
         //2. Three public items that are readable by Anonymous with different subjects
         item = ItemBuilder.createItem(context, col1)
@@ -143,6 +146,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -196,6 +200,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -241,6 +246,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -267,6 +273,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -299,6 +306,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -371,6 +379,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Product")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -402,6 +411,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -429,6 +439,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Publication")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -459,6 +470,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Product")
                                           .withSubmitterGroup(admin)
                                           .build();
 
@@ -503,6 +515,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection 1")
+                                          .withEntityType("Product")
                                           .withWorkflowGroup(1, admin)
                                           .build();
 
@@ -542,6 +555,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Product")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -593,6 +607,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
+                                          .withEntityType("Product")
                                           .withSubmitterGroup(admin)
                                           .build();
 

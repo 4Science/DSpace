@@ -10,6 +10,7 @@ package org.dspace.app.rest;
 import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,7 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.utils.DSpace;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,6 +147,74 @@ public class UpdateScopusMetricsIT extends AbstractControllerIntegrationTest {
                     + "partnerID\\u003dHzOxMe3b\\u0026scp\\u003d67349162500\\u0026origin\\u003dinward\""
                     + ",\"pmid\":\"19406218\",\"doi\":\"10.1016/j.gene.2009.04.019\"}";
             assertEquals(remark, metrics.getRemark());
+            assertNull(metrics.getDeltaPeriod1());
+            assertNull(metrics.getDeltaPeriod2());
+        } finally {
+            CrisMetricsBuilder.deleteCrisMetrics(itemA);
+            scopusRestConnector.setHttpClient(originalHttpClient);
+        }
+    }
+
+    @Test
+    public void testUpdateScopusMetricsWithNullRemark() throws Exception {
+
+        Item itemA = null;
+        CloseableHttpClient originalHttpClient = scopusRestConnector.getHttpClient();
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+
+        scopusRestConnector.setHttpClient(httpClient);
+
+        BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
+        basicHttpEntity.setChunked(true);
+        basicHttpEntity.setContent(null);
+
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        when(response.getStatusLine())
+            .thenReturn(statusLine(new ProtocolVersion("http", 1, 1), 200, "OK"));
+        when(response.getEntity()).thenReturn(basicHttpEntity);
+
+        when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community").build();
+
+        Collection col1 =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Publication")
+                             .withName("Collection 1").build();
+
+        itemA =
+            ItemBuilder.createItem(context, col1)
+                       .withDoiIdentifier("10.1016/j.gene.2009.04.019")
+                       .withTitle("Title item A").build();
+
+        crisMetrics =
+            CrisMetricsBuilder.createCrisMetrics(context, itemA)
+                              .withMetricType(UpdateScopusMetrics.SCOPUS_CITATION)
+                              .withMetricCount(4)
+                              .isLast(true).build();
+
+        context.restoreAuthSystemState();
+
+        try {
+            String[] args = new String[]{"update-metrics", "-s", "scopus"};
+            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+            int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+
+            assertEquals(0, status);
+
+            CrisMetrics metrics =
+                crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+                    context, UpdateScopusMetrics.SCOPUS_CITATION, itemA.getID()
+                );
+
+            assertEquals(UpdateScopusMetrics.SCOPUS_CITATION, metrics.getMetricType());
+
+            assertThat(metrics.getRemark(), Matchers.is(Matchers.emptyOrNullString()));
             assertNull(metrics.getDeltaPeriod1());
             assertNull(metrics.getDeltaPeriod2());
         } finally {

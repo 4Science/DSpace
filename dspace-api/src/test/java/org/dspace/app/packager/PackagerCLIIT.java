@@ -164,7 +164,7 @@ public class PackagerCLIIT extends AbstractIntegrationTestWithDatabase {
         article = context.reloadEntity(article);
         itemService.delete(context, article);
         col1 = context.reloadEntity(col1);
-        WorkspaceItem workspaceItem = workspaceItemService.create(context, col1, id, false);
+        WorkspaceItem workspaceItem = workspaceItemService.create(context, col1, id, false, false);
         installItemService.installItem(context, workspaceItem, "123456789/0100");
         performImportNoForceScript(tempFile);
         Iterator<Item> items = itemService.findByCollection(context, col1);

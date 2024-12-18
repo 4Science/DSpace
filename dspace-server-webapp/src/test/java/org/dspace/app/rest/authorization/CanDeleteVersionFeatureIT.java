@@ -75,6 +75,7 @@ public class CanDeleteVersionFeatureIT extends AbstractControllerIntegrationTest
 
         Collection col1 = CollectionBuilder.createCollection(context, rootCommunity)
                                            .withName("Collection 1")
+                                           .withEntityType("Publication")
                                            .withSubmitterGroup(eperson)
                                            .build();
 
@@ -154,12 +155,14 @@ public class CanDeleteVersionFeatureIT extends AbstractControllerIntegrationTest
 
         Collection col1 = CollectionBuilder.createCollection(context, subCommunityA)
                                            .withName("Collection 1")
+                                           .withEntityType("Publication")
                                            .withSubmitterGroup(eperson)
                                            .withAdminGroup(adminCol1)
                                            .build();
 
         CollectionBuilder.createCollection(context, subCommunityA)
                          .withName("Collection 2")
+                         .withEntityType("Publication")
                          .withAdminGroup(adminCol2)
                          .build();
 
@@ -218,6 +221,7 @@ public class CanDeleteVersionFeatureIT extends AbstractControllerIntegrationTest
 
         Collection col1 = CollectionBuilder.createCollection(context, rootCommunity)
                                            .withName("Collection 1")
+                                           .withEntityType("Publication")
                                            .withSubmitterGroup(eperson)
                                            .build();
 

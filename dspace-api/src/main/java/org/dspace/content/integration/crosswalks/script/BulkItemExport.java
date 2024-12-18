@@ -43,9 +43,11 @@ import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration;
+import org.dspace.discovery.indexobject.IndexableClaimedTask;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.indexobject.IndexableItem;
+import org.dspace.discovery.indexobject.IndexablePoolTask;
 import org.dspace.discovery.indexobject.IndexableWorkflowItem;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
 import org.dspace.discovery.utils.DiscoverQueryBuilder;
@@ -276,7 +278,8 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
     private DiscoverQuery buildDiscoveryQuery(DiscoveryConfiguration discoveryConfiguration,
         IndexableObject<?, ?> scope, boolean onlyPublic) throws SQLException, SearchServiceException {
 
-        List<String> dsoTypes = List.of(IndexableItem.TYPE, IndexableWorkspaceItem.TYPE, IndexableWorkflowItem.TYPE);
+        List<String> dsoTypes = List.of(IndexableItem.TYPE, IndexableWorkspaceItem.TYPE, IndexableWorkflowItem.TYPE,
+            IndexablePoolTask.TYPE, IndexableClaimedTask.TYPE);
 
         String sortBy = null;
         String sortOrder = null;

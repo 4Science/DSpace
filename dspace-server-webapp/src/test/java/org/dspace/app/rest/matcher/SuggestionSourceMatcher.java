@@ -22,7 +22,8 @@ public class SuggestionSourceMatcher {
         return Matchers.allOf(
                 hasJsonPath("$.id", is(name)),
                 hasJsonPath("$.total", is(total)),
-                hasJsonPath("$.type", is("suggestionsource"))
+                hasJsonPath("$.type", is("suggestionsource")),
+                hasJsonPath("$.uniqueType", is("integration.suggestionsource"))
         );
     }
 }

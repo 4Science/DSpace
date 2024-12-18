@@ -163,7 +163,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
             }
         } catch (SearchServiceException e) {
             log.error("Error while searching with Discovery", e);
-            //TODO TOM handle search exception
+            throw new IllegalArgumentException("Error while searching with Discovery: " + e.getMessage());
         }
 
         FacetResultsRest facetResultsRest = discoverFacetResultsConverter.convert(context, facetName, prefix, query,
@@ -200,6 +200,7 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
 
         } catch (SearchServiceException e) {
             log.error("Error while searching with Discovery", e);
+            throw new IllegalArgumentException("Error while searching with Discovery: " + e.getMessage());
         }
 
         SearchResultsRest searchResultsRest = discoverFacetsConverter.convert(context, query, dsoTypes,

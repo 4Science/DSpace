@@ -13,8 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.dspace.app.rest.matcher.ItemAuthorityMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.content.authority.ItemAuthority;
+import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class handles ZDBAuthority related IT.
@@ -22,6 +25,9 @@ import org.junit.Test;
  * @author Luca Giamminonni (luca.giamminonni at 4Science.it)
  */
 public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Test
     public void zdbAuthorityTest() throws Exception {
@@ -35,21 +41,21 @@ public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
                         "will be generated::zdb::1447228-4", "Acta mathematica et informatica",
                         "Acta mathematica et informatica", "vocabularyEntry", "data-dc_relation_ispartof",
                         "Acta mathematica et informatica::will be generated::zdb::1447228-4",
-                        "data-dc_relation_issn", ""),
+                        "data-dc_relation_issn", "", getSource()),
                     ItemAuthorityMatcher.matchItemAuthorityWithTwoMetadataInOtherInformations(
                         "will be generated::zdb::1194912-0",
                         "Acta mathematica Universitatis Ostraviensis",
                         "Acta mathematica Universitatis Ostraviensis", "vocabularyEntry",
                         "data-dc_relation_ispartof",
                         "Acta mathematica Universitatis Ostraviensis::will be generated::zdb::1194912-0",
-                        "data-dc_relation_issn", "1211-4774"),
+                        "data-dc_relation_issn", "1211-4774", getSource()),
                     ItemAuthorityMatcher.matchItemAuthorityWithTwoMetadataInOtherInformations(
                         "will be generated::zdb::2618143-5",
                         "Acta mathematica Universitatis Ostraviensis",
                         "Acta mathematica Universitatis Ostraviensis", "vocabularyEntry",
                         "data-dc_relation_ispartof",
                         "Acta mathematica Universitatis Ostraviensis::will be generated::zdb::2618143-5",
-                        "data-dc_relation_issn", ""))))
+                        "data-dc_relation_issn", "", getSource()))))
             .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
     }
 
@@ -66,5 +72,10 @@ public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
         getClient().perform(get("/api/submission/vocabularies/ZDBAuthority/entries")
             .param("filter", "Mathematica AND informatica"))
             .andExpect(status().isUnauthorized());
+    }
+
+    private String getSource() {
+        return configurationService.getProperty(
+            "cris.ItemAuthority.ZDBAuthority.source", ItemAuthority.DEFAULT);
     }
 }
