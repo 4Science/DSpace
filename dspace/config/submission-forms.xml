@@ -6949,7 +6949,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>format</dc-element>
           <dc-qualifier>miss</dc-qualifier>
           <label>Spessore</label>
