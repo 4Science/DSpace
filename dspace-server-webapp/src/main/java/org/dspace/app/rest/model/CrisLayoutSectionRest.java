@@ -17,6 +17,7 @@ import org.dspace.app.rest.RestResourceController;
 import org.dspace.layout.CrisLayoutCarouselComponent;
 import org.dspace.layout.CrisLayoutCountersComponent;
 import org.dspace.layout.CrisLayoutMultiColumnTopComponent;
+import org.dspace.layout.CrisLayoutSliderComponent;
 import org.dspace.layout.CrisLayoutTwitterComponent;
 
 /**
@@ -1221,4 +1222,86 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
             return mainContentLink;
         }
     }
+
+    public static class CrisLayoutSliderComponentRest implements CrisLayoutSectionComponentRest {
+
+        private String discoveryConfigurationName;
+        private String style;
+        private String order;
+        private String sortField;
+        private int numberOfItems;
+        private int maxNumberOfElements;
+        private int maxNumberOfVisiblePages;
+
+        /**
+         * Initializes the rest component using the
+         * CrisLayoutCarouselComponent component
+         *
+         * @param component
+         */
+        public CrisLayoutSliderComponentRest(CrisLayoutSliderComponent component) {
+            discoveryConfigurationName = component.getDiscoveryConfigurationName();
+            style = component.getStyle();
+            order = component.getOrder();
+            sortField = component.getSortField();
+            numberOfItems = component.getNumberOfItems();
+            maxNumberOfElements = component.getMaxNumberOfElements();
+            maxNumberOfVisiblePages = component.getMaxNumberOfVisiblePages();
+        }
+
+        /**
+         * @return the discoveryConfigurationName
+         */
+        public String getDiscoveryConfigurationName() {
+            return discoveryConfigurationName;
+        }
+
+
+        @Override
+        public String getComponentType() {
+            return "slider";
+        }
+
+        @Override
+        public String getStyle() {
+            return style;
+        }
+
+        /**
+         * @return the order
+         */
+        public String getOrder() {
+            return order;
+        }
+
+        /**
+         * @return the sortField
+         */
+        public String getSortField() {
+            return sortField;
+        }
+
+        /**
+         * @return the numberOfItems
+         */
+        public int getNumberOfItems() {
+            return numberOfItems;
+        }
+
+        /**
+         * @return the maxPageNumber
+         */
+        public int getMaxNumberOfElements() {
+            return maxNumberOfElements;
+        }
+
+        /**
+         * @return the maxNumberOfVisiblePages
+         */
+        public int getMaxNumberOfVisiblePages() {
+            return maxNumberOfVisiblePages;
+        }
+
+    }
+
 }

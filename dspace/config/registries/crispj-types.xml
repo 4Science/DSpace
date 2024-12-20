@@ -58,4 +58,18 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>crispj</schema>
+        <element>coordinator</element>
+        <qualifier>name</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>crispj</schema>
+        <element>coordinator</element>
+        <qualifier>qualifier</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>

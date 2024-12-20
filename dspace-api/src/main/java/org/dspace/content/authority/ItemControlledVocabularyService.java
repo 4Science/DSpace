@@ -11,6 +11,7 @@ import static org.dspace.content.authority.DSpaceControlledVocabulary.ID_SPLITTE
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.web.ContextUtil;
@@ -96,9 +98,14 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setMaxResults(limit);
         discoverQuery.setQuery(controlledVocabulary.getParentQuery());
 
-        if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
-            discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
+        if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
+            for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
+
+                discoverQuery.addSortField(searchService.toSortFieldIndex(
+                                sortConfig.getMetadataField(), sortConfig.getType()),
+                        DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
+                                DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
+            }
         }
 
         try {
@@ -134,9 +141,14 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setStart(start);
         discoverQuery.setMaxResults(limit);
 
-        if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
-            discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
+        if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
+            for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
+
+                discoverQuery.addSortField(searchService.toSortFieldIndex(
+                                sortConfig.getMetadataField(), sortConfig.getType()),
+                        DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
+                                DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
+            }
         }
 
         String childrenQuery = MessageFormat.format(controlledVocabulary.getChildrenQuery(), parentId);
@@ -208,7 +220,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
                                      Item item) {
         Choice choice = new Choice();
 
-        String labelMeta = getValueFromMetadata(item, controlledVocabulary.getLabelMetadata());
+        String labelMeta = getValueFromMetadataList(item, controlledVocabulary.getLabelMetadata());
         choice.value = labelMeta;
         choice.label = labelMeta;
         choice.extras = controlledVocabulary.getExtraValuesMapper().buildExtraValues(item);
@@ -243,6 +255,17 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     private String getValueFromMetadata(Item item, String metadata) {
         String mtd = itemService.getMetadata(item, metadata);
         return mtd == null ? "" : mtd;
+    }
+
+    private String getValueFromMetadataList(Item item, List<String> metadataList) {
+        List<String> value = new ArrayList<>();
+        for (String mtd: metadataList) {
+            String mtdValue = getValueFromMetadata(item, mtd);
+            if (!mtdValue.isEmpty()) {
+                value.add(mtdValue);
+            }
+        }
+        return value.isEmpty() ? "" : String.join(" - ", value);
     }
 
     private boolean hasChildren(Item item) {

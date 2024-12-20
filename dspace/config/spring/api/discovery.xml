@@ -50,7 +50,7 @@
               </list>
           </property>
     </bean>
-    <bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>
+<!--	<bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>	-->
     <bean id="solrServiceBestMatchStrictIndexingPlugin" class="org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin"/>
     <bean id="sharedWorkspaceSolrIndexPlugin" class="org.dspace.discovery.SharedWorkspaceSolrIndexPlugin">
         <constructor-arg name="additionalReadMetadata" ref="sharedWorkspaceAuthorMetadataFields"/>
@@ -151,6 +151,9 @@
                 <entry key="fonds" value-ref="fonds"/>
                 <entry key="journalfonds" value-ref="journalfonds"/>
                 <entry key="aggregations" value-ref="aggregations"/>
+                <entry key="aggregationsHomePage" value-ref="aggregationsHomePage"/>
+                <entry key="journalfondsHomePage" value-ref="journalfondsHomePage"/>
+                <entry key="fondsHomePage" value-ref="fondsHomePage"/>
                 <entry key="path" value-ref="path"/>
                 <entry key="additions" value-ref="additions"/>
                 <entry key="news" value-ref="news"/>
@@ -2014,6 +2017,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
+                        <ref bean="glamfondsSortIndex"/>
                         <ref bean="sortByResearchOutputsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
@@ -2269,6 +2273,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
 	            <ref bean="searchFilterAggregation"/>
 	            <ref bean="searchFilterJournalFonds"/>
@@ -2289,6 +2294,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
                 <ref bean="searchFilterAggregation"/>
                 <ref bean="searchFilterJournalFonds"/>
@@ -2389,6 +2395,7 @@
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
                         <ref bean="glamfondsSortIndex"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2415,6 +2422,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="fondsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="fonds">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Fonds AND -glamfonds.parent:* AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="journalfonds" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2459,6 +2476,7 @@
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
                         <ref bean="glamjournalfondsSortIndex"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2485,6 +2503,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="journalfondsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="journalfonds">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:JournalFonds AND -glamjournalfond.parent:* AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="aggregations" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2525,6 +2553,7 @@
                         <ref bean="sortDateAccessionedAsc"/>
                         <ref bean="sortViews"/>
                         <ref bean="sortDownloads"/>
+                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2551,6 +2580,16 @@
 
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
+    </bean>
+
+    <bean id="aggregationsHomePage" class="org.dspace.discovery.configuration.DiscoveryConfiguration" parent="aggregations">
+        <property name="defaultFilterQueries">
+            <list>
+                <!--Only find items, communities and collections-->
+                <value>search.resourcetype:Item AND entityType_keyword:Aggregation AND glam.entity.enabled:true</value>
+                <value>-withdrawn:true AND -discoverable:false</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="additions" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -3920,7 +3959,23 @@
         <property name="indexFieldName" value="subject"/>
         <property name="metadataFields">
             <list>
+                <value>dc.subject</value>
                 <value>dc.subject.*</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
+
+    </bean>
+
+    <bean id="searchFilterGlamSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="glamsubject"/>
+        <property name="metadataFields">
+            <list>
+                <value>glam.subject</value>
+                <value>glam.subject.*</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4058,7 +4113,7 @@
         <property name="indexFieldName" value="fonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.fonds</value>
+                <value>cris.virtual.treeFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4074,7 +4129,7 @@
         <property name="indexFieldName" value="journalfonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.journalfonds</value>
+                <value>cris.virtual.treeJournalFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

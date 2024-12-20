@@ -513,6 +513,7 @@
     <single_statement>Y</single_statement>
     <replace_variables>N</replace_variables>
     <quoteString>N</quoteString>
+    <sql>
 DO $$
 DECLARE
     row_data record;

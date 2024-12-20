@@ -2416,11 +2416,11 @@
         <field>
           <dc-schema>cris</dc-schema>
           <dc-element>priority</dc-element>
-          <label>Posizione</label>
-          <input-type>onebox</input-type>
+          <label>Ordine</label>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+          <hint>Inserire l'ordine</hint>
         </field>
       </row>
     </form>
@@ -3504,11 +3504,11 @@
         <field>
           <dc-schema>cris</dc-schema>
           <dc-element>priority</dc-element>
-          <label>Posizione</label>
-          <input-type>onebox</input-type>
+          <label>Ordine</label>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>I percorsi sono mostrati in ordine crescente di posizione</hint>
+          <hint>Inserire l'ordine</hint>
         </field>
       </row>
     </form>
@@ -5073,7 +5073,7 @@
           <label>Titolo dell'opera</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
-          <required />
+          <required>Inserire il titolo della risorsa</required>
           <hint>Inserire il titolo dell'opera</hint>
         </field>
       </row>
@@ -5118,7 +5118,7 @@
           <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Parole chiave</label>
-          <input-type>onebox</input-type>
+          <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire descrittori di soggetto e/o parole chiave della risorsa.</hint>
@@ -5167,7 +5167,7 @@
           <dc-qualifier>path</dc-qualifier>
           <label>Percorso</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint />
         </field>
@@ -5185,7 +5185,7 @@
         </field>
       </row>
     </form>
-    <form name="coins-glam-bibliography">
+    <form name="coin-glam-bibliography">
       <row>
         <field>
           <dc-schema>glam</dc-schema>
@@ -5258,7 +5258,7 @@
         </field>
       </row>
     </form>
-    <form name="coins">
+    <form name="coin">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -5448,8 +5448,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misd</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misd</dc-qualifier>
           <label>Diametro</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -5459,8 +5460,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misg</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misg</dc-qualifier>
           <label>Peso</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -6299,29 +6301,76 @@
         </field>
       </row>
     </form>
-    <form name="scientific_materials-dc-contributor-author">
+    <form name="scientific_materials-glam-bibliography">
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>contributor</dc-element>
-          <dc-qualifier>author</dc-qualifier>
-          <label>Creatore</label>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <label>Titolo</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Indicare il creatore dell'oggetto.</hint>
+          <hint>Inserire il titolo della risorsa bibliografica</hint>
         </field>
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>contributor</dc-element>
-          <dc-qualifier>authorrole</dc-qualifier>
-          <label>Ruolo</label>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>year</dc-qualifier>
+          <label>Anno di pubblicazione</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Indicare il ruolo del creatore dell'oggetto</hint>
+          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>publisher</dc-qualifier>
+          <label>Editore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'editore della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo di edizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore/i</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo di bibliografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il tipo di bibliografia</hint>
         </field>
       </row>
     </form>
@@ -6398,79 +6447,6 @@
         </field>
       </row>
     </form>
-    <form name="scientific_materials-glam-bibliography">
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <label>Titolo</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il titolo della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>year</dc-qualifier>
-          <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>publisher</dc-qualifier>
-          <label>Editore</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'editore della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>place</dc-qualifier>
-          <label>Luogo di edizione</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>author</dc-qualifier>
-          <label>Autore/i</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
-          <dc-qualifier>type</dc-qualifier>
-          <label>Tipo di bibliografia</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Indicare il tipo di bibliografia</hint>
-        </field>
-      </row>
-    </form>
     <form name="scientific_materials">
       <row>
         <field>
@@ -6501,7 +6477,7 @@
           <dc-element>contributor</dc-element>
           <dc-qualifier>author</dc-qualifier>
           <label>Creatore</label>
-          <input-type>group</input-type>
+          <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare il creatore dell'oggetto.</hint>
@@ -6937,8 +6913,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misn</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misn</dc-qualifier>
           <label>Lunghezza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6948,8 +6925,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misp</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misp</dc-qualifier>
           <label>Profondità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6959,8 +6937,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misd</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misd</dc-qualifier>
           <label>Diametro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6971,7 +6950,8 @@
       <row>
         <field>
           <dc-schema>glam</dc-schema>
-          <dc-element>miss</dc-element>
+          <dc-element>format</dc-element>
+          <dc-qualifier>miss</dc-qualifier>
           <label>Spessore</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6981,8 +6961,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misg</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misg</dc-qualifier>
           <label>Peso</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -6992,8 +6973,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misc</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misc</dc-qualifier>
           <label>Capacità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7003,8 +6985,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misw</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misw</dc-qualifier>
           <label>Potenza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7014,8 +6997,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misb</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misb</dc-qualifier>
           <label>Capacità di memoria</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7025,8 +7009,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misi</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misi</dc-qualifier>
           <label>Ingombro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
