@@ -42,10 +42,11 @@ public class CrisLayoutBoxServiceImplIT extends AbstractControllerIntegrationTes
     public void testHasContentVersioningBox() {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).build();
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Test collection")
-            .withEntityType("Product")
-            .build();
+        Collection col =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Test GLAM Collection")
+                             .withEntityType("Publication")
+                             .build();
 
         Item item = ItemBuilder
             .createItem(context, col)
@@ -64,9 +65,11 @@ public class CrisLayoutBoxServiceImplIT extends AbstractControllerIntegrationTes
     public void testHasNoContentVersioningBox() {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).build();
-        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Test collection")
-            .build();
+        Collection col =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Test GLAM Collection")
+                             .withEntityType("Publication")
+                             .build();
 
         Item item = ItemBuilder
             .createItem(context, col)

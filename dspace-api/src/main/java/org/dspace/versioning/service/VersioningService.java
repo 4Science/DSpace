@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import de.undercouch.citeproc.helper.oauth.UnauthorizedException;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.versioning.Version;
@@ -80,7 +79,7 @@ public interface VersioningService {
     Version getVersion(Context c, Item item) throws SQLException;
 
     Version createNewVersion(Context context, VersionHistory history, Item item, String summary, Date date,
-                             int versionNumber) throws UnauthorizedException;
+                             int versionNumber);
 
     /**
      * Update the Version

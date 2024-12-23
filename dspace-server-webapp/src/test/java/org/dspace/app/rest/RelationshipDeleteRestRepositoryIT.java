@@ -13,6 +13,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -603,7 +604,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "project", "investigator", Item.ANY, Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNotNull(projectAuthorList.get(0).getAuthority());
+        assertNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));
@@ -807,7 +808,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
             "project", "investigator", Item.ANY, Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNotNull(projectAuthorList.get(0).getAuthority());
+        assertNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));
@@ -1173,7 +1174,7 @@ public class RelationshipDeleteRestRepositoryIT extends AbstractEntityIntegratio
                                                                         "project", "investigator", Item.ANY, Item.ANY);
         assertThat(projectAuthorList.size(), equalTo(1));
         assertThat(projectAuthorList.get(0).getValue(), equalTo("Smith, Donald"));
-        assertNotNull(projectAuthorList.get(0).getAuthority());
+        assertNull(projectAuthorList.get(0).getAuthority());
         List<MetadataValue> projectRelationships = itemService.getMetadata(projectItem,
             "relation", "isPersonOfProject", Item.ANY, Item.ANY);
         assertThat(projectRelationships.size(), equalTo(1));

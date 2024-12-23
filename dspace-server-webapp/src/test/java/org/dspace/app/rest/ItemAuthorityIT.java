@@ -165,19 +165,19 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                 .withTitle("Author 1")
                 .withVariantName("Author Variant")
                 .withEntityType("person")
-                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .build();
 
         Item author_2 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 2")
                 .withVariantName("Author 2 Variant")
-                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .withEntityType("person")
                 .build();
 
         Item author_3 = ItemBuilder.createItem(context, col1)
                 .withTitle("Author 3")
-                .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
                 .withEntityType("person")
                 .build();
 
@@ -193,7 +193,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                 "oairecerif_author_affiliation", "OrgUnit_1::" + orgUnit_1.getID(),
                 "alternative-names", author2Alternatives);
         String token = getAuthToken(eperson.getEmail(), password);
-        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries")
                         .param("metadata", "dc.contributor.author")
                         .param("collection", col1.getID().toString())
                         .param("filter", "author"))
@@ -250,14 +250,14 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
        Item author_1 = ItemBuilder.createItem(context, col1)
                                   .withTitle("Author 1")
-                                  .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
-                                  .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                  .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                                  .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                                   .withEntityType("person")
                                   .build();
 
        Item author_2 = ItemBuilder.createItem(context, col1)
                                   .withTitle("Author 2")
-                                  .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                  .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
                                   .withEntityType("person")
                                   .build();
 
@@ -312,7 +312,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
                            ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
                                 "Author 1", "Author 1", "vocabularyEntry",
-                                Map.of("data-oairecerif_author_affiliation", "", "oairecerif_author_affiliation", ""))
+                                Map.of())
                        )))
                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
