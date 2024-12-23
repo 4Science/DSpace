@@ -379,7 +379,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -392,7 +392,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
         Version v2 = VersionBuilder.createVersion(context, item, "test").build();
         VersionHistory vh = versionHistoryService.findByItem(context, item);
         WorkspaceItem witem = workspaceItemService.findByItem(context, v2.getItem());
-        context.turnOffAuthorisationSystem();
+        context.restoreAuthSystemState();
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/versioning/versionhistories/" + vh.getID() + "/draftVersion"))
@@ -470,7 +470,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .withSubmitterGroup(admin)
                                           .build();
 
@@ -515,7 +515,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection 1")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .withWorkflowGroup(1, admin)
                                           .build();
 
@@ -555,7 +555,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -607,7 +607,7 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .withSubmitterGroup(admin)
                                           .build();
 

@@ -125,7 +125,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
                                            .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1)
                 .withName("Collection 1")
-                .withEntityType("Product")
+                .withEntityType("Place")
                 .build();
 
         //2. Three public items that are readable by Anonymous with different subjects
@@ -423,7 +423,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col1 = CollectionBuilder.createCollection(context, child1)
                 .withName("Collection 1")
-                .withEntityType("Product")
+                .withEntityType("Place")
                 .withSubmitterGroup(groupA.getMembers().toArray(new EPerson[0]))
                 .build();
 
@@ -469,7 +469,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .withSubmitterGroup(admin)
                                           .build();
 
@@ -539,7 +539,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
@@ -1514,7 +1514,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .withSubmitterGroup(admin)
                                           .build();
 
@@ -1587,7 +1587,7 @@ public class VersionRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         Collection col = CollectionBuilder.createCollection(context, parentCommunity)
                                           .withName("Collection test")
-                                          .withEntityType("Product")
+                                          .withEntityType("Place")
                                           .build();
 
         Item item = ItemBuilder.createItem(context, col)
