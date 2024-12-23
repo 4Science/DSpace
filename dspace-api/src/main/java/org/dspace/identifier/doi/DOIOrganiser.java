@@ -713,15 +713,8 @@ public class DOIOrganiser {
             DSpaceObject dso = itemService.find(context, UUID.fromString(identifier));
 
             if (null != dso) {
-                doiRow = doiService.findDOIByDSpaceObject(context, dso);
-
-                //Check if this Item has an Identifier, mint one if it doesn't
-                if (null == doiRow) {
-                    doi = provider.mint(context, dso, this.filter);
-                    doiRow = doiService.findByDoi(context,
-                                                  doi.substring(DOI.SCHEME.length()));
-                    return doiRow;
-                }
+                doi = provider.mint(context, dso, this.filter);
+                doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
                 return doiRow;
             } else {
                 throw new IllegalStateException("You specified an ItemID, that is not stored in our database.");
@@ -738,13 +731,8 @@ public class DOIOrganiser {
                         + "Cannot process specified handle as it does not identify an Item.");
             }
 
-            doiRow = doiService.findDOIByDSpaceObject(context, dso);
-
-            if (null == doiRow) {
-                doi = provider.mint(context, dso, this.filter);
-                doiRow = doiService.findByDoi(context,
-                                              doi.substring(DOI.SCHEME.length()));
-            }
+            doi = provider.mint(context, dso, this.filter);
+            doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
             return doiRow;
         }
         // detect DOI

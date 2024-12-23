@@ -35,9 +35,16 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,6 +57,10 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     public static final String CRIS_VIRTUALSOURCE_TREE_FONDS_ROOT = "cris.virtualsource.treeFondsRoot";
 
     private ItemService itemService;
+    private ConfigurationService configurationService;
+    private PluginService pluginService;
+    private ChoiceAuthorityService choiceAuthorityService;
+    private MetadataAuthorityService metadataAuthorityService;
 
     private Collection collection;
     private Collection fondsCollection;
@@ -61,6 +72,10 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     public void setup() {
 
         itemService = ContentServiceFactory.getInstance().getItemService();
+        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        pluginService = CoreServiceFactory.getInstance().getPluginService();
+        choiceAuthorityService =  ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
+        metadataAuthorityService =  ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
 
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -667,6 +682,42 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                        .withTitle("Leaf Fond")
                        .withFondParent("Child Fond", childFond.getID())
                        .build();
+    }
+
+    @Test
+    public void testSingleMetadataJournalAnceEnhancement() throws Exception {
+
+        configurationService.setProperty("choices.plugin.dc.relation.journal", "SherpaAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+
+        // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
+        // the properties that we're altering above and this is only used within the tests
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
+        context.turnOffAuthorisationSystem();
+
+        Item journalItem = ItemBuilder.createItem(context, collection)
+                .withTitle("Test journal")
+                .withEntityType("Journal")
+                .withJournalAnce("AA110022")
+                .build();
+
+        Item publication = ItemBuilder.createItem(context, collection)
+                .withTitle("Test publication")
+                .withEntityType("Publication")
+                .withRelationJournal(journalItem.getName(), journalItem.getID().toString())
+                .build();
+
+        context.restoreAuthSystemState();
+        publication = commitAndReload(publication);
+
+        List<MetadataValue> metadataValues = publication.getMetadata();
+        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasItem(with("cris.virtual.journalance", "AA110022")));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.journalance", journalItem.getID().toString())));
     }
 
     private List<Integer> getPlacesAsVirtualSource(Item person1, Item publication, String metadata) {

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +100,6 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
                     }
                 } else {
                     Map<String, String> extras = new HashMap<String, String>();
-                    putValueInExtras(extras, "");
                     choiceList.add(new Choice((String) document.getFieldValue("search.resourceid"),
                             title, title, extras));
                 }
@@ -110,14 +110,39 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
     protected void buildSingleExtraByMetadata(MetadataValueDTO metadataValue, Map<String, String> extras) {
         if (metadataValue == null) {
-            putValueInExtras(extras, "");
-        } else {
-            if (StringUtils.isNotBlank(metadataValue.getAuthority())) {
-                putValueInExtras(extras, metadataValue.getValue() + "::" + metadataValue.getAuthority());
-            } else {
-                putValueInExtras(extras, metadataValue.getValue());
-            }
+            return;
         }
+        if (isDuplicatedValue(metadataValue, extras)) {
+            return;
+        }
+        if (StringUtils.isNotBlank(metadataValue.getAuthority())) {
+            putValueInExtras(extras, metadataValue.getValue() + "::" + metadataValue.getAuthority());
+        } else {
+            putValueInExtras(extras, metadataValue.getValue());
+        }
+    }
+
+    private boolean isDuplicatedValue(MetadataValueDTO metadataValue, Map<String, String> extras) {
+        String key = keyId;
+        if (useAsData) {
+            key = "data-" + keyId;
+        }
+        String values = extras.get(key);
+        if (values == null) {
+            return false;
+        }
+
+        String valueToFind = StringUtils.isNotBlank(metadataValue.getAuthority())
+            ? metadataValue.getValue() + "::" + metadataValue.getAuthority()
+            : metadataValue.getValue();
+
+        if (values.contains("|||")) {
+            // so it's multivalues
+            String splittedVals[] = values.split(Pattern.quote("|||"));
+            return ArrayUtils.contains(splittedVals, valueToFind);
+        }
+        return values.equals(valueToFind);
+
     }
 
     protected void buildSingleExtraByRP(SolrDocument solrDocument, Map<String, String> extras) {
@@ -125,16 +150,27 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
         if (metadataValues.isEmpty()) {
             buildSingleExtraByMetadata(null, extras);
         } else {
-            buildSingleExtraByMetadata(metadataValues.get(0), extras);
+            metadataValues.forEach(metadataValue -> {
+                buildSingleExtraByMetadata(metadataValue, extras);
+            });
         }
     }
 
     private void putValueInExtras(Map<String, String> extras, String value) {
         if (useAsData) {
-            extras.put("data-" + keyId, value);
+            String key = "data-" + keyId;
+            if (extras.containsKey(key)) {
+                extras.put(key, extras.get(key) + "|||" + value);
+            } else {
+                extras.put(key, value);
+            }
         }
         if (useForDisplay) {
-            extras.put(keyId, value);
+            if (extras.containsKey(keyId)) {
+                extras.put(keyId, extras.get(keyId) + "|||" + value);
+            } else {
+                extras.put(keyId, value);
+            }
         }
     }
 

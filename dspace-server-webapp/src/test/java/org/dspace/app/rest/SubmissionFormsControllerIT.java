@@ -130,13 +130,15 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(jsonPath("$.rows[3].fields",
                         contains(
                                 SubmissionFormFieldMatcher.matchFormFieldDefinition("date", "Date of Issue",
-                                        "You must enter at least the year.", false,
-                                        "Please give the date", "col-sm-4",
+                                    "You must enter at least the year.", false,
+                                    "Please give the date of previous publication or public distribution.\n" +
+                                    "                        You can leave out the day and/or month if they aren't\n" +
+                                    "                        applicable.", "col-sm-4",
                                         "dc.date.issued"),
                                 SubmissionFormFieldMatcher.matchFormFieldDefinition("onebox", "Publisher",
-                                        null, false,"Enter the name of",
-                                        "col-sm-8","dc.publisher"))))
-        ;
+                                    null, false,
+                                    "Enter the name of the publisher of the previously issued instance of this item.",
+                                    "col-sm-8", "dc.publisher"))));
     }
 
     @Test
@@ -163,8 +165,9 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                         "Please give the date", "col-sm-4",
                                         "dc.date.issued"),
                                 SubmissionFormFieldMatcher.matchFormFieldDefinition("onebox", "Publisher",
-                                        null, false,"Enter the name of",
-                                        "col-sm-8","dc.publisher"))));
+                                    null, false,
+                                    "Enter the name of the publisher of the previously issued instance of this item.",
+                                    "col-sm-8", "dc.publisher"))));
     }
 
     @Test

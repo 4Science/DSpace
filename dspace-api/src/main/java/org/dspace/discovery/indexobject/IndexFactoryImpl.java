@@ -67,7 +67,14 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
 
         //Do any additional indexing, depends on the plugins
         for (SolrServiceIndexPlugin solrServiceIndexPlugin : ListUtils.emptyIfNull(solrServiceIndexPlugins)) {
-            solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            try {
+                solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            } catch (Exception e) {
+                log.error("An error occurred while indexing additional fields. " +
+                        "Could not fully index item with UUID: {}. Plugin: {}",
+                    indexableObject.getUniqueIndexID(), solrServiceIndexPlugin.getClass().getSimpleName());
+
+            }
         }
 
         return doc;
@@ -85,7 +92,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
             writeDocument(solrInputDocument, null);
         } catch (Exception e) {
             log.error("Error occurred while writing SOLR document for {} object {}",
-                      indexableObject.getType(), indexableObject.getID(), e);
+                indexableObject.getType(), indexableObject.getID(), e);
         }
     }
 
@@ -107,10 +114,17 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 final int charLimit = DSpaceServicesFactory.getInstance()
                                                            .getConfigurationService()
                                                            .getIntProperty("discovery.solr.fulltext.charLimit", 100000);
-
-                addField(doc, "fulltext", streams.getFullTextStreamStream(), charLimit);
-                addField(doc, "fulltext.mirador", streams.getMiradorStream(), charLimit);
-                addField(doc, "fulltext.video", streams.getVideoStream(), charLimit);
+                try (InputStream fullStream = streams.getFullTextStreamStream();
+                     InputStream miradorStream = streams.getMiradorStream();
+                     InputStream videoStream = streams.getVideoStream();
+                ) {
+                    addField(doc, "fulltext", fullStream, charLimit);
+                    addField(doc, "fulltext.mirador", miradorStream, charLimit);
+                    addField(doc, "fulltext.video", videoStream, charLimit);
+                } finally {
+                    // Add document to index
+                    solr.add(doc);
+                }
             }
             // Add document to index
             solr.add(doc);
@@ -129,6 +143,18 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
         // Use Apache Tika to parse the full text stream(s)
         try {
             tikaParser.parse(stream, tikaHandler, tikaMetadata, tikaContext);
+
+            // Write Tika metadata to "tika_meta_*" fields.
+            // This metadata is not very useful right now,
+            // but we'll keep it just in case it becomes more useful.
+            for (String name : tikaMetadata.names()) {
+                for (String value : tikaMetadata.getValues(name)) {
+                    doc.addField("tika_meta_" + name, value);
+                }
+            }
+
+            // Save (parsed) full text to the provided field
+            doc.addField(field, tikaHandler.toString());
         } catch (SAXException saxe) {
             // Check if this SAXException is just a notice that this file was longer than the character limit.
             // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
@@ -142,7 +168,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 log.error("Tika parsing error. Could not index full text.", saxe);
                 throw new IOException("Tika parsing error. Could not index full text.", saxe);
             }
-        } catch (TikaException ex) {
+        } catch (TikaException | IOException ex) {
             log.error("Tika parsing error. Could not index full text.", ex);
             throw new IOException("Tika parsing error. Could not index full text.", ex);
         } finally {
@@ -151,16 +177,6 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
             }
         }
 
-        // Write Tika metadata to "tika_meta_*" fields.
-        // This metadata is not very useful right now, but we'll keep it just in case it becomes more useful.
-        for (String name : tikaMetadata.names()) {
-            for (String value : tikaMetadata.getValues(name)) {
-                doc.addField("tika_meta_" + name, value);
-            }
-        }
-
-        // Save (parsed) full text to the provided field
-        doc.addField(field, tikaHandler.toString());
     }
 
 

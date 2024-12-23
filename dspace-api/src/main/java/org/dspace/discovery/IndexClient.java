@@ -10,6 +10,7 @@ package org.dspace.discovery;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,9 +24,7 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.indexobject.IndexableCollection;
-import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.indexobject.IndexableItem;
-import org.dspace.discovery.indexobject.factory.IndexFactory;
 import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.metrics.UpdateCrisMetricsInSolrDocService;
@@ -43,6 +42,8 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
                                                .getServiceByName(IndexingService.class.getName(),
                                                                  IndexingService.class);
 
+    private IndexObjectFactoryFactory indexObjectServiceFactory = IndexObjectFactoryFactory.getInstance();
+
     private IndexClientOptions indexClientOptions;
 
     private UpdateCrisMetricsInSolrDocService updateCrisMetricsInSolrDocService;
@@ -59,8 +60,24 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
          * new DSpace.getServiceManager().getServiceByName("org.dspace.discovery.SolrIndexer");
          */
 
-        Optional<IndexableObject> indexableObject = Optional.empty();
+        Optional<List<IndexableObject>> indexableObjects = Optional.empty();
+        // limit the index update to a specific indexable object type
+        String type = null;
 
+        if (indexClientOptions == IndexClientOptions.UPDATE
+                || indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK
+                || indexClientOptions == IndexClientOptions.FORCEUPDATE
+                || indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
+            final String param = commandLine.getOptionValue('t');
+            if (param != null) {
+                // check if the param is a valid indable object type
+                if (indexObjectServiceFactory.getIndexFactoryByType(param) != null) {
+                    type = param;
+                } else {
+                    throw new IllegalArgumentException(param + " is not a valid Indexable Object Type");
+                }
+            }
+        }
         if (indexClientOptions == IndexClientOptions.REMOVE || indexClientOptions == IndexClientOptions.INDEX) {
             final String param = indexClientOptions == IndexClientOptions.REMOVE ? commandLine.getOptionValue('r') :
                     commandLine.getOptionValue('i');
@@ -74,19 +91,21 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
             if (uuid != null) {
                 final Item item = ContentServiceFactory.getInstance().getItemService().find(context, uuid);
                 if (item != null) {
-                    indexableObject = Optional.of(new IndexableItem(item));
+                    indexableObjects = Optional.of(indexObjectServiceFactory.getIndexableObjects(context, item));
                 } else {
                     // it could be a community
                     final Community community = ContentServiceFactory.getInstance().
                             getCommunityService().find(context, uuid);
                     if (community != null) {
-                        indexableObject = Optional.of(new IndexableCommunity(community));
+                        indexableObjects = Optional
+                                .of(indexObjectServiceFactory.getIndexableObjects(context, community));
                     } else {
                         // it could be a collection
                         final Collection collection = ContentServiceFactory.getInstance().
                                 getCollectionService().find(context, uuid);
                         if (collection != null) {
-                            indexableObject = Optional.of(new IndexableCollection(collection));
+                            indexableObjects = Optional
+                                    .of(indexObjectServiceFactory.getIndexableObjects(context, collection));
                         }
                     }
                 }
@@ -94,19 +113,23 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
                 final DSpaceObject dso = HandleServiceFactory.getInstance()
                         .getHandleService().resolveToObject(context, param);
                 if (dso != null) {
-                    final IndexFactory indexableObjectService = IndexObjectFactoryFactory.getInstance().
-                            getIndexFactoryByType(String.valueOf(dso.getType()));
-                    indexableObject = indexableObjectService.findIndexableObject(context, dso.getID().toString());
+                    indexableObjects = Optional.of(indexObjectServiceFactory.getIndexableObjects(context, dso));
                 }
             }
-            if (!indexableObject.isPresent()) {
+            if (!indexableObjects.isPresent()) {
                 throw new IllegalArgumentException("Cannot resolve " + param + " to a DSpace object");
             }
         }
 
+        boolean metricUpdate = true;
+        if (commandLine.hasOption("m")) {
+            metricUpdate = false;
+        }
         if (indexClientOptions == IndexClientOptions.REMOVE) {
             handler.logInfo("Removing " + commandLine.getOptionValue("r") + " from Index");
-            indexer.unIndexContent(context, indexableObject.get().getUniqueIndexID());
+            for (IndexableObject idxObj : indexableObjects.get()) {
+                indexer.unIndexContent(context, idxObj.getUniqueIndexID());
+            }
         } else if (indexClientOptions == IndexClientOptions.CLEAN) {
             handler.logInfo("Cleaning Index");
             indexer.cleanIndex();
@@ -130,27 +153,29 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
             handler.logInfo("Indexing " + commandLine.getOptionValue('i') + " force " + commandLine.hasOption("f"));
             final long startTimeMillis = System.currentTimeMillis();
             final long count = indexAll(indexer, ContentServiceFactory.getInstance().
-                    getItemService(), context, indexableObject.get());
+                    getItemService(), context, indexableObjects.get());
             final long seconds = (System.currentTimeMillis() - startTimeMillis) / 1000;
             handler.logInfo("Indexed " + count + " object" + (count > 1 ? "s" : "") + " in " + seconds + " seconds");
         } else if (indexClientOptions == IndexClientOptions.UPDATE ||
             indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK) {
             handler.logInfo("Updating Index");
-            indexer.updateIndex(context, false);
+            indexer.updateIndex(context, false, type);
             if (indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK) {
                 checkRebuildSpellCheck(commandLine, indexer);
             }
         } else if (indexClientOptions == IndexClientOptions.FORCEUPDATE ||
             indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
             handler.logInfo("Updating Index");
-            indexer.updateIndex(context, true);
+            indexer.updateIndex(context, true, type);
             if (indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
                 checkRebuildSpellCheck(commandLine, indexer);
             }
         }
 
         handler.logInfo("Done with indexing");
-        updateCrisMetricsInSolrDocService.performUpdate(context, handler, true);
+        if (metricUpdate) {
+            updateCrisMetricsInSolrDocService.performUpdate(context, handler, true);
+        }
     }
 
     @Override
@@ -175,8 +200,8 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
      *
      * @param indexingService
      * @param itemService
-     * @param context         The relevant DSpace Context.
-     * @param dso             DSpace object to index recursively
+     * @param context                 The relevant DSpace Context.
+     * @param indexableObjects        DSpace objects to index recursively
      * @throws IOException            A general class of exceptions produced by failed or interrupted I/O operations.
      * @throws SearchServiceException in case of a solr exception
      * @throws SQLException           An exception that provides information on a database access error or other errors.
@@ -184,34 +209,36 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
     private static long indexAll(final IndexingService indexingService,
                                  final ItemService itemService,
                                  final Context context,
-                                 final IndexableObject dso)
+                                 final List<IndexableObject> indexableObjects)
         throws IOException, SearchServiceException, SQLException {
         long count = 0;
-
-        indexingService.indexContent(context, dso, true, true);
-        count++;
-        if (dso.getIndexedObject() instanceof Community) {
-            final Community community = (Community) dso.getIndexedObject();
-            final String communityHandle = community.getHandle();
-            for (final Community subcommunity : community.getSubcommunities()) {
-                count += indexAll(indexingService, itemService, context, new IndexableCommunity(subcommunity));
-                //To prevent memory issues, discard an object from the cache after processing
-                context.uncacheEntity(subcommunity);
+        IndexObjectFactoryFactory indexObjectServiceFactory = IndexObjectFactoryFactory.getInstance();
+        for (IndexableObject iObj : indexableObjects) {
+            indexingService.indexContent(context, iObj, true, true);
+            count++;
+            if (iObj.getIndexedObject() instanceof Community) {
+                final Community community = (Community) iObj.getIndexedObject();
+                final String communityHandle = community.getHandle();
+                for (final Community subcommunity : community.getSubcommunities()) {
+                    count += indexAll(indexingService, itemService, context,
+                            indexObjectServiceFactory.getIndexableObjects(context, subcommunity));
+                    //To prevent memory issues, discard an object from the cache after processing
+                    context.uncacheEntity(subcommunity);
+                }
+                final Community reloadedCommunity = (Community) HandleServiceFactory.getInstance().getHandleService()
+                                                                                    .resolveToObject(context,
+                                                                                                     communityHandle);
+                for (final Collection collection : reloadedCommunity.getCollections()) {
+                    count++;
+                    indexingService.indexContent(context, new IndexableCollection(collection), true, true);
+                    count += indexItems(indexingService, itemService, context, collection);
+                    //To prevent memory issues, discard an object from the cache after processing
+                    context.uncacheEntity(collection);
+                }
+            } else if (iObj instanceof IndexableCollection) {
+                count += indexItems(indexingService, itemService, context, (Collection) iObj.getIndexedObject());
             }
-            final Community reloadedCommunity = (Community) HandleServiceFactory.getInstance().getHandleService()
-                                                                                .resolveToObject(context,
-                                                                                                 communityHandle);
-            for (final Collection collection : reloadedCommunity.getCollections()) {
-                count++;
-                indexingService.indexContent(context, new IndexableCollection(collection), true, true);
-                count += indexItems(indexingService, itemService, context, collection);
-                //To prevent memory issues, discard an object from the cache after processing
-                context.uncacheEntity(collection);
-            }
-        } else if (dso instanceof IndexableCollection) {
-            count += indexItems(indexingService, itemService, context, (Collection) dso.getIndexedObject());
         }
-
         return count;
     }
 

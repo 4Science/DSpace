@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -47,7 +49,11 @@ public class OrcidAuthority extends ItemAuthority {
 
     public static final String DEFAULT_ORCID_KEY = "person_identifier_orcid";
 
-    public static final String DEFAULT_INSTITUTION_KEY = "institution-affiliation-name";
+    public static final String DEFAULT_INSTITUTION_KEY = "oairecerif_author_affiliation";
+
+    public static final String ORCID_REGEX = "\\d{4}-\\d{4}-\\d{4}-\\d{4}";
+
+    public static final Pattern ORCID_PATTERN = Pattern.compile(ORCID_REGEX);
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -92,6 +98,11 @@ public class OrcidAuthority extends ItemAuthority {
     }
 
     private String formatQuery(String text) {
+        text = text.trim();
+        Matcher matcher = ORCID_PATTERN.matcher(text);
+        if (matcher.matches()) {
+            return format("(orcid:%s)", text);
+        }
         return Arrays.stream(replaceCommaWithSpace(text).split(" "))
             .map(name -> format("(given-names:%s+OR+family-name:%s+OR+other-names:%s)", name, name, name))
             .collect(Collectors.joining("+AND+"));
@@ -113,7 +124,7 @@ public class OrcidAuthority extends ItemAuthority {
         String title = getTitle(result);
         String authority = composeAuthorityValue(result.getOrcidId());
         Map<String, String> extras = composeExtras(result);
-        return new Choice(authority, title, title, extras);
+        return new Choice(authority, title, title, extras, getSource());
     }
 
     private String getTitle(ExpandedResult result) {
@@ -185,39 +196,38 @@ public class OrcidAuthority extends ItemAuthority {
     }
 
     public String getOrcidIdKey() {
-        return configurationService.getProperty("cris.OrcidAuthority."
-            + getPluginInstanceName() + ".orcid-id.key",
-            DEFAULT_ORCID_KEY);
+        return configurationService.getProperty("cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.key",
+                configurationService.getProperty("cris.OrcidAuthority.orcid-id.key", DEFAULT_ORCID_KEY));
     }
 
     public String getInstitutionKey() {
-        return configurationService.getProperty("cris.OrcidAuthority."
-            + getPluginInstanceName() + ".institution.key",
-            DEFAULT_INSTITUTION_KEY);
+        return configurationService.getProperty("cris.OrcidAuthority." + getPluginInstanceName() + ".institution.key",
+                configurationService.getProperty("cris.OrcidAuthority.institution.key", DEFAULT_INSTITUTION_KEY));
     }
 
     public boolean useInstitutionAsData() {
-        return configurationService
-            .getBooleanProperty("cris.OrcidAuthority."
-                + getPluginInstanceName() + ".institution.as-data", true);
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".institution.as-data",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.institution.as-data", true));
     }
 
     public boolean useInstitutionForDisplaying() {
-        return configurationService
-            .getBooleanProperty("cris.OrcidAuthority."
-                + getPluginInstanceName() + ".institution.display", true);
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".institution.display",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.institution.display", true));
     }
 
     public boolean useOrcidIDAsData() {
-        return configurationService
-            .getBooleanProperty("cris.OrcidAuthority."
-                + getPluginInstanceName() + ".orcid-id.as-data", true);
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.as-data",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.orcid-id.as-data", true));
     }
 
     public boolean useOrcidIDForDisplaying() {
-        return configurationService
-            .getBooleanProperty("cris.OrcidAuthority."
-                + getPluginInstanceName() + ".orcid-id.display", true);
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.display",
+                configurationService.getBooleanProperty(
+                        "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.display", true));
 
     }
 

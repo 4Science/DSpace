@@ -16,6 +16,8 @@ import java.nio.charset.Charset;
 import de.undercouch.citeproc.CSL;
 import de.undercouch.citeproc.output.Bibliography;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,12 +30,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CSLNestedGenerator implements CSLGenerator {
 
+    private static final Logger LOGGER = LogManager.getLogger(CSLNestedGenerator.class);
+
     @Autowired
     private ConfigurationService configurationService;
 
     @Override
     public CSLResult generate(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
         CSL citeproc = createCitationProcessor(itemDataProvider, style, format);
+        if (citeproc == null) {
+            return null;
+        }
         Bibliography bibliography = citeproc.makeBibliography();
         return CSLResult.fromBibliography(format, bibliography);
     }
@@ -44,8 +51,9 @@ public class CSLNestedGenerator implements CSLGenerator {
             citeproc.setOutputFormat(format);
             citeproc.registerCitationItems(itemDataProvider.getIds());
             return citeproc;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            LOGGER.warn("Something went wrong for: " + itemDataProvider.getId(), e);
+            return null;
         }
     }
 

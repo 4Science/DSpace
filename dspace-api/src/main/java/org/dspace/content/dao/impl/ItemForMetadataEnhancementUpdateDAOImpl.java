@@ -88,14 +88,14 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                         + " SELECT dspace_object_id FROM metadatavalue " + " WHERE metadata_field_id IN"
                         + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
                         + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
-                        + "     AND text_value = :uuid)";
+                        + "     AND SUBSTRING(text_value,1,36) = :uuid)";
                 String sqlInsert =
                         "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued)"
                         + " SELECT DISTINCT dspace_object_id, CURRENT_TIMESTAMP FROM metadatavalue "
                         + " WHERE metadata_field_id IN"
                         + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
-                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource'"
-                        + "     AND text_value = :uuid) "
+                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
+                        + "     AND SUBSTRING(text_value,1,36) = :uuid "
                         + "     AND dspace_object_id NOT IN ("
                         + "             SELECT uuid"
                         + "             FROM itemupdate_metadata_enhancement"
@@ -113,8 +113,8 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                         + " SELECT DISTINCT dspace_object_id, CURRENT_TIMESTAMP FROM metadatavalue "
                         + " WHERE metadata_field_id IN"
                         + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
-                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource'"
-                        + "     AND text_value = :uuid) "
+                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
+                        + "     AND substring(text_value,1,36) = :uuid "
                         + " ON CONFLICT (uuid) DO UPDATE"
                         + " SET date_queued = EXCLUDED.date_queued";
                 NativeQuery<?> queryInsertOrUpdate = session.createNativeQuery(sqlInsertOrUpdate);

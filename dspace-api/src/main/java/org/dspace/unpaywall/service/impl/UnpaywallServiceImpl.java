@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
@@ -412,7 +414,8 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         HttpGet method = null;
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(endpoint + doi);
+            URIBuilder uriBuilder = new URIBuilder(endpoint + URLEncoder.encode(
+                    doi, Charset.defaultCharset()));
             uriBuilder.addParameter("email", email);
             method = new HttpGet(uriBuilder.build());
 
