@@ -121,6 +121,12 @@ pipelines:
         - step: *integration-tests
         - step: *integration-tests-slow
         - step: *integration-tests-dspace-api
+    'prod/**':
+      - parallel:
+          - step: *unit-test-code-checks
+          - step: *integration-tests
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
 
   pull-requests:
     '**':
