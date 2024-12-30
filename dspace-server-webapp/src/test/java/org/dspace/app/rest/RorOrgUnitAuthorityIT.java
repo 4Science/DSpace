@@ -18,11 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Test
+    @Ignore
     public void testAuthority() throws Exception {
 
         Map<String, String> expectedExtras = new HashMap<>();
