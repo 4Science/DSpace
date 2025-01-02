@@ -108,6 +108,19 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
     }
 
     @Override
+    public List<CrisMetrics> findLastMetricsByResourceId(Context context, UUID resourceId,
+            Integer limit, Integer offset) throws SQLException {
+        CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
+        CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, CrisMetrics.class);
+        Root<CrisMetrics> crisMetricsRoot = criteriaQuery.from(CrisMetrics.class);
+        Join<CrisMetrics, DSpaceObject> join = crisMetricsRoot.join(CrisMetrics_.resource);
+        criteriaQuery.where(
+                criteriaBuilder.and(criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.last), true),
+                        criteriaBuilder.equal(join.get(DSpaceObject_.id), resourceId)));
+        return list(context, criteriaQuery, false, CrisMetrics.class, limit, offset);
+    }
+
+    @Override
     public CrisMetrics uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(Context context, String metricType,
                                UUID resource, boolean last) throws SQLException {
         return null;
