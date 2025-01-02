@@ -8,6 +8,7 @@
 package org.dspace.metrics;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -36,8 +37,14 @@ public class UpdateCrisMetricsInSolrDocService {
             IndexingService.class.getName(), IndexingService.class);
 
     public void performUpdate(Context context, DSpaceRunnableHandler handler, boolean optimize) {
+        performUpdate(context, handler, optimize, null);
+    }
+
+    public void performUpdate(Context context, DSpaceRunnableHandler handler, boolean optimize, UUID resourceUuid) {
         try {
-            List<CrisMetrics> metrics = crisMetricsService.findAllLast(context,-1,-1);
+            List<CrisMetrics> metrics = resourceUuid == null
+                    ? crisMetricsService.findAllLast(context,-1,-1)
+                    : crisMetricsService.findLastMetricsByResourceId(context, resourceUuid, -1, -1);
             handler.logInfo("Metric update start");
             for (CrisMetrics metric : metrics) {
                 try {
