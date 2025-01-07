@@ -1,5 +1,5 @@
 GLAM 5 Metadata,GLAM 7 Metadata,Entity
-dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial"
+dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication"
 dc.relation.conference,dc.relation.event,AudioVideo
 dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
 dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial"
@@ -51,35 +51,33 @@ dc.format.misw,glam.misw,ScientificMaterial
 dc.format.misb,glam.misb,ScientificMaterial
 dc.format.misi,glam.misi,ScientificMaterial
 dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
+dc.identifier.archivalunit,glamfonds.index,Publication
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
-dc.relation.fond,dc.relation.fonds,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, Byzart, IgcyrGvcyr, ImmaginiUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.subject,glam.subject,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.subject.keywords,dc.subject,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.identifier.archivalunit,glamfonds.index,AldovrandiManoscritti
-dc.identifier.archivalunit,glamjournalfonds.index,JournalFileUnibo
-dc.relation.aldrovandimanuscript ,unibo.relation.aldrovandimanuscript ,AldovrandiManoscritti
-dc.relation.bibliography ,glam.bibliography ,"AldovrandiManoscritti, Manoscritti, ManoscrittiShivadharma, MappeDisci"
-dc.type.magbiblevel ,mag.biblevel ,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, Byzart, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.type.coar ,glam.type.coar ,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, Byzart, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.contributor.provider ,glam.provider ,"Appunti-ingegneria, AtlasArchivalMaterial, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci"
-dc.contributor.intermediateprovider ,glam.intermediateprovider ,"AldovrandiManoscritti, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.contributor.dataprovider ,glam.dataprovider ,"Aldrovandi-opere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, Byzart, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, Manoscritti, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.subject.picochi ,pico.chi ,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.subject.picocosa ,pico.cosa ,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.subject.picoquando ,pico.quando ,"AldovrandiManoscritti, AldrovandiOpere, Ambulo, AppuntiIngegneria, ArchitetturaLibroAntico, AtlasArchivalMaterial, IgcyrGvcyr, ImmaginiUnibo, JournalFileUnibo, LibroAntico, ManoscrittiShivadharma, MappeDisci, Supino"
-dc.relation.aldrovandidocument ,unibo.relation.aldrovandidocument ,AldrovandiOpere
-dc.title.alternative_ar ,unibo.title.alternative-ar ,Ambulo
-dc.title.parallel ,unibo.title.parallel ,Ambulo
-dc.date.issued_hijra ,unibo.date.issued-hijra ,Ambulo
-dc.subject.keywords_ar ,unibo.subject-ar ,Ambulo
-dc.relation.arabicdocument ,unibo.relation.arabicdocument ,Ambulo
-dc.relation.relatedDocument ,glam.relation.relatedDocument ,"Appunti-ingegneria, AtlasArchivalMaterial, LibroAntico, Manoscritti"
-dc.relation.ancientbook ,unibo.relation.ancientbook ,Architettura-LibroAntico
-dc.subject.iconclass ,glam.subject.iconclass ,Byzart
-dc.relation.relatedPicture ,unibo.relation.relatedPicture ,Igcyr-gvcyr
-dc.relation.subjectPicture ,unibo.relation.subjectPicture ,ImmaginiUnibo
-dc.relation.Shivadharmamanuscript ,unibo.relation.Shivadharmamanuscript ,ManoscrittiShivadharma
-dc.relation.geographicmap ,unibo.relation.geographicmap ,Mappe-disci
-dc.relation.SupinoPicture ,unibo.relation.SupinoPicture ,Supino
+dc.subject,glam.subject,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.subject.keywords,dc.subject,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.relation.aldrovandimanuscript,unibo.relation.aldrovandimanuscript,Publication
+dc.relation.bibliography,glam.bibliography,"Publication, ArchivalMaterial"
+dc.type.magbiblevel,mag.biblevel,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.type.coar,glam.type.coar,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.contributor.provider,glam.provider,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.contributor.intermediateprovider,glam.intermediateprovider,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.contributor.dataprovider,glam.dataprovider,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.subject.picochi,pico.chi,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.subject.picocosa,pico.cosa,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.subject.picoquando,pico.quando,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.relation.aldrovandidocument,unibo.relation.aldrovandidocument,Publication
+dc.title.alternative_ar,unibo.title.alternative-ar,Publication
+dc.title.parallel,unibo.title.parallel,Publication
+dc.date.issued_hijra,unibo.date.issued-hijra,Publication
+dc.subject.keywords_ar,unibo.subject-ar,Publication
+dc.relation.arabicdocument,unibo.relation.arabicdocument,Publication
+dc.relation.relatedDocument,glam.relation.relatedDocument,"Publication, ArchivalMaterial"
+dc.relation.ancientbook,unibo.relation.ancientbook,Publication
+dc.subject.iconclass,glam.subject.iconclass,Publication
+dc.relation.relatedPicture,unibo.relation.relatedPicture,Publication
+dc.relation.subjectPicture,unibo.relation.subjectPicture,Picture
+dc.relation.Shivadharmamanuscript,unibo.relation.Shivadharmamanuscript,Publication
+dc.relation.geographicmap,unibo.relation.geographicmap,ArchivalMaterial
+dc.relation.PublicationPicture,unibo.relation.PublicationPicture,Publication
