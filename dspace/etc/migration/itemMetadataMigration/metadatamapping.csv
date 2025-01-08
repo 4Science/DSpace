@@ -4,7 +4,7 @@ dc.relation.conference,dc.relation.event,AudioVideo
 dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
 dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial"
 dc.subject,glam.subject,"Artwork, Coin, Picture"
-dc.relation.url,dc.relation.otherlinks,"Artwork, ArchivalMaterial, Coin, ScientificMaterial"
+dc.relation.url,dc.relation.otherlinks,"Artwork, Coin, ScientificMaterial"
 dc.source.content,dc.description.abstract,ArchivalMaterial
 dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
@@ -80,4 +80,4 @@ dc.relation.relatedPicture,unibo.relation.relatedPicture,Publication
 dc.relation.subjectPicture,unibo.relation.subjectPicture,Picture
 dc.relation.Shivadharmamanuscript,unibo.relation.Shivadharmamanuscript,Publication
 dc.relation.geographicmap,unibo.relation.geographicmap,ArchivalMaterial
-dc.relation.PublicationPicture,unibo.relation.PublicationPicture,Publication
+dc.relation.SupinoPicture,unibo.relation.SupinoPicture,Publication
