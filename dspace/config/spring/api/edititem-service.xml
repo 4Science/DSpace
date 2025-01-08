@@ -464,6 +464,321 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="publication.aldovrandi_manoscritti">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="aldovrandi_manoscritti-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.aldrovandi-opere">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="aldrovandi-opere-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.ambulo">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="ambulo-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.appunti-ingegneria">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="appunti-ingegneria-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.architettura-libro-antico">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="architettura-libro-antico-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="archivalmaterial.atlas-archival_material">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="atlas-archival_material-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.byzart">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="byzart-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.igcyr-gvcyr">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="igcyr-gvcyr-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="picture.immagini_unibo">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="immagini_unibo-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="journalfile.journal_file_unibo">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="journal_file_unibo-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.libro-antico">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="libro-antico-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.manoscritti">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="manoscritti-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.manoscritti-shivadharma">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="manoscritti-shivadharma-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="archivalmaterial.mappe-disci">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="mappe-disci-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="publication.supino">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="supino-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>
