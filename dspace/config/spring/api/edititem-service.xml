@@ -464,7 +464,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="AldovrandiManoscritti">
+                <entry key="publication.aldovrandi_manoscritti">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -485,7 +485,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="AldrovandiOpere">
+                <entry key="publication.aldrovandi-opere">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -506,7 +506,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="Ambulo">
+                <entry key="publication.ambulo">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -527,7 +527,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="AppuntiIngegneria">
+                <entry key="publication.appunti-ingegneria">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -548,7 +548,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="ArchitetturaLibroAntico">
+                <entry key="publication.architettura-libro-antico">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -569,7 +569,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="AtlasArchivalMaterial">
+                <entry key="archivalmaterial.atlas-archival_material">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -590,7 +590,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="Byzart">
+                <entry key="publication.byzart">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -611,7 +611,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="IgcyrGvcyr">
+                <entry key="publication.igcyr-gvcyr">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -632,7 +632,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="ImmaginiUnibo">
+                <entry key="picture.immagini_unibo">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -653,7 +653,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="JournalFileUnibo">
+                <entry key="journalfile.journal_file_unibo">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -674,7 +674,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="LibroAntico">
+                <entry key="publication.libro-antico">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -695,7 +695,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="Manoscritti">
+                <entry key="publication.manoscritti">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -716,7 +716,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="ManoscrittiShivadharma">
+                <entry key="publication.manoscritti-shivadharma">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -737,7 +737,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="MappeDisci">
+                <entry key="archivalmaterial.mappe-disci">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -758,7 +758,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="Supino">
+                <entry key="publication.supino">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
