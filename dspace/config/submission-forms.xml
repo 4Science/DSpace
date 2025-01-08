@@ -7244,9 +7244,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7683,9 +7683,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -8169,9 +8169,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -8631,9 +8631,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -9104,9 +9104,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -9577,9 +9577,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -11866,9 +11866,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -12362,9 +12362,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -12847,9 +12847,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -13307,9 +13307,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ispartof</dc-qualifier>
+          <dc-qualifier>ispartofcontainer</dc-qualifier>
           <label>Fa parte di</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>

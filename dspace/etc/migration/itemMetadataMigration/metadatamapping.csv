@@ -15,7 +15,7 @@ dc.relation.bibliographyauthors,glam.bibliography.author,"ArchivalMaterial, Pict
 dc.relation.bibliographyabbreviation,glam.bibliography.abbreviation,ArchivalMaterial
 dc.description,dc.description.note,MusicalLibrettos
 dc.title.integration,glampicture.type.framing,Picture
-dc.relation.ispartof,dc.relation.ispartofcontainer,Picture
+dc.relation.ispartof,dc.relation.ispartofcontainer,"Picture,ArchivalMaterial,JournalFile,Publication,Picture"
 dc.relation.inscriptionclass,glam.inscription.class,"Picture, ScientificMaterial"
 dc.relation.inscriptionclanguage,glam.inscription.language,"Picture, ScientificMaterial"
 dc.relation.inscriptiontechnique,glam.inscription.technique,"Picture, ScientificMaterial"
@@ -81,3 +81,5 @@ dc.relation.subjectPicture,unibo.relation.subjectPicture,Picture
 dc.relation.Shivadharmamanuscript,unibo.relation.Shivadharmamanuscript,Publication
 dc.relation.geographicmap,unibo.relation.geographicmap,ArchivalMaterial
 dc.relation.SupinoPicture,unibo.relation.SupinoPicture,Publication
+dc.relation.references,glam.relation.references,"ArchivalMaterial,JournalFile,Publication,Picture"
+dc.rights.holder,glam.rights.holder,"ArchivalMaterial,JournalFile,Publication,Picture"
