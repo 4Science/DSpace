@@ -1,3 +1,10 @@
+/**
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ * http://www.dspace.org/license/
+ */
 package org.dspace.validation;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +39,8 @@ public class ExternalFileUploadValidatorTest extends AbstractDSpaceTest {
 
     @Test
     public void testValidateNoCurrentRequest() {
-        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(DSpaceServicesFactory.class)) {
+        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(
+            DSpaceServicesFactory.class)) {
             RequestService mockRequestService = mock(RequestService.class);
 
             // Mock DSpaceServicesFactory and its method chain
@@ -51,7 +59,8 @@ public class ExternalFileUploadValidatorTest extends AbstractDSpaceTest {
 
     @Test
     public void testValidateWithErrorInRequest() {
-        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(DSpaceServicesFactory.class)) {
+        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(
+            DSpaceServicesFactory.class)) {
             RequestService mockRequestService = mock(RequestService.class);
             Request mockRequest = mock(Request.class);
             HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
@@ -66,7 +75,8 @@ public class ExternalFileUploadValidatorTest extends AbstractDSpaceTest {
             when(mockHttpServletRequest.getAttribute("external-upload-error")).thenReturn("File upload failed");
             when(mockConfig.getId()).thenReturn("upload");
 
-            List<ValidationError> errors = validator.validate(mock(Context.class), mock(InProgressSubmission.class), mockConfig);
+            List<ValidationError> errors =
+                validator.validate(mock(Context.class), mock(InProgressSubmission.class), mockConfig);
 
             assertEquals(1, errors.size());
             ValidationError error = errors.get(0);
@@ -77,7 +87,8 @@ public class ExternalFileUploadValidatorTest extends AbstractDSpaceTest {
 
     @Test
     public void testValidateWithoutErrorInRequest() {
-        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(DSpaceServicesFactory.class)) {
+        try (MockedStatic<DSpaceServicesFactory> dspaceServicesFactoryMock = Mockito.mockStatic(
+            DSpaceServicesFactory.class)) {
             RequestService mockRequestService = mock(RequestService.class);
             Request mockRequest = mock(Request.class);
             HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
