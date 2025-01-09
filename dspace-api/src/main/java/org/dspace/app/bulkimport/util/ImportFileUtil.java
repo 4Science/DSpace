@@ -95,12 +95,6 @@ public class ImportFileUtil {
         }
     }
 
-    protected void logDebug(String message) {
-        log.debug(message);
-        if (handler != null) {
-            handler.logDebug(message);
-        }
-    }
 
     private String getFileLocationTypeByPath(String path) {
         if (StringUtils.isNotBlank(path)) {
@@ -173,7 +167,6 @@ public class ImportFileUtil {
 
         // Log the rejected domain
         logWarning(String.format("Domain '%s' is not in the allowed list. Path: %s", host, path));
-        logDebug(String.format("Allowed domains: %s", allowedIps));
 
         return Optional.empty();
     }
