@@ -30,14 +30,10 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  */
 public class ImportFileUtil {
 
-    private static final Logger log = LogManager.getLogger(ImportFileUtil.class);
-
     public static final String REMOTE = "REMOTE";
-
-    private static final String LOCAL = "LOCAL";
-
     public static final String FTP = "FTP";
-
+    private static final Logger log = LogManager.getLogger(ImportFileUtil.class);
+    private static final String LOCAL = "LOCAL";
     private static final String HTTP_PREFIX = "http:";
 
     private static final String HTTPS_PREFIX = "https:";
@@ -47,6 +43,14 @@ public class ImportFileUtil {
     private static final String FTP_PREFIX = "ftp:";
 
     private static final String UNKNOWN = "UNKNOWN";
+    protected DSpaceRunnableHandler handler;
+
+    public ImportFileUtil() {
+    }
+
+    public ImportFileUtil(DSpaceRunnableHandler handler) {
+        this.handler = handler;
+    }
 
     /**
      * This method check if the given {@param possibleChild} is contained in the specified
@@ -73,14 +77,6 @@ public class ImportFileUtil {
                                     .getArrayProperty("allowed.ips.import");
     }
 
-    protected DSpaceRunnableHandler handler;
-
-    public ImportFileUtil() {}
-
-    public ImportFileUtil(DSpaceRunnableHandler handler) {
-        this.handler = handler;
-    }
-
     public Optional<InputStream> getInputStream(String path) {
         String fileLocationType = getFileLocationTypeByPath(path);
 
@@ -96,6 +92,13 @@ public class ImportFileUtil {
         log.warn(message);
         if (handler != null) {
             handler.logWarning(message);
+        }
+    }
+
+    protected void logDebug(String message) {
+        log.debug(message);
+        if (handler != null) {
+            handler.logDebug(message);
         }
     }
 
@@ -162,10 +165,15 @@ public class ImportFileUtil {
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
         URL url = getUrl(path);
         Set<String> allowedIps = Set.of(getAllowedIps());
+        String host = url.getHost();
 
-        if (allowedIps.isEmpty() || allowedIps.contains(url.getHost())) {
+        if (allowedIps.isEmpty() || allowedIps.contains(host)) {
             return Optional.ofNullable(openStream(url));
         }
+
+        // Log the rejected domain
+        logWarning(String.format("Domain '%s' is not in the allowed list. Path: %s", host, path));
+        logDebug(String.format("Allowed domains: %s", allowedIps));
 
         return Optional.empty();
     }
