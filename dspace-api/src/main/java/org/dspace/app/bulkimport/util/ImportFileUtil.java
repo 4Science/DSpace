@@ -160,7 +160,7 @@ public class ImportFileUtil {
     }
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
-        return Optional.of(new URL(path))
+        return Optional.of(getUrl(path))
                        .filter(url -> Set.of(getAllowedIps()).contains(url.getHost()))
                        .map(this::openStream);
     }
@@ -173,8 +173,12 @@ public class ImportFileUtil {
         }
     }
 
+    protected URL getUrl(String path) throws IOException {
+        return new URL(path);
+    }
+
     private Optional<InputStream> getInputStreamOfFtpFile(String url) throws IOException {
-        URL urlObject = new URL(url);
+        URL urlObject = getUrl(url);
         URLConnection urlConnection = urlObject.openConnection();
         return Optional.of(urlConnection.getInputStream());
     }
