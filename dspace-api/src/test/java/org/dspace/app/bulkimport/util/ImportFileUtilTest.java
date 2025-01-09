@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Optional;
 
 import org.dspace.AbstractDSpaceTest;
@@ -34,9 +35,9 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
 
     private ImportFileUtil importFileUtil;
 
-    private DSpaceServicesFactory dSpaceServicesFactory;
     private ConfigurationService configurationService;
     private MockedStatic<DSpaceServicesFactory> dSpaceServicesFactoryMockedStatic;
+    private URLConnection urlConnection;
 
     @Before
     public void setUp() {
@@ -45,8 +46,10 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
 
         // Setup common mocks
         dSpaceServicesFactoryMockedStatic = mockStatic(DSpaceServicesFactory.class);
-        dSpaceServicesFactory = mock(DSpaceServicesFactory.class);
+        DSpaceServicesFactory dSpaceServicesFactory = mock(DSpaceServicesFactory.class);
         configurationService = mock(ConfigurationService.class);
+        urlConnection = mock(URLConnection.class);
+
 
         // Setup common mock behavior
         dSpaceServicesFactoryMockedStatic.when(DSpaceServicesFactory::getInstance)
@@ -137,7 +140,7 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
     }
 
     @Test
-    public void getInputStream_shouldReturnEmpty_whenLocalFileDoesNotExist() throws Exception {
+    public void getInputStream_shouldReturnEmpty_whenLocalFileDoesNotExist() {
         // Given
         when(configurationService.getProperty("uploads.local-folder"))
             .thenReturn("/local/uploads");
@@ -150,4 +153,42 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         // Then
         assertFalse(result.isPresent());
     }
+
+    @Test
+    public void getInputStream_shouldReturnStream_whenFtpConnectionSucceeds() throws Exception {
+        // Given
+        String ftpPath = "ftp://example.com/file.txt";
+        URL mockUrl = mock(URL.class);
+        InputStream mockInputStream = mock(InputStream.class);
+
+        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.openConnection()).thenReturn(urlConnection);
+        when(urlConnection.getInputStream()).thenReturn(mockInputStream);
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+
+        // Then
+        assertTrue(result.isPresent());
+        verify(urlConnection).getInputStream();
+    }
+
+    @Test
+    public void getInputStream_shouldReturnEmpty_whenFtpStreamIsNull() throws Exception {
+        // Given
+        String ftpPath = "ftp://example.com/file.txt";
+        URL mockUrl = mock(URL.class);
+
+        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.openConnection()).thenReturn(urlConnection);
+        when(urlConnection.getInputStream()).thenReturn(null);
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+
+        // Then
+        assertFalse(result.isPresent());
+        verify(urlConnection).getInputStream();
+    }
+
 }
