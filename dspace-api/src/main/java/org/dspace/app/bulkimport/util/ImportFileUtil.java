@@ -160,9 +160,14 @@ public class ImportFileUtil {
     }
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
-        return Optional.of(getUrl(path))
-                       .filter(url -> Set.of(getAllowedIps()).contains(url.getHost()))
-                       .map(this::openStream);
+        URL url = getUrl(path);
+        Set<String> allowedIps = Set.of(getAllowedIps());
+
+        if (allowedIps.isEmpty() || allowedIps.contains(url.getHost())) {
+            return Optional.ofNullable(openStream(url));
+        }
+
+        return Optional.empty();
     }
 
     protected InputStream openStream(URL url) {
