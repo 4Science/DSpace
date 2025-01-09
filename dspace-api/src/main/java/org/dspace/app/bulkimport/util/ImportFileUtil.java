@@ -193,6 +193,12 @@ public class ImportFileUtil {
     private Optional<InputStream> getInputStreamOfFtpFile(String url) throws IOException {
         URL urlObject = getUrl(url);
         URLConnection urlConnection = urlObject.openConnection();
-        return Optional.of(urlConnection.getInputStream());
+        InputStream inputStream = urlConnection.getInputStream();
+        if (inputStream == null) {
+            logError(
+                String.format("Failed to obtain InputStream for FTP URL: %s. getInputStream() returned null", url));
+            return Optional.empty();
+        }
+        return Optional.of(inputStream);
     }
 }
