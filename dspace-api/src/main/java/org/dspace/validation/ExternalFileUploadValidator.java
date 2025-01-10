@@ -19,6 +19,8 @@ import org.dspace.core.Context;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.services.model.Request;
 import org.dspace.validation.model.ValidationError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validator that checks validity of the submitted external file,
@@ -29,12 +31,17 @@ import org.dspace.validation.model.ValidationError;
 public class ExternalFileUploadValidator implements SubmissionStepValidator {
 
     public static final String ERROR_KEY = "external-upload-error";
+    private static final Logger log = LoggerFactory.getLogger(ExternalFileUploadValidator.class);
 
     private String name;
 
     private HttpServletRequest getCurrentRequest() {
         Request req = DSpaceServicesFactory.getInstance().getRequestService().getCurrentRequest();
-        return req == null ? null : req.getHttpServletRequest();
+        if (req == null) {
+            log.warn("No current request found!");
+            return null;
+        }
+        return req.getHttpServletRequest();
     }
 
     @Override
