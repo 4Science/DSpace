@@ -1,0 +1,76 @@
+#!/bin/sh
+#set -x
+###########################################################################
+# The contents of this file are subject to the license and copyright
+# detailed in the LICENSE and NOTICE files at the root of the source
+# tree and available online at
+#
+# http://www.dspace.org/license/
+###########################################################################
+# 'dspacerestprocess' script
+# This is a Unix shell script for request the execution of a process to
+# the DSpace REST API using the machine token configured in the local.cfg
+# the script expects
+# - the first parameter to be the name of the script (i.e. filter-media, curate, etc.)
+# - subsequent paramter should be in the form key=value and will be provided as is to the
+#   REST process 
+
+# Function to check if an argument contains '='
+contains_equal() {
+   case "$1" in
+        *=*) return 0 ;;
+        *) return 1 ;;
+   esac
+}
+
+# Assume that this script is in the bin subdirectory of the DSpace installation directory.
+BINDIR=`dirname $0`
+DSPACEDIR=`cd "$BINDIR/.." ; pwd`
+JWT_TOKEN=`$BINDIR/dspace dsprop --property dspace.cli.jwt`
+RESTURL=`$BINDIR/dspace dsprop --property dspace.server.url`
+AUTHHEADER=`echo "authorization: Bearer $JWT_TOKEN"`
+
+# Check if the jwt token is configured
+if [ -z "$JWT_TOKEN" ]; then
+  echo "Error: no jwt token provided in the dspace configuration property dspace.cli.jwt"
+  echo "Fix the local.cfg configuration"
+  exit 1
+fi
+
+# Check if the process name has been provided
+if [ -z "$1" ]; then
+  echo "Error: no process name provided."
+  echo "Usage: $0 <script-name> [<key=value> <key2=value2>...]"
+  exit 1
+fi
+
+# Construct the JSON object
+json_data="["
+SCRIPTNAME=$1
+shift
+for arg in "$@"; do
+  if ! contains_equal "$arg"; then
+      echo "Error: argument $arg not valid."
+      echo "Usage: $0 <script-name> [<key=value> <key2=value2>...]"
+      exit 1
+  fi
+  key=$(echo "$arg" | cut -d= -f1)
+  value=$(echo "$arg" | cut -d= -f2)
+  json_data="$json_data{\"name\":\"$key\",\"value\":\"$value\"},"
+done
+# Remove the trailing comma and close the JSON object
+json_data="${json_data%,}]"
+random_uuid=$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 32 | head -n 1 | sed 's/^\(........\)\(....\)\(....\)\(....\)\(............\)$/\1-\2-\3-\4-\5/')
+
+echo "The process will use the correlation-id: $random_uuid"
+
+#  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundaryOsBtEqLjmD9Bjl19' \
+# Use curl to post the JSON data
+curl "$RESTURL/api/system/scripts/$SCRIPTNAME/processes" \
+  -H 'accept: application/json, text/plain, */*' \
+  -H "$AUTHHEADER" \
+  -H "cookie: DSPACE-XSRF-COOKIE=$random_uuid" \
+  -H "x-correlation-id: $random_uuid" \
+  -H 'x-referrer: /crontab' \
+  -H "x-xsrf-token: $random_uuid" \
+  -F "properties=$json_data"
