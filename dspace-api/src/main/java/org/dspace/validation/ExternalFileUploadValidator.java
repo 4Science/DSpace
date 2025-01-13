@@ -17,7 +17,10 @@ import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.core.Context;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.services.model.Request;
 import org.dspace.validation.model.ValidationError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validator that checks validity of the submitted external file,
@@ -28,15 +31,24 @@ import org.dspace.validation.model.ValidationError;
 public class ExternalFileUploadValidator implements SubmissionStepValidator {
 
     public static final String ERROR_KEY = "external-upload-error";
+    private static final Logger log = LoggerFactory.getLogger(ExternalFileUploadValidator.class);
 
     private String name;
 
     private HttpServletRequest getCurrentRequest() {
-        return DSpaceServicesFactory.getInstance().getRequestService().getCurrentRequest().getHttpServletRequest();
+        Request req = DSpaceServicesFactory.getInstance().getRequestService().getCurrentRequest();
+        if (req == null) {
+            log.warn("No current request found!");
+            return null;
+        }
+        return req.getHttpServletRequest();
     }
 
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionStepConfig config) {
+        if (getCurrentRequest() == null) {
+            return List.of();
+        }
         return Optional.ofNullable((String) getCurrentRequest().getAttribute(ERROR_KEY))
                 .map(errorMessage -> addError(errorMessage, config))
                        .map(List::of)
