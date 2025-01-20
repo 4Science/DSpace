@@ -162,6 +162,19 @@
 			</util:list>
 		</constructor-arg>
 	</bean>
+
+	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
+		<property name="supportedAuthorities">
+			<util:list>
+				<value>PublicationReferencesAuthority</value>
+			</util:list>
+		</property>
+		<constructor-arg name="customQueries">
+			<util:list>
+				<value>-dc.type:("interactive resource" OR website OR dataset OR image OR "moving image" OR video OR "still image" OR other OR software OR workflow OR "cartographic material" OR map OR sound OR "musical composition" OR patent)</value>
+			</util:list>
+		</constructor-arg>
+	</bean>
 	
 
 </beans>
