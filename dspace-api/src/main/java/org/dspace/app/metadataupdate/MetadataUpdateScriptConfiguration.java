@@ -32,7 +32,7 @@ public class MetadataUpdateScriptConfiguration<T extends MetadataUpdateScript>
 
     /**
      * Generic setter for the dspaceRunnableClass
-     * @param dspaceRunnableClass   The dspaceRunnableClass to be set on this OAIREPublicationLoaderScriptConfiguration
+     * @param dspaceRunnableClass   The dspaceRunnableClass to be set on this MetadataUpdateScriptConfiguration
      */
     @Override
     public void setDspaceRunnableClass(Class<T> dspaceRunnableClass) {
@@ -53,7 +53,7 @@ public class MetadataUpdateScriptConfiguration<T extends MetadataUpdateScript>
         if (options == null) {
             Options options = new Options();
 
-            options.addOption("m", "metadata", true, "metadata to be handled");
+            options.addOption("m", "metadata", true, "metadata field to be updated (e.g., dc.title)");
             options.getOption("m").setType(String.class);
             options.getOption("m").setRequired(true);
 
