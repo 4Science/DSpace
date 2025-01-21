@@ -66,9 +66,6 @@ public class DOIOrganiser {
     protected ItemService itemService;
     protected DOIService doiService;
     protected ConfigurationService configurationService;
-
-    protected boolean skipFilter;
-
     // This filter will override the default provider filter / behaviour
     protected Filter filter;
 
@@ -220,11 +217,11 @@ public class DOIOrganiser {
         int offset = -1;
 
         if (line.hasOption("li")) {
-            limit = Integer.valueOf(line.getOptionValue("li"));
+            limit = Integer.parseInt(line.getOptionValue("li"));
         }
 
         if (line.hasOption("o")) {
-            offset = Integer.valueOf(line.getOptionValue("o"));
+            offset = Integer.parseInt(line.getOptionValue("o"));
         }
 
         DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
@@ -480,6 +477,7 @@ public class DOIOrganiser {
                 message = "It wasn't possible to register this identifier: "
                     + DOI.SCHEME + doiRow.getDoi()
                     + " online. ";
+                return;
             } else {
                 DOIIdentifierException doiIdentifierException = (DOIIdentifierException) ex;
                 message = "It wasn't possible to register this identifier : "
