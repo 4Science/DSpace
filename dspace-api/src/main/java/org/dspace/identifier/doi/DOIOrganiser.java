@@ -11,7 +11,6 @@ package org.dspace.identifier.doi;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -57,15 +56,16 @@ import org.dspace.utils.DSpace;
 public class DOIOrganiser {
 
     private static final Logger LOG = LogManager.getLogger(DOIOrganiser.class);
+    private static final int DOI_ORGANISER_LIMIT = 50;
 
     private final DOIIdentifierProvider provider;
     private final Context context;
+    private final int limit;
     private boolean quiet;
     protected HandleService handleService;
     protected ItemService itemService;
     protected DOIService doiService;
     protected ConfigurationService configurationService;
-    private int limit = 50;
 
     protected boolean skipFilter;
 
@@ -85,7 +85,7 @@ public class DOIOrganiser {
         this.itemService = ContentServiceFactory.getInstance().getItemService();
         this.doiService = IdentifierServiceFactory.getInstance().getDOIService();
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
-        this.limit = configurationService.getIntProperty("doi-organiser-limit", 50);
+        this.limit = configurationService.getIntProperty("doi-organiser-limit", DOI_ORGANISER_LIMIT);
         this.filter = DSpaceServicesFactory.getInstance().getServiceManager().getServiceByName(
                 "always_true_filter", TrueFilter.class);
     }
