@@ -29,7 +29,7 @@ public class MetadataUpdateScriptCli extends MetadataUpdateScript {
                 }
                 context.setCurrentUser(ePerson);
             } catch (SQLException e) {
-                throw new IllegalArgumentException("SQLException trying to find user with email: " + ePersonEmail);
+                throw new IllegalArgumentException("SQLException trying to find user with email: " + ePersonEmail, e);
             }
         } else {
             throw new ParseException("Required parameter -e missing!");
