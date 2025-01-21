@@ -61,12 +61,12 @@
         <jersey.version>2.39.1</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2023.02.06,cris-2023.02.07)</addons.version>
-        <addon-iiif.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-iiif.version>
-        <addon-ocr.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-ocr.version>
-        <addon-video.version>[CRIS-7.1-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-video.version>
-        <addon-docviewer.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-docviewer.version>
-        <addon-analytics.version>[CRIS-7.0-SNAPSHOT,CRIS-8.0-SNAPSHOT)</addon-analytics.version>
+        <addons.version>[cris-2023.02.06,cris-2023.02.06.9999)</addons.version>
+        <addon-iiif.version>${addons.version}</addon-iiif.version>
+        <addon-ocr.version>${addons.version}</addon-ocr.version>
+        <addon-video.version>${addons.version}</addon-video.version>
+        <addon-docviewer.version>${addons.version}</addon-docviewer.version>
+        <addon-analytics.version>${addons.version}</addon-analytics.version>
         <addon-dataquality.version>${addons.version}</addon-dataquality.version>
         <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
         <addon-networklab.version>${addons.version}</addon-networklab.version>
