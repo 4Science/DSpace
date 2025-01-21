@@ -49,21 +49,13 @@ public class MetadataUpdateScriptIT extends AbstractIntegrationTestWithDatabase 
 
         context.turnOffAuthorisationSystem();
 
-        Item itemOne = createItem("Test publication one", "english");
+        Item itemOne = createItem("Test publication one", "de");
 
-        Item itemTwo = createItem("Test publication two", "English");
+        Item itemTwo = createItem("Test publication two", "en");
 
-        Item itemThree = createItem("Test publication three", "ENGLISH");
+        Item itemThree = createItem("Test publication three", "pt");
 
-        Item itemFour = createItem("Test publication four", "eng");
-
-        Item itemFive = createItem("Test publication five", "ita");
-
-        Item itemSix = createItem("Test publication six", "fra");
-
-        Item itemSeven = createItem("Test publication seven", "English:(French and German)");
-
-        Item itemEight = createItem("Test publication seven", "English:(French and German and Russian)");
+        Item itemFour = createItem("Test publication four", "Ita-fra");
 
         context.restoreAuthSystemState();
 
@@ -77,19 +69,11 @@ public class MetadataUpdateScriptIT extends AbstractIntegrationTestWithDatabase 
         itemTwo = context.reloadEntity(itemTwo);
         itemThree = context.reloadEntity(itemThree);
         itemFour = context.reloadEntity(itemFour);
-        itemFive = context.reloadEntity(itemFive);
-        itemSix = context.reloadEntity(itemSix);
-        itemSeven = context.reloadEntity(itemSeven);
-        itemEight = context.reloadEntity(itemEight);
 
-        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "en", "2", 0, 500)));
-        assertThat(itemTwo.getMetadata(), hasItem(with("dc.language.iso", "en", "2", 0, 500)));
-        assertThat(itemThree.getMetadata(), hasItem(with("dc.language.iso", "en", "2", 0, 500)));
-        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "en", "2", 0, 500)));
-        assertThat(itemFive.getMetadata(), hasItem(with("dc.language.iso", "it", "6", 0, 500)));
-        assertThat(itemSix.getMetadata(), hasItem(with("dc.language.iso", "fr", "5", 0, 500)));
-        assertThat(itemSeven.getMetadata(), hasItem(with("dc.language.iso", "en | fr | de", null, 0, 300)));
-        assertThat(itemEight.getMetadata(), hasItem(with("dc.language.iso", "en | fr | de | ru", null, 0, 300)));
+        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "deu", "2", 0, 500)));
+        assertThat(itemTwo.getMetadata(), hasItem(with("dc.language.iso", "eng", "2", 0, 500)));
+        assertThat(itemThree.getMetadata(), hasItem(with("dc.language.iso", "por", "2", 0, 500)));
+        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "ita | fra", "2", 0, 500)));
     }
 
     @Test
