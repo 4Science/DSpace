@@ -8,13 +8,10 @@
 
 package org.dspace.identifier.doi;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import jakarta.mail.MessagingException;
@@ -35,13 +32,13 @@ import org.dspace.content.logic.TrueFilter;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.Email;
-import org.dspace.core.I18nUtil;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.DOI;
 import org.dspace.identifier.DOIIdentifierProvider;
 import org.dspace.identifier.IdentifierException;
+import org.dspace.identifier.doi.strategy.DOIOrganiserStrategy;
+import org.dspace.identifier.doi.strategy.DOIOrganiserStrategyFactory;
 import org.dspace.identifier.factory.IdentifierServiceFactory;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
@@ -68,6 +65,7 @@ public class DOIOrganiser {
     protected ConfigurationService configurationService;
     // This filter will override the default provider filter / behaviour
     protected Filter filter;
+    protected DOIOrganiserStrategyFactory doiStrategyFactory;
 
     /**
      * Constructor to be called within the main() method
@@ -85,6 +83,7 @@ public class DOIOrganiser {
         this.limit = configurationService.getIntProperty("doi-organiser-limit", DOI_ORGANISER_LIMIT);
         this.filter = DSpaceServicesFactory.getInstance().getServiceManager().getServiceByName(
                 "always_true_filter", TrueFilter.class);
+        this.doiStrategyFactory = DOIOrganiserStrategyFactory.instance();
     }
 
     /**
@@ -116,70 +115,7 @@ public class DOIOrganiser {
 
     public static void runCLI(Context context, DOIOrganiser organiser, String[] args) {
         // initialize options
-        Options options = new Options();
-
-        options.addOption("h", "help", false, "Help");
-        options.addOption("l", "list", false,
-                          "List all objects to be reserved, registered, deleted of updated ");
-        options.addOption("r", "register-all", false,
-                          "Perform online registration for all identifiers queued for registration.");
-        options.addOption("s", "reserve-all", false,
-                          "Perform online reservation for all identifiers queued for reservation.");
-        options.addOption("u", "update-all", false,
-                          "Perform online metadata update for all identifiers queued for metadata update.");
-        options.addOption("d", "delete-all", false,
-                          "Perform online deletion for all identifiers queued for deletion.");
-        options.addOption("q", "quiet", false,
-                          "Turn the command line output off.");
-        options.addOption("o", "offset", true, "The records offset");
-        options.addOption("li", "limit", true, "The records limit");
-
-        Option filterDoi = Option.builder().optionalArg(true).longOpt("filter").hasArg().argName("filterName")
-                .desc("Use the specified filter name instead of the provider's filter. Defaults to a special " +
-                "'always true' filter to force operations").build();
-        options.addOption(filterDoi);
-
-        Option registerDoi = Option.builder()
-                .longOpt("register-doi")
-                .hasArg()
-                .argName("DOI|ItemID|handle")
-                .desc("Register a specified identifier. "
-                        + "You can specify the identifier by ItemID, Handle or"
-                        + " DOI.")
-                .build();
-
-        options.addOption(registerDoi);
-
-        Option reserveDoi = Option.builder()
-                .longOpt("reserve-doi")
-                .hasArg()
-                .argName("DOI|ItemID|handle")
-                .desc("Reserve a specified identifier online. "
-                        + "You can specify the identifier by ItemID, Handle or "
-                        + "DOI.")
-                .build();
-
-        options.addOption(reserveDoi);
-
-        Option update = Option.builder()
-                .longOpt("update-doi")
-                .hasArg()
-                .argName("DOI|ItemID|handle")
-                .desc("Update online an object for a given DOI identifier"
-                        + " or ItemID or Handle. A DOI identifier or an ItemID or a"
-                        + " Handle is needed.")
-                .build();
-
-        options.addOption(update);
-
-        Option delete = Option.builder()
-                .argName("DOI identifier")
-                .longOpt("delete-doi")
-                .hasArg()
-                .desc("Delete a specified identifier.")
-                .build();
-
-        options.addOption(delete);
+        Options options = buildOptions();
 
         // initialize parser
         CommandLineParser parser = new DefaultParser();
@@ -224,7 +160,6 @@ public class DOIOrganiser {
             offset = Integer.parseInt(line.getOptionValue("o"));
         }
 
-        DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
         // Do we get a filter?
         if (line.hasOption("filter")) {
             String filter = line.getOptionValue("filter");
@@ -233,115 +168,26 @@ public class DOIOrganiser {
             }
         }
 
-        if (line.hasOption('s')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be reserved.");
-                }
+        if (organiser.provider == null) {
+            System.out.println("Cannot find any provider, configure a proper DOIIdentifierProvider and try again!");
+            return;
+        }
 
-                for (DOI doi : dois) {
-                    context.reloadEntity(doi);
-                    try {
-                        organiser.reserve(doi);
-                        context.uncacheEntity(doi);
-                        context.commit();
-                    } catch (RuntimeException e) {
-                        System.err.format("DOI %s for object %s reservation failed, skipping:  %s%n",
-                                          doi.getDSpaceObject().getID().toString(),
-                                          doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+        List<DOIOrganiserStrategy> strategies = new ArrayList<>();
+        if (line.hasOption('s')) {
+            strategies.add(organiser.doiStrategyFactory.reserveStrategy(context, organiser.filter, offset, limit));
         }
 
         if (line.hasOption('r')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be registered.");
-                }
-                for (DOI doi : dois) {
-                    context.reloadEntity(doi);
-                    try {
-                        organiser.register(doi);
-                        context.uncacheEntity(doi);
-                        context.commit();
-                    } catch (SQLException e) {
-                        System.err.format("DOI %s for object %s registration failed, skipping:  %s%n",
-                                          doi.getDSpaceObject().getID().toString(),
-                                          doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.format("Error in database connection:  %s%n", ex.getMessage());
-                ex.printStackTrace(System.err);
-            } catch (RuntimeException ex) {
-                System.err.format("Error registering DOI identifier:  %s%n", ex.getMessage());
-            }
+            strategies.add(organiser.doiStrategyFactory.registerStrategy(context, organiser.filter, offset, limit));
         }
 
         if (line.hasOption('u')) {
-            try {
-                List<DOI> dois = doiService.getDOIsByStatus(context, List.of(
-                    DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
-                    DOIIdentifierProvider.UPDATE_RESERVED,
-                    DOIIdentifierProvider.UPDATE_REGISTERED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "whose metadata needs an update.");
-                }
-
-                for (DOI doi : dois) {
-                    context.reloadEntity(doi);
-                    organiser.update(doi);
-                    context.uncacheEntity(doi);
-                    context.commit();
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+            strategies.add(organiser.doiStrategyFactory.updateStrategy(context, organiser.filter, offset, limit));
         }
 
         if (line.hasOption('d')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, List.of(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be deleted.");
-                }
-
-                Iterator<DOI> iterator = dois.iterator();
-                while (iterator.hasNext()) {
-                    DOI doi = iterator.next();
-                    doi = context.reloadEntity(doi);
-                    iterator.remove();
-                    try {
-                        organiser.delete(doi.getDoi());
-                        context.uncacheEntity(doi);
-                        context.commit();
-                    } catch (SQLException e) {
-                        System.err.format("DOI %s for object %s deletion failed, skipping:  %s%n",
-                                          doi.getDSpaceObject().getID().toString(),
-                                          doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+            strategies.add(organiser.doiStrategyFactory.deleteStrategy(context, offset, limit));
         }
 
         if (line.hasOption("reserve-doi")) {
@@ -351,8 +197,7 @@ public class DOIOrganiser {
                 helpformater.printHelp("\nDOI organiser\n", options);
             } else {
                 try {
-                    DOI doiRow = organiser.resolveToDOI(identifier);
-                    organiser.reserve(doiRow);
+                    strategies.add(organiser.doiStrategyFactory.reserveStrategy(organiser.resolveToDOI(identifier)));
                 } catch (SQLException | IllegalArgumentException | IllegalStateException | IdentifierException ex) {
                     LOG.error(ex);
                 }
@@ -366,12 +211,12 @@ public class DOIOrganiser {
                 helpformater.printHelp("\nDOI organiser\n", options);
             } else {
                 try {
-                    DOI doiRow = organiser.resolveToDOI(identifier);
-                    organiser.register(doiRow);
+                    strategies.add(organiser.doiStrategyFactory.registerStrategy(organiser.resolveToDOI(identifier)));
                 } catch (SQLException | IllegalArgumentException | IllegalStateException | IdentifierException ex) {
                     LOG.error(ex);
                 }
             }
+
         }
 
         if (line.hasOption("update-doi")) {
@@ -381,8 +226,7 @@ public class DOIOrganiser {
                 helpformater.printHelp("\nDOI organiser\n", options);
             } else {
                 try {
-                    DOI doiRow = organiser.resolveToDOI(identifier);
-                    organiser.update(doiRow);
+                    strategies.add(organiser.doiStrategyFactory.updateStrategy(organiser.resolveToDOI(identifier)));
                 } catch (SQLException | IllegalArgumentException | IllegalStateException | IdentifierException ex) {
                     LOG.error(ex);
                 }
@@ -396,13 +240,97 @@ public class DOIOrganiser {
                 helpformater.printHelp("\nDOI organiser\n", options);
             } else {
                 try {
-                    organiser.delete(identifier);
-                } catch (SQLException | IllegalArgumentException ex) {
+                    strategies.add(organiser.doiStrategyFactory.deleteStrategy(organiser.resolveToDOI(identifier)));
+                } catch (SQLException | IllegalArgumentException | IllegalStateException | IdentifierException ex) {
                     LOG.error(ex);
                 }
             }
         }
 
+        for (DOIOrganiserStrategy strategy : strategies) {
+            strategy.apply(context);
+        }
+
+        System.out.println("Process Completed!");
+        LOG.info("Process Completed!");
+
+    }
+
+    private static Options buildOptions() {
+        Options options = new Options();
+
+        options.addOption("h", "help", false, "Help");
+        options.addOption("l", "list", false,
+            "List all objects to be reserved, registered, deleted of updated "
+        );
+        options.addOption("r", "register-all", false,
+            "Perform online registration for all identifiers queued for registration."
+        );
+        options.addOption("s", "reserve-all", false,
+            "Perform online reservation for all identifiers queued for reservation."
+        );
+        options.addOption("u", "update-all", false,
+            "Perform online metadata update for all identifiers queued for metadata update."
+        );
+        options.addOption("d", "delete-all", false,
+            "Perform online deletion for all identifiers queued for deletion."
+        );
+        options.addOption("q", "quiet", false,
+            "Turn the command line output off."
+        );
+        options.addOption("o", "offset", true, "The records offset");
+        options.addOption("li", "limit", true, "The records limit");
+
+        options.addOption(
+            Option.builder().optionalArg(true).longOpt("filter").hasArg().argName("filterName")
+                  .desc("Use the specified filter name instead of the provider's filter. Defaults to a special " +
+                        "'always true' filter to force operations")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder()
+                  .longOpt("register-doi")
+                  .hasArg()
+                  .argName("DOI|ItemID|handle")
+                  .desc("Register a specified identifier. "
+                        + "You can specify the identifier by ItemID, Handle or"
+                        + " DOI.")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder()
+                  .longOpt("reserve-doi")
+                  .hasArg()
+                  .argName("DOI|ItemID|handle")
+                  .desc("Reserve a specified identifier online. "
+                        + "You can specify the identifier by ItemID, Handle or "
+                        + "DOI.")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder()
+                  .longOpt("update-doi")
+                  .hasArg()
+                  .argName("DOI|ItemID|handle")
+                  .desc("Update online an object for a given DOI identifier"
+                        + " or ItemID or Handle. A DOI identifier or an ItemID or a"
+                        + " Handle is needed.")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder()
+                  .argName("DOI|ItemID|handle")
+                  .longOpt("delete-doi")
+                  .hasArg()
+                  .desc("Delete a specified identifier.")
+                  .build()
+        );
+
+        return options;
     }
 
     /**
@@ -441,287 +369,6 @@ public class DOIOrganiser {
         } catch (SQLException ex) {
             err.println("Error in database Connection: " + ex.getMessage());
             ex.printStackTrace(err);
-        }
-    }
-
-    /**
-     * Register DOI with the provider
-     * @param doiRow        DOI to register
-     * @param filter        logical item filter to override
-     * @throws IllegalArgumentException
-     *                      if {@link doiRow} does not name an Item.
-     * @throws IllegalStateException
-     *                      on invalid DOI.
-     * @throws RuntimeException
-     *                      on database error.
-     */
-    public void register(DOI doiRow, Filter filter)
-            throws IllegalArgumentException, IllegalStateException,
-            RuntimeException {
-        DSpaceObject dso = doiRow.getDSpaceObject();
-        if (Constants.ITEM != dso.getType()) {
-            throw new IllegalArgumentException("Currenty DSpace supports DOIs for Items only.");
-        }
-
-        try {
-            provider.registerOnline(context, dso, DOI.SCHEME + doiRow.getDoi(), filter);
-
-            if (!quiet) {
-                System.out.println("This identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi()
-                                       + " is successfully registered.");
-            }
-        } catch (IdentifierException ex) {
-            String message;
-            if (!(ex instanceof DOIIdentifierException)) {
-                message = "It wasn't possible to register this identifier: "
-                    + DOI.SCHEME + doiRow.getDoi()
-                    + " online. ";
-                return;
-            } else {
-                DOIIdentifierException doiIdentifierException = (DOIIdentifierException) ex;
-                message = "It wasn't possible to register this identifier : "
-                    + DOI.SCHEME + doiRow.getDoi()
-                    + " online. Exceptions code: "
-                    + DOIIdentifierException.codeToString(doiIdentifierException.getCode());
-            }
-
-            try {
-                sendAlertMail("Register", dso,
-                              DOI.SCHEME + doiRow.getDoi(),
-                              message);
-            } catch (IOException ioe) {
-                LOG.error("Couldn't send mail", ioe);
-            }
-
-            LOG.error(message, ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to register this identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi());
-            }
-
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Database table DOI contains a DOI that is not valid: "
-                          + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to register this identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi());
-            }
-
-            throw new IllegalStateException("Database table DOI contains a DOI "
-                                                + " that is not valid: "
-                                                + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-        } catch (SQLException ex) {
-            LOG.error("Error while trying to get data from database", ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to register this identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi());
-            }
-            throw new RuntimeException("Error while trying to get data from database", ex);
-        }
-    }
-
-    /**
-     * Register DOI with the provider.
-     * @param doiRow        DOI to register
-     * @throws IllegalArgumentException passed through.
-     * @throws IllegalStateException passed through.
-     * @throws RuntimeException passed through.
-     */
-    public void register(DOI doiRow)
-            throws IllegalStateException, IllegalArgumentException,
-            RuntimeException {
-        register(doiRow, this.filter);
-    }
-
-    /**
-     * Reserve DOI with the provider,
-     * @param doiRow        - doi to reserve
-     */
-    public void reserve(DOI doiRow) {
-        reserve(doiRow, this.filter);
-    }
-
-    /**
-     * Reserve DOI with the provider.
-     * @param doiRow        - doi to reserve
-     * @param filter        - Logical item filter to determine whether this
-     *                        identifier should be reserved online.
-     * @throws IllegalStateException on invalid DOI.
-     * @throws RuntimeException on database error.
-     */
-    public void reserve(DOI doiRow, Filter filter) {
-        DSpaceObject dso = doiRow.getDSpaceObject();
-        if (Constants.ITEM != dso.getType()) {
-            throw new IllegalArgumentException("Currently DSpace supports DOIs for Items only.");
-        }
-
-        try {
-            provider.reserveOnline(context, dso, DOI.SCHEME + doiRow.getDoi(), filter);
-
-            if (!quiet) {
-                System.out.println("This identifier : " + DOI.SCHEME + doiRow.getDoi() + " is successfully reserved.");
-            }
-        } catch (IdentifierException ex) {
-            String message;
-            if (!(ex instanceof DOIIdentifierException)) {
-                message = "It wasn't possible to register this identifier : "
-                    + DOI.SCHEME + doiRow.getDoi()
-                    + " online. ";
-            } else {
-                DOIIdentifierException doiIdentifierException = (DOIIdentifierException) ex;
-                message = "It wasn't possible to reserve the identifier online. "
-                    + " Exceptions code:  "
-                    + DOIIdentifierException.codeToString(doiIdentifierException.getCode());
-            }
-
-            try {
-                sendAlertMail("Reserve", dso,
-                              DOI.SCHEME + doiRow.getDoi(),
-                              message);
-            } catch (IOException ioe) {
-                LOG.error("Couldn't send mail", ioe);
-            }
-
-            LOG.error(message, ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to reserve this identifier: " + DOI.SCHEME + doiRow.getDoi());
-            }
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Database table DOI contains a DOI that is not valid: "
-                          + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to reserve this identifier: " + DOI.SCHEME + doiRow.getDoi());
-            }
-            throw new IllegalStateException("Database table DOI contains a DOI "
-                                                + " that is not valid: "
-                                                + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-        } catch (SQLException ex) {
-            LOG.error("Error while trying to get data from database", ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to reserve this identifier: " + DOI.SCHEME + doiRow.getDoi());
-            }
-            throw new RuntimeException("Error while trying to get data from database", ex);
-
-        }
-    }
-
-    /**
-     * Update metadata for a DOI
-     * @param doiRow    - DOI to update
-     */
-    public void update(DOI doiRow) {
-        DSpaceObject dso = doiRow.getDSpaceObject();
-        if (dso == null) {
-            return;
-        }
-        if (Constants.ITEM != dso.getType()) {
-            throw new IllegalArgumentException("Currently DSpace supports DOIs for Items only.");
-        }
-
-        try {
-            provider.updateMetadataOnline(context, dso,
-                                          DOI.SCHEME + doiRow.getDoi());
-
-            if (!quiet) {
-                System.out.println("Successfully updated metadata of DOI " + DOI.SCHEME
-                                       + doiRow.getDoi() + ".");
-            }
-        } catch (IdentifierException ex) {
-            String message;
-            if (!(ex instanceof DOIIdentifierException)) {
-                message = String.format("Registering DOI %s for object %s:  the registrar returned an error.",
-                                        doiRow.getDoi(), dso.getID());
-            } else {
-                DOIIdentifierException doiIdentifierException = (DOIIdentifierException) ex;
-                message = "It wasn't possible to update this identifier:  "
-                    + DOI.SCHEME + doiRow.getDoi()
-                    + " Exceptions code:  "
-                    + DOIIdentifierException.codeToString(doiIdentifierException.getCode());
-            }
-
-            try {
-                sendAlertMail("Update", dso,
-                              DOI.SCHEME + doiRow.getDoi(),
-                              message);
-            } catch (IOException ioe) {
-                LOG.error("Couldn't send mail", ioe);
-            }
-
-            LOG.error(message, ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to update this identifier: " + DOI.SCHEME + doiRow.getDoi());
-            }
-
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Database table DOI contains a DOI that is not valid: "
-                          + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to update this identifier: " + DOI.SCHEME + doiRow.getDoi());
-            }
-
-            throw new IllegalStateException("Database table DOI contains a DOI "
-                                                + " that is not valid: "
-                                                + DOI.SCHEME + doiRow.getDoi() + "!", ex);
-        } catch (SQLException ex) {
-            LOG.error("It wasn't possible to connect to the Database!", ex);
-        } catch (Exception ex) {
-            LOG.error("We hit an unexpected exception with the doi {} {}", doiRow.getDoi(), ex.getMessage());
-            throw ex;
-        }
-    }
-
-    /**
-     * Delete a DOI
-     * @param identifier    - DOI to delete
-     * @throws SQLException
-     */
-    public void delete(String identifier) throws SQLException {
-        String doi = null;
-        DOI doiRow = null;
-
-        try {
-            doi = doiService.formatIdentifier(identifier);
-
-            // If there's no exception: we found a valid DOI. :)
-            doiRow = doiService.findByDoi(context,
-                                          doi.substring(DOI.SCHEME.length()));
-
-            if (null == doiRow) {
-                throw new IllegalStateException("You specified a valid DOI, that is not stored in our database.");
-            }
-            provider.deleteOnline(context, doi);
-
-            if (!quiet) {
-                System.err.println("It was possible to delete this identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi()
-                                       + " online.");
-            }
-        } catch (DOIIdentifierException ex) {
-            // Identifier was not recognized as DOI.
-            LOG.error("It wasn't possible to detect this identifier:  "
-                          + identifier
-                          + " Exceptions code:  "
-                          + ex.codeToString(ex.getCode()), ex);
-
-            if (!quiet) {
-                System.err.println("It wasn't possible to detect this identifier: "
-                                       + identifier);
-            }
-        } catch (IllegalArgumentException ex) {
-            if (!quiet) {
-                System.err.println("It wasn't possible to delete this identifier: "
-                                       + DOI.SCHEME + doiRow.getDoi()
-                                       + " online. Take a look in log file.");
-            }
         }
     }
 
@@ -806,43 +453,6 @@ public class DOIOrganiser {
 
     public int getLimit() {
         return limit;
-    }
-
-    /**
-     * Send an alert email to the configured recipient when DOI operations encounter an error
-     * @param action    - action being attempted (eg. reserve, register, update)
-     * @param dso       - DSpaceObject associated with the DOI
-     * @param doi       - DOI for this operation
-     * @param reason    - failure reason or error message
-     * @throws IOException
-     */
-    private void sendAlertMail(String action, DSpaceObject dso, String doi, String reason)
-        throws IOException {
-        String recipient = configurationService.getProperty("alert.recipient");
-
-        try {
-            if (recipient != null) {
-                Email email = Email.getEmail(
-                    I18nUtil.getEmailFilename(Locale.getDefault(), "doi_maintenance_error"));
-                email.addRecipient(recipient);
-                email.addArgument(action);
-                email.addArgument(new Date());
-                email.addArgument(ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso));
-                email.addArgument(dso.getID().toString());
-                email.addArgument(doi);
-                email.addArgument(reason);
-                email.send();
-
-                if (!quiet) {
-                    System.err.println("Email alert is sent.");
-                }
-            }
-        } catch (IOException | MessagingException e) {
-            LOG.warn("Unable to send email alert", e);
-            if (!quiet) {
-                System.err.println("Unable to send email alert.");
-            }
-        }
     }
 
     /**

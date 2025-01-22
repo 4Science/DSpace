@@ -71,4 +71,8 @@
 
     <bean id="submissionServiceFactory" class="org.dspace.submit.factory.SubmissionServiceFactoryImpl"/>
 
+    <bean class="org.dspace.identifier.doi.strategy.DOIOrganiserStrategyFactoryImpl"/>
+    <bean class="org.dspace.identifier.doi.action.DOIActionFactoryImpl"/>
+    <bean class="org.dspace.identifier.doi.iterator.DOIIteratorFactoryImpl"/>
+
 </beans>

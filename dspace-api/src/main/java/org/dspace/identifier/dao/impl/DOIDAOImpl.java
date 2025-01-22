@@ -80,6 +80,7 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
             orPredicates.add(criteriaBuilder.equal(doiRoot.get(DOI_.status), status));
         }
         criteriaQuery.where(criteriaBuilder.or(orPredicates.toArray(new Predicate[] {})));
+        criteriaQuery.orderBy(criteriaBuilder.asc(doiRoot.get(DOI_.ID)));
         return list(context, criteriaQuery, false, DOI.class, limit, offset);
     }
 
@@ -106,6 +107,7 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
             listToIncludeInAndPredicate.add(criteriaBuilder.isNotNull(doiRoot.get(DOI_.dSpaceObject)));
         }
         criteriaQuery.where(listToIncludeInAndPredicate.toArray(new Predicate[] {}));
+        criteriaQuery.orderBy(criteriaBuilder.asc(doiRoot.get(DOI_.ID)));
         return list(context, criteriaQuery, false, DOI.class, -1, -1);
     }
 

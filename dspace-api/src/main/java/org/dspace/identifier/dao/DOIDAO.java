@@ -33,7 +33,5 @@ public interface DOIDAO extends GenericDAO<DOI> {
 
     public List<DOI> findByStatus(Context context, List<Integer> statuses, int offset, int limit) throws SQLException;
 
-    public List<DOI> findByStatus(Context context, List<Integer> statuses, int limit) throws SQLException;
-
     public DOI findDOIByDSpaceObject(Context context, DSpaceObject dso) throws SQLException;
 }
