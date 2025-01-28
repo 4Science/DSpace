@@ -5111,6 +5111,22 @@
         <property name="exposeMinAndMaxValue" value="false"/>
     </bean>
 
+    <bean id="searchFilterJournalFonds"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="journalfonds" />
+        <property name="metadataFields">
+            <list>
+                <value>cris.virtual.treeJournalFondsRoot</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
     <bean id="123456789/documents" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
         <property name="id" value="123456789/documents"/>
         <property name="indexAlways" value="true"/>
@@ -5118,12 +5134,14 @@
         <property name="sidebarFacets">
             <list>
                 <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterJournalFonds"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterJournalFonds"/>
             </list>
         </property>
 

@@ -3586,11 +3586,62 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    // Status must be 200 OK
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.type", is("discover")))
-                   .andExpect(jsonPath("$._embedded.facets", hasSize(1)))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
                    .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
                                        is("Root Fond::" + rootFond.getID())))
                    .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForRootJournalFond() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("JournalFonds")
+                                                      .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("JournalFile")
+                                                                 .build();
+
+        Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root Fond")
+                                   .build();
+
+
+        Item childFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                    .withJournalFondParent(rootFond.getName(), rootFond.getID())
+                                    .withTitle("Riforme")
+                                    .build();
+
+        ItemBuilder.createItem(context, journalFileCollection)
+                   .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("archivalMaterial")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
+                                       is("Root Fond::" + rootFond.getID())))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
     }
