@@ -66,6 +66,7 @@ public class StaleWebDataConsumer implements Consumer {
     public void consume(Context ctx, Event event) throws Exception {
         if (webServerCache == null) {
             log.warn("No webcache implementation found, consider to remove the webcache consumer if not needed");
+            return;
         }
         if (urlsToUpdate == null) {
             urlsToUpdate = new HashSet<>();
@@ -148,7 +149,9 @@ public class StaleWebDataConsumer implements Consumer {
      */
     @Override
     public void end(Context ctx) throws Exception {
-
+        if (webServerCache == null) {
+            return;
+        }
         try {
             webServerCache.invalidateAndRenew(ctx, urlsToUpdate, urlsToRemove);
         } finally {

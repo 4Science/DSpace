@@ -85,9 +85,8 @@ public class RelationshipItemWritePolicyAuthorizerIT extends AbstractIntegration
             .withTitle("Test item")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
             .withAction(Constants.WRITE)
-            .withUser(eperson)
             .withDspaceObject(item)
             .build();
 

@@ -85,6 +85,18 @@ public interface ItemService
     public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException;
 
     /**
+     * Populate the given item with all template item specified metadata.
+     *
+     * @param context    DSpace context object
+     * @param collection Collection (parent)
+     * @param template   if <code>true</code>, the item inherits all collection's template item metadata
+     * @param item    item to populate with template item specified metadata
+     * @throws SQLException       if database error
+     */
+    public void populateWithTemplateItemMetadata (Context context, Collection collection, boolean template, Item item)
+        throws SQLException;
+
+    /**
      * Get all the items in the archive. Only items with the "in archive" flag
      * set are included. The order of the list is indeterminate.
      *
@@ -729,11 +741,30 @@ public interface ItemService
      * @throws SQLException       if database error
      * @throws AuthorizeException if authorization error
      */
-    public Iterator<Item> findArchivedByMetadataField(Context context, String metadataField, String value)
+    Iterator<Item> findArchivedByMetadataField(Context context, String metadataField, String value)
             throws SQLException, AuthorizeException;
 
-    public Iterator<Item> findUnfilteredByMetadataField(Context context, String schema, String element,
-        String qualifier, String value) throws SQLException, AuthorizeException;
+    Iterator<Item> findUnfilteredByMetadataField(
+        Context context, String schema, String element, String qualifier, String value
+    ) throws SQLException, AuthorizeException;
+
+    /**
+     * Returns an iterator of Items possessing the passed metadata field, or only
+     * those matching the passed value, if value is not Item.ANY
+     *
+     * @param context   DSpace context object
+     * @param schema    metadata field schema
+     * @param element   metadata field element
+     * @param qualifier metadata field qualifier
+     * @param value     field value or Item.ANY to match any value
+     * @return an iterator over the items matching that authority value
+     * @throws SQLException       if database error
+     * @throws AuthorizeException if authorization error
+     * @throws IOException        if IO error
+     */
+    Iterator<Item> findByMetadataField(
+        Context context, String schema, String element, String qualifier, String value
+    ) throws SQLException, AuthorizeException, IOException;
 
     public Iterator<Item> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
                                               List<String> query_op, List<String> query_val, List<UUID> collectionUuids,

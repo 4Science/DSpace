@@ -72,6 +72,10 @@ public class MetadataValueDAOImpl extends AbstractHibernateDAO<MetadataValue> im
         return iterate(query);
     }
 
+    public List<MetadataValue> findAllHavingAuthority(Context context) throws SQLException {
+        return list(createQuery(context, "SELECT m FROM MetadataValue m WHERE m.authority IS NOT NULL"));
+    }
+
     @Override
     public void deleteByMetadataField(Context context, MetadataField metadataField) throws SQLException {
         String queryString = "delete from MetadataValue where metadataField= :metadataField";

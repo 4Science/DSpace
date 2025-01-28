@@ -24,6 +24,9 @@
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
+    <!-- Uncomment the following entry to enable the indexing for LoginMIUR -->
+    <!--<bean id="rPSourceIDSolrIndexPlugin" class="org.dspace.discovery.RPSourceIDSolrIndexer"/>-->
+
     <bean id="solrServiceResourceIndexPlugin" class="org.dspace.discovery.SolrServiceResourceRestrictionPlugin" scope="prototype"/>
     <bean id="solrServiceWorkspaceWorkflowPlugin" class="org.dspace.discovery.SolrServiceWorkspaceWorkflowRestrictionPlugin" scope="prototype"/>
     <bean id="solrServiceSpellIndexingPlugin" class="org.dspace.discovery.SolrServiceSpellIndexingPlugin" scope="prototype"/>
@@ -50,11 +53,28 @@
               </list>
           </property>
     </bean>
-    <bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>
+    <bean id="objectNameIndexPlugin" class="org.dspace.discovery.ObjectNameIndexPlugin">
+    	<property name="fields">
+    		<list>
+				<value>dc.title</value>
+        		<value>crisrp.name</value>
+        		<value>crisrp.name.variant</value>
+        		<value>crisrp.name.translated</value>
+				<value>crisrp.fullName</value>
+				<value>crisproject.title</value>
+				<value>crisou.name</value>
+				<value>unibe.document.title</value>
+				<value>crisdo.name</value>
+				<value>crisfunding.fundingname</value>
+    		</list>
+    	</property>
+    </bean>
+<!--<bean id="solrServiceBestMatchIndexingPlugin" class="org.dspace.discovery.SolrServiceBestMatchIndexingPlugin"/>	-->
     <bean id="solrServiceBestMatchStrictIndexingPlugin" class="org.dspace.discovery.SolrServiceStrictBestMatchIndexingPlugin"/>
     <bean id="sharedWorkspaceSolrIndexPlugin" class="org.dspace.discovery.SharedWorkspaceSolrIndexPlugin">
         <constructor-arg name="additionalReadMetadata" ref="sharedWorkspaceAuthorMetadataFields"/>
     </bean>
+    <bean id="solrServiceAdministrativeSearchRestrictionPlugin" class="org.dspace.discovery.SolrServiceAdministrativeSearchRestrictionPlugin"/>
 
     <util:list id="sharedWorkspaceAuthorMetadataFields" value-type="java.lang.String">
         <value>dc.contributor.author</value>
@@ -947,6 +967,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1033,6 +1054,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1108,6 +1130,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1206,6 +1229,7 @@
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2017,6 +2041,7 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
+                        <ref bean="glamfondsSortIndex"/>
                         <ref bean="sortByResearchOutputsSelection" />
                         <ref bean="sortTitleAsc" />
                     </list>
@@ -2272,6 +2297,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
 	            <ref bean="searchFilterAggregation"/>
 	            <ref bean="searchFilterJournalFonds"/>
@@ -2292,6 +2318,7 @@
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
+	            <ref bean="searchFilterGlamSubject" />
 	            <ref bean="searchFilterPath"/>
                 <ref bean="searchFilterAggregation"/>
                 <ref bean="searchFilterJournalFonds"/>
@@ -2483,7 +2510,7 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find items, communities and collections-->
-                <value>search.resourcetype:Item AND entityType_keyword:JournalFonds AND -glamjournalfond.parent:*</value>
+                <value>search.resourcetype:Item AND entityType_keyword:JournalFonds AND -glamjournalfonds.parent:*</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -2857,6 +2884,7 @@
                 <ref bean="searchFilterKnowsLanguage"/>
                 <ref bean="searchFilterPersonOrgUnit"/>
                 <ref bean="searchFilterBirthdate"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2915,6 +2943,7 @@
                 <ref bean="searchFilterIsPublicationOfProjectRelation"/>
                 <ref bean="searchFilterProjectInvestigator"/>
                 <ref bean="searchFilterProjectOrganisation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3027,6 +3056,7 @@
                 <ref bean="searchFilterInvestigators"/>
                 <ref bean="searchFilterProjectOrgUnits"/>
                 <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3084,6 +3114,7 @@
                 <ref bean="searchFilterOrganizationAddressCountry"/>
                 <ref bean="searchFilterOrganizationAddressLocality"/>
                 <ref bean="searchFilterOrganizationFoundingDate"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3152,6 +3183,7 @@
                 <ref bean="searchFilterTitle"/>
                 <ref bean="searchFilterFunderName"/>
                 <ref bean="searchFilterFundingProgram"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--Any default filter queries, these filter queries will be used for all
@@ -3181,6 +3213,7 @@
             <list>
                 <ref bean="searchFilterEquipmentOwner"/>
                 <ref bean="searchFilterEquipmentOrgUnit"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3240,6 +3273,7 @@
                 <ref bean="searchFilterCreativeWorkKeywords"/>
                 <ref bean="searchFilterCreativeWorkDatePublished"/>
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3299,6 +3333,7 @@
                 <ref bean="searchFilterCreativeWorkDatePublished"/>
                 <ref bean="searchFilterIsIssueOfJournalVolumeRelation"/>
                 <ref bean="searchFilterIsJournalVolumeRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3359,6 +3394,7 @@
                 <ref bean="searchFilterCreativeWorkEditor"/>
                 <ref bean="searchFilterIsIssueOfJournalVolumeRelation"/>
                 <ref bean="searchFilterIsVolumeOfJournalRelation"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3956,7 +3992,23 @@
         <property name="indexFieldName" value="subject"/>
         <property name="metadataFields">
             <list>
+                <value>dc.subject</value>
                 <value>dc.subject.*</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
+
+    </bean>
+
+    <bean id="searchFilterGlamSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="glamsubject"/>
+        <property name="metadataFields">
+            <list>
+                <value>glam.subject</value>
+                <value>glam.subject.*</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4094,7 +4146,7 @@
         <property name="indexFieldName" value="fonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.fonds</value>
+                <value>cris.virtual.treeFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4110,7 +4162,7 @@
         <property name="indexFieldName" value="journalfonds" />
         <property name="metadataFields">
             <list>
-                <value>dc.relation.journalfonds</value>
+                <value>cris.virtual.treeJournalFondsRoot</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -5003,18 +5055,18 @@
     </bean>
     <bean id="sortOrganizationAddressCountry"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressCountry"/>
+        <property name="metadataField" value="organization.address.addressCountry"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
 
     <bean id="sortOrganizationAddressLocality"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressLocality"/>
+        <property name="metadataField" value="organization.address.addressLocality"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
 
     <bean id="sortOrganizationFoundingDate" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.foundingDate"/>
+        <property name="metadataField" value="organization.foundingDate"/>
         <property name="type" value="date"/>
         <property name="defaultSortOrder" value="desc"/>
     </bean>

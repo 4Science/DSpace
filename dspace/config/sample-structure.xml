@@ -175,13 +175,24 @@
             <intro />
             <copyright />
             <sidebar />
-            <license />1
+            <license />
             <provenance />
         </collection>
         <collection>
             <name>Pubblicazioni</name>
             <entity-type>Publication</entity-type>
             <submission-type>publication</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Opere</name>
+            <entity-type>Opera</entity-type>
+            <submission-type>opera</submission-type>
             <description />
             <intro />
             <copyright />

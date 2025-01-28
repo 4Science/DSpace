@@ -79,7 +79,9 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
                                      .withName("communityA").build();
 
         collectionA = CollectionBuilder.createCollection(context, communityA)
-                                       .withName("collectionA").build();
+                                       .withName("collectionA")
+                                       .withEntityType("Publication")
+                                       .build();
 
         itemA = ItemBuilder.createItem(context, collectionA)
                            .withTitle("Item A").build();
@@ -105,6 +107,14 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
 
     @Test
     public void epersonHasNotAccessTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson eperson = EPersonBuilder.createEPerson(context)
+                .withEmail("testtest@mail.com")
+                .withPassword(password)
+                .withCanLogin(true)
+                .build();
+        context.restoreAuthSystemState();
+
         String epersonToken = getAuthToken(eperson.getEmail(), password);
         getClient(epersonToken).perform(get("/api/authz/authorizations/search/object")
                                .param("embed", "feature")
@@ -148,6 +158,8 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
 
     @Test
     public void submitterItemWithPropertySubmitterCanCreateNewVersionIsFalseTest() throws Exception {
+        configurationService.setProperty("versioning.submitterCanCreateNewVersion", false);
+
         context.turnOffAuthorisationSystem();
 
         itemA.setSubmitter(user);
@@ -162,6 +174,7 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
                          .andExpect(status().isOk())
                          .andExpect(jsonPath("$.page.totalElements", is(0)))
                          .andExpect(jsonPath("$._embedded").doesNotExist());
+        configurationService.setProperty("versioning.submitterCanCreateNewVersion", true);
     }
 
     @Test
@@ -253,12 +266,14 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
 
         Collection col1 = CollectionBuilder.createCollection(context, subCommunityA)
                                           .withName("Collection 1")
+                                          .withEntityType("Publication")
                                           .withSubmitterGroup(eperson)
                                           .withAdminGroup(adminCol1)
                                           .build();
 
         CollectionBuilder.createCollection(context, subCommunityA)
                          .withName("Collection 2")
+                         .withEntityType("Publication")
                          .withAdminGroup(adminCol2)
                          .build();
 
@@ -305,6 +320,8 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
 
     @Test
     public void checkCanCreateVersionFeatureTest() throws Exception {
+        configurationService.setProperty("versioning.submitterCanCreateNewVersion", false);
+
         context.turnOffAuthorisationSystem();
 
         Community rootCommunity = CommunityBuilder.createCommunity(context)
@@ -346,6 +363,8 @@ public class CanCreateVersionFeatureIT extends AbstractControllerIntegrationTest
 
         getClient(tokenEPerson).perform(get("/api/authz/authorizations/" + eperson2ItemA.getID()))
                                .andExpect(status().isNotFound());
+
+        configurationService.setProperty("versioning.submitterCanCreateNewVersion", true);
     }
 
 }

@@ -9,6 +9,7 @@
             <map>
                 <entry key="0" value-ref="localStore"/>
                 <entry key="1" value-ref="s3Store"/>
+                <entry key="2" value-ref="s3LegacyStore"/>
             </map>
         </property>
     </bean>
@@ -22,6 +23,7 @@
         <!-- AWS Security credentials, with policies for specified bucket -->
         <property name="awsAccessKey" value="${assetstore.s3.awsAccessKey}"/>
         <property name="awsSecretKey" value="${assetstore.s3.awsSecretKey}"/>
+        <property name="awsSessionToken" value="${assetstore.s3.awsToken}"/>
         <property name="useRelativePath" value="${assetstore.s3.useRelativePath}"/>
 
         <!-- S3 bucket name to store assets in. example: longsight-dspace-auk -->
@@ -34,6 +36,29 @@
         <!-- Subfolder to organize assets within the bucket, in case this bucket is shared  -->
         <!-- Optional, default is root level of bucket -->
         <property name="subfolder" value="${assetstore.s3.subfolder}"/>
+        <property name="maxConnections" value="${assetstore.s3.maxConnections}"/>
+        <property name="connectionTimeout" value="${assetstore.s3.connectionTimeout}"/>
+        <property name="endpoint" value="${assetstore.s3.endpoint}"/>
+    </bean>
+
+    <bean name="s3LegacyStore" class="org.dspace.storage.bitstore.S3BitStoreService" scope="singleton" lazy-init="true">
+        <property name="enabled" value="${assetstore.s3.legacybucket.enabled}"/>
+        <!-- AWS Security credentials, with policies for specified bucket -->
+        <property name="awsAccessKey" value="${assetstore.s3.awsAccessKey}"/>
+        <property name="awsSecretKey" value="${assetstore.s3.awsSecretKey}"/>
+        <property name="awsSessionToken" value="${assetstore.s3.awsToken}"/>
+        <property name="useRelativePath" value="${assetstore.s3.useRelativePath}"/>
+
+        <!-- S3 bucket name to store assets in. example: longsight-dspace-auk -->
+        <property name="bucketName" value="${assetstore.s3.legacybucket.bucketName}"/>
+
+        <!-- AWS S3 Region to use: {us-east-1, us-west-1, eu-west-1, eu-central-1, ap-southeast-1, ... } -->
+        <!-- Optional, sdk default is us-east-1 -->
+        <property name="awsRegionName" value="${assetstore.s3.awsRegionName}"/>
+
+        <!-- Subfolder to organize assets within the bucket, in case this bucket is shared  -->
+        <!-- Optional, default is root level of bucket -->
+        <property name="subfolder" value="${assetstore.s3.legacybucket.subfolder}"/>
     </bean>
 
     <!-- <bean name="localStore2 ... -->

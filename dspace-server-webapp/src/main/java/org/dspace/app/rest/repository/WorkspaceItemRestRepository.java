@@ -73,6 +73,7 @@ import org.dspace.versioning.ItemCorrectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -261,6 +262,9 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                       Patch patch) throws SQLException, AuthorizeException {
         List<Operation> operations = patch.getOperations();
         WorkspaceItemRest wsi = findOne(context, id);
+        if (wsi == null) {
+            throw new ResourceNotFoundException(apiCategory + "." + model + " with id: " + id + " not found");
+        }
         WorkspaceItem source = wis.find(context, id);
         for (Operation op : operations) {
             //the value in the position 0 is a null value
@@ -286,6 +290,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
         WorkspaceItem witem = null;
         try {
             witem = wis.find(context, id);
+            if (witem == null) {
+                throw new ResourceNotFoundException(
+                        WorkspaceItemRest.CATEGORY + "." + WorkspaceItemRest.NAME +
+                            " with id: " + id + " not found");
+            }
             wis.deleteAll(context, witem);
             context.addEvent(new Event(Event.DELETE, Constants.ITEM, witem.getItem().getID(), null,
                 itemService.getIdentifiers(context, witem.getItem())));
