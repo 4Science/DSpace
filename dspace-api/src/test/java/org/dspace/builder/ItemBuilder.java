@@ -84,7 +84,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
     public ItemBuilder withJournalFondParent(final String title, final UUID authority) {
-        return addMetadataValue(item, "glamjournalfonds", "parent", null, null, title, authority.toString(), CF_ACCEPTED);
+        return addMetadataValue(
+            item, "glamjournalfonds", "parent", null,
+            null, title, authority.toString(), CF_ACCEPTED
+        );
     }
 
     public ItemBuilder withAlternativeTitle(final String title) {
