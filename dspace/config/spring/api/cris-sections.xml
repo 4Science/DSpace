@@ -120,9 +120,7 @@
                          <list>
                              <value>author</value>
                              <value>title</value>
-                             <value>type</value>
-                             <value>dateissued</value>
-                             <value>subject</value>
+                             <value>typecoar</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
