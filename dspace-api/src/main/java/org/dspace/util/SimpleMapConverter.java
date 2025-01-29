@@ -38,6 +38,16 @@ public class SimpleMapConverter {
 
     private String defaultValue = "";
 
+    public SimpleMapConverter() {
+
+    }
+
+    public SimpleMapConverter(String converterNameFile, ConfigurationService configurationService) {
+        this.converterNameFile = converterNameFile;
+        this.configurationService = configurationService;
+        init();
+    }
+
     /**
      * Parse the configured property file.
      */
