@@ -10,6 +10,7 @@ package org.dspace.app.rest;
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.FacetValueMatcher.entrySupervisedBy;
+import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -3481,6 +3482,168 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/facets")))
         ;
 
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForRootFond() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withEntityType("Fonds")
+                                               .build();
+
+        Collection archivalMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                   .withEntityType("ArchivalMaterial")
+                                                                   .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                   .withEntityType("Publication")
+                                                                   .build();
+
+        Collection pictureCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Picture")
+                                                            .build();
+
+        Collection audioVideoCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("AudioVideo")
+                                                           .build();
+
+        Collection artworkCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                        .withEntityType("Artwork")
+                                                        .build();
+
+        Collection musicalLibrettosCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("MusicalLibrettos")
+                                                           .build();
+
+        Collection scientificMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("ScientificMaterial")
+                                                           .build();
+
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                       .withTitle("Root Fond")
+                       .build();
+
+
+        Item childFond = ItemBuilder.createItem(context, fondsCollection)
+                                .withFondParent(rootFond.getName(), rootFond.getID())
+                                .withTitle("Riforme agli Statuti item")
+                                .build();
+
+        ItemBuilder.createItem(context, archivalMaterialCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("archivalMaterial")
+                   .build();
+
+        ItemBuilder.createItem(context, publicationCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("publication")
+                   .build();
+
+        ItemBuilder.createItem(context, pictureCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("picture")
+                   .build();
+
+        ItemBuilder.createItem(context, audioVideoCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("Prime Constitutiones Sapientie Nove item")
+                   .build();
+
+        ItemBuilder.createItem(context, artworkCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("artwork")
+                   .build();
+
+        ItemBuilder.createItem(context, musicalLibrettosCollection)
+                    .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                  childFond.getID().toString(), CF_ACCEPTED)
+                    .withTitle("musicalLibrettos")
+                    .build();
+
+        ItemBuilder.createItem(context, scientificMaterialCollection)
+                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("scientificMaterial")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
+                                       is("Root Fond::" + rootFond.getID())))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForRootJournalFond() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("JournalFonds")
+                                                      .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("JournalFile")
+                                                                 .build();
+
+        Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root Fond")
+                                   .build();
+
+
+        Item childFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                    .withJournalFondParent(rootFond.getName(), rootFond.getID())
+                                    .withTitle("Riforme")
+                                    .build();
+
+        ItemBuilder.createItem(context, journalFileCollection)
+                   .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
+                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("archivalMaterial")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
+                                       is("Root Fond::" + rootFond.getID())))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
     }
 
     @Test

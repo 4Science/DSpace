@@ -94,6 +94,41 @@
     </bean>
 
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Picture"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="AudioVideo"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Artwork"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="MusicalLibrettos"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="ScientificMaterial"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFond" />
+        <property name="virtualQualifier" value="treeFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
         <property name="sourceEntityTypes" value="JournalFile"/>
         <property name="sourceItemMetadataFields" value="dc.relation.journalfonds"/>
         <property name="relatedItemMetadataFields" value="cris.virtual.rootJournalFond" />

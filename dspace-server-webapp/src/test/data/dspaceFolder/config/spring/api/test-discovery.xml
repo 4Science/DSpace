@@ -206,6 +206,7 @@
                 <entry key="123456789/discovery-sub-community-2-1" value-ref="discovery-sub-community-2-1"/>
                 <entry key="123456789/discovery-collection-2-1-1" value-ref="discovery-collection-2-1-1"/>
                 <entry key="123456789/discovery-collection-2-2-1" value-ref="discovery-collection-2-2-1"/>
+                <entry key="123456789/documents" value-ref="123456789/documents"/>
             </map>
         </property>
         <property name="toIgnoreMetadataFields">
@@ -5091,6 +5092,78 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+
+    <bean id="searchFilterFonds"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="fonds" />
+        <property name="metadataFields">
+            <list>
+                <value>cris.virtual.treeFondsRoot</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
+    <bean id="searchFilterJournalFonds"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="journalfonds" />
+        <property name="metadataFields">
+            <list>
+                <value>cris.virtual.treeJournalFondsRoot</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
+    <bean id="123456789/documents" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <property name="id" value="123456789/documents"/>
+        <property name="indexAlways" value="true"/>
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterJournalFonds"/>
+            </list>
+        </property>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterJournalFonds"/>
+            </list>
+        </property>
+
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortScore" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                        <ref bean="sortViews"/>
+                        <ref bean="sortDownloads"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
+
     </bean>
 
 </beans>
