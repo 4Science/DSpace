@@ -15143,56 +15143,1944 @@
     </value-pairs>
     <value-pairs value-pairs-name="common_iso_languages" dc-term="common_iso_languages">
       <pair>
-        <displayed-value>N/A</displayed-value>
-        <stored-value />
+        <displayed-value>No linguistic content; Not applicable</displayed-value>
+        <stored-value>zxx</stored-value>
       </pair>
       <pair>
-        <displayed-value>Inglese (Stati Uniti)</displayed-value>
-        <stored-value>en_US</stored-value>
+        <displayed-value>Abkhazian</displayed-value>
+        <stored-value>abk</stored-value>
       </pair>
       <pair>
-        <displayed-value>Inglese</displayed-value>
-        <stored-value>en</stored-value>
+        <displayed-value>Achinese</displayed-value>
+        <stored-value>ace</stored-value>
       </pair>
       <pair>
-        <displayed-value>Spagnolo</displayed-value>
-        <stored-value>es</stored-value>
+        <displayed-value>Acoli</displayed-value>
+        <stored-value>ach</stored-value>
       </pair>
       <pair>
-        <displayed-value>Portoghese</displayed-value>
-        <stored-value>pt</stored-value>
+        <displayed-value>Adangme</displayed-value>
+        <stored-value>ada</stored-value>
       </pair>
       <pair>
-        <displayed-value>Tedesco</displayed-value>
-        <stored-value>de</stored-value>
+        <displayed-value>Adyghe; Adygei</displayed-value>
+        <stored-value>ady</stored-value>
       </pair>
       <pair>
-        <displayed-value>Francese</displayed-value>
-        <stored-value>fr</stored-value>
+        <displayed-value>Afar</displayed-value>
+        <stored-value>aar</stored-value>
       </pair>
       <pair>
-        <displayed-value>Italiano</displayed-value>
-        <stored-value>it</stored-value>
+        <displayed-value>Afrihili</displayed-value>
+        <stored-value>afh</stored-value>
       </pair>
       <pair>
-        <displayed-value>Giapponese</displayed-value>
-        <stored-value>ja</stored-value>
+        <displayed-value>Afrikaans</displayed-value>
+        <stored-value>afr</stored-value>
       </pair>
       <pair>
-        <displayed-value>Cinese</displayed-value>
-        <stored-value>zh</stored-value>
+        <displayed-value>Afro-Asiatic languages</displayed-value>
+        <stored-value>afa</stored-value>
       </pair>
       <pair>
-        <displayed-value>Turco</displayed-value>
-        <stored-value>tr</stored-value>
+        <displayed-value>Ainu</displayed-value>
+        <stored-value>ain</stored-value>
       </pair>
       <pair>
-        <displayed-value>Latino</displayed-value>
-        <stored-value>la</stored-value>
+        <displayed-value>Akan</displayed-value>
+        <stored-value>aka</stored-value>
       </pair>
       <pair>
-        <displayed-value>Greco Antico</displayed-value>
+        <displayed-value>Akkadian</displayed-value>
+        <stored-value>akk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Albanian</displayed-value>
+        <stored-value>alb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Aleut</displayed-value>
+        <stored-value>ale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Algonquian languages</displayed-value>
+        <stored-value>alg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Altaic languages</displayed-value>
+        <stored-value>tut</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Amharic</displayed-value>
+        <stored-value>amh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Angika</displayed-value>
+        <stored-value>anp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Apache languages</displayed-value>
+        <stored-value>apa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Arabic</displayed-value>
+        <stored-value>ara</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Aragonese</displayed-value>
+        <stored-value>arg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Arapaho</displayed-value>
+        <stored-value>arp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Arawak</displayed-value>
+        <stored-value>arw</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Armenian</displayed-value>
+        <stored-value>arm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Aromanian; Arumanian; Macedo-Romanian</displayed-value>
+        <stored-value>rup</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Artificial languages</displayed-value>
+        <stored-value>art</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Assamese</displayed-value>
+        <stored-value>asm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Asturian; Bable; Leonese; Asturleonese</displayed-value>
+        <stored-value>ast</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Athapascan languages</displayed-value>
+        <stored-value>ath</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Australian languages</displayed-value>
+        <stored-value>aus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Austronesian languages</displayed-value>
+        <stored-value>map</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Avaric</displayed-value>
+        <stored-value>ava</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Avestan</displayed-value>
+        <stored-value>ave</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Awadhi</displayed-value>
+        <stored-value>awa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Aymara</displayed-value>
+        <stored-value>aym</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Azerbaijani</displayed-value>
+        <stored-value>aze</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Balinese</displayed-value>
+        <stored-value>ban</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Baltic languages</displayed-value>
+        <stored-value>bat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Baluchi</displayed-value>
+        <stored-value>bal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bambara</displayed-value>
+        <stored-value>bam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bamileke languages</displayed-value>
+        <stored-value>bai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Banda languages</displayed-value>
+        <stored-value>bad</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bantu languages</displayed-value>
+        <stored-value>bnt</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Basa</displayed-value>
+        <stored-value>bas</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bashkir</displayed-value>
+        <stored-value>bak</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Basque</displayed-value>
+        <stored-value>baq</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Batak languages</displayed-value>
+        <stored-value>btk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Beja; Bedawiyet</displayed-value>
+        <stored-value>bej</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Belarusian</displayed-value>
+        <stored-value>bel</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bemba</displayed-value>
+        <stored-value>bem</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bengali</displayed-value>
+        <stored-value>ben</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Berber languages</displayed-value>
+        <stored-value>ber</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bhojpuri</displayed-value>
+        <stored-value>bho</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bihari languages</displayed-value>
+        <stored-value>bih</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bikol</displayed-value>
+        <stored-value>bik</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bini; Edo</displayed-value>
+        <stored-value>bin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bislama</displayed-value>
+        <stored-value>bis</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Blin; Bilin</displayed-value>
+        <stored-value>byn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Blissymbols; Blissymbolics; Bliss</displayed-value>
+        <stored-value>zbl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bokmål, Norwegian; Norwegian Bokmål</displayed-value>
+        <stored-value>nob</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bosnian</displayed-value>
+        <stored-value>bos</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Braj</displayed-value>
+        <stored-value>bra</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Breton</displayed-value>
+        <stored-value>bre</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Buginese</displayed-value>
+        <stored-value>bug</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bulgarian</displayed-value>
+        <stored-value>bul</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Buriat</displayed-value>
+        <stored-value>bua</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Burmese</displayed-value>
+        <stored-value>bur</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Caddo</displayed-value>
+        <stored-value>cad</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Catalan; Valencian</displayed-value>
+        <stored-value>cat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Caucasian languages</displayed-value>
+        <stored-value>cau</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cebuano</displayed-value>
+        <stored-value>ceb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Celtic languages</displayed-value>
+        <stored-value>cel</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Central American Indian languages</displayed-value>
+        <stored-value>cai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Central Khmer</displayed-value>
+        <stored-value>khm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chagatai</displayed-value>
+        <stored-value>chg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chamic languages</displayed-value>
+        <stored-value>cmc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chamorro</displayed-value>
+        <stored-value>cha</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chechen</displayed-value>
+        <stored-value>che</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cherokee</displayed-value>
+        <stored-value>chr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cheyenne</displayed-value>
+        <stored-value>chy</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chibcha</displayed-value>
+        <stored-value>chb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chichewa; Chewa; Nyanja</displayed-value>
+        <stored-value>nya</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chinese</displayed-value>
+        <stored-value>chi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chinook jargon</displayed-value>
+        <stored-value>chn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chipewyan; Dene Suline</displayed-value>
+        <stored-value>chp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Choctaw</displayed-value>
+        <stored-value>cho</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic</displayed-value>
+        <stored-value>chu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chuukese</displayed-value>
+        <stored-value>chk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Chuvash</displayed-value>
+        <stored-value>chv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Classical Newari; Old Newari; Classical Nepal Bhasa</displayed-value>
+        <stored-value>nwc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Classical Syriac</displayed-value>
+        <stored-value>syc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Coptic</displayed-value>
+        <stored-value>cop</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cornish</displayed-value>
+        <stored-value>cor</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Corsican</displayed-value>
+        <stored-value>cos</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cree</displayed-value>
+        <stored-value>cre</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Creek</displayed-value>
+        <stored-value>mus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Creoles and pidgins</displayed-value>
+        <stored-value>crp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Creoles and pidgins, English based</displayed-value>
+        <stored-value>cpe</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Creoles and pidgins, French-based</displayed-value>
+        <stored-value>cpf</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Creoles and pidgins, Portuguese-based</displayed-value>
+        <stored-value>cpp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Crimean Tatar; Crimean Turkish</displayed-value>
+        <stored-value>crh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Croatian</displayed-value>
+        <stored-value>hrv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Cushitic languages</displayed-value>
+        <stored-value>cus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Czech</displayed-value>
+        <stored-value>cze</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dakota</displayed-value>
+        <stored-value>dak</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Danish</displayed-value>
+        <stored-value>dan</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dargwa</displayed-value>
+        <stored-value>dar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Delaware</displayed-value>
+        <stored-value>del</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dinka</displayed-value>
+        <stored-value>din</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Divehi; Dhivehi; Maldivian</displayed-value>
+        <stored-value>div</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dogri</displayed-value>
+        <stored-value>doi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dogrib</displayed-value>
+        <stored-value>dgr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dravidian languages</displayed-value>
+        <stored-value>dra</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Duala</displayed-value>
+        <stored-value>dua</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dutch, Middle (ca.1050-1350)</displayed-value>
+        <stored-value>dum</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dutch; Flemish</displayed-value>
+        <stored-value>dut</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dyula</displayed-value>
+        <stored-value>dyu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Dzongkha</displayed-value>
+        <stored-value>dzo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Eastern Frisian</displayed-value>
+        <stored-value>frs</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Efik</displayed-value>
+        <stored-value>efi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Egyptian (Ancient)</displayed-value>
+        <stored-value>egy</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ekajuk</displayed-value>
+        <stored-value>eka</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Elamite</displayed-value>
+        <stored-value>elx</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>English</displayed-value>
+        <stored-value>eng</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>English, Middle (1100-1500)</displayed-value>
+        <stored-value>enm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>English, Old (ca.450-1100)</displayed-value>
+        <stored-value>ang</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Erzya</displayed-value>
+        <stored-value>myv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Esperanto</displayed-value>
+        <stored-value>epo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Estonian</displayed-value>
+        <stored-value>est</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ewe</displayed-value>
+        <stored-value>ewe</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ewondo</displayed-value>
+        <stored-value>ewo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Fang</displayed-value>
+        <stored-value>fan</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Fanti</displayed-value>
+        <stored-value>fat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Faroese</displayed-value>
+        <stored-value>fao</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Fijian</displayed-value>
+        <stored-value>fij</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Filipino; Pilipino</displayed-value>
+        <stored-value>fil</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Finnish</displayed-value>
+        <stored-value>fin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Finno-Ugrian languages</displayed-value>
+        <stored-value>fiu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Fon</displayed-value>
+        <stored-value>fon</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>French</displayed-value>
+        <stored-value>fre</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>French, Middle (ca.1400-1600)</displayed-value>
+        <stored-value>frm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>French, Old (842-ca.1400)</displayed-value>
+        <stored-value>fro</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Friulian</displayed-value>
+        <stored-value>fur</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Fulah</displayed-value>
+        <stored-value>ful</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ga</displayed-value>
+        <stored-value>gaa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gaelic; Scottish Gaelic</displayed-value>
+        <stored-value>gla</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Galibi Carib</displayed-value>
+        <stored-value>car</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Galician</displayed-value>
+        <stored-value>glg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ganda</displayed-value>
+        <stored-value>lug</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gayo</displayed-value>
+        <stored-value>gay</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gbaya</displayed-value>
+        <stored-value>gba</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Geez</displayed-value>
+        <stored-value>gez</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Georgian</displayed-value>
+        <stored-value>geo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>German</displayed-value>
+        <stored-value>ger</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>German, Middle High (ca.1050-1500)</displayed-value>
+        <stored-value>gmh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>German, Old High (ca.750-1050)</displayed-value>
+        <stored-value>goh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Germanic languages</displayed-value>
+        <stored-value>gem</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gilbertese</displayed-value>
+        <stored-value>gil</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gondi</displayed-value>
+        <stored-value>gon</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gorontalo</displayed-value>
+        <stored-value>gor</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gothic</displayed-value>
+        <stored-value>got</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Grebo</displayed-value>
+        <stored-value>grb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Greek, Ancient (to 1453)</displayed-value>
         <stored-value>grc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Greek, Modern (1453-)</displayed-value>
+        <stored-value>gre</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Guarani</displayed-value>
+        <stored-value>grn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gujarati</displayed-value>
+        <stored-value>guj</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gwich'in</displayed-value>
+        <stored-value>gwi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Haida</displayed-value>
+        <stored-value>hai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Haitian; Haitian Creole</displayed-value>
+        <stored-value>hat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hausa</displayed-value>
+        <stored-value>hau</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hawaiian</displayed-value>
+        <stored-value>haw</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hebrew</displayed-value>
+        <stored-value>heb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Herero</displayed-value>
+        <stored-value>her</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hiligaynon</displayed-value>
+        <stored-value>hil</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Himachali languages; Western Pahari languages</displayed-value>
+        <stored-value>him</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hindi</displayed-value>
+        <stored-value>hin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hiri Motu</displayed-value>
+        <stored-value>hmo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hittite</displayed-value>
+        <stored-value>hit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hmong; Mong</displayed-value>
+        <stored-value>hmn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hungarian</displayed-value>
+        <stored-value>hun</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hupa</displayed-value>
+        <stored-value>hup</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Iban</displayed-value>
+        <stored-value>iba</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Icelandic</displayed-value>
+        <stored-value>ice</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ido</displayed-value>
+        <stored-value>ido</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Igbo</displayed-value>
+        <stored-value>ibo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ijo languages</displayed-value>
+        <stored-value>ijo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Iloko</displayed-value>
+        <stored-value>ilo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Inari Sami</displayed-value>
+        <stored-value>smn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Indic languages</displayed-value>
+        <stored-value>inc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Indo-European languages</displayed-value>
+        <stored-value>ine</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Indonesian</displayed-value>
+        <stored-value>ind</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ingush</displayed-value>
+        <stored-value>inh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Interlingua (International Auxiliary Language Association)</displayed-value>
+        <stored-value>ina</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Interlingue; Occidental</displayed-value>
+        <stored-value>ile</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Inuktitut</displayed-value>
+        <stored-value>iku</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Inupiaq</displayed-value>
+        <stored-value>ipk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Iranian languages</displayed-value>
+        <stored-value>ira</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Irish</displayed-value>
+        <stored-value>gle</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Irish, Middle (900-1200)</displayed-value>
+        <stored-value>mga</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Irish, Old (to 900)</displayed-value>
+        <stored-value>sga</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Iroquoian languages</displayed-value>
+        <stored-value>iro</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Italian</displayed-value>
+        <stored-value>ita</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Japanese</displayed-value>
+        <stored-value>jpn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Javanese</displayed-value>
+        <stored-value>jav</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Judeo-Arabic</displayed-value>
+        <stored-value>jrb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Judeo-Persian</displayed-value>
+        <stored-value>jpr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kabardian</displayed-value>
+        <stored-value>kbd</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kabyle</displayed-value>
+        <stored-value>kab</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kachin; Jingpho</displayed-value>
+        <stored-value>kac</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kalaallisut; Greenlandic</displayed-value>
+        <stored-value>kal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kalmyk; Oirat</displayed-value>
+        <stored-value>xal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kamba</displayed-value>
+        <stored-value>kam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kannada</displayed-value>
+        <stored-value>kan</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kanuri</displayed-value>
+        <stored-value>kau</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kara-Kalpak</displayed-value>
+        <stored-value>kaa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Karachay-Balkar</displayed-value>
+        <stored-value>krc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Karelian</displayed-value>
+        <stored-value>krl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Karen languages</displayed-value>
+        <stored-value>kar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kashmiri</displayed-value>
+        <stored-value>kas</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kashubian</displayed-value>
+        <stored-value>csb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kawi</displayed-value>
+        <stored-value>kaw</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kazakh</displayed-value>
+        <stored-value>kaz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Khasi</displayed-value>
+        <stored-value>kha</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Khoisan languages</displayed-value>
+        <stored-value>khi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Khotanese; Sakan</displayed-value>
+        <stored-value>kho</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kikuyu; Gikuyu</displayed-value>
+        <stored-value>kik</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kimbundu</displayed-value>
+        <stored-value>kmb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kinyarwanda</displayed-value>
+        <stored-value>kin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kirghiz; Kyrgyz</displayed-value>
+        <stored-value>kir</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Klingon; tlhIngan-Hol</displayed-value>
+        <stored-value>tlh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Komi</displayed-value>
+        <stored-value>kom</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kongo</displayed-value>
+        <stored-value>kon</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Konkani</displayed-value>
+        <stored-value>kok</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Korean</displayed-value>
+        <stored-value>kor</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kosraean</displayed-value>
+        <stored-value>kos</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kpelle</displayed-value>
+        <stored-value>kpe</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kru languages</displayed-value>
+        <stored-value>kro</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kuanyama; Kwanyama</displayed-value>
+        <stored-value>kua</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kumyk</displayed-value>
+        <stored-value>kum</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kurdish</displayed-value>
+        <stored-value>kur</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kurukh</displayed-value>
+        <stored-value>kru</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kutenai</displayed-value>
+        <stored-value>kut</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ladino</displayed-value>
+        <stored-value>lad</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lahnda</displayed-value>
+        <stored-value>lah</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lamba</displayed-value>
+        <stored-value>lam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Land Dayak languages</displayed-value>
+        <stored-value>day</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lao</displayed-value>
+        <stored-value>lao</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Latin</displayed-value>
+        <stored-value>lat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Latvian</displayed-value>
+        <stored-value>lav</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lezghian</displayed-value>
+        <stored-value>lez</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Limburgan; Limburger; Limburgish</displayed-value>
+        <stored-value>lim</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lingala</displayed-value>
+        <stored-value>lin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lithuanian</displayed-value>
+        <stored-value>lit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lojban</displayed-value>
+        <stored-value>jbo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Low German; Low Saxon; German, Low; Saxon, Low</displayed-value>
+        <stored-value>nds</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lower Sorbian</displayed-value>
+        <stored-value>dsb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lozi</displayed-value>
+        <stored-value>loz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Luba-Katanga</displayed-value>
+        <stored-value>lub</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Luba-Lulua</displayed-value>
+        <stored-value>lua</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Luiseno</displayed-value>
+        <stored-value>lui</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lule Sami</displayed-value>
+        <stored-value>smj</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lunda</displayed-value>
+        <stored-value>lun</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Luo (Kenya and Tanzania)</displayed-value>
+        <stored-value>luo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Lushai</displayed-value>
+        <stored-value>lus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Luxembourgish; Letzeburgesch</displayed-value>
+        <stored-value>ltz</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Macedonian</displayed-value>
+        <stored-value>mac</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Madurese</displayed-value>
+        <stored-value>mad</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Magahi</displayed-value>
+        <stored-value>mag</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Maithili</displayed-value>
+        <stored-value>mai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Makasar</displayed-value>
+        <stored-value>mak</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Malagasy</displayed-value>
+        <stored-value>mlg</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Malay</displayed-value>
+        <stored-value>may</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Malayalam</displayed-value>
+        <stored-value>mal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Maltese</displayed-value>
+        <stored-value>mlt</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Manchu</displayed-value>
+        <stored-value>mnc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mandar</displayed-value>
+        <stored-value>mdr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mandingo</displayed-value>
+        <stored-value>man</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Manipuri</displayed-value>
+        <stored-value>mni</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Manobo languages</displayed-value>
+        <stored-value>mno</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Manx</displayed-value>
+        <stored-value>glv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Maori</displayed-value>
+        <stored-value>mao</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mapudungun; Mapuche</displayed-value>
+        <stored-value>arn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Marathi</displayed-value>
+        <stored-value>mar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mari</displayed-value>
+        <stored-value>chm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Marshallese</displayed-value>
+        <stored-value>mah</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Marwari</displayed-value>
+        <stored-value>mwr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Masai</displayed-value>
+        <stored-value>mas</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mayan languages</displayed-value>
+        <stored-value>myn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mende</displayed-value>
+        <stored-value>men</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mi'kmaq; Micmac</displayed-value>
+        <stored-value>mic</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Minangkabau</displayed-value>
+        <stored-value>min</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mirandese</displayed-value>
+        <stored-value>mwl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mohawk</displayed-value>
+        <stored-value>moh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Moksha</displayed-value>
+        <stored-value>mdf</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mon-Khmer languages</displayed-value>
+        <stored-value>mkh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mongo</displayed-value>
+        <stored-value>lol</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mongolian</displayed-value>
+        <stored-value>mon</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Montenegrin</displayed-value>
+        <stored-value>cnr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Mossi</displayed-value>
+        <stored-value>mos</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Munda languages</displayed-value>
+        <stored-value>mun</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>N'Ko</displayed-value>
+        <stored-value>nqo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nahuatl languages</displayed-value>
+        <stored-value>nah</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nauru</displayed-value>
+        <stored-value>nau</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Navajo; Navaho</displayed-value>
+        <stored-value>nav</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ndebele, North; North Ndebele</displayed-value>
+        <stored-value>nde</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ndebele, South; South Ndebele</displayed-value>
+        <stored-value>nbl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ndonga</displayed-value>
+        <stored-value>ndo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Neapolitan</displayed-value>
+        <stored-value>nap</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nepal Bhasa; Newari</displayed-value>
+        <stored-value>new</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nepali</displayed-value>
+        <stored-value>nep</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nias</displayed-value>
+        <stored-value>nia</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Niger-Kordofanian languages</displayed-value>
+        <stored-value>nic</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nilo-Saharan languages</displayed-value>
+        <stored-value>ssa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Niuean</displayed-value>
+        <stored-value>niu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nogai</displayed-value>
+        <stored-value>nog</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Norse, Old</displayed-value>
+        <stored-value>non</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>North American Indian languages</displayed-value>
+        <stored-value>nai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Northern Frisian</displayed-value>
+        <stored-value>frr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Northern Sami</displayed-value>
+        <stored-value>sme</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Norwegian</displayed-value>
+        <stored-value>nor</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Norwegian Nynorsk; Nynorsk, Norwegian</displayed-value>
+        <stored-value>nno</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nubian languages</displayed-value>
+        <stored-value>nub</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nyamwezi</displayed-value>
+        <stored-value>nym</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nyankole</displayed-value>
+        <stored-value>nyn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nyoro</displayed-value>
+        <stored-value>nyo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Nzima</displayed-value>
+        <stored-value>nzi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Occitan (post 1500)</displayed-value>
+        <stored-value>oci</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)</displayed-value>
+        <stored-value>arc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ojibwa</displayed-value>
+        <stored-value>oji</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Oriya</displayed-value>
+        <stored-value>ori</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Oromo</displayed-value>
+        <stored-value>orm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Osage</displayed-value>
+        <stored-value>osa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ossetian; Ossetic</displayed-value>
+        <stored-value>oss</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Otomian languages</displayed-value>
+        <stored-value>oto</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pahlavi</displayed-value>
+        <stored-value>pal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Palauan</displayed-value>
+        <stored-value>pau</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pali</displayed-value>
+        <stored-value>pli</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pampanga; Kapampangan</displayed-value>
+        <stored-value>pam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pangasinan</displayed-value>
+        <stored-value>pag</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Panjabi; Punjabi</displayed-value>
+        <stored-value>pan</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Papiamento</displayed-value>
+        <stored-value>pap</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Papuan languages</displayed-value>
+        <stored-value>paa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pedi; Sepedi; Northern Sotho</displayed-value>
+        <stored-value>nso</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Persian</displayed-value>
+        <stored-value>per</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Persian, Old (ca.600-400 B.C.)</displayed-value>
+        <stored-value>peo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Philippine languages</displayed-value>
+        <stored-value>phi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Phoenician</displayed-value>
+        <stored-value>phn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pohnpeian</displayed-value>
+        <stored-value>pon</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Polish</displayed-value>
+        <stored-value>pol</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Portuguese</displayed-value>
+        <stored-value>por</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Prakrit languages</displayed-value>
+        <stored-value>pra</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Provençal, Old (to 1500); Occitan, Old (to 1500)</displayed-value>
+        <stored-value>pro</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pushto; Pashto</displayed-value>
+        <stored-value>pus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Quechua</displayed-value>
+        <stored-value>que</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Rajasthani</displayed-value>
+        <stored-value>raj</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Rapanui</displayed-value>
+        <stored-value>rap</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Rarotongan; Cook Islands Maori</displayed-value>
+        <stored-value>rar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Romance languages</displayed-value>
+        <stored-value>roa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Romanian; Moldavian; Moldovan</displayed-value>
+        <stored-value>rum</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Romansh</displayed-value>
+        <stored-value>roh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Romany</displayed-value>
+        <stored-value>rom</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Rundi</displayed-value>
+        <stored-value>run</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Russian</displayed-value>
+        <stored-value>rus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Salishan languages</displayed-value>
+        <stored-value>sal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Samaritan Aramaic</displayed-value>
+        <stored-value>sam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sami languages</displayed-value>
+        <stored-value>smi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Samoan</displayed-value>
+        <stored-value>smo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sandawe</displayed-value>
+        <stored-value>sad</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sango</displayed-value>
+        <stored-value>sag</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sanskrit</displayed-value>
+        <stored-value>san</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Santali</displayed-value>
+        <stored-value>sat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sardinian</displayed-value>
+        <stored-value>srd</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sasak</displayed-value>
+        <stored-value>sas</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Scots</displayed-value>
+        <stored-value>sco</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Selkup</displayed-value>
+        <stored-value>sel</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Semitic languages</displayed-value>
+        <stored-value>sem</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Serbian</displayed-value>
+        <stored-value>srp</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Serer</displayed-value>
+        <stored-value>srr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Shan</displayed-value>
+        <stored-value>shn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Shona</displayed-value>
+        <stored-value>sna</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sichuan Yi; Nuosu</displayed-value>
+        <stored-value>iii</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sicilian</displayed-value>
+        <stored-value>scn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sidamo</displayed-value>
+        <stored-value>sid</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sign Languages</displayed-value>
+        <stored-value>sgn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Siksika</displayed-value>
+        <stored-value>bla</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sindhi</displayed-value>
+        <stored-value>snd</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sinhala; Sinhalese</displayed-value>
+        <stored-value>sin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sino-Tibetan languages</displayed-value>
+        <stored-value>sit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Siouan languages</displayed-value>
+        <stored-value>sio</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Skolt Sami</displayed-value>
+        <stored-value>sms</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Slave (Athapascan)</displayed-value>
+        <stored-value>den</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Slavic languages</displayed-value>
+        <stored-value>sla</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Slovak</displayed-value>
+        <stored-value>slo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Slovenian</displayed-value>
+        <stored-value>slv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sogdian</displayed-value>
+        <stored-value>sog</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Somali</displayed-value>
+        <stored-value>som</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Songhai languages</displayed-value>
+        <stored-value>son</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Soninke</displayed-value>
+        <stored-value>snk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sorbian languages</displayed-value>
+        <stored-value>wen</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sotho, Southern</displayed-value>
+        <stored-value>sot</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>South American Indian languages</displayed-value>
+        <stored-value>sai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Southern Altai</displayed-value>
+        <stored-value>alt</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Southern Sami</displayed-value>
+        <stored-value>sma</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Spanish; Castilian</displayed-value>
+        <stored-value>spa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sranan Tongo</displayed-value>
+        <stored-value>srn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Standard Moroccan Tamazight</displayed-value>
+        <stored-value>zgh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sukuma</displayed-value>
+        <stored-value>suk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sumerian</displayed-value>
+        <stored-value>sux</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Sundanese</displayed-value>
+        <stored-value>sun</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Susu</displayed-value>
+        <stored-value>sus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swahili</displayed-value>
+        <stored-value>swa</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swati</displayed-value>
+        <stored-value>ssw</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swedish</displayed-value>
+        <stored-value>swe</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swiss German; Alemannic; Alsatian</displayed-value>
+        <stored-value>gsw</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Syriac</displayed-value>
+        <stored-value>syr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tagalog</displayed-value>
+        <stored-value>tgl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tahitian</displayed-value>
+        <stored-value>tah</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tai languages</displayed-value>
+        <stored-value>tai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tajik</displayed-value>
+        <stored-value>tgk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tamashek</displayed-value>
+        <stored-value>tmh</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tamil</displayed-value>
+        <stored-value>tam</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tatar</displayed-value>
+        <stored-value>tat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Telugu</displayed-value>
+        <stored-value>tel</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tereno</displayed-value>
+        <stored-value>ter</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tetum</displayed-value>
+        <stored-value>tet</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Thai</displayed-value>
+        <stored-value>tha</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tibetan</displayed-value>
+        <stored-value>tib</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tigre</displayed-value>
+        <stored-value>tig</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tigrinya</displayed-value>
+        <stored-value>tir</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Timne</displayed-value>
+        <stored-value>tem</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tiv</displayed-value>
+        <stored-value>tiv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tlingit</displayed-value>
+        <stored-value>tli</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tok Pisin</displayed-value>
+        <stored-value>tpi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tokelau</displayed-value>
+        <stored-value>tkl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tonga (Nyasa)</displayed-value>
+        <stored-value>tog</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tonga (Tonga Islands)</displayed-value>
+        <stored-value>ton</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tsimshian</displayed-value>
+        <stored-value>tsi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tsonga</displayed-value>
+        <stored-value>tso</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tswana</displayed-value>
+        <stored-value>tsn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tumbuka</displayed-value>
+        <stored-value>tum</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tupi languages</displayed-value>
+        <stored-value>tup</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Turkish</displayed-value>
+        <stored-value>tur</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Turkish, Ottoman (1500-1928)</displayed-value>
+        <stored-value>ota</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Turkmen</displayed-value>
+        <stored-value>tuk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tuvalu</displayed-value>
+        <stored-value>tvl</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Tuvinian</displayed-value>
+        <stored-value>tyv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Twi</displayed-value>
+        <stored-value>twi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Udmurt</displayed-value>
+        <stored-value>udm</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ugaritic</displayed-value>
+        <stored-value>uga</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Uighur; Uyghur</displayed-value>
+        <stored-value>uig</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ukrainian</displayed-value>
+        <stored-value>ukr</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Umbundu</displayed-value>
+        <stored-value>umb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Uncoded languages</displayed-value>
+        <stored-value>mis</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Undetermined</displayed-value>
+        <stored-value>und</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Upper Sorbian</displayed-value>
+        <stored-value>hsb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Urdu</displayed-value>
+        <stored-value>urd</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Uzbek</displayed-value>
+        <stored-value>uzb</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vai</displayed-value>
+        <stored-value>vai</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Venda</displayed-value>
+        <stored-value>ven</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Vietnamese</displayed-value>
+        <stored-value>vie</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Volapük</displayed-value>
+        <stored-value>vol</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Votic</displayed-value>
+        <stored-value>vot</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Wakashan languages</displayed-value>
+        <stored-value>wak</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Walloon</displayed-value>
+        <stored-value>wln</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Waray</displayed-value>
+        <stored-value>war</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Washo</displayed-value>
+        <stored-value>was</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Welsh</displayed-value>
+        <stored-value>wel</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Western Frisian</displayed-value>
+        <stored-value>fry</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Wolaitta; Wolaytta</displayed-value>
+        <stored-value>wal</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Wolof</displayed-value>
+        <stored-value>wol</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Xhosa</displayed-value>
+        <stored-value>xho</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yakut</displayed-value>
+        <stored-value>sah</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yao</displayed-value>
+        <stored-value>yao</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yapese</displayed-value>
+        <stored-value>yap</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yiddish</displayed-value>
+        <stored-value>yid</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yoruba</displayed-value>
+        <stored-value>yor</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Yupik languages</displayed-value>
+        <stored-value>ypk</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zande languages</displayed-value>
+        <stored-value>znd</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zapotec</displayed-value>
+        <stored-value>zap</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki</displayed-value>
+        <stored-value>zza</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zenaga</displayed-value>
+        <stored-value>zen</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zhuang; Chuang</displayed-value>
+        <stored-value>zha</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zulu</displayed-value>
+        <stored-value>zul</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Zuni</displayed-value>
+        <stored-value>zun</stored-value>
       </pair>
       <pair>
         <displayed-value>Altra</displayed-value>
