@@ -3588,9 +3588,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[1].label",
                                        is("Root Fond::" + rootFond.getID())))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[1].count", is(7)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
     }
@@ -3613,19 +3613,19 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                  .build();
 
         Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
-                                   .withTitle("Root Fond")
+                                   .withTitle("Root JournalFond")
                                    .build();
 
 
         Item childFond = ItemBuilder.createItem(context, journalFondsCollection)
                                     .withJournalFondParent(rootFond.getName(), rootFond.getID())
-                                    .withTitle("Riforme")
+                                    .withTitle("Child JournalFond")
                                     .build();
 
         ItemBuilder.createItem(context, journalFileCollection)
                    .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
                                  childFond.getID().toString(), CF_ACCEPTED)
-                   .withTitle("archivalMaterial")
+                   .withTitle("journalFile")
                    .build();
 
         context.restoreAuthSystemState();
@@ -3639,9 +3639,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
-                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
-                                       is("Root Fond::" + rootFond.getID())))
-                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[1].label",
+                                       is("Root JournalFond::" + rootFond.getID())))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[1].count", is(1)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
     }
