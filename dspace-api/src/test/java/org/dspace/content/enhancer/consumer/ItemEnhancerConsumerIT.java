@@ -756,14 +756,14 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Create and relate a Publication item to the child Fonds
         Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
-                                          .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
+                                          .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
                                                         childFond.getID().toString(), 600)
                                           .withTitle("Publication Item")
                                           .build();
 
         // Create and relate an ArchivalMaterial item to the child Fonds
         Item archivalMaterialItem = ItemBuilder.createItem(context, archivalMaterialCollection)
-                                               .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
+                                               .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
                                                              childFond.getID().toString(), 600)
                                                .withTitle("Archival Material Item")
                                                .build();
