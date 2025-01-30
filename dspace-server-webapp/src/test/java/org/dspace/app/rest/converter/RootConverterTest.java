@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import org.dspace.app.rest.model.RootRest;
 import org.dspace.app.util.Util;
+import org.dspace.service.ClientInfoService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.util.DummyHttpServletRequest;
 import org.junit.Before;
@@ -34,23 +35,28 @@ public class RootConverterTest {
     @Mock
     private ConfigurationService configurationService;
 
+    @Mock
+    private ClientInfoService clientInfoService;
+
+    private DummyHttpServletRequest req;
+
     @Before
     public void setUp() throws Exception {
         when(configurationService.getProperty("dspace.ui.url")).thenReturn("dspaceurl");
         when(configurationService.getProperty("dspace.name")).thenReturn("dspacename");
         when(configurationService.getProperty("dspace.server.url")).thenReturn("rest");
+        req = new DummyHttpServletRequest();
+        when(clientInfoService.getOriginUrl(req)).thenReturn("rest");
     }
 
     @Test
     public void testReturnCorrectClass() throws Exception {
-        DummyHttpServletRequest req = new DummyHttpServletRequest();
         assertEquals(rootConverter.convert(req).getClass(), RootRest.class);
     }
 
     @Test
     public void testCorrectPropertiesSetFromConfigurationService() throws Exception {
         String restUrl = "rest";
-        DummyHttpServletRequest req = new DummyHttpServletRequest();
         RootRest rootRest = rootConverter.convert(req);
         assertEquals("dspaceurl", rootRest.getDspaceUI());
         assertEquals("dspacename", rootRest.getDspaceName());
@@ -60,7 +66,18 @@ public class RootConverterTest {
 
     @Test
     public void testReturnNotNull() throws Exception {
-        DummyHttpServletRequest req = new DummyHttpServletRequest();
         assertNotNull(rootConverter.convert(req));
+    }
+
+    @Test
+    public void testCorrectInternalUrlSetFromConfigurationService() throws Exception {
+        String restUrl = "internal-rest";
+        when(configurationService.getProperty("dspace.server.ssr.url", "rest")).thenReturn("internal-rest");
+        when(clientInfoService.getOriginUrl(req)).thenReturn(restUrl);
+        RootRest rootRest = rootConverter.convert(req);
+        assertEquals("dspaceurl", rootRest.getDspaceUI());
+        assertEquals("dspacename", rootRest.getDspaceName());
+        assertEquals(restUrl, rootRest.getDspaceServer());
+        assertEquals("DSpace " + Util.getSourceVersion(), rootRest.getDspaceVersion());
     }
 }
