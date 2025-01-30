@@ -9,7 +9,9 @@ package org.dspace.app.rest.converter;
 
 import static org.dspace.app.util.Util.getSourceVersion;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.RootRest;
+import org.dspace.service.ClientInfoService;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,12 +25,24 @@ public class RootConverter {
     @Autowired
     private ConfigurationService configurationService;
 
-    public RootRest convert() {
+    @Autowired
+    private ClientInfoService clientInfoService;
+
+    public RootRest convert(HttpServletRequest request) {
         RootRest rootRest = new RootRest();
         rootRest.setDspaceName(configurationService.getProperty("dspace.name"));
         rootRest.setDspaceUI(configurationService.getProperty("dspace.ui.url"));
-        rootRest.setDspaceServer(configurationService.getProperty("dspace.server.url"));
+        String requestUrl = clientInfoService.getOriginUrl(request);
+        String dspaceUrl = configurationService.getProperty("dspace.server.url");
+        String dspaceSSRUrl = configurationService.getProperty("dspace.server.ssr.url", dspaceUrl);
+        if (dspaceUrl.equals(dspaceSSRUrl) || requestUrl.startsWith(dspaceUrl)) {
+            rootRest.setDspaceServer(dspaceUrl);
+        } else {
+            rootRest.setDspaceServer(dspaceSSRUrl);
+        }
         rootRest.setDspaceVersion("DSpace " + getSourceVersion());
         return rootRest;
     }
+
+
 }

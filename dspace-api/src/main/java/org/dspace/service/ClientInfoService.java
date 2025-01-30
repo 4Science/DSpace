@@ -43,4 +43,11 @@ public interface ClientInfoService {
      */
     boolean isRequestFromTrustedProxy(String ipAddress);
 
+    /**
+     * Get the origin URL from HttpServletRequest by combining the scheme, server name, port, and context path.
+     * If the port is the default for the scheme (80 for HTTP and 443 for HTTPS), it is omitted from the URL.
+     * @param request
+     * @return the request origin URL
+     */
+    String getOriginUrl(HttpServletRequest request);
 }
