@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import org.dspace.app.rest.model.RootRest;
 import org.dspace.app.util.Util;
 import org.dspace.services.ConfigurationService;
+import org.dspace.statistics.util.DummyHttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,13 +43,15 @@ public class RootConverterTest {
 
     @Test
     public void testReturnCorrectClass() throws Exception {
-        assertEquals(rootConverter.convert().getClass(), RootRest.class);
+        DummyHttpServletRequest req = new DummyHttpServletRequest();
+        assertEquals(rootConverter.convert(req).getClass(), RootRest.class);
     }
 
     @Test
     public void testCorrectPropertiesSetFromConfigurationService() throws Exception {
         String restUrl = "rest";
-        RootRest rootRest = rootConverter.convert();
+        DummyHttpServletRequest req = new DummyHttpServletRequest();
+        RootRest rootRest = rootConverter.convert(req);
         assertEquals("dspaceurl", rootRest.getDspaceUI());
         assertEquals("dspacename", rootRest.getDspaceName());
         assertEquals(restUrl, rootRest.getDspaceServer());
@@ -57,6 +60,7 @@ public class RootConverterTest {
 
     @Test
     public void testReturnNotNull() throws Exception {
-        assertNotNull(rootConverter.convert());
+        DummyHttpServletRequest req = new DummyHttpServletRequest();
+        assertNotNull(rootConverter.convert(req));
     }
 }
