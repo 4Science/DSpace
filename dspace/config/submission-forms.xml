@@ -985,6 +985,18 @@
       <row>
         <field>
           <dc-schema>glamperson</dc-schema>
+          <dc-element>name</dc-element>
+          <dc-qualifier>arabicvariants</dc-qualifier>
+          <label>Arabic Variants</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamperson</dc-schema>
           <dc-element>gender</dc-element>
           <label>Genere</label>
           <input-type value-pairs-name="gender">dropdown</input-type>
@@ -1129,6 +1141,17 @@
       </row>
       <row>
         <field>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>interests</dc-element>
+          <label>Interests</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>aggregation</dc-qualifier>
@@ -1203,6 +1226,18 @@
         <field>
           <dc-schema>glam</dc-schema>
           <dc-element>link</dc-element>
+          <dc-qualifier>wikidata</dc-qualifier>
+          <label>Wikidata Link</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
           <dc-qualifier>wikipedia</dc-qualifier>
           <label>Link a Wikipedia</label>
           <input-type>onebox</input-type>
@@ -1271,6 +1306,17 @@
           <hint>Inserire link a risorse esterne correlate alla testata</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>email</dc-element>
+          <label>Email</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
     </form>
     <form name="orgunit">
       <row>
@@ -1286,6 +1332,17 @@
       </row>
       <row>
         <field>
+          <dc-schema>glamou</dc-schema>
+          <dc-element>variant</dc-element>
+          <label>Organization name variant</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>organization</dc-schema>
           <dc-element>parentOrganization</dc-element>
           <label>Ente superiore</label>
@@ -1293,6 +1350,17 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il nome dell'Ente Superiore</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamou</dc-schema>
+          <dc-element>history</dc-element>
+          <label>History</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1315,6 +1383,28 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la data di fondazione dell'ente</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamou</dc-schema>
+          <dc-element>holdings</dc-element>
+          <label>Holdings</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamou</dc-schema>
+          <dc-element>editors</dc-element>
+          <label>Editor</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1440,6 +1530,55 @@
           <label>Percorso</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+    </form>
+    <form name="orgunit-glamou-editors">
+      <row>
+        <field>
+          <dc-schema>glamou</dc-schema>
+          <dc-element>editors</dc-element>
+          <label>Editor</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>editor</dc-element>
+          <dc-qualifier>qualifier</dc-qualifier>
+          <label>Qualifier</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>editing</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Editing Type</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>editing</dc-element>
+          <dc-qualifier>date</dc-qualifier>
+          <label>Edited At</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
           <required />
           <hint />
         </field>
@@ -1630,6 +1769,39 @@
       </row>
       <row>
         <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>startyear</dc-element>
+          <label>Start Year</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>endyear</dc-element>
+          <label>End Year</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>note</dc-element>
+          <label>Note</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>crispj</dc-schema>
           <dc-element>coinvestigators</dc-element>
           <label>Co-Investigator(s)</label>
@@ -1664,12 +1836,61 @@
       </row>
       <row>
         <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
+          <label>Grant</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>path</dc-qualifier>
           <label>Percorso</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+    </form>
+    <form name="project-glamproject-funding">
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Grant type</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
+          <dc-qualifier>amount</dc-qualifier>
+          <label>Amount</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
+          <dc-qualifier>duration</dc-qualifier>
+          <label>Duration</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
           <required />
           <hint />
         </field>
@@ -1742,6 +1963,17 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la data di fine dell'evento</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamevent</dc-schema>
+          <dc-element>theatre</dc-element>
+          <label>Theatre</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -2260,8 +2492,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glamfonds</dc-schema>
-          <dc-element>editor</dc-element>
+          <dc-schema>glam</dc-schema>
+          <dc-element>editors</dc-element>
           <label>Compilatore</label>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
@@ -2436,11 +2668,11 @@
         </field>
       </row>
     </form>
-    <form name="fonds-glamfonds-editor">
+    <form name="fonds-glam-editors">
       <row>
         <field>
-          <dc-schema>glamfonds</dc-schema>
-          <dc-element>editor</dc-element>
+          <dc-schema>glam</dc-schema>
+          <dc-element>editors</dc-element>
           <label>Nome del compilatore</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -2589,6 +2821,30 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire il link a TGN</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>pleiades</dc-qualifier>
+          <label>Pleiades Link</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>link</dc-element>
+          <dc-qualifier>gazetteer</dc-qualifier>
+          <label>Gazetteer</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
