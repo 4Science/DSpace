@@ -1355,5 +1355,12 @@
         <qualifier>iconclass</qualifier>
         <scope_note></scope_note>
     </dc-type>
+    
+    <dc-type>
+        <schema>glamevent</schema>
+        <element>theatre</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
 </dspace-dc-types>
