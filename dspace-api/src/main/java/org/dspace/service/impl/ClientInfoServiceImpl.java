@@ -174,31 +174,6 @@ public class ClientInfoServiceImpl implements ClientInfoService {
     }
 
     /**
-     * Get the origin URL from HttpServletRequest by combining the scheme, server name, port, and context path.
-     * If the port is the default for the scheme (80 for HTTP and 443 for HTTPS), it is omitted from the URL.
-     * @param request
-     * @return the request origin URL
-     */
-    public String getOriginUrl(HttpServletRequest request) {
-        String scheme = request.getScheme();             // http or https
-        String serverName = request.getServerName();     // domain name
-        int serverPort = request.getServerPort();        // port number
-        String contextPath = request.getContextPath();   // context path
-
-        // Construct the origin URL
-        StringBuilder url = new StringBuilder();
-        url.append(scheme).append("://").append(serverName);
-
-        // Append the port if it's not the default port
-        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
-            url.append(":").append(serverPort);
-        }
-
-        url.append(contextPath);
-        return url.toString();
-    }
-
-    /**
      * Get the first X-FORWARDED-FOR header value which does not match the IP or another proxy IP. This is the most
      * likely client IP address when proxies are in use.
      * <P>
