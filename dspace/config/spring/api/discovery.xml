@@ -2294,6 +2294,7 @@
 	        <list>
 	            <ref bean="searchFilterTitle" />
 	            <ref bean="searchFilterAuthor" />
+              <ref bean="searchFilterIssued" />
 	            <ref bean="searchFilterTemporalPeriod" />
 	            <ref bean="searchFilterTypeCoar" />
 	            <ref bean="searchFilterEditor" />
