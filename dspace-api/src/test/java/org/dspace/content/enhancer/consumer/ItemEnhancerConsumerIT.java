@@ -829,7 +829,8 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(metadataValues, hasSize(9));
         assertThat(metadataValues, hasItem(with("cris.virtual.treeJournalFondsRoot", rootFond.getName(),
                                                 rootFond.getID().toString(),0, 600)));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.treeJournalFondsRoot", childFond.getID().toString())));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.treeJournalFondsRoot",
+                                                childFond.getID().toString())));
 
     }
 
