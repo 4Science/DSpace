@@ -2269,6 +2269,8 @@
 	    <property name="sidebarFacets">
 	        <list>
 	            <ref bean="searchFilterAuthor" />
+	            <ref bean="searchFilterTemporalPeriod" />
+	            <ref bean="searchFilterTypeCoar" />
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
@@ -2281,6 +2283,8 @@
                 <ref bean="searchFilterEvent"/>
                 <ref bean="searchFilterOrganizationalUnit"/>
                 <ref bean="searchFilterOpera"/>
+                <ref bean="searchFilterMaterialAndTecnique"/>
+                <ref bean="searchFilterTypePhysical"/>
 	        </list>
 	    </property>
 	    <!-- Set TagCloud configuration per discovery configuration -->
@@ -2290,6 +2294,9 @@
 	        <list>
 	            <ref bean="searchFilterTitle" />
 	            <ref bean="searchFilterAuthor" />
+              <ref bean="searchFilterIssued" />
+	            <ref bean="searchFilterTemporalPeriod" />
+	            <ref bean="searchFilterTypeCoar" />
 	            <ref bean="searchFilterEditor" />
 	            <ref bean="searchFilterOrgUnit" />
 	            <ref bean="searchFilterSubject" />
@@ -2303,6 +2310,8 @@
                 <ref bean="searchFilterEvent"/>
                 <ref bean="searchFilterOrganizationalUnit"/>
                 <ref bean="searchFilterOpera"/>
+                <ref bean="searchFilterMaterialAndTecnique"/>
+                <ref bean="searchFilterTypePhysical"/>
 	        </list>
 	    </property>
 	    <!--The sort filters for the discovery search-->
@@ -3915,6 +3924,13 @@
             <list>
                 <value>oairecerif.author.affiliation</value>
                 <value>oairecerif.editor.affiliation</value>
+                <value>glam.dataprovider</value>
+				<value>glam.rights.holder</value>
+				<value>dc.contributor.affiliation</value>
+				<value>dc.contributor.editoraffiliation</value>
+				<value>dcterms.rightsHolder</value>
+				<value>dc.description.sponsorship</value>
+				<value>dc.contributor.corporatebody</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4049,6 +4065,8 @@
         <property name="metadataFields">
             <list>
                 <value>dc.date.issued</value>
+				<value>dc.date.start</value>
+				<value>dc.date.end</value>
             </list>
         </property>
         <property name="type" value="date"/>
@@ -4059,6 +4077,21 @@
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
 
+    </bean>
+    
+    <bean id="searchFilterTemporalPeriod" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="temporalperiod" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.coverage.temporalperiod</value>
+			</list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
 
     <bean id="searchFilterContentInOriginalBundle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -4211,6 +4244,17 @@
         <property name="metadataFields">
             <list>
                 <value>dc.type</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="searchFilterTypeCoar" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="itemtypecoar" />
+        <property name="splitter" value="::" />
+        <property name="onlyLastNodeRelevant" value="true" />
+        <property name="metadataFields">
+            <list>
+                <value>glam.type.coar</value>
             </list>
         </property>
     </bean>
@@ -4938,6 +4982,38 @@
         <property name="exposeMore" value="true" />
         <property name="exposeTotalElements" value="true" />
     </bean>
+
+    <bean id="searchFilterMaterialAndTecnique"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="materialandtechnique" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.type.materialandtechnique</value>
+			</list>
+		</property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+	</bean>
+
+    <bean id="searchFilterTypePhysical"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="typephysical" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.type.physical</value>
+			</list>
+		</property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+	</bean>
 
     <!--Sort properties-->
     <bean id="sortScore" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
