@@ -319,6 +319,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -454,6 +455,7 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -762,6 +764,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -849,6 +852,7 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1126,6 +1130,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1419,6 +1424,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1649,6 +1655,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1790,6 +1797,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -2602,6 +2610,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -2708,6 +2717,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3026,6 +3036,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -3218,6 +3229,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Nome della testata di riferimento</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3277,6 +3289,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -3383,6 +3396,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare evetuali testate correlate</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3630,6 +3644,7 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il nome della testata correlata</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -3800,6 +3815,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Indica l'archivio di riferimento oggetto della catalogazione</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3919,6 +3935,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -4593,6 +4610,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire il nome del livello cui appartiene la risorsa.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -4878,6 +4896,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -5194,6 +5213,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -5605,6 +5625,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire il nome del livello cui appartiene la risorsa.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -5889,6 +5910,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6177,6 +6199,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6260,6 +6283,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire il Livello di descrizione della risorsa.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6416,6 +6440,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire il Livello di descrizione dell'oggetto.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6523,6 +6548,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
