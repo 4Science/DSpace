@@ -817,7 +817,7 @@
     <dc-type>
         <schema>glam</schema>
         <element>cms</element>
-        <qualifier>contact</qualifier>
+        <qualifier>contacts</qualifier>
         <scope_note></scope_note>
     </dc-type>
 
