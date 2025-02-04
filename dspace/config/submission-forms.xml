@@ -3396,6 +3396,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare evetuali testate correlate</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
