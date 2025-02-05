@@ -308,7 +308,7 @@
 			<xsl:for-each
 				select="doc:metadata/doc:element[@name='bundles']/doc:element[@name='bundle']/doc:element[@name='bitstreams']/doc:element[@name='bitstream']">
 				<xsl:choose>
-					<xsl:when test="./doc:field[@name='sid']='1'">
+					<xsl:when test="./doc:field[@name='primary']='true'">
 						<edm:isShownBy>
 							<xsl:attribute name="rdf:resource"><xsl:value-of select="./doc:field[@name='url']" /></xsl:attribute>
 						</edm:isShownBy>
@@ -330,7 +330,7 @@
 					<!-- primary bitstream in case of image to ore:Aggregation/edm:object rdf:resource -->
 					<xsl:for-each
 						select="doc:metadata/doc:element[@name='bundles']/doc:element[@name='bundle']/doc:element[@name='bitstreams']/doc:element[@name='bitstream']">
-							<xsl:if test="./doc:field[@name='sid']='1'">
+							<xsl:if test="./doc:field[@name='primary']='true'">
 								<edm:object>
 									<xsl:attribute name="rdf:resource"><xsl:value-of select="./doc:field[@name='url']" /></xsl:attribute>
 								</edm:object>
