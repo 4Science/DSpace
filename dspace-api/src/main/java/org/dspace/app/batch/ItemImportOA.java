@@ -698,11 +698,6 @@ public class ItemImportOA {
             language = configurationService.getProperty("default.language");
         }
 
-        // a goofy default, but there it is
-        if (language == null) {
-            language = "en";
-        }
-
         // let's check that the actual metadata field exists.
         MetadataSchema foundSchema = metadataSchemaService.find(c, schema);
 

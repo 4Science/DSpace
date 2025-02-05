@@ -93,6 +93,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
 
     private static final String SOURCE_REF = "TEST";
 
+    private static final String DEFAULT_LANGUAGE = "en_US";
+
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
@@ -196,8 +198,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             // one metadata is explicit the other is the cris.sourceid
             assertEquals("Only two metadata found", 2, metadata.size());
 
-            String defLanguage = configurationService.getProperty("default.language");
-            metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
+            metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null,
+                    DEFAULT_LANGUAGE);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Sample Item");
         } catch (SQLException ex) {
@@ -291,9 +293,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             assertEquals("Only one metadata found", 1, metadata.size());
             assertEquals("Is the value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
-            String defLanguage = configurationService.getProperty("default.language");
             metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "contributor", "author",
-                    defLanguage);
+                    DEFAULT_LANGUAGE);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
         } catch (SQLException ex) {
@@ -398,8 +399,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
                 // one metadata is explicit the other is the cris.sourceid
                 assertEquals("Only two metadata found", 2, metadata.size());
 
-                String defLanguage = configurationService.getProperty("default.language");
-                metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
+                metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null,
+                        DEFAULT_LANGUAGE);
                 assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
                 assertTrue("Is the new metadata value the right one?",
                         metadata.get(0).getValue().indexOf("Sample Item") == 0);
@@ -681,9 +682,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             assertEquals("Only one metadata", 1, metadata.size());
             assertEquals("Is the value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
-            String defLanguage = configurationService.getProperty("default.language");
             metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "contributor", "author",
-                    defLanguage);
+                    DEFAULT_LANGUAGE);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
@@ -771,9 +771,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             assertEquals("Only one metadata found", 1, metadata.size());
             assertEquals("Is the value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
-            String defLanguage = configurationService.getProperty("default.language");
             metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "contributor", "author",
-                    defLanguage);
+                    DEFAULT_LANGUAGE);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
@@ -863,9 +862,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             assertEquals("Only one metadata found", 1, metadata.size());
             assertEquals("Is the value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
-            String defLanguage = configurationService.getProperty("default.language");
             metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "contributor", "author",
-                    defLanguage);
+                    DEFAULT_LANGUAGE);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Francesco Cadili");
 
@@ -1070,13 +1068,14 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
         List<MetadataValue> metadata = item.getMetadata();
         assertEquals("Only two metadata found", 3, metadata.size());
 
-        String defLanguage = configurationService.getProperty("default.language");
-        metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
+        metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null,
+                DEFAULT_LANGUAGE);
         assertThat(metadata, hasSize(1));
         assertThat(metadata.get(0).getValue(), is("Sample Item"));
         assertThat(metadata.get(0).getSecurityLevel(), is(Integer.valueOf(1)));
 
-        metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "type", null, defLanguage);
+        metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "type", null,
+                DEFAULT_LANGUAGE);
         assertThat(metadata, hasSize(1));
         assertThat(metadata.get(0).getValue(), is("Item type"));
         assertThat(metadata.get(0).getSecurityLevel(), is(Integer.valueOf(2)));
@@ -1112,8 +1111,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
                 Item item = wi.getItem();
 
                 List<MetadataValue> metadata = item.getMetadata();
-                String defLanguage = configurationService.getProperty("default.language");
-                metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
+                metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null,
+                        DEFAULT_LANGUAGE);
                 assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
                 assertTrue("Is the new metadata value the right one?",
                         metadata.get(0).getValue().indexOf("Sample Item") == 0);
@@ -1180,8 +1179,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
 
         List<MetadataValue> metadataValues = publication.getMetadata();
         assertThat(metadataValues, hasItem(with("dspace.entity.type", "Publication")));
-        assertThat(metadataValues, hasItem(with("dc.title", "New Test publication", "en_US", null, 0, -1)));
-        assertThat(metadataValues, hasItem(with("dc.contributor.author", "John Smith", "en_US", null, 0, -1)));
+        assertThat(metadataValues, hasItem(with("dc.title", "New Test publication", null, null, 0, -1)));
+        assertThat(metadataValues, hasItem(with("dc.contributor.author", "John Smith", null, null, 0, -1)));
     }
 
     /***
