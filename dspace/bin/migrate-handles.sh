@@ -207,10 +207,4 @@ for cmd in "${commands[@]}"; do
     echo -e "${COLOR}$cmd$RESET" | tee -a "$LOG_FILE"
     
     eval "$cmd" 2>&1 | tee -a "$LOG_FILE"
-    
-    if [ $? -eq 0 ]; then
-        echo -e "\e[92mSuccess: Command $counter executed.$RESET" | tee -a "$LOG_FILE"
-    else
-        echo -e "\e[91mError: Command $counter failed execution.$RESET" | tee -a "$LOG_FILE"
-    fi
 done
