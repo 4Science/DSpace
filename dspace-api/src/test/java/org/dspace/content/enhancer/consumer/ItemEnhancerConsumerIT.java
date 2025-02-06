@@ -9,6 +9,7 @@ package org.dspace.content.enhancer.consumer;
 
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
 import static org.dspace.app.matcher.MetadataValueMatcher.withNoPlace;
+import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -34,7 +35,6 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
@@ -499,7 +499,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(
             metadataValues,
             hasItem(
-                with(GLAMFONDS_PARENT, "Root Fond", rootFond.getID().toString(), Choices.CF_ACCEPTED)
+                with(GLAMFONDS_PARENT, "Root Fond", rootFond.getID().toString(), CF_ACCEPTED)
             )
         );
         assertThat(
@@ -507,7 +507,8 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
             hasItem(
                 with(
                     CRIS_VIRTUAL_ROOT_FOND,
-                    String.format("Root Fond::%s", rootFond.getID())
+                    rootFond.getName(),
+                    rootFond.getID().toString(),0, 600
                 )
             )
         );
@@ -528,7 +529,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         // adds a glamfonds.parent after
         itemService.addMetadata(
             context, leafFond, "glamfonds", "parent", null, null, "Child Fond",
-            childFond.getID().toString(), Choices.CF_ACCEPTED
+            childFond.getID().toString(), CF_ACCEPTED
         );
 
         itemService.update(context, leafFond);
@@ -542,7 +543,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(
             metadataValues,
             hasItem(
-                with(GLAMFONDS_PARENT, "Child Fond", childFond.getID().toString(), Choices.CF_ACCEPTED)
+                with(GLAMFONDS_PARENT, "Child Fond", childFond.getID().toString(), CF_ACCEPTED)
             )
         );
         assertThat(
@@ -552,7 +553,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                     CRIS_VIRTUAL_ROOT_FOND,
                     "Root Fond",
                     rootFond.getID().toString(),
-                    Choices.CF_ACCEPTED
+                    CF_ACCEPTED
                 )
             )
         );
@@ -601,7 +602,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                     CRIS_VIRTUAL_TREE_FONDS_ROOT,
                     "Root Fond",
                     rootFond.getID().toString(),
-                    Choices.CF_ACCEPTED
+                    CF_ACCEPTED
                 )
             )
         );
@@ -622,7 +623,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         // adds a glamfonds.parent after
         itemService.addMetadata(
             context, customPublication, "dc", "relation", "fonds", null, "Leaf Fond",
-            leafFond.getID().toString(), Choices.CF_ACCEPTED
+            leafFond.getID().toString(), CF_ACCEPTED
         );
 
         itemService.update(context, customPublication);
@@ -640,7 +641,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                     CRIS_VIRTUAL_TREE_FONDS_ROOT,
                     "Root Fond",
                     rootFond.getID().toString(),
-                    Choices.CF_ACCEPTED
+                    CF_ACCEPTED
                 )
             )
         );
@@ -719,6 +720,120 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(metadataValues, hasItem(with("cris.virtual.journalance", "AA110022")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.journalance", journalItem.getID().toString())));
     }
+
+    @Test
+    public void testVirtualMetadataTreeFondsRootAndSourceSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .build();
+
+        Collection archivalMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("ArchivalMaterial")
+                                                                 .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .build();
+
+        // Create root Fonds
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                                   .withTitle("Root Fonds")
+                                   .build();
+
+        // Create a child Fonds (leaf)
+        Item childFond = ItemBuilder.createItem(context, fondsCollection)
+                                    .withFondParent(rootFond.getName(), rootFond.getID())
+                                    .withMetadata("glam", "leaf", null, "true")
+                                    .withTitle("Leaf Fonds")
+                                    .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                                          .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                                        childFond.getID().toString(), 600)
+                                          .withTitle("Publication Item")
+                                          .build();
+
+        // Create and relate an ArchivalMaterial item to the child Fonds
+        Item archivalMaterialItem = ItemBuilder.createItem(context, archivalMaterialCollection)
+                                               .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
+                                                             childFond.getID().toString(), 600)
+                                               .withTitle("Archival Material Item")
+                                               .build();
+
+        context.restoreAuthSystemState();
+        publicationItem = commitAndReload(publicationItem);
+        archivalMaterialItem = commitAndReload(archivalMaterialItem);
+
+        List<MetadataValue> metadataValues = publicationItem.getMetadata();
+        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
+                                                rootFond.getID().toString(),0, 600)));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.treeFondsRoot", childFond.getID().toString())));
+
+        List<MetadataValue> metadataValues2 = archivalMaterialItem.getMetadata();
+        assertThat(metadataValues2, hasSize(9));
+        assertThat(metadataValues2, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
+                                                 rootFond.getID().toString(),0, 600)));
+        assertThat(metadataValues2, hasItem(with("cris.virtualsource.treeFondsRoot", childFond.getID().toString())));
+
+    }
+
+    @Test
+    public void testVirtualMetadataTreeJournalFondsRootAndSourceSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("JournalFonds")
+                                                      .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("JournalFile")
+                                                            .build();
+
+        // Create root Fonds
+        Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root JournalFonds")
+                                   .build();
+
+        // Create a child Fonds (leaf)
+        Item childFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                    .withJournalFondParent(rootFond.getName(), rootFond.getID())
+                                    .withMetadata("glam", "leaf", null, "true")
+                                    .withTitle("Leaf Fonds")
+                                    .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item journalFileItem = ItemBuilder.createItem(context, journalFileCollection)
+                                          .withMetadata("dc", "relation", "journalfonds", null,
+                                                        childFond.getName(), childFond.getID().toString(), 600)
+                                          .withTitle("Publication Item")
+                                          .build();
+
+        context.restoreAuthSystemState();
+        journalFileItem = commitAndReload(journalFileItem);
+
+        List<MetadataValue> metadataValues = journalFileItem.getMetadata();
+        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasItem(with("cris.virtual.treeJournalFondsRoot", rootFond.getName(),
+                                                rootFond.getID().toString(),0, 600)));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.treeJournalFondsRoot",
+                                                childFond.getID().toString())));
+
+    }
+
 
     private List<Integer> getPlacesAsVirtualSource(Item person1, Item publication, String metadata) {
         return getMetadataValues(publication, metadata).stream()

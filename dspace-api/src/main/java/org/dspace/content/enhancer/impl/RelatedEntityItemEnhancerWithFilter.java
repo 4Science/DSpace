@@ -85,12 +85,6 @@ public class RelatedEntityItemEnhancerWithFilter extends RelatedEntityItemEnhanc
         String relatedValue = relatedItemMetadataValue.getValue();
         String relatedAuthority = relatedItemMetadataValue.getAuthority();
         int relatedConfidence = relatedItemMetadataValue.getConfidence();
-        if (StringUtils.contains(relatedValue, "::")) {
-            String[] related = relatedValue.split("::");
-            relatedValue = related[0];
-            relatedAuthority = related[1];
-            relatedConfidence = Choices.CF_ACCEPTED;
-        }
         return new RelatedMetadataValue(
             relatedValue, relatedAuthority, relatedItemMetadataValue.getLanguage(), relatedConfidence
         );
@@ -127,11 +121,6 @@ public class RelatedEntityItemEnhancerWithFilter extends RelatedEntityItemEnhanc
                         for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
                             String relatedValue = relatedItemMetadataValue.getValue();
                             String relatedAuthority = relatedItemMetadataValue.getAuthority();
-                            if (StringUtils.contains(relatedValue, "::")) {
-                                String[] related = relatedValue.split("::");
-                                relatedValue = related[0];
-                                relatedAuthority = related[1];
-                            }
                             MetadataValueDTO mvRelated = new MetadataValueDTO();
                             mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
                             mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
@@ -172,7 +161,9 @@ public class RelatedEntityItemEnhancerWithFilter extends RelatedEntityItemEnhanc
         mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
         mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
         mvRelated.setQualifier(getVirtualQualifier());
-        mvRelated.setValue(item.getName() + "::" + item.getID());
+        mvRelated.setValue(item.getName());
+        mvRelated.setAuthority(item.getID().toString());
+        mvRelated.setConfidence(Choices.CF_ACCEPTED);
         return mvRelated;
     }
 
@@ -192,7 +183,7 @@ public class RelatedEntityItemEnhancerWithFilter extends RelatedEntityItemEnhanc
             result = true;
             boolean isValid = validate(context, item);
             if (isValid) {
-                addVirtualField(context, item, item.getName() + "::" + item.getID(), null, null, Choices.CF_UNSET);
+                addVirtualField(context, item, item.getName(), item.getID().toString(), null, Choices.CF_ACCEPTED);
                 addVirtualSourceField(context, item, sourceAuthority);
                 continue;
             }
@@ -223,7 +214,8 @@ public class RelatedEntityItemEnhancerWithFilter extends RelatedEntityItemEnhanc
         // check if the related item is a valid root-enhancement (this is the child case)
         boolean isRelatedValid = validate(context, relatedItem);
         if (isRelatedValid) {
-            addVirtualField(context, item, relatedItem.getName() + "::" + relatedItem.getID(), null, null, -1);
+            addVirtualField(context, item, relatedItem.getName(), relatedItem.getID().toString(), null,
+                            Choices.CF_ACCEPTED);
             addVirtualSourceField(context, item, sourceAuthority);
         } else {
             addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE, null, null, Choices.CF_UNSET);
