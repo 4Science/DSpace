@@ -3588,9 +3588,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[1].label",
-                                       is("Root Fond::" + rootFond.getID())))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[1].count", is(7)))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
+                                       is("Root Fond")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
     }
