@@ -4480,7 +4480,7 @@
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
@@ -5549,7 +5549,7 @@
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required>Inserire l’anno di pubblicazione della risorsa bibliografica</required>
           <hint />
@@ -6017,7 +6017,7 @@
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'anno di pubblicazione delle risorsa bibliografica</hint>
@@ -6355,7 +6355,7 @@
           <dc-element>bibliography</dc-element>
           <dc-qualifier>year</dc-qualifier>
           <label>Anno di pubblicazione</label>
-          <input-type>onebox</input-type>
+          <input-type>number</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
