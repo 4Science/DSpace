@@ -262,7 +262,7 @@ public class ItemUtils {
                 // add primary bitstream
                 bitstream.getField().add(
                         createValue("primary",
-                                "" + (bit.getID() == (primaryID))));
+                                "" + (bit.getID().equals(primaryID))));
             }
         }
 
