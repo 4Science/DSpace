@@ -49,7 +49,7 @@ definitions:
         script:
           - *setEnv
           #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-          - mvn -T 1C clean verify -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
+          - mvn -T 1C clean install -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
           - mvn test -pl dspace-iiif,dspace-oai,dspace-rdf,dspace-rest,dspace-server-webapp,dspace-services,dspace-sword,dspace-swordv2 -Dmaven.test.skip=false -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=*IT,!Abstract*,!ItemImportIT,!GenericAuthorizationFeatureIT,!ItemRestRepositoryIT,!LeftTiltedRelationshipRestRepositoryIT,!RelationshipRestRepositoryIT,!StatisticsRestRepositoryIT,!WorkspaceItemRestRepositoryIT,!DiscoveryRestControllerIT,!PatchMetadataIT,!RightTiltedRelationshipRestRepositoryIT $MAVEN_ARGS
         artifacts:
           - dspace-iiif/target/surefire-reports/*-output.txt
@@ -80,7 +80,7 @@ definitions:
         script:
           - *setEnv
           #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-          - mvn -T 1C clean verify -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
+          - mvn -T 1C clean install -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
           - mvn test -Dmaven.test.skip=false -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=ItemImportIT,GenericAuthorizationFeatureIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,WorkspaceItemRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,RightTiltedRelationshipRestRepositoryIT $MAVEN_ARGS
         artifacts:
           - dspace-iiif/target/surefire-reports/*-output.txt
@@ -110,7 +110,7 @@ definitions:
           - maven
         script:
           - *setEnv
-          - mvn -T 1C clean verify license:check -Dmaven.test.skip=true  -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
+          - mvn -T 1C clean install license:check -Dmaven.test.skip=true  -Dmaven.test.skip=true -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B $MAVEN_ARGS
           - mvn verify -pl dspace-api -Dmaven.test.skip=false -DskipUnitTests=true -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -P !assembly -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
