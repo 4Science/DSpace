@@ -866,7 +866,7 @@
         <dependency>
 	        <groupId>de.undercouch</groupId>
 	        <artifactId>citeproc-java</artifactId>
-	        <version>1.0.1</version>
+	        <version>3.2.0</version>
 	        <exclusions>
 	            <exclusion>
 	               <groupId>org.apache.commons</groupId>
@@ -885,12 +885,12 @@
       <dependency>
 	      <groupId>org.citationstyles</groupId>
 	      <artifactId>locales</artifactId>
-	      <version>1.0</version>
+	      <version>24.12</version>
       </dependency>
       <dependency>
 	      <groupId>org.citationstyles</groupId>
 	      <artifactId>styles</artifactId>
-	      <version>1.0</version>
+	      <version>24.12</version>
       </dependency>
 
         <!-- required for openaire api integration -->
