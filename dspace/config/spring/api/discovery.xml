@@ -2268,23 +2268,18 @@
 	    <!--Which sidebar facets are to be displayed-->
 	    <property name="sidebarFacets">
 	        <list>
-	            <ref bean="searchFilterAuthor" />
-	            <ref bean="searchFilterTemporalPeriod" />
-	            <ref bean="searchFilterTypeCoar" />
-	            <ref bean="searchFilterEditor" />
-	            <ref bean="searchFilterOrgUnit" />
-	            <ref bean="searchFilterSubject" />
+	        	<ref bean="searchFilterAuthor" />
+				<ref bean="searchFilterIssued" />
+				<ref bean="searchFilterTemporalPeriod" />
+				<ref bean="searchFilterTemporal" />
+				<ref bean="searchFilterTypeCoar" />
+				<ref bean="searchFilterSubject" />
 	            <ref bean="searchFilterGlamSubject" />
-	            <ref bean="searchFilterPath"/>
-	            <ref bean="searchFilterAggregation"/>
-	            <ref bean="searchFilterJournalFonds"/>
-	            <ref bean="searchFilterFonds"/>
-                <ref bean="searchFilterPlace"/>
-                <ref bean="searchFilterEvent"/>
-                <ref bean="searchFilterOrganizationalUnit"/>
-                <ref bean="searchFilterOpera"/>
-                <ref bean="searchFilterMaterialAndTecnique"/>
-                <ref bean="searchFilterTypePhysical"/>
+				<ref bean="searchFilterFonds"/>
+				<ref bean="searchFilterPlace" />
+				<ref bean="searchFilterOrganizationalUnit" />
+				<ref bean="searchFilterMaterialAndTecnique" />
+				<ref bean="searchFilterTypePhysical" />
 	        </list>
 	    </property>
 	    <!-- Set TagCloud configuration per discovery configuration -->
@@ -2293,25 +2288,20 @@
 	    <property name="searchFilters">
 	        <list>
 	            <ref bean="searchFilterTitle" />
-	            <ref bean="searchFilterAuthor" />
-              <ref bean="searchFilterIssued" />
-	            <ref bean="searchFilterTemporalPeriod" />
-	            <ref bean="searchFilterTypeCoar" />
-	            <ref bean="searchFilterEditor" />
-	            <ref bean="searchFilterOrgUnit" />
-	            <ref bean="searchFilterSubject" />
+	        	<ref bean="searchFilterAuthor" />
+				<ref bean="searchFilterIssued" />
+				<ref bean="searchFilterTypeCoar" />
+				<ref bean="searchFilterSubject" />
 	            <ref bean="searchFilterGlamSubject" />
-	            <ref bean="searchFilterPath"/>
-                <ref bean="searchFilterAggregation"/>
-                <ref bean="searchFilterJournalFonds"/>
-                <ref bean="searchFilterFonds"/>
-                <ref bean="searchFilterLicense"/>
-                <ref bean="searchFilterPlace"/>
-                <ref bean="searchFilterEvent"/>
-                <ref bean="searchFilterOrganizationalUnit"/>
-                <ref bean="searchFilterOpera"/>
-                <ref bean="searchFilterMaterialAndTecnique"/>
-                <ref bean="searchFilterTypePhysical"/>
+	        	<ref bean="searchFilterFulltext" />
+				<ref bean="searchFilterTemporalPeriod" />
+				<ref bean="searchFilterTemporal" />
+				<ref bean="searchFilterPlace" />
+				<ref bean="searchFilterOrganizationalUnit" />
+				<ref bean="searchFilterMaterialAndTecnique" />
+				<ref bean="searchFilterTypePhysical" />
+				<ref bean="searchFilterLicense" />
+				<ref bean="searchFilterFonds"/>
 	        </list>
 	    </property>
 	    <!--The sort filters for the discovery search-->
@@ -2327,6 +2317,7 @@
 	                    <ref bean="sortDateIssuedAsc" />
 	                    <ref bean="sortDateAccessionedDesc"/>
 	                    <ref bean="sortDateAccessionedAsc"/>
+	                    <ref bean="glamfondsSortIndex"/>
 	                    <ref bean="sortViews"/>
 	                    <ref bean="sortDownloads"/>
 	                </list>
@@ -2363,13 +2354,13 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterOrganizationalUnit"/>
-                <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterProject"/>
-                <ref bean="searchFilterFamily"/>
-                <ref bean="searchFilterPath"/>
+            	<ref bean="searchFilterTitle" />
+				<ref bean="searchFilterType" />
+				<ref bean="searchFilterCrisFondsPerson" />
+				<ref bean="searchFilterFamily" />
+				<ref bean="searchFilterOrgUnit" />
+				<ref bean="searchFilterCrisFondsCustodian" />
+				<ref bean="searchFilterProject" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2377,14 +2368,18 @@
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterTitle" />
-                <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterOrganizationalUnit"/>
-                <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterProject"/>
-                <ref bean="searchFilterFamily"/>
-                <ref bean="searchFilterPath"/>
+            	<ref bean="searchFilterTitle" />
+				<ref bean="searchFilterType" />
+				<ref bean="searchFilterCrisFondsPerson" />
+				<ref bean="searchFilterFamily" />
+				<ref bean="searchFilterOrgUnit" />
+				<ref bean="searchFilterCrisFondsCustodian" />
+				<ref bean="searchFilterProject" />
+				<ref bean="searchFilterCrisFondsStartDateFrom" />
+				<ref bean="searchFilterCrisFondsStartDateTo" />
+				<ref bean="searchFilterCrisFondsEndDateFrom" />
+				<ref bean="searchFilterCrisFondsEndDateTo" />
+				<ref bean="searchFilterSubject" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2448,11 +2443,8 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterEditor" />
+                <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterPersonJournalFonds"/>
-                <ref bean="searchFilterJournalFoundsDate"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2461,11 +2453,7 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTitle" />
-                <ref bean="searchFilterEditor" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterPersonJournalFonds"/>
-                <ref bean="searchFilterJournalFoundsDate"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3819,7 +3807,7 @@
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
 
-    <bean id="searchFilterTitle" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+    <bean id="searchFilterTitle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="title"/>
         <property name="metadataFields">
             <list>
@@ -3890,8 +3878,10 @@
         <property name="indexFieldName" value="author"/>
         <property name="metadataFields">
             <list>
-                <value>dc.contributor.author</value>
-                <value>dc.creator</value>
+				<value>dc.contributor.author</value>
+				<value>dc.contributor.contributor</value>
+				<value>dc.creator</value>
+				<value>dc.contributor.editor</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -3900,6 +3890,18 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+    
+    <bean id="searchFilterCrisFondsPerson" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="fondsauthor"/>
+        <property name="metadataFields">
+            <list>
+				<value>dc.contributor.author</value>
+				<value>dc.contributor.contributor</value>
+				<value>dc.creator</value>
+				<value>dc.contributor.editor</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="searchFilterEditor" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -3990,7 +3992,6 @@
         <property name="metadataFields">
             <list>
                 <value>glam.subject</value>
-                <value>glam.subject.*</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -4076,7 +4077,6 @@
         <property name="isOpenByDefault" value="false"/>
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
-
     </bean>
     
     <bean id="searchFilterTemporalPeriod" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -4090,8 +4090,19 @@
         <property name="sortOrderSidebar" value="COUNT"/>
         <property name="sortOrderFilterPage" value="COUNT"/>
         <property name="isOpenByDefault" value="false"/>
-        <property name="pageSize" value="10"/>
-        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
+
+    <bean id="searchFilterTemporal" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="temporal" />
+		<property name="metadataFields">
+			<list>
+				<value>dc.coverage.temporal</value>
+			</list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
     </bean>
 
     <bean id="searchFilterContentInOriginalBundle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
@@ -4791,7 +4802,13 @@
         <property name="indexFieldName" value="corporate"/>
         <property name="metadataFields">
             <list>
-                <value>dc.contributor.corporatebody</value>
+                <value>glam.dataprovider</value>
+				<value>glam.rights.holder</value>
+				<value>dc.contributor.affiliation</value>
+				<value>dc.contributor.editoraffiliation</value>
+				<value>dcterms.rightsHolder</value>
+				<value>dc.description.sponsorship</value>
+				<value>dc.contributor.corporatebody</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>
@@ -5523,4 +5540,67 @@
         <property name="sortOrderSidebar" value="COUNT"/>
         <property name="sortOrderFilterPage" value="COUNT"/>
     </bean>
+    <bean id="searchFilterFulltext"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="fulltext" />
+        <property name="type" value="authority" />
+        <property name="metadataFields">
+            <list>
+                <value>fulltext</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="searchFilterCrisFondsCustodian"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="crisfondcustodian" />
+        <property name="metadataFields">
+            <list>
+                <value>glamfonds.custodian</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="searchFilterCrisFondsStartDateFrom"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="crisfondstartdatefrom" />
+        <property name="type" value="date"/>
+        <property name="metadataFields">
+            <list>
+                <value>glamfonds.startdate.from</value>
+            </list>
+        </property>
+    </bean>
+
+	<bean id="searchFilterCrisFondsStartDateTo"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="crisfondstartdateto" />
+        <property name="type" value="date"/>
+		<property name="metadataFields">
+			<list>
+				<value>glamfonds.startdate.to</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="searchFilterCrisFondsEndDateFrom"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="crisfondenddatefrom" />
+        <property name="type" value="date"/>
+		<property name="metadataFields">
+			<list>
+				<value>glamfonds.enddate.from</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="searchFilterCrisFondsEndDateTo"
+		class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+		<property name="indexFieldName" value="crisfondenddateto" />
+        <property name="type" value="date"/>
+		<property name="metadataFields">
+			<list>
+				<value>glamfonds.enddate.to</value>
+			</list>
+		</property>
+	</bean>
+    
 </beans>
