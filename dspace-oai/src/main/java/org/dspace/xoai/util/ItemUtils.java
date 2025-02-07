@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
@@ -206,6 +207,8 @@ public class ItemUtils {
             Element bundle = create("bundle");
             bundles.getElement().add(bundle);
             bundle.getField().add(createValue("name", b.getName()));
+            Bitstream primary = b.getPrimaryBitstream();
+            UUID primaryID = primary != null ? primary.getID() : null;
 
             Element bitstreams = create("bitstreams");
             bundle.getElement().add(bitstreams);
@@ -255,6 +258,11 @@ public class ItemUtils {
                 bitstream.getField().add(createValue("checksum", cks));
                 bitstream.getField().add(createValue("checksumAlgorithm", cka));
                 bitstream.getField().add(createValue("sid", bit.getSequenceID() + ""));
+
+                // add primary bitstream
+                bitstream.getField().add(
+                        createValue("primary",
+                                "" + (bit.getID().equals(primaryID))));
             }
         }
 
