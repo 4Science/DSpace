@@ -817,6 +817,13 @@
     <dc-type>
         <schema>glam</schema>
         <element>cms</element>
+        <qualifier>contacts</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
         <qualifier>general-information</qualifier>
         <scope_note></scope_note>
     </dc-type>
