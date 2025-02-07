@@ -32,7 +32,8 @@ public class BrowseIndexMatcher {
 
     public static Matcher<? super Object> subjectBrowseIndex(final String order) {
         return allOf(
-            hasJsonPath("$.metadata", contains("dc.subject.*")),
+            hasJsonPath("$.metadata", contains("glam.subject", "pico.chi", "pico.cosa", "pico.quando",
+                    "unibo.subject-ar", "glam.subject.iconclass", "dc.subject.*")),
             hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_VALUE_LIST)),
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
@@ -60,7 +61,8 @@ public class BrowseIndexMatcher {
     public static Matcher<? super Object> contributorBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains(
-                    "dc.contributor.author", "dc.contributor.editor", "dc.contributor.contributor", "dc.creator")),
+                    "dc.contributor.author", "dc.contributor.editor", "dc.contributor.contributor",
+                    "dc.relation.person", "dc.creator")),
             hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_VALUE_LIST)),
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
