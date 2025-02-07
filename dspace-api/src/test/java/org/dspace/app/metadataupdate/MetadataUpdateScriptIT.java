@@ -71,11 +71,11 @@ public class MetadataUpdateScriptIT extends AbstractIntegrationTestWithDatabase 
         itemThree = context.reloadEntity(itemThree);
         itemFour = context.reloadEntity(itemFour);
 
-        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "deu", null, Choices.CF_NOTFOUND)));
+        assertThat(itemOne.getMetadata(), hasItem(with("dc.language.iso", "ger", null, Choices.CF_NOTFOUND)));
         assertThat(itemTwo.getMetadata(), hasItem(with("dc.language.iso", "eng", null, Choices.CF_NOTFOUND)));
         assertThat(itemThree.getMetadata(), hasItem(with("dc.language.iso", "por", null, Choices.CF_NOTFOUND)));
         assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "ita", null, 0, Choices.CF_NOTFOUND)));
-        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "fra", null, 1, Choices.CF_NOTFOUND)));
+        assertThat(itemFour.getMetadata(), hasItem(with("dc.language.iso", "fre", null, 1, Choices.CF_NOTFOUND)));
     }
 
     @Test
