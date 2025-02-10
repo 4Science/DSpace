@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,7 @@ import org.dspace.app.rest.matcher.SortOptionMatcher;
 import org.dspace.app.rest.matcher.WorkflowItemMatcher;
 import org.dspace.app.rest.matcher.WorkspaceItemMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.ClaimedTaskBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -81,6 +83,7 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.CrisConstants;
+import org.dspace.core.ReloadableEntity;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
@@ -3532,53 +3535,45 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
         Item childFond = ItemBuilder.createItem(context, fondsCollection)
                                 .withFondParent(rootFond.getName(), rootFond.getID())
-                                .withTitle("Riforme agli Statuti item")
+                                .withTitle("Child Fond")
                                 .build();
 
         ItemBuilder.createItem(context, archivalMaterialCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                    .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("archivalMaterial")
                    .build();
 
         ItemBuilder.createItem(context, publicationCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("publication")
                    .build();
 
         ItemBuilder.createItem(context, pictureCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("picture")
                    .build();
 
         ItemBuilder.createItem(context, audioVideoCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("Prime Constitutiones Sapientie Nove item")
                    .build();
 
         ItemBuilder.createItem(context, artworkCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("artwork")
                    .build();
 
         ItemBuilder.createItem(context, musicalLibrettosCollection)
-                    .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                  childFond.getID().toString(), CF_ACCEPTED)
+                    .withRelationFonds(childFond.getName(), childFond.getID().toString())
                     .withTitle("musicalLibrettos")
                     .build();
 
         ItemBuilder.createItem(context, scientificMaterialCollection)
-                   .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
                    .withTitle("scientificMaterial")
                    .build();
 
         context.restoreAuthSystemState();
-
 
         // Perform the request and verify facets
         getClient().perform(get("/api/discover/search/facets")
@@ -3588,12 +3583,15 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
-                                       is("Riforme agli Statuti item")))
-                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[1].label", is("Root Fond")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label", is("Root Fond")))
                    .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
+    }
+    @SuppressWarnings("rawtypes")
+    private <T extends ReloadableEntity> T commitAndReload(T entity) throws SQLException, AuthorizeException {
+        context.commit();
+        return context.reloadEntity(entity);
     }
 
     @Test
@@ -3623,11 +3621,10 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                     .withTitle("Child JournalFond")
                                     .build();
 
-        ItemBuilder.createItem(context, journalFileCollection)
-                   .withMetadata("dc", "relation", "journalfonds", null, childFond.getName(),
-                                 childFond.getID().toString(), CF_ACCEPTED)
-                   .withTitle("journalFile")
-                   .build();
+        Item journalFile = ItemBuilder.createItem(context, journalFileCollection)
+                                    .withRelationJournalFonds(childFond.getName(), childFond.getID().toString())
+                                    .withTitle("journalFile")
+                                    .build();
 
         context.restoreAuthSystemState();
 
@@ -3640,9 +3637,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.type", is("discover")))
                    .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
                    .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
-                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[1].label",
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
                                        is("Root JournalFond")))
-                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[1].count", is(1)))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
                    .andExpect(jsonPath("$._links.self.href",
                                        containsString("/api/discover/search/facets")));
     }
@@ -3693,49 +3690,42 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                                                    .build();
 
         ItemBuilder.createItem(context, archivalMaterialCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("archivalMaterial")
                    .build();
 
-        ItemBuilder.createItem(context, publicationCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("publication")
                    .build();
 
         ItemBuilder.createItem(context, pictureCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("picture")
                    .build();
 
         ItemBuilder.createItem(context, audioVideoCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("audioVideo")
                    .build();
 
         ItemBuilder.createItem(context, artworkCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("artwork")
                    .build();
 
         ItemBuilder.createItem(context, musicalLibrettosCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("musicalLibrettos")
                    .build();
 
         ItemBuilder.createItem(context, scientificMaterialCollection)
-                   .withMetadata("dc", "relation", "fonds", null, rootFond.getName(),
-                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
                    .withTitle("scientificMaterial")
                    .build();
 
         context.restoreAuthSystemState();
-
+        publicationItem = commitAndReload(publicationItem);
         // Perform the request and verify facets
         getClient().perform(get("/api/discover/search/facets")
                                 .param("configuration", "123456789/documents"))
