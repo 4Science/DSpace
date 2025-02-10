@@ -561,6 +561,11 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dc", "relation", "fonds", null, fondsTitle, authority, 600);
     }
 
+    public ItemBuilder withRelationJournalFonds(String fondsTitle, String authority) {
+        return addMetadataValue(item, "dc", "relation", "journalfonds", null, fondsTitle, authority, 600);
+    }
+
+
     public ItemBuilder withVolume(String volume) {
         return addMetadataValue(item, "oaire", "citation", "volume", volume);
     }

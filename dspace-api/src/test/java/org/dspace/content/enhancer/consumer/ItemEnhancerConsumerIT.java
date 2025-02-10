@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -756,15 +757,13 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Create and relate a Publication item to the child Fonds
         Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
-                                          .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                                        childFond.getID().toString(), 600)
+                                          .withRelationFonds(childFond.getName(), childFond.getID().toString())
                                           .withTitle("Publication Item")
                                           .build();
 
         // Create and relate an ArchivalMaterial item to the child Fonds
         Item archivalMaterialItem = ItemBuilder.createItem(context, archivalMaterialCollection)
-                                               .withMetadata("dc", "relation", "fonds", null, childFond.getName(),
-                                                             childFond.getID().toString(), 600)
+                                               .withRelationFonds(childFond.getName(), childFond.getID().toString())
                                                .withTitle("Archival Material Item")
                                                .build();
 
@@ -772,17 +771,24 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publicationItem = commitAndReload(publicationItem);
         archivalMaterialItem = commitAndReload(archivalMaterialItem);
 
-        List<MetadataValue> metadataValues = publicationItem.getMetadata();
-        assertThat(metadataValues, hasSize(9));
-        assertThat(metadataValues, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
+        List<MetadataValue> publicationItemMetadata = publicationItem.getMetadata();
+        assertThat(publicationItemMetadata, hasSize(11));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
                                                 rootFond.getID().toString(),0, 600)));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.treeFondsRoot", childFond.getID().toString())));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtualsource.treeFondsRoot",
+                                                         childFond.getID().toString())));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated",
+                                                "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
 
-        List<MetadataValue> metadataValues2 = archivalMaterialItem.getMetadata();
-        assertThat(metadataValues2, hasSize(9));
-        assertThat(metadataValues2, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
+        List<MetadataValue> archivalMaterialItemMetadata = archivalMaterialItem.getMetadata();
+        assertThat(archivalMaterialItemMetadata, hasSize(11));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRoot", rootFond.getName(),
                                                  rootFond.getID().toString(),0, 600)));
-        assertThat(metadataValues2, hasItem(with("cris.virtualsource.treeFondsRoot", childFond.getID().toString())));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtualsource.treeFondsRoot",
+                                                              childFond.getID().toString())));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated",
+                                                              "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
+
 
     }
 
@@ -817,20 +823,21 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Create and relate a Publication item to the child Fonds
         Item journalFileItem = ItemBuilder.createItem(context, journalFileCollection)
-                                          .withMetadata("dc", "relation", "journalfonds", null,
-                                                        childFond.getName(), childFond.getID().toString(), 600)
-                                          .withTitle("Publication Item")
+                                          .withRelationJournalFonds(childFond.getName(), childFond.getID().toString())
+                                          .withTitle("JournalFile Item")
                                           .build();
 
         context.restoreAuthSystemState();
         journalFileItem = commitAndReload(journalFileItem);
 
         List<MetadataValue> metadataValues = journalFileItem.getMetadata();
-        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasSize(11));
         assertThat(metadataValues, hasItem(with("cris.virtual.treeJournalFondsRoot", rootFond.getName(),
                                                 rootFond.getID().toString(),0, 600)));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.treeJournalFondsRoot",
                                                 childFond.getID().toString())));
+        assertThat(metadataValues, hasItem(with("cris.virtual.treeJournalFondsRootDirectlyRelated",
+                                                "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
 
     }
 
@@ -858,5 +865,121 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         context.commit();
         return context.reloadEntity(entity);
     }
+
+
+    @Test
+    public void testVirtualRootFondTitleSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .build();
+        // Create root Fonds
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                                   .withTitle("Root Fonds")
+                                   .build();
+
+        // Create a child Fonds (leaf)
+        Item childFond = ItemBuilder.createItem(context, fondsCollection)
+                                    .withFondParent(rootFond.getName(), rootFond.getID())
+                                    .withMetadata("glam", "leaf", null, "true")
+                                    .withTitle("Leaf Fonds")
+                                    .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                                          .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                                          .withTitle("Publication Item")
+                                          .build();
+
+        context.restoreAuthSystemState();
+        publicationItem = commitAndReload(publicationItem);
+        childFond = commitAndReload(childFond);
+        rootFond = commitAndReload(rootFond);
+
+        // Assert rootFond has the virtual metadata
+        List<MetadataValue> metadataValues = rootFond.getMetadata();
+        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
+                                                rootFond.getID().toString(), 0, 600)));
+
+        // Assert childFond does NOT contain "cris.virtual.rootFondTitle"
+        List<MetadataValue> metadataValues2 = childFond.getMetadata();
+        assertThat(metadataValues2, not(hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
+                                                     rootFond.getID().toString(), 0, 600))));
+
+        // Assert publicationItem does NOT contain "cris.virtual.rootFondTitle"
+        List<MetadataValue> metadataValues3 = publicationItem.getMetadata();
+        assertThat(metadataValues3, not(hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
+                                                     rootFond.getID().toString(), 0, 600))));
+    }
+
+    @Test
+    public void testVirtualJournalRootFondTitleSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("JournalFonds")
+                                                      .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .build();
+        // Create root Fonds
+        Item rootJournalFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root JournalFonds")
+                                   .build();
+
+        // Create a child Fonds (leaf)
+        Item childJournalFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                    .withFondParent(rootJournalFond.getName(), rootJournalFond.getID())
+                                    .withMetadata("glam", "leaf", null, "true")
+                                    .withTitle("Leaf Fonds")
+                                    .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                                          .withRelationFonds(childJournalFond.getName(),
+                                                             childJournalFond.getID().toString())
+                                          .withTitle("Publication Item")
+                                          .build();
+
+        context.restoreAuthSystemState();
+        publicationItem = commitAndReload(publicationItem);
+        childJournalFond = commitAndReload(childJournalFond);
+        rootJournalFond = commitAndReload(rootJournalFond);
+
+        // Assert rootFond has the virtual metadata
+        List<MetadataValue> metadataValues = rootJournalFond.getMetadata();
+        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasItem(with("cris.virtual.rootJournalFondTitle", rootJournalFond.getName(),
+                                                rootJournalFond.getID().toString(), 0, 600)));
+
+        // Assert childFond does NOT contain "cris.virtual.rootFondTitle"
+        List<MetadataValue> metadataValues2 = childJournalFond.getMetadata();
+        assertThat(metadataValues2, not(hasItem(with("cris.virtual.rootJournalFondTitle", rootJournalFond.getName(),
+                                                     rootJournalFond.getID().toString(), 0, 600))));
+
+        // Assert publicationItem does NOT contain "cris.virtual.rootFondTitle"
+        List<MetadataValue> metadataValues3 = publicationItem.getMetadata();
+        assertThat(metadataValues3, not(hasItem(with("cris.virtual.rootJournalFondTitle", rootJournalFond.getName(),
+                                                     rootJournalFond.getID().toString(), 0, 600))));
+    }
+
+
 
 }
