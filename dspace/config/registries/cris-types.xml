@@ -477,4 +477,18 @@
         <scope_note></scope_note>
     </dc-type>
 
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootJournalFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>
