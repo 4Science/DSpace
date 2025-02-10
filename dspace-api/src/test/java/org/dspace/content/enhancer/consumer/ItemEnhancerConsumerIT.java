@@ -924,7 +924,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     }
 
     @Test
-    public void testVirtualJournalRootFondTitleSetCorrectly() throws Exception {
+    public void testVirtualRootJournalFondTitleSetCorrectly() throws Exception {
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -936,8 +936,8 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                                                       .withEntityType("JournalFonds")
                                                       .build();
 
-        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                            .withEntityType("Publication")
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("JournalFile")
                                                             .build();
         // Create root Fonds
         Item rootJournalFond = ItemBuilder.createItem(context, journalFondsCollection)
@@ -952,14 +952,14 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                                     .build();
 
         // Create and relate a Publication item to the child Fonds
-        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
-                                          .withRelationFonds(childJournalFond.getName(),
-                                                             childJournalFond.getID().toString())
-                                          .withTitle("Publication Item")
+        Item journalFileItem = ItemBuilder.createItem(context, journalFileCollection)
+                                          .withRelationJournalFonds(childJournalFond.getName(),
+                                                                    childJournalFond.getID().toString())
+                                          .withTitle("JournalFile Item")
                                           .build();
 
         context.restoreAuthSystemState();
-        publicationItem = commitAndReload(publicationItem);
+        journalFileItem = commitAndReload(journalFileItem);
         childJournalFond = commitAndReload(childJournalFond);
         rootJournalFond = commitAndReload(rootJournalFond);
 
@@ -975,11 +975,117 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                                                      rootJournalFond.getID().toString(), 0, 600))));
 
         // Assert publicationItem does NOT contain "cris.virtual.rootFondTitle"
-        List<MetadataValue> metadataValues3 = publicationItem.getMetadata();
+        List<MetadataValue> metadataValues3 = journalFileItem.getMetadata();
         assertThat(metadataValues3, not(hasItem(with("cris.virtual.rootJournalFondTitle", rootJournalFond.getName(),
                                                      rootJournalFond.getID().toString(), 0, 600))));
     }
 
+    @Test
+    public void testVirtualMetadataTreeJournalFondsRootDirectlyRelatedSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
 
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                             .withEntityType("JournalFonds")
+                                                             .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("JournalFile")
+                                                            .build();
+
+        // Create root Fonds
+        Item rootJournalFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                          .withTitle("Root JournalFonds")
+                                          .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item journalFileItem = ItemBuilder.createItem(context, journalFileCollection)
+                                          .withRelationJournalFonds(rootJournalFond.getName(),
+                                                                    rootJournalFond.getID().toString())
+                                          .withTitle("JournalFile Item")
+                                          .build();
+
+        context.restoreAuthSystemState();
+        journalFileItem = commitAndReload(journalFileItem);
+
+        List<MetadataValue> journalFileItemMetadata = journalFileItem.getMetadata();
+        assertThat(journalFileItemMetadata, hasSize(11));
+        assertThat(journalFileItemMetadata, hasItem(with("cris.virtual.treeJournalFondsRootDirectlyRelated",
+                                                         rootJournalFond.getName(), rootJournalFond.getID().toString(),
+                                                         0, 600)));
+        assertThat(journalFileItemMetadata, hasItem(with("cris.virtualsource.treeJournalFondsRootDirectlyRelated",
+                                                         rootJournalFond.getID().toString())));
+        assertThat(journalFileItemMetadata, hasItem(with("cris.virtual.treeJournalFondsRoot",
+                                                         "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
+
+    }
+
+    @Test
+    public void testVirtualMetadataTreeFondsRootDirectlyRelatedSetCorrectly() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .build();
+
+        Collection archivalMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("ArchivalMaterial")
+                                                                 .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .build();
+
+        // Create root Fonds
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                                   .withTitle("Root Fonds")
+                                   .withMetadata("glam", "leaf", null, "true")
+                                   .build();
+
+        // Create and relate a Publication item to the child Fonds
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                                          .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                                          .withTitle("Publication Item")
+                                          .build();
+
+        // Create and relate an ArchivalMaterial item to the child Fonds
+        Item archivalMaterialItem = ItemBuilder.createItem(context, archivalMaterialCollection)
+                                               .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                                               .withTitle("Archival Material Item")
+                                               .build();
+
+        context.restoreAuthSystemState();
+        publicationItem = commitAndReload(publicationItem);
+        archivalMaterialItem = commitAndReload(archivalMaterialItem);
+
+        List<MetadataValue> publicationItemMetadata = publicationItem.getMetadata();
+        assertThat(publicationItemMetadata, hasSize(11));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated", rootFond.getName(),
+                                                         rootFond.getID().toString(),0, 600)));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtualsource.treeFondsRootDirectlyRelated",
+                                                         rootFond.getID().toString())));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRoot",
+                                                         "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
+
+        List<MetadataValue> archivalMaterialItemMetadata = archivalMaterialItem.getMetadata();
+        assertThat(archivalMaterialItemMetadata, hasSize(11));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated", rootFond.getName(),
+                                                              rootFond.getID().toString(),0, 600)));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtualsource.treeFondsRootDirectlyRelated",
+                                                              rootFond.getID().toString())));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRoot",
+                                                              "#PLACEHOLDER_PARENT_METADATA_VALUE#", null, 0, -1)));
+
+
+    }
 
 }
