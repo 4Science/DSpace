@@ -423,7 +423,6 @@
     <submission-process name="coin">
       <step id="collection" />
       <step id="coin" />
-      <step id="coin-glam-bibliography" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
@@ -444,15 +443,11 @@
     <submission-process name="scientific_materials">
       <step id="collection" />
       <step id="scientific_materials" />
-      <step id="scientific_materials-glam-bibliography" />
-      <step id="scientific_materials-glam-inscription" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="scientific_materials-edit">
       <step id="scientific_materials" />
-      <step id="scientific_materials-glam-bibliography" />
-      <step id="scientific_materials-glam-inscription" />
       <step id="upload" />
     </submission-process>
     <submission-process name="artworks">
