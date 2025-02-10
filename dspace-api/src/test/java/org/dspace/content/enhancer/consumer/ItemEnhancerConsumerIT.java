@@ -1069,8 +1069,8 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         List<MetadataValue> publicationItemMetadata = publicationItem.getMetadata();
         assertThat(publicationItemMetadata, hasSize(11));
-        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated", rootFond.getName(),
-                                                         rootFond.getID().toString(),0, 600)));
+        assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated",
+                                                         rootFond.getName(), rootFond.getID().toString(),0, 600)));
         assertThat(publicationItemMetadata, hasItem(with("cris.virtualsource.treeFondsRootDirectlyRelated",
                                                          rootFond.getID().toString())));
         assertThat(publicationItemMetadata, hasItem(with("cris.virtual.treeFondsRoot",
@@ -1078,8 +1078,9 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         List<MetadataValue> archivalMaterialItemMetadata = archivalMaterialItem.getMetadata();
         assertThat(archivalMaterialItemMetadata, hasSize(11));
-        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated", rootFond.getName(),
-                                                              rootFond.getID().toString(),0, 600)));
+        assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRootDirectlyRelated",
+                                                              rootFond.getName(), rootFond.getID().toString(),
+                                                              0, 600)));
         assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtualsource.treeFondsRootDirectlyRelated",
                                                               rootFond.getID().toString())));
         assertThat(archivalMaterialItemMetadata, hasItem(with("cris.virtual.treeFondsRoot",
