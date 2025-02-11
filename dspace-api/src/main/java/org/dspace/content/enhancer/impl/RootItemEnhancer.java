@@ -8,8 +8,10 @@
 package org.dspace.content.enhancer.impl;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choices;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
@@ -19,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A general-purpose item enhancer that enhance for root items based on configurable metadata fields.
+ *
+ * @author Adamo Fapohunda (AdamF42 - adamo.fapohunda at 4science.com)
  */
 public class RootItemEnhancer extends RelatedEntityItemEnhancer {
     private static final Logger log = LoggerFactory.getLogger(RootItemEnhancer.class);
@@ -31,14 +35,31 @@ public class RootItemEnhancer extends RelatedEntityItemEnhancer {
 
     public void setRootMetadataField(String rootMetadataField) {
         this.rootMetadataField = rootMetadataField;
+        this.setRelatedItemMetadataFields(List.of(rootMetadataField));
     }
 
     public void setSourceItemMetadataField(String sourceItemMetadataField) {
         this.sourceItemMetadataField = sourceItemMetadataField;
+        this.setSourceItemMetadataFields(List.of(sourceItemMetadataField));
     }
 
     @Override
-    public boolean enhance(Context context, Item item, boolean deepMode) {
+    protected boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
+        List<MetadataValue> metadataValuesToDelete = getObsoleteVirtualFields(item);
+        if (!metadataValuesToDelete.isEmpty()) {
+            itemService.removeMetadataValues(context, item, metadataValuesToDelete);
+            return true;
+        }
+        return false;
+    }
+
+    private List<MetadataValue> getObsoleteVirtualFields(Item item) {
+        return itemService.getMetadataByMetadataString(item, getVirtualMetadataField());
+
+    }
+
+    @Override
+    public boolean performEnhancement(Context context, Item item) {
         try {
             if (isRootItem(item)) {
                 String source = itemService.getMetadata(item, sourceItemMetadataField);
@@ -57,6 +78,5 @@ public class RootItemEnhancer extends RelatedEntityItemEnhancer {
         String rootMetadataFieldValue = itemService.getMetadata(item, rootMetadataField);
         return rootMetadataFieldValue == null || rootMetadataFieldValue.isEmpty();
     }
-
 
 }
