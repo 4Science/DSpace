@@ -316,6 +316,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                 }
             }
 
+            Integer maxsecuritylevel = DSpaceServicesFactory
+                .getInstance()
+                .getConfigurationService()
+                .getIntProperty("discovery.index.securitylevel.maxlevel", 0);
+
             List<String> toIgnoreMetadataFields = SearchUtils.getIgnoredMetadataFields(item.getType());
             List<MetadataValue> mydc = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
             for (MetadataValue meta : mydc) {
@@ -337,6 +342,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                 //We are not indexing provenance, this is useless
                 if (toIgnoreMetadataFields != null && (toIgnoreMetadataFields.contains(field) || toIgnoreMetadataFields
                         .contains(unqualifiedField + "." + Item.ANY))) {
+                    continue;
+                }
+
+                // We are not indexing values with security level greater than the maximum value
+                if (meta.getSecurityLevel() != null && meta.getSecurityLevel() > maxsecuritylevel) {
                     continue;
                 }
 

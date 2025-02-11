@@ -125,8 +125,20 @@ public class SolrServiceMetadataBrowseIndexingPlugin implements SolrServiceIndex
                                                                                     Boolean.FALSE),
                                                        true);
 
+                            // the maximum security level (if not null) which ist still indexed
+                            Integer maxsecuritylevel = DSpaceServicesFactory
+                                .getInstance()
+                                .getConfigurationService()
+                                .getIntProperty("discovery.index.securitylevel.maxlevel", 0);
+
+
                             for (int x = 0; x < values.size(); x++) {
                                 MetadataValue val = values.get(x);
+
+                                if (val.getSecurityLevel() != null && val.getSecurityLevel() > maxsecuritylevel) {
+                                    continue;
+                                }
+
                                 boolean hasChoiceAuthority = choiceAuthorityService
                                         .isChoicesConfigured(metadataAuthorityService
                                                 .makeFieldKey(val.getSchema(), val.getElement(), val.getQualifier())
