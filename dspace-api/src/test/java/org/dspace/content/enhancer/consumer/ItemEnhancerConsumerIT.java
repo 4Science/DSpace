@@ -924,6 +924,48 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     }
 
     @Test
+    public void testNonDuplicatedVirtualRootFondTitle() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .build();
+        // Create root Fonds
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                                   .withTitle("Root Fonds")
+                                   .build();
+
+        context.restoreAuthSystemState();
+        rootFond = commitAndReload(rootFond);
+
+        // Assert rootFond has the virtual metadata
+        List<MetadataValue> metadataValues = rootFond.getMetadata();
+        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
+                                                rootFond.getID().toString(), 0, 600)));
+
+
+        context.turnOffAuthorisationSystem();
+        List<MetadataValue> values = itemService.getMetadataByMetadataString(rootFond, "dc.title");
+        itemService.removeMetadataValues(context, rootFond, values);
+        itemService.addMetadata(context, rootFond, "dc", "title", null, null, "Root Fonds Updated");
+        itemService.update(context, rootFond);
+        context.restoreAuthSystemState();
+        rootFond = commitAndReload(rootFond);
+
+        // Assert rootFond contains "cris.virtual.rootFondTitle"
+        List<MetadataValue> metadataValuesUpdated = rootFond.getMetadata();
+        assertThat(metadataValuesUpdated, hasSize(7));
+        assertThat(metadataValuesUpdated, hasItem(with("cris.virtual.rootFondTitle", "Root Fonds Updated",
+                                                     rootFond.getID().toString(), 0, 600)));
+    }
+
+    @Test
     public void testVirtualRootJournalFondTitleSetCorrectly() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -1088,5 +1130,8 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
 
     }
+
+
+
 
 }
