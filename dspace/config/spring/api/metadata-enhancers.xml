@@ -79,6 +79,20 @@
         <property name="virtualQualifier" value="rootJournalFond" />
     </bean>
 
+    <bean class="org.dspace.content.enhancer.impl.RootItemEnhancer">
+        <property name="sourceEntityTypes" value="Fonds"/>
+        <property name="sourceItemMetadataField" value="dc.title"/>
+        <property name="rootMetadataField" value="glamfonds.parent"/>
+        <property name="virtualQualifier" value="rootFondTitle"/>
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RootItemEnhancer">
+        <property name="sourceEntityTypes" value="JournalFonds"/>
+        <property name="sourceItemMetadataField" value="dc.title"/>
+        <property name="rootMetadataField" value="glamjournalfonds.parent"/>
+        <property name="virtualQualifier" value="rootJournalFondTitle"/>
+    </bean>
+
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
         <property name="sourceEntityTypes" value="ArchivalMaterial"/>
         <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
@@ -133,6 +147,62 @@
         <property name="sourceItemMetadataFields" value="dc.relation.journalfonds"/>
         <property name="relatedItemMetadataFields" value="cris.virtual.rootJournalFond" />
         <property name="virtualQualifier" value="treeJournalFondsRoot" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="ArchivalMaterial"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Publication"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Picture"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="AudioVideo"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="Artwork"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="MusicalLibrettos"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="ScientificMaterial"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.fonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootFondTitle" />
+        <property name="virtualQualifier" value="treeFondsRootDirectlyRelated" />
+    </bean>
+
+    <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
+        <property name="sourceEntityTypes" value="JournalFile"/>
+        <property name="sourceItemMetadataFields" value="dc.relation.journalfonds"/>
+        <property name="relatedItemMetadataFields" value="cris.virtual.rootJournalFondTitle" />
+        <property name="virtualQualifier" value="treeJournalFondsRootDirectlyRelated" />
     </bean>
 
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
