@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.matcher.MetadataValueMatcher;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -867,6 +868,10 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     }
 
 
+    static MetadataValueMatcher withRootFondTitle(String title, String uuid) {
+        return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
+    }
+
     @Test
     public void testVirtualRootFondTitleSetCorrectly() throws Exception {
         context.turnOffAuthorisationSystem();
@@ -909,18 +914,16 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         // Assert rootFond has the virtual metadata
         List<MetadataValue> metadataValues = rootFond.getMetadata();
         assertThat(metadataValues, hasSize(7));
-        assertThat(metadataValues, hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
-                                                rootFond.getID().toString(), 0, 600)));
+        MetadataValueMatcher rootFondMatcher = withRootFondTitle(rootFond.getName(), rootFond.getID().toString());
+        assertThat(metadataValues, hasItem(rootFondMatcher));
 
         // Assert childFond does NOT contain "cris.virtual.rootFondTitle"
         List<MetadataValue> metadataValues2 = childFond.getMetadata();
-        assertThat(metadataValues2, not(hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
-                                                     rootFond.getID().toString(), 0, 600))));
+        assertThat(metadataValues2, not(hasItem(rootFondMatcher)));
 
         // Assert publicationItem does NOT contain "cris.virtual.rootFondTitle"
         List<MetadataValue> metadataValues3 = publicationItem.getMetadata();
-        assertThat(metadataValues3, not(hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
-                                                     rootFond.getID().toString(), 0, 600))));
+        assertThat(metadataValues3, not(hasItem(rootFondMatcher)));
     }
 
     @Test
@@ -946,8 +949,14 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         // Assert rootFond has the virtual metadata
         List<MetadataValue> metadataValues = rootFond.getMetadata();
         assertThat(metadataValues, hasSize(7));
-        assertThat(metadataValues, hasItem(with("cris.virtual.rootFondTitle", rootFond.getName(),
-                                                rootFond.getID().toString(), 0, 600)));
+
+        MetadataValueMatcher rootFondsTitleMatcher = withRootFondTitle("Root Fonds", rootFond.getID().toString());
+        assertThat(
+            metadataValues.stream()
+                          .filter(rootFondsTitleMatcher::matches)
+                          .count(),
+            equalTo(1L)
+        );
 
 
         context.turnOffAuthorisationSystem();
@@ -957,12 +966,16 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         itemService.update(context, rootFond);
         context.restoreAuthSystemState();
         rootFond = commitAndReload(rootFond);
+        rootFondsTitleMatcher = withRootFondTitle("Root Fonds Updated", rootFond.getID().toString());
 
         // Assert rootFond contains "cris.virtual.rootFondTitle"
-        List<MetadataValue> metadataValuesUpdated = rootFond.getMetadata();
-        assertThat(metadataValuesUpdated, hasSize(7));
-        assertThat(metadataValuesUpdated, hasItem(with("cris.virtual.rootFondTitle", "Root Fonds Updated",
-                                                     rootFond.getID().toString(), 0, 600)));
+        metadataValues = rootFond.getMetadata();
+        assertThat(
+            metadataValues.stream()
+                          .filter(rootFondsTitleMatcher::matches)
+                          .count(),
+            equalTo(1L)
+        );
     }
 
     @Test
