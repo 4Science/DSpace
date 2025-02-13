@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -53,6 +54,10 @@ public class GrobidClientImpl implements GrobidClient {
     @Override
     public TEI processHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
+
+            if (StringUtils.isEmpty(baseUrl)) {
+                return null;
+            }
 
             HttpPost method = new HttpPost(baseUrl + "/api/processHeaderDocument");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create()

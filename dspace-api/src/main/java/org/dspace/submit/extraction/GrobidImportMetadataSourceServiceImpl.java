@@ -65,6 +65,9 @@ public class GrobidImportMetadataSourceServiceImpl extends AbstractPlainMetadata
     protected List<PlainMetadataSourceDto> readData(InputStream inputStream) throws FileSourceException {
         try {
             TEI tei = grobidClient.processHeaderDocument(inputStream, NO_CONSOLIDATION);
+            if (tei == null) {
+                return List.of();
+            }
             return List.of(convertToPlainMetadataSourceDto(tei.getTeiHeader()));
         } catch (RuntimeException ex) {
             LOGGER.error("An error occurs processing header document", ex);
