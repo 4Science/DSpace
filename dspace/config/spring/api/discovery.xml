@@ -834,13 +834,13 @@
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateAccessionedAsc" />
                         <ref bean="sortDateAccessionedDesc" />
+                        <ref bean="sortScore" />
                     </list>
                 </property>
             </bean>
