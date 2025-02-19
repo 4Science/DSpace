@@ -5,7 +5,7 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.suggestion.openaire;
+package org.dspace.app.suggestion.scorer;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import org.dspace.util.MultiFormatDateParser;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implementation of {@link org.dspace.app.suggestion.openaire.EvidenceScorer} which evaluate ImportRecords
+ * Implementation of {@link org.dspace.app.suggestion.scorer.EvidenceScorer} which evaluate ImportRecords
  * based on the distance from a date extracted from the ResearcherProfile (birthday / graduation date)
  * 
  * @author Andrea Bollini (andrea.bollini at 4science dot it)

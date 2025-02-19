@@ -49,14 +49,23 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
         this(context, null, discoverQuery, true, -1);
     }
 
+    /**
+     * Constructor with optional uncacheEntities flag.
+     */
     public DiscoverResultIterator(Context context, DiscoverQuery discoverQuery, boolean uncacheEntities) {
         this(context, null, discoverQuery, uncacheEntities, -1);
     }
 
+    /**
+     * Constructor for scoped search without a limit on the number of results.
+     */
     public DiscoverResultIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery) {
         this(context, scopeObject, discoverQuery, true, -1);
     }
 
+    /**
+     * Full constructor with all options.
+     */
     public DiscoverResultIterator(Context context, IndexableObject<?, ?> scopeObject, DiscoverQuery discoverQuery,
                                   boolean uncacheEntities, int maxResults) {
 
@@ -71,6 +80,13 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
         updateCurrentSlotIterator();
     }
 
+    /**
+     * Checks if there are more elements to iterate over.
+     * If the maximum number of results has been reached, it returns false.
+     * Otherwise, it checks the current slot iterator or fetches the next batch of results.
+     *
+     * @return true if there are more elements, false otherwise
+     */
     @Override
     public boolean hasNext() {
         if (maxResults > 0 && iteratorCounter >= maxResults) {
@@ -91,11 +107,23 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
         return currentSlotIterator.hasNext();
     }
 
+    /**
+     * Returns the next element in the iteration.
+     */
     @Override
     public T next() {
         return (T) getNextIndexableObject().getIndexedObject();
     }
 
+    /**
+     * Returns the total number of search results.
+     * <p>
+     * This method calculates the total number of search results based on the current search query.
+     * If the slot iterator has not been initialized, it updates the iterator.
+     * </p>
+     *
+     * @return the total number of search results as a {@code long}
+     */
     public long getTotalSearchResults() {
 
         if (currentSlotIterator == null) {
@@ -105,6 +133,10 @@ public class DiscoverResultIterator<T extends ReloadableEntity, PK extends Seria
         return this.currentDiscoverResult.getTotalSearchResults();
     }
 
+    /**
+     * Retrieves the next indexable object.
+     * Throws NoSuchElementException if there are no more elements.
+     */
     protected IndexableObject getNextIndexableObject() {
 
         if (!hasNext()) {

@@ -5,14 +5,14 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.suggestion.openaire;
+package org.dspace.app.suggestion.scorer;
 
 import org.dspace.app.suggestion.SuggestionEvidence;
 import org.dspace.content.Item;
 import org.dspace.external.model.ExternalDataObject;
 
 /**
- * Interface used in {@link org.dspace.app.suggestion.openaire.PublicationLoader}
+ * Interface used in {@link org.dspace.app.suggestion.loader.PublicationLoader}
  * to construct filtering pipeline.
  * 
  * For each EvidenceScorer, the service call computeEvidence method.
@@ -32,6 +32,6 @@ public interface EvidenceScorer {
      * @return the generated suggestion evidence or null if the record should be
      *         discarded
      */
-    public SuggestionEvidence computeEvidence(Item researcher, ExternalDataObject importRecord);
+    SuggestionEvidence computeEvidence(Item researcher, ExternalDataObject importRecord);
 
 }
