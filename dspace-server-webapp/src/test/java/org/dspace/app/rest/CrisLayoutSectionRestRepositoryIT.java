@@ -61,7 +61,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
         getClient().perform(get("/api/layout/sections"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.sections", hasSize(5)))
+            .andExpect(jsonPath("$._embedded.sections", hasSize(4)))
 
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndBrowseComponent("sectiondocuments", 0, 0, "col-md-4", expectedBrowseNames))))
