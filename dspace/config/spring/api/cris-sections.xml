@@ -9,7 +9,7 @@
             <list>
                 <ref bean="sectionfonds" />
                 <ref bean="sectionjournalfonds" />
-                <ref bean="sectionaggregations" />
+                <!--<ref bean="sectionaggregations" /> -->
                 <ref bean="sectiondocuments" />
                 <ref bean="sectionsite" />
             </list>
@@ -256,7 +256,7 @@
                     <property name="template" value="SLIDER"/>
                 </bean>
             </list>
-            <list>
+            <!-- <list>
                 <bean class="org.dspace.layout.CrisGridComponent">
                     <property name="discoveryConfigurationName" value="path"/>
                     <property name="style" value="py-4"/>
@@ -264,7 +264,7 @@
                     <property name="sortField" value="cris.priority" />
                     <property name="order" value="asc" />
                 </bean>
-            </list>
+            </list> -->
             <!-- <list>
            		<bean class="org.dspace.layout.CrisLayoutTwitterComponent">
                     <property name="style" value="col-12"/>
