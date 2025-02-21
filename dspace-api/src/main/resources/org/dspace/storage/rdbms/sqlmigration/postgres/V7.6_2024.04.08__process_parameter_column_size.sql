@@ -7,7 +7,7 @@
 --
 
 ----------------------------------------------------
--- double the length of parameters column on process table
+-- increase the length of parameters column on process table
 ----------------------------------------------------
 
-ALTER TABLE process ALTER COLUMN parameters TYPE character varying(1024);
+ALTER TABLE process ALTER COLUMN parameters TYPE text;
