@@ -19,26 +19,30 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 @RestController
-@RequestMapping("/api/" + AnnotationRest.ANNOTATION)
+@RequestMapping(
+    value = "/api/" + AnnotationRest.ANNOTATION,
+    consumes = {"application/ld+json"},
+    produces = {"application/ld+json"}
+)
 public class AnnotationRestController {
 
-    @GetMapping(value = "/search", produces = {"application/ld+json"})
+    @GetMapping("/search")
     public AnnotationRest[] search(@RequestParam String uri) {
         return null;
     }
 
-    @PostMapping(value = "/create", produces = {"application/ld+json"})
+    @PostMapping("/create")
     public AnnotationRest create(@RequestBody AnnotationRest annotation) {
         annotation.setId("customId");
         return annotation;
     }
 
-    @PostMapping(value = "/update", produces = {"application/ld+json"})
+    @PostMapping("/update")
     public AnnotationRest update(@RequestBody AnnotationRest annotation) {
         return null;
     }
 
-    @DeleteMapping(value = "/destroy", produces = {"application/ld+json"})
+    @DeleteMapping("/destroy")
     public AnnotationRest destroy(@RequestBody AnnotationRest annotation) {
         return null;
     }

@@ -9,8 +9,10 @@ package org.dspace.app.rest.annotation;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -84,7 +86,7 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                                         "$.['item']",
                                         allOf(
                                             hasJsonPath("$.['@type']", is("oa:SvgSelector")),
-                                            hasJsonPath("$.['value']", notNullValue())
+                                            hasJsonPath("$.['value']", not(emptyOrNullString()))
                                         )
                                     )
                                 )

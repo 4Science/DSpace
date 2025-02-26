@@ -14,19 +14,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AnnotationTargetRest {
+public class AnnotationTargetSelectorComposite extends AnnotationTargetSelector {
 
-    @JsonProperty("@id")
-    String id;
-    @JsonProperty("@type")
-    String type;
-    @JsonProperty("full")
-    String full;
-
-    @JsonProperty("selector")
-    AnnotationTargetSelectorComposite selector;
-    @JsonProperty("within")
-    AnnotationTargetWithin within;
-
+    @JsonProperty("default")
+    AnnotationTargetSelector defaultSelector;
+    @JsonProperty("item")
+    AnnotationTargetSelector item;
 
 }
