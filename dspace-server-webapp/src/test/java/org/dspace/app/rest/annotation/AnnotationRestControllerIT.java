@@ -69,10 +69,24 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                     hasItem(
                         allOf(
                             hasJsonPath("$.['@type']", is("oa:SpecificResource")),
-                            hasJsonPath("$.['@full']", is("http://localhost:8080/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451")),
+                            hasJsonPath("$.['full']", is("http://localhost:8080/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451")),
                             hasJsonPath("$.['selector']",
                                 allOf(
-                                    hasJsonPath("$.['@type']", is("oa:Choice"))
+                                    hasJsonPath("$.['@type']", is("oa:Choice")),
+                                    hasJsonPath(
+                                        "$.['default']",
+                                        allOf(
+                                            hasJsonPath("$.['@type']", is("oa:FragmentSelector")),
+                                            hasJsonPath("$.['value']", is("xywh=139,29,52,41"))
+                                        )
+                                    ),
+                                    hasJsonPath(
+                                        "$.['item']",
+                                        allOf(
+                                            hasJsonPath("$.['@type']", is("oa:SvgSelector")),
+                                            hasJsonPath("$.['value']", notNullValue())
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -85,7 +99,7 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                     hasItem(
                         allOf(
                             hasJsonPath("$.['@type']", is("dctypes:Text")),
-                            hasJsonPath("$.['@chars']", is("<p>Test</p>")),
+                            hasJsonPath("$.['chars']", is("<p>Test</p>")),
                             hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("Test"))
                         )
                     )
