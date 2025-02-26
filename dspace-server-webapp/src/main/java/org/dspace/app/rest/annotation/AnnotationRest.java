@@ -12,7 +12,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -44,7 +43,7 @@ public class AnnotationRest {
     List<AnnotationBodyRest> resource;
     // maps `on` field
     @JsonProperty("on")
-    JsonNode on;
+    List<AnnotationTargetRest> on;
 
     public AnnotationRest setId(String id) {
         this.id = id;
@@ -81,7 +80,7 @@ public class AnnotationRest {
         return this;
     }
 
-    public AnnotationRest setOn(JsonNode on) {
+    public AnnotationRest setOn(List<AnnotationTargetRest> on) {
         this.on = on;
         return this;
     }

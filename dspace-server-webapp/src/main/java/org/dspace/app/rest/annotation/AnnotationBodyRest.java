@@ -7,12 +7,14 @@
  */
 package org.dspace.app.rest.annotation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = AnnotationBodyRestDeserializer.class)
 public class AnnotationBodyRest {
 

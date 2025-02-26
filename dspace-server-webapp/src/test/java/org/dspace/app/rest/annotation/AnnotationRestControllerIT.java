@@ -68,7 +68,6 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                     "$.on",
                     hasItem(
                         allOf(
-                            hasJsonPath("$.['@id']", notNullValue()),
                             hasJsonPath("$.['@type']", is("oa:SpecificResource")),
                             hasJsonPath("$.['@full']", is("http://localhost:8080/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451")),
                             hasJsonPath("$.['selector']",
