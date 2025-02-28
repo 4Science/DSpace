@@ -498,10 +498,14 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
                 .addMember(userA)
                 .build();
 
-        box1.getBox2SecurityGroups().add(new CrisLayoutBox2SecurityGroup(
-                new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
-                box1, testGroup, null
-        ));
+        new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
+            box1, testGroup, null);
+
+        box2SecurityGroups.add(new CrisLayoutBox2SecurityGroup(
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup),
+            box1, testGroup, null));
+        box1.setBox2SecurityGroups(box2SecurityGroups);
 
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
             .withLabel("LABEL ABS")
@@ -599,7 +603,7 @@ public class LayoutSecurityIT extends AbstractControllerIntegrationTest {
             new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box1, testGroup1),
             box1, testGroup, null));
 
-        box1.getBox2SecurityGroups().addAll(boxGroups);
+        box1.setBox2SecurityGroups(boxGroups);
 
         CrisLayoutFieldBuilder.createMetadataField(context, abs, 0, 0)
             .withLabel("LABEL ABS")
