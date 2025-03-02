@@ -764,8 +764,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         update(context, item);
         context.restoreAuthSystemState();
 
-        context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(),
-                null, getIdentifiers(context, item)));
+        context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(), null,
+                                   DetailType.DSO_SUMMARY, getIdentifiers(context, item)));
 
         log.info(LogHelper.getHeader(context, "create_item", "item_id=" + item.getID()));
 
@@ -872,8 +872,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
             if (item.isMetadataModified()) {
                 context.addEvent(new Event(Event.MODIFY_METADATA, item.getType(), item.getID(),
-                    item.getDetails(), DetailType.DSO_SUMMARY,
+                    item.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
                     getIdentifiers(context, item)));
+                item.clearMetadataEventDetails();
             }
 
             context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(),

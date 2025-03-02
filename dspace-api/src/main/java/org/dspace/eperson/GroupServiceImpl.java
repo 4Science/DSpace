@@ -144,7 +144,6 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
             new Event(Event.ADD, Constants.GROUP, group.getID(), Constants.EPERSON, e.getID(),
                 e.getEmail(), DetailType.EPERSON_EMAIL,
                 getIdentifiers(context, group)));
-                      getIdentifiers(context, group)));
         log.info(LogHelper.getHeader(context, "add_group_eperson",
             "group_id=" + group.getID() + ", eperson_id=" + e.getID()));
     }
@@ -673,7 +672,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
 
         if (group.isMetadataModified()) {
             context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, group.getID(),
-                group.getDetails(), DetailType.DSO_SUMMARY,
+                group.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
                 getIdentifiers(context, group)));
             group.clearDetails();
         }
