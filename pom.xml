@@ -581,8 +581,7 @@
                                     <useRepositoryLayout>true</useRepositoryLayout>
                                     <copyPom>true</copyPom>
                                     <includeGroupIds>org.dspace</includeGroupIds>
-                                    <includeClassifiers>classes,test,testEnvironment</includeClassifiers>
-                                    <includeTypes>test</includeTypes>
+                                    <includeTypes>jar,test-jar</includeTypes>
                                 </configuration>
                             </execution>
                         </executions>
