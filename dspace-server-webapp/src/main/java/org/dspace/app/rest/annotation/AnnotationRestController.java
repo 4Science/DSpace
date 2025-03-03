@@ -7,14 +7,9 @@
  */
 package org.dspace.app.rest.annotation;
 
-import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.dspace.app.rest.utils.ContextUtil;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
-import org.dspace.content.WorkspaceItem;
-import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,18 +43,7 @@ public class AnnotationRestController {
 
     @PostMapping("/create")
     public AnnotationRest create(HttpServletRequest request, @RequestBody AnnotationRest annotation) {
-        Context c = ContextUtil.obtainCurrentRequestContext();
-        try {
-            WorkspaceItem workspaceItem =
-                workspaceItemService.create(c, getCollection(), true);
-        } catch (AuthorizeException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         annotation.setId("customId");
-
-
-
         return annotation;
     }
 

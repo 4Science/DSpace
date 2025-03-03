@@ -22,28 +22,32 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class AnnotationRest {
 
     static final String ANNOTATION = "annotation";
+    static final String CONTEXT = "http://iiif.io/api/presentation/2/context.json";
+    static final String TYPE = "oa:Annotation";
+    static final String MOTIVATION = "oa:commenting";
+    static final String MOTIVATION_ARRAY = "[\"oa:commenting\"]";
 
     @JsonProperty("@id")
     String id;
-    @JsonProperty("@type")
-    String type;
-    @JsonProperty("@context")
-    String context;
+    @JsonProperty(value = "@type", defaultValue = TYPE, required = true)
+    String type = TYPE;
+    @JsonProperty(value = "@context", defaultValue = CONTEXT, required = true)
+    String context = CONTEXT;
 
     @JsonProperty("dcterms:created")
     LocalDateTime created;
     @JsonProperty("dcterms:modified")
     LocalDateTime modified;
 
-    @JsonProperty("motivation")
-    List<String> motivation;
+    @JsonProperty(value = "motivation", defaultValue = MOTIVATION_ARRAY, required = true)
+    List<String> motivation = List.of(MOTIVATION);
 
     // maps `resource` field
     @JsonProperty("resource")
-    List<AnnotationBodyRest> resource;
+    List<AnnotationBodyRest> resource = List.of(new AnnotationBodyRest());
     // maps `on` field
     @JsonProperty("on")
-    List<AnnotationTargetRest> on;
+    List<AnnotationTargetRest> on = List.of(new AnnotationTargetRest());
 
     public AnnotationRest setId(String id) {
         this.id = id;
@@ -83,5 +87,37 @@ public class AnnotationRest {
     public AnnotationRest setOn(List<AnnotationTargetRest> on) {
         this.on = on;
         return this;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public LocalDateTime getModified() {
+        return modified;
+    }
+
+    public List<String> getMotivation() {
+        return motivation;
+    }
+
+    public List<AnnotationBodyRest> getResource() {
+        return resource;
+    }
+
+    public List<AnnotationTargetRest> getOn() {
+        return on;
     }
 }

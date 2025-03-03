@@ -16,17 +16,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnotationTargetRest {
 
+    public static final String TYPE = "oa:SpecificResource";
+
     @JsonProperty("@id")
     String id;
-    @JsonProperty("@type")
-    String type;
+    @JsonProperty(value = "@type", defaultValue = TYPE, required = true)
+    String type = TYPE;
     @JsonProperty("full")
     String full;
 
     @JsonProperty("selector")
-    AnnotationTargetSelectorComposite selector;
+    AnnotationTargetSelectorComposite selector = new AnnotationTargetSelectorComposite();
     @JsonProperty("within")
-    AnnotationTargetWithin within;
+    AnnotationTargetWithin within = new AnnotationTargetWithin();
 
+    public String getId() {
+        return id;
+    }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getFull() {
+        return full;
+    }
+
+    public AnnotationTargetSelectorComposite getSelector() {
+        return selector;
+    }
+
+    public AnnotationTargetWithin getWithin() {
+        return within;
+    }
 }

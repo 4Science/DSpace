@@ -17,8 +17,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AnnotationTargetSelectorComposite extends AnnotationTargetSelector {
 
     @JsonProperty("default")
-    AnnotationTargetSelector defaultSelector;
+    AnnotationTargetFragmentSelector defaultSelector = new AnnotationTargetFragmentSelector();
     @JsonProperty("item")
-    AnnotationTargetSelector item;
+    AnnotationTargetSvgSelector item = new AnnotationTargetSvgSelector();
 
+    public AnnotationTargetSelectorComposite setDefaultSelector(
+        AnnotationTargetFragmentSelector defaultSelector) {
+        this.defaultSelector = defaultSelector;
+        return this;
+    }
+
+    public AnnotationTargetSelectorComposite setItem(AnnotationTargetSvgSelector item) {
+        this.item = item;
+        return this;
+    }
+
+    public AnnotationTargetSelector getDefaultSelector() {
+        return defaultSelector;
+    }
+
+    public AnnotationTargetSelector getItem() {
+        return item;
+    }
 }

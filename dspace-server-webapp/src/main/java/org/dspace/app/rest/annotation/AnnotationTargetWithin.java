@@ -21,4 +21,21 @@ public class AnnotationTargetWithin {
     @JsonProperty("@type")
     String type;
 
+    public String getId() {
+        return id;
+    }
+
+    public AnnotationTargetWithin setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public AnnotationTargetWithin setType(String type) {
+        this.type = type;
+        return this;
+    }
 }

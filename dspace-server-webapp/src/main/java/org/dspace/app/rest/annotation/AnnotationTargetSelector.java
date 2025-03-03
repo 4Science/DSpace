@@ -16,9 +16,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnotationTargetSelector {
 
-    @JsonProperty("@type")
+    @JsonProperty(value = "@type", required = true)
     String type;
-    @JsonProperty("value")
+    @JsonProperty(value = "value", required = true)
     String value;
 
+    public String getType() {
+        return type;
+    }
+
+    public AnnotationTargetSelector setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public AnnotationTargetSelector setValue(String value) {
+        this.value = value;
+        return this;
+    }
 }

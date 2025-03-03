@@ -1252,4 +1252,33 @@
         <scope_note></scope_note>
     </dc-type>
 
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>fragmentselector</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>svgselector</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>text</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>fulltext</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>

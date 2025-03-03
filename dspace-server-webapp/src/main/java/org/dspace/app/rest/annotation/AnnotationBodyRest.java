@@ -19,9 +19,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class AnnotationBodyRest {
 
     static final String FULL_TEXT = "http://dev.llgc.org.uk/sas/full_text";
+    static final String TYPE = "dctypes:Text";
 
-    @JsonProperty("@type")
-    String type;
+    @JsonProperty(value = "@type", defaultValue = TYPE, required = true)
+    String type = TYPE;
     @JsonProperty("chars")
     String chars;
     @JsonProperty("language")
@@ -54,5 +55,25 @@ public class AnnotationBodyRest {
     public AnnotationBodyRest setFormat(String format) {
         this.format = format;
         return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getChars() {
+        return chars;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public String getFullText() {
+        return fullText;
     }
 }
