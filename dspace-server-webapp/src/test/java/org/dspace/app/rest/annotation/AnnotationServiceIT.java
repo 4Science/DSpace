@@ -218,8 +218,8 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
         MetadataFieldName dateIssued =
             new MetadataFieldName("dc", "date", "issued");
         String dateIssuedSelector = "created";
-        AnnotationService.MetadataItemEnricher creationDate =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher creationDate =
+            new MetadataItemEnricher(
                 dateIssuedSelector,
                 dateIssued,
                 LocalDateTime.class
@@ -228,8 +228,8 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             new MetadataFieldName("dcterms", "modified");
         String dateModifiedSelector = "modified";
 
-        AnnotationService.MetadataItemEnricher modifiedDate =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher modifiedDate =
+            new MetadataItemEnricher(
                 dateModifiedSelector,
                 dateModified,
                 LocalDateTime.class
@@ -238,32 +238,32 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
         MetadataFieldName fragmentSelectorMetadata =
             new MetadataFieldName("glam", "annotation", "fragmentselector");
         String defaultSelectorValueSpel = "on.![selector.defaultSelector.value]";
-        AnnotationService.MetadataItemEnricher fragmentSelector =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher fragmentSelector =
+            new MetadataItemEnricher(
                 defaultSelectorValueSpel,
                 fragmentSelectorMetadata,
                 List.class
             );
         MetadataFieldName svgSelectorMetadata = new MetadataFieldName("glam", "annotation", "svgselector");
         String itemSelectorValueSpel = "on.![selector.item.value]";
-        AnnotationService.MetadataItemEnricher svgSelector =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher svgSelector =
+            new MetadataItemEnricher(
                 itemSelectorValueSpel,
                 svgSelectorMetadata,
                 List.class
             );
         MetadataFieldName textMetadata = new MetadataFieldName("glam", "annotation", "text");
         String charsSpel = "resource.![chars]";
-        AnnotationService.MetadataItemEnricher resourceText =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher resourceText =
+            new MetadataItemEnricher(
                 charsSpel,
                 textMetadata,
                 List.class
             );
         MetadataFieldName fulltextMetadata = new MetadataFieldName("glam", "annotation", "fulltext");
         String fulltextSpel = "resource.![fullText]";
-        AnnotationService.MetadataItemEnricher resourceFullText =
-            new AnnotationService.MetadataItemEnricher(
+        MetadataItemEnricher resourceFullText =
+            new MetadataItemEnricher(
                 fulltextSpel,
                 fulltextMetadata,
                 List.class
@@ -325,39 +325,64 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                     )
                 )
             );
-            AnnotationService.AnnotationRestMapper annotationRestMapper =
-                new AnnotationService.AnnotationRestMapper(
+            AnnotationRestMapper annotationRestMapper =
+                new AnnotationRestMapper(
                     List.of(
-                        new AnnotationService.AnnotationBodyRestEnricher(
+                        new AnnotationBodyRestEnricher(
                             "chars",
                             textMetadata,
                             String.class
                         ),
-                        new AnnotationService.AnnotationBodyRestEnricher(
+                        new AnnotationBodyRestEnricher(
                             "fullText",
                             fulltextMetadata,
                             String.class
                         )
                     ),
                     List.of(
-                        new AnnotationService.AnnotationTargetRestEnricher(
+                        new AnnotationTargetRestEnricher(
                             "selector.defaultSelector.value",
                             fragmentSelectorMetadata,
                             String.class
                         ),
-                        new AnnotationService.AnnotationTargetRestEnricher(
+                        new AnnotationTargetRestEnricher(
                             "selector.item.value",
                             svgSelectorMetadata,
                             String.class
                         )
                     ),
-                    List.of(new AnnotationService.AnnotationItemSpelEnricher("uuid", "id"))
+                    List.of(
+                        new AnnotationFieldEnricher("getID()", "id"),
+                        new AnnotationLocalDateTimeMetadataEnricher(
+                            "modified",
+                            dateModified,
+                            LocalDateTime.class
+                        ),
+                        new AnnotationLocalDateTimeMetadataEnricher(
+                            "created",
+                            dateIssued,
+                            LocalDateTime.class
+                        )
+                    )
                 );
+
 
             AnnotationRest annotationRest = annotationRestMapper.map(context, item);
 
             MatcherAssert.assertThat(
                 annotationRest, CoreMatchers.notNullValue()
+            );
+            MatcherAssert.assertThat(
+                annotationRest.created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                CoreMatchers.is(
+                    item.getItemService().getMetadata(item, dateIssued.toString())
+                )
+            );
+            MatcherAssert.assertThat(
+                annotationRest.modified.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                CoreMatchers.is(
+                    item.getItemService().getMetadata(item, dateModified.toString())
+                )
             );
             MatcherAssert.assertThat(
                 annotationRest.on.get(0).selector.item.value,
