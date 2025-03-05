@@ -25,7 +25,7 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
 
     @Override
     public BiConsumer<Context, Item> apply(AnnotationRest annotationRest) {
-        Object value = fieldExpression.getValue(annotationRest, clazz);
+        Object value = extractValueFrom(annotationRest);
         if (value == null) {
             return empty();
         }
@@ -37,6 +37,10 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
                                                     .orElse(empty());
         }
         return addMetadata(value.toString());
+    }
+
+    protected Object extractValueFrom(AnnotationRest annotationRest) {
+        return fieldExpression.getValue(annotationRest, clazz);
     }
 
     protected BiConsumer<Context, Item> addMetadata(String value) {

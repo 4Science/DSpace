@@ -49,4 +49,29 @@ public class AnnotationTargetRest {
     public AnnotationTargetWithin getWithin() {
         return within;
     }
+
+    public AnnotationTargetRest setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public AnnotationTargetRest setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public AnnotationTargetRest setFull(String full) {
+        this.full = full;
+        return this;
+    }
+
+    public AnnotationTargetRest setSelector(AnnotationTargetSelectorComposite selector) {
+        this.selector = selector;
+        return this;
+    }
+
+    public AnnotationTargetRest setWithin(AnnotationTargetWithin within) {
+        this.within = within;
+        return this;
+    }
 }

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnotationRest {
 
+    //  {dspace.url}/server/iiif/{item-uuid}/canvas/{canvas-uuid}
+    // "https://dspaceglam7dev.4science.cloud/server/iiif/caa0e16c-bdfd-40e5-ba75-3ae6da639903/canvas/70090869-18e1-425f-94fe-574d750cef57"
     static final String ANNOTATION = "annotation";
     static final String CONTEXT = "http://iiif.io/api/presentation/2/context.json";
     static final String TYPE = "oa:Annotation";

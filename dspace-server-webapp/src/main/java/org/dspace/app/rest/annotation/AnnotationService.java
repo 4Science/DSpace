@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AnnotationService {
 
     private static final Logger log = LogManager.getLogger(AnnotationService.class);
+    static final String ITEM_PATTERN = "/iiif/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
+    static final String BITSTREAM_PATTERN = "/canvas/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String ANNOTATION_ENTITY_TYPE = "annotation.default.entity-type";
     static final String ANNOTATION_COLLECTION = "annotation.default.collection";
 
@@ -48,37 +51,35 @@ public class AnnotationService {
     final CollectionService collectionService;
     final IdentifierService identifierService;
     final AuthorizeService authorizeService;
-    final ItemEnricher itemEnricher;
+    final ItemEnricher itemEnricher = ItemEnricherFactory.annotationItemEnricher();
 
     AnnotationService(
         @Autowired WorkspaceItemService workspaceItemService,
         @Autowired ConfigurationService configurationService,
         @Autowired CollectionService collectionService,
         @Autowired IdentifierService identifierService,
-        @Autowired AuthorizeService authorizeService,
-        @Autowired ItemEnricher itemEnricher
+        @Autowired AuthorizeService authorizeService
     ) {
         this.workspaceItemService = workspaceItemService;
         this.configurationService = configurationService;
         this.collectionService = collectionService;
         this.identifierService = identifierService;
         this.authorizeService = authorizeService;
-        this.itemEnricher = itemEnricher;
     }
 
     public WorkspaceItem create(Context context, AnnotationRest annotation) {
-        WorkspaceItem workspaceItem = null;
+        return create(context, annotation, itemEnricher);
+    }
+
+    protected WorkspaceItem create(Context context, AnnotationRest annotation, ItemEnricher enricher) {
+        WorkspaceItem workspaceItem;
         try {
             context.turnOffAuthorisationSystem();
 
             workspaceItem = this.workspaceItemService.create(context, getCollection(context), false);
 
             Item item = workspaceItem.getItem();
-
-            // enrich item with configured enrichers
-            itemEnricher
-                .apply(annotation)
-                .accept(context, item);
+            enrichItem(context, item, enricher.apply(annotation));
 
         } catch (AuthorizeException | SQLException e) {
             throw new RuntimeException(e);
@@ -86,6 +87,11 @@ public class AnnotationService {
             context.restoreAuthSystemState();
         }
         return workspaceItem;
+    }
+
+    protected void enrichItem(Context context, Item item, BiConsumer<Context, Item> itemConsumer) {
+        // enrich item with configured enrichers
+        itemConsumer.accept(context, item);
     }
 
     protected Collection getCollection(Context context) {

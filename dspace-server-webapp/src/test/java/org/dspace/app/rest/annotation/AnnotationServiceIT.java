@@ -268,16 +268,21 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 fulltextMetadata,
                 List.class
             );
-        BiConsumer<Context, Item> contextItemBiConsumer =
-            fragmentSelector.apply(validAnnotation)
-                            .andThen(svgSelector.apply(validAnnotation))
-                            .andThen(creationDate.apply(validAnnotation))
-                            .andThen(modifiedDate.apply(validAnnotation))
-                            .andThen(resourceText.apply(validAnnotation))
-                            .andThen(resourceFullText.apply(validAnnotation));
+
+        ItemEnricher itemEnricher =
+            new ItemEnricherComposite(
+                List.of(
+                    fragmentSelector,
+                    svgSelector,
+                    creationDate,
+                    modifiedDate,
+                    resourceText,
+                    resourceFullText
+                )
+            );
         WorkspaceItem workspaceItem = null;
         try {
-            workspaceItem = this.annotationService.create(context, validAnnotation);
+            workspaceItem = this.annotationService.create(context, validAnnotation, itemEnricher);
             MatcherAssert.assertThat(
                 workspaceItem, CoreMatchers.notNullValue()
             );
@@ -288,9 +293,6 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             MatcherAssert.assertThat(
                 workspaceItem.getCollection().getID(), CoreMatchers.is(this.collection.getID())
             );
-
-            contextItemBiConsumer.accept(context, item);
-
             MatcherAssert.assertThat(
                 item.getMetadata(),
                 CoreMatchers.allOf(
@@ -423,6 +425,119 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 log.error("Cannot delete the created annotation workspace item", e);
             }
         }
+    }
+
+
+    @Test
+    public void testCreationWithUUIDExtraction() {
+        configurationService.setProperty(AnnotationService.ANNOTATION_COLLECTION, collection.getID());
+        configurationService.setProperty(AnnotationService.ANNOTATION_ENTITY_TYPE, null);
+
+        ItemEnricherComposite itemEnrichers = getItemEnricherUUID();
+
+        BiConsumer<Context, Item> contextItemBiConsumer = itemEnrichers.apply(validAnnotation);
+
+        WorkspaceItem workspaceItem = null;
+        try {
+            workspaceItem = this.annotationService.create(context, validAnnotation, itemEnrichers);
+            MatcherAssert.assertThat(
+                workspaceItem, CoreMatchers.notNullValue()
+            );
+            Item item = workspaceItem.getItem();
+            MatcherAssert.assertThat(
+                item, CoreMatchers.notNullValue()
+            );
+            MatcherAssert.assertThat(
+                workspaceItem.getCollection().getID(), CoreMatchers.is(this.collection.getID())
+            );
+
+            contextItemBiConsumer.accept(context, item);
+
+            MatcherAssert.assertThat(
+                item.getMetadata(),
+                CoreMatchers.allOf(
+                    CoreMatchers.hasItem(
+                        MetadataValueMatcher.with("glam.item", "af5b8b9a-3883-4764-965c-248f1f1f1546")
+                    ),
+                    CoreMatchers.hasItem(
+                        MetadataValueMatcher.with("glam.bitstream", "3c9e76fd-0ef7-4df7-af7a-7356220e2451")
+                    )
+                )
+            );
+
+            configurationService.setProperty("dspace.server.url", "http://localhost:8080/server");
+
+            AnnotationRestMapper mapper =
+                new AnnotationRestMapper(
+                    List.of(),
+                    List.of(
+                        new AnnotationTargetRestComposedEnricher<String>(
+                            "full",
+                            List.of(
+                                (i) -> configurationService.getProperty("dspace.ui.url") + "/iiif/",
+                                (i) -> i.getItemService().getMetadata(i, "glam.item") + "/canvas/",
+                                (i) -> i.getItemService().getMetadata(i, "glam.bitstream")
+                            ),
+                            (a, b) -> a + b
+                        )
+                    ),
+                    List.of(
+                        new AnnotationFieldComposerEnricher<String>(
+                            "id",
+                            List.of(
+                                (i) -> configurationService.getProperty("dspace.server.url") + "/annotation/",
+                                (i) -> i.getID().toString()
+                            ),
+                            (a, b) -> a + b
+                        )
+                    )
+                );
+
+            AnnotationRest annotation = mapper.map(context, item);
+
+            MatcherAssert.assertThat(
+                annotation.on.get(0).full,
+                CoreMatchers.is(
+                    "http://localhost:4000/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451"
+                )
+            );
+            MatcherAssert.assertThat(
+                annotation.id,
+                CoreMatchers.is(
+                    "http://localhost:8080/server/annotation/" + item.getID()
+                )
+            );
+
+        } finally {
+            try {
+                workspaceItemService.deleteAll(context, workspaceItem);
+            } catch (Exception e) {
+                log.error("Cannot delete the created annotation workspace item", e);
+            }
+        }
+    }
+
+    private static ItemEnricherComposite getItemEnricherUUID() {
+        MetadataFieldName glamItem = new MetadataFieldName("glam", "item");
+        String fullIdentifierSelector = "on.![full]";
+        MetadataItemEnricher glamItemEnricher =
+            new MetadataItemPatternGroupEnricher(
+                fullIdentifierSelector,
+                glamItem,
+                String.class,
+                AnnotationService.ITEM_PATTERN
+            );
+
+        MetadataFieldName glamBitstream = new MetadataFieldName("glam", "bitstream");
+        MetadataItemEnricher glamBitstreamEnricher =
+            new MetadataItemPatternGroupEnricher(
+                fullIdentifierSelector,
+                glamBitstream,
+                String.class,
+                AnnotationService.BITSTREAM_PATTERN
+            );
+
+        return new ItemEnricherComposite(List.of(glamItemEnricher, glamBitstreamEnricher));
     }
 
 
