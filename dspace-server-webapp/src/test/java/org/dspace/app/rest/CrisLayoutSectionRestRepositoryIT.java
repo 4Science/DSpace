@@ -83,16 +83,16 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
                 hasItem(withIdAndCarouselComponent("site", 0, 0, "col-12 px-0", "news"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                        hasItem(withIdAndTextRowComponent("site", 1, 0 ,
+                        hasItem(withIdAndTextRowComponent("site", 2, 0 ,
                                 "py-3 col-12", "text-metadata"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 1, 1, "py-3 col-12", Arrays.asList("fonds",
+                hasItem(withIdAndCountersComponent("site", 2, 1, "py-3 col-12", Arrays.asList("fonds",
                                                                                                  "journalfonds",
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndAdvancedTopComponent("site", 2, 0, "py-4",
+              hasItem(withIdAndAdvancedTopComponent("site", 1, 0, "py-4",
                                             List.of("aggregationsHomePage", "fondsHomePage", "journalfondsHomePage"),
                                             "cris.priority", "desc", 8, true, true, "card",
                                             "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
