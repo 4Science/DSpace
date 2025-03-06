@@ -2395,10 +2395,6 @@
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="glamfondsSortIndex"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2469,10 +2465,6 @@
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="glamjournalfondsSortIndex"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2547,9 +2539,6 @@
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
