@@ -77,6 +77,7 @@ public class ItemEnhancerConsumer implements Consumer {
                 Item item = itemService.find(ctx, uuid);
                 if (item != null) {
                     itemEnhancerService.enhance(ctx, item, false);
+                    itemEnhancerService.saveAffectedItemsForUpdate(ctx, item.getID());
                 }
             }
         } finally {
