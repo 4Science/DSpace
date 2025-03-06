@@ -2388,9 +2388,9 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
@@ -2458,9 +2458,9 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
@@ -2532,9 +2532,9 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
