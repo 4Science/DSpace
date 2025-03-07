@@ -2388,17 +2388,13 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="glamfondsSortIndex"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2462,17 +2458,13 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="glamjournalfondsSortIndex"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
@@ -2540,16 +2532,13 @@
                 <!--<property name="defaultSort" ref="sortDateIssued"/>-->
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortScore" />
                         <ref bean="sortTitleAsc" />
                         <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
                         <ref bean="sortDateIssuedDesc" />
                         <ref bean="sortDateIssuedAsc" />
                         <ref bean="sortDateAccessionedDesc"/>
                         <ref bean="sortDateAccessionedAsc"/>
-                        <ref bean="sortViews"/>
-                        <ref bean="sortDownloads"/>
-                        <ref bean="sortPriority" />
                     </list>
                 </property>
             </bean>
