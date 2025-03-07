@@ -3164,7 +3164,7 @@
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Testo</hint>
+          <hint>Inserire la didascalia per lo slider (massimo 150 caratteri)</hint>
         </field>
       </row>
       <row>
