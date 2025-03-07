@@ -2,10 +2,10 @@ GLAM 5 Metadata,GLAM 7 Metadata,Entity
 dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication"
 dc.relation.conference,dc.relation.event,AudioVideo
 dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
-dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial"
+dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial, Publication"
 dc.subject,dcterms.subject,"Artwork, Coin, Picture, Publication, AudioVideo"
 dc.relation.url,dc.relation.otherlinks,"Artwork, Coin, ScientificMaterial"
-dc.source.content,dc.description.abstract,ArchivalMaterial
+dc.source.content,dc.description.abstract,"ArchivalMaterial, Publication"
 dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyplace,glam.bibliography.place,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
@@ -49,8 +49,7 @@ dc.format.misc,glam.misc,ScientificMaterial
 dc.format.misw,glam.misw,ScientificMaterial
 dc.format.misb,glam.misb,ScientificMaterial
 dc.format.misi,glam.misi,ScientificMaterial
-dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
-dc.identifier.archivalunit,glamfonds.index,Publication
+dc.identifier.archivalunit,glamfonds.index,"ArchivalMaterial, Publication"
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
@@ -79,9 +78,9 @@ dc.relation.relatedDocument,glam.relation.relatedDocument,"Publication, Archival
 dc.relation.ancientbook,glam.relation.relatedDocument,Publication
 dc.subject.iconclass,glam.subject.iconclass,Publication
 dc.relation.relatedPicture,glam.relation.relatedDocument,Publication
-dc.relation.subjectPicture,glam.relation.relatedDocument,Picture
+dc.relation.subjectPicture,glam.relation.relatedDocument,"Picture, Publication"
 dc.relation.Shivadharmamanuscript,glam.relation.relatedDocument,Publication
-dc.relation.geographicmap,glam.relation.relatedDocument,ArchivalMaterial
+dc.relation.geographicmap,glam.relation.relatedDocument,"ArchivalMaterial, Publication"
 dc.relation.SupinoPicture,glam.relation.relatedDocument,Publication
 dc.relation.references,glam.relation.references,"ArchivalMaterial,JournalFile,Publication,Picture"
 dc.rights.holder,dcterms.rights.holder,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication"
