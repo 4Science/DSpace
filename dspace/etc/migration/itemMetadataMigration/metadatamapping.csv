@@ -41,7 +41,6 @@ dc.description.obverselegend,glamcoin.obverselegend,Coin
 dc.description.reverselegend,glamcoin.reverselegend,Coin
 dc.relation.bibliography,dc.relation.bibliographytitle,Coin
 dc.subject,dc.subject.classification,ScientificMaterial
-dc.subject.keywords,dc.subject,"ScientificMaterial, Picture"
 dc.format.misn,glam.misn,ScientificMaterial
 dc.format.misp,glam.misp,ScientificMaterial
 dc.format.miss,glam.miss,ScientificMaterial
@@ -54,7 +53,7 @@ dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
 dc.subject,glam.subject,"ArchivalMaterial, JournalFile"
-dc.subject.keywords,dc.subject,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.subject.keywords,dc.subject,"Publication, ArchivalMaterial, Picture, JournalFile, ScientificMaterial"
 dc.relation.aldrovandimanuscript,glam.relation.relatedDocument,Publication
 dc.relation.bibliography,glam.bibliography,ArchivalMaterial
 dc.type.magbiblevel,mag.biblevel,"Publication, ArchivalMaterial, Picture, JournalFile"
