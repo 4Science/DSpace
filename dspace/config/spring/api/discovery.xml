@@ -792,14 +792,19 @@
         <!--Which sidebar facets are to be displayed (same as defaultConfiguration above)-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterType" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByType" />
                 <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterAggregation" />
-                <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterEntityType"/>
+                <ref bean="searchFilterTemporalPeriod" />
+                <ref bean="searchFilterTemporal" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterMaterialAndTecnique" />
+                <ref bean="searchFilterTypePhysical" />
                 <ref bean="searchFilterLanguage" />
             </list>
         </property>
@@ -808,16 +813,19 @@
         <!--The search filters which can be used on the discovery search page (same as defaultConfiguration above)-->
         <property name="searchFilters">
             <list>
+                <ref bean="searchFilterTypeCoar" />
                 <ref bean="searchFilterType" />
+                <ref bean="searchFilterAuthor" />
                 <ref bean="graphPublicationByType" />
                 <ref bean="graphPublicationByDate" />
                 <ref bean="graphPublicationByDateDemoLTR" />
                 <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterTitle" />
-                <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterAggregation" />
                 <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterGlamSubject" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterTemporalPeriod" />
+                <ref bean="searchFilterTemporal" />
                 <ref bean="searchFilterFileNameInOriginalBundle" />
                 <ref bean="searchFilterFileDescriptionInOriginalBundle" />
                 <ref bean="searchFilterEntityType"/>
@@ -827,6 +835,11 @@
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
                 <ref bean="searchFilterIsJournalOfPublicationRelation"/>
                 <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterMaterialAndTecnique" />
+                <ref bean="searchFilterTypePhysical" />
             </list>
         </property>
         <!--The sort filters for the discovery search (same as defaultConfiguration above)-->
@@ -2268,18 +2281,20 @@
 	    <!--Which sidebar facets are to be displayed-->
 	    <property name="sidebarFacets">
 	        <list>
-	        	<ref bean="searchFilterAuthor" />
-				<ref bean="searchFilterIssued" />
-				<ref bean="searchFilterTemporalPeriod" />
-				<ref bean="searchFilterTemporal" />
-				<ref bean="searchFilterTypeCoar" />
-				<ref bean="searchFilterSubject" />
-	            <ref bean="searchFilterGlamSubject" />
-				<ref bean="searchFilterFonds"/>
-				<ref bean="searchFilterPlace" />
-				<ref bean="searchFilterOrganizationalUnit" />
-				<ref bean="searchFilterMaterialAndTecnique" />
-				<ref bean="searchFilterTypePhysical" />
+                <ref bean="searchFilterEntityType" />
+                <ref bean="searchFilterType" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterTemporalPeriod" />
+                <ref bean="searchFilterTemporal" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterMaterialAndTecnique" />
+                <ref bean="searchFilterTypePhysical" />
+                <ref bean="searchFilterLanguage" />
 	        </list>
 	    </property>
 	    <!-- Set TagCloud configuration per discovery configuration -->
@@ -2287,21 +2302,28 @@
 	    <!--The search filters which can be used on the discovery search page-->
 	    <property name="searchFilters">
 	        <list>
-	            <ref bean="searchFilterTitle" />
-	        	<ref bean="searchFilterAuthor" />
-				<ref bean="searchFilterIssued" />
-				<ref bean="searchFilterTypeCoar" />
-				<ref bean="searchFilterSubject" />
-	            <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterEntityType" />
+                <ref bean="searchFilterType" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterTemporalPeriod" />
+                <ref bean="searchFilterTemporal" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterMaterialAndTecnique" />
+                <ref bean="searchFilterTypePhysical" />
+                <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterTitle" />
 	        	<ref bean="searchFilterFulltext" />
-				<ref bean="searchFilterTemporalPeriod" />
-				<ref bean="searchFilterTemporal" />
-				<ref bean="searchFilterPlace" />
-				<ref bean="searchFilterOrganizationalUnit" />
-				<ref bean="searchFilterMaterialAndTecnique" />
-				<ref bean="searchFilterTypePhysical" />
 				<ref bean="searchFilterLicense" />
-				<ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterFonds"/>
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterMaterialAndTecnique" />
+                <ref bean="searchFilterTypePhysical" />
 	        </list>
 	    </property>
 	    <!--The sort filters for the discovery search-->

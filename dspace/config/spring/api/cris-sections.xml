@@ -111,7 +111,7 @@
                          <list>
                              <value>author</value>
                              <value>title</value>
-                             <value>typecoar</value>
+                             <value>typeDocuments</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
