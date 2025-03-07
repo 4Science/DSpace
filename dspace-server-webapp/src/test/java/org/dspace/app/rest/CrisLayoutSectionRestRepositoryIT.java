@@ -57,7 +57,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
     @Test
     public void testFindAll() throws Exception {
 
-        String[] expectedBrowseNames = new String[] { "author", "title", "typecoar" };
+        String[] expectedBrowseNames = new String[] { "author", "title", "typeDocuments" };
 
         getClient().perform(get("/api/layout/sections"))
             .andExpect(status().isOk())
@@ -145,7 +145,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
     @Test
     public void testFindOne() throws Exception {
 
-        String[] expectedBrowseNames = new String[] { "author", "title", "typecoar" };
+        String[] expectedBrowseNames = new String[] { "author", "title", "typeDocuments" };
 
         getClient().perform(get("/api/layout/sections/{id}", "sectiondocuments"))
             .andExpect(status().isOk())
