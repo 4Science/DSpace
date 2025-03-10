@@ -4,7 +4,7 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>cris-2023.02.06-SNAPSHOT</version>
+    <version>cris-2023.02.07-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
    	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
@@ -61,7 +61,7 @@
         <jersey.version>2.39.1</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2023.02.06-SNAPSHOT,cris-2023.02.07-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2023.02.07-SNAPSHOT,cris-2023.02.07.999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
@@ -405,6 +405,11 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.5</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -529,6 +534,62 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>pipeline</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-test-resources</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <packaging>zip</packaging>
+                                    <classifier>testEnvironment</classifier>
+                                    <pomFile>${root.basedir}/pom.xml</pomFile>
+                                    <file>${project.build.directory}/dspace-parent-${project.version}-testEnvironment.zip</file>
+                                    <localRepositoryPath>${root.basedir}/target/local-repo</localRepositoryPath>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-dependencies</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${root.basedir}/target/local-repo</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>false</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                    <useRepositoryLayout>true</useRepositoryLayout>
+                                    <copyPom>true</copyPom>
+                                    <includeGroupIds>org.dspace</includeGroupIds>
+                                    <includeTypes>jar,test-jar</includeTypes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- Allow for passing extra memory to Unit/Integration tests.
              By default this gives unit tests 1GB of memory max (when tests are enabled),
              unless tweaked on commandline (e.g. "-Dtest.argLine=-Xmx512m"). Since
@@ -1048,9 +1109,9 @@
             </dependencyManagement>
         </profile>
 
-       <!-- REST Jersey (Deprecated REST API from DSpace 6.x or below) -->
-       <!-- As this module is deprecated, it only builds if you activate it via -Pdspace-rest -->
-       <profile>
+        <!-- REST Jersey (Deprecated REST API from DSpace 6.x or below) -->
+        <!-- As this module is deprecated, it only builds if you activate it via -Pdspace-rest -->
+        <profile>
            <id>dspace-rest</id>
            <activation>
                <activeByDefault>false</activeByDefault>
@@ -1067,20 +1128,19 @@
                    <dependency>
                        <groupId>org.dspace</groupId>
                        <artifactId>dspace-rest</artifactId>
-                       <version>cris-2023.02.06-SNAPSHOT</version>
+                       <version>cris-2023.02.07-SNAPSHOT</version>
                        <type>jar</type>
                        <classifier>classes</classifier>
                    </dependency>
                    <dependency>
                        <groupId>org.dspace</groupId>
                        <artifactId>dspace-rest</artifactId>
-                       <version>cris-2023.02.06-SNAPSHOT</version>
+                       <version>cris-2023.02.07-SNAPSHOT</version>
                        <type>war</type>
                    </dependency>
                </dependencies>
            </dependencyManagement>
-       </profile>
-
+        </profile>
 
         <!--
            Builds SWORD extension for DSpace
@@ -1096,7 +1156,6 @@
                 <module>dspace-sword</module>
             </modules>
         </profile>
-
 
         <!--
            Builds SWORDv2 extension for DSpace
@@ -1225,62 +1284,62 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2023.02.06-SNAPSHOT</version>
+                <version>cris-2023.02.07-SNAPSHOT</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
@@ -1420,12 +1479,6 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
             </dependency>
 

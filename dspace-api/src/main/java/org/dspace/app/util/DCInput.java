@@ -188,7 +188,7 @@ public class DCInput {
         language = Boolean.valueOf(fieldMap.get("language"));
         valueLanguageList = new ArrayList<>();
         if (language) {
-            String languageNameTmp = fieldMap.get("value-pairs-name");
+            String languageNameTmp = fieldMap.get("language.value-pairs-name");
             if (StringUtils.isBlank(languageNameTmp)) {
                 languageNameTmp = LanguageName;
             }
@@ -206,7 +206,7 @@ public class DCInput {
         // these types are list-controlled
         if ("dropdown".equals(inputType) || "qualdrop_value".equals(inputType)
             || "list".equals(inputType)) {
-            valueListName = fieldMap.get("value-pairs-name");
+            valueListName = fieldMap.get(inputType + ".value-pairs-name");
             valueList = listMap.get(valueListName);
         }
         hint = fieldMap.get("hint");

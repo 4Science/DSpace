@@ -147,6 +147,7 @@ public class XmlWorkflowCuratorServiceImpl
                     curator.queue(c, item.getID().toString(), step.queue);
                 } else {
                     // Task is configured to be run automatically
+                    curator.txScope = Curator.TxScope.CURATION;
                     curator.curate(c, item);
                     int status = curator.getStatus(task.name);
                     String result = curator.getResult(task.name);

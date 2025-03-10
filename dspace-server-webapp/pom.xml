@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-server-webapp</artifactId>
     <name>DSpace Server Webapp</name>
     <description>
@@ -14,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.06-SNAPSHOT</version>
+        <version>cris-2023.02.07-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -317,6 +316,26 @@
             </dependencies>
         </profile>
 
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <property>
+                    <name>audiovideo.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-video-api</artifactId>
+                    <version>${addon-video.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>addon-document-viewer</id>
             <activation>
@@ -348,23 +367,6 @@
 					<version>${addon-analytics.version}</version>
 					<type>jar</type>
 				</dependency>
-			</dependencies>
-		</profile>
-
-	   	<profile>
-			<id>addon-dataquality</id>
-	         <activation>
-	            <property>
-	               <name>dq.on</name>
-	            </property>
-	         </activation>
-			<dependencies>
-                <dependency>
-                    <groupId>it.4science.dspace</groupId>
-                    <artifactId>addon-dataquality</artifactId>
-                    <version>${addon-dataquality.version}</version>
-                    <type>jar</type>
-                </dependency>
 			</dependencies>
 		</profile>
 
@@ -686,6 +688,12 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${ehcache.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- TEST DEPENDENCIES -->
