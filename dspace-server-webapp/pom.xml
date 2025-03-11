@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-server-webapp</artifactId>
     <name>DSpace Server Webapp</name>
     <description>
@@ -312,6 +311,26 @@
                     <groupId>it.4science.dspace</groupId>
                     <artifactId>addon-ocr-api</artifactId>
                     <version>${addon-ocr.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <property>
+                    <name>audiovideo.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-video-api</artifactId>
+                    <version>${addon-video.version}</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
