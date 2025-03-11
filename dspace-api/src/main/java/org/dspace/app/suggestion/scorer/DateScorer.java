@@ -5,7 +5,7 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.suggestion.openaire;
+package org.dspace.app.suggestion.scorer;
 
 import java.util.Calendar;
 import java.util.Collections;
