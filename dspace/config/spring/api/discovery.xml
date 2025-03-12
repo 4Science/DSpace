@@ -792,6 +792,8 @@
         <!--Which sidebar facets are to be displayed (same as defaultConfiguration above)-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="graphPublicationByDate" />
+                <ref bean="graphPublicationByType" />
                 <ref bean="searchFilterEntityType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterAuthor" />
