@@ -2453,6 +2453,22 @@
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortPriority" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
     </bean>
 
     <bean id="journalfonds" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
@@ -2522,6 +2538,23 @@
                 <value>search.resourcetype:Item AND entityType_keyword:JournalFonds AND -glamjournalfond.parent:* AND glam.entity.enabled:true</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
+        </property>
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortPriority" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                    </list>
+                </property>
+            </bean>
         </property>
     </bean>
 
@@ -2596,6 +2629,23 @@
                 <value>search.resourcetype:Item AND entityType_keyword:Aggregation AND glam.entity.enabled:true</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
+        </property>
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortPriority" />
+                        <ref bean="sortTitleAsc" />
+                        <ref bean="sortTitleDesc" />
+                        <ref bean="sortScore" />
+                        <ref bean="sortDateIssuedDesc" />
+                        <ref bean="sortDateIssuedAsc" />
+                        <ref bean="sortDateAccessionedDesc"/>
+                        <ref bean="sortDateAccessionedAsc"/>
+                    </list>
+                </property>
+            </bean>
         </property>
     </bean>
 
