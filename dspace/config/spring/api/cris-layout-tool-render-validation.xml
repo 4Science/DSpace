@@ -103,7 +103,7 @@
     <bean id="tableRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="table"/>
         <property name="fieldType" value="METADATAGROUP"/>
-        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+        <property name="subTypeValidationRule" value="ALLOWED"/>
     </bean>
 
     <bean id="tagRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
