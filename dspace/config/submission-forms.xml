@@ -17319,6 +17319,10 @@
         <displayed-value>Altra</displayed-value>
         <stored-value>other</stored-value>
       </pair>
+      <pair>
+        <displayed-value>Multiple languages</displayed-value>
+        <stored-value>mul</stored-value>
+      </pair>
     </value-pairs>
     <value-pairs value-pairs-name="license_types" dc-term="license_types">
       <pair>
