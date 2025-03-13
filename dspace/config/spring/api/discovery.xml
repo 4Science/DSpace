@@ -801,7 +801,7 @@
                 <ref bean="searchFilterTemporalPeriod" />
                 <ref bean="searchFilterTemporal" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
                 <ref bean="searchFilterFonds"/>
                 <ref bean="searchFilterPlace" />
                 <ref bean="searchFilterOrganizationalUnit" />
@@ -824,7 +824,7 @@
                 <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterTemporalPeriod" />
                 <ref bean="searchFilterTemporal" />
@@ -2290,7 +2290,7 @@
                 <ref bean="searchFilterTemporalPeriod" />
                 <ref bean="searchFilterTemporal" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
                 <ref bean="searchFilterFonds"/>
                 <ref bean="searchFilterPlace" />
                 <ref bean="searchFilterOrganizationalUnit" />
@@ -2311,7 +2311,7 @@
                 <ref bean="searchFilterTemporalPeriod" />
                 <ref bean="searchFilterTemporal" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterGlamSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
                 <ref bean="searchFilterFonds"/>
                 <ref bean="searchFilterPlace" />
                 <ref bean="searchFilterOrganizationalUnit" />
@@ -4062,6 +4062,20 @@
         <property name="sortOrderFilterPage" value="COUNT"/>
         <property name="splitter" value="::"/>
 
+    </bean>
+
+
+    <bean id="searchFilterDcTermsSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="dctermssubject"/>
+        <property name="metadataFields">
+            <list>
+                <value>dcterms.subject</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
     </bean>
 
     <bean id="searchFilterEquipmentOwner" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
