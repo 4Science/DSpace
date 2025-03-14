@@ -11,6 +11,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
+ *
+ * <code>
+ *     "default": {
+ *          // static
+ *          "@type": "oa:FragmentSelector",
+ *          // needs to be stored!
+ *          "value": "xywh=139,29,52,41"
+ *      }
+ * </code>
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)

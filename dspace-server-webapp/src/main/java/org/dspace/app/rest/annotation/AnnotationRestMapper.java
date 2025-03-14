@@ -57,7 +57,7 @@ public class AnnotationRestMapper {
         // - ONE Target element
         if (annotationRest.resource.size() > 1 || annotationRest.on.size() > 1) {
             throw new IllegalArgumentException(
-                "Cannot convert the annotationRest with id: " + annotationRest.getId() + " since it has multiple" +
+                "Cannot convert the annotationRest with id: " + annotationRest.getId() + " since it has " +
                 " more than one element for body (resource) or target (on) fields"
             );
         }

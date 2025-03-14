@@ -12,6 +12,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
+ *
+ * <code>
+ * "resource": {
+ *     // needs to be stored! - resource.chars & resource.fulltext
+ *     "chars": "<p>Test</p>",
+ *     // static
+ *     "@type": "dctypes:Text"
+ * }
+ * </code>
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)

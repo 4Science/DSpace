@@ -16,6 +16,8 @@ import org.dspace.content.MetadataFieldName;
 import org.dspace.core.Context;
 
 /**
+ *
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class MetadataItemPatternGroupEnricher extends MetadataItemEnricher {

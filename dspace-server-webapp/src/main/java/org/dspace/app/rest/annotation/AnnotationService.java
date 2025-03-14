@@ -7,11 +7,14 @@
  */
 package org.dspace.app.rest.annotation;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +26,8 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.InstallItemService;
+import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -43,6 +48,8 @@ public class AnnotationService {
     private static final Logger log = LogManager.getLogger(AnnotationService.class);
     static final String ITEM_PATTERN = "/iiif/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String BITSTREAM_PATTERN = "/canvas/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
+    static final String ANNOTATION_ID_PATTERN =
+        "/annotation/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String ANNOTATION_ENTITY_TYPE = "annotation.default.entity-type";
     static final String ANNOTATION_COLLECTION = "annotation.default.collection";
 
@@ -51,20 +58,93 @@ public class AnnotationService {
     final CollectionService collectionService;
     final IdentifierService identifierService;
     final AuthorizeService authorizeService;
-    final ItemEnricher itemEnricher = ItemEnricherFactory.annotationItemEnricher();
+    final ItemService itemService;
+    final InstallItemService installItemService;
+    final ItemEnricher itemEnricher;
+    final AnnotationRestMapper annotationRestMapper;
 
     AnnotationService(
         @Autowired WorkspaceItemService workspaceItemService,
         @Autowired ConfigurationService configurationService,
         @Autowired CollectionService collectionService,
         @Autowired IdentifierService identifierService,
-        @Autowired AuthorizeService authorizeService
+        @Autowired AuthorizeService authorizeService,
+        @Autowired ItemService itemService,
+        @Autowired InstallItemService installItemService
     ) {
         this.workspaceItemService = workspaceItemService;
         this.configurationService = configurationService;
         this.collectionService = collectionService;
         this.identifierService = identifierService;
         this.authorizeService = authorizeService;
+        this.itemService = itemService;
+        this.installItemService = installItemService;
+        this.itemEnricher = ItemEnricherFactory.annotationItemEnricher();
+        this.annotationRestMapper =
+            AnnotationRestMapperFactory.annotationRestMapper(configurationService);
+    }
+
+    public void delete(Context context, Item item) {
+        try {
+            WorkspaceItem wsItem = workspaceItemService.findByItem(context, item);
+            if (wsItem != null) {
+                try {
+                    context.turnOffAuthorisationSystem();
+                    workspaceItemService.deleteAll(context, wsItem);
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                        "Error while deleting the workspaceitem associated with id " + item.getID(),
+                        e
+                    );
+                } finally {
+                    context.restoreAuthSystemState();
+                }
+            } else {
+                try {
+                    context.turnOffAuthorisationSystem();
+                    itemService.delete(context, item);
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                        "Error while deleting the item associated with id " + item.getID(),
+                        e
+                    );
+                } finally {
+                    context.restoreAuthSystemState();
+                }
+            }
+        } catch (SQLException | AuthorizeException e) {
+            log.error("Error while deleting annotation with id: {}", item.getID(), e);
+            throw new RuntimeException("Error while deleting annotation with id: " + item.getID(), e);
+        }
+    }
+
+    public AnnotationRest convert(Context context, Item item) {
+        return annotationRestMapper.map(context, item);
+    }
+
+    public Item findById(Context context, String annotationId) {
+        Item annotation = null;
+        Matcher matcher = Pattern.compile(ANNOTATION_ID_PATTERN).matcher(annotationId);
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("Invalid annotation id: " + annotationId);
+        }
+        String annotationItemId = matcher.group(1);
+        try {
+            annotation = itemService.find(context, UUID.fromString(annotationItemId));
+        } catch (SQLException e) {
+            log.error("Error while finding annotation with id: {}", annotationId, e);
+        }
+        return annotation;
+    }
+
+    public Item update(Context context, AnnotationRest annotation) {
+        return update(context, annotation, itemEnricher);
+    }
+
+    protected Item update(Context context, AnnotationRest annotation, ItemEnricher enricher) {
+        Item annotationItem = findById(context, annotation.getId());
+        enrichItem(context, annotationItem, enricher.apply(annotation));
+        return annotationItem;
     }
 
     public WorkspaceItem create(Context context, AnnotationRest annotation) {
@@ -78,20 +158,22 @@ public class AnnotationService {
 
             workspaceItem = this.workspaceItemService.create(context, getCollection(context), false);
 
-            Item item = workspaceItem.getItem();
-            enrichItem(context, item, enricher.apply(annotation));
+            enrichItem(context, workspaceItem.getItem(), enricher.apply(annotation));
 
+            installItemService.installItem(context, workspaceItem);
+            workspaceItemService.update(context, workspaceItem);
         } catch (AuthorizeException | SQLException e) {
-            throw new RuntimeException(e);
+            log.error("Cannot save the annotation as workspace item", e);
+            throw new RuntimeException("Cannot save the annotation as workspace item", e);
         } finally {
             context.restoreAuthSystemState();
         }
         return workspaceItem;
     }
 
-    protected void enrichItem(Context context, Item item, BiConsumer<Context, Item> itemConsumer) {
+    protected void enrichItem(Context context, Item item, BiConsumer<Context, Item> enrichers) {
         // enrich item with configured enrichers
-        itemConsumer.accept(context, item);
+        enrichers.accept(context, item);
     }
 
     protected Collection getCollection(Context context) {

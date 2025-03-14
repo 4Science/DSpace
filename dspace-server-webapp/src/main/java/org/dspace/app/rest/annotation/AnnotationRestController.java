@@ -7,9 +7,10 @@
  */
 package org.dspace.app.rest.annotation;
 
-import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 
-import org.dspace.content.Collection;
+import org.dspace.app.rest.repository.AbstractDSpaceRestRepository;
+import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
     consumes = {"application/ld+json"},
     produces = {"application/ld+json"}
 )
-public class AnnotationRestController {
-
-    @Autowired
-    AnnotationMapper mapper;
+public class AnnotationRestController extends AbstractDSpaceRestRepository {
 
     @Autowired
     AnnotationService annotationService;
@@ -42,23 +40,33 @@ public class AnnotationRestController {
     }
 
     @PostMapping("/create")
-    public AnnotationRest create(HttpServletRequest request, @RequestBody AnnotationRest annotation) {
-        annotation.setId("customId");
-        return annotation;
-    }
-
-    private Collection getCollection() {
-        return null;
+    public AnnotationRest create(@RequestBody AnnotationRest annotation) {
+        Context context = obtainContext();
+        try {
+            annotationService.create(context, annotation);
+            context.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error creating annotation", e);
+        }
+        return annotationService.convert(context, annotationService.findById(context, annotation.getId()));
     }
 
     @PostMapping("/update")
     public AnnotationRest update(@RequestBody AnnotationRest annotation) {
-        return null;
+        Context context = obtainContext();
+        try {
+            annotationService.update(context, annotation);
+            context.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating annotation", e);
+        }
+        return annotationService.convert(context, annotationService.findById(context, annotation.getId()));
     }
 
     @DeleteMapping("/destroy")
-    public AnnotationRest destroy(@RequestBody AnnotationRest annotation) {
-        return null;
+    public void destroy(@RequestParam String uri) {
+        Context context = obtainContext();
+        annotationService.delete(context, annotationService.findById(context, uri));
     }
 
 }

@@ -1,0 +1,50 @@
+{
+  "id": "localStorage://?canvasId=https://dspaceglam7dev.4science.cloud/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451",
+  "items": [
+    {
+      "body": {
+        "type": "TextualBody",
+        "value": "<p>test annotation</p>"
+      },
+      "id": "ce1c261a-d141-4ef3-8193-e28f83315e73",
+      "motivation": "commenting",
+      "target": {
+        "source": "https://dspaceglam7dev.4science.cloud/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451",
+        "selector": [
+          {
+            "type": "FragmentSelector",
+            "value": "xywh=132,44,90,69"
+          },
+          {
+            "type": "SvgSelector",
+            "value": "<svg xmlns='http://www.w3.org/2000/svg'><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M132.80264,113.4841v-69.07349h90.65895v69.07349z\" data-paper-data=\"{&quot;state&quot;:null}\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"#00bfff\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"/></svg>"
+          }
+        ]
+      },
+      "type": "Annotation"
+    },
+    {
+      "body": {
+        "type": "TextualBody",
+        "value": "<p>Test 2</p>"
+      },
+      "id": "6323193d-5381-4704-b884-9b903c4ae08e",
+      "motivation": "commenting",
+      "target": {
+        "source": "https://dspaceglam7dev.4science.cloud/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451",
+        "selector": [
+          {
+            "type": "FragmentSelector",
+            "value": "xywh=141,139,76,69"
+          },
+          {
+            "type": "SvgSelector",
+            "value": "<svg xmlns='http://www.w3.org/2000/svg'><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M141.37755,173.85429c0,-19.23731 17.20265,-34.83223 38.42318,-34.83223c21.22054,0 38.42318,15.59492 38.42318,34.83223c0,19.23731 -17.20265,34.83223 -38.42318,34.83223c-21.22054,0 -38.42318,-15.59492 -38.42318,-34.83223z\" data-paper-data=\"{&quot;state&quot;:null}\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"#00bfff\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"/></svg>"
+          }
+        ]
+      },
+      "type": "Annotation"
+    }
+  ],
+  "type": "AnnotationPage"
+}

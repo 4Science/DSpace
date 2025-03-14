@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.AbstractIntegrationTestWithDatabase;
@@ -227,7 +228,6 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
         MetadataFieldName dateModified =
             new MetadataFieldName("dcterms", "modified");
         String dateModifiedSelector = "modified";
-
         MetadataItemEnricher modifiedDate =
             new MetadataItemEnricher(
                 dateModifiedSelector,
@@ -474,11 +474,11 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                         new AnnotationTargetRestComposedEnricher<String>(
                             "full",
                             List.of(
-                                (i) -> configurationService.getProperty("dspace.ui.url") + "/iiif/",
+                                (i) -> configurationService.getProperty("dspace.server.url") + "/iiif/",
                                 (i) -> i.getItemService().getMetadata(i, "glam.item") + "/canvas/",
                                 (i) -> i.getItemService().getMetadata(i, "glam.bitstream")
                             ),
-                            (a, b) -> a + b
+                            StringUtils::join
                         )
                     ),
                     List.of(
@@ -488,7 +488,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                                 (i) -> configurationService.getProperty("dspace.server.url") + "/annotation/",
                                 (i) -> i.getID().toString()
                             ),
-                            (a, b) -> a + b
+                            StringUtils::join
                         )
                     )
                 );
@@ -498,7 +498,9 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             MatcherAssert.assertThat(
                 annotation.on.get(0).full,
                 CoreMatchers.is(
-                    "http://localhost:4000/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451"
+                    "http://localhost:8080/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7" +
+                        "-af7a" +
+                        "-7356220e2451"
                 )
             );
             MatcherAssert.assertThat(
