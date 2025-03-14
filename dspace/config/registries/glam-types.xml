@@ -1292,7 +1292,21 @@
         <schema>glam</schema>
         <element>bitstream</element>
         <qualifier/>
-        <scope_note>Bitsteram related to the annotation</scope_note>
+        <scope_note>Bitstream related to the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>contributor</element>
+        <qualifier>annotation</qualifier>
+        <scope_note>EPerson that has created the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>position</qualifier>
+        <scope_note>Annotation position</scope_note>
     </dc-type>
 
 </dspace-dc-types>

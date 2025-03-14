@@ -57,7 +57,7 @@ public class AnnotationTargetRest {
     @JsonProperty("selector")
     AnnotationTargetSelectorComposite selector = new AnnotationTargetSelectorComposite();
     @JsonProperty("within")
-    AnnotationTargetWithin within = new AnnotationTargetWithin();
+    AnnotationTargetWithin within;
 
     public String getId() {
         return id;

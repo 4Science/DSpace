@@ -8,15 +8,17 @@
 package org.dspace.app.rest.annotation;
 
 import java.sql.SQLException;
+import java.util.List;
 
-import org.dspace.app.rest.repository.AbstractDSpaceRestRepository;
+import org.dspace.app.rest.utils.ContextUtil;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,35 +26,44 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 @RestController
-@RequestMapping(
-    value = "/api/" + AnnotationRest.ANNOTATION,
-    consumes = {"application/ld+json"},
-    produces = {"application/ld+json"}
-)
-public class AnnotationRestController extends AbstractDSpaceRestRepository {
+@RequestMapping(value = "/annotation")
+public class AnnotationRestController {
 
     @Autowired
     AnnotationService annotationService;
 
-    @GetMapping("/search")
-    public AnnotationRest[] search(@RequestParam String uri) {
-        return null;
+    protected Context obtainContext() {
+        return ContextUtil.obtainCurrentRequestContext();
     }
 
-    @PostMapping("/create")
-    public AnnotationRest create(@RequestBody AnnotationRest annotation) {
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public ResponseEntity<List<AnnotationRest>> search(@RequestParam String uri) {
+        return new ResponseEntity<>(
+            annotationService.search(obtainContext(), uri),
+            HttpStatus.OK
+        );
+    }
+
+    @RequestMapping(method = { RequestMethod.POST, RequestMethod.OPTIONS }, value = "/create")
+    public ResponseEntity<AnnotationRest> create(@RequestBody AnnotationRest annotation) {
         Context context = obtainContext();
+        WorkspaceItem workspaceItem = null;
         try {
-            annotationService.create(context, annotation);
+            workspaceItem = annotationService.create(context, annotation);
             context.commit();
         } catch (SQLException e) {
             throw new RuntimeException("Error creating annotation", e);
         }
-        return annotationService.convert(context, annotationService.findById(context, annotation.getId()));
+        return new ResponseEntity<>(
+            annotationService.convert(
+                context, annotationService.findByItemId(context, workspaceItem.getItem().getID())
+            ),
+            HttpStatus.OK
+        );
     }
 
-    @PostMapping("/update")
-    public AnnotationRest update(@RequestBody AnnotationRest annotation) {
+    @RequestMapping(method = RequestMethod.POST, value = "/update")
+    public ResponseEntity<AnnotationRest> update(@RequestBody AnnotationRest annotation) {
         Context context = obtainContext();
         try {
             annotationService.update(context, annotation);
@@ -60,13 +71,22 @@ public class AnnotationRestController extends AbstractDSpaceRestRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Error updating annotation", e);
         }
-        return annotationService.convert(context, annotationService.findById(context, annotation.getId()));
+        return new ResponseEntity<>(
+            annotationService.convert(context, annotationService.findById(context, annotation.getId())),
+            HttpStatus.OK
+        );
     }
 
-    @DeleteMapping("/destroy")
-    public void destroy(@RequestParam String uri) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/destroy")
+    public ResponseEntity<?> destroy(@RequestParam String uri) {
         Context context = obtainContext();
-        annotationService.delete(context, annotationService.findById(context, uri));
+        try {
+            annotationService.delete(context, annotationService.findById(context, uri));
+            context.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting annotation", e);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

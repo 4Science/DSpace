@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +32,10 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.identifier.IdentifierNotFoundException;
 import org.dspace.identifier.IdentifierNotResolvableException;
 import org.dspace.identifier.service.IdentifierService;
@@ -59,7 +63,9 @@ public class AnnotationService {
     final IdentifierService identifierService;
     final AuthorizeService authorizeService;
     final ItemService itemService;
+    final EPersonService ePersonService;
     final InstallItemService installItemService;
+    final SearchService searchService;
     final ItemEnricher itemEnricher;
     final AnnotationRestMapper annotationRestMapper;
 
@@ -70,7 +76,9 @@ public class AnnotationService {
         @Autowired IdentifierService identifierService,
         @Autowired AuthorizeService authorizeService,
         @Autowired ItemService itemService,
-        @Autowired InstallItemService installItemService
+        @Autowired InstallItemService installItemService,
+        @Autowired EPersonService ePersonService,
+        @Autowired SearchService searchService
     ) {
         this.workspaceItemService = workspaceItemService;
         this.configurationService = configurationService;
@@ -79,9 +87,59 @@ public class AnnotationService {
         this.authorizeService = authorizeService;
         this.itemService = itemService;
         this.installItemService = installItemService;
+        this.ePersonService = ePersonService;
+        this.searchService = searchService;
         this.itemEnricher = ItemEnricherFactory.annotationItemEnricher();
         this.annotationRestMapper =
             AnnotationRestMapperFactory.annotationRestMapper(configurationService);
+    }
+
+    public List<AnnotationRest> search(Context context, String uri) {
+        Pattern pattern = Pattern.compile(ITEM_PATTERN);
+        Matcher matcher = pattern.matcher(uri);
+        List<AnnotationRest> annotations = List.of();
+        if (!matcher.find()) {
+            return annotations;
+        }
+        String itemId = matcher.group(1);
+
+        pattern = Pattern.compile(BITSTREAM_PATTERN);
+        matcher = pattern.matcher(uri);
+        if (!matcher.find()) {
+            return annotations;
+        }
+        String bitstreamId = matcher.group(1);
+
+        /*
+        DiscoverQuery query = new DiscoverQuery();
+        query.addFilterQueries(
+            "search.entitytype:WebAnnotation",
+            "dspace.entity.type:WebAnnotation",
+            "glam.item:" + itemId,
+            "glam.bitstream:" + bitstreamId
+        );
+        query.addProperty("rows", "0");
+        */
+
+        List<IndexableObject> results =
+            searchService.search(
+                context,
+                "search.entitytype:WebAnnotation",
+                null,
+                false,
+                0,
+                100,
+                "glam.item:" + itemId,
+                "glam.bitstream:" + bitstreamId
+            );
+
+        annotations =
+            results.stream()
+                   .filter(i -> i.getIndexedObject() instanceof Item)
+                   .map(i -> annotationRestMapper.map(context, (Item) i.getIndexedObject()))
+                   .collect(Collectors.toList());
+
+        return annotations;
     }
 
     public void delete(Context context, Item item) {
@@ -123,18 +181,52 @@ public class AnnotationService {
     }
 
     public Item findById(Context context, String annotationId) {
+
+        if (StringUtils.isEmpty(annotationId)) {
+            throw new IllegalArgumentException("Empty annotation id: " + annotationId);
+        }
+
+        UUID itemUUID =
+            Optional.ofNullable(parseAnnotationID(annotationId))
+                    .map(this::parseAsUUID)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid annotation id: " + annotationId));
+
+        return findByItemId(context, itemUUID);
+    }
+
+    public Item findByItemId(Context context, UUID itemUUID) {
+        if (itemUUID == null) {
+            log.warn("Cannot find any annotation related to a null item UUID!");
+            return null;
+        }
+
         Item annotation = null;
+        try {
+            annotation = itemService.find(context, itemUUID);
+        } catch (SQLException e) {
+            log.error("Error while finding item with uuid: {}", itemUUID, e);
+        }
+        return annotation;
+    }
+
+    private String parseAnnotationID(String annotationId) {
         Matcher matcher = Pattern.compile(ANNOTATION_ID_PATTERN).matcher(annotationId);
         if (!matcher.find()) {
             throw new IllegalArgumentException("Invalid annotation id: " + annotationId);
         }
-        String annotationItemId = matcher.group(1);
+        return matcher.group(1);
+    }
+
+    private UUID parseAsUUID(String annotationId) {
+        UUID itemUUID = null;
         try {
-            annotation = itemService.find(context, UUID.fromString(annotationItemId));
-        } catch (SQLException e) {
-            log.error("Error while finding annotation with id: {}", annotationId, e);
+            itemUUID = UUID.fromString(annotationId);
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot parse annotation id: {} ", annotationId, e);
+            }
         }
-        return annotation;
+        return itemUUID;
     }
 
     public Item update(Context context, AnnotationRest annotation) {

@@ -9,6 +9,7 @@ package org.dspace.app.rest.annotation;
 
 import java.sql.SQLException;
 import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
 
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
@@ -19,8 +20,17 @@ import org.dspace.core.Context;
  **/
 public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements ItemEnricher {
 
+    private UnaryOperator<String> metadataValueMapper;
+
     public MetadataItemEnricher(String spel, MetadataFieldName metadata, Class<?> clazz) {
+        this(spel, metadata, clazz, null);
+    }
+
+    public MetadataItemEnricher(
+        String spel, MetadataFieldName metadata, Class<?> clazz, UnaryOperator<String> metadataValueMapper
+    ) {
         super(spel, metadata, clazz);
+        this.metadataValueMapper = metadataValueMapper;
     }
 
     @Override
@@ -34,9 +44,12 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
             return ((java.util.Collection<?>) value).stream()
                                                     .map(element -> addMetadata(element.toString()))
                                                     .reduce(BiConsumer::andThen)
+                                                    .map(metadataAdder ->
+                                                             clearMetadata().andThen(metadataAdder)
+                                                    )
                                                     .orElse(empty());
         }
-        return addMetadata(value.toString());
+        return setMetadataValue(value.toString());
     }
 
     protected Object extractValueFrom(AnnotationRest annotationRest) {
@@ -46,6 +59,10 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
     protected BiConsumer<Context, Item> addMetadata(String value) {
         return (context, item) -> {
             try {
+                String metadataValue = value;
+                if (metadataValueMapper != null) {
+                    metadataValue = metadataValueMapper.apply(metadataValue);
+                }
                 item.getItemService()
                     .addMetadata(
                         context,
@@ -54,11 +71,42 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
                         metadata.element,
                         metadata.qualifier,
                         null,
-                        value
+                        metadataValue
                     );
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         };
     }
+
+    protected BiConsumer<Context, Item> setMetadataValue(String value) {
+        return (context, item) -> {
+            try {
+                String metadataValue = value;
+                if (metadataValueMapper != null) {
+                    metadataValue = metadataValueMapper.apply(metadataValue);
+                }
+                item.getItemService()
+                    .setMetadataSingleValue(
+                        context, item, metadata.schema, metadata.element, metadata.qualifier,null, metadataValue
+                    );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    protected BiConsumer<Context, Item> clearMetadata() {
+        return (context, item) -> {
+            try {
+                item.getItemService()
+                    .clearMetadata(
+                        context, item, metadata.schema, metadata.element, metadata.qualifier,null
+                    );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
 }

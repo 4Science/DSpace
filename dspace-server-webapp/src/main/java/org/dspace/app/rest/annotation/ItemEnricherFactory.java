@@ -23,6 +23,8 @@ public class ItemEnricherFactory {
     public static final String FULL_SELECTOR = "on.![full]";
     public static final MetadataFieldName glamItem = new MetadataFieldName("glam", "item");
     public static final MetadataFieldName glamBitstream = new MetadataFieldName("glam", "bitstream");
+    public static final MetadataFieldName glamContributor =
+        new MetadataFieldName("glam", "contributor", "annotation");
 
     public static final String CREATED_SELECTOR = "created";
     public static final MetadataFieldName dateIssued = new MetadataFieldName("dc", "date", "issued");
@@ -42,7 +44,7 @@ public class ItemEnricherFactory {
 
     public static final String RESOURCE_FULLTEXT = "resource.![fullText]";
     public static final MetadataFieldName annotationFulltext = new MetadataFieldName("glam", "annotation", "fulltext");
-
+    public static final MetadataFieldName dcTitle = new MetadataFieldName("dc", "title");
 
     private ItemEnricherFactory() { }
 
@@ -56,7 +58,8 @@ public class ItemEnricherFactory {
                 fragmentSelectorEnricher(),
                 svgSelectorEnricher(),
                 resourceTextEnricher(),
-                fulltextEnricher()
+                fulltextEnricher(),
+                dcTitleEnricher()
             )
         );
     }
@@ -72,6 +75,9 @@ public class ItemEnricherFactory {
             FULL_SELECTOR, glamBitstream, String.class, BITSTREAM_PATTERN
         );
     }
+
+    // TODO-VINS: add enhancer for the glam.annotation.position based on number of related annotations
+    // TODO-VINS: add enhancer for the glam.contributor.annotation based on logged-in user
 
     public static ItemEnricher issueDateEnricher() {
         return new MetadataItemEnricher(
@@ -114,6 +120,15 @@ public class ItemEnricherFactory {
             RESOURCE_FULLTEXT,
             annotationFulltext,
             List.class
+        );
+    }
+
+    public static ItemEnricher dcTitleEnricher() {
+        return  new MetadataItemEnricher(
+            RESOURCE_FULLTEXT,
+            dcTitle,
+            List.class,
+            (s) -> s.length() > 10 ? s.substring(0, 10) + "..." : s
         );
     }
 

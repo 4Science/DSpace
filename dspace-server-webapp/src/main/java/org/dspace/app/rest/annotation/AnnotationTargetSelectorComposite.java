@@ -41,10 +41,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnotationTargetSelectorComposite extends AnnotationTargetSelector {
 
+    public static final String SELECTOR_TYPE = "oa:Choice";
+
     @JsonProperty("default")
     AnnotationTargetFragmentSelector defaultSelector = new AnnotationTargetFragmentSelector();
     @JsonProperty("item")
     AnnotationTargetSvgSelector item = new AnnotationTargetSvgSelector();
+
+    {
+        type = SELECTOR_TYPE;
+    }
 
     public AnnotationTargetSelectorComposite setDefaultSelector(
         AnnotationTargetFragmentSelector defaultSelector) {
