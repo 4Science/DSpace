@@ -1535,4 +1535,12 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>color</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+
 </dspace-dc-types>
