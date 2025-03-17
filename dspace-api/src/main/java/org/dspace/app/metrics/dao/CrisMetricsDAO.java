@@ -42,6 +42,9 @@ public interface CrisMetricsDAO extends GenericDAO<CrisMetrics> {
     public CrisMetrics findLastMetricByResourceIdAndMetricsTypes(Context context, String metricType, UUID resourceId)
            throws SQLException;
 
+    public List<CrisMetrics> findLastMetricsByResourceId(Context context, UUID resourceId,
+            Integer limit, Integer offset) throws SQLException;
+
     public CrisMetrics uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(Context context, String metricType,
             UUID resource, boolean last) throws SQLException;
 

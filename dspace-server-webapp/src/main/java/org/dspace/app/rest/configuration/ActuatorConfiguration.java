@@ -13,7 +13,9 @@ import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.app.rest.DiscoverableEndpointsService;
+import org.dspace.app.rest.health.EPersonGroupHealthIndicator;
 import org.dspace.app.rest.health.GeoIpHealthIndicator;
+import org.dspace.app.rest.health.SiteHealthIndicator;
 import org.dspace.app.rest.health.SolrHealthIndicator;
 import org.dspace.authority.AuthoritySolrServiceImpl;
 import org.dspace.discovery.SolrSearchCore;
@@ -86,6 +88,18 @@ public class ActuatorConfiguration {
     @ConditionalOnEnabledHealthIndicator("geoIp")
     public GeoIpHealthIndicator geoIpHealthIndicator() {
         return new GeoIpHealthIndicator();
+    }
+
+    @Bean
+    @ConditionalOnEnabledHealthIndicator("site")
+    public SiteHealthIndicator siteHealthIndicator() {
+        return new SiteHealthIndicator();
+    }
+
+    @Bean
+    @ConditionalOnEnabledHealthIndicator("ePersonGroup")
+    public EPersonGroupHealthIndicator ePersonGroupHealthIndicator() {
+        return new EPersonGroupHealthIndicator();
     }
 
     public String getActuatorBasePath() {
