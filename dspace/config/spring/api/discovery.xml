@@ -73,11 +73,17 @@
                 <entry key="oaire.licenseCondition" value-ref="oaireLicenseMapper"/>
                 <entry key="datacite.rights" value-ref="dataciteRightsMapper"/>
                 <entry key="datacite.available" value-ref="dataciteAvailableMapper"/>
+                <entry key="dc.source" value-ref="sourceMapper"/>
             </map>
         </property>
         <property name="simpleIndexAdder" ref="simpleIndexAdder"/>
         <property name="bitstreamMetadataIndexAdder" ref="bitstreamMetadataIndexAdder"/>
         <property name="defaultIndexAdder" ref="defaultIndexAdder"/>
+    </bean>
+
+    <bean id="sourceMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
+        <constructor-arg name="metadata" value="source-id"/>
+        <constructor-arg name="indexAdder" ref="defaultIndexAdder"/>
     </bean>
 
     <bean id="oaireLicenseMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
@@ -5490,6 +5496,7 @@
                 <ref bean="searchFilterOrcid" />
                 <ref bean="searchFilterDoi" />
                 <ref bean="searchFilterLegacyId" />
+                <ref bean="searchFilterSourceId" />
             </list>
         </property>
     </bean>
@@ -5559,7 +5566,16 @@
         <property name="isOpenByDefault" value="true"/>
         <property name="pageSize" value="10"/>
     </bean>
-
+    <bean id="searchFilterSourceId" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="source-id"/>
+        <property name="metadataFields">
+            <list>
+                <value>source-id</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+    </bean>
     <bean id="searchFilterDoiAsString" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="doi_s"/>
         <property name="metadataFields">
