@@ -12,7 +12,7 @@
     </parent>
 
     <properties>
-        <dspace.version>cris-2024.02.00-SNAPSHOT</dspace.version>
+        <dspace.version>cris-2024.02.01-SNAPSHOT</dspace.version>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>
@@ -22,6 +22,42 @@
             <!-- Unpack the "additions" module into our target directory,
                  so that any custom classes in that module can be included
                  into this WAR's WEB-INF/classes (see maven-war-plugin below). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-additions</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.dspace.modules</includeGroupIds>
+                            <includeArtifactIds>additions</includeArtifactIds>
+                            <!--NOTE: by default this will also unpack transitive dependencies. To disable, uncomment this next line:
+                            <excludeTransitive>true</excludeTransitive>
+                            -->
+                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
+                            <excludes>META-INF/**</excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-webapp</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <includeGroupIds>org.dspace</includeGroupIds>
+                            <includeArtifactIds>dspace-server-webapp</includeArtifactIds>
+                            <includes>**/static/**,**/*.properties</includes>
+                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -43,27 +79,6 @@
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                            <includeGroupIds>org.dspace</includeGroupIds>
-                            <includeArtifactIds>dspace-server-webapp,additions</includeArtifactIds>
-                            <includes>**/static/**,**/*.properties</includes>
-                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
-                            <excludes>META-INF/**</excludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -28,6 +28,7 @@ import org.dspace.importer.external.ror.service.RorImportMetadataSourceService;
 import org.dspace.importer.external.ror.service.RorServicesFactory;
 import org.dspace.importer.external.ror.service.RorServicesFactoryImpl;
 import org.dspace.services.ConfigurationService;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -80,28 +81,58 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
         ).thenReturn(List.of(getImportRecord1(), getImportRecord2()));
 
         mockRorServiceFactory.when(RorServicesFactory::getInstance).thenReturn(rorServiceFactory);
+
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] {ROR_ORGUNIT_AUTHORITY}
+        );
+    }
+
+    @After
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
     }
 
     @Test
     public void testAuthority() throws Exception {
 
+        configurationService.setProperty("cris.RorOrgUnitAuthority.country.display", "false");
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.source", "ror");
+
+        configurationService.setProperty("choices.plugin.crisrp.qualification", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.crisrp.qualification", "suggest");
+        configurationService.setProperty("authority.controlled.crisrp.qualification", "true");
+
+        configurationService.setProperty("choices.plugin.crisrp.education", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.crisrp.education", "suggest");
+        configurationService.setProperty("authority.controlled.crisrp.education", "true");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/OrgUnitAuthority/entries")
-                            .param("filter", ROR_FILTER))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.entries", hasSize(2)))
-            .andExpect(jsonPath("$._embedded.entries",
-                hasItems(
-                    matchItemAuthorityWithOtherInformations("will be referenced::ROR-ID::https://ror.org/02z02cv32",
-                            "Wind Energy Institute of Canada", "Wind Energy Institute of Canada", "vocabularyEntry",
-                        getExtrasRecord1()
-                    ),
-                    matchItemAuthorityWithOtherInformations("will be referenced::ROR-ID::https://ror.org/03vb2cr34",
-                            "4Science", "4Science", "vocabularyEntry",
-                        getExtrasRecord2()
-                    )
-                )
-            ));
+                                     .param("filter", ROR_FILTER))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", hasSize(2)))
+                        .andExpect(jsonPath("$._embedded.entries",
+                                            hasItems(
+                                                matchItemAuthorityWithOtherInformations(
+                                                    "will be referenced::ROR-ID::https://ror.org/02z02cv32",
+                                                    "Wind Energy Institute of Canada",
+                                                    "Wind Energy Institute of Canada", "vocabularyEntry",
+                                                    getExtrasRecord1()
+                                                ),
+                                                matchItemAuthorityWithOtherInformations(
+                                                    "will be referenced::ROR-ID::https://ror.org/03vb2cr34",
+                                                    "4Science", "4Science", "vocabularyEntry",
+                                                    getExtrasRecord2()
+                                                )
+                                            )
+                        ));
     }
 
     private ImportRecord getImportRecord1() {
