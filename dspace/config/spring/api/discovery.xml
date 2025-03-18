@@ -82,7 +82,7 @@
     </bean>
 
     <bean id="sourceMapper" class="org.dspace.discovery.index.mapper.SolrFieldMetadataMapper">
-        <constructor-arg name="metadata" value="original_bundle_source"/>
+        <constructor-arg name="metadata" value="source-id"/>
         <constructor-arg name="indexAdder" ref="defaultIndexAdder"/>
     </bean>
 
@@ -5577,7 +5577,7 @@
         <property name="indexFieldName" value="source-id"/>
         <property name="metadataFields">
             <list>
-                <value>original_bundle_source</value>
+                <value>source-id</value>
             </list>
         </property>
         <property name="isOpenByDefault" value="true"/>
