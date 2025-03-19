@@ -73,7 +73,7 @@
                 <entry key="oaire.licenseCondition" value-ref="oaireLicenseMapper"/>
                 <entry key="datacite.rights" value-ref="dataciteRightsMapper"/>
                 <entry key="datacite.available" value-ref="dataciteAvailableMapper"/>
-                <entry key="dc.source" value-ref="sourceMapper"/>
+                <entry key="bitstream.image.sourceurl" value-ref="sourceMapper"/>
             </map>
         </property>
         <property name="simpleIndexAdder" ref="simpleIndexAdder"/>
