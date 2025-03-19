@@ -464,7 +464,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="WebAnnotation">
+                <entry key="webannotation">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />

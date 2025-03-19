@@ -5,17 +5,23 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher.metadata;
 
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.UnaryOperator;
 
+import org.dspace.app.rest.annotation.AnnotationRest;
+import org.dspace.app.rest.annotation.enricher.ItemEnricher;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.core.Context;
 
 /**
+ * Metadata Item Enricher that extracts the value from the AnnotationRest using a spel expression
+ * and then applies it to the Item.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements ItemEnricher {
@@ -42,6 +48,7 @@ public class MetadataItemEnricher extends AbstractMetadataSpelMapper implements 
 
         if (value instanceof java.util.Collection) {
             return ((java.util.Collection<?>) value).stream()
+                                                    .filter(Objects::nonNull)
                                                     .map(element -> addMetadata(element.toString()))
                                                     .reduce(BiConsumer::andThen)
                                                     .map(metadataAdder ->

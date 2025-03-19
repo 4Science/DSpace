@@ -9,6 +9,7 @@ package org.dspace.app.rest.annotation;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -21,11 +22,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.content.DCDate;
 
 /**
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class AnnotationRestDeserializer extends StdDeserializer<AnnotationRest> {
+
+    public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static DateTimeFormatter DATETIME_FORMATTER =  DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 
     private static final Logger log = LogManager.getLogger(AnnotationRestDeserializer.class);
 
@@ -62,25 +67,30 @@ public class AnnotationRestDeserializer extends StdDeserializer<AnnotationRest> 
         }
         String modified = null;
         if (created == null) {
-            created = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            modified = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            created = LocalDateTime.now(ZoneId.of("UTC")).format(DATETIME_FORMATTER);
+            modified = LocalDateTime.now(ZoneId.of("UTC")).format(DATETIME_FORMATTER);
         } else if (json.has("http://purl.org/dc/terms/modified")) {
             modified = json.get("http://purl.org/dc/terms/modified").asText();
         } else if (json.has("dcterms:modified")) {
             modified = json.get("dcterms:modified").asText();
         } else {
-            modified = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            modified = LocalDateTime.now(ZoneId.of("UTC")).format(DATETIME_FORMATTER);
         }
-        LocalDateTime createdDate = LocalDateTime.parse(created, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        LocalDateTime modifiedDate = LocalDateTime.parse(modified, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime createdDate = LocalDateTime.ofInstant(
+            new DCDate(created).toDate().toInstant(), ZoneId.of("UTC")
+        );
+        LocalDateTime modifiedDate = LocalDateTime.ofInstant(
+            new DCDate(modified).toDate().toInstant(), ZoneId.of("UTC")
+        );
 
-        List<String> motivation;
+        List<String> motivation = List.of();
         JsonNode motivationNode = json.get("motivation");
         if (motivationNode.isTextual()) {
             motivation = List.of(motivationNode.asText());
-        } else {
+        } else if (motivationNode.isArray()) {
             try (JsonParser motivationParser = motivationNode.traverse()) {
-                motivation = motivationParser.readValueAs(List.class);
+                motivationParser.setCodec(codec);
+                motivation = motivationParser.readValueAs(new TypeReference<List<String>>() { });
             }
         }
 

@@ -11,6 +11,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.app.rest.annotation.enricher.AnnotationBodyRestEnricher;
+import org.dspace.app.rest.annotation.enricher.AnnotationFieldComposerEnricher;
+import org.dspace.app.rest.annotation.enricher.AnnotationLocalDateTimeMetadataEnricher;
+import org.dspace.app.rest.annotation.enricher.AnnotationTargetRestComposedEnricher;
+import org.dspace.app.rest.annotation.enricher.AnnotationTargetRestEnricher;
+import org.dspace.app.rest.annotation.enricher.GenericItemEnricher;
+import org.dspace.app.rest.annotation.enricher.metadata.GenericItemMetadataEnricher;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +33,13 @@ public class AnnotationRestMapperFactory {
 
     static MetadataFieldName dateModified = new MetadataFieldName("dcterms", "modified");
 
-    static MetadataFieldName fragmentSelectorMetadata =
-        new MetadataFieldName("glam", "annotation", "fragmentselector");
+    static MetadataFieldName annotationPosition =
+        new MetadataFieldName("glam", "annotation", "position");
 
     static MetadataFieldName svgSelectorMetadata =
         new MetadataFieldName("glam", "annotation", "svgselector");
-    static MetadataFieldName textMetadata =
-        new MetadataFieldName("glam", "annotation", "text");
+    static MetadataFieldName descriptionAbstract =
+        new MetadataFieldName("dc", "description", "abstract");
     static MetadataFieldName fulltextMetadata =
         new MetadataFieldName("glam", "annotation", "fulltext");
 
@@ -59,7 +66,7 @@ public class AnnotationRestMapperFactory {
     static AnnotationBodyRestEnricher charsMapper() {
         return new AnnotationBodyRestEnricher(
             "chars",
-            textMetadata,
+            descriptionAbstract,
             String.class
         );
     }
@@ -75,7 +82,7 @@ public class AnnotationRestMapperFactory {
     static AnnotationTargetRestEnricher defaultSelectorValueMapper() {
         return new AnnotationTargetRestEnricher(
             "selector.defaultSelector.value",
-            fragmentSelectorMetadata,
+            annotationPosition,
             String.class
         );
     }
@@ -110,8 +117,8 @@ public class AnnotationRestMapperFactory {
             "full",
             List.of(
                 (i) -> configurationService.getProperty("dspace.server.url") + "/iiif/",
-                (i) -> i.getItemService().getMetadata(i, "glam.item") + "/canvas/",
-                (i) -> i.getItemService().getMetadata(i, "glam.bitstream")
+                (i) -> i.getItemService().getMetadata(i, "glam", "item", null, null).get(0).getAuthority() + "/canvas/",
+                (i) -> i.getItemService().getMetadata(i, "glam", "bitstream", null, null).get(0).getAuthority()
             ),
             StringUtils::join
         );

@@ -1256,7 +1256,7 @@
     <dc-type>
         <schema>glam</schema>
         <element>annotation</element>
-        <qualifier>fragmentselector</qualifier>
+        <qualifier>position</qualifier>
         <scope_note>The JSON of the selected fragment of the annotation</scope_note>
     </dc-type>
 
@@ -1300,13 +1300,6 @@
         <element>contributor</element>
         <qualifier>annotation</qualifier>
         <scope_note>EPerson that has created the annotation</scope_note>
-    </dc-type>
-
-    <dc-type>
-        <schema>glam</schema>
-        <element>annotation</element>
-        <qualifier>position</qualifier>
-        <scope_note>Annotation position</scope_note>
     </dc-type>
 
 </dspace-dc-types>

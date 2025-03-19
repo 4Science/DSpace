@@ -5,15 +5,21 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import org.dspace.app.rest.annotation.AnnotationRest;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 
 /**
+ * Enricher that composes a list of {@link ItemEnricher}s.
+ * The {@link ItemEnricher}s will be applied in the order they are in the list.
+ * The result of the first {@link ItemEnricher} will be passed to the second, and so on.
+ * The result of the last {@link ItemEnricher} will be returned.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class ItemEnricherComposite implements ItemEnricher {

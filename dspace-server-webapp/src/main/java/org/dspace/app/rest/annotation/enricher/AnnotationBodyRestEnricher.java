@@ -5,11 +5,15 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
 
+import org.dspace.app.rest.annotation.AnnotationBodyRest;
+import org.dspace.app.rest.annotation.enricher.metadata.GenericItemMetadataEnricher;
 import org.dspace.content.MetadataFieldName;
 
 /**
+ * Enricher for the annotation body metadata field
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class AnnotationBodyRestEnricher extends GenericItemMetadataEnricher<AnnotationBodyRest> {

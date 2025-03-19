@@ -5,16 +5,19 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
 
 import java.util.function.BiConsumer;
 
+import org.dspace.app.rest.annotation.AnnotationRest;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
+ * Enricher that will apply the value of a field of the annotation to a field of the item.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class AnnotationFieldEnricher implements GenericItemEnricher<AnnotationRest> {

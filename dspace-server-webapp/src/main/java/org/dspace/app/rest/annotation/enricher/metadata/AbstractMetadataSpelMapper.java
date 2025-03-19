@@ -5,13 +5,16 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher.metadata;
 
 import org.dspace.content.MetadataFieldName;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
+ * Generic mapper for metadata fields, that uses a spel expression to extract the value that would be mapped inside the
+ * metadata.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public abstract class AbstractMetadataSpelMapper {

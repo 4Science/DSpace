@@ -5,14 +5,19 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
+
+import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMATTER;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
+import org.dspace.app.rest.annotation.AnnotationRest;
+import org.dspace.app.rest.annotation.enricher.metadata.GenericItemMetadataEnricher;
 import org.dspace.content.MetadataFieldName;
 
 /**
+ * This mapper transforms a String value to a LocalDateTime value using a spel expression and a given formatter.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class AnnotationLocalDateTimeMetadataEnricher extends GenericItemMetadataEnricher<AnnotationRest> {
@@ -26,6 +31,6 @@ public class AnnotationLocalDateTimeMetadataEnricher extends GenericItemMetadata
         if (metadataValue == null) {
             return null;
         }
-        return LocalDateTime.parse(metadataValue, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        return LocalDateTime.parse(metadataValue, DATETIME_FORMATTER);
     }
 }

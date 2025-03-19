@@ -5,7 +5,7 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +19,10 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
+ * Enricher that compose a list of functions that returns a value of type T.
+ * The value of type T is then reduced by a reducer function that returns a value of type T.
+ * The result of the reducer function is then set to the target field of the annotation target.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public abstract class GenericComposedEnricher<R, T> implements GenericItemEnricher<R> {

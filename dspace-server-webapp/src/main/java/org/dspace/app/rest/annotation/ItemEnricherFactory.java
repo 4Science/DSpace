@@ -7,10 +7,25 @@
  */
 package org.dspace.app.rest.annotation;
 
-import java.time.LocalDateTime;
-import java.util.List;
 
+import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMATTER;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.UUID;
+
+import org.dspace.app.rest.annotation.enricher.ItemEnricher;
+import org.dspace.app.rest.annotation.enricher.ItemEnricherComposite;
+import org.dspace.app.rest.annotation.enricher.metadata.MetadataAuthorityItemEnricher;
+import org.dspace.app.rest.annotation.enricher.metadata.MetadataItemContextUserEnricher;
+import org.dspace.app.rest.annotation.enricher.metadata.MetadataItemEnricher;
+import org.dspace.app.rest.annotation.enricher.metadata.MetadataItemLocalDateTimeEnricher;
+import org.dspace.app.rest.annotation.enricher.metadata.MetadataPatternGroupExtractor;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.BitstreamService;
 
 /**
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
@@ -20,11 +35,14 @@ public class ItemEnricherFactory {
     static final String ITEM_PATTERN = "/iiif/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String BITSTREAM_PATTERN = "/canvas/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
 
+
     public static final String FULL_SELECTOR = "on.![full]";
     public static final MetadataFieldName glamItem = new MetadataFieldName("glam", "item");
     public static final MetadataFieldName glamBitstream = new MetadataFieldName("glam", "bitstream");
     public static final MetadataFieldName glamContributor =
         new MetadataFieldName("glam", "contributor", "annotation");
+    public static final MetadataFieldName glamAnnotationPosition =
+        new MetadataFieldName("glam", "annotation", "position");
 
     public static final String CREATED_SELECTOR = "created";
     public static final MetadataFieldName dateIssued = new MetadataFieldName("dc", "date", "issued");
@@ -33,14 +51,14 @@ public class ItemEnricherFactory {
     public static final MetadataFieldName dateModified = new MetadataFieldName("dcterms", "modified");
 
     public static final String DEFAULTSELECTOR_VALUE = "on.![selector.defaultSelector.value]";
-    public static final MetadataFieldName fragmentSelector =
-        new MetadataFieldName("glam", "annotation", "fragmentselector");
+    public static final MetadataFieldName annotationPosition =
+        new MetadataFieldName("glam", "annotation", "position");
 
     public static final String ON_SELECTOR_ITEM_VALUE = "on.![selector.item.value]";
     public static final MetadataFieldName svgSelector = new MetadataFieldName("glam", "annotation", "svgselector");
 
     public static final String RESOURCE_CHARS = "resource.![chars]";
-    public static final MetadataFieldName annotationText = new MetadataFieldName("glam", "annotation", "text");
+    public static final MetadataFieldName descriptionAbstract = new MetadataFieldName("dc", "description", "abstract");
 
     public static final String RESOURCE_FULLTEXT = "resource.![fullText]";
     public static final MetadataFieldName annotationFulltext = new MetadataFieldName("glam", "annotation", "fulltext");
@@ -64,37 +82,81 @@ public class ItemEnricherFactory {
         );
     }
 
-    public static ItemEnricher glamItemMetadataEnricher() {
-        return new MetadataItemPatternGroupEnricher(
-            FULL_SELECTOR, glamItem, String.class, ITEM_PATTERN
-        );
-    }
-
     public static ItemEnricher glamBitstreamMetadataEnricher() {
-        return new MetadataItemPatternGroupEnricher(
-            FULL_SELECTOR, glamBitstream, String.class, BITSTREAM_PATTERN
+        return new MetadataAuthorityItemEnricher(
+            glamBitstream,
+            (context, annotation) ->
+                new MetadataPatternGroupExtractor(BITSTREAM_PATTERN)
+                    .extract(annotation.on.get(0).full),
+            (context, annotation) -> {
+                String uuid = new MetadataPatternGroupExtractor(BITSTREAM_PATTERN)
+                    .extract(annotation.on.get(0).full);
+                if (uuid == null) {
+                    return null;
+                }
+                Bitstream bitstream = null;
+                try {
+                    BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+                    bitstream = bitstreamService.find(context, UUID.fromString(uuid));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                if (bitstream == null) {
+                    return null;
+                }
+                return bitstream.getName();
+            }
+
         );
     }
 
-    // TODO-VINS: add enhancer for the glam.annotation.position based on number of related annotations
-    // TODO-VINS: add enhancer for the glam.contributor.annotation based on logged-in user
+    public static ItemEnricher glamItemMetadataEnricher() {
+        return new MetadataAuthorityItemEnricher(
+            glamItem,
+            (context, annotation) ->
+                new MetadataPatternGroupExtractor(ITEM_PATTERN)
+                    .extract(annotation.on.get(0).full),
+            (context, annotation) -> {
+                String uuid = new MetadataPatternGroupExtractor(ITEM_PATTERN)
+                    .extract(annotation.on.get(0).full);
+                if (uuid == null) {
+                    return null;
+                }
+                Item item = null;
+                try {
+                    item = ContentServiceFactory.getInstance().getItemService().find(context, UUID.fromString(uuid));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                if (item == null) {
+                    return null;
+                }
+                return item.getName();
+            }
+
+        );
+    }
+
+    public static ItemEnricher glamContributorEnricher() {
+        return new MetadataItemContextUserEnricher(glamContributor);
+    }
 
     public static ItemEnricher issueDateEnricher() {
-        return new MetadataItemEnricher(
-            CREATED_SELECTOR, dateIssued, LocalDateTime.class
+        return new MetadataItemLocalDateTimeEnricher(
+            CREATED_SELECTOR, dateIssued, DATETIME_FORMATTER
         );
     }
 
     public static ItemEnricher modifiedDateEnricher() {
-        return new MetadataItemEnricher(
-            MODIFIED_SELECTOR, dateModified, LocalDateTime.class
+        return new MetadataItemLocalDateTimeEnricher(
+            MODIFIED_SELECTOR, dateModified, DATETIME_FORMATTER
         );
     }
 
     public static ItemEnricher fragmentSelectorEnricher() {
         return new MetadataItemEnricher(
             DEFAULTSELECTOR_VALUE,
-            fragmentSelector,
+            annotationPosition,
             List.class
         );
     }
@@ -110,7 +172,7 @@ public class ItemEnricherFactory {
     public static ItemEnricher resourceTextEnricher() {
         return new MetadataItemEnricher(
             RESOURCE_CHARS,
-            annotationText,
+            descriptionAbstract,
             List.class
         );
     }

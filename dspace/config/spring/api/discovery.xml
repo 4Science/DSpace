@@ -270,7 +270,6 @@
                     <list>
                         <value>dc.description.provenance</value>
                         <value>glam.annotation.svgselector</value>
-                        <value>glam.annotation.fragmentselector</value>
                         <value>glam.annotation.text</value>
                     </list>
                 </entry>
@@ -5527,6 +5526,7 @@
     </bean>
     <bean id="searchFilterGlamItem" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="glam.item"/>
+        <property name="type" value="authority"/>
         <property name="metadataFields">
             <list>
                 <value>glam.item</value>
@@ -5537,6 +5537,7 @@
     </bean>
     <bean id="searchFilterGlamBitstream" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="glam.bitstream"/>
+        <property name="type" value="authority"/>
         <property name="metadataFields">
             <list>
                 <value>glam.bitstream</value>

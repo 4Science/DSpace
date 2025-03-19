@@ -5,11 +5,12 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.dspace.app.rest.annotation.AnnotationRest;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 

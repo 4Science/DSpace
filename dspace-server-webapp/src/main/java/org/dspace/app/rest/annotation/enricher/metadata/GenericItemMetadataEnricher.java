@@ -5,15 +5,20 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.rest.annotation;
+package org.dspace.app.rest.annotation.enricher.metadata;
 
 import java.util.function.BiConsumer;
 
+import org.dspace.app.rest.annotation.enricher.GenericItemEnricher;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.core.Context;
 
 /**
+ *
+ * Generic Item Metadata Enricher that can be used to enrich a given Item by using the spel expression
+ * and mapping it to a given metadata field.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class GenericItemMetadataEnricher<T> extends AbstractMetadataSpelMapper

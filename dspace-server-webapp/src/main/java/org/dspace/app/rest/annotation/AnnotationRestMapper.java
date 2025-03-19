@@ -10,6 +10,7 @@ package org.dspace.app.rest.annotation;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import org.dspace.app.rest.annotation.enricher.GenericItemEnricher;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 

@@ -7,9 +7,12 @@
  */
 package org.dspace.app.rest.annotation;
 
+import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMAT;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -67,8 +70,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnotationRest {
 
-    //  {dspace.url}/server/iiif/{item-uuid}/canvas/{canvas-uuid}
-    // "https://dspaceglam7dev.4science.cloud/server/iiif/caa0e16c-bdfd-40e5-ba75-3ae6da639903/canvas/70090869-18e1-425f-94fe-574d750cef57"
+    //  {dspace.url}/server/iiif/{item-uuid}/canvas/{bitstream-uuid}
     static final String ANNOTATION = "annotation";
     static final String CONTEXT = "http://iiif.io/api/presentation/2/context.json";
     static final String TYPE = "oa:Annotation";
@@ -83,8 +85,10 @@ public class AnnotationRest {
     String context = CONTEXT;
 
     @JsonProperty("dcterms:created")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATETIME_FORMAT)
     LocalDateTime created;
     @JsonProperty("dcterms:modified")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATETIME_FORMAT)
     LocalDateTime modified;
 
     @JsonProperty(value = "motivation", defaultValue = MOTIVATION_ARRAY, required = true)

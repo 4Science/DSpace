@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.annotation;
 
+import static org.dspace.app.rest.annotation.ItemEnricherFactory.glamContributorEnricher;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -16,15 +18,18 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.ws.rs.NotAuthorizedException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.rest.annotation.enricher.ItemEnricher;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
@@ -32,9 +37,12 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.indexobject.IndexableItem;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.identifier.IdentifierNotFoundException;
 import org.dspace.identifier.IdentifierNotResolvableException;
@@ -110,31 +118,24 @@ public class AnnotationService {
         }
         String bitstreamId = matcher.group(1);
 
-        /*
-        DiscoverQuery query = new DiscoverQuery();
-        query.addFilterQueries(
-            "search.entitytype:WebAnnotation",
-            "dspace.entity.type:WebAnnotation",
-            "glam.item:" + itemId,
-            "glam.bitstream:" + bitstreamId
-        );
-        query.addProperty("rows", "0");
-        */
 
-        List<IndexableObject> results =
-            searchService.search(
-                context,
-                "search.entitytype:WebAnnotation",
-                null,
-                false,
-                0,
-                100,
-                "glam.item:" + itemId,
-                "glam.bitstream:" + bitstreamId
-            );
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
+        discoverQuery.setQuery("search.entitytype:WebAnnotation");
+        discoverQuery.addFilterQueries(
+            "glam.item_authority:" + itemId,
+            "glam.bitstream_authority:" + bitstreamId
+        );
+
+        DiscoverResult results = null;
+        try {
+            results = searchService.search(context, discoverQuery);
+        } catch (SearchServiceException e) {
+            throw new RuntimeException(e);
+        }
 
         annotations =
-            results.stream()
+            results.getIndexableObjects().stream()
                    .filter(i -> i.getIndexedObject() instanceof Item)
                    .map(i -> annotationRestMapper.map(context, (Item) i.getIndexedObject()))
                    .collect(Collectors.toList());
@@ -142,7 +143,14 @@ public class AnnotationService {
         return annotations;
     }
 
-    public void delete(Context context, Item item) {
+    public synchronized void delete(Context context, Item item) {
+        EPerson currentUser = context.getCurrentUser();
+        if (currentUser == null) {
+            throw new NotAuthorizedException("User not logged in");
+        }
+        if (!canEditAnnotation(context, item)) {
+            throw new NotAuthorizedException("User not authorized to delete this annotation");
+        }
         try {
             WorkspaceItem wsItem = workspaceItemService.findByItem(context, item);
             if (wsItem != null) {
@@ -209,6 +217,31 @@ public class AnnotationService {
         return annotation;
     }
 
+    public Item update(Context context, AnnotationRest annotation) {
+        return update(context, annotation, itemEnricher);
+    }
+
+    public WorkspaceItem create(Context context, AnnotationRest annotation) {
+        return create(context, annotation, itemEnricher);
+    }
+
+    private boolean canEditAnnotation(Context context, Item item) {
+        try {
+            if (authorizeService.isAdmin(context)) {
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        List<MetadataValue> metadata =
+            item.getItemService().getMetadata(item, "glam", "contributor", "annotation", Item.ANY);
+        if (metadata.isEmpty()) {
+            return false;
+        }
+        EPerson currentUser = context.getCurrentUser();
+        return metadata.stream().anyMatch(m -> currentUser.getID().equals(UUID.fromString(m.getAuthority())));
+    }
+
     private String parseAnnotationID(String annotationId) {
         Matcher matcher = Pattern.compile(ANNOTATION_ID_PATTERN).matcher(annotationId);
         if (!matcher.find()) {
@@ -229,18 +262,20 @@ public class AnnotationService {
         return itemUUID;
     }
 
-    public Item update(Context context, AnnotationRest annotation) {
-        return update(context, annotation, itemEnricher);
-    }
-
     protected Item update(Context context, AnnotationRest annotation, ItemEnricher enricher) {
         Item annotationItem = findById(context, annotation.getId());
+        if (annotationItem == null) {
+            throw new IllegalArgumentException("Annotation not found: " + annotation.getId());
+        }
+        EPerson currentUser = context.getCurrentUser();
+        if (currentUser == null) {
+            throw new NotAuthorizedException("User not logged in");
+        }
+        if (!canEditAnnotation(context, annotationItem)) {
+            throw new NotAuthorizedException("User not authorized to update this annotation");
+        }
         enrichItem(context, annotationItem, enricher.apply(annotation));
         return annotationItem;
-    }
-
-    public WorkspaceItem create(Context context, AnnotationRest annotation) {
-        return create(context, annotation, itemEnricher);
     }
 
     protected WorkspaceItem create(Context context, AnnotationRest annotation, ItemEnricher enricher) {
@@ -250,7 +285,12 @@ public class AnnotationService {
 
             workspaceItem = this.workspaceItemService.create(context, getCollection(context), false);
 
-            enrichItem(context, workspaceItem.getItem(), enricher.apply(annotation));
+            enrichItem(
+                context,
+                workspaceItem.getItem(),
+                enricher.apply(annotation)
+                        .andThen(glamContributorEnricher().apply(annotation))
+            );
 
             installItemService.installItem(context, workspaceItem);
             workspaceItemService.update(context, workspaceItem);
@@ -288,6 +328,7 @@ public class AnnotationService {
                         "No collection found for entity type {}",
                         entityType
                     );
+                    return null;
                 }
                 collection = allCollectionsByEntityType.get(0);
                 if (allCollectionsByEntityType.size() > 1) {
