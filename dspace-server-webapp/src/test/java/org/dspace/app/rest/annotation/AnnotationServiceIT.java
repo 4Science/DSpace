@@ -64,7 +64,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
 
     public static final String ANNOTATION_HANDLE = "123456789/annotation-collection";
     public static final String ANNOTATION_ENTITY_TYPE = "WebAnnotation";
-    private static final String BASE_TEST_DIR = "./target/testing/dspace/assetstore/bulk-import/";
+    private static final String BASE_TEST_DIR = "./target/testing/dspace/assetstore/annotation/";
     private static final Logger log = LogManager.getLogger(AnnotationServiceIT.class);
     private static ObjectMapper mapper;
     private static AnnotationRest validAnnotation;

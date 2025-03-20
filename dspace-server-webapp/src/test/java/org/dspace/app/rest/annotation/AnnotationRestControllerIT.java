@@ -70,7 +70,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AnnotationRestControllerIT extends AbstractControllerIntegrationTest {
 
 
-    private static final String BASE_TEST_DIR = "./target/testing/dspace/assetstore/bulk-import/";
+    private static final String BASE_TEST_DIR = "./target/testing/dspace/assetstore/annotation/";
 
     ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
