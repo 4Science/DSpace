@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.AuthorizeException;
@@ -26,6 +27,8 @@ import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
  * Consumer that will be evaluated when a metadata of an annotation is modified
@@ -45,6 +48,15 @@ public class AnnotationItemConsumer implements Consumer {
     public void initialize() throws Exception {
         itemService = ContentServiceFactory.getInstance().getItemService();
         searchService = SearchUtils.getSearchService();
+    }
+
+    public static UnaryOperator<String> getAnnotationTitleReducer(ConfigurationService configurationService) {
+        int length = configurationService.getIntProperty("annotation.dc.title.length", 20);
+        return (s) -> s.length() > length ? s.substring(0, length) + "..." : s;
+    }
+
+    public static String getAnnotationTitle(ConfigurationService configurationService, String metadataValue) {
+        return getAnnotationTitleReducer(configurationService).apply(metadataValue);
     }
 
     @Override
@@ -148,6 +160,18 @@ public class AnnotationItemConsumer implements Consumer {
                     "fulltext",
                     null,
                     metadatavalue
+                );
+                itemService.setMetadataSingleValue(
+                    context,
+                    item,
+                    "dc",
+                    "title",
+                    null,
+                    null,
+                    getAnnotationTitle(
+                        DSpaceServicesFactory.getInstance().getConfigurationService(),
+                        metadatavalue
+                    )
                 );
                 itemService.update(context, item);
             } catch (SQLException | AuthorizeException e) {

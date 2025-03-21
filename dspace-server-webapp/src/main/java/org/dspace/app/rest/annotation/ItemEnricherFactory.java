@@ -8,14 +8,18 @@
 package org.dspace.app.rest.annotation;
 
 
+import static org.dspace.annotation.AnnotationItemConsumer.getAnnotationTitleReducer;
 import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMATTER;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.annotation.enricher.ItemEnricher;
 import org.dspace.app.rest.annotation.enricher.ItemEnricherComposite;
+import org.dspace.app.rest.annotation.enricher.metadata.ItemEnricherFilter;
 import org.dspace.app.rest.annotation.enricher.metadata.MetadataAuthorityItemEnricher;
 import org.dspace.app.rest.annotation.enricher.metadata.MetadataItemContextUserEnricher;
 import org.dspace.app.rest.annotation.enricher.metadata.MetadataItemEnricher;
@@ -26,6 +30,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.services.ConfigurationService;
 
 /**
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
@@ -66,20 +71,28 @@ public class ItemEnricherFactory {
 
     private ItemEnricherFactory() { }
 
-    public static ItemEnricher annotationItemEnricher() {
+    public static ItemEnricher annotationItemEnricher(ConfigurationService configurationService) {
         return new ItemEnricherComposite(
             List.of(
-                glamItemMetadataEnricher(),
-                glamBitstreamMetadataEnricher(),
+                skipFullfilledMetadata(glamItem, glamItemMetadataEnricher()),
+                skipFullfilledMetadata(glamBitstream, glamBitstreamMetadataEnricher()),
                 issueDateEnricher(),
                 modifiedDateEnricher(),
                 fragmentSelectorEnricher(),
                 svgSelectorEnricher(),
                 resourceTextEnricher(),
                 fulltextEnricher(),
-                dcTitleEnricher()
+                dcTitleEnricher(configurationService)
             )
         );
+    }
+
+    public static ItemEnricher skipFullfilledMetadata(MetadataFieldName metadata, ItemEnricher itemEnricher) {
+        return new ItemEnricherFilter(hasEmptyMetadata(metadata), itemEnricher);
+    }
+
+    public static Predicate<Item> hasEmptyMetadata(MetadataFieldName metadata) {
+        return (item) -> StringUtils.isEmpty(item.getItemService().getMetadata(item, metadata.toString()));
     }
 
     public static ItemEnricher glamBitstreamMetadataEnricher() {
@@ -185,12 +198,12 @@ public class ItemEnricherFactory {
         );
     }
 
-    public static ItemEnricher dcTitleEnricher() {
-        return  new MetadataItemEnricher(
+    public static ItemEnricher dcTitleEnricher(ConfigurationService configurationService) {
+        return new MetadataItemEnricher(
             RESOURCE_FULLTEXT,
             dcTitle,
             List.class,
-            (s) -> s.length() > 10 ? s.substring(0, 10) + "..." : s
+            getAnnotationTitleReducer(configurationService)
         );
     }
 

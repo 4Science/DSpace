@@ -97,7 +97,7 @@ public class AnnotationService {
         this.installItemService = installItemService;
         this.ePersonService = ePersonService;
         this.searchService = searchService;
-        this.itemEnricher = ItemEnricherFactory.annotationItemEnricher();
+        this.itemEnricher = ItemEnricherFactory.annotationItemEnricher(configurationService);
         this.annotationRestMapper =
             AnnotationRestMapperFactory.annotationRestMapper(configurationService);
     }
