@@ -8,6 +8,11 @@
 package org.dspace.app.rest.annotation;
 
 import static org.dspace.app.rest.annotation.ItemEnricherFactory.glamContributorEnricher;
+import static org.dspace.core.Constants.ADMIN;
+import static org.dspace.core.Constants.DELETE;
+import static org.dspace.core.Constants.READ;
+import static org.dspace.core.Constants.REMOVE;
+import static org.dspace.core.Constants.WRITE;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,7 +48,9 @@ import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.identifier.IdentifierNotFoundException;
 import org.dspace.identifier.IdentifierNotResolvableException;
 import org.dspace.identifier.service.IdentifierService;
@@ -65,6 +72,10 @@ public class AnnotationService {
     static final String ANNOTATION_ENTITY_TYPE = "annotation.default.entity-type";
     static final String ANNOTATION_COLLECTION = "annotation.default.collection";
 
+    static final String PERSONAL_ANNOTATION_ENTITY_TYPE = "personal-annotation.default.entity-type";
+    static final String PERSONAL_ANNOTATION_GROUP = "personal-annotation.default.group";
+    static final String PERSONAL_ANNOTATION_COLLECTION = "personal-annotation.default.collection";
+
     final WorkspaceItemService workspaceItemService;
     final ConfigurationService configurationService;
     final CollectionService collectionService;
@@ -74,6 +85,7 @@ public class AnnotationService {
     final EPersonService ePersonService;
     final InstallItemService installItemService;
     final SearchService searchService;
+    final GroupService groupService;
     final ItemEnricher itemEnricher;
     final AnnotationRestMapper annotationRestMapper;
 
@@ -86,7 +98,8 @@ public class AnnotationService {
         @Autowired ItemService itemService,
         @Autowired InstallItemService installItemService,
         @Autowired EPersonService ePersonService,
-        @Autowired SearchService searchService
+        @Autowired SearchService searchService,
+        @Autowired GroupService groupService
     ) {
         this.workspaceItemService = workspaceItemService;
         this.configurationService = configurationService;
@@ -97,6 +110,7 @@ public class AnnotationService {
         this.installItemService = installItemService;
         this.ePersonService = ePersonService;
         this.searchService = searchService;
+        this.groupService = groupService;
         this.itemEnricher = ItemEnricherFactory.annotationItemEnricher(configurationService);
         this.annotationRestMapper =
             AnnotationRestMapperFactory.annotationRestMapper(configurationService);
@@ -121,12 +135,20 @@ public class AnnotationService {
 
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.setQuery("search.entitytype:WebAnnotation");
+        discoverQuery.setQuery(
+            String.format(
+                "search.entitytype:(%s)",
+                StringUtils.joinWith(
+                    " OR ",
+                    configurationService.getProperty(ANNOTATION_ENTITY_TYPE),
+                    configurationService.getProperty(PERSONAL_ANNOTATION_ENTITY_TYPE)
+                )
+            )
+        );
         discoverQuery.addFilterQueries(
             "glam.item_authority:" + itemId,
             "glam.bitstream_authority:" + bitstreamId
         );
-
         DiscoverResult results = null;
         try {
             results = searchService.search(context, discoverQuery);
@@ -285,14 +307,26 @@ public class AnnotationService {
 
             workspaceItem = this.workspaceItemService.create(context, getCollection(context), false);
 
+
+            Item item = workspaceItem.getItem();
             enrichItem(
                 context,
-                workspaceItem.getItem(),
+                item,
                 enricher.apply(annotation)
                         .andThen(glamContributorEnricher().apply(annotation))
             );
 
+
+            if (this.isPersonalAnnotationGroup(context)) {
+                itemService.addResourcePolicy(context, item, READ, context.getCurrentUser());
+                itemService.addResourcePolicy(context, item, WRITE, context.getCurrentUser());
+                itemService.addResourcePolicy(context, item, REMOVE, context.getCurrentUser());
+                itemService.addResourcePolicy(context, item, DELETE, context.getCurrentUser());
+                itemService.addResourcePolicy(context, item, ADMIN, context.getCurrentUser());
+            }
+
             installItemService.installItem(context, workspaceItem);
+
             workspaceItemService.update(context, workspaceItem);
         } catch (AuthorizeException | SQLException e) {
             log.error("Cannot save the annotation as workspace item", e);
@@ -345,9 +379,46 @@ public class AnnotationService {
         return collection;
     }
 
+    protected Group getGroup(Context context) {
+        if (context.getCurrentUser() == null) {
+            return null;
+        }
+        Group group = null;
+        String groupName = this.configurationService.getProperty(PERSONAL_ANNOTATION_GROUP);
+        if (StringUtils.isNotEmpty(groupName)) {
+            try {
+                boolean member = this.groupService.isMember(context, groupName);
+                if (member) {
+                    group = this.groupService.findByName(context, groupName);
+                }
+            } catch (SQLException e) {
+                log.error("Error while retrieving the configured group: {}", groupName, e);
+            } catch (Exception e) {
+                log.debug(
+                    "Cannot retrieve the annotation group for the configured identifier {}",
+                    groupName,
+                    e
+                );
+            }
+        }
+        return group;
+    }
+
     protected Collection getCollectionByIdentifier(Context context) {
         Collection collection = null;
+        boolean member = false;
         String collectionIdentifier = this.configurationService.getProperty(ANNOTATION_COLLECTION);
+        if (context.getCurrentUser() != null) {
+            try {
+                member = isPersonalAnnotationGroup(context);
+                if (member) {
+                    collectionIdentifier = this.configurationService.getProperty(PERSONAL_ANNOTATION_COLLECTION);
+                }
+            } catch (SQLException e) {
+                log.error("Error while retrieving the configured group: {}", PERSONAL_ANNOTATION_GROUP, e);
+                throw new RuntimeException(e);
+            }
+        }
         if (StringUtils.isNotEmpty(collectionIdentifier)) {
             try {
                 collection = this.collectionService.find(context, UUID.fromString(collectionIdentifier));
@@ -375,6 +446,15 @@ public class AnnotationService {
             }
         }
         return collection;
+    }
+
+    private boolean isPersonalAnnotationGroup(Context context) throws SQLException {
+        boolean member;
+        member = this.groupService.isMember(
+            context,
+            this.configurationService.getProperty(PERSONAL_ANNOTATION_GROUP)
+        );
+        return member;
     }
 
 }
