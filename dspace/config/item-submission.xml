@@ -463,12 +463,9 @@
     <submission-process name="web_annotation">
       <step id="collection" />
       <step id="web_annotation" />
-      <step id="upload" />
-      <step id="license" />
     </submission-process>
     <submission-process name="web_annotation-edit">
       <step id="web_annotation" />
-      <step id="upload" />
     </submission-process>
   </submission-definitions>
 </item-submission>
