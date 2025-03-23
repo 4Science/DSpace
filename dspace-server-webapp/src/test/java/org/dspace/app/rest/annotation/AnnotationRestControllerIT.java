@@ -10,8 +10,19 @@ package org.dspace.app.rest.annotation;
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.apache.commons.io.IOUtils.toInputStream;
+import static org.dspace.app.rest.annotation.AnnotationRestControllerIT.ResourcePolicyMatcher.isResourcePolicy;
 import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMAT;
 import static org.dspace.app.rest.annotation.AnnotationRestDeserializer.DATETIME_FORMATTER;
+import static org.dspace.app.rest.annotation.AnnotationService.PERSONAL_ANNOTATION_COLLECTION;
+import static org.dspace.app.rest.annotation.AnnotationService.PERSONAL_ANNOTATION_GROUP;
+import static org.dspace.core.Constants.ADD;
+import static org.dspace.core.Constants.ADMIN;
+import static org.dspace.core.Constants.DEFAULT_BITSTREAM_READ;
+import static org.dspace.core.Constants.DEFAULT_ITEM_READ;
+import static org.dspace.core.Constants.DELETE;
+import static org.dspace.core.Constants.READ;
+import static org.dspace.core.Constants.REMOVE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyOrNullString;
@@ -33,6 +44,7 @@ import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,10 +53,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.dspace.app.matcher.MetadataValueMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
@@ -53,9 +70,14 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.hamcrest.MatcherAssert;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +93,8 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
 
 
     private static final String BASE_TEST_DIR = "./target/testing/dspace/assetstore/annotation/";
+    public static final String PERSONAL_ANNOTATION = "PersonalAnnotation";
+    public static final String WEB_ANNOTATION = "WebAnnotation";
 
     ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -86,6 +110,8 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
 
     @Autowired
     AnnotationService annotationService;
+    @Autowired
+    AuthorizeService authorizeService;
 
     @Before
     public void setup() throws Exception {
@@ -115,7 +141,8 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
         context.restoreAuthSystemState();
 
         configurationService.setProperty(AnnotationService.ANNOTATION_COLLECTION, annotations.getID());
-        configurationService.setProperty(AnnotationService.ANNOTATION_ENTITY_TYPE, null);
+        configurationService.setProperty(AnnotationService.ANNOTATION_ENTITY_TYPE, WEB_ANNOTATION);
+        configurationService.setProperty(AnnotationService.PERSONAL_ANNOTATION_ENTITY_TYPE, PERSONAL_ANNOTATION);
         idRef = new AtomicReference<>();
 
         mapper = new ObjectMapper();
@@ -143,6 +170,12 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
     public void tearDown() throws Exception {
         context.turnOffAuthorisationSystem();
 
+        deleteIdRef(idRef);
+
+        context.restoreAuthSystemState();
+    }
+
+    private void deleteIdRef(AtomicReference<String> idRef) {
         String id = idRef.get();
         if (id != null) {
             Item dso = this.annotationService.findById(context, id);
@@ -150,8 +183,6 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                 this.annotationService.delete(context, dso);
             }
         }
-
-        context.restoreAuthSystemState();
     }
 
     @Test
@@ -478,12 +509,12 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                         );
 
         annotationItem = this.annotationService.findByItemId(context, annotationItem.getID());
-        MatcherAssert.assertThat(
+        assertThat(
             annotationItem.getMetadata(),
             allOf(
                 hasItem(MetadataValueMatcher.with("dc.description.abstract", "<p>Updated Comment</p>")),
                 hasItem(MetadataValueMatcher.with("glam.annotation.fulltext", "Updated Comment")),
-                hasItem(MetadataValueMatcher.with("dc.title", "Updated Co..."))
+                hasItem(MetadataValueMatcher.with("dc.title", "Updated Comment"))
             )
         );
 
@@ -646,7 +677,7 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                 )
                 .andExpect(status().isNoContent());
 
-        MatcherAssert.assertThat(
+        assertThat(
             this.annotationService.findByItemId(context, annotationUUID),
             nullValue()
         );
@@ -691,7 +722,7 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
             )
             .andExpect(status().isUnauthorized());
 
-        MatcherAssert.assertThat(
+        assertThat(
             this.annotationService.findByItemId(context, annotationUUID),
             notNullValue()
         );
@@ -726,8 +757,314 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void testPersonalAnnotaionCreate() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Group annotazioniPersonali =
+            GroupBuilder.createGroup(context)
+                        .withName("Annotazioni Personali")
+                        .build();
+
+
+        EPerson userA =
+            EPersonBuilder.createEPerson(context)
+                          .withCanLogin(true)
+                          .withEmail("user.a@example.com")
+                          .withPassword("changeme")
+                          .withGroupMembership(annotazioniPersonali)
+                          .build();
+
+        EPerson userB =
+            EPersonBuilder.createEPerson(context)
+                          .withCanLogin(true)
+                          .withEmail("user.b@example.com")
+                          .withPassword("changeme")
+                          .withGroupMembership(annotazioniPersonali)
+                          .build();
+
+        EPerson userC =
+            EPersonBuilder.createEPerson(context)
+                          .withCanLogin(true)
+                          .withEmail("user.c@example.com")
+                          .withPassword("changeme")
+                          .build();
+
+        Group noUsers =
+            GroupBuilder.createGroup(context)
+                        .withName("NO USERS")
+                        .build();
+
+        Collection annotazioniPersonaliCol =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Annotazioni Personali")
+                             .withEntityType(PERSONAL_ANNOTATION)
+                             .build();
+
+        // remove all default policies
+        authorizeService.removeAllPolicies(context, annotazioniPersonaliCol);
+        // these policy must be set manually on the collection Annotazioni Personali
+        authorizeService.addPolicy(context, annotazioniPersonaliCol, READ, annotazioniPersonali);
+        authorizeService.addPolicy(context, annotazioniPersonaliCol, ADD, annotazioniPersonali);
+        authorizeService.addPolicy(context, annotazioniPersonaliCol, REMOVE, annotazioniPersonali);
+        authorizeService.addPolicy(context, annotazioniPersonaliCol, DEFAULT_ITEM_READ, noUsers);
+        authorizeService.addPolicy(context, annotazioniPersonaliCol, DEFAULT_BITSTREAM_READ, noUsers);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        configurationService.setProperty(PERSONAL_ANNOTATION_GROUP, annotazioniPersonali.getName());
+        configurationService.setProperty(PERSONAL_ANNOTATION_COLLECTION, annotazioniPersonaliCol.getID());
+
+        String full =
+            configurationService.getProperty("dspace.server.url") +
+                "/iiif/" + item1.getID() + "/canvas/" + bitstream1.getID();
+        try (FileInputStream fileInputStream = getFileInputStream("valid-create.json")) {
+            validAnnotation = mapper.readValue(fileInputStream.readAllBytes(), AnnotationRest.class);
+            validAnnotation.on.get(0).full = full;
+        }
+        AtomicReference<String> idRefC = new AtomicReference<>();
+        AtomicReference<String> idRefB = new AtomicReference<>();
+        AtomicReference<String> idRefA = new AtomicReference<>();
+
+        try {
+            // create an annotation using the userC
+            validAnnotation.resource.get(0).chars = "<p>USER C COMMENT</p>";
+            validAnnotation.resource.get(0).fullText = "USER C COMMENT";
+
+            String tokenC = getAuthToken(userC.getEmail(), "changeme");
+            getClient(tokenC)
+                .perform(
+                    post("/annotation/create")
+                        .content(mapper.writeValueAsBytes(validAnnotation))
+                        .contentType("application/json;charset=UTF-8")
+                )
+                .andExpect(status().isOk())
+                .andDo(result -> idRefC.set(read(result.getResponse().getContentAsString(), "$.['@id']")));
+
+            Item annotationC = annotationService.findById(context, idRefC.get());
+            ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
+            List<ResourcePolicy> resourcePolicies = resourcePolicyService.find(context, annotationC);
+            GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+            Group anonymous = groupService.findByName(context, "Anonymous");
+
+            // create an annotation using the userB
+            validAnnotation.resource.get(0).chars = "<p>USER B COMMENT</p>";
+            validAnnotation.resource.get(0).fullText = "USER B COMMENT";
+
+            String tokenB = getAuthToken(userB.getEmail(), "changeme");
+            getClient(tokenB)
+                .perform(
+                    post("/annotation/create")
+                        .content(mapper.writeValueAsBytes(validAnnotation))
+                        .contentType("application/json;charset=UTF-8")
+                )
+                .andExpect(status().isOk())
+                .andDo(result -> idRefB.set(read(result.getResponse().getContentAsString(), "$.['@id']")));
+
+            Item annotationB = annotationService.findById(context, idRefB.get());
+            resourcePolicies = resourcePolicyService.find(context, annotationB);
+            assertThat(
+                resourcePolicies,
+                allOf(
+                    hasItem(isResourcePolicy(READ, userB.getID())),
+                    hasItem(isResourcePolicy(ADMIN, userB.getID())),
+                    hasItem(isResourcePolicy(REMOVE, userB.getID())),
+                    hasItem(isResourcePolicy(DELETE, userB.getID()))
+                )
+            );
+
+            // create an annotation using the userA
+            validAnnotation.resource.get(0).chars = "<p>USER A COMMENT</p>";
+            validAnnotation.resource.get(0).fullText = "USER A COMMENT";
+
+            String tokenA = getAuthToken(userA.getEmail(), "changeme");
+            getClient(tokenA)
+                .perform(
+                    post("/annotation/create")
+                        .content(mapper.writeValueAsBytes(validAnnotation))
+                        .contentType("application/json;charset=UTF-8")
+                )
+                .andExpect(status().isOk())
+                .andDo(result -> idRefA.set(read(result.getResponse().getContentAsString(), "$.['@id']")));
+
+            Item annotationA = annotationService.findById(context, idRefA.get());
+            resourcePolicies = resourcePolicyService.find(context, annotationA);
+            assertThat(
+                resourcePolicies,
+                allOf(
+                    hasItem(isResourcePolicy(READ, userA.getID())),
+                    hasItem(isResourcePolicy(ADMIN, userA.getID())),
+                    hasItem(isResourcePolicy(REMOVE, userA.getID())),
+                    hasItem(isResourcePolicy(DELETE, userA.getID()))
+                )
+            );
+
+
+            // check the annotation with tokenC contains only the one that are not personal
+            getClient(tokenC)
+                .perform(
+                    get("/annotation/search")
+                        .param("uri", full)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(
+                    jsonPath(
+                        "$[*].resource[*]",
+                        hasItem(
+                            allOf(
+                                hasJsonPath("$.['@type']", is("dctypes:Text")),
+                                hasJsonPath("$.['chars']", is("<p>USER C COMMENT</p>")),
+                                hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("USER C COMMENT"))
+                            )
+                        )
+                    )
+                )
+                .andExpect(
+                    jsonPath(
+                        "$.length()",
+                        is(1)
+                    )
+                );
+
+            // check the annotation with tokenB contains personal of USER B and public of USER C
+            getClient(tokenB)
+                .perform(
+                    get("/annotation/search")
+                        .param("uri", full)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(
+                    jsonPath(
+                        "$[*].resource[*]",
+                        allOf(
+                            hasItem(
+                                allOf(
+                                    hasJsonPath("$.['@type']", is("dctypes:Text")),
+                                    hasJsonPath("$.['chars']", is("<p>USER C COMMENT</p>")),
+                                    hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("USER C COMMENT"))
+                                )
+                            ),
+                            hasItem(
+                                allOf(
+                                    hasJsonPath("$.['@type']", is("dctypes:Text")),
+                                    hasJsonPath("$.['chars']", is("<p>USER B COMMENT</p>")),
+                                    hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("USER B COMMENT"))
+                                )
+                            )
+                        )
+                    )
+                )
+                .andExpect(
+                    jsonPath(
+                        "$.length()",
+                        is(2)
+                    )
+                );
+
+            // check the annotation with tokenB contains personal of USER A and public of USER C
+            getClient(tokenA)
+                .perform(
+                    get("/annotation/search")
+                        .param("uri", full)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(
+                    jsonPath(
+                        "$[*].resource[*]",
+                        allOf(
+                            hasItem(
+                                allOf(
+                                    hasJsonPath("$.['@type']", is("dctypes:Text")),
+                                    hasJsonPath("$.['chars']", is("<p>USER C COMMENT</p>")),
+                                    hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("USER C COMMENT"))
+                                )
+                            ),
+                            hasItem(
+                                allOf(
+                                    hasJsonPath("$.['@type']", is("dctypes:Text")),
+                                    hasJsonPath("$.['chars']", is("<p>USER A COMMENT</p>")),
+                                    hasJsonPath("$.['http://dev.llgc.org.uk/sas/full_text']", is("USER A COMMENT"))
+                                )
+                            )
+                        )
+                    )
+                )
+                .andExpect(
+                    jsonPath(
+                        "$.length()",
+                        is(2)
+                    )
+                );
+        } finally {
+            context.turnOffAuthorisationSystem();
+
+            deleteIdRef(idRefA);
+            deleteIdRef(idRefB);
+            deleteIdRef(idRefC);
+
+            context.restoreAuthSystemState();
+        }
+    }
+
     private FileInputStream getFileInputStream(String name) throws FileNotFoundException {
         return new FileInputStream(new File(BASE_TEST_DIR, name));
+    }
+
+    static class ResourcePolicyMatcher extends TypeSafeDiagnosingMatcher<ResourcePolicy> {
+        private final int action;
+        private final UUID epersonId;
+        private final UUID groupId;
+
+        private ResourcePolicyMatcher(int action, UUID epersonId, UUID groupId) {
+            this.action = action;
+            this.epersonId = epersonId;
+            this.groupId = groupId;
+        }
+
+        public static Matcher<ResourcePolicy> isResourcePolicy(int action, UUID epersonId, UUID groupId) {
+            return new ResourcePolicyMatcher(action, epersonId, groupId);
+        }
+
+        public static Matcher<ResourcePolicy> isResourcePolicy(int action, UUID epersonId) {
+            return isResourcePolicy(action, epersonId, null);
+        }
+
+        @Override
+        protected boolean matchesSafely(ResourcePolicy policy, Description mismatchDescription) {
+            if (policy.getAction() != action) {
+                mismatchDescription.appendText("action was ").appendValue(policy.getAction());
+                return false;
+            }
+
+            if (epersonId != null && (policy.getEPerson() == null || !epersonId.equals(policy.getEPerson().getID()))) {
+                mismatchDescription.appendText("eperson ID was ")
+                                   .appendValue(policy.getEPerson() == null ? null : policy.getEPerson().getID());
+                return false;
+            }
+
+            if (groupId != null && (policy.getGroup() == null || !groupId.equals(policy.getGroup().getID()))) {
+                mismatchDescription.appendText("group ID was ")
+                                   .appendValue(policy.getGroup() == null ? null : policy.getGroup().getID());
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("ResourcePolicy with action ")
+                       .appendValue(action)
+                       .appendText(" and eperson ID ")
+                       .appendValue(epersonId)
+                       .appendText(" and group ID ")
+                       .appendValue(groupId);
+        }
     }
 
 }
