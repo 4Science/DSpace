@@ -201,7 +201,7 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
         consumeMetadataIfNotBlank(originalPublisherPlace, item, value -> itemBuilder.originalPublisherPlace(value));
         consumeMetadataIfNotBlank(originalTitle, item, value -> itemBuilder.originalTitle(value));
         consumeMetadataIfNotBlank(page, item, value -> itemBuilder.page(value));
-        consumeMetadataIfNotBlank(pageFirst, item, value -> itemBuilder.pageFirst(value));
+        //consumeMetadataIfNotBlank(pageFirst, item, value -> itemBuilder.pageFirst(value));
         consumeMetadataIfNotBlank(PMCID, item, value -> itemBuilder.PMCID(value));
         consumeMetadataIfNotBlank(PMID, item, value -> itemBuilder.PMID(value));
         consumeMetadataIfNotBlank(publisher, item, value -> itemBuilder.publisher(value));
