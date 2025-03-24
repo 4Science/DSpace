@@ -844,7 +844,8 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
                 .andDo(result -> idRefC.set(read(result.getResponse().getContentAsString(), "$.['@id']")));
 
             Item annotationC = annotationService.findById(context, idRefC.get());
-            ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
+            ResourcePolicyService resourcePolicyService =
+                AuthorizeServiceFactory.getInstance().getResourcePolicyService();
             List<ResourcePolicy> resourcePolicies = resourcePolicyService.find(context, annotationC);
             GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
             Group anonymous = groupService.findByName(context, "Anonymous");
