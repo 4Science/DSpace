@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.NotAuthorizedException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -138,11 +139,12 @@ public class AnnotationService {
         discoverQuery.setQuery(
             String.format(
                 "search.entitytype:(%s)",
-                StringUtils.joinWith(
-                    " OR ",
-                    configurationService.getProperty(ANNOTATION_ENTITY_TYPE),
-                    configurationService.getProperty(PERSONAL_ANNOTATION_ENTITY_TYPE)
-                )
+                Stream.of(
+                          configurationService.getProperty(ANNOTATION_ENTITY_TYPE),
+                          configurationService.getProperty(PERSONAL_ANNOTATION_ENTITY_TYPE)
+                      )
+                      .filter(StringUtils::isNotBlank)
+                      .collect(Collectors.joining(" OR "))
             )
         );
         discoverQuery.addFilterQueries(
