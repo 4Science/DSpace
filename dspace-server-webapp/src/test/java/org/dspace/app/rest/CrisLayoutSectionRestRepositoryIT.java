@@ -57,7 +57,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
     @Test
     public void testFindAll() throws Exception {
 
-        String[] expectedBrowseNames = new String[] { "author", "title", "typecoar" };
+        String[] expectedBrowseNames = new String[] { "author", "title", "typeDocuments" };
 
         getClient().perform(get("/api/layout/sections"))
             .andExpect(status().isOk())
@@ -83,18 +83,17 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
                 hasItem(withIdAndCarouselComponent("site", 0, 0, "col-12 px-0", "news"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                        hasItem(withIdAndTextRowComponent("site", 1, 0 ,
-                                "py-3 col-12 col-md-5", "text-metadata"))))
+                        hasItem(withIdAndTextRowComponent("site", 2, 0 ,
+                                "py-3 col-12", "text-metadata"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 1, 1, "py-3 col-12 col-md-7", Arrays.asList("fonds",
+                hasItem(withIdAndCountersComponent("site", 2, 1, "py-3 col-12", Arrays.asList("fonds",
                                                                                                  "journalfonds",
-                                                                                                 "aggregations",
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndAdvancedTopComponent("site", 2, 0, "py-4",
-                                            List.of("aggregationsHomePage", "fondsHomePage", "journalfondsHomePage"),
+              hasItem(withIdAndAdvancedTopComponent("site", 1, 0, "py-4",
+                                            List.of( "fondsHomePage", "journalfondsHomePage"),
                                             "cris.priority", "desc", 8, true, true, "card",
                                             "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
             ;
@@ -145,7 +144,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
     @Test
     public void testFindOne() throws Exception {
 
-        String[] expectedBrowseNames = new String[] { "author", "title", "typecoar" };
+        String[] expectedBrowseNames = new String[] { "author", "title", "typeDocuments" };
 
         getClient().perform(get("/api/layout/sections/{id}", "sectiondocuments"))
             .andExpect(status().isOk())

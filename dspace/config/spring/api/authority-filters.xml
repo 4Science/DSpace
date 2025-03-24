@@ -37,33 +37,6 @@
 			</util:list>
 		</constructor-arg>
 	</bean>
-	
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>AldrovandiOpereAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"18bb755b-2900-4b95-92ef-ddede83f4a5b"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>ImmaginiUniboAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"cdb2edab-ad58-4b6d-bc72-31b1909982f8"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
 
 
 	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
@@ -83,82 +56,12 @@
 	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
 		<property name="supportedAuthorities">
 			<util:list>
-				<value>ArchitetturaLibroAnticoAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"c2169436-5c98-4448-a070-2d29bafbecf2"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
 				<value>AldovrandiManoscrittiAuthority</value>
 			</util:list>
 		</property>
 		<constructor-arg name="customQueries">
 			<util:list>
 				<value>location.coll:"cd9e126d-1a35-4b15-af8d-4cffb2319175"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>ManoscrittiShivadharmaAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"eb94f288-4fc8-45bd-a706-e8dcde7e4828"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>SupinoAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"1f881bb9-9eda-4724-af22-443395583b9e"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>AmbuloAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"cb211e1d-ce08-40ee-9468-45d1850c3502"</value>
-			</util:list>
-		</constructor-arg>
-	</bean>
-
-
-	<bean class="org.dspace.content.authority.AuthorityNameAuthorityFilter">
-		<property name="supportedAuthorities">
-			<util:list>
-				<value>MappeDisciAuthority</value>
-			</util:list>
-		</property>
-		<constructor-arg name="customQueries">
-			<util:list>
-				<value>location.coll:"bf469da9-b56d-475b-882e-eca0d46d7d31"</value>
 			</util:list>
 		</constructor-arg>
 	</bean>

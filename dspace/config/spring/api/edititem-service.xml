@@ -569,7 +569,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="archivalmaterial.atlas-archival_material">
+                <entry key="publication.atlas-archival_material">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -632,7 +632,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="picture.immagini_unibo">
+                <entry key="publication.immagini_unibo">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -653,7 +653,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="journalfile.journal_file_unibo">
+                <entry key="publication.journal_file_unibo">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />
@@ -737,7 +737,7 @@
                         </bean>
                     </list>
                 </entry>
-                <entry key="archivalmaterial.mappe-disci">
+                <entry key="publication.mappe-disci">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="FULL" />

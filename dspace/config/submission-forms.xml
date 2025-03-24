@@ -299,9 +299,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -3165,7 +3164,7 @@
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Testo</hint>
+          <hint>Inserire la didascalia per lo slider (massimo 150 caratteri)</hint>
         </field>
       </row>
       <row>
@@ -3990,7 +3989,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Indicazioni sul soggetto</label>
           <input-type>onebox</input-type>
@@ -4875,7 +4874,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto / Argomento</label>
           <input-type>onebox</input-type>
@@ -5804,7 +5803,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Descrizione del soggetto della moneta</label>
           <input-type>onebox</input-type>
@@ -5899,7 +5898,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Indicazioni sul soggetto</label>
           <input-type>onebox</input-type>
@@ -7348,7 +7347,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -7488,9 +7487,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>aldrovandimanuscript</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7536,8 +7535,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>bibliography</dc-qualifier>
           <label>Bibliografia</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -7605,7 +7605,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -7642,7 +7642,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -7653,9 +7653,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -7822,7 +7821,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -7927,9 +7926,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>aldrovandidocument</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -8032,7 +8031,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -8069,7 +8068,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -8080,9 +8079,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -8273,7 +8271,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -8413,9 +8411,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>arabicdocument</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -8461,8 +8459,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>bibliography</dc-qualifier>
           <label>Bibliografia</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -8530,7 +8529,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -8567,7 +8566,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -8578,9 +8577,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -8747,7 +8745,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -9028,7 +9026,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -9041,7 +9039,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -9052,7 +9050,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -9063,7 +9061,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -9086,9 +9084,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -9243,7 +9240,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -9348,9 +9345,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>ancientbook</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -9453,7 +9450,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -9502,7 +9499,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -9513,7 +9510,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -9524,9 +9521,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -9693,7 +9689,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -9986,7 +9982,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -9999,7 +9995,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -10010,7 +10006,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -10021,7 +10017,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -10044,9 +10040,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -10288,7 +10283,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -10361,7 +10356,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <dc-qualifier>iconclass</dc-qualifier>
           <label>Parole chiave iconclass</label>
@@ -10397,7 +10392,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -10420,9 +10415,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -10564,7 +10558,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -10622,9 +10616,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>relatedPicture</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Fotografie raffiguaranti la medesima epigrafe</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -10680,7 +10674,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -10728,7 +10722,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -10751,9 +10745,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -10920,7 +10913,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -11035,9 +11028,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>subjectPicture</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -11141,7 +11134,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -11190,7 +11183,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -11201,7 +11194,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -11212,7 +11205,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -11223,9 +11216,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -11404,7 +11396,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -11469,18 +11461,6 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'abstract del contenuto della risorsa.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>source</dc-element>
-          <dc-qualifier>content</dc-qualifier>
-          <label>Contenuto</label>
-          <input-type>textarea</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Descrivere il contenuto della risorsa</hint>
         </field>
       </row>
       <row>
@@ -11639,7 +11619,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glamjournalfonds</dc-schema>
+          <dc-schema>glamfonds</dc-schema>
           <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
@@ -11732,7 +11712,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -11769,7 +11749,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -11780,7 +11760,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -11791,7 +11771,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -11802,9 +11782,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -11983,7 +11962,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -12216,7 +12195,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -12253,7 +12232,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -12264,7 +12243,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -12275,7 +12254,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -12286,9 +12265,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -12467,7 +12445,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -12654,8 +12632,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>bibliography</dc-qualifier>
           <label>Bibliografia</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -12723,7 +12702,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -12760,7 +12739,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -12771,7 +12750,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -12782,7 +12761,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -12793,9 +12772,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -12962,7 +12940,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -13091,9 +13069,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>Shivadharmamanuscript</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -13139,8 +13117,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>bibliography</dc-qualifier>
           <label>Bibliografia</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -13208,7 +13187,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -13245,7 +13224,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -13256,7 +13235,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -13267,7 +13246,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -13278,9 +13257,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -13447,7 +13425,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -13551,9 +13529,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>geographicmap</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -13623,8 +13601,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>bibliography</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>bibliography</dc-qualifier>
           <label>Bibliografia</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
@@ -13668,7 +13647,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -13728,7 +13707,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>provider</dc-element>
           <label>Provider</label>
           <input-type>onebox</input-type>
@@ -13739,7 +13718,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -13750,7 +13729,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -13761,9 +13740,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -13930,7 +13908,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dcterms</dc-schema>
           <dc-element>subject</dc-element>
           <label>Soggetto</label>
           <input-type>onebox</input-type>
@@ -14045,9 +14023,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>unibo</dc-schema>
+          <dc-schema>glam</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>SupinoPicture</dc-qualifier>
+          <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documenti collegati</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -14139,7 +14117,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <dc-qualifier>coar</dc-qualifier>
           <label>Tipologia COAR</label>
@@ -14188,7 +14166,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>intermediateprovider</dc-element>
           <label>Intermediate provider</label>
           <input-type>onebox</input-type>
@@ -14199,7 +14177,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>edm</dc-schema>
           <dc-element>dataprovider</dc-element>
           <label>Data provider</label>
           <input-type>onebox</input-type>
@@ -14210,9 +14188,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>rights</dc-element>
-          <dc-qualifier>holder</dc-qualifier>
+          <dc-schema>dcterms</dc-schema>
+          <dc-element>rightsHolder</dc-element>
           <label>Detentore dei diritti</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
@@ -17341,6 +17318,10 @@
       <pair>
         <displayed-value>Altra</displayed-value>
         <stored-value>other</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Multiple languages</displayed-value>
+        <stored-value>mul</stored-value>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="license_types" dc-term="license_types">

@@ -111,7 +111,7 @@
                          <list>
                              <value>author</value>
                              <value>title</value>
-                             <value>typecoar</value>
+                             <value>typeDocuments</value>
                          </list>
                      </property>
                      <property name="style" value="col-md-4"/>
@@ -190,54 +190,15 @@
                     <property name="fitHeight" value="false" />
                     <property name="showBlurryBackdrop" value="true" />
                     <property name="keepAspectRatio" value="false" />
-                    <property name="carouselHeightPx" value="500" />
+                    <property name="carouselHeightPx" value="300" />
                     <property name="captionStyle" value="text-justify" />
                     <property name="titleStyle" value="text-center" />
-                </bean>
-            </list>
-            <list>
-                <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
-                    <property name="contentType" value="text-metadata"/>
-                    <property name="content" value="counter.header"/>
-                    <property name="style" value="py-3 col-12 col-md-5"/>
-                </bean>
-                <bean class="org.dspace.layout.CrisLayoutCountersComponent">
-                    <property name="style" value="py-3 col-12 col-md-7"/>
-                    <property name="counterSettingsList">
-                        <list>
-                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="fonds"/>
-                                <property name="label" value="fonds"/>
-                                <property name="icon" value="fas fa-archive fa-3x"/>
-                                <property name="link" value="/explore/sectionfonds" />
-                            </bean>
-                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="journalfonds"/>
-                                <property name="label" value="journalfonds"/>
-                                <property name="icon" value="fas fa-newspaper fa-3x"/>
-                                <property name="link" value="/explore/sectionjournalfonds" />
-                            </bean>
-                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="aggregations"/>
-                                <property name="label" value="aggregations"/>
-                                <property name="icon" value="fas fa-folder-open fa-3x"/>
-                                <property name="link" value="/explore/sectionaggregations" />
-                            </bean>
-                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
-                                <property name="discoveryConfigurationName" value="documents"/>
-                                <property name="label" value="documents"/>
-                                <property name="icon" value="fas fa-search fa-3x"/>
-                                <property name="link" value="/explore/sectiondocuments" />
-                            </bean>
-                        </list>
-                    </property>
                 </bean>
             </list>
             <list>
                 <bean class="org.dspace.layout.CrisLayoutAdvancedTopComponent">
                     <property name="discoveryConfigurationName">
                         <list>
-                            <value>aggregationsHomePage</value>
                             <value>fondsHomePage</value>
                             <value>journalfondsHomePage</value>
                         </list>
@@ -256,6 +217,44 @@
                     <property name="template" value="SLIDER"/>
                 </bean>
             </list>
+            <list>
+              <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
+                  <property name="contentType" value="text-metadata"/>
+                  <property name="content" value="counter.header"/>
+                  <property name="style" value="py-3 col-12"/>
+              </bean>
+              <bean class="org.dspace.layout.CrisLayoutCountersComponent">
+                  <property name="style" value="py-3 col-12"/>
+                  <property name="counterSettingsList">
+                      <list>
+                          <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
+                              <property name="discoveryConfigurationName" value="fonds"/>
+                              <property name="label" value="fonds"/>
+                              <property name="icon" value="fas fa-archive fa-3x"/>
+                              <property name="link" value="/search?page=1&amp;configuration=fonds" />
+                          </bean>
+                          <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
+                              <property name="discoveryConfigurationName" value="journalfonds"/>
+                              <property name="label" value="journalfonds"/>
+                              <property name="icon" value="fas fa-newspaper fa-3x"/>
+                              <property name="link" value="/search?page=1&amp;configuration=journalfonds" />
+                          </bean>
+                          <!--                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">-->
+                          <!--                                <property name="discoveryConfigurationName" value="aggregations"/>-->
+                          <!--                                <property name="label" value="aggregations"/>-->
+                          <!--                                <property name="icon" value="fas fa-folder-open fa-3x"/>-->
+                          <!--                                <property name="link" value="/explore/sectionaggregations" />-->
+                          <!--                            </bean>-->
+                          <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
+                              <property name="discoveryConfigurationName" value="documents"/>
+                              <property name="label" value="documents"/>
+                              <property name="icon" value="fas fa-search fa-3x"/>
+                              <property name="link" value="/explore/sectiondocuments" />
+                          </bean>
+                      </list>
+                  </property>
+              </bean>
+          </list>
             <!-- <list>
                 <bean class="org.dspace.layout.CrisGridComponent">
                     <property name="discoveryConfigurationName" value="path"/>

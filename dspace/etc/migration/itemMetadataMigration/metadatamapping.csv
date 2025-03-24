@@ -2,10 +2,10 @@ GLAM 5 Metadata,GLAM 7 Metadata,Entity
 dc.relation.fond,dc.relation.fonds,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication"
 dc.relation.conference,dc.relation.event,AudioVideo
 dc.coverage.spatialabbreviation,dc.coverage.spatialpvcn,AudioVideo
-dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial"
-dc.subject,glam.subject,"Artwork, Coin, Picture"
+dc.relation,dc.relation.project,"AudioVideo, ArchivalMaterial, Publication"
+dc.subject,dcterms.subject,"Artwork, Coin, Picture, Publication, AudioVideo"
 dc.relation.url,dc.relation.otherlinks,"Artwork, Coin, ScientificMaterial"
-dc.source.content,dc.description.abstract,ArchivalMaterial
+dc.source.content,dc.description.abstract,"ArchivalMaterial, Publication"
 dc.relation.bibliographytitle,glam.bibliography,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyyear,glam.bibliography.year,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
 dc.relation.bibliographyplace,glam.bibliography.place,"ArchivalMaterial, Picture, Coin, ScientificMaterial"
@@ -39,10 +39,8 @@ dc.description.obverse,glamcoin.obverse,Coin
 dc.description.reverse,glamcoin.reverse,Coin
 dc.description.obverselegend,glamcoin.obverselegend,Coin
 dc.description.reverselegend,glamcoin.reverselegend,Coin
-dc.subject,glam.subject,Coin
 dc.relation.bibliography,dc.relation.bibliographytitle,Coin
 dc.subject,dc.subject.classification,ScientificMaterial
-dc.subject.keywords,dc.subject,"ScientificMaterial, Picture"
 dc.format.misn,glam.misn,ScientificMaterial
 dc.format.misp,glam.misp,ScientificMaterial
 dc.format.miss,glam.miss,ScientificMaterial
@@ -50,36 +48,38 @@ dc.format.misc,glam.misc,ScientificMaterial
 dc.format.misw,glam.misw,ScientificMaterial
 dc.format.misb,glam.misb,ScientificMaterial
 dc.format.misi,glam.misi,ScientificMaterial
-dc.identifier.archivalunit,glamfonds.index,ArchivalMaterial
-dc.identifier.archivalunit,glamfonds.index,Publication
+dc.identifier.archivalunit,glamfonds.index,"ArchivalMaterial, Publication"
 dc.identifier.archivalunit,glamjournalfonds.index,JournalFile
 dc.accessRights,dcterms.accessRights,ArchivalMaterial
 dc.relation.url,dc.relation.uri,ArchivalMaterial
-dc.subject,glam.subject,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.subject.keywords,dc.subject,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.relation.aldrovandimanuscript,unibo.relation.aldrovandimanuscript,Publication
-dc.relation.bibliography,glam.bibliography,"Publication, ArchivalMaterial"
+dc.subject,glam.subject,"ArchivalMaterial, JournalFile"
+dc.subject.keywords,dc.subject,"Publication, ArchivalMaterial, Picture, JournalFile, ScientificMaterial"
+dc.relation.aldrovandimanuscript,glam.relation.relatedDocument,Publication
+dc.relation.bibliography,glam.bibliography,ArchivalMaterial
 dc.type.magbiblevel,mag.biblevel,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.type.coar,glam.type.coar,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.contributor.provider,glam.provider,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.contributor.intermediateprovider,glam.intermediateprovider,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.contributor.dataprovider,glam.dataprovider,"Publication, ArchivalMaterial, Picture, JournalFile"
+dc.type.coar,glam.type.coar,"ArchivalMaterial, Picture, JournalFile"
+dc.contributor.provider,glam.provider,"ArchivalMaterial, Picture, JournalFile"
+dc.contributor.provider,edm.provider,Publication
+dc.contributor.intermediateprovider,glam.intermediateprovider,"ArchivalMaterial, Picture, JournalFile"
+dc.contributor.intermediateprovider,edm.intermediateprovider,Publication
+dc.contributor.dataprovider,glam.dataprovider,"ArchivalMaterial, Picture, JournalFile"
+dc.contributor.dataprovider,edm.dataprovider,Publication
 dc.subject.picochi,pico.chi,"Publication, ArchivalMaterial, Picture, JournalFile"
 dc.subject.picocosa,pico.cosa,"Publication, ArchivalMaterial, Picture, JournalFile"
 dc.subject.picoquando,pico.quando,"Publication, ArchivalMaterial, Picture, JournalFile"
-dc.relation.aldrovandidocument,unibo.relation.aldrovandidocument,Publication
+dc.relation.aldrovandidocument,glam.relation.relatedDocument,Publication
 dc.title.alternative_ar,unibo.title.alternative-ar,Publication
 dc.title.parallel,unibo.title.parallel,Publication
 dc.date.issued_hijra,unibo.date.issued-hijra,Publication
 dc.subject.keywords_ar,unibo.subject-ar,Publication
-dc.relation.arabicdocument,unibo.relation.arabicdocument,Publication
+dc.relation.arabicdocument,glam.relation.relatedDocument,Publication
 dc.relation.relatedDocument,glam.relation.relatedDocument,"Publication, ArchivalMaterial"
-dc.relation.ancientbook,unibo.relation.ancientbook,Publication
+dc.relation.ancientbook,glam.relation.relatedDocument,Publication
 dc.subject.iconclass,glam.subject.iconclass,Publication
-dc.relation.relatedPicture,unibo.relation.relatedPicture,Publication
-dc.relation.subjectPicture,unibo.relation.subjectPicture,Picture
-dc.relation.Shivadharmamanuscript,unibo.relation.Shivadharmamanuscript,Publication
-dc.relation.geographicmap,unibo.relation.geographicmap,ArchivalMaterial
-dc.relation.SupinoPicture,unibo.relation.SupinoPicture,Publication
+dc.relation.relatedPicture,glam.relation.relatedDocument,Publication
+dc.relation.subjectPicture,glam.relation.relatedDocument,"Picture, Publication"
+dc.relation.Shivadharmamanuscript,glam.relation.relatedDocument,Publication
+dc.relation.geographicmap,glam.relation.relatedDocument,"ArchivalMaterial, Publication"
+dc.relation.SupinoPicture,glam.relation.relatedDocument,Publication
 dc.relation.references,glam.relation.references,"ArchivalMaterial,JournalFile,Publication,Picture"
-dc.rights.holder,glam.rights.holder,"ArchivalMaterial,JournalFile,Publication,Picture"
+dc.rights.holder,dcterms.rightsHolder,"JournalFile, AudioVideo, Artwork, ArchivalMaterial, MusicalLibrettos, Picture, ScientificMaterial, Publication"
