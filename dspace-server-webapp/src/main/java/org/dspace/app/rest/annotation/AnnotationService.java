@@ -71,6 +71,7 @@ public class AnnotationService {
     static final String ANNOTATION_ID_PATTERN =
         "/annotation/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String ANNOTATION_ENTITY_TYPE = "annotation.default.entity-type";
+    static final String DEFAULT_ENTITY_TYPE = "WebAnnotation";
     static final String ANNOTATION_COLLECTION = "annotation.default.collection";
 
     static final String PERSONAL_ANNOTATION_ENTITY_TYPE = "personal-annotation.default.entity-type";
@@ -140,7 +141,7 @@ public class AnnotationService {
             String.format(
                 "search.entitytype:(%s)",
                 Stream.of(
-                          configurationService.getProperty(ANNOTATION_ENTITY_TYPE),
+                          configurationService.getProperty(ANNOTATION_ENTITY_TYPE, DEFAULT_ENTITY_TYPE),
                           configurationService.getProperty(PERSONAL_ANNOTATION_ENTITY_TYPE)
                       )
                       .filter(StringUtils::isNotBlank)

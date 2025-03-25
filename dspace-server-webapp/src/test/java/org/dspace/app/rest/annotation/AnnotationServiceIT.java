@@ -131,11 +131,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 workspaceItem.getCollection().getID(), CoreMatchers.is(this.collection.getID())
             );
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -156,11 +152,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 workspaceItem.getCollection().getID(), CoreMatchers.is(this.collection.getID())
             );
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -181,11 +173,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 workspaceItem.getCollection().getID(), CoreMatchers.is(this.collection.getID())
             );
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -393,11 +381,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             );
 
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -484,11 +468,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             );
 
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -589,11 +569,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                 )
             );
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
 
     }
@@ -639,17 +615,13 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
                         MetadataValueMatcher.with("glam.annotation.fulltext", "TEST UPDATE")
                     ),
                     CoreMatchers.hasItem(
-                        MetadataValueMatcher.with("dc.title", "TEST UPDAT...")
+                        MetadataValueMatcher.with("dc.title", "TEST UPDATE")
                     )
                 )
             );
 
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
@@ -709,11 +681,19 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             );
 
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
+        }
+    }
+
+    private void deleteAnnotation(WorkspaceItem workspaceItem) {
+        try {
+            context.turnOffAuthorisationSystem();
+            workspaceItemService.deleteWrapper(context, context.reloadEntity(workspaceItem));
+            context.commit();
+        } catch (Exception e) {
+            log.error("Cannot delete the created annotation workspace item", e);
+        } finally {
+            context.restoreAuthSystemState();
         }
     }
 
@@ -773,11 +753,7 @@ public class AnnotationServiceIT extends AbstractIntegrationTestWithDatabase {
             );
 
         } finally {
-            try {
-                workspaceItemService.deleteWrapper(context, workspaceItem);
-            } catch (Exception e) {
-                log.error("Cannot delete the created annotation workspace item", e);
-            }
+            deleteAnnotation(workspaceItem);
         }
     }
 
