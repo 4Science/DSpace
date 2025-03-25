@@ -211,6 +211,17 @@
             <license />
             <provenance />
         </collection>
+        <collection>
+            <name>Annotazioni Personali</name>
+            <entity-type>PersonalAnnotation</entity-type>
+            <submission-type>personal_annotation</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
 	</community>
 </import_structure>
 
