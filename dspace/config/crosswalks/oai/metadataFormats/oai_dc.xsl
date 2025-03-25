@@ -43,6 +43,10 @@
 			<xsl:for-each select="doc:metadata/doc:element[@name='dc']/doc:element[@name='subject']/doc:element/doc:element/doc:field[@name='value']">
 				<dc:subject><xsl:value-of select="." /></dc:subject>
 			</xsl:for-each>
+			<!-- pico.cosa pico.quando pico.chi -->
+			<xsl:for-each select="doc:metadata/doc:element[@name='pico']/doc:element[@name='chi' or @name='quando' or @name='cosa']/doc:element/doc:field[@name='authority']">
+				<dc:subject>http://www.culturaitalia.it/pico/thesaurus/<xsl:value-of select="translate(substring-after(., 'pico-thesaurus:'), '-', '#')" /></dc:subject>
+			</xsl:for-each>
 			<!-- dc.description -->
 			<xsl:for-each select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element/doc:field[@name='value']">
 				<dc:description><xsl:value-of select="." /></dc:description>
