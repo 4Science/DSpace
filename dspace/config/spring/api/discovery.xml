@@ -269,8 +269,6 @@
                     <key><util:constant static-field="org.dspace.core.Constants.ITEM"/></key>
                     <list>
                         <value>dc.description.provenance</value>
-                        <value>glam.annotation.svgselector</value>
-                        <value>glam.annotation.text</value>
                     </list>
                 </entry>
             </map>
