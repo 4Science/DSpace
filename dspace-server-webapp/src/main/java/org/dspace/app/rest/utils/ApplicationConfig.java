@@ -84,6 +84,16 @@ public class ApplicationConfig {
     @Value("${dspace.ui.url:http://localhost:4000}")
     private String uiURL;
 
+    // Allowed Annotation CORS origins ("Access-Control-Allow-Origin" header)
+    // Can be overridden in DSpace configuration
+    @Value("${annotation.cors.allowed-origins}")
+    private String[] annotationCorsAllowedOrigins;
+
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${annotation.cors.allow-credentials:true}")
+    private boolean annotationCorsAllowCrendentials;
+
     /**
      * Return the array of allowed origins (client URLs) for the CORS "Access-Control-Allow-Origin" header
      * Used by Application class
@@ -175,5 +185,22 @@ public class ApplicationConfig {
      */
     public boolean getSignpostingAllowCredentials() {
         return signpostingCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on Signposting requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getAnnotationAllowCredentials() {
+        return annotationCorsAllowCrendentials;
+    }
+
+    /**
+     * Returns the annotation.cors.allowed-origins defined in DSpace configuration.
+     * @return allowed origins
+     */
+    public String[] getAnnotationAllowedOriginsConfig() {
+        return annotationCorsAllowedOrigins;
     }
 }
