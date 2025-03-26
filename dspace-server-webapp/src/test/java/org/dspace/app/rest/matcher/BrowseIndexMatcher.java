@@ -38,7 +38,8 @@ public class BrowseIndexMatcher {
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/subject")),
             hasJsonPath("$._links.entries.href", is(REST_SERVER_URL + "discover/browses/subject/entries")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/subject/items"))
@@ -52,7 +53,8 @@ public class BrowseIndexMatcher {
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/title")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/title/items"))
         );
@@ -67,7 +69,8 @@ public class BrowseIndexMatcher {
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("text")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/author")),
             hasJsonPath("$._links.entries.href", is(REST_SERVER_URL + "discover/browses/author/entries")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/author/items"))
@@ -81,7 +84,8 @@ public class BrowseIndexMatcher {
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.dataType", equalToIgnoringCase("date")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/dateissued")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/dateissued/items"))
         );
@@ -91,7 +95,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("cris.virtual.department")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rodept")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/rodept/items"))
         );
@@ -101,7 +106,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.type")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/type")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/type/items"))
         );
@@ -111,7 +117,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rpname")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/rpname/items"))
         );
@@ -121,7 +128,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("person.affiliation.name")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rpdept")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/rpdept/items"))
         );
@@ -131,7 +139,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/ouname")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/ouname/items"))
         );
@@ -141,7 +150,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/pjtitle")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/pjtitle/items"))
         );
@@ -151,7 +161,8 @@ public class BrowseIndexMatcher {
         return allOf(
             hasJsonPath("$.metadata", contains("dc.title")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
-            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued",
+                "dateaccessioned", "fondsindex", "journalfondsindex")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/eqtitle")),
             hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/eqtitle/items"))
         );

@@ -69,12 +69,12 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    //Our default Discovery config has 5 browse indexes, so we expect this to be reflected in the page
                    // object
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", is(76)))
-                   .andExpect(jsonPath("$.page.totalPages", is(4)))
+                   .andExpect(jsonPath("$.page.totalElements", is(82)))
+                   .andExpect(jsonPath("$.page.totalPages", is(5)))
                    .andExpect(jsonPath("$.page.number", is(0)))
 
                    //The array of browse index should have a size 4
-                   .andExpect(jsonPath("$._embedded.browses", hasSize(76)))
+                   .andExpect(jsonPath("$._embedded.browses", hasSize(82)))
 
                    //Check that all (and only) the default browse indexes are present
                    .andExpect(jsonPath("$._embedded.browses", hasItems(
