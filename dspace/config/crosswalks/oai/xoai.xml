@@ -30,6 +30,7 @@
             <Format ref="marc"/>
             <Format ref="uketd_dc"/>
             <Format ref="edm"/>
+            <Format ref="pico"/>
             <!--<Format ref="junii2" />-->
             <Description>
                 This is the default context of the DSpace OAI-PMH data provider.
@@ -253,6 +254,12 @@
             <XSLT>metadataFormats/edm.xsl</XSLT>
             <Namespace>http://www.europeana.eu/schemas/edm/</Namespace>
             <SchemaLocation>http://www.europeana.eu/schemas/edm/EDM.xsd</SchemaLocation>
+        </Format>
+        <Format id="pico">
+            <Prefix>pico</Prefix>
+            <XSLT>metadataFormats/pico.xsl</XSLT>
+            <Namespace>http://www.culturaitalia.it/opencms/export/sites/culturaitalia/attachments/schemas/1.0/</Namespace>
+            <SchemaLocation>http://www.culturaitalia.it/opencms/export/sites/culturaitalia/attachments/schemas/1.0/pico.xsd</SchemaLocation>
         </Format>
     </Formats>
 
