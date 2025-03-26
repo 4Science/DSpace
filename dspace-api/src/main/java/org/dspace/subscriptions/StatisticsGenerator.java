@@ -23,11 +23,14 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
+import org.dspace.services.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -40,6 +43,9 @@ import org.dspace.eperson.EPerson;
 public class StatisticsGenerator {
     private static final Logger log = LogManager.getLogger(StatisticsGenerator.class);
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     public void notifyForSubscriptions(Context c, EPerson ePerson, List<CrisMetrics> crisMetricsList) {
         try {
             // send the notification to the user
@@ -49,7 +55,7 @@ public class StatisticsGenerator {
             Locale supportedLocale = I18nUtil.getEPersonLocale(ePerson);
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "subscriptions_statistics"));
             email.addRecipient(ePerson.getEmail());
-            email.addAttachment(generateExcel(crisMetricsList, c), "subscriptions.xlsx");
+            email.addAttachment(generateExcel(crisMetricsList, c), "subscriptions." + getExcelExtension());
             email.send();
         } catch (Exception ex) {
             // log this email error
@@ -60,8 +66,8 @@ public class StatisticsGenerator {
 
     private File generateExcel(List<CrisMetrics> crisMetricsList, Context c) {
         try {
-            File file = File.createTempFile("Report", "xlsx");
-            Workbook workbook = new HSSFWorkbook();
+            File file = File.createTempFile("Report", getExcelExtension());
+            Workbook workbook = isLegacyExcelMode() ? new HSSFWorkbook() : new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("SubscriptionTest");
             CellStyle style = workbook.createCellStyle();
             Font bold = workbook.createFont();
@@ -116,6 +122,14 @@ public class StatisticsGenerator {
             log.error(e.getMessage());
             return null;
         }
+    }
+
+    private String getExcelExtension() {
+        return isLegacyExcelMode() ? "xls" : "xlsx";
+    }
+
+    private boolean isLegacyExcelMode() {
+        return configurationService.getBooleanProperty("subscription.statistics.legacy-excel.enabled", false);
     }
 
     private void autoSizeColumns(Sheet sheet) {
