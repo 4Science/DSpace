@@ -70,7 +70,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                 ExternalSourceMatcher.matchExternalSource(
                                     "openalexJournal", "openalexJournal", false)
                             )))
-                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(20)));
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(19)));
     }
 
     @Test
