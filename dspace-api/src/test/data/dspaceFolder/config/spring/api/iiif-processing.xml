@@ -8,4 +8,30 @@
     <bean class="org.dspace.iiif.canvasdimension.IIIFCanvasDimensionServiceImpl" scope="prototype"/>
     <bean class="org.dspace.iiif.MockIIIFApiQueryServiceImpl" id="org.dspace.iiif.IIIFApiQueryService"
           autowire-candidate="true"/>
+    <bean id="iiifViewerDownloadConfig" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="renderingEnabled">
+                    <bean class="java.util.ArrayList">
+                        <constructor-arg>
+                            <list>
+                                <value>all</value>
+                                <value>alternative</value>
+                            </list>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <entry key="downloadPluginEnabled">
+                    <bean class="java.util.ArrayList">
+                        <constructor-arg>
+                            <list>
+                                <value>all</value>
+                                <value>single-image</value>
+                            </list>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
 </beans>
