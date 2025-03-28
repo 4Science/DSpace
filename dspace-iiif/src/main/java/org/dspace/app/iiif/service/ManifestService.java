@@ -349,8 +349,8 @@ public class ManifestService extends AbstractResourceService {
         }
     }
 
-    public Map<String, List<String>> getDownloadAndRenderingConfig() {
-        return iiifViewerDownloadConfig;
+    public  List<String> getDownloadConfig() {
+        return iiifViewerDownloadConfig.getOrDefault("downloadPluginEnabled", new ArrayList<>());
     }
 
 }

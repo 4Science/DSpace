@@ -8,7 +8,6 @@
 package org.dspace.app.iiif;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.dspace.core.Context;
@@ -123,12 +122,11 @@ public class IIIFController {
      * downloading the resource.
      *
      * @param id DSpace Item uuid
-     * @return a Map where the key is a String representing the configuration type, and the value is
-     * a List of Strings representing the download options available f
+     * @return a List of Strings representing the download options available
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/download")
-    public Map<String, List<String>> findDownloadConfig(@PathVariable UUID id) {
+    public List<String> findDownloadConfig(@PathVariable UUID id) {
         Context context = ContextUtil.obtainCurrentRequestContext();
-        return iiifFacade.getDownloadAndRenderingConfig(context, id);
+        return iiifFacade.getDownloadConfig(context, id);
     }
 }
