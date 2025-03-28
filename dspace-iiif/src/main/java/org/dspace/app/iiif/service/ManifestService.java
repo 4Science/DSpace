@@ -364,13 +364,12 @@ public class ManifestService extends AbstractResourceService {
 
     private boolean isDownloadAllowedValue(String value) {
         if (StringUtils.isBlank(value)) {
-            // If not configuration in place the default value will be driven by the mime type.
-            // In this way we don't add additional filtering
-            return true;
+            // If no value is set we fall back on the next check.
+            // If no value is set on all the configuration than we assume the rendering is disabled.
+            return false;
         }
-        List<String> renderingEnabled = iiifViewerDownloadConfig.getOrDefault("renderingEnabled", new ArrayList<>());
-        //Truthy value for configured values or if configuration is empty (fallback on standard behavior)
-        return renderingEnabled.contains(value.toLowerCase()) || renderingEnabled.isEmpty();
+        List<String> renderingEnabled = iiifViewerDownloadConfig.get("renderingEnabled");
+        return renderingEnabled.contains(value.toLowerCase());
     }
 
     public  List<String> getDownloadConfig() {

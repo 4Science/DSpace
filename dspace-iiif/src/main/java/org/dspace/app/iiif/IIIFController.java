@@ -122,8 +122,7 @@ public class IIIFController {
      * downloading the resource.
      *
      * @param id DSpace Item uuid
-     * @return a Map where the key is a String representing the configuration type, and the value is
-     *         a List of Strings representing the download options available f
+     * @return a List of Strings representing the download options available
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/download")
     public List<String> findDownloadConfig(@PathVariable UUID id) {
