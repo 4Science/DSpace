@@ -9,6 +9,7 @@ package org.dspace.app.iiif;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.dspace.app.iiif.service.AnnotationListService;
@@ -135,7 +136,7 @@ public class IIIFServiceFacade {
     }
 
     @PreAuthorize("hasPermission(#id, 'ITEM', 'READ')")
-    public List<String> getDownloadConfig(Context context, UUID id) {
-        return manifestService.getDownloadConfig();
+    public Map<String, List<String>> getDownloadAndRenderingConfig(Context context, UUID id) {
+        return manifestService.getDownloadAndRenderingConfig();
     }
 }
