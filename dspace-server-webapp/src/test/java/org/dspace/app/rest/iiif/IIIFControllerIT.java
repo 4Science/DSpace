@@ -871,6 +871,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                                       .withIIIFCanvasNaming("Global")
                                       .enableIIIF()
                                       .enableIIIFSearch()
+                                      .enableRendering()
                                       .build();
 
         String bitstreamContent = "ThisIsSomeText";
@@ -1026,6 +1027,7 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                 .withIssueDate("2017-10-17")
                 .withAuthor("Smith, Donald").withAuthor("Doe, John")
                 .enableIIIF()
+                .enableRendering()
                 .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
