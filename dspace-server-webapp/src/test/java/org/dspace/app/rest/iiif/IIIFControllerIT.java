@@ -1512,4 +1512,32 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                    .andExpect(jsonPath("$.sequences[0].canvases[0].height", is(64)));
     }
 
+    @Test
+    public void findDownloadConfig() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+                .build();
+
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                .enableIIIF()
+                .build();
+
+
+        // response should contain possible configuration for truthy values of download config in IIIF viewer
+        getClient().perform(get("/iiif/" + publicItem1.getID() + "/download"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]", is("all")))
+                .andExpect(jsonPath("$[1]", is("single-image")));
+    }
+
+
 }
