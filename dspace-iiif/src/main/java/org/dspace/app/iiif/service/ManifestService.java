@@ -24,6 +24,7 @@ import org.dspace.app.iiif.service.utils.IIIFUtils;
 import org.dspace.app.util.service.MetadataExposureService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
+import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.CollectionService;
@@ -324,6 +325,18 @@ public class ManifestService extends AbstractResourceService {
      */
     private void addRendering(Item item, Context context) {
         List<Bundle> bundles = utils.getIIIFBundles(item);
+        Collection owningCollection = item.getOwningCollection();
+        String itemViewerDownloadMetadata =  itemService
+                .getMetadataFirstValue(item, "viewer", "mirador", "download", Item.ANY);
+        String collectionViewerDownloadMetadata =  StringUtils.getIfBlank(
+                collectionService.getMetadataFirstValue(owningCollection, "viewer", "mirador",
+                        "download", Item.ANY), () -> StringUtils.EMPTY);
+
+        String defaultDownloadProperty = configurationService.getProperty("viewer.mirador.download.default");
+        boolean isRenderingEnabled = isDownloadAllowedValue(itemViewerDownloadMetadata) ||
+                isDownloadAllowedValue(collectionViewerDownloadMetadata) ||
+                isDownloadAllowedValue(defaultDownloadProperty);
+
         for (Bundle bundle : bundles) {
             List<Bitstream> bitstreams = bundle.getBitstreams();
             for (Bitstream bitstream : bitstreams) {
@@ -337,7 +350,7 @@ public class ManifestService extends AbstractResourceService {
                 // item and add to rendering. Ignore other mime-types. Other options
                 // might be using the primary bitstream or relying on a bitstream metadata
                 // field, e.g. iiif.rendering
-                if (mimeType != null && mimeType.contentEquals("application/pdf")) {
+                if (mimeType != null && mimeType.contentEquals("application/pdf") && isRenderingEnabled) {
                     String id = BITSTREAM_PATH_PREFIX + "/" + bitstream.getID() + "/content";
                     manifestGenerator.addRendering(
                         new ExternalLinksGenerator(id)
@@ -347,6 +360,16 @@ public class ManifestService extends AbstractResourceService {
                 }
             }
         }
+    }
+
+    private boolean isDownloadAllowedValue(String value) {
+        if (StringUtils.isBlank(value)) {
+            // If no value is set we fall back on the next check.
+            // If no value is set on all the configuration than we assume the rendering is disabled.
+            return false;
+        }
+        List<String> renderingEnabled = iiifViewerDownloadConfig.get("renderingEnabled");
+        return renderingEnabled.contains(value.toLowerCase());
     }
 
     public  List<String> getDownloadConfig() {
