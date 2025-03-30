@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.sql.SQLException;
@@ -37,6 +38,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
@@ -206,16 +208,16 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
 
         Item person = ItemBuilder.createItem(context, collection)
-            .withTitle("Walter White")
-            .withPersonMainAffiliation("4Science")
-            .build();
+                                 .withTitle("Walter White")
+                                 .withPersonMainAffiliation("4Science")
+                                 .build();
 
         String personId = person.getID().toString();
 
         Item publication = ItemBuilder.createItem(context, collection)
-            .withTitle("Test publication")
-            .withEntityType("Publication")
-            .build();
+                                      .withTitle("Test publication")
+                                      .withEntityType("Publication")
+                                      .build();
 
         context.restoreAuthSystemState();
         publication = commitAndReload(publication);
@@ -228,7 +230,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         context.turnOffAuthorisationSystem();
         itemService.addMetadata(context, publication, "dc", "contributor", "author",
-            null, "Walter White", personId, 600);
+                                null, "Walter White", personId, 600);
         itemService.update(context, publication);
         context.restoreAuthSystemState();
         publication = commitAndReload(publication);
@@ -316,7 +318,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         assertThat(values, hasItem(withNoPlace("cris.virtualsource.department", person3.getID().toString())));
         assertThat(values, hasItem(withNoPlace("cris.virtual.department", "4Science")));
         assertThat(values, hasItem(withNoPlace("cris.virtual.department", "University of Rome")));
-        assertThat(values, hasItem(withNoPlace("cris.virtualsource.orcid",  person1.getID().toString())));
+        assertThat(values, hasItem(withNoPlace("cris.virtualsource.orcid", person1.getID().toString())));
         assertThat(values, hasItem(withNoPlace("cris.virtualsource.orcid", person3.getID().toString())));
         // we can check with the position as all the values are expected to be placeholder
         assertThat(values, hasItem(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
@@ -333,17 +335,17 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
 
         Item person = ItemBuilder.createItem(context, collection)
-            .withTitle("Walter White")
-            .withPersonMainAffiliation("4Science")
-            .build();
+                                 .withTitle("Walter White")
+                                 .withPersonMainAffiliation("4Science")
+                                 .build();
 
         String personId = person.getID().toString();
 
         WorkspaceItem publication = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-            .withTitle("Test publication")
-            .withEntityType("Publication")
-            .withAuthor("Walter White", personId)
-            .build();
+                                                        .withTitle("Test publication")
+                                                        .withEntityType("Publication")
+                                                        .withAuthor("Walter White", personId)
+                                                        .build();
 
         context.restoreAuthSystemState();
         publication = commitAndReload(publication);
@@ -405,7 +407,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
             with("dc.contributor.author", "Gus Fring", 3)));
 
         assertThat(getMetadataValues(publication, "cris.virtual.orcid"), contains(
-                with("cris.virtual.orcid", "0000-0000-1111-2222")));
+            with("cris.virtual.orcid", "0000-0000-1111-2222")));
 
         assertThat(getMetadataValues(publication, "cris.virtualsource.orcid"), contains(
             with("cris.virtualsource.orcid", personId)));
@@ -417,35 +419,36 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         context.turnOffAuthorisationSystem();
         MetadataSchema schema = ContentServiceFactory.getInstance()
-                .getMetadataSchemaService().find(context, "cris");
+                                                     .getMetadataSchemaService().find(context, "cris");
         MetadataFieldBuilder.createMetadataField(context, schema, "virtual", "testmultival", null);
         MetadataFieldBuilder.createMetadataField(context, schema, "virtualsource", "testmultival", null);
 
         Item person1 = ItemBuilder.createItem(context, collection)
-            .withTitle("Walter White")
-            .withPersonMainAffiliation("4Science")
-            .withPersonMainAffiliation("DSpace")
-            .withOrcidIdentifier("orcid1")
-            .build();
+                                  .withTitle("Walter White")
+                                  .withPersonMainAffiliation("4Science")
+                                  .withPersonMainAffiliation("DSpace")
+                                  .withOrcidIdentifier("orcid1")
+                                  .build();
 
         Item person2 = ItemBuilder.createItem(context, collection)
-            .withTitle("John Smith")
-            .build();
+                                  .withTitle("John Smith")
+                                  .build();
 
         Item person3 = ItemBuilder.createItem(context, collection)
-            .withTitle("Jesse Pinkman")
-            .withPersonMainAffiliation("University of Rome")
-            .build();
+                                  .withTitle("Jesse Pinkman")
+                                  .withPersonMainAffiliation("University of Rome")
+                                  .build();
 
         Item testEntity = ItemBuilder.createItem(context, collection)
-            .withTitle("Test publication")
-            // let's use our custom entity for test purpose, see extra-metadata-enhancers-for-test.xml
-            .withEntityType("TestEntity")
-            .withAuthor("Red Smith")
-            .withAuthor("Walter White", person1.getID().toString())
-            .withAuthor("John Smith", person2.getID().toString())
-            .withEditor("Jesse Pinkman", person3.getID().toString())
-            .build();
+                                     .withTitle("Test publication")
+                                     // let's use our custom entity for test purpose, see
+                                     // extra-metadata-enhancers-for-test.xml
+                                     .withEntityType("TestEntity")
+                                     .withAuthor("Red Smith")
+                                     .withAuthor("Walter White", person1.getID().toString())
+                                     .withAuthor("John Smith", person2.getID().toString())
+                                     .withEditor("Jesse Pinkman", person3.getID().toString())
+                                     .build();
 
         context.restoreAuthSystemState();
         testEntity = commitAndReload(testEntity);
@@ -460,22 +463,22 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         List<Integer> posPerson2 = getPlacesAsVirtualSource(person2, testEntity, "cris.virtualsource.testmultival");
         List<Integer> posPerson3 = getPlacesAsVirtualSource(person3, testEntity, "cris.virtualsource.testmultival");
         assertThat(values,
-                hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(0))));
+                   hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(0))));
         assertThat(values, hasItem(with("cris.virtual.testmultival", "4Science", posPerson1.get(0))));
         assertThat(values,
-                hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(1))));
+                   hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(1))));
         assertThat(values, hasItem(with("cris.virtual.testmultival", "DSpace", posPerson1.get(1))));
         assertThat(values,
-                hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(2))));
+                   hasItem(with("cris.virtualsource.testmultival", person1.getID().toString(), posPerson1.get(2))));
         assertThat(values, hasItem(with("cris.virtual.testmultival", "orcid1", posPerson1.get(2))));
 
         assertThat(values,
-                hasItem(with("cris.virtualsource.testmultival", person2.getID().toString(), posPerson2.get(0))));
+                   hasItem(with("cris.virtualsource.testmultival", person2.getID().toString(), posPerson2.get(0))));
         assertThat(values,
-                hasItem(with("cris.virtual.testmultival", PLACEHOLDER_PARENT_METADATA_VALUE, posPerson2.get(0))));
+                   hasItem(with("cris.virtual.testmultival", PLACEHOLDER_PARENT_METADATA_VALUE, posPerson2.get(0))));
 
         assertThat(values,
-                hasItem(with("cris.virtualsource.testmultival", person3.getID().toString(), posPerson3.get(0))));
+                   hasItem(with("cris.virtualsource.testmultival", person3.getID().toString(), posPerson3.get(0))));
         assertThat(values, hasItem(with("cris.virtual.testmultival", "University of Rome", posPerson3.get(0))));
 
         assertThat(getMetadataValues(testEntity, "cris.virtualsource.testmultival"), hasSize(5));
@@ -688,6 +691,247 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     }
 
     @Test
+    public void testSingleLatitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "lat", null, "48.7254")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                           .withTitle("Test archivalMaterial")
+                                           .withEntityType("ArchivalMaterial")
+                                           .withMetadata(
+                                               "dc", "relation", "place", null, "Related Place", placeId,
+                                               Choices.CF_ACCEPTED)
+                                           .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(with("cris.virtual.latitude", "48.7254")));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.latitude", placeId)));
+
+    }
+
+
+    @Test
+    public void testMultipleLatitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "lat", null, "48.7254")
+                                .withMetadata("glamplace", "lat", null, "44.7254")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test archivalMaterial")
+                                      .withEntityType("ArchivalMaterial")
+                                      .withMetadata(
+                                          "dc", "relation", "place", null, "Related Place", placeId,
+                                          Choices.CF_ACCEPTED)
+                                      .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.latitude", "48.7254")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.latitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.latitude", "44.7254")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.latitude", placeId)));
+
+    }
+
+
+    @Test
+    public void testSingleLongitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "long", null, "16.2321")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test archivalMaterial")
+                                      .withEntityType("ArchivalMaterial")
+                                      .withMetadata(
+                                          "dc", "relation", "place", null, "Related Place", placeId,
+                                          Choices.CF_ACCEPTED)
+                                      .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(with("cris.virtual.longitude", "16.2321")));
+        assertThat(metadataValues, hasItem(with("cris.virtualsource.longitude", placeId)));
+
+    }
+
+    @Test
+    public void testMultipleLongitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "long", null, "16.2321")
+                                .withMetadata("glamplace", "long", null, "15.2211")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test archivalMaterial")
+                                      .withEntityType("ArchivalMaterial")
+                                      .withMetadata(
+                                          "dc", "relation", "place", null, "Related Place", placeId,
+                                          Choices.CF_ACCEPTED)
+                                      .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.longitude", "16.2321")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.longitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.longitude", "15.2211")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.longitude", placeId)));
+
+    }
+
+    @Test
+    public void testLongitudeAndLatitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "long", null, "48.7254")
+                                .withMetadata("glamplace", "lat", null, "15.2211")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test archivalMaterial")
+                                      .withEntityType("ArchivalMaterial")
+                                      .withMetadata(
+                                          "dc", "relation", "place", null, "Related Place", placeId,
+                                          Choices.CF_ACCEPTED)
+                                      .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.longitude", "48.7254")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.longitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.latitude", "15.2211")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.latitude", placeId)));
+
+    }
+
+    @Test
+    public void testMultipleLongitudeAndLatitudeMetadataEnhancement() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection placeCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withEntityType("Place")
+                             .build();
+
+        Item place = ItemBuilder.createItem(context, placeCollection)
+                                .withTitle("Related Place")
+                                .withMetadata("glamplace", "long", null, "48.7254")
+                                .withMetadata("glamplace", "lat", null, "16.2321")
+                                .withMetadata("glamplace", "long", null, "44.7254")
+                                .withMetadata("glamplace", "lat", null, "15.2211")
+                                .build();
+
+        String placeId = place.getID().toString();
+
+        Item archivalMaterial = ItemBuilder.createItem(context, collection)
+                                      .withTitle("Test archivalMaterial")
+                                      .withEntityType("ArchivalMaterial")
+                                      .withMetadata(
+                                          "dc", "relation", "place", null, "Related Place", placeId,
+                                          Choices.CF_ACCEPTED)
+                                      .build();
+
+        context.restoreAuthSystemState();
+        archivalMaterial = commitAndReload(archivalMaterial);
+
+        List<MetadataValue> metadataValues = archivalMaterial.getMetadata();
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.longitude", "48.7254")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.longitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.longitude", "44.7254")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.longitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.latitude", "15.2211")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.latitude", placeId)));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtual.latitude", "16.2321")));
+        assertThat(metadataValues, hasItem(withNoPlace("cris.virtualsource.latitude", placeId)));
+
+        List<MetadataValue> longitude =
+            itemService.getMetadataByMetadataString(archivalMaterial, "cris.virtual.longitude");
+
+        assertThat(longitude.size(), is(2));
+        assertThat(longitude.get(0).getValue(), is("48.7254"));
+        assertThat(longitude.get(1).getValue(), is("44.7254"));
+
+        List<MetadataValue> latitude =
+            itemService.getMetadataByMetadataString(archivalMaterial, "cris.virtual.latitude");
+
+        assertThat(latitude.size(), is(2));
+        assertThat(latitude.get(0).getValue(), is("16.2321"));
+        assertThat(latitude.get(1).getValue(), is("15.2211"));
+    }
+
+    @Test
     public void testSingleMetadataJournalAnceEnhancement() throws Exception {
 
         configurationService.setProperty("choices.plugin.dc.relation.journal", "SherpaAuthority");
@@ -703,16 +947,16 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
 
         Item journalItem = ItemBuilder.createItem(context, collection)
-                .withTitle("Test journal")
-                .withEntityType("Journal")
-                .withJournalAnce("AA110022")
-                .build();
+                                      .withTitle("Test journal")
+                                      .withEntityType("Journal")
+                                      .withJournalAnce("AA110022")
+                                      .build();
 
         Item publication = ItemBuilder.createItem(context, collection)
-                .withTitle("Test publication")
-                .withEntityType("Publication")
-                .withRelationJournal(journalItem.getName(), journalItem.getID().toString())
-                .build();
+                                      .withTitle("Test publication")
+                                      .withEntityType("Publication")
+                                      .withRelationJournal(journalItem.getName(), journalItem.getID().toString())
+                                      .build();
 
         context.restoreAuthSystemState();
         publication = commitAndReload(publication);
@@ -845,8 +1089,10 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     private List<Integer> getPlacesAsVirtualSource(Item person1, Item publication, String metadata) {
         return getMetadataValues(publication, metadata).stream()
-                .filter(mv -> StringUtils.equals(mv.getValue(), person1.getID().toString())).map(mv -> mv.getPlace())
-                .collect(Collectors.toList());
+                                                       .filter(mv -> StringUtils.equals(mv.getValue(),
+                                                                                        person1.getID().toString()))
+                                                       .map(mv -> mv.getPlace())
+                                                       .collect(Collectors.toList());
     }
 
     private MetadataValue getFirstMetadataValue(Item item, String metadataField) {

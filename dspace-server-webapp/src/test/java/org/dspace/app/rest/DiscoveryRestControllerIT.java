@@ -1152,13 +1152,15 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             SearchFilterMatcher.hasContentInOriginalBundleFilter(),
             SearchFilterMatcher.hasFileNameInOriginalBundleFilter(),
             SearchFilterMatcher.hasFileDescriptionInOriginalBundleFilter(),
+            SearchFilterMatcher.hasGeospatialMetadataFilter(),
             SearchFilterMatcher.entityTypeFilter(),
             SearchFilterMatcher.isAuthorOfPublicationRelation(),
             SearchFilterMatcher.isProjectOfPublicationRelation(),
             SearchFilterMatcher.isOrgUnitOfPublicationRelation(),
             SearchFilterMatcher.isPublicationOfJournalIssueRelation(),
             SearchFilterMatcher.isJournalOfPublicationRelation(),
-            SearchFilterMatcher.languageFilter()
+            SearchFilterMatcher.languageFilter(),
+            SearchFilterMatcher.pointFilter()
         ));
 
         List<Matcher<? super Object>> allExpectedSortFields = new ArrayList<>(customSortFields);

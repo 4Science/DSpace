@@ -136,6 +136,8 @@ public class SearchConfigurationRest extends BaseObjectRest<String> {
         public static final String OPERATOR_NOTAUTHORITY = "notauthority";
         public static final String OPERATOR_CONTAINS = "contains";
         public static final String OPERATOR_NOTCONTAINS = "notcontains";
+        public static final String OPERATOR_POINT = "point";
+        public static final String OPERATOR_POLYGON = "polygon";
         public static final String OPERATOR_QUERY = "query";
 
         /**
