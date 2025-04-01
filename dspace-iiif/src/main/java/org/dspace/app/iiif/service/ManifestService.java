@@ -333,9 +333,11 @@ public class ManifestService extends AbstractResourceService {
                         "download", Item.ANY), () -> StringUtils.EMPTY);
 
         String defaultDownloadProperty = configurationService.getProperty("viewer.mirador.download.default");
-        boolean isRenderingEnabled = isDownloadAllowedValue(itemViewerDownloadMetadata) ||
-                isDownloadAllowedValue(collectionViewerDownloadMetadata) ||
-                isDownloadAllowedValue(defaultDownloadProperty);
+        boolean isRenderingEnabled = isDownloadEnabled(
+                itemViewerDownloadMetadata,
+                collectionViewerDownloadMetadata,
+                defaultDownloadProperty
+        );
 
         for (Bundle bundle : bundles) {
             List<Bitstream> bitstreams = bundle.getBitstreams();
@@ -360,6 +362,16 @@ public class ManifestService extends AbstractResourceService {
                 }
             }
         }
+    }
+
+    private boolean isDownloadEnabled(String itemConfig, String collectionConfig, String defaultConfig) {
+        if (StringUtils.isNotBlank(itemConfig)) {
+            return isDownloadAllowedValue(itemConfig);
+        }
+        if (StringUtils.isNotBlank(collectionConfig)) {
+            return isDownloadAllowedValue(collectionConfig);
+        }
+        return isDownloadAllowedValue(defaultConfig);
     }
 
     private boolean isDownloadAllowedValue(String value) {
