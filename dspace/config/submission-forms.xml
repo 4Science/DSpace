@@ -1862,6 +1862,17 @@
         <field>
           <dc-schema>glamproject</dc-schema>
           <dc-element>funding</dc-element>
+          <label>Grant</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
           <dc-qualifier>type</dc-qualifier>
           <label>Grant type</label>
           <input-type>onebox</input-type>
@@ -3160,11 +3171,11 @@
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <dc-qualifier>abstract</dc-qualifier>
-          <label>Testo</label>
+          <label>Inserire la didascalia per lo slider (massimo 150 caratteri)</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire la didascalia per lo slider (massimo 150 caratteri)</hint>
+          <hint>Testo</hint>
         </field>
       </row>
       <row>
