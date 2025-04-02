@@ -3171,11 +3171,11 @@
           <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <dc-qualifier>abstract</dc-qualifier>
-          <label>Inserire la didascalia per lo slider (massimo 150 caratteri)</label>
+          <label>Testo</label>
           <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Testo</hint>
+          <hint>Inserire la didascalia per lo slider (massimo 150 caratteri)</hint>
         </field>
       </row>
       <row>
