@@ -367,3 +367,11 @@ orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cri
 #  LDN INBOX SETTINGS  #
 ########################
 ldn.enabled = true
+
+
+# machine token used by the dspacerestprocess script
+dspace.cli.jwt=
+jwt.login.token.secret=
+
+# header access
+dspace.cli.access=
