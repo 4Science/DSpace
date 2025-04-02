@@ -63,7 +63,7 @@ public class MetadataListenerConstrain {
             constrainMetadata = this.metadata.get(metadataName);
             if (constrainMetadata == null) {
                 for (Map.Entry<String,String> entry : metadata.entrySet()) {
-                    if (entry.getValue() == metadataName) {
+                    if (entry.getValue().equals(metadataName)) {
                         constrainMetadata = entry.getKey();
                         break;
                     }
@@ -77,7 +77,7 @@ public class MetadataListenerConstrain {
     public boolean hasConstrain(String metadataName) {
         boolean hasConstrain = false;
         for (Map.Entry<String,String> entry : metadata.entrySet()) {
-            if (entry.getKey() == metadataName || entry.getValue() == metadataName) {
+            if (entry.getKey().equals(metadataName) || entry.getValue().equals(metadataName)) {
                 hasConstrain = true;
                 break;
             }

@@ -326,7 +326,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             Optional<Bitstream> primaryBitstream = bundles.get(0).getBitstreams().stream().filter(bitstream -> {
                 return bitstream.getMetadata().stream().anyMatch(metadataValue -> {
                     if (metadataField != null) {
-                        return metadataValue.getMetadataField().getID() == metadataField.getID()
+                        return metadataValue.getMetadataField().getID().equals(metadataField.getID())
                             && metadataValue.getValue() != null
                             && metadataValue.getValue().equalsIgnoreCase(value);
                     } else {
