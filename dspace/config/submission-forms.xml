@@ -7385,7 +7385,7 @@
           <dc-qualifier>temporal</dc-qualifier>
           <label>Data secolare</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint>Data secolare della risorsa. Segnalare, ove possibile, la parte di secolo considerata.</hint>
         </field>
