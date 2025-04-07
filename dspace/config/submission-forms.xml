@@ -1862,6 +1862,17 @@
         <field>
           <dc-schema>glamproject</dc-schema>
           <dc-element>funding</dc-element>
+          <label>Grant</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glamproject</dc-schema>
+          <dc-element>funding</dc-element>
           <dc-qualifier>type</dc-qualifier>
           <label>Grant type</label>
           <input-type>onebox</input-type>
@@ -7374,7 +7385,7 @@
           <dc-qualifier>temporal</dc-qualifier>
           <label>Data secolare</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint>Data secolare della risorsa. Segnalare, ove possibile, la parte di secolo considerata.</hint>
         </field>
