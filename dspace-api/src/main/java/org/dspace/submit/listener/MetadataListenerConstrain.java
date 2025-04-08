@@ -10,6 +10,7 @@ package org.dspace.submit.listener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -63,7 +64,7 @@ public class MetadataListenerConstrain {
             constrainMetadata = this.metadata.get(metadataName);
             if (constrainMetadata == null) {
                 for (Map.Entry<String,String> entry : metadata.entrySet()) {
-                    if (entry.getValue() == metadataName) {
+                    if (Objects.equals(entry.getValue(), metadataName)) {
                         constrainMetadata = entry.getKey();
                         break;
                     }
@@ -77,7 +78,7 @@ public class MetadataListenerConstrain {
     public boolean hasConstrain(String metadataName) {
         boolean hasConstrain = false;
         for (Map.Entry<String,String> entry : metadata.entrySet()) {
-            if (entry.getKey() == metadataName || entry.getValue() == metadataName) {
+            if (entry.getKey().equals(metadataName) || entry.getValue().equals(metadataName)) {
                 hasConstrain = true;
                 break;
             }
