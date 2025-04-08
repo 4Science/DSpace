@@ -152,7 +152,7 @@ public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
                 )
             );
 
-        Optional.ofNullable(bitstream.getSizeBytes())
+        Optional.of(bitstream.getSizeBytes())
             .filter(l -> l > 0)
             .map(String::valueOf)
             .ifPresent(size ->

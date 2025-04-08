@@ -120,6 +120,7 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.importer.external.openaire.service.OpenAireProjectImportMetadataSourceServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.submit.model.AccessConditionConfiguration;
 import org.dspace.supervision.SupervisionOrder;
 import org.dspace.util.UUIDUtils;
 import org.dspace.validation.CclicenseValidator;
@@ -176,6 +177,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     @Mock
     private SubmissionService mockedSubmissionService;
 
+    private AccessConditionConfiguration accessConditionConfiguration;
     private GroupService groupService;
 
     private Group embargoedGroups;
@@ -222,6 +224,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             orgUnitType = EntityTypeBuilder.createEntityTypeBuilder(context, "OrgUnit").build();
         }
         adminGroup = EPersonServiceFactory.getInstance().getGroupService().findByName(context, Group.ADMIN);
+
+        accessConditionConfiguration = DSpaceServicesFactory.getInstance().getServiceManager()
+                .getServiceByName("accessConditionConfigurationDefault", AccessConditionConfiguration.class);
 
         context.restoreAuthSystemState();
     }
@@ -9219,6 +9224,109 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
 
         getClient(tokenEPerson).perform(get("/api/core/items/" + witem.getItem().getID()))
                                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * This test checks that, when the item access conditions are set to required in the
+     * accessConditionConfigurationDefault bean, it won't be possible to submit an item without them
+     * @throws Exception
+     */
+    @Test
+    public void testAccessConditionRequirement() throws Exception {
+        boolean isAccessConditionRequired = accessConditionConfiguration.isRequired();
+        boolean isUploadRequired = configurationService.getBooleanProperty("webui.submit.upload.required", true);
+        try {
+            configurationService.setProperty("webui.submit.upload.required", false);
+
+            context.turnOffAuthorisationSystem();
+
+            RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,
+                    "isCorrectionOfItem", "isCorrectedByItem", 0, 1, 0, 1);
+
+            parentCommunity = CommunityBuilder.createCommunity(context)
+                    .withName("Parent Community")
+                    .build();
+
+            Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                    .withName("Collection")
+                    .withEntityType("Publication")
+                    .withSubmitterGroup(admin, eperson)
+                    .withSubmissionDefinition("traditional")
+                    .build();
+
+            WorkspaceItem workspaceItem1 = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                    .withTitle("This is a publication")
+                    .withIssueDate("2025-01-10")
+                    .withSubject("For not required ac")
+                    .withType("Publication")
+                    .withSubmitter(eperson)
+                    .grantLicense()
+                    .build();
+
+            WorkspaceItem workspaceItem2 = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+                    .withTitle("This is a different publication")
+                    .withIssueDate("2025-01-11")
+                    .withSubject("For required access conditions")
+                    .withType("Publication")
+                    .withSubmitter(eperson)
+                    .grantLicense()
+                    .build();
+
+            context.restoreAuthSystemState();
+
+            String adminAuthToken = getAuthToken(admin.getEmail(), password);
+
+            // with not required item access conditions, it will be possible to submit the item directly
+            accessConditionConfiguration.setRequired(false);
+
+            // submit the workspaceitem
+            getClient(adminAuthToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                    .content("/api/submission/workspaceitems/" + workspaceItem1.getID())
+                    .contentType(textUriContentType))
+                    .andExpect(status().isCreated());
+
+            // now let's set the requirement to true, it won't be possible to submit the item
+            accessConditionConfiguration.setRequired(true);
+
+            // submit the workspaceitem
+            getClient(adminAuthToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                    .content("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                    .contentType(textUriContentType))
+                    .andExpect(status().isUnprocessableEntity());
+
+            // we need to patch the item to add the access conditions
+            List<Operation> addAccessCondition = new ArrayList<Operation>();
+            List<Map<String, String>> accessConditions = new ArrayList<Map<String,String>>();
+
+            Map<String, String> accessCondition1 = new HashMap<String, String>();
+            accessCondition1.put("name", "administrator");
+            accessConditions.add(accessCondition1);
+
+            Map<String, String> accessCondition2 = new HashMap<String, String>();
+            accessCondition2.put("name", "embargo");
+            accessCondition2.put("startDate", "2022-01-31T01:00:00Z");
+            accessConditions.add(accessCondition2);
+
+            addAccessCondition.add(new AddOperation("/sections/defaultAC/accessConditions",
+                                   accessConditions));
+
+            String patchBody = getPatchContent(addAccessCondition);
+
+            getClient(adminAuthToken).perform(patch("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                                   .content(patchBody)
+                                   .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                   .andExpect(status().isOk());
+
+            // submit the workspaceitem
+            getClient(adminAuthToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                    .content("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                    .contentType(textUriContentType))
+                    .andExpect(status().isCreated());
+
+        } finally {
+            accessConditionConfiguration.setRequired(isAccessConditionRequired);
+            configurationService.setProperty("webui.submit.upload.required", isUploadRequired);
+        }
     }
 
     @Test
