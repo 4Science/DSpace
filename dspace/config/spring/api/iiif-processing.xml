@@ -24,7 +24,7 @@
                         <constructor-arg>
                             <list>
                                 <value>all</value>
-                                <value>no</value>
+                                <value>single-image</value>
                             </list>
                         </constructor-arg>
                     </bean>
