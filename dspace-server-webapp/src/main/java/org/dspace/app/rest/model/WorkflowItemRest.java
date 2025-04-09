@@ -20,7 +20,7 @@ import org.dspace.app.rest.RestResourceController;
     @LinkRest(name = WorkflowItemRest.ITEM, method = "getWorkflowItemItem"),
     @LinkRest(name = WorkflowItemRest.COLLECTION, method = "getWorkflowItemCollection")
 })
-public class WorkflowItemRest extends AInprogressSubmissionRest {
+public class WorkflowItemRest extends AInprogressSubmissionRest<Integer> {
     public static final String NAME = "workflowitem";
     public static final String CATEGORY = RestAddressableModel.WORKFLOW;
 
