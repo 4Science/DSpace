@@ -217,6 +217,9 @@
               id="4.1-ministeri_dipartimenti_organi_amministrativi_centrali"
               label="Ministeri, Dipartimenti, Organi amministrativi centrali">
               <isComposedBy>
+                <node id="4.1-dipartimento_della_gioventu"
+                      label="Dipartimento della Gioventù">
+                </node>
                 <node id="4.1-agenzia_del_territorio"
                   label="Agenzia del Territorio">
                 </node>
@@ -429,7 +432,8 @@
                       label="Musei di scultura">
                       <hasNote>Inclusi i musei di scultura all'aperto.</hasNote>
                     </node>
-                    <node>
+                    <node id="4.1-pinacoteche"
+                          label="Pinacoteche">
                     </node>
                   </isComposedBy>
                 </node>
@@ -470,17 +474,17 @@
                       label="Aree marine protette">
                     </node>
                     <node id="4.1-bioparchi" label="Bioparchi">
-                    </node>
-                    <node id="4.1-aree_marine_protette"
-                      label="Aree marine protette">
-                    </node>
-                    <node id="4.1-bioparchi" label="Bioparchi">
-                    </node>
-                    <node id="4.1-parchi_e_riserve_naturali_nazionali"
-                      label="Parchi e riserve naturali nazionali">
-                    </node>
-                    <node id="4.1-parchi_e_riserve_naturali_regionali"
-                      label="Parchi e riserve naturali regionali">
+                      <isComposedBy>
+                        <node id="4.1-acquari"
+                              label="Acquari">
+                        </node>
+                        <node id="4.1-giardini_zoologici"
+                              label="Giardini zoologici">
+                        </node>
+                        <node id="4.1-orti_botanici"
+                              label="Orti botanici">
+                        </node>
+                      </isComposedBy>
                     </node>
                   </isComposedBy>
                 </node>
@@ -852,15 +856,57 @@
                 <node id="4.2-dattiloscritti" label="Dattiloscritti">
                 </node>
                 <node id="4.2-documenti_sonori" label="Documenti sonori">
+                  <isComposedBy>
+                    <node id="4.2-audioregistrazioni" label="Audioregistrazioni">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-documenti_visivi" label="Documenti visivi">
+                  <isComposedBy>
+                    <node id="4.2-carte_geografiche_mappe" label="Carte geografiche / Mappe">
+                    </node>
+                    <node id="4.2-cartoline" label="Cartoline">
+                    </node>
+                    <node id="4.2-sigilli" label="Sigilli">
+                    </node>
+                    <node id="4.2-stampe_incisioni_matrici" label="Stampe / Incisioni / Matrici">
+                    </node>
+                    <node id="4.2-videoregistrazioni" label="Videoregistrazioni">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-fumetti" label="Fumetti">
                 </node>
                 <node id="4.2-libri" label="Libri">
+                  <isComposedBy>
+                    <node id="4.2-libri_antichi" label="Libri antichi">
+                      <isComposedBy>
+                        <node id="4.2-incunaboli" label="Incunaboli">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                    <node id="4.2-libri_di_pregio" label="Libri di pregio">
+                    </node>
+                    <node id="4.2-libri_rari" label="Libri rari">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-manoscritti" label="Manoscritti">
                   <hasNote>Indipendentemente dal mezzo scrittorio.</hasNote>
+                  <isComposedBy>
+                    <node id="4.2-autografi" label="Autografi">
+                    </node>
+                    <node id="4.2-codici" label="Codici">
+                      <isComposedBy>
+                        <node id="4.2-codici_miniati" label="Codici miniati">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                    <node id="4.2-papiri" label="Papiri">
+                    </node>
+                    <node id="4.2-pergamene" label="Pergamene">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-microforme" label="Microforme">
                   <hasNote>Microfilm, microfiche.</hasNote>
@@ -869,9 +915,53 @@
                   label="Multimedia e risorse interattive">
                 </node>
                 <node id="4.2-periodici" label="Periodici">
+                  <isComposedBy>
+                    <node id="4.2-annuari" label="Annuari">
+                    </node>
+                    <node id="4.2-quotidiani" label="Quotidiani">
+                      <isComposedBy>
+                        <node id="4.2-articoli_di_giornale" label="Articoli di giornale">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                    <node id="4.2-riviste" label="Riviste">
+                      <isComposedBy>
+                        <node id="4.2-articoli_di_rivista" label="Articoli di rivista">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-risorse_documentarie_digitali"
                   label="Risorse documentarie digitali">
+                  <isComposedBy>
+                    <node id="4.2-audio_digitali" label="Audio digitali">
+                    </node>
+                    <node id="4.2-banche_dati" label="Banche dati">
+                      <isComposedBy>
+                        <node id="4.2-banche_dati_bibliografiche" label="Banche dati bibliografiche">
+                        </node>
+                        <node id="4.2-banche_dati_documentarie" label="Banche dati documentarie">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                    <node id="4.2-biblioteche_digitali" label="Biblioteche digitali">
+                    </node>
+                    <node id="4.2-blog" label="Blog">
+                    </node>
+                    <node id="4.2-forum" label="Forum">
+                    </node>
+                    <node id="4.2-pagine_web" label="Pagine web">
+                    </node>
+                    <node id="4.2-portali_web" label="Portali web">
+                    </node>
+                    <node id="4.2-siti_web" label="Siti web">
+                    </node>
+                    <node id="4.2-video_digitali" label="Video digitali">
+                    </node>
+                    <node id="4.2-web_directory" label="Web directory">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-ritagli" label="Ritagli">
                 </node>
@@ -892,11 +982,53 @@
                 </node>
                 <node id="4.2-risorse_informative"
                   label="Risorse informative">
+                  <isComposedBy>
+                    <node id="4.2-almanacchi" label="Almanacchi">
+                    </node>
+                    <node id="4.2-bibliografie" label="Bibliografie">
+                    </node>
+                    <node id="4.2-calendari" label="Calendari">
+                    </node>
+                    <node id="4.2-cataloghi" label="Cataloghi">
+                      <isComposedBy>
+                        <node id="4.2-opac" label="OPAC">
+                        </node>
+                      </isComposedBy>
+                    </node>
+                    <node id="4.2-cronologie" label="Cronologie">
+                    </node>
+                    <node id="4.2-discografie" label="Discografie">
+                    </node>
+                    <node id="4.2-dizionari" label="Dizionari">
+                    </node>
+                    <node id="4.2-dépliants" label="Dépliants">
+                    </node>
+                    <node id="4.2-e_book" label="E-book">
+                    </node>
+                    <node id="4.2-enciclopedie" label="Enciclopedie">
+                    </node>
+                    <node id="4.2-filmografie" label="Filmografie">
+                    </node>
+                    <node id="4.2-glossari" label="Glossari">
+                    </node>
+                    <node id="4.2-repertori_di_dati" label="Repertori di dati">
+                    </node>
+                    <node id="4.2-thesauri" label="Thesauri">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-materiale_didattico"
                   label="Materiale didattico">
                   <hasNote>Usa 'Learning objects' per materiale didattico su
                     supporto digitale.</hasNote>
+                  <isComposedBy>
+                    <node id="4.2-learning_object" label="Learning object">
+                    </node>
+                    <node id="4.2-libri_di_testo" label="Libri di testo">
+                    </node>
+                    <node id="4.2-manuali" label="Manuali">
+                    </node>
+                  </isComposedBy>
                 </node>
                 <node id="4.2-opere_di_divulgazione"
                   label="Opere di divulgazione">
@@ -979,8 +1111,6 @@
                 </node>
                 <node id="4.2-disegni" label="Disegni">
                   <isComposedBy>
-                    <node id="4.2-fumetti" label="Fumetti">
-                    </node>
                     <node id="4.2-illustrazioni" label="Illustrazioni">
                       <hasNote>Per l'editoria, la pubblicità, il web.</hasNote>
                     </node>
@@ -988,16 +1118,6 @@
                 </node>
                 <node id="4.2-film" label="Film">
                   <isComposedBy>
-                    <node id="4.2-documentari" label="Documentari">
-                    </node>
-                    <node id="4.2-film_d_animazione"
-                      label="Film d'animazione">
-                    </node>
-                    <node id="4.2-film_d_essai" label="Film d'essai">
-                    </node>
-                    <node id="4.2-film_d_intrattenimento"
-                      label="Film d'intrattenimento">
-                    </node>
                     <node id="4.2-documentari" label="Documentari">
                     </node>
                     <node id="4.2-film_d_animazione"
