@@ -10,10 +10,13 @@ package org.dspace.app.rest;
 import static com.jayway.jsonpath.JsonPath.read;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dspace.app.rest.matcher.CollectionMatcher;
 import org.dspace.app.rest.matcher.EPersonMatcher;
 import org.dspace.app.rest.matcher.GroupMatcher;
 import org.dspace.app.rest.model.GroupRest;
@@ -465,7 +469,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/epersons")
                 .contentType(parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/epersons/" + ePerson.getID()))
                         .andExpect(status().isForbidden());
 
@@ -491,8 +495,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/epersons")
                 .contentType(parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/epersons/" + ePerson.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/epersons"))
@@ -529,8 +532,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()))
             .andExpect(status().isForbidden());
 
@@ -556,8 +558,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/subgroups"))
@@ -595,8 +596,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/subgroups"))
@@ -623,8 +623,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/subgroups"))
@@ -661,7 +660,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/epersons")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/epersons/" + ePerson.getID()))
                         .andExpect(status().isForbidden());
 
@@ -687,8 +686,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/epersons")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/epersons/" + ePerson.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/epersons"))
@@ -727,8 +725,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()))
                         .andExpect(status().isForbidden());
 
@@ -754,8 +751,7 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
         getClient(token).perform(
             post("/api/eperson/groups/" + adminGroup.getID() + "/subgroups")
                 .contentType(MediaType.parseMediaType
-                    (org.springframework.data.rest.webmvc.RestMediaTypes
-                         .TEXT_URI_LIST_VALUE))
+                    (TEXT_URI_LIST_VALUE))
                 .content("https://localhost:8080/server/api/eperson/groups/" + group.getID()));
 
         getClient(token).perform(get("/api/eperson/groups/" + adminGroup.getID() + "/subgroups"))
@@ -777,4 +773,55 @@ public class CommunityAdminGroupRestControllerIT extends AbstractControllerInteg
                             GroupMatcher.matchGroupWithName(group.getName())
                         )));
     }
+
+
+    @Test
+    public void epersonAdminCanSubmitInSubCollection() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Community topCommunity = CommunityBuilder.createCommunity(context).withName("Top Community").build();
+
+        Community subCommunity = CommunityBuilder.createSubCommunity(context, topCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, subCommunity).withName("col1").build();
+        Collection col2 = CollectionBuilder.createCollection(context, subCommunity).withName("col2").build();
+
+        context.restoreAuthSystemState();
+
+        ObjectMapper mapper = new ObjectMapper();
+        GroupRest groupRest = new GroupRest();
+        MetadataRest metadataRest = new MetadataRest();
+        metadataRest.put("dc.description", new MetadataValueRest("Top Community community-admin group"));
+
+        groupRest.setMetadata(metadataRest);
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        AtomicReference<UUID> idRef = new AtomicReference<>();
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(post("/api/core/communities/" + topCommunity.getID() + "/adminGroup")
+                                     .content(mapper.writeValueAsBytes(groupRest))
+                                     .contentType(contentType))
+                        .andExpect(status().isCreated())
+                        .andDo(result -> idRef
+                            .set(UUID.fromString(read(result.getResponse().getContentAsString(), "$.id")))
+                        );
+        // Add eperson to top community admin group
+        getClient(tokenAdmin).perform(post("/api/eperson/groups/" + idRef.get() + "/epersons")
+                                          .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                                          .content(REST_SERVER_URL + "eperson/groups/" + eperson.getID()
+                                          ));
+
+        // Check if eperson can submit
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+        getClient(tokenEPerson).perform(get("/api/core/collections/search/findSubmitAuthorized"))
+                               .andExpect(status().isOk())
+                               .andExpect(content().contentType(contentType))
+                               .andExpect(jsonPath("$.page.totalElements", is(2)))
+                               .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
+                                   CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle()),
+                                   CollectionMatcher.matchProperties(col2.getName(), col2.getID(), col2.getHandle())
+                               )));
+    }
+
 }
