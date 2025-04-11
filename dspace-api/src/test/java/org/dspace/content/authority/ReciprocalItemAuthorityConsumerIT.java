@@ -7,6 +7,9 @@
  */
 package org.dspace.content.authority;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.matcher.MetadataValueMatcher;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
@@ -71,6 +75,8 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                 "dc.relation.publication");
         configurationService.setProperty("ItemAuthority.reciprocalMetadata.Product.dc.relation.publication",
                 "dc.relation.product");
+        configurationService.setProperty("ItemAuthority.reciprocalMetadata.WebAnnotation.dc.relation.annotation",
+                                         "dc.relation.annotation");
         metadataAuthorityService.clearCache();
 
         initializeReciprocalConfiguration();
@@ -366,6 +372,71 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             Assert.assertEquals(productItem.getID(), foundProductItem.getID());
         } finally {
             configurationService.setProperty("authority.controlled.dc.relation.product", "false");
+            metadataAuthorityService.clearCache();
+        }
+    }
+
+    @Test
+    public void testAnnotationItemWithReciprocal() throws Exception {
+        try {
+            configurationService.setProperty("authority.controlled.dc.relation.annotation", "true");
+            metadataAuthorityService.clearCache();
+
+            context.turnOffAuthorisationSystem();
+            Collection annotationCollection =
+                CollectionBuilder.createCollection(context, parentCommunity)
+                                 .withEntityType("WebAnnotation")
+                                 .withName("Annotation Collection")
+                                 .build();
+            String firstAnnotation = "First Annotation";
+            Item annotationItem =
+                ItemBuilder.createItem(context, annotationCollection)
+                           .withTitle(firstAnnotation)
+                           .withType("Annotation")
+                           .build();
+            String relatedAnnotation = "Related Annotation";
+            Item annotationWithRelation =
+                ItemBuilder.createItem(context, annotationCollection)
+                           .withTitle(relatedAnnotation)
+                           .withType("Related Annotation")
+                           .withMetadata(
+                               "dc", "relation", "annotation", null, relatedAnnotation,
+                               annotationItem.getID().toString(), Choices.CF_ACCEPTED
+                           )
+                           .build();
+            context.commit();
+
+            List<MetadataValue> metadataValues =
+                itemService.getMetadataByMetadataString(annotationWithRelation, "dc.relation.annotation");
+            Assert.assertEquals(1, metadataValues.size());
+
+            List<MetadataValue> annotationMetadataValues =
+                itemService.getMetadataByMetadataString(annotationItem, "dc.relation.annotation");
+            Assert.assertEquals(1, annotationMetadataValues.size());
+
+            assertThat(annotationMetadataValues, hasItem(
+                MetadataValueMatcher.with(
+                    "dc.relation.annotation",
+                    relatedAnnotation,
+                    annotationWithRelation.getID().toString(),
+                    Choices.CF_ACCEPTED
+                )
+            ));
+
+            SolrDocumentList solrDocumentList = getSolrDocumentList(annotationItem);
+            Assert.assertEquals(1, solrDocumentList.size());
+            SolrDocument solrDoc = solrDocumentList.get(0);
+
+            List<String> annotationTitles = (List<String>) solrDoc.get("dc.relation.annotation");
+            assertThat(annotationTitles, hasItem(relatedAnnotation));
+
+            List<String> annotationAuthorities = (List<String>) solrDoc.get("dc.relation.annotation_authority");
+            assertThat(annotationAuthorities, hasItem(annotationWithRelation.getID().toString()));
+
+            Item foundRelatedAnnotation =
+                itemService.findByIdOrLegacyId(new Context(), annotationWithRelation.getID().toString());
+            Assert.assertEquals(annotationWithRelation.getID(), foundRelatedAnnotation.getID());
+        } finally {
             metadataAuthorityService.clearCache();
         }
     }
