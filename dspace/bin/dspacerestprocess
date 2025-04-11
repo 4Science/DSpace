@@ -27,8 +27,10 @@ contains_equal() {
 BINDIR=`dirname $0`
 DSPACEDIR=`cd "$BINDIR/.." ; pwd`
 JWT_TOKEN=`$BINDIR/dspace dsprop --property dspace.cli.jwt`
+ACCESS=`$BINDIR/dspace dsprop --property dspace.cli.access`
 RESTURL=`$BINDIR/dspace dsprop --property dspace.server.url`
 AUTHHEADER=`echo "authorization: Bearer $JWT_TOKEN"`
+ACCESSHEADER=`echo "access: $ACCESS"`
 
 # Check if the jwt token is configured
 if [ -z "$JWT_TOKEN" ]; then
@@ -68,6 +70,7 @@ echo "The process will use the correlation-id: $random_uuid"
 # Use curl to post the JSON data
 curl "$RESTURL/api/system/scripts/$SCRIPTNAME/processes" \
   -H 'accept: application/json, text/plain, */*' \
+  -H "$ACCESSHEADER" \
   -H "$AUTHHEADER" \
   -H "cookie: DSPACE-XSRF-COOKIE=$random_uuid" \
   -H "x-correlation-id: $random_uuid" \

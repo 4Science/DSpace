@@ -328,17 +328,7 @@ usage-statistics.dbfile=/var/lib/GeoIP/GeoLite2-City.mmdb
 # AUDIO and VIDEO Integration #
 ###############################
 
-## Audio Video configuration
-
-av-stream.stream.original = true
-audiowaveform.path = /usr/bin/audiowaveform
-ffmpeg.path = /usr/bin/ffmpeg
-ffprobe.path = /usr/bin/ffprobe
-m4box.path = /usr/bin/MP4Box
-av-stream.transcribe-service.plugin = whisper-service
-whisper.fullpath =
-whisper.default.transcription-model = base
-whisper.transcription-format = vtt
+## Audio Video configuration (see modules/av-stream.cfg)
 
 #########################################################
 ### LOGIN MIUR configuration ###
@@ -377,3 +367,11 @@ orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cri
 #  LDN INBOX SETTINGS  #
 ########################
 ldn.enabled = true
+
+
+# machine token used by the dspacerestprocess script
+dspace.cli.jwt=
+jwt.login.token.secret=
+
+# header access
+dspace.cli.access=
