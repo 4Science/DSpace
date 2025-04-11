@@ -21,15 +21,15 @@ import org.dspace.core.service.PluginService;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.dspace.importer.external.ror.service.RorImportMetadataSourceServiceImpl;
+import org.dspace.importer.external.ror.service.RorImportMetadataSourceService;
+import org.dspace.importer.external.ror.service.RorServicesFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.utils.DSpace;
 
 public class RorOrgUnitAuthority extends ItemAuthority {
 
-    private final RorImportMetadataSourceServiceImpl rorImportMetadataSource = new DSpace().getServiceManager()
-        .getServicesByType(RorImportMetadataSourceServiceImpl.class).get(0);
+    private final RorImportMetadataSourceService rorImportMetadataSource =
+        RorServicesFactory.getInstance().getRorImportMetadataSourceService();
 
     private final ItemAuthorityServiceFactory itemAuthorityServiceFactory =
         dspace.getServiceManager().getServiceByName("itemAuthorityServiceFactory", ItemAuthorityServiceFactory.class);

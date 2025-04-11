@@ -1577,6 +1577,7 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             assertThat(handler.getErrorMessages(), contains(
                     "Cannot create bitstream from file at path http://127.0.1.1"));
             assertThat(handler.getWarningMessages(), contains(
+                    containsString("Domain '127.0.1.1' is not in the allowed list. Path: http://127.0.1.1"),
                     containsString("Row 2 - Invalid item left in workspace"),
                     containsString("Row 3 - Invalid item left in workspace")));
             assertThat(handler.getInfoMessages(), contains(
@@ -1586,8 +1587,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
                     is("Found 1 bitstreams to process"),
                     is("Found 2 items to process")));
 
-            Item item = getItemFromMessage(handler.getWarningMessages().get(0));
-            Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+            Item item = getItemFromMessage(handler.getWarningMessages().get(1));
+            Item item2 = getItemFromMessage(handler.getWarningMessages().get(2));
 
             assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), empty());
             assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
@@ -1657,6 +1658,62 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         } finally {
             configurationService.setProperty("allowed.ips.import", new String[]{});
         }
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathAndEmptyAllowedIps() throws Exception {
+
+        InputStream mockInputStream = new ByteArrayInputStream("mocked content".getBytes());
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+            .withSubmissionDefinition("publication")
+            .withAdminGroup(eperson)
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+            "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        ImportFileUtilMockClass importFileUtilSpy = spy(new ImportFileUtilMockClass(handler));
+        doReturn(mockInputStream).when(importFileUtilSpy).openStream(any(URL.class));
+
+        ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
+        ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(args[0]);
+
+        BulkImport script = null;
+        if (scriptConfiguration != null) {
+            script = (BulkImport) scriptService.createDSpaceRunnableForScriptConfiguration(scriptConfiguration);
+            script.setImportFileUtil(importFileUtilSpy);
+        }
+        if (script != null) {
+            if (DSpaceRunnable.StepResult.Continue.equals(script.initialize(args, handler, eperson))) {
+                script.run();
+            }
+        }
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), contains(
+            containsString("Row 2 - Invalid item left in workspace"),
+            containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+            is("Start reading all the metadata group rows"),
+            is("Found 4 metadata groups to process"),
+            is("Start reading all the bitstream rows"),
+            is("Found 1 bitstreams to process"),
+            is("Found 2 items to process"),
+            containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), contains(
+            bitstreamWith("Test title", "test file description",
+                          "mocked content")));
+
     }
 
     @Test
