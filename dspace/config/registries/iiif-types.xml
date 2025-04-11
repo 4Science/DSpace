@@ -10,6 +10,11 @@
         <namespace>http://dspace.org/iiif</namespace>
     </dc-schema>
 
+    <dc-schema>
+        <name>viewer</name>
+        <namespace>http://dspace.org/viewer</namespace>
+    </dc-schema>
+
     <dc-type>
         <schema>iiif</schema>
         <element>label</element>
@@ -61,6 +66,13 @@
         <element>search</element>
         <qualifier>enabled</qualifier>
         <scope_note>Metadata field used to enable the IIIF Search service at the item level</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>viewer</schema>
+        <element>mirador</element>
+        <qualifier>download</qualifier>
+        <scope_note>Metadata field used to enable the IIIF download plugin at item/collection level</scope_note>
     </dc-type>
 
 </dspace-dc-types>
