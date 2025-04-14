@@ -23,7 +23,6 @@ import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION
 import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_NAME_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.PUBLICATION_DATE_INVALID;
-import static org.dspace.orcid.model.validator.OrcidValidationError.START_DATE_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.TITLE_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.TYPE_REQUIRED;
 
@@ -137,9 +136,6 @@ public class OrcidValidatorImpl implements OrcidValidator {
     @Override
     public List<OrcidValidationError> validateAffiliation(Affiliation affiliation) {
         List<OrcidValidationError> errors = new ArrayList<OrcidValidationError>();
-        if (affiliation.getStartDate() == null) {
-            errors.add(START_DATE_REQUIRED);
-        }
 
         if (affiliation.getOrganization() == null) {
             errors.add(ORGANIZATION_REQUIRED);
