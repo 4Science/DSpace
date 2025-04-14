@@ -1422,7 +1422,7 @@
             </dependency>
 
             <dependency>
-		    <artifactId>spring-jdbc</artifactId>
+                <artifactId>spring-jdbc</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
@@ -1586,7 +1586,7 @@
                 <groupId>net.handle</groupId>
                 <artifactId>handle</artifactId>
                 <version>9.3.1</version>
-		<exclusions>
+                <exclusions>
                     <!-- A later version is brought in by google-oauth-client -->
                     <exclusion>
                         <groupId>com.google.code.gson</groupId>
@@ -1860,9 +1860,9 @@
                 <version>4.5.14</version>
             </dependency>
             <dependency>
-              <groupId>org.apache.httpcomponents</groupId>
-              <artifactId>httpmime</artifactId>
-              <version>4.5.14</version>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>4.5.14</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -2052,10 +2052,15 @@
                 <version>1.11.13</version>
             </dependency>
             <dependency>
-	            <groupId>org.apache.xmlgraphics</groupId>
-	            <artifactId>xmlgraphics-commons</artifactId>
-	            <version>2.6</version>
-          </dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>xmlgraphics-commons</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.10.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
