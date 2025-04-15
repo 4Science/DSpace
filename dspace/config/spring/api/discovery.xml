@@ -2055,6 +2055,18 @@
     </bean>
 
     <bean id="relationEventAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+
         <!--Any default filter queries, these filter queries will be used for all
                 queries done by discovery for this configuration -->
         <property name="defaultFilterQueries">
@@ -2067,99 +2079,220 @@
     </bean>
 
     <bean id="relationFamilyAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.family:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.family_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationPersonAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.person:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.person_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationPlaceAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.place:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.place_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationAudioVideoAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationArchivalMaterialAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationPictureAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationScientificMaterialAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationCoinAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationPublicationAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationMusicalLibrettosAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
     </bean>
 
     <bean id="relationArtworkAnnotationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="sortFields">
+                    <list>
+                        <ref bean="sortTitleAsc" />
+                    </list>
+                </property>
+            </bean>
+        </property>
         <property name="defaultFilterQueries">
             <list>
-                <value>dc.relation.relatedDocument:{0} AND entityType_keyword:WebAnnotation</value>
+                <value>dc.relation.relatedDocument_authority:{0} AND entityType_keyword:WebAnnotation</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -2292,7 +2425,7 @@
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
                 <value>dc.relation.place_authority:{0} OR dc.coverage.spatialpvcs_authority:{0} OR dc.coverage.spatialpvcr_authority:{0} OR dc.coverage.spatialpvcn_authority:{0} OR dc.coverage.spatialpvcc_authority:{0}</value>
-                <value>search.resourcetype:Item -entityType_keyword:Fonds -entityType_keyword:JournalFonds -entityType_keyword:Aggregation -entityType_keyword:Path -entityType_keyword:StaticPage -entityType_keyword:News -entityType_keyword:Place</value>
+                <value>search.resourcetype:Item -entityType_keyword:WebAnnotation -entityType_keyword:Fonds -entityType_keyword:JournalFonds -entityType_keyword:Aggregation -entityType_keyword:Path -entityType_keyword:StaticPage -entityType_keyword:News -entityType_keyword:Place</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -2487,7 +2620,7 @@
 	    <property name="defaultFilterQueries">
 	        <list>
 	            <!--Only find items, communities and collections-->
-	            <value>search.resourcetype:Item -entityType_keyword:Fonds -entityType_keyword:JournalFonds -entityType_keyword:Aggregation -entityType_keyword:Path -entityType_keyword:StaticPage -entityType_keyword:News</value>
+	            <value>search.resourcetype:Item -entityType_keyword:WebAnnotation -entityType_keyword:Fonds -entityType_keyword:JournalFonds -entityType_keyword:Aggregation -entityType_keyword:Path -entityType_keyword:StaticPage -entityType_keyword:News</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
 	        </list>
 	    </property>
