@@ -101,10 +101,11 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
             for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
 
-                discoverQuery.addSortField(searchService.toSortFieldIndex(
-                                sortConfig.getMetadataField(), sortConfig.getType()),
-                        DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
-                                DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
+                discoverQuery.addSortField(
+                    searchService.toSortFieldIndex(sortConfig.getMetadataField(), sortConfig.getType()),
+                    DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
+                        DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc
+                );
             }
         }
 
@@ -145,9 +146,10 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
 
                 discoverQuery.addSortField(searchService.toSortFieldIndex(
-                                sortConfig.getMetadataField(), sortConfig.getType()),
-                        DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
-                                DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
+                                               sortConfig.getMetadataField(), sortConfig.getType()),
+                                           DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(
+                                               sortConfig.getDefaultSortOrder().asc) ?
+                                               DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
             }
         }
 
@@ -192,7 +194,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
                                  UUID.fromString(parentMtd.getAuthority()));
-                return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                if (parentItem != null) {
+                    return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
@@ -241,7 +245,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
                                  UUID.fromString(parentMtd.getAuthority()));
-                choice.extras.put("parent", parentItem.getID().toString());
+                if (parentItem != null) {
+                    choice.extras.put("parent", parentItem.getID().toString());
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
