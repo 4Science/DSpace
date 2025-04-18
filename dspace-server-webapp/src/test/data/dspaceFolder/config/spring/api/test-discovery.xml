@@ -1646,6 +1646,7 @@
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -1659,6 +1660,7 @@
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterLicense" />
+                <ref bean="searchFilterDcTermsSubject" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -4771,6 +4773,19 @@
                 <value>person.knowsLanguage</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="searchFilterDcTermsSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="dctermssubject"/>
+        <property name="metadataFields">
+            <list>
+                <value>dcterms.subject</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
     </bean>
 
     <!--Sort properties-->

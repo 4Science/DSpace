@@ -524,6 +524,7 @@
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterDcTermsSubject" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -537,6 +538,7 @@
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterLicense" />
+                <ref bean="searchFilterDcTermsSubject" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
