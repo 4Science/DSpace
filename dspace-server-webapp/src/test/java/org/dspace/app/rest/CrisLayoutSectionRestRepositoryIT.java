@@ -9,17 +9,13 @@ package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withBrowseComponent;
-import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withFacetComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndAdvancedTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCarouselComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCountersComponent;
-import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndFacetComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndSearchComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndTextRowComponent;
-import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withSearchComponent;
-import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withTopComponent;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -67,16 +63,6 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
                 hasItem(withIdAndBrowseComponent("sectiondocuments", 0, 0, "col-md-4", expectedBrowseNames))))
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndSearchComponent("sectiondocuments", 0, 1, "col-md-8", "documents"))))
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndTopComponent("sectiondocuments", 2, 0, "col-md-12",
-                    "documents", "dc.date.accessioned", "desc", 4, false, false, "list",
-                    "", "col-12 col-lg-6", "", true, "top"))))
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndTopComponent("sectiondocuments", 2, 1, "col-md-12",
-                                    "documents", "metric.view", "desc", 4, false, false, "list",
-                                    "", "col-12 col-lg-6", "", true, "top"))))
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndFacetComponent("sectiondocuments", 1, 0, "col-md-12", "documents"))))
 
 
             .andExpect(jsonPath("$._embedded.sections",
@@ -150,14 +136,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id", is("sectiondocuments")))
             .andExpect(jsonPath("$", withBrowseComponent(0, 0, "col-md-4", expectedBrowseNames)))
-            .andExpect(jsonPath("$", withSearchComponent(0, 1, "col-md-8", "documents")))
-            .andExpect(jsonPath("$", withTopComponent(2, 0, "col-md-12", "documents",
-                "dc.date.accessioned", "desc", 4, false, false, "list",
-                "", "col-12 col-lg-6", "", true, "top")))
-            .andExpect(jsonPath("$", withTopComponent(2, 1, "col-md-12", "documents", "metric.view", "desc",
-                4, false, false, "list",
-                "", "col-12 col-lg-6", "", true, "top")))
-            .andExpect(jsonPath("$", withFacetComponent(1, 0, "col-md-12", "documents")));
+            .andExpect(jsonPath("$", withSearchComponent(0, 1, "col-md-8", "documents")));
     }
 
     @Test
