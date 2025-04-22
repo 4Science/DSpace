@@ -639,9 +639,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -2860,17 +2859,6 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'ordine</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>index</dc-element>
-          <label>Numero di corda</label>
-          <input-type>number</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il numero di corda della risorsa</hint>
         </field>
       </row>
     </form>
