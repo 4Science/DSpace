@@ -325,7 +325,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "dc.description.abstract", null, null, false, false);
 
         CrisLayoutField profileAffiliation = profileFields.get(5);
-        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table", 2,
+        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table.first3", 2,
             "oairecerif.person.affiliation", null, null, false, false);
 
         CrisMetadataGroup profileNestedAffiliationRole = profileAffiliation.getCrisMetadataGroupList().get(0);

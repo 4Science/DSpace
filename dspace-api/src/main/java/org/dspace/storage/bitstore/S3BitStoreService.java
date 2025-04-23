@@ -47,6 +47,9 @@ import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
@@ -57,6 +60,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -173,12 +177,27 @@ public class S3BitStoreService extends BaseBitStoreService {
                                                     Optional.ofNullable(connectionTimeout)
                                                             .orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
                                                 );
-            log.debug(
-                "AmazonS3Client client configuration: {}",
-                GSON.toJson(clientConfiguration)
-            );
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "AmazonS3Client client configuration: {}",
+                    toJson(clientConfiguration)
+                );
+            }
             return clientConfiguration;
         };
+    }
+
+    private static String toJson(ClientConfiguration clientConfiguration) {
+        try {
+            return new ObjectMapper()
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .writeValueAsString(clientConfiguration);
+        } catch (JsonProcessingException e) {
+            log.error("Cannot convert client S3 configuration into JSON", e);
+            log.info("Trying converting to simple String");
+            return ReflectionToStringBuilder.toString(clientConfiguration);
+        }
     }
 
     /**
