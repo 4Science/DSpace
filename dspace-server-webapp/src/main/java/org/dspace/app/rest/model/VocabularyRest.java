@@ -16,7 +16,9 @@ import org.dspace.app.rest.RestResourceController;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links = {@LinkRest(name = VocabularyRest.ENTRIES, method = "filter")})
+@LinksRest(links = {
+    @LinkRest(name = VocabularyRest.ENTRIES, method = "filter"),
+})
 public class VocabularyRest extends BaseObjectRest<String> {
 
     public static final String NAME = "vocabulary";

@@ -209,7 +209,7 @@ public class AuthorizationRestRepository extends DSpaceRestRepository<Authorizat
         String type, List<String> uuidList, EPerson user,
         List<String> featureNames) {
 
-        if (featureNames.isEmpty()) {
+        if (featureNames == null || featureNames.isEmpty()) {
             return new ArrayList<>();
         }
 

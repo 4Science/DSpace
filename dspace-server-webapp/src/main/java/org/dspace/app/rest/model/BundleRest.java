@@ -15,22 +15,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Jelle Pelgrims (jelle.pelgrims at atmire.com)
  */
-@LinksRest(links =
-    {
-        @LinkRest(
-                name = BundleRest.ITEM,
-                method = "getItem"
-        ),
-        @LinkRest(
-                name = BundleRest.BITSTREAMS,
-                method = "getBitstreams"
-        ),
-        @LinkRest(
-                name = BundleRest.PRIMARY_BITSTREAM,
-                method = "getPrimaryBitstream"
-        )
-    }
-)
+@LinksRest(links = {
+    @LinkRest(name = BundleRest.ITEM, method = "getItem"),
+    @LinkRest(name = BundleRest.BITSTREAMS, method = "getBitstreams"),
+    @LinkRest(name = BundleRest.PRIMARY_BITSTREAM, method = "getPrimaryBitstream")
+})
 public class BundleRest extends DSpaceObjectRest {
     public static final String NAME = "bundle";
     public static final String PLURAL_NAME = "bundles";

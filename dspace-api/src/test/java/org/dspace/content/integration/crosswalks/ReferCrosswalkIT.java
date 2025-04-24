@@ -73,6 +73,7 @@ import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -1453,6 +1454,63 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             String expectedContent = IOUtils.toString(fis, Charset.defaultCharset());
             compareEachLine(out.toString(), expectedContent);
         }
+    }
+
+    @Test
+    public void testFundingXmlDisseminateWithRestrictedMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Funding").build();
+        MetadataField currency = mfss.findByElement(context,
+            "oairecerif","amount","currency");
+        MetadataField amount = mfss.findByElement(context,
+            "oairecerif","amount",null);
+
+        CrisLayoutField crisLayoutFieldCurrency = CrisLayoutFieldBuilder.createMetadataField(context,currency,1,1)
+            .build();
+        CrisLayoutField crisLayoutFieldAmount = CrisLayoutFieldBuilder.createMetadataField(context,amount,0,1)
+            .build();
+
+        CrisLayoutBoxBuilder.createBuilder(context, entityType, false, false)
+            .withType("METADATA")
+            .withShortname("financialdata")
+            .addMetadataSecurityField(currency)
+            .addMetadataSecurityField(amount)
+            .addField(crisLayoutFieldCurrency)
+            .addField(crisLayoutFieldAmount)
+            .withSecurity(LayoutSecurity.CUSTOM_DATA).build();
+
+        Item funding = ItemBuilder.createItem(context, collection)
+            .withEntityType("Funding")
+            .withAcronym("T-FU")
+            .withTitle("Test Funding")
+            .withType("Gift")
+            .withInternalId("ID-01")
+            .withFundingIdentifier("0001")
+            .withDescription("Funding to test export")
+            .withAmount("30.000,00")
+            .withAmountCurrency("EUR")
+            .withFunder("OrgUnit Funder")
+            .withFundingStartDate("2015-01-01")
+            .withFundingEndDate("2020-01-01")
+            .withOAMandate("true")
+            .withOAMandateURL("www.mandate.url")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("funding-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, funding, out);
+
+        try (FileInputStream fis = getFileInputStream("funding1.xml")) {
+            String expectedContent = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(out.toString(), expectedContent);
+        }
+
     }
 
     @Test

@@ -17,7 +17,9 @@ import org.dspace.app.rest.RestResourceController;
  *
  * @author Maria Verdonck (Atmire) on 10/01/2020
  */
-@LinksRest(links = {@LinkRest(name = WorkflowStepRest.ACTIONS, method = "getActions")})
+@LinksRest(links = {
+    @LinkRest(name = WorkflowStepRest.ACTIONS, method = "getActions"),
+})
 public class WorkflowStepRest extends BaseObjectRest {
 
     public static final String CATEGORY = RestModel.CONFIGURATION;

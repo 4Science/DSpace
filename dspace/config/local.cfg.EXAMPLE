@@ -43,7 +43,7 @@ dspace.server.url = http://localhost:8080/server
 # Additional URL of DSpace backend which could be used by DSpace frontend during SSR execution.
 # May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
-dspace.server.ssr.url =
+dspace.server.ssr.url = ${dspace.server.url}
 
 # Public URL of DSpace frontend (Angular UI). May require a port number if not using standard ports (80 or 443)
 # DO NOT end it with '/'.
@@ -65,7 +65,7 @@ dspace.name = DSpace at My University
 
 # Solr server/webapp.
 # DSpace uses Solr for all search/browse capability (and for usage statistics).
-# since DSpace 7, SOLR must be installed as a stand-alone service
+# Since DSpace 7, SOLR must be installed as a stand-alone service
 solr.server = http://localhost:8983/solr
 
 # Solr core name prefix.
@@ -133,14 +133,6 @@ db.password = dspace
 
 # Recipient for new user registration emails (defaults to unspecified)
 #registration.notify =
-
-# An option is added to disable the mailserver. By default, this property is set to false
-# By setting mail.server.disabled = true, DSpace will not send out emails.
-# It will instead log the subject of the email which should have been sent
-# This is especially useful for development and test environments where production data is used when testing functionality.
-#mail.server.disabled = false
-# If the mail.server.fixedRecipient is not empty then only in the case mail.server.disabled = true all email will be sent to this email address.
-#mail.server.fixedRecipient =
 
 
 ########################
@@ -228,8 +220,6 @@ db.password = dspace
 # avoid trouble for such browsers (i.e.  rest.cors.allowed-origins = ${dspace.ui.url}, https://samltest.id )
 #rest.cors.allowed-origins = ${dspace.ui.url}
 
-#rest.cors.bitstream-allowed-origins = ${dspace.ui.url}
-
 #################################################
 # SPRING BOOT SETTINGS (Used by Server Webapp)  #
 #################################################
@@ -246,11 +236,6 @@ db.password = dspace
 
 # Maximum size of a multipart request (i.e. max total size of all files in one request)
 #spring.servlet.multipart.max-request-size = 512MB
-
-##########################
-# COMMERCIAL DATABASE    #
-##########################
-
 
 ##########################
 # METADATA EXTRACTION #

@@ -101,15 +101,9 @@ public class AccountServiceImpl implements AccountService {
      *
      * @param context DSpace context
      * @param email   Email address to send the registration email to
-<<<<<<< HEAD
      * @throws java.sql.SQLException                   passed through.
      * @throws java.io.IOException                     passed through.
-     * @throws javax.mail.MessagingException           passed through.
-=======
-     * @throws java.sql.SQLException passed through.
-     * @throws java.io.IOException passed through.
      * @throws jakarta.mail.MessagingException passed through.
->>>>>>> dspace-8.0
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override
@@ -138,15 +132,9 @@ public class AccountServiceImpl implements AccountService {
      *
      * @param context DSpace context
      * @param email   Email address to send the forgot-password email to
-<<<<<<< HEAD
      * @throws java.sql.SQLException                   passed through.
      * @throws java.io.IOException                     passed through.
-     * @throws javax.mail.MessagingException           passed through.
-=======
-     * @throws java.sql.SQLException passed through.
-     * @throws java.io.IOException passed through.
      * @throws jakarta.mail.MessagingException passed through.
->>>>>>> dspace-8.0
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override

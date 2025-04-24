@@ -7,7 +7,6 @@
  */
 package org.dspace.app.rest.converter;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.model.ErrorRest;
@@ -18,14 +17,10 @@ import org.dspace.app.rest.submit.DataProcessingStep;
 import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
-import org.dspace.content.Collection;
-import org.dspace.content.Item;
 import org.dspace.content.edit.EditItem;
 import org.dspace.content.edit.EditItemMode;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexableObject;
-import org.dspace.eperson.EPerson;
-import org.dspace.services.model.Request;
 import org.dspace.validation.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -76,10 +71,6 @@ public class EditItemConverter
     }
 
     protected void fillFromModel(EditItem obj, EditItemRest rest, Projection projection) {
-        Collection collection = obj.getCollection();
-        Item item = obj.getItem();
-        EPerson submitter = null;
-        submitter = obj.getSubmitter();
         EditItemMode mode = obj.getMode();
 
         rest.setId(obj.getID() + ":none");
@@ -122,15 +113,19 @@ public class EditItemConverter
                         rest.getSections()
                             .put(sections.getId(), stepProcessing.getData(submissionService, obj, stepConfig));
                     } else {
-                        log.warn("The submission step class specified by '" + stepConfig.getProcessingClassName() +
-                                 "' does not extend the class org.dspace.app.rest.submit.AbstractRestProcessingStep!" +
-                                 " Therefore it cannot be used by the Configurable Submission as the " +
-                                 "<processing-class>!");
+                        log.warn(
+                            "The submission step class specified by '{}' " +
+                            "does not extend the class org.dspace.app.rest.submit.AbstractRestProcessingStep! " +
+                            "Therefore it cannot be used by the Configurable Submission as the <processing-class>!",
+                            stepConfig.getProcessingClassName()
+                        );
                     }
 
                 } catch (Exception e) {
-                    log.error("An error occurred during the unmarshal of the data for the section " + sections.getId()
-                            + " - reported error: " + e.getMessage(), e);
+                    log.error(
+                        "An error occurred during the unmarshal of the data for the section {} - reported error: {}",
+                        sections.getId(), e.getMessage(), e
+                    );
                 }
 
             }
@@ -138,8 +133,7 @@ public class EditItemConverter
     }
 
     private void addValidationErrorsToItem(EditItem obj, EditItemRest rest) {
-        Request currentRequest = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext((HttpServletRequest) currentRequest.getServletRequest());
+        Context context = ContextUtil.obtainContext(requestService.getCurrentRequest().getServletRequest());
 
         validationService.validate(context, obj).stream()
             .map(ErrorRest::fromValidationError)
