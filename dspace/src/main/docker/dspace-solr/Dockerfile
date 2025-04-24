@@ -12,7 +12,7 @@
 
 ARG SOLR_VERSION=8.11
 
-FROM solr:${SOLR_VERSION}-slim
+FROM docker.io/solr:${SOLR_VERSION}-slim
 
 ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \

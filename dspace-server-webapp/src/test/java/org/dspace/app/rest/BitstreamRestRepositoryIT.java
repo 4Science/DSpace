@@ -55,6 +55,7 @@ import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
@@ -711,7 +712,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(bitstream.getBundles().get(0)).build();
 
@@ -774,9 +775,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
-            .withAction(Constants.READ)
-            .withDspaceObject(bitstream.getBundles().get(0)).build();
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                             .withAction(Constants.READ)
+                             .withDspaceObject(bitstream.getBundles().get(0)).build();
 
         context.restoreAuthSystemState();
 
@@ -899,7 +900,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on item of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, publicItem1, Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(publicItem1).build();
 
@@ -1547,8 +1548,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                         .build();
         }
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(WRITE)
                              .withDspaceObject(col1)
                              .build();
@@ -3323,10 +3323,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                           .withEmail("col2admin@test.com")
                                           .withPassword(password)
                                           .build();
-        Group col1_AdminGroup = collectionService.createAdministrators(context, col1);
-        Group col2_AdminGroup = collectionService.createAdministrators(context, col2);
-        groupService.addMember(context, col1_AdminGroup, col1Admin);
-        groupService.addMember(context, col2_AdminGroup, col2Admin);
+        Group col1_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col1)
+                .addMember(col1Admin)
+                .build();
+        Group col2_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col2)
+                .addMember(col2Admin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3427,8 +3429,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                                      .withEmail("parentComAdmin@test.com")
                                                      .withPassword(password)
                                                      .build();
-        Group parentComAdminGroup = communityService.createAdministrators(context, parentCommunity);
-        groupService.addMember(context, parentComAdminGroup, parentCommunityAdmin);
+        Group parentComAdminGroup = GroupBuilder.createCommunityAdminGroup(context, parentCommunity)
+                .addMember(parentCommunityAdmin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();

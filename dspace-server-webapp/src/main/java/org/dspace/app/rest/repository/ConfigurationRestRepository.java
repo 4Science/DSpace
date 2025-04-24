@@ -33,16 +33,20 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     private AuthorizeService authorizeService;
 
     private ConfigurationService configurationService;
-    private List<String> exposedProperties;
-    private List<String> adminRestrictedProperties;
 
     @Autowired
     public ConfigurationRestRepository(ConfigurationService configurationService) {
         this.configurationService = configurationService;
-        this.exposedProperties = Arrays.asList(configurationService.getArrayProperty("rest.properties.exposed"));
-        this.adminRestrictedProperties =
-            Arrays.asList(configurationService.getArrayProperty("admin.rest.properties.exposed"));
     }
+
+    protected String[] getExposedProperties() {
+        return configurationService.getArrayProperty("rest.properties.exposed");
+    }
+
+    protected String[] getAdminRestrictedProperties() {
+        return configurationService.getArrayProperty("admin.rest.properties.exposed");
+    }
+
 
     /**
      * Gets the value of a configuration property if it is exposed via REST
@@ -62,6 +66,9 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     @Override
     @PreAuthorize("permitAll()")
     public PropertyRest findOne(Context context, String property) {
+        List<String> exposedProperties = Arrays.asList(getExposedProperties());
+        List<String> adminRestrictedProperties = Arrays.asList(getAdminRestrictedProperties());
+
         if (!configurationService.hasProperty(property) ||
             (adminRestrictedProperties.contains(property) && !isCurrentUserAdmin(context)) ||
             (!exposedProperties.contains(property) && !isCurrentUserAdmin(context))) {

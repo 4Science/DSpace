@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -160,10 +159,9 @@ public class DCInputsReader {
      * Returns the set of DC inputs used for a particular collection, or the default
      * set if no inputs defined for the collection
      *
-     * @param  collection              collection
-     * @return                         DC input set
+     * @param collection collection for which search the set of DC inputs
+     * @return DC input set
      * @throws DCInputsReaderException if no default set defined
-     * @throws ServletException
      */
     public List<DCInputSet> getInputsByCollection(Collection collection)
         throws DCInputsReaderException {
@@ -541,7 +539,7 @@ public class DCInputsReader {
                                                        "." + field.get("dc-qualifier") +
                                                        " has no language attribute");
                         } else {
-                            field.put(PAIR_TYPE_NAME, pairTypeName);
+                            field.put("language." + PAIR_TYPE_NAME, pairTypeName);
                         }
                     }
                 } else if (StringUtils.equalsIgnoreCase(tagName, "linked-metadata-field")) {
@@ -598,7 +596,7 @@ public class DCInputsReader {
                                            "." + field.get("dc-qualifier") +
                                            " has no name attribute");
             } else {
-                field.put(PAIR_TYPE_NAME, pairTypeName);
+                field.put(value + "." + PAIR_TYPE_NAME, pairTypeName);
             }
         }
     }
@@ -737,7 +735,7 @@ public class DCInputsReader {
                     if (StringUtils.isNotBlank(type) && (type.equals("dropdown")
                         || type.equals("qualdrop_value")
                         || type.equals("list"))) {
-                        String pairsName = fld.get(PAIR_TYPE_NAME);
+                        String pairsName = fld.get(type + "." + PAIR_TYPE_NAME);
                         List<String> v = valuePairs.get(pairsName);
                         if (v == null) {
                             String errString = "Cannot find value pairs for " + pairsName;

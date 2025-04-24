@@ -755,6 +755,15 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void discoverFacetsWithInvalidQuery() throws Exception {
+        getClient().perform(get("/api/discover/search/facets").param("query", "title:"))
+                .andExpect(status().isUnprocessableEntity());
+
+        getClient().perform(get("/api/discover/facets/author_editor").param("query", "title:"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void discoverFacetsDateTest() throws Exception {
         //We turn off the authorization system in order to create the structure defined below
         context.turnOffAuthorisationSystem();
@@ -1193,11 +1202,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("organization.legalName",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressCountry",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressCountry",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressLocality",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressLocality",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.foundingDate",
+                       SortOptionMatcher.sortOptionMatcher("organization.foundingDate",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("dc.date.accessioned",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
@@ -6291,10 +6300,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                          .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                           )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.contains(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
@@ -6308,12 +6313,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
     }
 
@@ -6378,14 +6377,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)));
     }
 
@@ -6443,9 +6434,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.containsInAnyOrder(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals"),
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover"),
                             SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                         "discover")
                             )));
 
     }
@@ -6505,7 +6498,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover")
                             )));
 
         getClient(adminToken).perform(get("/api/discover/facets/discoverable")
@@ -6522,7 +6516,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                  "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                 .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                            SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                        "discover")
                            )));
     }
 

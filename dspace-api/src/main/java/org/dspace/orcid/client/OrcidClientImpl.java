@@ -44,6 +44,7 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.dspace.orcid.OrcidToken;
 import org.dspace.orcid.exception.OrcidClientException;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.OrcidProfileSectionType;
@@ -228,6 +229,16 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     @Override
+    public void revokeToken(OrcidToken orcidToken) {
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("client_id", orcidConfiguration.getClientId()));
+        params.add(new BasicNameValuePair("client_secret", orcidConfiguration.getClientSecret()));
+        params.add(new BasicNameValuePair("token", orcidToken.getAccessToken()));
+
+        executeSuccessful(buildPostForRevokeToken(new UrlEncodedFormEntity(params, Charset.defaultCharset())));
+    }
+
+    @Override
     public OrcidTokenResponseDTO getReadPublicAccessToken() {
         return getClientCredentialsAccessToken("/read-public");
     }
@@ -269,6 +280,14 @@ public class OrcidClientImpl implements OrcidClient {
             .build();
     }
 
+    private HttpUriRequest buildPostForRevokeToken(HttpEntity entity) {
+        return post(orcidConfiguration.getRevokeUrl())
+            .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/x-www-form-urlencoded")
+            .setEntity(entity)
+            .build();
+    }
+
     private HttpUriRequest buildPutUriRequest(String accessToken, String relativePath, Object object) {
         return put(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Content-Type", "application/vnd.orcid+xml")
@@ -294,6 +313,24 @@ public class OrcidClientImpl implements OrcidClient {
         return delete(baseUrl + relativePath.trim())
             .addHeader("Authorization", "Bearer " + accessToken)
             .build();
+    }
+
+    private void executeSuccessful(HttpUriRequest httpUriRequest) {
+        try {
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpResponse response = client.execute(httpUriRequest);
+
+            if (isNotSuccessfull(response)) {
+                throw new OrcidClientException(
+                    getStatusCode(response),
+                    "Operation " + httpUriRequest.getMethod() + " for the resource " + httpUriRequest.getURI() +
+                        " was not successful: " + new String(response.getEntity().getContent().readAllBytes(),
+                        StandardCharsets.UTF_8)
+                );
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String formatExpandedSearchParameters(String query, int start, int rows) {

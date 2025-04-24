@@ -936,6 +936,14 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "miur", "journal", "ance", ance);
     }
 
+    public ItemBuilder withDataCiteRights(String rights) {
+        return addMetadataValue(item, "datacite", "rights", null, rights);
+    }
+
+    public ItemBuilder withDataCiteAvailable(String available) {
+        return addMetadataValue(item, "datacite", "available", null, available);
+    }
+
     @Override
     public Item build() {
         try {
