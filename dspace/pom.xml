@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.07</version>
+        <version>cris-2023.02.08-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
