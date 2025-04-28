@@ -208,6 +208,16 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 }
             }
         }
+
+        // If the bundle has no READ policies (which may happen if the item uses custom access settings),
+        // then propagate the READ policies from the bitstream to the bundle.
+        // This ensures that bundle is not "policyless".
+        List<ResourcePolicy> bundlePolicies = authorizeService.getPoliciesActionFilter(context, bundle, READ);
+        if (bundlePolicies == null || bundlePolicies.isEmpty()) {
+            List<ResourcePolicy> bitstreamPolicies = authorizeService.getPoliciesActionFilter(context, bitstream, READ);
+            authorizeService.addPolicies(context, bitstreamPolicies, bundle);
+        }
+
         bitstreamService.update(context, bitstream);
     }
 
