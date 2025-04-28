@@ -543,7 +543,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "9"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("modeA")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("languagetestprocess")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -569,7 +569,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "10"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("modeB")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("modeA")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -595,7 +595,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 .param("page", "11"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("modeC")))
+            .andExpect(jsonPath("$._embedded.submissiondefinitions[0].id", is("modeB")))
             .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                 Matchers.containsString("/api/config/submissiondefinitions?"),
                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
