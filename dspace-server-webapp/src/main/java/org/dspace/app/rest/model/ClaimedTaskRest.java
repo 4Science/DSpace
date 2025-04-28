@@ -15,14 +15,9 @@ import org.dspace.app.rest.RestResourceController;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links =
-    {
-        @LinkRest(
-            name = ClaimedTaskRest.STEP,
-            method = "getStep"
-        )
-    }
-)
+@LinksRest(links = {
+    @LinkRest(name = ClaimedTaskRest.STEP, method = "getStep")
+})
 public class ClaimedTaskRest extends BaseObjectRest<Integer> {
     public static final String NAME = "claimedtask";
     public static final String PLURAL_NAME = "claimedtasks";

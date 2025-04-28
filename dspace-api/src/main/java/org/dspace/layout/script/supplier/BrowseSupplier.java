@@ -7,6 +7,7 @@
  */
 package org.dspace.layout.script.supplier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -27,9 +28,12 @@ public class BrowseSupplier implements Supplier<List<String>> {
     @Override
     public List<String> get() {
         try {
-            return Arrays.stream(BrowseIndex.getBrowseIndices())
-                         .map(b -> b.getName())
-                         .collect(Collectors.toList());
+            List<String> browseIndices = Arrays.stream(BrowseIndex.getBrowseIndices())
+                    .map(b -> b.getName())
+                    .collect(Collectors.toList());
+            List<String> result = new ArrayList<>(browseIndices);
+            result.add("default");
+            return result;
         } catch (BrowseException e) {
             log.error(e.getMessage(), e);
             throw new IllegalStateException(e);

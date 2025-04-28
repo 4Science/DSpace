@@ -101,7 +101,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -115,7 +115,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.1</version>
                 <configuration>
                     <revisionOnScmFailure>UNKNOWN_REVISION</revisionOnScmFailure>
                 </configuration>
@@ -176,7 +176,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>workflow-curation</id>
@@ -341,6 +341,14 @@
             <artifactId>log4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
@@ -393,6 +401,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
+            <exclusions>
+                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -405,12 +420,22 @@
             <artifactId>cnri-servlet-container</artifactId>
             <scope>runtime</scope>
             <exclusions>
-                <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
-                     startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
-                <exclusion>
-                    <groupId>org.mortbay.jasper</groupId>
-                    <artifactId>apache-jsp</artifactId>
-                </exclusion>
+              <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
+                   startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
+              <exclusion>
+                <groupId>org.mortbay.jasper</groupId>
+                <artifactId>apache-jsp</artifactId>
+              </exclusion>
+              <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
+                   Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
 
@@ -644,7 +669,7 @@
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>3.6.0</version>
+            <version>3.6.2</version>
         </dependency>
 
         <dependency>
@@ -705,10 +730,6 @@
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client</artifactId>
-        </dependency>
 
         <!-- FindBugs -->
         <dependency>
@@ -720,10 +741,6 @@
             <artifactId>annotations</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
@@ -758,7 +775,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.261</version>
+            <version>1.12.780</version>
         </dependency>
 
         <!-- TODO: This may need to be replaced with the "orcid-model" artifact once this ticket is resolved:
@@ -773,9 +790,10 @@
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
                 </exclusion>
+                <!-- Exclude snakeyaml as a newer version is brought in by Spring Boot -->
                 <exclusion>
-                	<groupId>io.swagger</groupId>
-                	<artifactId>swagger-jersey-jaxrs</artifactId>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -813,25 +831,27 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.9</version>
+            <version>5.10</version>
         </dependency>
 
         <!-- Email templating -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
+            <version>2.4.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
+            <version>2.10.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.7.0</version>
+            <version>6.10.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -919,7 +939,7 @@
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-junit-rule</artifactId>
-            <version>5.11.2</version>
+            <version>5.15.0</version>
             <scope>test</scope>
             <exclusions>
                 <!-- Exclude snakeyaml to avoid conflicts with: spring-boot-starter-cache -->
@@ -927,6 +947,20 @@
             		<groupId>org.yaml</groupId>
             		<artifactId>snakeyaml</artifactId>
             	</exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                </exclusion>
+                <!-- Resolve dependency conflicts with Hibernate -->
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+                <!-- Resolve dependency conflicts with Solr -->
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.datatype</groupId>
                     <artifactId>jackson-datatype-jsr310</artifactId>
@@ -970,37 +1004,37 @@
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-unix-common</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
            </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>4.1.106.Final</version>
+            <version>4.1.117.Final</version>
           </dependency>
           <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
-            <version>2.3</version>
+            <version>2.4.1</version>
           </dependency>
           <dependency>
               <groupId>org.xmlunit</groupId>
@@ -1026,7 +1060,7 @@
           <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.13.11</version>
+            <version>2.13.16</version>
             <scope>test</scope>
           </dependency>
         </dependencies>

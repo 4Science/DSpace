@@ -122,9 +122,9 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .build();
         personCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
-                .withEntityType("Person")
+                                            .withEntityType("Person")
                 .withSubmissionDefinition("traditional")
-                .build();
+                                            .build();
         publicationCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
                 .withEntityType("Publication")
@@ -277,7 +277,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         for (String author : authorsOriginalOrder) {
             itemService.addMetadata(
-                context, publicationItem, "dc", "contributor", "author", Item.ANY, author
+                context, publicationItem, "dc", "contributor", "author", null, author
             );
         }
 

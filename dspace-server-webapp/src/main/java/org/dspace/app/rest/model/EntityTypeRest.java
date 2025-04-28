@@ -14,7 +14,9 @@ import org.dspace.app.rest.RestResourceController;
  * for the EntityTypeResource class.
  * Refer to {@link org.dspace.content.EntityType} for explanation of the properties
  */
-@LinksRest(links = {@LinkRest(name = EntityTypeRest.RELATION_SHIP_TYPES, method = "getEntityTypeRelationship")})
+@LinksRest(links = {
+    @LinkRest(name = EntityTypeRest.RELATION_SHIP_TYPES, method = "getEntityTypeRelationship")
+})
 public class EntityTypeRest extends BaseObjectRest<Integer> {
 
     private static final long serialVersionUID = 8166078961459192770L;

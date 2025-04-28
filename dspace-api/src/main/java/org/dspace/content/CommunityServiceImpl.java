@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,12 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.SubscribeService;
@@ -82,6 +89,8 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     protected CrisMetricsService crisMetricsService;
     @Autowired
     protected ItemCounter itemCounter;
+    @Autowired
+    private SearchService searchService;
 
     protected CommunityServiceImpl() {
         super();
@@ -304,8 +313,63 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // register this as the admin group
         community.setAdmins(admins);
         context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, community.getID(),
-                                             null, getIdentifiers(context, community)));
+                                   null, getIdentifiers(context, community)));
+
+        List<Community> parentCommunities = getAllCommunitiesInHierarchy(community);
+
+        List<Collection> collToUpdate = getCollectionsWithoutSubmit(context, parentCommunities);
+
+        collToUpdate.forEach(c -> {
+            context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION,
+                                       c.getID(), c.getHandle(),
+                                       collectionService.getIdentifiers(context, c)));
+        });
         return admins;
+    }
+
+    public List<Collection> getCollectionsWithoutSubmit(Context context, List<Community> parentCommunities)
+        throws SQLException {
+        DiscoverQuery query = new DiscoverQuery();
+
+        // Filter to get only collections
+        query.addFilterQueries("search.resourcetype:Collection");
+
+        // Exclude collections that have the submit field
+        query.addFilterQueries("-submit:*");
+
+        // Filter by location.parent (i.e., the collection must be in the given parentCollectionIds)
+        String parentFilter = parentCommunities.stream()
+                                                 .map(e -> e.getID().toString())
+                                                 .collect(Collectors.joining(" OR "));
+        if (!parentFilter.isEmpty()) {
+            query.addFilterQueries("location.parent:(" + parentFilter + ")");
+        }
+        query.addSearchField("handle");
+
+        try {
+            // Extract collection IDs
+            List<Collection> collections = new ArrayList<>();
+            DiscoverResult resp = searchService.search(context, query);
+            for (IndexableObject solrCollection : resp.getIndexableObjects()) {
+                Collection c = ((IndexableCollection) solrCollection).getIndexedObject();
+                collections.add(c);
+            }
+
+            return collections;
+        } catch (SearchServiceException e) {
+            throw new SQLException("Error executing Solr query: " + e.getMessage(), e);
+        }
+    }
+
+    private static List<Community> getAllCommunitiesInHierarchy(Community community) {
+        List<Community> communities = new ArrayList<>();
+        communities.add(community);
+
+        for (Community subCommunity : community.getSubcommunities()) {
+            communities.addAll(getAllCommunitiesInHierarchy(subCommunity));
+        }
+
+        return communities;
     }
 
     @Override

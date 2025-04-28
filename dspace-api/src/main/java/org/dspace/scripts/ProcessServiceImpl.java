@@ -50,6 +50,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.service.ProcessService;
+import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -76,6 +77,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     private MetadataFieldService metadataFieldService;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Override
     public Process create(Context context, EPerson ePerson, String scriptName,
@@ -344,8 +348,8 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void appendLog(int processId, String scriptName, String output, ProcessLogLevel processLogLevel)
             throws IOException {
-        File tmpDir = FileUtils.getTempDirectory();
-        File tempFile = new File(tmpDir, scriptName + processId + ".log");
+        File logsDir = getLogsDirectory();
+        File tempFile = new File(logsDir, processId + "-" + scriptName + ".log");
         FileWriter out = new FileWriter(tempFile, true);
         try {
             try (BufferedWriter writer = new BufferedWriter(out)) {
@@ -360,18 +364,38 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void createLogBitstream(Context context, Process process)
             throws IOException, SQLException, AuthorizeException {
-        File tmpDir = FileUtils.getTempDirectory();
-        File tempFile = new File(tmpDir, process.getName() + process.getID() + ".log");
-        FileInputStream inputStream = FileUtils.openInputStream(tempFile);
-        appendFile(context, process, inputStream, Process.OUTPUT_TYPE, process.getName() + process.getID() + ".log");
-        inputStream.close();
-        tempFile.delete();
+        File logsDir = getLogsDirectory();
+        File tempFile = new File(logsDir, process.getID() + "-" + process.getName() + ".log");
+        if (tempFile.exists()) {
+            FileInputStream inputStream = FileUtils.openInputStream(tempFile);
+            appendFile(context, process, inputStream, Process.OUTPUT_TYPE,
+                       process.getID() + "-" + process.getName() + ".log");
+            inputStream.close();
+            tempFile.delete();
+        }
     }
 
     @Override
     public List<Process> findByStatusAndCreationTimeOlderThan(Context context, List<ProcessStatus> statuses,
         Date date) throws SQLException {
         return this.processDAO.findByStatusAndCreationTimeOlderThan(context, statuses, date);
+    }
+
+    @Override
+    public void failRunningProcesses(Context context) throws SQLException, IOException, AuthorizeException {
+        List<Process> processesToBeFailed = findByStatusAndCreationTimeOlderThan(
+                context, List.of(ProcessStatus.RUNNING, ProcessStatus.SCHEDULED), new Date());
+        for (Process process : processesToBeFailed) {
+            context.setCurrentUser(process.getEPerson());
+            // Fail the process.
+            log.info("Process with ID {} did not complete before tomcat shutdown, failing it now.", process.getID());
+            fail(context, process);
+            // But still attach its log to the process.
+            appendLog(process.getID(), process.getName(),
+                      "Process did not complete before tomcat shutdown.",
+                      ProcessLogLevel.ERROR);
+            createLogBitstream(context, process);
+        }
     }
 
     private String formatLogLine(int processId, String scriptName, String output, ProcessLogLevel processLogLevel) {
@@ -389,4 +413,15 @@ public class ProcessServiceImpl implements ProcessService {
         return  sb.toString();
     }
 
+    private File getLogsDirectory() {
+        String pathStr = configurationService.getProperty("dspace.dir")
+            + File.separator + "log" + File.separator + "processes";
+        File logsDir = new File(pathStr);
+        if (!logsDir.exists()) {
+            if (!logsDir.mkdirs()) {
+                throw new RuntimeException("Couldn't create [dspace.dir]/log/processes/ directory.");
+            }
+        }
+        return logsDir;
+    }
 }

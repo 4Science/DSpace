@@ -13,6 +13,8 @@ import static org.dspace.orcid.webhook.OrcidWebhookMode.ALL;
 import static org.dspace.orcid.webhook.OrcidWebhookMode.DISABLED;
 import static org.dspace.orcid.webhook.OrcidWebhookMode.ONLY_LINKED;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,16 +33,19 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.orcid.OrcidToken;
 import org.dspace.orcid.client.OrcidClient;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.model.OrcidTokenResponseDTO;
-import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.orcid.service.impl.OrcidSynchronizationServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Integration tests for {@link OrcidWebhookConsumer}.
@@ -60,7 +65,7 @@ public class OrcidWebhookConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     private ConfigurationService configurationService;
 
-    private OrcidSynchronizationService orcidSynchronizationService;
+    private OrcidSynchronizationServiceImpl orcidSynchronizationService;
 
     private OrcidTokenService orcidTokenService;
 
@@ -89,7 +94,8 @@ public class OrcidWebhookConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         orcidWebhookService = (OrcidWebhookServiceImpl) OrcidServiceFactory.getInstance().getOrcidWebhookService();
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
-        orcidSynchronizationService = OrcidServiceFactory.getInstance().getOrcidSynchronizationService();
+        orcidSynchronizationService =
+            (OrcidSynchronizationServiceImpl) OrcidServiceFactory.getInstance().getOrcidSynchronizationService();
         orcidTokenService = OrcidServiceFactory.getInstance().getOrcidTokenService();
         itemService = ContentServiceFactory.getInstance().getItemService();
 
@@ -97,15 +103,16 @@ public class OrcidWebhookConsumerIT extends AbstractIntegrationTestWithDatabase 
         orcidClient = orcidWebhookService.getOrcidClient();
 
         orcidWebhookService.setOrcidClient(orcidClientMock);
+        orcidSynchronizationService.setOrcidClient(orcidClientMock);
 
         when(orcidClientMock.getWebhookAccessToken()).thenReturn(buildTokenResponse(CLIENT_CREDENTIALS_TOKEN));
-
     }
 
     @After
     public void after() {
         orcidTokenService.deleteAll(context);
         orcidWebhookService.setOrcidClient(orcidClient);
+        orcidSynchronizationService.setOrcidClient(orcidClient);
     }
 
     @Test
@@ -205,6 +212,7 @@ public class OrcidWebhookConsumerIT extends AbstractIntegrationTestWithDatabase 
         verifyNoMoreInteractions(orcidClientMock);
 
         // unlink the profile from orcid to verify that the webhook unregistration occurs
+        doNothing().when(orcidClientMock).revokeToken(any());
 
         orcidSynchronizationService.unlinkProfile(context, profile);
 
@@ -213,6 +221,12 @@ public class OrcidWebhookConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         verify(orcidClientMock, times(2)).getWebhookAccessToken();
         verify(orcidClientMock).unregisterWebhook(CLIENT_CREDENTIALS_TOKEN, ORCID, expectedWebhookUrl());
+        ArgumentCaptor<OrcidToken> orcidTokenCaptor = ArgumentCaptor.forClass(OrcidToken.class);
+        verify(orcidClientMock, times(1)).revokeToken(orcidTokenCaptor.capture());
+
+        assertThat(orcidTokenCaptor.getValue(),
+                   Matchers.hasProperty("accessToken", Matchers.is(ACCESS_TOKEN)));
+
         verifyNoMoreInteractions(orcidClientMock);
 
     }

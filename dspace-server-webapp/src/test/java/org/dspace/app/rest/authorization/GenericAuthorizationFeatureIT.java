@@ -1462,4 +1462,6 @@ public class GenericAuthorizationFeatureIT extends AbstractControllerIntegration
                 )
             );
     }
+
 }
+

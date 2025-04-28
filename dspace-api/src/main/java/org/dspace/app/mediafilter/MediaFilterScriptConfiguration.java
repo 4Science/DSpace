@@ -68,6 +68,8 @@ public class MediaFilterScriptConfiguration<T extends MediaFilterScript> extends
                                     .build();
         options.addOption(pluginOption);
 
+        options.addOption("d", "fromdate", true, "Process only item from specified last modified date");
+
         Option skipOption = Option.builder("s")
                                   .longOpt("skip")
                                   .hasArg()

@@ -71,7 +71,7 @@ public class ItemUtils {
             = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private static final AuthorizeService authorizeService
-        = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+            = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
     private static final MetadataAuthorityService mam = ContentAuthorityServiceFactory
             .getInstance().getMetadataAuthorityService();

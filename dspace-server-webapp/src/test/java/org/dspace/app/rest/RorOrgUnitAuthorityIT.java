@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.core.service.PluginService;
@@ -68,6 +69,13 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
         mockRorServiceFactory.close();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        DCInputAuthority.reset();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+    }
+
     @Before
     public void setup() throws Exception {
 
@@ -110,8 +118,12 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
         configurationService.setProperty("choices.presentation.crisrp.education", "suggest");
         configurationService.setProperty("authority.controlled.crisrp.education", "true");
 
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
+
+        choiceAuthorityService.getChoiceAuthoritiesNames();
         choiceAuthorityService.clearCache();
+        DCInputAuthority.getPluginNames();
 
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/OrgUnitAuthority/entries")
