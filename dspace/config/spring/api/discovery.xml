@@ -2313,22 +2313,22 @@
 	    <!--The search filters which can be used on the discovery search page-->
 	    <property name="searchFilters">
 	        <list>
-                <ref bean="searchFilterEntityType" />
-                <ref bean="searchFilterType" />
                 <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterTemporalPeriod" />
                 <ref bean="searchFilterTemporal" />
+                <ref bean="searchFilterTemporalPeriod" />
+                <ref bean="searchFilterLanguage" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterDcTermsSubject" />
+                <ref bean="searchFilterFulltext" />
                 <ref bean="searchFilterFonds"/>
-                <ref bean="searchFilterPlace" />
                 <ref bean="searchFilterOrganizationalUnit" />
+                <ref bean="searchFilterPlace" />
+                <ref bean="searchFilterEntityType" />
+                <ref bean="searchFilterType" />
                 <ref bean="searchFilterMaterialAndTecnique" />
                 <ref bean="searchFilterTypePhysical" />
-                <ref bean="searchFilterLanguage" />
-                <ref bean="searchFilterTitle" />
-	        	<ref bean="searchFilterFulltext" />
 				<ref bean="searchFilterLicense" />
 	        </list>
 	    </property>
