@@ -1787,7 +1787,29 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     public void updateMetrics(Context context, CrisMetrics metric) {
         UpdateRequest req = new UpdateRequest();
         SolrClient solrClient = solrSearchCore.getSolr();
-        Optional<String> id = findUniqueId(context, metric);
+        Optional<String> id = findUniqueId(metric);
+        if (id.isEmpty()) {
+            return;
+        }
+        final UUID resource = metric.getResource();
+        final int resourceType = metric.getResourceType();
+        try {
+            SolrInputDocument solrInDoc = new SolrInputDocument();
+            solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
+            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, resourceType);
+            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(resource));
+            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc, null));
+            solrClient.request(req);
+        } catch (SolrServerException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void updateLastPublicationImport(Context context, Item item, String serviceName, String lastImport) {
+        UpdateRequest req = new UpdateRequest();
+        SolrClient solrClient = solrSearchCore.getSolr();
+        Optional<String> id = findUniqueId(Constants.ITEM, item.getID());
         if (id.isEmpty()) {
             log.warn("Unable to define unique id for item {}", metric.getResource().getID());
             return;
@@ -1795,9 +1817,14 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, itemType(context, metric.getResource()));
-            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(metric.getResource().getID()));
-            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
+            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, Constants.ITEM);
+            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(item.getID()));
+            Map<String, Object> lastFieldMap = Collections.singletonMap("set", lastImport);
+            String lastField = "cris.lastimport." + serviceName + "-publication";
+            String lastFieldDt = lastField + "_dt";
+            solrInDoc.addField(lastField, lastFieldMap);
+            solrInDoc.addField(lastFieldDt, lastFieldMap);
+            req.add(solrInDoc);
             solrClient.request(req);
             solrClient.commit();
         } catch (SolrServerException | IOException e) {
@@ -1842,18 +1869,17 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         }
     }
 
-    private String itemType(Context context, DSpaceObject resource) {
-        return findIndexableObject(context, resource)
-            .map(indexableObject -> indexableObject.getType())
-            .orElseThrow(() -> new RuntimeException(
-                String.format("resource with id %s is of unsupported type: %s",
-                    resource.getID(), resource.getClass().getSimpleName())));
+    private Optional<String> findUniqueId(CrisMetrics metric) {
+        if (metric == null) {
+            return Optional.empty();
+        }
+        return findUniqueId(metric.getResourceType(), metric.getResource());
     }
 
-    private Optional<String> findUniqueId(Context context, CrisMetrics metric) {
-        DSpaceObject resource = metric.getResource();
-        return findIndexableObject(context, resource)
-            .map(indexableObject -> indexableObject.getUniqueIndexID());
+    private Optional<String> findUniqueId(int resourceType, UUID resource) {
+        return Optional
+                .of(StringUtils.capitalize(Constants.typeText[resourceType].toLowerCase())
+                        + "-" + resource.toString());
     }
 
     @SuppressWarnings("rawtypes")
