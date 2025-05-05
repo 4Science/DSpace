@@ -228,7 +228,7 @@ public class CrisItemMetricsServiceImpl implements CrisItemMetricsService {
         } else {
             CrisMetrics crisMetrics = crisMetricsService.find(context,
                     Integer.parseInt(target.substring(STORED_METRIC_ID_PREFIX.length())));
-            return crisMetrics != null ? itemService.find(context, crisMetrics.getResource().getID()) : null;
+            return crisMetrics != null ? itemService.find(context, crisMetrics.getResource()) : null;
         }
     }
 }

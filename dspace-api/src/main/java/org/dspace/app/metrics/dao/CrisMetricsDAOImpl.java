@@ -99,11 +99,10 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, CrisMetrics.class);
         Root<CrisMetrics> crisMetricsRoot = criteriaQuery.from(CrisMetrics.class);
-        Join<CrisMetrics, DSpaceObject> join = crisMetricsRoot.join(CrisMetrics_.resource);
         criteriaQuery.where(
                 criteriaBuilder.and(criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.metricType), metricType),
                         criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.last), true),
-                        criteriaBuilder.equal(join.get(DSpaceObject_.id), resourceUuid)));
+                        criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.resource), resourceUuid)));
         return singleResult(context, criteriaQuery);
     }
 
@@ -113,10 +112,9 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, CrisMetrics.class);
         Root<CrisMetrics> crisMetricsRoot = criteriaQuery.from(CrisMetrics.class);
-        Join<CrisMetrics, DSpaceObject> join = crisMetricsRoot.join(CrisMetrics_.resource);
         criteriaQuery.where(
                 criteriaBuilder.and(criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.last), true),
-                        criteriaBuilder.equal(join.get(DSpaceObject_.id), resourceId)));
+                        criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.resource), resourceId)));
         return list(context, criteriaQuery, false, CrisMetrics.class, limit, offset);
     }
 
@@ -140,12 +138,11 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, CrisMetrics.class);
         Root<CrisMetrics> crisMetricsRoot = criteriaQuery.from(CrisMetrics.class);
-        Join<CrisMetrics, DSpaceObject> join = crisMetricsRoot.join(CrisMetrics_.resource);
         criteriaQuery.where(criteriaBuilder.and(
                 criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.metricType), metricType),
                 criteriaBuilder.greaterThanOrEqualTo(crisMetricsRoot.get(CrisMetrics_.acquisitionDate), before),
                 criteriaBuilder.lessThan(crisMetricsRoot.get(CrisMetrics_.acquisitionDate), after),
-                criteriaBuilder.equal(join.get(DSpaceObject_.id), resourceUuid)));
+                criteriaBuilder.equal(crisMetricsRoot.get(CrisMetrics_.resource), resourceUuid)));
         return list(context, criteriaQuery, false, CrisMetrics.class, -1, -1);
     }
 
