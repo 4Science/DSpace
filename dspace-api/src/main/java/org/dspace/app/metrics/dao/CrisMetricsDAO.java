@@ -28,8 +28,6 @@ public interface CrisMetricsDAO extends GenericDAO<CrisMetrics> {
 
     public List<CrisMetrics> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
-    public List<CrisMetrics> findAllByDSO(Context context, DSpaceObject dSpaceObject) throws SQLException;
-
     public List<CrisMetrics> findAllLast(Context context, Integer limit, Integer offset) throws SQLException;
 
     public int countAllLast(Context context) throws SQLException;

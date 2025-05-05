@@ -7,17 +7,17 @@
  */
 package org.dspace.app.metrics;
 import java.util.Date;
+import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.ReloadableEntity;
 import org.hibernate.annotations.Type;
 
@@ -44,9 +44,8 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     private Date endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "resource_id")
-    protected DSpaceObject resource;
+    @Column(name = "resource_id")
+    protected UUID resource;
 
     private boolean last;
 
@@ -59,6 +58,10 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
     private Double deltaPeriod2;
 
     private Double rank;
+
+    /** @see Constants **/
+    @Column(name = "resource_type")
+    private int resourceType;
 
     public Integer getId() {
         return id;
@@ -116,12 +119,12 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
         this.acquisitionDate = acquisitionDate;
     }
 
-    public DSpaceObject getResource() {
+    public UUID getResource() {
         return resource;
     }
 
-    public void setResource(DSpaceObject dSpaceObject) {
-        this.resource = dSpaceObject;
+    public void setResource(UUID uuid) {
+        this.resource = uuid;
     }
 
     public String getRemark() {
@@ -159,6 +162,14 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     public void setRank(Double rank) {
         this.rank = rank;
+    }
+
+    public int getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(int type) {
+        this.resourceType = type;
     }
 
 }

@@ -58,6 +58,9 @@ public class UpdateCrisMetricsInSolrDocService {
                 }
             }
             handler.logInfo("Metric update end");
+            handler.logInfo("Commit changes on solr");
+            crisIndexingService.commit();
+            handler.logInfo("Changes committed to solr");
             if (optimize) {
                 handler.logInfo("Starting solr optimization");
                 crisIndexingService.optimize();
