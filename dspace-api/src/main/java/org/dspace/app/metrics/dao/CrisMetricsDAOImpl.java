@@ -87,10 +87,13 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
 
     @Override
     public void deleteByDSO(Context context, DSpaceObject dSpaceObject) throws SQLException {
-        String hqlQuery = "delete from " + CrisMetrics.class.getSimpleName() + " where resource=:resource";
-        Query query = createQuery(context, hqlQuery);
-        query.setParameter("resource", dSpaceObject);
-        query.executeUpdate();
+        if (dSpaceObject != null) {
+            UUID uuid = dSpaceObject.getID();
+            String hqlQuery = "delete from " + CrisMetrics.class.getSimpleName() + " where resource=:resource";
+            Query query = createQuery(context, hqlQuery);
+            query.setParameter("resource", uuid);
+            query.executeUpdate();
+        }
     }
 
     @Override
