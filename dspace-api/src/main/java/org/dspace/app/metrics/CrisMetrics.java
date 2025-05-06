@@ -45,6 +45,13 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     private Date endDate;
 
+    /** 
+     * The type of DSpace resource this metric belongs to.
+     * @see Constants#COMMUNITY
+     * @see Constants#COLLECTION
+     * @see Constants#ITEM
+     * etc.
+     */
     @Column(name = "resource_id")
     protected UUID resource;
 

@@ -6,7 +6,8 @@
 -- http://www.dspace.org/license/
 --
 
--- replace the cris_metrics_resource_id_fkey to include ON DELETE CASCADE
+-- replace the cris_metrics_resource_id_fkey to include ON DELETE CASCADE to automatically
+-- remove metrics when their associated resource is deleted
 ALTER TABLE IF EXISTS cris_metrics DROP CONSTRAINT IF EXISTS cris_metrics_resource_id_fkey;
 ALTER TABLE cris_metrics ADD CONSTRAINT cris_metrics_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES DSpaceObject(uuid) ON DELETE CASCADE;
 
