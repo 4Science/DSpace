@@ -94,7 +94,6 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1796,8 +1795,6 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, resourceType);
-            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(resource));
             req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc, null));
             solrClient.request(req);
         } catch (SolrServerException | IOException e) {
@@ -1817,8 +1814,6 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, Constants.ITEM);
-            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(item.getID()));
             Map<String, Object> lastFieldMap = Collections.singletonMap("set", lastImport);
             String lastField = "cris.lastimport." + serviceName + "-publication";
             String lastFieldDt = lastField + "_dt";
