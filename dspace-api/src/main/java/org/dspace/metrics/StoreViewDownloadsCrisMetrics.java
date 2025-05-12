@@ -31,6 +31,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResultIterator;
+import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
@@ -49,6 +50,7 @@ import org.json.JSONObject;
 public class StoreViewDownloadsCrisMetrics extends
         DSpaceRunnable<StoreViewDownloadsCrisMetricsScriptConfiguration<StoreViewDownloadsCrisMetrics>> {
     private CrisMetricsService crisMetricsService;
+    private IndexingService indexingService;
     private static final Logger log = LogManager.getLogger(StoreViewDownloadsCrisMetrics.class);
     private Context context;
     private UpdateCrisMetricsInSolrDocService updateCrisMetricsInSolrDocService;
@@ -62,6 +64,7 @@ public class StoreViewDownloadsCrisMetrics extends
         crisMetricsService = new DSpace().getServiceManager()
                 .getServiceByName(CrisMetricsServiceImpl.class.getName(),
                         CrisMetricsServiceImpl.class);
+        indexingService = new DSpace().getSingletonService(IndexingService.class);
     }
 
     @Override
@@ -78,7 +81,6 @@ public class StoreViewDownloadsCrisMetrics extends
         try {
             context.turnOffAuthorisationSystem();
             performUpdateAndStorage(context);
-            updateCrisMetricsInSolrDocService.performUpdate(context, handler, commandLine.hasOption("o"));
             context.complete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -136,6 +138,8 @@ public class StoreViewDownloadsCrisMetrics extends
     private boolean createMetricObject(String metricType, double metricCount, DSpaceObject dSpaceObject, String type)
             throws SQLException, AuthorizeException {
         boolean existentValue = false;
+        Double last_week = null;
+        Double last_month = null;
         // if already exists a cris metric set last flag to false
         CrisMetrics existentCrisMetrics = crisMetricsService
                 .findLastMetricByResourceIdAndMetricsTypes(
@@ -144,26 +148,29 @@ public class StoreViewDownloadsCrisMetrics extends
             //set last flag value to false
             existentCrisMetrics.setLast(false);
             existentValue = true;
+            //if there are values one week before
+            last_week = getDeltaPeriod(dSpaceObject.getID(), "week", metricType);
+            //if there are values one month before
+            last_month = getDeltaPeriod(dSpaceObject.getID(), "month", metricType);
         }
         // create new metrics object
-        CrisMetrics newScopusMetrics = crisMetricsService.create(context, dSpaceObject);
-        newScopusMetrics.setMetricType(metricType);
-        newScopusMetrics.setMetricCount(metricCount);
-        newScopusMetrics.setLast(true);
+        CrisMetrics newMetrics = crisMetricsService.create(context, dSpaceObject);
+        newMetrics.setMetricType(metricType);
+        newMetrics.setMetricCount(metricCount);
+        newMetrics.setLast(true);
         //set remark
         JSONObject jsonRemark = new JSONObject();
         jsonRemark.put("detailUrl", "/statistics/" + type + "/" + dSpaceObject.getID());
-        newScopusMetrics.setRemark(jsonRemark.toString());
-        //if there are values one week before
-        Double last_week = getDeltaPeriod(dSpaceObject.getID(), "week", metricType);
+        newMetrics.setRemark(jsonRemark.toString());
         if (last_week != null) {
-            newScopusMetrics.setDeltaPeriod1(metricCount - last_week);
+            newMetrics.setDeltaPeriod1(metricCount - last_week);
         }
         //if there are values one month before
         Double last_month = getDeltaPeriod(dSpaceObject.getID(), "month", metricType);
         if (last_month != null) {
-            newScopusMetrics.setDeltaPeriod2(metricCount - last_month);
+            newMetrics.setDeltaPeriod2(metricCount - last_month);
         }
+        indexingService.updateMetrics(context, newMetrics);
         return existentValue;
     }
 
