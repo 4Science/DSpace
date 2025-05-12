@@ -244,7 +244,6 @@
         <property name="metadataSource" ref="rorImportService"/>
         <property name="sourceIdentifier" value="ror"/>
         <property name="recordIdMetadata" value="organization.identifier.ror"/>
-        <property name="displayMetadata" value="organization.legalName"/>
         <property name="supportedEntityTypes">
             <list>
                 <value>OrgUnit</value>
