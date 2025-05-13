@@ -15,6 +15,12 @@ BINDIR=`dirname $0`
 DSPACEDIR=`cd "$BINDIR/.." ; pwd`
 TIKACFG=$DSPACEDIR/config/tika-config.xml
 
+# Check if exists the setenv script it can be also a symbolic link inside the bin directory, if so we need to execute it first
+if [ -r "$DSPACEDIR/bin/setenv.sh" ]
+then
+    . "$DSPACEDIR/bin/setenv.sh"
+fi
+
 # Get the JARs in $DSPACEDIR/lib
 JARS="$DSPACEDIR/lib/*"
 
