@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7-labs
 # This image will be published as dspace/dspace
 # See https://github.com/DSpace/DSpace/tree/main/dspace/src/main/docker for usage details
 #
@@ -14,7 +15,6 @@ ARG DOCKER_REGISTRY=docker.io
 
 # Step 1 - Run Maven Build
 FROM ${DOCKER_REGISTRY}/dspace-cris/dspace-cris-dependencies:${DSPACE_VERSION} AS build
-ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # The dspace-installer directory will be written to /install
 RUN mkdir -p /install /install/config /install/bin /install/solr \
@@ -22,28 +22,36 @@ RUN mkdir -p /install /install/config /install/bin /install/solr \
     && chown -Rv dspace: /app
 USER dspace
 # Copy the DSpace source code (from local machine) into the workdir (excluding .dockerignore contents)
-COPY --chown=dspace . /app/
+COPY --chown=dspace --parents pom.xml **/pom.xml /app/
+COPY --chown=dspace --parents **/src /app/
 # Build DSpace (note: this build doesn't include the optional, deprecated "dspace-rest" webapp)
 # Copy the dspace-installer directory to /install.  Clean up the build to keep the docker image small
 # Maven flags here ensure that we skip building test environment and skip all code verification checks.
 # These flags speed up this compilation as much as reasonably possible.
-ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
-RUN mvn -nsu -ntp package ${MAVEN_FLAGS}
-RUN mv /app/dspace/config/* /install/config && \
-  mv /app/dspace/bin/* /install/bin && \
-  mv /app/dspace/solr/* /install/solr && \
-  mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar
-RUN mvn clean
+ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Dmaven.test.skip -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true -T1C"
+RUN mvn -nsu -ntp package ${MAVEN_FLAGS} && \
+  mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar && \
+  java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
 
 # Step 2 - Run installation
-# Create a new tomcat image that does not retain the the build directory contents
-FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
-# NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
-ENV DSPACE_INSTALL=/dspace
-# Copy the /dspace directory from 'ant_build' container to /dspace in this container
-COPY --from=build /install $DSPACE_INSTALL
+# Create a new tomcat image that does not retain the thze build directory contents
+FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Expose Tomcat port (8080) and AJP port (8009) and Handle Server HTTP port (8000)
 EXPOSE 8080
-# Give java extra memory (2GB)
-ENV JAVA_OPTS=-Xmx2000m
-ENTRYPOINT ["java", "-XX:+UseParallelGC","-XX:MaxRAMPercentage=75", "-jar", "/dspace/server-boot.jar", "--dspace.dir=${DSPACE_INSTALL}", "--server.port=8080", "--logging.config=${DSPACE_INSTALL}/config/log4j2-container.xml"]
+# NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
+ENV DSPACE_INSTALL=/dspace
+WORKDIR $DSPACE_INSTALL
+
+RUN useradd dspace
+
+COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
+
+COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
+COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
+
+WORKDIR /app/server-boot
+USER dspace
+ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]

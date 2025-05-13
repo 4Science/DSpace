@@ -1,0 +1,142 @@
+networks:
+  dspacenet:
+    ipam:
+      config:
+        # Define a custom subnet for our DSpace network, so that we can easily trust requests from host to container.
+        # If you customize this value, be sure to customize the 'proxies.trusted.ipranges' env variable below.
+        - subnet: 172.23.0.0/16
+
+services:
+  # DSpace (backend) development container
+  dspace-dev:
+    container_name: dspace-dev
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      args:
+        # Arguments passed to the Dockerfile
+        DSPACE_DIR: ${DSPACE_DIR:-/dspace}
+        LOG4J_CONFIG_FILE: ${LOG4J_CONFIG_FILE:-/dspace-src/dspace/config/log4j2-container.xml}
+        JDK_VERSION: ${JDK_VERSION:-11}
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-docker.io}
+    environment:
+      # Below syntax may look odd, but it is how to override dspace.cfg settings via env variables.
+      # See https://github.com/DSpace/DSpace/blob/main/dspace/config/config-definition.xml
+      # __P__ => "." (e.g. dspace__P__dir => dspace.dir)
+      # __D__ => "-" (e.g. google__D__metadata => google-metadata)
+      # dspace.dir: Must match with Dockerfile's DSPACE_INSTALL directory.
+      dspace.dir: /dspace
+      logging.config: /dspace/config/log4j2-container.xml
+      # db.url: Ensure we are using the 'dspacedb' image for our database
+      db__P__url: 'jdbc:postgresql://dspacedb:5432/dspace'
+      # solr.server: Ensure we are using the 'dspacesolr' image for Solr
+      solr__P__server: http://dspacesolr:8983/solr
+      # proxies.trusted.ipranges: This setting is required for a REST API running in Docker to trust requests
+      # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
+      proxies__P__trusted__P__ipranges: '172.23.0'
+    depends_on:
+      - dspacedb
+      - dspacesolr
+    networks:
+      - dspacenet
+    ports:
+      - published: 8080
+        target: 8080
+      - published: 5006
+        target: 5005
+    stdin_open: true
+    tty: true
+    volumes:
+      # Mount the entire source code directory for development
+      - .:/dspace-src
+      # Keep DSpace assetstore directory between reboots
+      - assetstore:/dspace/assetstore
+      # Mount local [src]/dspace/config/ to container. This syncs your local configs with container
+      - ./dspace/config:/dspace/config
+      # Mount local [src]/dspace/etc/ to container. This syncs local etc files with container.
+      - ./dspace/etc:/dspace/etc
+      # Ensure that the database is ready BEFORE starting the development server
+      - ~/.m2/:/root/.m2
+    entrypoint:
+      - /bin/bash
+      - '-c'
+      - |
+        while (!</dev/tcp/dspacedb/5432) > /dev/null 2>&1; do sleep 1; done;
+        # Run the Maven command from the CMD in dev.Dockerfile
+        # Use the same arguments as defined in the Dockerfile
+        mvn -f dspace/modules/server-boot/pom.xml \
+          spring-boot:run \
+          -Dspring-boot.run.arguments="--dspace.dir=${DSPACE_DIR:-/dspace} --logging.config=${LOG4J_CONFIG_FILE:-/dspace-src/dspace/config/log4j2-container.xml}" \
+          -Dspring.boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    # DSpace PostgreSQL database container
+  dspacedb:
+    container_name: dspacedb
+    # Uses a custom Postgres image with pgcrypto installed
+    image: "${DOCKER_OWNER:-dspace}/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-7_x}"
+    build:
+      # Must build out of subdirectory to have access to install script for pgcrypto
+      context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
+    environment:
+      PGDATA: /pgdata
+      POSTGRES_PASSWORD: dspace
+    networks:
+      dspacenet:
+    ports:
+      - published: 5432
+        target: 5432
+    stdin_open: true
+    tty: true
+    volumes:
+      # Keep Postgres data directory between reboots
+      - pgdata:/pgdata
+
+    # DSpace Solr container
+  dspacesolr:
+    container_name: dspacesolr
+    image: "${DOCKER_OWNER:-dspace}/dspace-solr:${DSPACE_VER:-dspace-cris-7_x}"
+    build:
+      context: ./dspace/src/main/docker/dspace-solr/
+      # Provide path to Solr configs necessary to build Docker image
+      additional_contexts:
+        solrconfigs: ./dspace/solr/
+      args:
+        SOLR_VERSION: "${SOLR_VER:-8.11}"
+    networks:
+      dspacenet:
+    ports:
+      - published: 8983
+        target: 8983
+    stdin_open: true
+    tty: true
+    working_dir: /var/solr/data
+    volumes:
+      # Keep Solr data directory between reboots
+      - solr_data:/var/solr/data
+      # Initialize all DSpace Solr cores then start Solr
+    entrypoint:
+      - /bin/bash
+      - '-c'
+      - |
+        init-var-solr
+        precreate-core audit /opt/solr/server/solr/configsets/audit
+        cp -r /opt/solr/server/solr/configsets/audit/* audit
+        precreate-core authority /opt/solr/server/solr/configsets/authority
+        cp -r /opt/solr/server/solr/configsets/authority/* authority
+        precreate-core dedup /opt/solr/server/solr/configsets/dedup
+        cp -r /opt/solr/server/solr/configsets/dedup/* dedup
+        precreate-core nbevent /opt/solr/server/solr/configsets/nbevent
+        cp -r /opt/solr/server/solr/configsets/nbevent/* nbevent
+        precreate-core oai /opt/solr/server/solr/configsets/oai
+        cp -r /opt/solr/server/solr/configsets/oai/* oai
+        precreate-core search /opt/solr/server/solr/configsets/search
+        cp -r /opt/solr/server/solr/configsets/search/* search
+        precreate-core statistics /opt/solr/server/solr/configsets/statistics
+        cp -r /opt/solr/server/solr/configsets/statistics/* statistics
+        precreate-core suggestion /opt/solr/server/solr/configsets/suggestion
+        cp -r /opt/solr/server/solr/configsets/suggestion/* suggestion
+        exec solr -f
+
+volumes:
+  assetstore:
+  pgdata:
+  solr_data:
