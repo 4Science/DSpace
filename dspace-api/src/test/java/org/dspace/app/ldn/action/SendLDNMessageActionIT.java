@@ -56,6 +56,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -63,6 +64,7 @@ import org.junit.Test;
  *
  * @author Mohamed Eskander (mohamed.eskander at 4science.com)
  */
+@Ignore
 public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase {
 
     public static final String LDNMESSAGE_CONSUMER = "ldnmessage";

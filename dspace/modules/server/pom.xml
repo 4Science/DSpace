@@ -7,12 +7,11 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2024.02.01-SNAPSHOT</version>
+        <version>cris-2024.02.01</version>
         <relativePath>..</relativePath>
     </parent>
 
     <properties>
-        <dspace.version>cris-2024.02.01-SNAPSHOT</dspace.version>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>

@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.01-SNAPSHOT</version>
+        <version>cris-2024.02.01</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -416,14 +416,6 @@
                 <artifactId>spring-expression</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
-            <!-- Specify the version of json-smart we want to use.
-                 This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
-            <!--<dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>2.5.0</version>
-            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
@@ -684,14 +676,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Specify the version of json-smart we want to use.
-             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.5.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
@@ -728,6 +712,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>json-smart</artifactId>
+                    <groupId>net.minidev</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Required for ITs to ensure they use Apache HttpClient in AbstractWebClientIntegrationTest -->
         <dependency>
@@ -741,6 +731,12 @@
             <artifactId>spring-security-test</artifactId>
             <version>${spring-security.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Specify the version of json-smart we want to use.
+             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
