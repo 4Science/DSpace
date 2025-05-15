@@ -38,6 +38,9 @@ public interface CrisMetricsService {
 
     public CrisMetrics create(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
 
+    public CrisMetrics create(Context context, int resourceType, UUID resourceId)
+            throws SQLException, AuthorizeException;
+
     public void delete(Context context, CrisMetrics crisMetrics) throws SQLException, AuthorizeException;
 
     public void deleteByResourceID(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
