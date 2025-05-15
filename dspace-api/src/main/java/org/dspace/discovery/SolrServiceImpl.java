@@ -1790,8 +1790,6 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         if (id.isEmpty()) {
             return;
         }
-        final UUID resource = metric.getResource();
-        final int resourceType = metric.getResourceType();
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());

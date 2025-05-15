@@ -69,9 +69,13 @@ public class CrisMetricsServiceImpl implements CrisMetricsService {
     }
 
     public CrisMetrics create(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException {
+        return create(context, dSpaceObject.getType(), dSpaceObject.getID());
+    }
+
+    public CrisMetrics create(Context context, int resourceType, UUID uuid) throws SQLException, AuthorizeException {
         CrisMetrics cm = new CrisMetrics();
-        cm.setResource(dSpaceObject.getID());
-        cm.setResourceType(dSpaceObject.getType());
+        cm.setResource(uuid);
+        cm.setResourceType(resourceType);
         cm.setAcquisitionDate(new Date());
         CrisMetrics metric = crisMetricsDAO.create(context, cm);
         log.info(LogHelper.getHeader(context, "create_cris_metrics", "cris_metrics_id=" + metric.getId()));
