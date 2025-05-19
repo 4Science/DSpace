@@ -102,17 +102,19 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
                 collections.add(col);
             }
 
-
             for (Collection collection : collections) {
-                int countItems = 0;
+                collection = context.reloadEntity(collection);
                 int processedItems = 0;
-                int notProcessed = 0;
                 String currentEt = collection.getEntityType();
                 String currentForm = collectionService.getMetadataFirstValue(collection,
                         MetadataSchemaEnum.CRIS.getName(), "submission", "definition", Item.ANY);
                 System.out
                     .println("Current EntityType:" + currentEt + " and current form " +
                             currentForm + " of collection with name:" + collection.getName());
+                if (changeForm) {
+                    collectionService.setMetadataSingleValue(context, collection, MetadataSchemaEnum.CRIS.getName(),
+                                                             "submission", "definition", null,this.newFormName);
+                }
                 if (changeType) {
                     collectionService.setMetadataSingleValue(context, collection, "dspace", "entity", "type", null,
                             this.newEntityType);
@@ -120,35 +122,30 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
                     handler.logInfo("Script start");
                     while (itemIterator.hasNext()) {
                         Item item = itemIterator.next();
-                        countItems++;
-                        String entityType = itemService.getMetadataFirstValue(item, "dspace",
-                                "entity", "type", Item.ANY);
-                        processedItems++;
                         itemService.setMetadataSingleValue(context, item, "dspace", "entity", "type", null,
                                 this.newEntityType);
+                        processedItems++;
+                        context.uncacheEntity(item);
+                        if (processedItems % 100 == 0) {
+                            context.commit();
+                        }
                     }
                 }
-                if (changeForm) {
-                    collectionService.setMetadataSingleValue(context, collection, MetadataSchemaEnum.CRIS.getName(),
-                            "submission", "definition", null ,this.newFormName);
-                }
-                collection = context.reloadEntity(collection);
-                currentEt = collection.getEntityType();
-                handler.logInfo("Processed colection : " + collection.getName());
-                handler.logInfo("Found " + countItems + " items");
                 handler.logInfo("Processed " + processedItems + " items");
-                handler.logInfo("NOT processed " + notProcessed + " items");
+                context.uncacheEntity(collection);
+                context.commit();
             }
-            context.commit();
             handler.logInfo("Script end");
         } catch (SQLException e) {
-            context.rollback();
+            if (context != null && context.isValid()) {
+                context.abort();
+            }
             log.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            if (context != null) {
+            if (context != null && context.isValid()) {
                 context.restoreAuthSystemState();
-                context.close();
+                context.complete();
             }
         }
     }
