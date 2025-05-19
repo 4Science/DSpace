@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -168,6 +169,63 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     }
 
     @Test
+    public void importMultipleItemsByZipSafWithBitstreams() throws Exception {
+        // use the pool executor to run multiple scripts in parallel
+        String oldExecutor = configurationService.getProperty("dspace.task.executor");
+        configurationService.setProperty("dspace.task.executor", "dspaceRunnableThreadPoolExecutor");
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-a", ""));
+        parameters.add(new DSpaceCommandLineParameter("-c", collection.getID().toString()));
+        parameters.add(new DSpaceCommandLineParameter("-z", "saf-bitstreams.zip"));
+        MockMultipartFile bitstreamFile = new MockMultipartFile("file", "saf-bitstreams.zip",
+            MediaType.APPLICATION_OCTET_STREAM_VALUE, getClass().getResourceAsStream("saf-bitstreams.zip"));
+
+        // perform multiple imports
+        AtomicReference<Integer> idRefProcess1 = scheduleImportScript(parameters, bitstreamFile);
+        AtomicReference<Integer> idRefProcess2 = scheduleImportScript(parameters, bitstreamFile);
+
+        // wait until the scheduled processes are finished
+        boolean areProcessesCompleted = false;
+        do {
+            try {
+                Process process1 = processService.find(context, idRefProcess1.get());
+                Process process2 = processService.find(context, idRefProcess2.get());
+                isProcessCompleted(process1, parameters);
+                isProcessCompleted(process2, parameters);
+                areProcessesCompleted = true;
+            } catch (AssertionError e) {
+                // nothing to do since we are looping until the process are finished
+            }
+        } while (!areProcessesCompleted);
+
+        // check results
+        Iterator<Item> items = itemService.findArchivedByMetadataField(
+            context, "dc", "title", null, publicationTitle);
+        assertTrue(items.hasNext());
+        Item item1 = items.next();
+        assertTrue(items.hasNext());
+        Item item2 = items.next();
+        checkMetadata(item1);
+        checkMetadata(item2);
+        checkMetadataWithAnotherSchema(item1);
+        checkMetadataWithAnotherSchema(item2);
+        item1 = context.reloadEntity(item1);
+        item2 = context.reloadEntity(item2);
+        Bitstream bitstreamOfItem1 = itemService.getBundles(item1, "ORIGINAL").get(0).getBitstreams().get(0);
+        Bitstream bitstreamOfItem2 = itemService.getBundles(item2, "ORIGINAL").get(0).getBitstreams().get(0);
+        checkBitstream(bitstreamOfItem1);
+        checkBitstream(bitstreamOfItem2);
+
+        // confirm that TEMP_DIR still exists
+        File workTempDir = new File(workDir + File.separator + TEMP_DIR);
+        assertTrue(workTempDir.exists());
+
+        // reinstate old configuration
+        configurationService.setProperty("dspace.task.executor", oldExecutor);
+    }
+
+    @Test
     public void importItemByZipSafWithRelationships() throws Exception {
         context.turnOffAuthorisationSystem();
         // create collection that contains person
@@ -201,12 +259,21 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     private void checkMetadata() throws Exception {
         Item item = itemService.findArchivedByMetadataField(
                 context, "dc", "title", null, publicationTitle).next();
+        checkMetadata(item);
+    }
+
+    /**
+     * Check metadata on imported item
+     * @param item the imported item
+     * @throws Exception
+     */
+    private void checkMetadata(Item item) throws Exception {
         getClient().perform(get("/api/core/items/" + item.getID()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.metadata", allOf(
-                        matchMetadata("dc.title", publicationTitle),
-                        matchMetadata("dc.date.issued", "1990"),
-                        matchMetadata("dc.title.alternative", "J'aime les Printemps"))));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata", allOf(
+                matchMetadata("dc.title", publicationTitle),
+                matchMetadata("dc.date.issued", "1990"),
+                matchMetadata("dc.title.alternative", "J'aime les Printemps"))));
     }
 
     /**
@@ -216,10 +283,19 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     private void checkMetadataWithAnotherSchema() throws Exception {
         Item item = itemService.findArchivedByMetadataField(
                 context, "dc", "title", null, publicationTitle).next();
+        checkMetadataWithAnotherSchema(item);
+    }
+
+    /**
+     * Check metadata on imported item
+     * @param item the imported item
+     * @throws Exception
+     */
+    private void checkMetadataWithAnotherSchema(Item item) throws Exception {
         getClient().perform(get("/api/core/items/" + item.getID()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.metadata", allOf(
-                        matchMetadata("dcterms.title", publicationTitle))));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata", allOf(
+                matchMetadata("dcterms.title", publicationTitle))));
     }
 
     /**
@@ -230,10 +306,19 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         Bitstream bitstream = itemService.findArchivedByMetadataField(
                 context, "dc", "title", null, publicationTitle).next()
                 .getBundles("ORIGINAL").get(0).getBitstreams().get(0);
+        checkBitstream(bitstream);
+    }
+
+    /**
+     * Check bitstreams on imported bitstream
+     * @param bitstream the imported bitstream
+     * @throws Exception
+     */
+    private void checkBitstream(Bitstream bitstream) throws Exception {
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.metadata", allOf(
-                        matchMetadata("dc.title", "file1.txt"))));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.metadata", allOf(
+                matchMetadata("dc.title", "file1.txt"))));
     }
 
     /**
@@ -287,6 +372,31 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         }
     }
 
+    private AtomicReference<Integer> scheduleImportScript(
+                LinkedList<DSpaceCommandLineParameter> parameters, MockMultipartFile bitstreamFile)
+        throws Exception {
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        List<ParameterValueRest> list = parameters.stream()
+            .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+            .collect(Collectors.toList());
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(multipart("/api/system/scripts/import/processes")
+                .file(bitstreamFile)
+                .param("properties", new ObjectMapper().writeValueAsString(list)))
+            .andExpect(status().isAccepted())
+            .andExpect(jsonPath("$", is(
+                ProcessMatcher.matchProcess("import",
+                    String.valueOf(admin.getID()), parameters,
+                    ProcessStatus.SCHEDULED))))
+            .andDo(result -> idRef
+                .set(read(result.getResponse().getContentAsString(), "$.processId")));
+
+        return idRef;
+    }
+
     private void checkProcess(Process process) {
         assertNotNull(process.getBitstreams());
         assertEquals(3, process.getBitstreams().size());
@@ -301,5 +411,17 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
                 process.getBitstreams().stream()
                 .filter(b -> StringUtils.contains(b.getName(), ".zip"))
                 .count());
+    }
+
+    private void isProcessCompleted(
+                Process process, LinkedList<DSpaceCommandLineParameter> parameters)
+        throws Exception {
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(get("/api/system/processes/" + process.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", Matchers.is(
+                ProcessMatcher.matchProcess("import", String.valueOf(admin.getID()),
+                    process.getID(), parameters, ProcessStatus.COMPLETED))));
+        ProcessBuilder.deleteProcess(process.getID());
     }
 }
