@@ -82,8 +82,15 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamfonds.parent"/>
 		<property name="selectableMetadata" value="glam.leaf"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="labelMetadata">
 			<list>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -105,8 +112,15 @@
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamjournalfonds.parent"/>
 		<property name="selectableMetadata" value="glam.leaf"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="labelMetadata">
 			<list>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -129,6 +143,13 @@
 		<property name="parentMetadata" value="glamaggregation.parent"/>
 		<property name="selectableMetadata" value="glam.leaf"/>
 		<property name="labelMetadata">
+			<list>
+				<value>glamfonds.index</value>
+				<value>glamjournalfonds.index</value>
+				<value>dc.title</value>
+			</list>
+		</property>
+		<property name="storedMetadata">
 			<list>
 				<value>dc.title</value>
 			</list>

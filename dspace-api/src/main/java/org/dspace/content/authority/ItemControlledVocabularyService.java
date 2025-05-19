@@ -225,7 +225,11 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         Choice choice = new Choice();
 
         String labelMeta = getValueFromMetadataList(item, controlledVocabulary.getLabelMetadata());
-        choice.value = labelMeta;
+        String storedMeta = labelMeta;
+        if (controlledVocabulary.getStoredMetadata() != null) {
+            storedMeta = getValueFromMetadataList(item, controlledVocabulary.getStoredMetadata());
+        }
+        choice.value = storedMeta;
         choice.label = labelMeta;
         choice.extras = controlledVocabulary.getExtraValuesMapper().buildExtraValues(item);
 
