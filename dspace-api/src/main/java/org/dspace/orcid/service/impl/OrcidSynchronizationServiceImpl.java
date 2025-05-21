@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.dspace.access.status.DefaultAccessStatusHelper;
+import org.dspace.access.status.service.AccessStatusService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -95,6 +97,9 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     public void setOrcidClient(OrcidClient orcidClient) {
         this.orcidClient = orcidClient;
     }
+
+    @Autowired
+    private AccessStatusService accessStatusService;
 
     @Override
     public void linkProfile(Context context, Item profile, OrcidTokenResponseDTO token) throws SQLException {
@@ -203,7 +208,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     }
 
     @Override
-    public boolean isSynchronizationAllowed(Item profile, Item item) {
+    public boolean isSynchronizationAllowed(Context context, Item profile, Item item) {
 
         if (isOrcidSynchronizationDisabled()) {
             return false;
@@ -211,6 +216,11 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         String entityType = itemService.getEntityTypeLabel(item);
         if (entityType == null) {
+            return false;
+        }
+
+        // Check if the item is restricted
+        if (isRestrictedAccess(context, item)) {
             return false;
         }
 
@@ -226,6 +236,16 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         return false;
 
+    }
+
+    private boolean isRestrictedAccess(Context context, Item item) {
+        try {
+            String accessStatus = accessStatusService.getAccessStatus(context, item);
+            return org.apache.commons.lang3.StringUtils.equalsAny(accessStatus,
+                DefaultAccessStatusHelper.RESTRICTED, DefaultAccessStatusHelper.EMBARGO);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
