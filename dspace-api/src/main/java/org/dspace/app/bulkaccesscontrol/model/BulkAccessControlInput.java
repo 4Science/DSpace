@@ -10,7 +10,7 @@ package org.dspace.app.bulkaccesscontrol.model;
 import org.dspace.app.bulkaccesscontrol.BulkAccessControl;
 
 /**
- * Class that model the content of the JSON file used as input for the {@link BulkAccessControl}
+ * Class that models the content of the JSON file used as input for the {@link BulkAccessControl}
  *
  * <code> <br/>
  * { <br/>
@@ -69,4 +69,5 @@ public class BulkAccessControlInput {
     public void setBitstream(AccessConditionBitstream bitstream) {
         this.bitstream = bitstream;
     }
+
 }
