@@ -7,6 +7,8 @@
  */
 package org.dspace.app.mediafilter;
 
+import static org.dspace.app.mediafilter.MediaFilterServiceImpl.MEDIA_FILTER_PLUGINS_KEY;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -19,8 +21,6 @@ import org.dspace.scripts.configuration.ScriptConfiguration;
 public class MediaFilterScriptConfiguration<T extends MediaFilterScript> extends ScriptConfiguration<T> {
 
     private Class<T> dspaceRunnableClass;
-
-    private static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
 
     @Override
     public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {

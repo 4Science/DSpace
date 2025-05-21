@@ -15,10 +15,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.mediafilter.service.MediaFilterService;
+import org.dspace.app.policy.PolicyUpdater;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
@@ -37,10 +39,12 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
+import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.ThrowableUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +59,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * maximum number of items.
  */
 public class MediaFilterServiceImpl implements MediaFilterService, InitializingBean {
+
+    //key (in dspace.cfg) which lists all enabled filters by name
+    public static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
+
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
@@ -73,6 +81,8 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     protected ItemService itemService;
     @Autowired(required = true)
     protected ConfigurationService configurationService;
+    @Autowired(required = true)
+    protected List<PolicyUpdater> policyUpdaters;
 
     protected DSpaceRunnableHandler handler;
 
@@ -209,7 +219,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
 
         // iterate through filter classes. A single format may be actioned
         // by more than one filter
-        for (FormatFilter filterClass : filterClasses) {
+        for (FormatFilter filterClass : getFilterClasses()) {
             //List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName());
             String pluginName = null;
 
@@ -415,41 +425,22 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source)
-        throws SQLException, AuthorizeException {
-
-        if (filterClasses == null) {
-            return;
+    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source) {
+        if (this.policyUpdaters == null || this.policyUpdaters.isEmpty()) {
+            logInfo("No policy updater configured!");
         }
-
-        for (FormatFilter formatFilter : filterClasses) {
-            for (Bitstream bitstream : findDerivativeBitstreams(item, source, formatFilter)) {
-                updatePoliciesOfDerivativeBitstream(context, bitstream, formatFilter, source);
+        this.policyUpdaters.forEach(updater -> {
+            try {
+                updater.updatePolicies(context, item, source);
+            } catch (Exception e) {
+                logError(
+                    "Failed to update policies with " + updater.getClass().getSimpleName() +
+                    " for bitstream " + source.getID() + " - " + source.getName() +
+                    " related to item " + item.getID(),
+                    e
+                );
             }
-        }
-    }
-
-    /**
-     * find derivative bitstreams related to source bitstream
-     *
-     * @param item item containing bitstreams
-     * @param source source bitstream
-     * @param formatFilter formatFilter
-     * @return list of derivative bitstreams from source bitstream
-     * @throws SQLException If something goes wrong in the database
-     */
-    private List<Bitstream> findDerivativeBitstreams(Item item, Bitstream source, FormatFilter formatFilter)
-        throws SQLException {
-
-        String bitstreamName = formatFilter.getFilteredName(source.getName());
-        List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
-
-        return bundles.stream()
-                      .flatMap(bundle ->
-                          bundle.getBitstreams().stream())
-                      .filter(bitstream ->
-                          StringUtils.equals(bitstream.getName().trim(), bitstreamName.trim()))
-                      .collect(Collectors.toList());
+        });
     }
 
     /**
@@ -587,5 +578,33 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void setLogHandler(DSpaceRunnableHandler handler) {
         this.handler = handler;
+    }
+
+    List<String> getPublicFiltersClasses() {
+        return publicFiltersClasses;
+    }
+
+    List<FormatFilter> getFilterClasses() {
+        if (filterClasses == null) {
+            filterClasses = loadFilterClasses(
+                DSpaceServicesFactory.getInstance()
+                                     .getConfigurationService()
+                                     .getArrayProperty(MEDIA_FILTER_PLUGINS_KEY)
+            );
+        }
+        return filterClasses;
+    }
+
+    List<FormatFilter> loadFilterClasses(String... filterNames) {
+        return Stream.of(filterNames)
+                     .map(this::loadFormatFilter)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
+    }
+
+    private FormatFilter loadFormatFilter(String filterName) {
+        return (FormatFilter) CoreServiceFactory.getInstance().getPluginService()
+                                                .getNamedPlugin(FormatFilter.class,
+                                                                filterName);
     }
 }

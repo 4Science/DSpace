@@ -7,6 +7,8 @@
  */
 package org.dspace.app.mediafilter;
 
+import static org.dspace.app.mediafilter.MediaFilterServiceImpl.MEDIA_FILTER_PLUGINS_KEY;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,9 +47,6 @@ import org.dspace.utils.DSpace;
  * maximum number of items.
  */
 public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfiguration> {
-
-    //key (in dspace.cfg) which lists all enabled filters by name
-    private static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
 
     //prefix (in dspace.cfg) for all filter properties
     private static final String FILTER_PREFIX = "filter";
@@ -258,6 +257,9 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
         } catch (Exception e) {
             handler.handleException(e);
             c.abort();
+        } finally {
+            mediaFilterService.setFilterFormats(null);
+            mediaFilterService.setFilterClasses(null);
         }
     }
 
