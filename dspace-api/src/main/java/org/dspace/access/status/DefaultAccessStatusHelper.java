@@ -70,6 +70,10 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         if (item == null) {
             return UNKNOWN;
         }
+        String itemStatus = caculateAccessStatusForDso(context, item, threshold);
+        if (StringUtils.equals(itemStatus, RESTRICTED)) {
+            return itemStatus;
+        }
         // Consider only the original bundles.
         List<Bundle> bundles = item.getBundles(Constants.DEFAULT_BUNDLE_NAME);
         // Check for primary bitstreams first.
@@ -151,9 +155,6 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         }
         if (embargoCount > 0 && restrictedCount == 0) {
             return EMBARGO;
-        }
-        if (unknownCount > 0) {
-            return UNKNOWN;
         }
         return RESTRICTED;
     }
