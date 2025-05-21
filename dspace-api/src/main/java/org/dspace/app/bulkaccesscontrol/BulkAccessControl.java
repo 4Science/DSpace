@@ -317,7 +317,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             DSpaceObject dso =
                 dSpaceObjectUtils.findDSpaceObject(context, UUID.fromString(uuids.get(0)));
 
-            if (Objects.nonNull(dso) && dso.getType() != Constants.ITEM) {
+            if (!isValidType(dso)) {
                 handler.logError("constraint is not supported when uuid isn't an Item");
                 throw new BulkAccessControlException("constraint is not supported when uuid isn't an Item");
             }
@@ -445,6 +445,15 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             }
         }
         return StringUtils.joinWith(" OR ", query);
+    }
+
+    private boolean isValidType(DSpaceObject dso) {
+        return dso != null &&
+            (
+                Constants.COMMUNITY == dso.getType() ||
+                Constants.COLLECTION == dso.getType() ||
+                Constants.ITEM == dso.getType()
+            );
     }
 
     private Iterator<Item> findItems(String query, int start, int limit)
