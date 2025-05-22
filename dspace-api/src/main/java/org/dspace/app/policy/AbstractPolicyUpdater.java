@@ -29,6 +29,10 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
+ * Interface for updating resource policies on bitstreams.
+ * Implementations handle the propagation of access policies from source bitstreams
+ * to their derivatives.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public abstract class AbstractPolicyUpdater implements PolicyUpdater {
@@ -48,7 +52,7 @@ public abstract class AbstractPolicyUpdater implements PolicyUpdater {
                 authorizeService.findByTypeGroupAction(context, dso, rp.getGroup(), rp.getAction());
             return found != null &&
                 Objects.equals(rp.getEPerson(), found.getEPerson()) &&
-                Objects.equals(rp.getEndDate(), found.getStartDate()) &&
+                Objects.equals(rp.getStartDate(), found.getStartDate()) &&
                 Objects.equals(rp.getEndDate(), found.getEndDate());
         } catch (SQLException e) {
             log.error("Cannot find any related policy to dso " + dso.getID() + " for policy " + rp, e);
