@@ -745,7 +745,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasItem(
-            containsString("wrong access condition <wrongAccess>")
+            containsString("BulkAccessControlException: Invalid Item access condition: <wrongAccess>")
         ));
     }
 
@@ -783,11 +783,11 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
 
-        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(3));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasItem(
-            containsString("invalid access condition, The access condition embargo requires a start date.")
+            containsString("IllegalStateException: The access condition embargo requires a start date.")
         ));
     }
 
@@ -825,11 +825,11 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
 
-        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(3));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasItem(
-            containsString("invalid access condition, The access condition lease requires an end date.")
+            containsString("IllegalStateException: The access condition lease requires an end date.")
         ));
     }
 
@@ -869,10 +869,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
 
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
-        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasItem(
-            containsString("constraint is not supported when uuid isn't an Item")
-        ));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
     }
 
     @Test
