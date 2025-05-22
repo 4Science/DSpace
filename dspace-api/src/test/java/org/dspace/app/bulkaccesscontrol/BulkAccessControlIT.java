@@ -843,9 +843,11 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
         context.restoreAuthSystemState();
 
+        UUID notExistingUUID = UUID.randomUUID();
+
         String jsonOne = "{ \"bitstream\": {\n" +
             "      \"constraints\": {\n" +
-            "          \"uuid\": [\"" + UUID.randomUUID() + "\"]\n" +
+            "          \"uuid\": [\"" + notExistingUUID + "\"]\n" +
             "      },\n" +
             "      \"mode\": \"add\",\n" +
             "      \"accessConditions\": [\n" +
@@ -869,7 +871,10 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
 
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasItem(
+            containsString("Unable to find bistream " + notExistingUUID)
+        ));
     }
 
     @Test
@@ -1813,6 +1818,242 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         assertThat(bitstreamTwo.getResourcePolicies(), hasItem(
             matches(READ, adminGroup, "administrator", TYPE_CUSTOM)
         ));
+    }
+
+    @Test
+    public void performBulkAccessWithBitstreamOnlyPolicySuccessTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        Bitstream bitstream;
+        try (InputStream is = IOUtils.toInputStream("Dummy content", CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, bundle, is)
+                            .withName("bistream")
+                            .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{\n" +
+            " \"bitstream\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"bitstreamOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }\n" +
+            "}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
+            containsString("Replacing Bitstream {" + bitstream.getID() +
+                               "} policy to access conditions:{bitstreamOnlyPolicy}")
+        ));
+
+    }
+
+    @Test
+    public void performBulkAccessWithBitstreamOnlyPolicyFailureTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{ \"item\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"bitstreamOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), containsInAnyOrder(
+            containsString("Invalid Item access condition: <bitstreamOnlyPolicy>"),
+            containsString("BulkAccessControlException: Invalid Item access condition: <bitstreamOnlyPolicy>")
+        ));
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(0));
+
+
+    }
+
+    @Test
+    public void performBulkAccessWithItemOnlyPolicyFailureTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{\n" +
+            " \"bitstream\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"itemOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }\n" +
+            "}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), containsInAnyOrder(
+            containsString("Invalid Bitstream access condition <itemOnlyPolicy>"),
+            containsString("Invalid Bitstream access condition <itemOnlyPolicy>")
+        ));
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(0));
+
+
+    }
+
+    @Test
+    public void performBulkAccessWithItemOnlyPolicySuccessTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        try (InputStream is = IOUtils.toInputStream("Dummy content", CharEncoding.UTF_8)) {
+           BitstreamBuilder.createBitstream(context, bundle, is)
+                            .withName("bistream")
+                            .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{ \"item\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"itemOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
+            containsString("Replacing Item {" + item.getID() +
+                               "} policy to access conditions:{itemOnlyPolicy}")
+        ));
+
     }
 
     @Test

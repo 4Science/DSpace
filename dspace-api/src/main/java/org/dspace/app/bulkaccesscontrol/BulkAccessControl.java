@@ -317,9 +317,29 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             DSpaceObject dso =
                 dSpaceObjectUtils.findDSpaceObject(context, UUID.fromString(uuids.get(0)));
 
+            if (dso == null) {
+                String msg = "Unable to find Dspace Object";
+                handler.logError(msg);
+                throw new BulkAccessControlException(msg);
+            }
+
             if (!isValidType(dso)) {
-                handler.logError("constraint is not supported when uuid isn't an Item");
-                throw new BulkAccessControlException("constraint is not supported when uuid isn't an Item");
+                String msg = "constraint is not supported when uuid isn't an Dspace Object";
+                handler.logError(msg);
+                throw new BulkAccessControlException(msg);
+            }
+        }
+
+        if (bitstream.getConstraints() != null && bitstream.getConstraints().getUuid() != null) {
+            for (String uuid : bitstream.getConstraints().getUuid()) {
+                DSpaceObject b =
+                    dSpaceObjectUtils.findDSpaceObject(context, UUID.fromString(uuid));
+
+                if (b == null) {
+                    String msg = "Unable to find bistream " + uuid;
+                    handler.logError(msg);
+                    throw new BulkAccessControlException(msg);
+                }
             }
         }
     }
