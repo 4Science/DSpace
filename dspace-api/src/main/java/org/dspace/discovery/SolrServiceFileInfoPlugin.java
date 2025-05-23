@@ -179,6 +179,7 @@ public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
     }
 
     private void indexBitstreamsMetadatadas(SolrInputDocument document, Bitstream bitstream) {
+        if (mappableMetadata != null) {
         bitstream
             .getMetadata()
             .stream()
@@ -190,6 +191,7 @@ public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
                     .orElseGet(() -> new SolrFieldMetadataMapper(metadataField.toString(), bitstreamMetadataIndexAdder))
                     .map(document, metadata.getValue());
             });
+        }
     }
 
     public void setMappableMetadata(Map<String, SolrFieldMetadataMapper> mappableMetadata) {
