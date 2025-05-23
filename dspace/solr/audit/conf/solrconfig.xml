@@ -41,8 +41,6 @@
     <infoStream>true</infoStream>
   </indexConfig>
 
-  <jmx />
-
   <updateHandler class="solr.DirectUpdateHandler2">
 
     <updateLog>
