@@ -459,7 +459,8 @@ public class DiscoverQueryBuilder implements InitializingBean {
                 }
 
                 String field = filter.getIndexFieldName();
-                if (filter instanceof MultiLanguageDiscoverSearchFilterFacet) {
+                if (filter instanceof MultiLanguageDiscoverSearchFilterFacet &&
+                    !searchFilter.getOperator().equals("authority")) {
                     field = context.getCurrentLocale().getLanguage() + "_" + field;
                 }
 
