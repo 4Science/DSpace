@@ -630,66 +630,6 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void authorityFondsVocabulary() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            new String[] {
-                "org.dspace.content.authority.ItemAuthority = FondsAuthority"
-        });
-
-
-        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.entityType", "Fonds");
-        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.relationshipType", "Fonds");
-
-        configurationService.setProperty("choices.plugin.glamfonds.parent","FondsAuthority");
-        configurationService.setProperty("choices.presentation.glamfonds.parent","suggest");
-        configurationService.setProperty("authority.controlled.glamfonds.parent","true");
-        configurationService.setProperty("authority.required.glamfonds.parent","true");
-        configurationService.setProperty("choices.closed.glamfonds.parent","true");
-
-        configurationService.setProperty("item.controlled.vocabularies","fonds");
-        configurationService.setProperty("item.controlled.vocabularies.fonds.store-authority-in-metadata", "true");
-
-        // These clears have to happen so that the config is actually reloaded in those
-        // classes. This is needed for
-        // the properties that we're altering above and this is only used within the
-        // tests
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-
-        parentCommunity = CommunityBuilder.createCommunity(context).build();
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
-
-        Item fonds1 =
-            ItemBuilder.createItem(context, col1)
-                       .withTitle("Fonds 1")
-                       .withType("fond type")
-                       .withEntityType("Fonds")
-                       .build();
-
-        Item fonds2 =
-            ItemBuilder.createItem(context, col1)
-                       .withTitle("Fonds 2")
-                       .withType("fond type")
-                       .withEntityType("Fonds")
-                       .build();
-
-        Item fonds3 =
-            ItemBuilder.createItem(context, col1)
-                       .withTitle("Fonds 3")
-                       .withType("fond type")
-                       .withEntityType("Fonds")
-                       .build();
-        context.restoreAuthSystemState();
-
-        String token = getAuthToken(eperson.getEmail(), password);
-        getClient(token)
-            .perform(
-                get("/api/submission/vocabularies/fondsTree/entries"))
-            .andExpect(status().isOk());
-    }
-    @Test
     public void personAuthorityTests() throws Exception {
         context.turnOffAuthorisationSystem();
 

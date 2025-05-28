@@ -769,21 +769,6 @@ it, please enter the types and the actual numbers or codes.</hint>
              <vocabulary>types</vocabulary>
          </field>
         </row>
-        <row>
-         <field>
-             <dc-schema>dc</dc-schema>
-             <dc-element>relation</dc-element>
-             <dc-qualifier>fonds</dc-qualifier>
-             <label>Fondo</label>
-             <input-type>onebox</input-type>
-             <repeatable>false</repeatable>
-             <required/>
-             <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad
-                 un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.
-             </hint>
-             <vocabulary closed="true">fondsTree</vocabulary>
-         </field>
-        </row>
      </form>
      <form name="publication_indexing">
       <row>

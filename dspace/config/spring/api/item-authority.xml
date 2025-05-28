@@ -166,14 +166,44 @@
 
 	<bean name="fondsTree" parent="fondsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:Fonds AND (glamfonds.parent_authority:{0} OR dc.relation.fonds_authority:{0})"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="journalfondsTree" parent="journalfondsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:JournalFonds AND (glamjournalfonds.parent_authority:{0} OR dc.relation.journalfonds_authority:{0})"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="aggregationsTree" parent="aggregationsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:Aggregation AND (glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0})"/>
+		<property name="labelMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
