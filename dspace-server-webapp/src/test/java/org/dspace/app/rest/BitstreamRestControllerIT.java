@@ -7,8 +7,8 @@
  */
 package org.dspace.app.rest;
 
+import static jakarta.mail.internet.MimeUtility.encodeText;
 import static java.util.UUID.randomUUID;
-import static javax.mail.internet.MimeUtility.encodeText;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.io.IOUtils.toInputStream;
@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.Period;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -408,7 +409,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("6 months")
+                .withEmbargoPeriod(Period.ofMonths(6))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -452,7 +453,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
             context.restoreAuthSystemState();
@@ -495,7 +496,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("-3 months")
+                .withEmbargoPeriod(Period.ofMonths(-3))
                 .build();
         }
             context.restoreAuthSystemState();
@@ -573,7 +574,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                     .withName("Bitstream")
                     .withDescription("Description")
                     .withMimeType("text/plain")
-                    .withEmbargoPeriod("2 week")
+                    .withEmbargoPeriod(Period.ofWeeks(2))
                     .build();
         }
         context.restoreAuthSystemState();
@@ -1319,7 +1320,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("6 months")
+                .withEmbargoPeriod(Period.ofMonths(6))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -1353,7 +1354,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         checkNumberOfStatsRecords(bitstream, 2);
     }
 
-
     @Test
     public void checkContentDispositionOfFormats() throws Exception {
         configurationService.setProperty("webui.content_disposition_format", new String[] {
@@ -1379,7 +1379,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             txt = BitstreamBuilder.createBitstream(context, item, is)
                                   .withMimeType("text/plain").build();
             csv = BitstreamBuilder.createBitstream(context, item, is)
-                                  .withMimeType("text/csv").build();
+                                   .withMimeType("text/csv").build();
         }
         context.restoreAuthSystemState();
 

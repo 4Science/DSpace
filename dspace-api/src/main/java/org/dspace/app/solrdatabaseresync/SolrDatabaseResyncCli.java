@@ -124,7 +124,7 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
     }
 
     private void performStatusUpdateOnNextBatch(Context context, SolrQuery solrQuery)
-        throws SolrServerException, IOException {
+            throws SolrServerException, IOException {
         QueryResponse response = solrSearchCore.getSolr().query(solrQuery, solrSearchCore.REQUEST_METHOD);
 
         logInfoAndOut(response.getResults().size() + " items found to process");
@@ -136,8 +136,8 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
 
             Optional<IndexableObject> indexableObject = Optional.empty();
             try {
-                indexableObject =
-                    indexObjectServiceFactory.getIndexableObjectFactory(uniqueId).findIndexableObject(context, uuid);
+                indexableObject = indexObjectServiceFactory
+                    .getIndexableObjectFactory(uniqueId).findIndexableObject(context, uuid);
             } catch (SQLException e) {
                 log.warn("An exception occurred when attempting to retrieve item with UUID \"" + uuid +
                         "\" from the database, removing related solr document", e);

@@ -9,8 +9,8 @@ package org.dspace.usage;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;

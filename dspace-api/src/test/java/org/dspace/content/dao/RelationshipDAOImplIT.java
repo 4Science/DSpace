@@ -36,10 +36,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * Created by: Andrew Wood
- * Date: 20 Sep 2019
- */
 @Ignore
 public class RelationshipDAOImplIT extends AbstractIntegrationTest {
 

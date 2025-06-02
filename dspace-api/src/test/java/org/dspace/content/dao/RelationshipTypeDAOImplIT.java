@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
 @Ignore
 public class RelationshipTypeDAOImplIT extends AbstractIntegrationTest {
 

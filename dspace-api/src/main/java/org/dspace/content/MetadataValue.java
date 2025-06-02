@@ -7,26 +7,24 @@
  */
 package org.dspace.content;
 
-import javax.annotation.Nullable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
+import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.core.Context;
+import org.dspace.core.HibernateProxyHelper;
 import org.dspace.core.ReloadableEntity;
-import org.hibernate.annotations.Type;
-import org.hibernate.proxy.HibernateProxyHelper;
+import org.hibernate.Length;
 
 /**
  * Database access class representing a Dublin Core metadata value.
@@ -61,9 +59,7 @@ public class MetadataValue implements ReloadableEntity<Integer> {
     /**
      * The value of the field
      */
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Column(name = "text_value")
+    @Column(name = "text_value", length = Length.LONG32)
     private String value;
 
     /**

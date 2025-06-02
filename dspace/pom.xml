@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2024.02.02-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -58,8 +58,8 @@
             </activation>
             <build>
                 <plugins>
-                   <!-- Assemble 'target/dspace-installer' using 'assembly.xml' -->
-                   <plugin>
+                    <!-- Assemble 'target/dspace-installer' using 'assembly.xml' -->
+                    <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <inherited>false</inherited>
                         <configuration>
@@ -112,39 +112,39 @@
             Instead, a zip/tarball is generated from the parent [dspace-src] directory.
         -->
         <profile>
-           <id>distributions</id>
-           <activation>
-              <!-- Only enabled if "distributions=true" was passed on commandline -->
-              <property>
-                  <name>distributions</name>
-                  <value>true</value>
-              </property>
-           </activation>
-           <build>
-              <plugins>
-                 <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <inherited>false</inherited>
-                    <executions>
-                       <execution>
-                          <inherited>false</inherited>
-                          <configuration>
-                             <descriptors>
-                                <descriptor>src/main/assembly/release.xml</descriptor>
-                                <descriptor>src/main/assembly/src-release.xml</descriptor>
-                             </descriptors>
-                             <tarLongFileMode>gnu</tarLongFileMode>
-                             <finalName>dspace-${project.version}</finalName>
-                          </configuration>
-                          <phase>package</phase>
-                          <goals>
-                             <goal>single</goal>
-                          </goals>
-                       </execution>
-                    </executions>
-                 </plugin>
-              </plugins>
-           </build>
+            <id>distributions</id>
+            <activation>
+                <!-- Only enabled if "distributions=true" was passed on commandline -->
+                <property>
+                    <name>distributions</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/release.xml</descriptor>
+                                        <descriptor>src/main/assembly/src-release.xml</descriptor>
+                                    </descriptors>
+                                    <tarLongFileMode>gnu</tarLongFileMode>
+                                    <finalName>dspace-${project.version}</finalName>
+                                </configuration>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!-- Profile to aggregate (local) code coverage reports created by JaCoCo (jacoco.org)
@@ -187,7 +187,6 @@
             </build>
             <dependencies>
                 <!-- Add all modules that should be taken into account for the coverage reports -->
-                <!-- (Excludes dspace-rest which is deprecated and doesn't build by default) -->
                 <dependency>
                     <groupId>org.dspace</groupId>
                     <artifactId>dspace-api</artifactId>
@@ -244,18 +243,18 @@
             <artifactId>additions</artifactId>
             <scope>provided</scope>
         </dependency>
-    	<!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
+        <!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
              so that the 'dspace oai' launcher.xml command works.  -->
-    	<dependency>
+        <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-oai</artifactId>
-    	</dependency>
+        </dependency>
 
         <!-- The Servlet API is also needed by the 'dspace oai' launcher.xml
              command. -->
-    	<dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-    	</dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

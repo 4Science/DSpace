@@ -9,9 +9,9 @@ package org.dspace.app.rest.repository;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.CrisLayoutTabRest;
 import org.dspace.app.rest.model.MetadataFieldRest;
 import org.dspace.app.rest.projection.Projection;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME + "." + CrisLayoutTabRest.SECURITY_METADATA)
+@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME_PLURAL + "." + CrisLayoutTabRest.SECURITY_METADATA)
 public class CrisLayoutTabMetadataLinkRepository extends AbstractDSpaceRestRepository
     implements LinkRestRepository {
 

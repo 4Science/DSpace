@@ -203,8 +203,8 @@ public class CommunityLogoControllerIT extends AbstractControllerIntegrationTest
 
         assertThat(parentCommunity.getResourcePolicies(), hasSize(2));
         assertThat(parentCommunity.getResourcePolicies(), Matchers.hasItems(
-                matches(Constants.READ, group, TYPE_CUSTOM),
-                matches(Constants.WRITE, group, TYPE_CUSTOM)
+            matches(Constants.READ, group, TYPE_CUSTOM),
+            matches(Constants.WRITE, group, TYPE_CUSTOM)
         ));
 
         Bitstream logo = bitstreamService.find(context, UUID.fromString(postUuid));
@@ -212,8 +212,8 @@ public class CommunityLogoControllerIT extends AbstractControllerIntegrationTest
         // logo polices are equal to parent community polices
         assertThat(logo.getResourcePolicies(), hasSize(2));
         assertThat(logo.getResourcePolicies(), Matchers.hasItems(
-                matches(Constants.READ, group, TYPE_CUSTOM),
-                matches(Constants.WRITE, group, TYPE_CUSTOM)
+            matches(Constants.READ, group, TYPE_CUSTOM),
+            matches(Constants.WRITE, group, TYPE_CUSTOM)
         ));
     }
 

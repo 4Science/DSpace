@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 /**
  * This is the repository responsible of exposing configuration properties
  */
-@Component(PropertyRest.CATEGORY + "." + PropertyRest.NAME)
+@Component(PropertyRest.CATEGORY + "." + PropertyRest.PLURAL_NAME)
 public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRest, String> {
 
     @Autowired

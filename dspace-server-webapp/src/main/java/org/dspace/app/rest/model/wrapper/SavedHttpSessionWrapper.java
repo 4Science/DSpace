@@ -6,8 +6,8 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.model.wrapper;
-import javax.servlet.http.HttpSession;
 
+import jakarta.servlet.http.HttpSession;
 import org.apache.catalina.session.StandardSessionFacade;
 
 /**

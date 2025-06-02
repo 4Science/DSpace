@@ -55,41 +55,41 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         communityAdmin = EPersonBuilder.createEPerson(context)
-            .withNameInMetadata("Jhon", "Brown")
-            .withEmail("communityAdmin@my.edu")
-            .withPassword(password)
-            .build();
+                                       .withNameInMetadata("Jhon", "Brown")
+                                       .withEmail("communityAdmin@my.edu")
+                                       .withPassword(password)
+                                       .build();
         topLevelCommunity = CommunityBuilder.createCommunity(context)
-            .withName("topLevelCommunity")
-            .withAdminGroup(communityAdmin)
-            .build();
+                                            .withName("topLevelCommunity")
+                                            .withAdminGroup(communityAdmin)
+                                            .build();
 
         subCommunityAdmin = EPersonBuilder.createEPerson(context)
-            .withNameInMetadata("Jhon", "Brown")
-            .withEmail("subCommunityAdmin@my.edu")
-            .withPassword(password)
-            .build();
+                                          .withNameInMetadata("Jhon", "Brown")
+                                          .withEmail("subCommunityAdmin@my.edu")
+                                          .withPassword(password)
+                                          .build();
         subCommunity = CommunityBuilder.createCommunity(context)
-            .withName("subCommunity")
-            .withAdminGroup(subCommunityAdmin)
-            .addParentCommunity(context, topLevelCommunity)
-            .build();
+                                       .withName("subCommunity")
+                                       .withAdminGroup(subCommunityAdmin)
+                                       .addParentCommunity(context, topLevelCommunity)
+                                       .build();
 
         submitter = EPersonBuilder.createEPerson(context)
-            .withNameInMetadata("Jhon", "Brown")
-            .withEmail("submitter@my.edu")
-            .withPassword(password)
-            .build();
+                                  .withNameInMetadata("Jhon", "Brown")
+                                  .withEmail("submitter@my.edu")
+                                  .withPassword(password)
+                                  .build();
         collectionAdmin = EPersonBuilder.createEPerson(context)
-            .withNameInMetadata("Jhon", "Brown")
-            .withEmail("collectionAdmin@my.edu")
-            .withPassword(password)
-            .build();
+                                        .withNameInMetadata("Jhon", "Brown")
+                                        .withEmail("collectionAdmin@my.edu")
+                                        .withPassword(password)
+                                        .build();
         collection = CollectionBuilder.createCollection(context, subCommunity)
-            .withName("collection")
-            .withAdminGroup(collectionAdmin)
-            .withSubmitterGroup(submitter)
-            .build();
+                                      .withName("collection")
+                                      .withAdminGroup(collectionAdmin)
+                                      .withSubmitterGroup(submitter)
+                                      .build();
 
         context.restoreAuthSystemState();
 
@@ -103,11 +103,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the general admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -116,11 +116,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the community admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -129,11 +129,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the subcommunity admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -142,11 +142,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the collection admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -155,241 +155,248 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify a submitter doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
     public void testSubGroupOfAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, Group.ADMIN))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubGroupOfCommunityAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubGroupOfSubCommunityAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubGroupOfCollectionAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubGroupOfSubmitterGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
     public void testSubSubGroupOfAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context, Group.ADMIN))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubSubGroupOfCommunityAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context,
+                                                                       "COMMUNITY_" + topLevelCommunity.getID() +
+                                                                           "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubSubGroupOfSubCommunityAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubSubGroupOfCollectionAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
     public void testSubSubGroupOfSubmitterGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     // Disabled community configs
@@ -404,11 +411,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the general admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -422,11 +429,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the community admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -440,11 +447,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the subcommunity admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -458,11 +465,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the collection admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -476,11 +483,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify a submitter doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -492,21 +499,22 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, Group.ADMIN))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -518,21 +526,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -544,21 +552,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -570,21 +578,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -596,21 +604,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -622,25 +630,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context, Group.ADMIN))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -652,25 +661,27 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context,
+                                                                       "COMMUNITY_" + topLevelCommunity.getID() +
+                                                                           "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -682,25 +693,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -712,25 +724,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -742,25 +755,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     // Disabled collection configs
@@ -779,11 +793,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the general admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -801,11 +815,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the community admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -823,11 +837,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the subcommunity admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -845,11 +859,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the collection admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -867,11 +881,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify a submitter doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -887,21 +901,22 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, Group.ADMIN))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -917,21 +932,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -947,21 +962,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -977,21 +992,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1007,21 +1022,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1037,25 +1052,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context, Group.ADMIN))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1071,25 +1087,27 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context,
+                                                                       "COMMUNITY_" + topLevelCommunity.getID() +
+                                                                           "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1105,25 +1123,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1139,25 +1158,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1173,25 +1193,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     // Disabled community and collection configs
@@ -1214,11 +1235,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the general admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1240,11 +1261,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the community admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1266,11 +1287,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the subcommunity admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1292,11 +1313,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify the collection admin has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1318,11 +1339,11 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         // Verify a submitter doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1342,21 +1363,22 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, Group.ADMIN))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1376,21 +1398,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1410,21 +1432,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1444,21 +1466,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1478,21 +1500,21 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         GroupBuilder.createGroup(context)
-            .withName("userGroup")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .addMember(eperson)
-            .build();
+                    .withName("userGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1512,25 +1534,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, Group.ADMIN))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context, Group.ADMIN))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of the site administrators has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID() + "&feature=canManageGroups"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .exists());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID() +
+                                         "&feature=canManageGroups"))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .exists());
     }
 
     @Test
@@ -1550,25 +1573,27 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + topLevelCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(groupService.findByName(context,
+                                                                       "COMMUNITY_" + topLevelCommunity.getID() +
+                                                                           "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a community admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1588,25 +1613,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COMMUNITY_" + subCommunity.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a subcommunity admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1626,25 +1652,26 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_ADMIN"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of a collection admin group has this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 
     @Test
@@ -1664,24 +1691,25 @@ public class ManageGroupsFeatureIT extends AbstractControllerIntegrationTest {
 
         context.turnOffAuthorisationSystem();
         Group groupB = GroupBuilder.createGroup(context)
-            .withName("GroupB")
-            .withParent(groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
-            .build();
+                                   .withName("GroupB")
+                                   .withParent(
+                                       groupService.findByName(context, "COLLECTION_" + collection.getID() + "_SUBMIT"))
+                                   .build();
         GroupBuilder.createGroup(context)
-            .withName("GroupA")
-            .withParent(groupB)
-            .addMember(eperson)
-            .build();
+                    .withName("GroupA")
+                    .withParent(groupB)
+                    .addMember(eperson)
+                    .build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         // Verify an ePerson in a sub-subgroup of submitter group doesn't have this feature
         getClient(token).perform(get("/api/authz/authorizations/search/object?embed=feature&uri="
-            + "http://localhost/api/core/site/" + siteService.findSite(context).getID()))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
-                    .doesNotExist());
+                                         + "http://localhost/api/core/sites/" + siteService.findSite(context).getID()))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.authorizations[?(@._embedded.feature.id=='canManageGroups')]")
+                                .doesNotExist());
     }
 }

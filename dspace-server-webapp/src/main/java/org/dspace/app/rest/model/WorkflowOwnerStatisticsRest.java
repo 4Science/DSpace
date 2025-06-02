@@ -22,6 +22,7 @@ public class WorkflowOwnerStatisticsRest extends BaseObjectRest<String> {
 
     public static final String NAME = "workflowOwner";
     public static final String CATEGORY = RestModel.STATISTICS;
+    public static final String NAME_PLURAL = "workflowOwners";
 
     private String name;
 
@@ -58,6 +59,11 @@ public class WorkflowOwnerStatisticsRest extends BaseObjectRest<String> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
     }
 
     @Override

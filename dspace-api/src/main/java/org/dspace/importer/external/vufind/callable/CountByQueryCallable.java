@@ -8,12 +8,12 @@
 package org.dspace.importer.external.vufind.callable;
 
 import java.util.concurrent.Callable;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import org.dspace.importer.external.datamodel.Query;
 
 public class CountByQueryCallable implements Callable<Integer> {

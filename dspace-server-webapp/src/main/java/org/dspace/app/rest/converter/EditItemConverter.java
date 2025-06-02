@@ -85,7 +85,7 @@ public class EditItemConverter
 
             rest.setId(obj.getID() + ":" + mode.getName());
             SubmissionDefinitionRest def = converter.toRest(
-                    submissionConfigService.getSubmissionConfigByName(mode.getSubmissionDefinition()), projection);
+                submissionConfigService.getSubmissionConfigByName(mode.getSubmissionDefinition()), projection);
             rest.setSubmissionDefinition(def);
             storeSubmissionName(def.getName());
             for (SubmissionSectionRest sections : def.getPanels()) {
@@ -115,8 +115,8 @@ public class EditItemConverter
                     } else {
                         log.warn(
                             "The submission step class specified by '{}' " +
-                            "does not extend the class org.dspace.app.rest.submit.AbstractRestProcessingStep! " +
-                            "Therefore it cannot be used by the Configurable Submission as the <processing-class>!",
+                                "does not extend the class org.dspace.app.rest.submit.AbstractRestProcessingStep! " +
+                                "Therefore it cannot be used by the Configurable Submission as the <processing-class>!",
                             stepConfig.getProcessingClassName()
                         );
                     }
@@ -136,8 +136,8 @@ public class EditItemConverter
         Context context = ContextUtil.obtainContext(requestService.getCurrentRequest().getServletRequest());
 
         validationService.validate(context, obj).stream()
-            .map(ErrorRest::fromValidationError)
-            .forEach(error -> addError(rest.getErrors(), error));
+                         .map(ErrorRest::fromValidationError)
+                         .forEach(error -> addError(rest.getErrors(), error));
     }
 
     /* (non-Javadoc)

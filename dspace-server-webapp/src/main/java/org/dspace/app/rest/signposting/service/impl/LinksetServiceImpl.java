@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.security.BitstreamMetadataReadPermissionEvaluatorPlugin;
@@ -39,27 +39,28 @@ import org.springframework.stereotype.Service;
 public class LinksetServiceImpl implements LinksetService {
 
     private static final Logger log = LogManager.getLogger(LinksetServiceImpl.class);
-
+    private final List<BitstreamSignpostingProcessor> bitstreamProcessors = new DSpace()
+        .getServiceManager()
+        .getServicesByType(
+            BitstreamSignpostingProcessor.class);
+    private final List<ItemSignpostingProcessor> itemProcessors = new DSpace()
+        .getServiceManager()
+        .getServicesByType(
+            ItemSignpostingProcessor.class);
+    private final List<MetadataSignpostingProcessor> metadataProcessors = new DSpace().
+        getServiceManager()
+        .getServicesByType(
+            MetadataSignpostingProcessor.class);
     @Autowired
     protected ItemService itemService;
-
     @Autowired
     private BitstreamMetadataReadPermissionEvaluatorPlugin bitstreamMetadataReadPermissionEvaluatorPlugin;
 
-    private final List<BitstreamSignpostingProcessor> bitstreamProcessors = new DSpace().getServiceManager()
-            .getServicesByType(BitstreamSignpostingProcessor.class);
-
-    private final List<ItemSignpostingProcessor> itemProcessors = new DSpace().getServiceManager()
-            .getServicesByType(ItemSignpostingProcessor.class);
-
-    private final List<MetadataSignpostingProcessor> metadataProcessors = new DSpace().getServiceManager()
-            .getServicesByType(MetadataSignpostingProcessor.class);
-
     @Override
     public List<List<LinksetNode>> createLinksetNodesForMultipleLinksets(
-            HttpServletRequest request,
-            Context context,
-            Item item
+        HttpServletRequest request,
+        Context context,
+        Item item
     ) {
         ArrayList<List<LinksetNode>> linksets = new ArrayList<>();
         addItemLinksets(request, context, item, linksets);
@@ -70,9 +71,9 @@ public class LinksetServiceImpl implements LinksetService {
 
     @Override
     public List<LinksetNode> createLinksetNodesForSingleLinkset(
-            HttpServletRequest request,
-            Context context,
-            DSpaceObject object
+        HttpServletRequest request,
+        Context context,
+        DSpaceObject object
     ) {
         List<LinksetNode> linksetNodes = new ArrayList<>();
         if (object.getType() == Constants.ITEM) {
@@ -88,10 +89,10 @@ public class LinksetServiceImpl implements LinksetService {
     }
 
     private void addItemLinksets(
-            HttpServletRequest request,
-            Context context,
-            Item item,
-            List<List<LinksetNode>> linksets
+        HttpServletRequest request,
+        Context context,
+        Item item,
+        List<List<LinksetNode>> linksets
     ) {
         List<LinksetNode> linksetNodes = new ArrayList<>();
         if (item.getType() == Constants.ITEM) {
@@ -103,16 +104,16 @@ public class LinksetServiceImpl implements LinksetService {
     }
 
     private void addBitstreamLinksets(
-            HttpServletRequest request,
-            Context context,
-            Item item,
-            ArrayList<List<LinksetNode>> linksets
+        HttpServletRequest request,
+        Context context,
+        Item item,
+        ArrayList<List<LinksetNode>> linksets
     ) {
         Iterator<Bitstream> bitstreamsIterator = getItemBitstreams(context, item);
         bitstreamsIterator.forEachRemaining(bitstream -> {
             try {
                 boolean isAuthorized = bitstreamMetadataReadPermissionEvaluatorPlugin
-                        .metadataReadPermissionOnBitstream(context, bitstream);
+                    .metadataReadPermissionOnBitstream(context, bitstream);
                 if (isAuthorized) {
                     List<LinksetNode> bitstreamLinkset = new ArrayList<>();
                     for (BitstreamSignpostingProcessor processor : bitstreamProcessors) {
@@ -129,10 +130,10 @@ public class LinksetServiceImpl implements LinksetService {
     }
 
     private void addMetadataLinksets(
-            HttpServletRequest request,
-            Context context,
-            Item item,
-            ArrayList<List<LinksetNode>> linksets
+        HttpServletRequest request,
+        Context context,
+        Item item,
+        ArrayList<List<LinksetNode>> linksets
     ) {
         for (MetadataSignpostingProcessor processor : metadataProcessors) {
             List<LinksetNode> metadataLinkset = new ArrayList<>();

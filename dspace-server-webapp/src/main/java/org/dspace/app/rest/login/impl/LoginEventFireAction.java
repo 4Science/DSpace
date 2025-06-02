@@ -7,8 +7,7 @@
  */
 package org.dspace.app.rest.login.impl;
 
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.login.PostLoggedInAction;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;

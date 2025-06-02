@@ -91,6 +91,11 @@
             </bean>
         </property>
    </bean>
-    
-    
+
+    <bean name="COARNotifyValidation" class="org.dspace.validation.NotifyValidation" scope="prototype">
+        <property name="name" value="coarnotify"/>
+        <property name="coarNotifyConfigurationService" ref="org.dspace.coarnotify.NotifyConfigurationService"/>
+        <property name="notifyPatternToTriggerService" ref="org.dspace.app.ldn.service.impl.NotifyPatternToTriggerImpl"/>
+    </bean>
+
 </beans>

@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component(ViewEventRest.CATEGORY + "." + ViewEventRest.NAME)
+@Component(ViewEventRest.CATEGORY + "." + ViewEventRest.PLURAL_NAME)
 public class ViewEventRestRepository extends AbstractDSpaceRestRepository {
 
     @Autowired

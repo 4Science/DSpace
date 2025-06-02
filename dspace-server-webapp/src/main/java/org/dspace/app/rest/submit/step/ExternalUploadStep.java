@@ -9,8 +9,8 @@ package org.dspace.app.rest.submit.step;
 
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.ExternalFileUpload;

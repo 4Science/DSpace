@@ -8,10 +8,10 @@
 package org.dspace.unpaywall.service.impl;
 
 
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.copy;
 
 import java.io.File;

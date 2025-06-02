@@ -89,15 +89,23 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
         ).thenReturn(List.of(getImportRecord1(), getImportRecord2()));
 
         mockRorServiceFactory.when(RorServicesFactory::getInstance).thenReturn(rorServiceFactory);
-    }
-
-    @Test
-    public void testAuthority() throws Exception {
 
         configurationService.setProperty(
             "plugin.named.org.dspace.content.authority.ChoiceAuthority",
             new String[] {ROR_ORGUNIT_AUTHORITY}
         );
+    }
+
+    @After
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+    }
+
+    @Test
+    public void testAuthority() throws Exception {
 
         configurationService.setProperty("cris.RorOrgUnitAuthority.country.display", "false");
         configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.source", "ror");
@@ -119,21 +127,24 @@ public class RorOrgUnitAuthorityIT extends AbstractControllerIntegrationTest {
 
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/OrgUnitAuthority/entries")
-                            .param("filter", ROR_FILTER))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.entries", hasSize(2)))
-            .andExpect(jsonPath("$._embedded.entries",
-                hasItems(
-                    matchItemAuthorityWithOtherInformations("will be referenced::ROR-ID::https://ror.org/02z02cv32",
-                            "Wind Energy Institute of Canada", "Wind Energy Institute of Canada", "vocabularyEntry",
-                        getExtrasRecord1()
-                    ),
-                    matchItemAuthorityWithOtherInformations("will be referenced::ROR-ID::https://ror.org/03vb2cr34",
-                            "4Science", "4Science", "vocabularyEntry",
-                        getExtrasRecord2()
-                    )
-                )
-            ));
+                                     .param("filter", ROR_FILTER))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", hasSize(2)))
+                        .andExpect(jsonPath("$._embedded.entries",
+                                            hasItems(
+                                                matchItemAuthorityWithOtherInformations(
+                                                    "will be referenced::ROR-ID::https://ror.org/02z02cv32",
+                                                    "Wind Energy Institute of Canada",
+                                                    "Wind Energy Institute of Canada", "vocabularyEntry",
+                                                    getExtrasRecord1()
+                                                ),
+                                                matchItemAuthorityWithOtherInformations(
+                                                    "will be referenced::ROR-ID::https://ror.org/03vb2cr34",
+                                                    "4Science", "4Science", "vocabularyEntry",
+                                                    getExtrasRecord2()
+                                                )
+                                            )
+                        ));
     }
 
     private ImportRecord getImportRecord1() {

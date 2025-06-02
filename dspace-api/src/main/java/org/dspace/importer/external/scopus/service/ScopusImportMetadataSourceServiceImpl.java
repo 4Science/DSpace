@@ -22,8 +22,8 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.el.MethodNotFoundException;
 
+import jakarta.el.MethodNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -256,6 +256,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                 if (StringUtils.isEmpty(response)) {
                     return results;
                 }
+
                 List<Element> elements = splitToRecords(response);
                 for (Element record : elements) {
                     results.add(transformSourceRecords(record));
@@ -318,6 +319,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                 if (StringUtils.isEmpty(response)) {
                     return results;
                 }
+
                 List<Element> elements = splitToRecords(response);
                 for (Element record : elements) {
                     results.add(transformSourceRecords(record));
@@ -366,6 +368,7 @@ public class ScopusImportMetadataSourceServiceImpl extends AbstractImportMetadat
                 if (StringUtils.isEmpty(response)) {
                     return results;
                 }
+
                 List<Element> elements = splitToRecords(response);
                 for (Element record : elements) {
                     results.add(transformSourceRecords(record));

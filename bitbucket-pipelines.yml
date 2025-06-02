@@ -1,4 +1,4 @@
-image: maven:3.6.3-jdk-11
+image: maven:3.9.8-eclipse-temurin-17-focal
 
 definitions:
   docker:
@@ -101,19 +101,13 @@ definitions:
 
 pipelines:
   branches:
-    'glam7':
-      - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
-    'dspace-cris-7':
+    'main-cris':
       - step: *install
       - parallel: &parallel-pipeline
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
     'dspace-cris-2023_02_x':
       - step: *install
       - parallel: *parallel-pipeline
@@ -125,19 +119,19 @@ pipelines:
     '**':
       - step: *install
       - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
   custom:
     install:
       - step: *install
     integration-tests-with-test-jars:
-       - step: *integration-tests-with-test-jars
+      - step: *integration-tests-with-test-jars
     integration-dspace-api:
-       - step: *integration-tests-dspace-api
+      - step: *integration-tests-dspace-api
     integration-tests-slow:
-       - step: *integration-tests-slow
+      - step: *integration-tests-slow
     unit:
-       - step: *unit-test-code-checks
+      - step: *unit-test-code-checks
 

@@ -4,10 +4,10 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>cris-2023.02.07-SNAPSHOT</version>
+    <version>cris-2024.02.02-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
-   	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
+        DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
     </description>
     <url>https://github.com/4Science/DSpace</url>
 
@@ -18,50 +18,53 @@
 
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
-        <java.version>11</java.version>
-        <spring.version>5.3.39</spring.version>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <spring-security.version>5.7.11</spring-security.version> <!-- sync with version used by spring-boot-->
-        <hibernate.version>5.6.15.Final</hibernate.version>
-        <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
+        <java.version>17</java.version>
+        <spring.version>6.2.2</spring.version>
+        <spring-boot.version>3.4.2</spring-boot.version>
+        <spring-security.version>6.4.2</spring-security.version> <!-- sync with version used by spring-boot-->
+        <hibernate.version>6.4.8.Final</hibernate.version>
+        <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <postgresql.driver.version>42.7.5</postgresql.driver.version>
+        <!-- update to version 10.11.0 and newer will cause runtime problems due to some
+            graaljs dependency (< 21.2.0) as said here: https://github.com/flyway/flyway/issues/3882 -->
+        <flyway.version>10.10.0</flyway.version>
         <solr.client.version>8.11.4</solr.client.version>
 
         <ehcache.version>3.10.8</ehcache.version>
-        <errorprone.version>2.31.0</errorprone.version>
+        <errorprone.version>2.36.0</errorprone.version>
         <!-- NOTE: when updating jackson.version, also sync jackson-databind.version below -->
         <jackson.version>2.18.2</jackson.version>
         <jackson-databind.version>2.18.2</jackson-databind.version>
-        <javax-annotation.version>1.3.2</javax-annotation.version>
-        <jaxb-api.version>2.3.1</jaxb-api.version>
-        <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
+        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+        <jaxb-api.version>4.0.2</jaxb-api.version>
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jcache-version>1.1.1</jcache-version>
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
         <jetty.version>9.4.57.v20241219</jetty.version>
         <log4j.version>2.24.3</log4j.version>
         <pdfbox-version>2.0.33</pdfbox-version>
         <rome.version>1.19.0</rome.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.16</slf4j.version>
         <tika.version>2.9.2</tika.version>
-        <!-- Sync with whatever version Tika uses -->
+        <!-- Sync BouncyCastle & ASM with whatever version Tika uses -->
         <bouncycastle.version>1.80</bouncycastle.version>
-
+        <asm.version>8.0.1</asm.version>
+        <!-- Jersey is used to integrate with external sources/services -->
+        <jersey.version>3.1.10</jersey.version>
         <!--=== SERVER WEBAPP DEPENDENCIES ===-->
         <!-- Library for reading JSON documents: https://github.com/json-path/JsonPath (used by Server webapp) -->
         <json-path.version>2.9.0</json-path.version>
         <!-- Library for managing JSON Web Tokens (JWT): https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home
              (used by Server webapp) -->
-        <nimbus-jose-jwt.version>7.9</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
+        <json-smart.version>2.5.0</json-smart.version>
 
         <!--=== OTHER MODULE-SPECIFIC DEPENDENCIES ===-->
-        <!-- PIN Jena to 2.x until both RDF and SWORDv2 can be updated to Jena 3. Requires package renaming, see
-             https://jena.apache.org/documentation/migrate_jena2_jena3.html -->
-        <jena.version>2.13.0</jena.version>
-        <!-- Used by (now obsolete) 'dspace-rest' WAR -->
-        <jersey.version>2.46</jersey.version>
+        <!-- Jena is used by both RDF and SWORDv2 -->
+        <jena.version>4.10.0</jena.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>cris-2023.02.07</addons.version>
+        <addons.version>[cris-2024.02.02-SNAPSHOT,cris-2024.02.02.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-video.version>${addons.version}</addon-video.version>
@@ -115,7 +118,7 @@
                                         <version>${java.version}</version>
                                     </requireJavaVersion>
                                     <requireMavenVersion>
-                                        <version>[3.0.5,)</version>
+                                        <version>[3.8,)</version>
                                     </requireMavenVersion>
                                 </rules>
                             </configuration>
@@ -155,7 +158,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.13.0</version>
                     <configuration>
-                        <release>11</release>
+                        <release>${java.version}</release>
                         <!-- Turn on http://errorprone.info (requires fork=true & below compilerArgs)-->
                         <fork>true</fork>
                         <compilerArgs>
@@ -173,6 +176,9 @@
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                             <arg>-Xpkginfo:always</arg>
+                            <!-- Allows for the Reflection API to retrieve parameter names from methods. For example,
+                                 it enables @PathVariable annotations to use parameter names automatically. -->
+                            <arg>-parameters</arg>
                         </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
@@ -218,7 +224,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
+                    <version>3.5.2</version>
                     <configuration>
                         <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
                              maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
@@ -233,6 +239,9 @@
                         <trimStackTrace>false</trimStackTrace>
                         <!-- Whether to skip unit tests or not -->
                         <skipTests>${skipUnitTests}</skipTests>
+                        <!-- Do not fail immediately if a test specified via "-Dtest=[testClass]" isn't found.
+                             This allows the build to continue and keep trying to run that test in other modules. -->
+                        <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
                         <!--
                         Enable to debug Maven Surefire tests in remote proces
                         <debugForkedProcess>true</debugForkedProcess>
@@ -242,7 +251,7 @@
                 <!-- Used to run Integration tests (when enabled by -DskipIntegrationTests=false) -->
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.22.2</version>
+                    <version>3.5.2</version>
                     <configuration>
                         <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
                              maven-failsafe-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
@@ -250,12 +259,15 @@
                         <excludes>
                             <exclude>**/Abstract*</exclude>
                         </excludes>
-                         <!-- Detailed logs in failsafe-reports/testName-output.txt instead of stdout -->
+                        <!-- Detailed logs in failsafe-reports/testName-output.txt instead of stdout -->
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <!-- Ensure full stacktrace is logged (when errors occur) -->
                         <trimStackTrace>false</trimStackTrace>
                         <!-- Whether to skip integration tests or not -->
                         <skipTests>${skipIntegrationTests}</skipTests>
+                        <!-- Do not fail immediately if a test specified via "-Dit.test=[testClass]" isn't found.
+                             This allows the build to continue and keep trying to run that test in other modules. -->
+                        <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
                     </configuration>
                     <executions>
                         <execution>
@@ -287,7 +299,6 @@
                             <sourceDirectory>src/main/java</sourceDirectory>
                         </sourceDirectories>
                         <configLocation>${root.basedir}/checkstyle.xml</configLocation>
-                        <encoding>${project.build.sourceEncoding}</encoding>
                         <logViolationsToConsole>true</logViolationsToConsole>
                         <failOnViolation>true</failOnViolation>
                         <!-- Enable checks on all test source files -->
@@ -380,6 +391,11 @@
                     <configuration>
                         <!-- Never fail a build based on Javadoc errors -->
                         <failOnError>false</failOnError>
+                        <detectLinks />
+                        <links>
+                            <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>
+                            <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
+                        </links>
                     </configuration>
                 </plugin>
                 <!-- Used to generate source JARs for new releases (see release profile). -->
@@ -399,7 +415,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>3.2.7</version>
                 </plugin>
                 <!-- Used for code coverage reporting (see 'measure-test-coverage' profile) -->
                 <plugin>
@@ -422,7 +438,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.1</version>
                 <configuration>
                     <!-- During release:prepare and release:perform, pass the "release" property to enable the
                      "release" profile (and enable/disable other profiles based on whether they need releasing) -->
@@ -451,7 +467,7 @@
                     <!-- Add some default DSpace exclusions not covered by <useDefaultExcludes>
                          Individual Maven projects may choose to override these defaults. -->
                     <excludes>
-						<!-- temporary copy of a modified apache commons-configuration2 class, see https://issues.apache.org/jira/browse/CONFIGURATION-846 -->
+                        <!-- temporary copy of a modified apache commons-configuration2 class, see https://issues.apache.org/jira/browse/CONFIGURATION-846 -->
                         <exclude>**/src/main/java/org/dspace/servicemanager/config/DSpaceConfigurationPropertySource.java</exclude>
                         <exclude>**/src/test/resources/**</exclude>
                         <exclude>**/src/test/data/**</exclude>
@@ -809,6 +825,10 @@
                                         <licenseMerge>Eclipse Public License|Common Public License Version 1.0</licenseMerge>
                                         <!-- Jersey is dual licensed as EPL but lists its main license as GPL: https://github.com/eclipse-ee4j/jersey#licensing-and-governance -->
                                         <licenseMerge>Eclipse Public License|The GNU General Public License (GPL), Version 2, With Classpath Exception</licenseMerge>
+                                        <!-- Jakarta Expression Language is dual licensed as EPL and GPL: https://projects.eclipse.org/projects/ee4j.el -->
+                                        <licenseMerge>Eclipse Public License|GNU General Public License, version 2 with the GNU Classpath Exception</licenseMerge>
+                                        <!-- Jakarta RESTful web services is dual licensed as EPL and GPL: https://github.com/jakartaee/rest -->
+                                        <licenseMerge>Eclipse Public License|GPL-2.0-with-classpath-exception</licenseMerge>
                                         <licenseMerge>GNU Lesser General Public License (LGPL)|The GNU Lesser General Public License, Version 2.1|GNU Lesser General Public License (LGPL), Version 2.1|GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1|GNU Lesser General Public License, version 2.1|GNU LESSER GENERAL PUBLIC LICENSE|GNU Lesser General Public License|GNU Lesser Public License|GNU Lesser General Public License, Version 2.1|Lesser General Public License (LGPL) v 2.1|LGPL 2.1|LGPL 2.1 license|LGPL 3.0 license|LGPL, v2.1 or later|LGPL|LGPL, version 2.1|lgpl|Lesser General Public License, version 3 or greater</licenseMerge>
                                         <!-- Hibernate ORM claims this license, but it's really regular LGPL: https://hibernate.org/community/license/ -->
                                         <licenseMerge>GNU Lesser General Public License (LGPL)|GNU Library General Public License v2.1 or later</licenseMerge>
@@ -828,6 +848,8 @@
                                     <!-- For Licenses which are "Unknown" by Maven, load them from a properties file -->
                                     <useMissingFile>true</useMissingFile>
                                     <missingFile>src/main/license/LICENSES_THIRD_PARTY.properties</missingFile>
+                                    <!-- Use the same properties file to override licenses listed in that file -->
+                                    <overrideUrl>file:${root.basedir}/src/main/license/LICENSES_THIRD_PARTY.properties</overrideUrl>
                                 </configuration>
                             </execution>
                         </executions>
@@ -944,10 +966,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-iiif-api</artifactId>
-                         <version>${addon-iiif.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-iiif-api</artifactId>
+                        <version>${addon-iiif.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -964,10 +986,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-ocr-api</artifactId>
-                         <version>${addon-ocr.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-ocr-api</artifactId>
+                        <version>${addon-ocr.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -985,10 +1007,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-video-api</artifactId>
-                         <version>${addon-video.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-video-api</artifactId>
+                        <version>${addon-video.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1005,10 +1027,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-docviewer-api</artifactId>
-                         <version>${addon-docviewer.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-docviewer-api</artifactId>
+                        <version>${addon-docviewer.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1025,10 +1047,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-analytics-api</artifactId>
-                         <version>${addon-analytics.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-analytics-api</artifactId>
+                        <version>${addon-analytics.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1045,10 +1067,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-loginmiur-api</artifactId>
-                         <version>${addon-loginmiur.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-loginmiur-api</artifactId>
+                        <version>${addon-loginmiur.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1065,10 +1087,10 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-dataquality</artifactId>
-                         <version>${addon-dataquality.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-dataquality</artifactId>
+                        <version>${addon-dataquality.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1086,6 +1108,20 @@
                         <artifactId>addon-networklab</artifactId>
                         <version>${addon-networklab.version}</version>
                         <type>jar</type>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.bouncycastle</groupId>
+                                <artifactId>bcpkix-jdk15on</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>io.github.classgraph</groupId>
+                                <artifactId>classgraph</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>io.netty</groupId>
+                                <artifactId>netty-handler</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
@@ -1132,39 +1168,6 @@
             </dependencyManagement>
         </profile>
 
-        <!-- REST Jersey (Deprecated REST API from DSpace 6.x or below) -->
-        <!-- As this module is deprecated, it only builds if you activate it via -Pdspace-rest -->
-        <profile>
-           <id>dspace-rest</id>
-           <activation>
-               <activeByDefault>false</activeByDefault>
-               <!-- Enable if we are doing a release (-Drelease), to tag/release this optional module -->
-               <property>
-                   <name>release</name>
-               </property>
-           </activation>
-           <modules>
-               <module>dspace-rest</module>
-           </modules>
-           <dependencyManagement>
-               <dependencies>
-                   <dependency>
-                       <groupId>org.dspace</groupId>
-                       <artifactId>dspace-rest</artifactId>
-                       <version>cris-2023.02.07-SNAPSHOT</version>
-                       <type>jar</type>
-                       <classifier>classes</classifier>
-                   </dependency>
-                   <dependency>
-                       <groupId>org.dspace</groupId>
-                       <artifactId>dspace-rest</artifactId>
-                       <version>cris-2023.02.07-SNAPSHOT</version>
-                       <type>war</type>
-                   </dependency>
-               </dependencies>
-           </dependencyManagement>
-        </profile>
-
         <!--
            Builds SWORD extension for DSpace
         -->
@@ -1198,7 +1201,7 @@
         <!--
            Builds Server API webapp for DSpace
         -->
-		<profile>
+        <profile>
             <id>dspace-server-webapp</id>
             <activation>
                 <file>
@@ -1243,8 +1246,8 @@
                             <!-- Require manual verification / release to Maven Central -->
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                             <!-- Disable autoclose of repository after upload, as this sometimes times out -->
- -                          <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-			    <!-- Increase Staging timeout to 10mins -->
+                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                            <!-- Increase Staging timeout to 10mins -->
                             <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
@@ -1307,68 +1310,74 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dspace.modules</groupId>
+                <artifactId>server</artifactId>
+                <classifier>classes</classifier>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2023.02.07-SNAPSHOT</version>
+                <version>cris-2024.02.02-SNAPSHOT</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api-lang</artifactId>
-                <version>[7.0.0,8.0.0)</version>
+                <version>[8.0.0,9.0.0)</version>
             </dependency>
 
             <!-- DSpace third Party Dependencies -->
@@ -1380,19 +1389,19 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jpamodelgen</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jcache</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
@@ -1404,7 +1413,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <!-- This artifact doesn't track the main Hibernate version. -->
                 <version>${hibernate-validator.version}</version>
@@ -1415,6 +1424,13 @@
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
                 <version>3.6.1.Final</version>
+            </dependency>
+
+            <!-- Hibernate & Solr disagree on the version of antlr. So, specify the latest version -->
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.13.2</version>
             </dependency>
 
             <!-- Rome is used for RSS / ATOM syndication feeds -->
@@ -1563,6 +1579,12 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Tika brings in multiple versions of this. Select the latest version. Always sync with Tika version -->
             <dependency>
@@ -1592,7 +1614,37 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>8.0.1</version>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+
+            <!-- Solr-core and Postgres disagree on versions of Checker Qual -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.48.4</version>
+            </dependency>
+
+            <!-- Several dependencies disagree on version of GSON including Jena, Google-OAuth-Client
+                 and OpenAIRE Broker-Client -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.11.0</version>
             </dependency>
 
             <!-- Reminder: Keep icu4j (in Parent POM) synced with version used by lucene-analyzers-icu below,
@@ -1627,97 +1679,69 @@
                 <artifactId>apache-jena-libs</artifactId>
                 <type>pom</type>
                 <version>${jena.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <!-- Newer version brought in by Tika -->
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-csv</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>net.handle</groupId>
                 <artifactId>handle</artifactId>
                 <version>9.3.1</version>
-                <exclusions>
-                    <!-- A later version is brought in by google-oauth-client -->
-                    <exclusion>
-                        <groupId>com.google.code.gson</groupId>
-                        <artifactId>gson</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
-            <!-- Required to run Handle Server -->
+            <!-- Only necessary to run Handle Server from commandline. Therefore, a runtime dependency. -->
             <dependency>
                 <groupId>net.cnri</groupId>
                 <artifactId>cnri-servlet-container</artifactId>
                 <version>3.1.0</version>
+                <scope>runtime</scope>
             </dependency>
-            <!-- Jetty is needed to run Handle Server (and tests in some modules)
-                 Solr and Handle Server disagree on version of Jetty, so we force a specific version here. -->
+            <!-- Jetty is ONLY needed to run Handle Server from commandline ONLY. Therefore, a runtime dependency. -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-alpn-java-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
+            <!-- The below Jetty dependency versions are only specified to avoid various dependency convergence errors
+                 between Solr, CNRI Handle Server, and Jetty-Server (see above). We do NOT use Jetty directly. -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-deploy</artifactId>
                 <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
                 <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
                 <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlets</artifactId>
-                <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
                 <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-xml</artifactId>
-                <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.http2</groupId>
                 <artifactId>http2-common</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.http2</groupId>
-                <artifactId>http2-server</artifactId>
-                <version>${jetty.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <dependency>
@@ -1756,11 +1780,13 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
                 <version>2.13.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>1.5</version>
+                <exclusions>
+                    <!-- Newer version is pulled in by Hibernate -->
+                    <exclusion>
+                        <groupId>jakarta.transaction</groupId>
+                        <artifactId>jakarta.transaction-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -1772,7 +1798,7 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.17.0</version>
             </dependency>
-            <!-- NOTE: We don't use commons-logging or commons-compress directly,
+            <!-- NOTE: We don't use commons-logging, commons-compress or commons-csv directly,
                  but many dependencies rely on them. Only here specified to avoid dependency convergence issues. -->
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -1783,6 +1809,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>1.27.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>1.13.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1804,21 +1835,40 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.13.0</version>
             </dependency>
+            <!-- Java Injection -->
             <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
-                <version>1.6.2</version>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+            <!-- Java Injection -->
+            <dependency>
+                <groupId>jakarta.inject</groupId>
+                <artifactId>jakarta.inject-api</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+            <!-- Jakarta mail API definition -->
+            <dependency>
+                <groupId>jakarta.mail</groupId>
+                <artifactId>jakarta.mail-api</artifactId>
+                <version>2.1.3</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Jakarta mail default implementation/provider -->
+            <dependency>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>jakarta.mail</artifactId>
+                <version>2.0.3</version>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.1.0</version>
             </dependency>
-            <!-- Only necessary because javax.el.MethodNotFoundException is used in several classes -->
             <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>3.0.0</version>
+                <groupId>jakarta.el</groupId>
+                <artifactId>jakarta.el-api</artifactId>
+                <version>5.0.1</version>
             </dependency>
 
             <!-- Jaxen is needed by xoai and sword2-server, but they disagree on the versions -->
@@ -1843,11 +1893,15 @@
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
-            <!-- This bridge forwards all log4j v1 logging to log4j v2. It is required because some dependencies
-                 (namely those in "dspace-swordv2") still rely on log4j v1.  See that POM for more details. -->
+            <!-- This bridge ensures any logging to slf4j is sent to log4j -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-1.2-api</artifactId>
+                <artifactId>log4j-web</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
 
@@ -1911,20 +1965,16 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-jdk14</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
             <!-- http://errorprone.info : used to check for common/obvious code errors during compilation -->
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
+                <version>${errorprone.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
                 <version>${errorprone.version}</version>
                 <scope>compile</scope>
             </dependency>
@@ -2057,6 +2107,11 @@
                 <version>${jackson-databind.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>32.1.3-jre</version>
@@ -2072,6 +2127,12 @@
                 <groupId>xom</groupId>
                 <artifactId>xom</artifactId>
                 <version>1.3.9</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- json-path is needed by Spring HATEOAS -->
@@ -2090,8 +2151,8 @@
 
             <!-- JAXB API and implementation (no longer bundled as of Java 11) -->
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
@@ -2101,9 +2162,9 @@
                 <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>${javax-annotation.version}</version>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
             </dependency>
             <!-- mockito-inline and hibernate-ehcache pull in different versions of byte-buddy. Specify which we want. -->
             <!-- TODO: We might be able to remove this after hibernate-ehcache is replaced by hibernate-jcache -->
@@ -2115,7 +2176,19 @@
             <dependency>
                 <groupId>org.apache.xmlgraphics</groupId>
                 <artifactId>xmlgraphics-commons</artifactId>
-                <version>2.6</version>
+                <version>2.9</version>
+            </dependency>
+            <!-- Made provided in order to be excluded globally since conflicts with commons-logging -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>(${spring.version},]</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>${json-smart.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -2126,7 +2199,7 @@
             <url>https://github.com/4Science/DSpace/raw/dspace-cris-7/LICENSE</url>
             <distribution>repo</distribution>
             <comments>
-               A BSD 3-Clause license for the DSpace codebase.
+                A BSD 3-Clause license for the DSpace codebase.
             </comments>
         </license>
     </licenses>
@@ -2140,75 +2213,75 @@
         <mailingList>
             <name>DSpace Technical Users List</name>
             <subscribe>
-               https://groups.google.com/d/forum/dspace-tech
+                https://groups.google.com/d/forum/dspace-tech
             </subscribe>
             <unsubscribe>
-               https://groups.google.com/d/forum/dspace-tech
+                https://groups.google.com/d/forum/dspace-tech
             </unsubscribe>
             <post>dspace-tech AT googlegroups.com</post>
             <archive>
-               https://groups.google.com/d/forum/dspace-tech
+                https://groups.google.com/d/forum/dspace-tech
             </archive>
         </mailingList>
         <mailingList>
             <name>DSpace Developers List</name>
             <subscribe>
-               https://groups.google.com/d/forum/dspace-devel
+                https://groups.google.com/d/forum/dspace-devel
             </subscribe>
             <unsubscribe>
-               https://groups.google.com/d/forum/dspace-devel
+                https://groups.google.com/d/forum/dspace-devel
             </unsubscribe>
             <post>dspace-devel AT googlegroups.com</post>
             <archive>
-               https://groups.google.com/d/forum/dspace-devel
+                https://groups.google.com/d/forum/dspace-devel
             </archive>
         </mailingList>
         <mailingList>
             <name>DSpace Community List</name>
             <subscribe>
-               https://groups.google.com/d/forum/dspace-community
+                https://groups.google.com/d/forum/dspace-community
             </subscribe>
             <unsubscribe>
-               https://groups.google.com/d/forum/dspace-community
+                https://groups.google.com/d/forum/dspace-community
             </unsubscribe>
             <post>dspace-community AT googlegroups.com</post>
             <archive>
-               https://groups.google.com/d/forum/dspace-community
+                https://groups.google.com/d/forum/dspace-community
             </archive>
         </mailingList>
         <mailingList>
             <name>DSpace Commit Change-Log</name>
             <subscribe>
-               https://groups.google.com/d/forum/dspace-changelog
+                https://groups.google.com/d/forum/dspace-changelog
             </subscribe>
             <unsubscribe>
-               https://groups.google.com/d/forum/dspace-changelog
+                https://groups.google.com/d/forum/dspace-changelog
             </unsubscribe>
             <archive>
-               https://groups.google.com/d/forum/dspace-changelog
+                https://groups.google.com/d/forum/dspace-changelog
             </archive>
         </mailingList>
     </mailingLists>
 
     <developers>
         <developer>
-           <name>DSpace Committers</name>
-           <email>dspace-devel@googlegroups.com</email>
-           <url>https://wiki.lyrasis.org/display/DSPACE/DSpace+Committers</url>
-           <roles>
-             <role>committer</role>
-           </roles>
+            <name>DSpace Committers</name>
+            <email>dspace-devel@googlegroups.com</email>
+            <url>https://wiki.lyrasis.org/display/DSPACE/DSpace+Committers</url>
+            <roles>
+                <role>committer</role>
+            </roles>
         </developer>
     </developers>
 
     <contributors>
         <contributor>
-           <name>DSpace Contributors</name>
-           <email>dspace-tech@googlegroups.com</email>
-           <url>https://wiki.lyrasis.org/display/DSPACE/DSpaceContributors</url>
-           <roles>
-             <role>developer</role>
-           </roles>
+            <name>DSpace Contributors</name>
+            <email>dspace-tech@googlegroups.com</email>
+            <url>https://wiki.lyrasis.org/display/DSPACE/DSpaceContributors</url>
+            <roles>
+                <role>developer</role>
+            </roles>
         </contributor>
     </contributors>
 
@@ -2219,7 +2292,7 @@
         <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
         <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
         <url>git@github.com:4Science/DSpace.git</url>
-        <tag>dspace-cris-2023.02.06</tag>
+        <tag>dspace-cris-2024.02.01</tag>
     </scm>
 
 
@@ -2245,8 +2318,11 @@
     <repositories>
         <!-- Check Maven Central first (before other repos below) -->
         <repository>
-            <id>maven-central</id>
+            <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <!-- Enable access to artifacts in Sonatype's snapshot repo for Snapshots ONLY -->
         <repository>
@@ -2264,6 +2340,9 @@
         <repository>
             <id>handle.net</id>
             <url>https://handle.net/maven</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>4science-repo-nexus</id>

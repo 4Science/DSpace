@@ -8,8 +8,8 @@
 package org.dspace.app.rest.signposting.processor.item;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.signposting.model.LinksetNode;
@@ -47,8 +47,8 @@ public class ItemLinksetProcessor extends ItemSignpostingProcessor {
                 String linksetJsonUrl = linksetUrl + "/json";
                 String anchor = buildAnchor(context, item);
                 List<LinksetNode> links = List.of(
-                        new LinksetNode(linksetUrl, getRelation(), "application/linkset", anchor),
-                        new LinksetNode(linksetJsonUrl, getRelation(), "application/linkset+json", anchor)
+                    new LinksetNode(linksetUrl, getRelation(), "application/linkset", anchor),
+                    new LinksetNode(linksetJsonUrl, getRelation(), "application/linkset+json", anchor)
                 );
                 linksetNodes.addAll(links);
             }

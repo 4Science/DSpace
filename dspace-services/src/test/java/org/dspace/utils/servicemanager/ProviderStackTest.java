@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,10 @@ public class ProviderStackTest {
 
             public List<String> getServicesNames() {
                 return new ArrayList<>();
+            }
+
+            public <T> Map<String, T> getServicesWithNamesByType(Class<T> type) {
+                return new HashMap<>();
             }
 
             public boolean isServiceExists(String name) {

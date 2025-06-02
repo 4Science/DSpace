@@ -24,10 +24,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.exception.ResourceAlreadyExistsException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
@@ -54,8 +56,6 @@ import org.dspace.profile.service.AfterResearcherProfileCreationAction;
 import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
@@ -68,7 +68,7 @@ import org.springframework.util.Assert;
  */
 public class ResearcherProfileServiceImpl implements ResearcherProfileService {
 
-    private static Logger log = LoggerFactory.getLogger(ResearcherProfileServiceImpl.class);
+    private static final Logger log = LogManager.getLogger();
 
     @Autowired
     private ItemService itemService;
@@ -344,7 +344,7 @@ public class ResearcherProfileServiceImpl implements ResearcherProfileService {
 
         if (isNotProfileCollection(collection)) {
             log.warn("The configured researcher-profile.collection.uuid "
-                + "has an invalid entity type, expected " + getProfileType());
+                + "has an invalid entity type, expected {}", this::getProfileType);
             return Optional.empty();
         }
 

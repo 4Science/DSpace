@@ -581,7 +581,7 @@ public class DatabaseUtils {
             // For DSpace, we sometimes have to insert "old" migrations in after a major release
             // if further development/bug fixes are needed in older versions. So, "Ignored" migrations are
             // nothing to worry about...you can always trigger them to run using "database migrate ignored" from CLI
-            flywayConfiguration.ignoreIgnoredMigrations(true);
+            flywayConfiguration.ignoreMigrationPatterns("*:ignored");
 
             // Set Flyway callbacks (i.e. classes which are called post-DB migration and similar)
             List<Callback> flywayCallbacks = DSpaceServicesFactory.getInstance().getServiceManager()
@@ -692,7 +692,9 @@ public class DatabaseUtils {
             // Set whether Flyway will run migrations "out of order". By default, this is false,
             // and Flyway ONLY runs migrations that have a higher version number.
             flywayConfiguration.outOfOrder(outOfOrder);
-            flywayConfiguration.ignoreMissingMigrations(missing);
+            if (missing) {
+                flywayConfiguration.ignoreMigrationPatterns("*:ignored");
+            }
 
             // If a target version was specified, tell Flyway to ONLY migrate to that version
             // (i.e. all later migrations are left as "pending"). By default we always migrate to latest version.

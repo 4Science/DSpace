@@ -28,7 +28,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataValueService;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.content.template.TemplateItemValueService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -73,8 +72,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService {
     private MetadataFieldService metadataFieldService;
     @Autowired
     private MetadataValueService metadataValueService;
-    @Autowired
-    private TemplateItemValueService templateItemValueService;
+
 
     @Autowired(required = true)
     protected DOIService doiService;
