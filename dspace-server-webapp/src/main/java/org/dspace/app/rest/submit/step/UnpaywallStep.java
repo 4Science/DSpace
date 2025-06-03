@@ -16,6 +16,7 @@ import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;
 import org.dspace.app.rest.submit.AbstractProcessingStep;
+import org.dspace.app.rest.submit.ListenerProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Unpaywall submission step.
  */
-public class UnpaywallStep extends AbstractProcessingStep {
+public class UnpaywallStep extends AbstractProcessingStep implements ListenerProcessingStep {
 
     private final Logger logger = LoggerFactory.getLogger(UnpaywallStep.class);
 
@@ -47,6 +48,20 @@ public class UnpaywallStep extends AbstractProcessingStep {
             DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    @Override
+    public void doPreProcessing(Context context, InProgressSubmission wsi) {
+        // nothing to do
+    }
+
+    @Override
+    public void doPostProcessing(Context context, InProgressSubmission wsi) {
+        final Item item = wsi.getItem();
+        final Optional<String> doiValue = getDoiValue(item);
+        if (doiValue.isPresent()) {
+            unpaywallService.initUnpaywallCallIfNeeded(context, doiValue.get(), item.getID());
+        }
+    }
 
     @Override
     public DataUnpaywall getData(

@@ -704,6 +704,56 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Test
+    public void findAuthorizedCollectionsExcludedEntityTypesTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Community child2 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community Two")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1)
+                                           .withName("Collection 1")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+        Collection col2 = CollectionBuilder.createCollection(context, child2)
+                                           .withName("Collection 2")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+        Collection col3 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 3")
+                                           .withEntityType("Journal")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+        Collection col4 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 4")
+                                           .withEntityType("WebAnnotation")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+
+        getClient(tokenEPerson).perform(get("/api/core/collections/search/findSubmitAuthorized"))
+                               .andExpect(status().isOk())
+                               .andExpect(content().contentType(contentType))
+                               .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
+                                   CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle()),
+                                   CollectionMatcher.matchProperties(col2.getName(), col2.getID(),
+                                                                         col2.getHandle()),
+                                   CollectionMatcher.matchProperties(col3.getName(), col3.getID(), col3.getHandle())
+                               )))
+                               .andExpect(jsonPath("$.page.totalElements", is(3)));
+    }
+
+    @Test
     public void findAuthorizedCollectionsWithQueryTest() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -892,6 +942,44 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
                    .andExpect(jsonPath("$._embedded").doesNotExist());
     }
 
+
+    @Test
+    public void findAuthorizedByCommunityExcludedEntityTypesTest() throws Exception {
+
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .withAdminGroup(eperson).build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Community child2 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community Two")
+                                           .build();
+        Collection col1 =
+            CollectionBuilder.createCollection(context, child1).withName("Collection 1").withEntityType("Project")
+                             .build();
+        Collection col2 =
+            CollectionBuilder.createCollection(context, child2).withName("Collection 2").withEntityType("WebAnnotation")
+                             .build();
+
+        String tokenAdminParentCom = getAuthToken(eperson.getEmail(), password);
+        context.restoreAuthSystemState();
+
+        getClient(tokenAdminParentCom).perform(get("/api/core/collections/search/findSubmitAuthorizedByCommunity")
+                                                   .param("uuid", parentCommunity.getID().toString()))
+                                      .andExpect(status().isOk())
+                                      .andExpect(content().contentType(contentType))
+                                      .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
+                                          CollectionMatcher.matchProperties(col1.getName(), col1.getID(),
+                                                                            col1.getHandle())
+                                      )))
+                                      .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
     @Test
     public void findAuthorizedCollectionByEntityType() throws Exception {
         String entityType = "OrgUnit";
@@ -927,6 +1015,35 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         } finally {
 
         }
+    }
+
+
+    @Test
+    public void findAuthorizedCollectionByExcludedEntityType() throws Exception {
+        String entityType = "WebAnnotation";
+
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and one collection.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType(entityType)
+                                           .withName("Collection 1")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+
+        context.setCurrentUser(eperson);
+        authorizeService.addPolicy(context, parentCommunity, Constants.ADD, eperson);
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/collections/search/findSubmitAuthorizedByEntityType")
+                                     .param("entityType", entityType))
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1466,7 +1583,7 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         authorizeService.addPolicy(context, parentCommunity, Constants.ADD, eperson);
         context.restoreAuthSystemState();
 
-        AtomicReference<UUID> idRef = new AtomicReference<UUID>();
+        AtomicReference<UUID> idRef = new AtomicReference<>();
         try {
         String authToken = getAuthToken(eperson.getEmail(), password);
 
@@ -2596,6 +2713,36 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
 
     }
 
+
+    @Test
+    public void findSubmitAuthorizedByCommunityAndEntityTypeExcludedTypeTest() throws Exception {
+        String entityType = "WebAnnotation";
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withEntityType(entityType)
+                                           .withName("Collection 1")
+                                           .withSubmitterGroup(eperson)
+                                           .build();
+
+        context.setCurrentUser(eperson);
+        authorizeService.addPolicy(context, parentCommunity, Constants.ADD, eperson);
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        getClient(token).perform(get("/api/core/collections/search/findSubmitAuthorizedByCommunityAndEntityType")
+                                     .param("entityType", entityType)
+                                     .param("uuid", parentCommunity.getID().toString()))
+                        .andExpect(status().isNotFound());
+
+    }
+
     @Test
     public void testFindAdministered() throws Exception {
 
@@ -3545,8 +3692,8 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
                                        )))
                              .andExpect(jsonPath("$.page.totalElements", is(1)));
 
-        List<Operation> updateTitle = new ArrayList<Operation>();
-        Map<String, String> value = new HashMap<String, String>();
+        List<Operation> updateTitle = new ArrayList<>();
+        Map<String, String> value = new HashMap<>();
         value.put("value", "New Name");
         updateTitle.add(new ReplaceOperation("/metadata/dc.title/0", value));
 

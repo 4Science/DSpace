@@ -6,6 +6,7 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -30,6 +31,7 @@ import org.dspace.content.service.EntityTypeService;
 import org.dspace.core.Constants;
 import org.dspace.external.provider.AbstractExternalDataProvider;
 import org.dspace.external.service.ExternalDataService;
+import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +48,8 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
     private ExternalDataService externalDataService;
     @Autowired
     private EntityTypeService entityTypeService;
+    @Autowired
+    private ConfigurationService configurationService;
     private EntityType publicationType;
     private EntityType journalType;
     private EntityType journalIssueType;
@@ -230,6 +234,57 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
             CommunityBuilder.deleteCommunity(parentCommunity.getID());
         }
     }
+
+    @Test
+    public void findAllByAuthorizedCollectionExcludedTypes() throws Exception {
+        try {
+            context.turnOffAuthorisationSystem();
+
+            //** GIVEN **
+            //1. A community-collection structure with one parent community with sub-community and one collection.
+            parentCommunity = CommunityBuilder.createCommunity(context)
+                                              .withName("Parent Community")
+                                              .build();
+            Collection col1 =
+                CollectionBuilder.createCollection(context, parentCommunity)
+                                 .withEntityType("JournalIssue")
+                                 .withSubmitterGroup(eperson)
+                                 .withName("Collection 1")
+                                 .build();
+            Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withEntityType("WebAnnotation")
+                                               .withSubmitterGroup(eperson)
+                                               .withName("Collection 2")
+                                               .build();
+            Collection col3 = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withEntityType("PersonalAnnotation")
+                                               .withSubmitterGroup(eperson)
+                                               .withName("Collection 3")
+                                               .build();
+            Collection col4 = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withEntityType("Journal")
+                                               .withSubmitterGroup(eperson)
+                                               .withName("Collection 4")
+                                               .build();
+
+            context.restoreAuthSystemState();
+
+
+            context.setCurrentUser(eperson);
+            String token = getAuthToken(eperson.getEmail(), password);
+            getClient(token).perform(get("/api/core/entitytypes/search/findAllByAuthorizedCollection"))
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$._embedded.entitytypes", containsInAnyOrder(
+                                EntityTypeMatcher
+                                    .matchEntityTypeEntry(entityTypeService.findByEntityType(context, "JournalIssue")),
+                                EntityTypeMatcher.matchEntityTypeEntry(
+                                    entityTypeService.findByEntityType(context, "Journal"))
+                            )));
+        } finally {
+            CommunityBuilder.deleteCommunity(parentCommunity.getID());
+        }
+    }
+
 
     @Test
     public void findAllPaginationTest() throws Exception {

@@ -221,6 +221,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dspace", "iiif", "enabled", "true");
     }
 
+    public ItemBuilder enableRendering() {
+        return addMetadataValue(item, "viewer", "mirador", "download", "alternative");
+    }
+
     public ItemBuilder disableIIIF() {
         return addMetadataValue(item, "dspace", "iiif", "enabled", "false");
     }

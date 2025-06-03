@@ -464,6 +464,48 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="webannotation">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="web_annotation-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="personalannotation">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="personal_annotation-edit" />
+                        </bean>
+                    </list>
+                </entry>
             </map>
         </property>
     </bean>

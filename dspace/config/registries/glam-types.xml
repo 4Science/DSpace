@@ -955,13 +955,6 @@
     </dc-type>
 
     <dc-type>
-        <schema>glam</schema>
-        <element>subject</element>
-        <qualifier></qualifier>
-        <scope_note></scope_note>
-    </dc-type>
-
-    <dc-type>
         <schema>dc</schema>
         <element>coverage</element>
         <qualifier>spatialpvcm</qualifier>
@@ -1250,6 +1243,70 @@
         <element>funding</element>
         <qualifier>duration</qualifier>
         <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>position</qualifier>
+        <scope_note>The JSON of the selected fragment of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>svgselector</qualifier>
+        <scope_note>The JSON of the svg portion of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>text</qualifier>
+        <scope_note>The text of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>fulltext</qualifier>
+        <scope_note>The markdown text of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>item</element>
+        <qualifier/>
+        <scope_note>Item related to the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bitstream</element>
+        <qualifier/>
+        <scope_note>Bitstream related to the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>contributor</element>
+        <qualifier>annotation</qualifier>
+        <scope_note>EPerson that has created the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>subject</element>
+        <qualifier>annotation</qualifier>
+        <scope_note>The subject that is represented by the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>type</qualifier>
+        <scope_note>The textual type of the annotation</scope_note>
     </dc-type>
 
 </dspace-dc-types>

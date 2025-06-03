@@ -80,7 +80,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event", "Aggregation", "News",
             "Equipment", "Funding", "Product", "Project", "Fonds", "JournalFonds", "Place", "JournalFile",
                 "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo", "Opera", "Artwork",
-                "Coin", "ScientificMaterial", "MusicalLibrettos"
+                "Coin", "ScientificMaterial", "MusicalLibrettos", "WebAnnotation", "PersonalAnnotation"
         ).forEach(this::createEntityType);
         context.restoreAuthSystemState();
 
@@ -325,7 +325,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "dc.description.abstract", null, null, false, false);
 
         CrisLayoutField profileAffiliation = profileFields.get(5);
-        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table", 2,
+        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table.first3", 2,
             "oairecerif.person.affiliation", null, null, false, false);
 
         CrisMetadataGroup profileNestedAffiliationRole = profileAffiliation.getCrisMetadataGroupList().get(0);

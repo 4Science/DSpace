@@ -12,25 +12,15 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.rometools.utils.Strings.isBlank;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.apache.commons.io.IOUtils.copy;
 import static org.dspace.unpaywall.model.UnpaywallStatus.IMPORTED;
 import static org.dspace.unpaywall.model.UnpaywallStatus.NOT_FOUND;
 import static org.dspace.unpaywall.model.UnpaywallStatus.NO_FILE;
 import static org.dspace.unpaywall.model.UnpaywallStatus.PENDING;
 import static org.dspace.unpaywall.model.UnpaywallStatus.SUCCESSFUL;
 
-import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -41,22 +31,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -74,6 +53,7 @@ import org.dspace.unpaywall.dto.UnpaywallApiResponse;
 import org.dspace.unpaywall.dto.UnpaywallItemVersionDto;
 import org.dspace.unpaywall.model.Unpaywall;
 import org.dspace.unpaywall.model.UnpaywallStatus;
+import org.dspace.unpaywall.service.UnpaywallClientAPI;
 import org.dspace.unpaywall.service.UnpaywallService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -82,21 +62,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class UnpaywallServiceImpl implements UnpaywallService {
 
-    private static final String LOCATION_HEADER = "Location";
-    private static final String REFERER_HEADER = "Referer";
     public static final String BEST_OA_LOCATION = "best_oa_location";
     public static final String URL_FOR_PDF = "url_for_pdf";
     public static final String URL = "url";
-    public static final String UNPAYWALL_DOWNLOAD_TIMEOUT = "unpaywall.download.timeout";
-    public static final Long DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT = 60L;
     private final Logger logger = LoggerFactory.getLogger(UnpaywallServiceImpl.class);
-    private final CloseableHttpClient client;
     private final ObjectMapper objectMapper = new ObjectMapper().configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-    private final long downloadTimeout;
 
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance()
                              .getConfigurationService();
+
+    @Autowired
+    private UnpaywallClientAPI unpaywallClientAPI;
 
     @Autowired
     private UnpaywallDAO unpaywallDAO;
@@ -113,22 +90,8 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     @Autowired
     private BitstreamFormatService bitstreamFormatService;
 
-    private int timeout;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Map<String, CompletableFuture<Void>> requestMap = new ConcurrentHashMap<>();
-
-    public UnpaywallServiceImpl() {
-        HttpClientBuilder custom = HttpClients.custom();
-        client = custom.disableAutomaticRetries().setMaxConnTotal(5)
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeout).build())
-                .build();
-        downloadTimeout = this.configurationService
-            .getLongProperty(UNPAYWALL_DOWNLOAD_TIMEOUT, DEFAULT_UNPAYWALL_DOWNLOAD_TIMEOUT);
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
 
     @PreDestroy
     public void shutdown() {
@@ -147,16 +110,6 @@ public class UnpaywallServiceImpl implements UnpaywallService {
         if (isBlank(doi) || isNull(itemId)) {
             throw new IllegalArgumentException();
         }
-        findUnpaywall(context, doi, itemId)
-            .ifPresent(unpaywall -> {
-                try {
-                    updateStatus(context, unpaywall, PENDING);
-                    context.commit();
-                } catch (SQLException e) {
-                    logger.error("Cannot update unpaywall status", e);
-                    throw new RuntimeException("Cannot update unpaywall status", e);
-                }
-            });
         initApiCall(doi, itemId);
     }
 
@@ -196,33 +149,25 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     }
 
     protected Unpaywall resolveResourceForItem(Unpaywall unpaywall, Item item) {
-        try (CloseableHttpClient client =
-                 HttpClientBuilder.create()
-                                  .setConnectionTimeToLive(downloadTimeout, TimeUnit.SECONDS)
-                                  .build()
-        ) {
-            Context context = new Context(Context.Mode.READ_WRITE);
-            try (InputStream inputstream = downloadResource(client, unpaywall.getPdfUrl())) {
-                createUnpaywallBitstream(
-                    context, unpaywall,
-                    getOrCreateBundle(item, item.getBundles(Constants.DEFAULT_BUNDLE_NAME), context),
-                    inputstream
-                );
-                updateStatus(context, unpaywall, IMPORTED);
-            } catch (IOException e) {
-                unpaywall.setPdfUrl(null);
-                updateStatus(context, unpaywall, NOT_FOUND);
-                logger.error("Cannot retrieve the linked unpaywall resource", e);
-                throw new RuntimeException("Cannot retrieve the linked unpaywall resource", e);
-            } catch (SQLException | AuthorizeException e) {
-                unpaywall.setPdfUrl(null);
-                updateStatus(context, unpaywall, NOT_FOUND);
-                logger.error("Cannot store the linked unpaywall resource", e);
-                throw new RuntimeException("Cannot store the linked unpaywall resource", e);
-            }
+        Context context = new Context(Context.Mode.READ_WRITE);
+        try (InputStream inputStream =
+                 new FileInputStream(unpaywallClientAPI.downloadResource(unpaywall.getPdfUrl()))) {
+            createUnpaywallBitstream(
+                context, unpaywall,
+                getOrCreateBundle(item, item.getBundles(Constants.DEFAULT_BUNDLE_NAME), context),
+                inputStream
+            );
+            updateStatus(context, unpaywall, IMPORTED);
         } catch (IOException e) {
-            logger.error("Cannot connect to the linked unpaywall resource", e);
-            throw new RuntimeException("Cannot connect to the linked unpaywall resource", e);
+            unpaywall.setPdfUrl(null);
+            updateStatus(context, unpaywall, NOT_FOUND);
+            logger.error("Cannot retrieve the linked unpaywall resource", e);
+            throw new RuntimeException("Cannot retrieve the linked unpaywall resource", e);
+        } catch (SQLException | AuthorizeException e) {
+            unpaywall.setPdfUrl(null);
+            updateStatus(context, unpaywall, NOT_FOUND);
+            logger.error("Cannot store the linked unpaywall resource", e);
+            throw new RuntimeException("Cannot store the linked unpaywall resource", e);
         }
         return unpaywall;
     }
@@ -268,39 +213,6 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             .orElse(null);
     }
 
-    protected InputStream downloadResource(HttpClient client, String pdfUrl) throws IOException {
-        HttpGet httpGet = new HttpGet(pdfUrl);
-        httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*");
-        HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
-
-        return new BufferedInputStream(response.getEntity().getContent());
-    }
-
-    private static HttpResponse executeHttpCall(HttpClient client, String pdfUrl, HttpGet httpGet) throws IOException {
-        HttpResponse response = client.execute(httpGet);
-
-        // If request returns 301, then get new url from headers and repeat
-        while (response.getStatusLine().getStatusCode() == 301) {
-            httpGet = new HttpGet(response.getFirstHeader(LOCATION_HEADER).getValue());
-            httpGet.addHeader("Accept", "audio/*, video/*, image/*, text/*");
-            response = executeHttpCall(client, pdfUrl, httpGet);
-        }
-
-        // If request returns 400, then try to get resource using referer
-        if (response.getStatusLine().getStatusCode() == 400) {
-            if (pdfUrl.equals(httpGet.getFirstHeader(REFERER_HEADER))) {
-                throw new RuntimeException("Cannot retrieve the unpaywall resource");
-            }
-            httpGet.addHeader(REFERER_HEADER, pdfUrl);
-            response = executeHttpCall(client, pdfUrl, httpGet);
-        }
-
-        if (response.getStatusLine().getStatusCode() == 403) {
-            throw new RuntimeException("Unable to download file, forbidden access");
-        }
-        return response;
-    }
-
     @Override
     public List<UnpaywallItemVersionDto> getItemVersions(Context context, Item item) {
         String doi = itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
@@ -338,7 +250,6 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     private void initApiCall(String doi, UUID itemId) {
         CompletableFuture<Void> currentRequest = requestMap.get(doi);
         if (nonNull(currentRequest) && !currentRequest.isDone()) {
-            // Request already in progress.
             return;
         }
         CompletableFuture<Void> newRequest = CompletableFuture
@@ -353,32 +264,37 @@ public class UnpaywallServiceImpl implements UnpaywallService {
     }
 
     private void callApiAndUpdateUnpaywallRecord(String doi, UUID itemId) {
-        try {
-            Context context = new Context(Context.Mode.READ_WRITE);
+        try (Context context = new Context(Context.Mode.READ_WRITE);) {
             Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
-
-            unpaywall = handleUnpaywallApiCall(context, unpaywall, doi);
-
+            unpaywall.setStatus(PENDING);
             unpaywallDAO.save(context, unpaywall);
             context.commit();
-        } catch (SQLException | RuntimeException e) {
+            unpaywall = context.reloadEntity(unpaywall);
+            Optional<String> jsonResponse = unpaywallClientAPI.callUnpaywallApi(doi);
+            if (jsonResponse.isPresent()) {
+                mapSuccessful(jsonResponse.get(), unpaywall);
+                unpaywallDAO.save(context, unpaywall);
+                context.complete();
+                return;
+            } else {
+                mapNotFound(unpaywall);
+                unpaywallDAO.save(context, unpaywall);
+                context.complete();
+            }
+        } catch (Exception e) {
             logger.error("Cannot retrieve unpaywall details for doi: " + doi, e);
-            throw new RuntimeException("Cannot retrieve unpaywall details for doi: " + doi, e);
+            try (Context context = new Context(Context.Mode.READ_WRITE);) {
+                Unpaywall unpaywall = getUnpaywall(context, doi, itemId);
+                mapNotFound(unpaywall);
+                unpaywallDAO.save(context, unpaywall);
+                context.complete();
+            } catch (SQLException e1) {
+                logger.error("Error saving unpaywall details for doi: " + doi, e1);
+                throw new RuntimeException(e1);
+            }
         }
     }
 
-    private Unpaywall handleUnpaywallApiCall(Context context, Unpaywall unpaywall, String doi) {
-        try {
-            callUnpaywallApi(doi).ifPresentOrElse(
-                jsonResponse -> mapSuccessful(jsonResponse, unpaywall),
-                () -> mapNotFound(unpaywall)
-            );
-        } catch (Exception e) {
-            updateStatus(context, unpaywall, NOT_FOUND);
-            logger.error("Cannot retrieve unpaywall details for doi: " + doi, e);
-        }
-        return unpaywall;
-    }
 
     private void mapSuccessful(String jsonResponse, Unpaywall unpaywall) {
         unpaywall.setJsonRecord(jsonResponse);
@@ -391,6 +307,8 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             } else {
                 unpaywall.setStatus(NO_FILE);
             }
+        } else {
+            unpaywall.setStatus(NO_FILE);
         }
     }
 
@@ -406,52 +324,6 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             return unpaywall.get();
         }
         return unpaywallDAO.create(context, createUnpaywall(doi, itemId));
-    }
-
-    private Optional<String> callUnpaywallApi(String doi) {
-        String endpoint = configurationService.getProperty("unpaywall.url");
-        String email = getEmail();
-        HttpGet method = null;
-
-        try {
-            URIBuilder uriBuilder = new URIBuilder(endpoint + URLEncoder.encode(
-                    doi, Charset.defaultCharset()));
-            uriBuilder.addParameter("email", email);
-            method = new HttpGet(uriBuilder.build());
-
-            HttpResponse response = client.execute(method);
-            StatusLine statusLine = response.getStatusLine();
-
-            int statusCode = response.getStatusLine().getStatusCode();
-            switch (statusCode) {
-                case SC_OK:
-                    InputStream responseStream = response.getEntity().getContent();
-                    StringWriter writer = new StringWriter();
-                    copy(responseStream, writer, StandardCharsets.UTF_8);
-                    return of(writer.toString());
-                case SC_NOT_FOUND:
-                    return empty();
-                default:
-                    logger.error("Http call failed: " + statusLine);
-                    throw new RuntimeException("Http call failed: " + statusLine);
-            }
-        } catch (URISyntaxException | IOException e) {
-            logger.error("Cannot fetch unpaywall", e);
-            throw new RuntimeException("Cannot fetch unpaywall", e);
-        } finally {
-            if (method != null) {
-                method.releaseConnection();
-            }
-        }
-    }
-
-    private String getEmail() {
-        String email = configurationService.getProperty("unpaywall.email");
-        if (StringUtils.isBlank(email)) {
-            logger.error("\"unpaywall.email\" property cannot be empty.");
-            throw new RuntimeException("\"unpaywall.email\" property cannot be empty.");
-        }
-        return email;
     }
 
     private UnpaywallApiResponse mapJsonResponse(String unpaywallApiJson) {
@@ -480,5 +352,13 @@ public class UnpaywallServiceImpl implements UnpaywallService {
                 itemVersion.getUrlToPdf(),
                 itemVersion.getHostType()
         );
+    }
+
+    public UnpaywallClientAPI getUnpaywallClientAPI() {
+        return unpaywallClientAPI;
+    }
+
+    public void setUnpaywallClientAPI(UnpaywallClientAPI spyClientAPI) {
+        this.unpaywallClientAPI = spyClientAPI;
     }
 }

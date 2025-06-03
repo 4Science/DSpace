@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-iiif</artifactId>
     <packaging>jar</packaging>
     <name>DSpace IIIF</name>
@@ -37,6 +36,11 @@
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -99,7 +103,7 @@
         <dependency>
             <groupId>de.digitalcollections.iiif</groupId>
             <artifactId>iiif-apis</artifactId>
-            <version>0.3.10</version>
+            <version>0.3.11</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.javassist</groupId>

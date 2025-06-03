@@ -143,4 +143,11 @@
         <scope_note/>
     </dc-type>
 
+    <dc-type>
+        <schema>dspace</schema>
+        <element>workflow</element>
+        <qualifier>startDateTime</qualifier>
+        <scope_note/>
+    </dc-type>
+
 </dspace-dc-types>

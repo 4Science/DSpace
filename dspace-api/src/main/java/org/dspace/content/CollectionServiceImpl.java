@@ -8,6 +8,7 @@
 package org.dspace.content;
 
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
+import static org.dspace.content.EntityTypeServiceImpl.getExcludedEntityTypeClause;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -968,6 +969,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         List<Collection> collections = new ArrayList<>();
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
+        discoverQuery.addFilterQueries("-search.entitytype:(" + getExcludedEntityTypeClause() + ")");
         discoverQuery.setStart(offset);
         discoverQuery.setMaxResults(limit);
         discoverQuery.setSortField(SOLR_SORT_FIELD, SORT_ORDER.asc);

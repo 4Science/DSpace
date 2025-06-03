@@ -838,7 +838,7 @@ public class StructBuilder {
 
             // default the short description to the empty string
             collectionService.setMetadataSingleValue(context, collection,
-                    MD_SHORT_DESCRIPTION, Item.ANY, " ");
+                    MD_SHORT_DESCRIPTION, null, " ");
 
             handleTemplateItem(context, collection, tn);
 

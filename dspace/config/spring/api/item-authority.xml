@@ -81,11 +81,9 @@
 		<property name="childrenQuery" value="glamfonds.parent_authority:{0} OR dc.relation.fonds_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamfonds.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
 		<property name="labelMetadata">
 			<list>
-				<value>glamfonds.index</value>
-				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -106,11 +104,9 @@
 		<property name="childrenQuery" value="glamjournalfonds.parent_authority:{0} OR dc.relation.journalfonds_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamjournalfonds.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
 		<property name="labelMetadata">
 			<list>
-				<value>glamfonds.index</value>
-				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -131,11 +127,9 @@
 		<property name="childrenQuery" value="glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamaggregation.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
 		<property name="labelMetadata">
 			<list>
-				<value>glamfonds.index</value>
-				<value>glamjournalfonds.index</value>
 				<value>dc.title</value>
 			</list>
 		</property>

@@ -639,9 +639,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -2862,17 +2861,6 @@
           <hint>Inserire l'ordine</hint>
         </field>
       </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>index</dc-element>
-          <label>Numero di corda</label>
-          <input-type>number</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il numero di corda della risorsa</hint>
-        </field>
-      </row>
     </form>
     <form name="news">
       <row>
@@ -3396,7 +3384,6 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Indicare evetuali testate correlate</hint>
-          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -7133,21 +7120,10 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
-          <dc-element>title</dc-element>
-          <label>Titolo</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required>Inserire il titolo principale della risorsa.</required>
-          <hint>Inserire il titolo principale della risorsa.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
           <dc-element>description</dc-element>
           <dc-qualifier>abstract</dc-qualifier>
           <label>Abstract</label>
-          <input-type>textarea</input-type>
+          <input-type>markdown</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire l'abstract del contenuto della risorsa.</hint>
@@ -7156,9 +7132,21 @@
       <row>
         <field>
           <dc-schema>glam</dc-schema>
+          <dc-element>annotation</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo Annotazione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il tipo dell’annotazione creata</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
           <dc-element>subject</dc-element>
           <dc-qualifier>annotation</dc-qualifier>
-          <label>Indicazioni sull'annotazione</label>
+          <label>Soggetto</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
@@ -7196,7 +7184,7 @@
           <dc-qualifier>event</dc-qualifier>
           <label>Evento collegato</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint>Titolo dell’eventuale evento cui è connessa la risorsa.</hint>
         </field>
@@ -7240,7 +7228,7 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>relatedDocument</dc-qualifier>
           <label>Documento collegato</label>
@@ -7248,6 +7236,44 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire l'eventuale collegamento della risorsa ad altri documenti.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>annotation</dc-qualifier>
+          <label>Annotazione Collegata</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'eventuale collegamento con altre annotazioni</hint>
+        </field>
+      </row>
+    </form>
+    <form name="personal_annotation">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>markdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>annotation</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo Annotazione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il tipo dell’annotazione creata</hint>
         </field>
       </row>
     </form>

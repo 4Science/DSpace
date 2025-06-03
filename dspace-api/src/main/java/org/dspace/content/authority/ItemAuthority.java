@@ -132,6 +132,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         solrQuery.setStart(start);
         solrQuery.setRows(limit);
         solrQuery.addFilterQuery("search.resourcetype:" + Item.class.getSimpleName());
+        solrQuery.addFilterQuery("withdrawn:false");
+        solrQuery.addFilterQuery("NOT(discoverable:false)");
 
         if (StringUtils.isNotBlank(entityType)) {
             solrQuery.addFilterQuery("dspace.entity.type:" + entityType);

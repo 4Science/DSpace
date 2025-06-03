@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
@@ -57,6 +58,11 @@ public class SiteServiceImpl extends DSpaceObjectServiceImpl<Site> implements Si
     @Override
     public Site findSite(Context context) throws SQLException {
         return siteDAO.findSite(context);
+    }
+
+    @Override
+    public List<Site> findAll(Context context) throws SQLException {
+        return siteDAO.findAll(context);
     }
 
     @Override
