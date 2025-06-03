@@ -1133,15 +1133,15 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
             .andExpect(
                 jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
                     allOf(
-                        hasJsonPath("$.display", is("Fonds 1")),
+                        hasJsonPath("$.display", is("1 - Fonds 1")),
                         hasJsonPath("$.value", is("Fonds 1"))
                     ),
                     allOf(
-                        hasJsonPath("$.display", is("Fonds 2")),
+                        hasJsonPath("$.display", is("2 - Fonds 2")),
                         hasJsonPath("$.value", is("Fonds 2"))
                     ),
                     allOf(
-                        hasJsonPath("$.display", is("Fonds 3")),
+                        hasJsonPath("$.display", is("3 - Fonds 3")),
                         hasJsonPath("$.value", is("Fonds 3"))
                     )
                 ))
