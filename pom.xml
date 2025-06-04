@@ -1020,6 +1020,32 @@
                         <artifactId>dspace-api</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-ocr-rest</artifactId>
+                        <version>${addon-ocr.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.dspace</groupId>
+                        <artifactId>dspace-api</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
