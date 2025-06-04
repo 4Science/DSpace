@@ -997,6 +997,12 @@
                          <version>${addon-ocr.version}</version>
                          <type>jar</type>
                     </dependency>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-ocr-rest</artifactId>
+                        <version>${addon-ocr.version}</version>
+                        <type>jar</type>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
