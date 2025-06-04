@@ -2880,6 +2880,9 @@ WHERE property_def.id = properties.typo_id
       <remove>
         <name>entity_type_var</name>
       </remove>
+      <remove>
+        <name>uuid</name>
+      </remove>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -4395,7 +4398,7 @@ and parent_id = ?</sql>
       <schema_name/>
     </partitioning>
     <connection>dspace</connection>
-    <sql>SELECT id, crisid, sourceref, row_number() OVER () as row_number
+    <sql>SELECT id, crisid, uuid, sourceref, row_number() OVER () as row_number
 FROM "public".${ENTITY_TABLE}
 WHERE ${ENTITY_FILTER}
 </sql>
@@ -6306,6 +6309,10 @@ ORDER BY parent_id ASC;
       <field>
         <column_name>status</column_name>
         <stream_name>status</stream_name>
+      </field>
+      <field>
+        <column_name>uuid</column_name>
+        <stream_name>uuid</stream_name>
       </field>
     </fields>
     <attributes/>
