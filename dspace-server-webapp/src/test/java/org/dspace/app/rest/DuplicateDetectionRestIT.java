@@ -46,6 +46,7 @@ import org.dspace.xmlworkflow.service.XmlWorkflowService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -90,10 +91,8 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
     private final String item2IssueDate = "2012-10-17";
     private EPerson anotherEPerson;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void init() throws Exception {
         // Temporarily enable duplicate detection and set comparison value distance to 1
         configurationService.setProperty("duplicate.enable", true);
         configurationService.setProperty("duplicate.comparison.distance", 1);
@@ -130,8 +129,6 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void searchDuplicatesBySearchMethodTest() throws Exception {
-        String token = getAuthToken(admin.getEmail(), password);
-
         context.turnOffAuthorisationSystem();
 
         // Ingest three example items with slightly different titles
@@ -162,11 +159,14 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
 
         XmlWorkflowItem wfi1 = workflowService.start(context, workspaceItem1);
         XmlWorkflowItem wfi2 = workflowService.start(context, workspaceItem2);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
         Item item1 = wfi1.getItem();
         Item item2 = wfi2.getItem();
 
-        context.restoreAuthSystemState();
-
+        String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/duplicates/search/findByItem?uuid=" + item1.getID()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
@@ -233,9 +233,11 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
                 .withAuthor(item1Author)
                 .withSubmitter(eperson)
                 .build();
-        String submitterToken = getAuthToken(eperson.getEmail(), password);
+
+        context.commit();
         context.restoreAuthSystemState();
 
+        String submitterToken = getAuthToken(eperson.getEmail(), password);
         getClient(submitterToken).perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
                 .andExpect(status().isOk())
                 // The duplicates section is present
@@ -335,9 +337,11 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
                 .withAuthor("asdfasf")
                 .withSubmitter(admin)
                 .build();
-        String submitterToken = getAuthToken(eperson.getEmail(), password);
 
+        context.commit();
         context.restoreAuthSystemState();
+
+        String submitterToken = getAuthToken(eperson.getEmail(), password);
 
         // Even though there are 3 items with the same title, this 'eperson' user should only see 1 duplicate
         // as workspaceItem3 is owned by a different submitter, and self-references are skipped
@@ -378,6 +382,8 @@ public class DuplicateDetectionRestIT extends AbstractControllerIntegrationTest 
                 .withTitle("Unique title")
                 .withSubmitter(eperson)
                 .build();
+
+        context.commit();
         context.restoreAuthSystemState();
 
         context.setCurrentUser(admin);

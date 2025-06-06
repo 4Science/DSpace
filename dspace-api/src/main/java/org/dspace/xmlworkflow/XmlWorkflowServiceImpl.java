@@ -212,7 +212,6 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         throws SQLException, AuthorizeException, IOException, WorkflowException {
         try {
             Item myitem = wsi.getItem();
-            addStartDateMetadata(context, myitem);
             Collection collection = wsi.getCollection();
             Workflow wf = xmlWorkflowFactory.getWorkflow(collection);
 
@@ -254,6 +253,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     itemService.getIdentifiers(context, wfi.getItem())));
 
             }
+            addStartDateMetadata(context, myitem);
             context.restoreAuthSystemState();
             return wfi;
         } catch (WorkflowConfigurationException e) {
