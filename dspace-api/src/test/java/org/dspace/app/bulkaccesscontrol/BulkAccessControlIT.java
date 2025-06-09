@@ -97,9 +97,10 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
     private Path tempDir;
     private String tempFilePath;
 
-    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
-    private SearchService searchService = SearchUtils.getSearchService();
-    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private final SearchService searchService = SearchUtils.getSearchService();
+    private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                                   .getConfigurationService();
 
     @Before
     @Override
@@ -188,7 +189,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         buildJsonFile(json);
 
         String[] args = new String[] {"bulk-access-control", "-u", item.getID().toString(), "-f", tempFilePath,
-        "-e", randomUUID};
+            "-e", randomUUID};
 
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
@@ -229,7 +230,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         buildJsonFile(json);
 
         String[] args = new String[] {"bulk-access-control", "-u", item.getID().toString(), "-f", tempFilePath,
-        "-e", eperson.getEmail()};
+            "-e", eperson.getEmail()};
 
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
@@ -271,7 +272,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         buildJsonFile(json);
 
         String[] args = new String[] {"bulk-access-control", "-u", community.getID().toString(), "-f", tempFilePath,
-        "-e", eperson.getEmail()};
+            "-e", eperson.getEmail()};
 
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
@@ -309,7 +310,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         buildJsonFile(json);
 
         String[] args = new String[] {"bulk-access-control", "-u", collection.getID().toString(), "-f", tempFilePath,
-        "-e", eperson.getEmail()};
+            "-e", eperson.getEmail()};
 
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
@@ -346,7 +347,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         buildJsonFile(json);
 
         String[] args = new String[] {"bulk-access-control", "-u", item.getID().toString(), "-f", tempFilePath,
-        "-e", eperson.getEmail()};
+            "-e", eperson.getEmail()};
 
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
@@ -459,8 +460,8 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
                                               .build();
 
         Collection collection = CollectionBuilder.createCollection(context, community)
-                                                    .withName("collection")
-                                                    .build();
+                                                 .withName("collection")
+                                                 .build();
         // add eperson to admin group
         Item itemOne = ItemBuilder.createItem(context, collection)
                                   .withAdminUser(eperson)
@@ -944,17 +945,17 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         String bitstreamOneContent = "Dummy content one";
         Bitstream bitstreamOne;
         try (InputStream is = IOUtils.toInputStream(bitstreamOneContent, CharEncoding.UTF_8)) {
-            bitstreamOne  = BitstreamBuilder.createBitstream(context, bundle, is)
-                                            .withName("bistream one")
-                                            .build();
+            bitstreamOne = BitstreamBuilder.createBitstream(context, bundle, is)
+                                           .withName("bistream one")
+                                           .build();
         }
 
         String bitstreamTwoContent = "Dummy content of bitstream two";
         Bitstream bitstreamTwo;
         try (InputStream is = IOUtils.toInputStream(bitstreamTwoContent, CharEncoding.UTF_8)) {
-            bitstreamTwo  = BitstreamBuilder.createBitstream(context, bundle, is)
-                                            .withName("bistream two")
-                                            .build();
+            bitstreamTwo = BitstreamBuilder.createBitstream(context, bundle, is)
+                                           .withName("bistream two")
+                                           .build();
         }
 
         context.restoreAuthSystemState();
@@ -990,7 +991,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
             containsString("Replacing Bitstream {" + bitstreamOne.getID() +
-                "} policy to access conditions:{embargo, start_date=2024-06-24}")));
+                               "} policy to access conditions:{embargo, start_date=2024-06-24}")));
 
         bitstreamOne = context.reloadEntity(bitstreamOne);
         bitstreamTwo = context.reloadEntity(bitstreamTwo);
@@ -1111,11 +1112,11 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
             containsString("Replacing Item {" + itemOne.getID() +
-                "} policy to access conditions:{embargo, start_date=2024-06-24}"),
+                               "} policy to access conditions:{embargo, start_date=2024-06-24}"),
             containsString("Replacing Item {" + itemTwo.getID() +
-                "} policy to access conditions:{embargo, start_date=2024-06-24}"),
+                               "} policy to access conditions:{embargo, start_date=2024-06-24}"),
             containsString("Replacing Item {" + itemThree.getID() +
-                "} policy to access conditions:{embargo, start_date=2024-06-24}")
+                               "} policy to access conditions:{embargo, start_date=2024-06-24}")
         ));
 
         itemOne = context.reloadEntity(itemOne);
@@ -1127,25 +1128,23 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(itemOne.getResourcePolicies(), hasSize(1));
         assertThat(itemOne.getResourcePolicies(), hasItem(
-                matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
+            matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
         ));
 
         assertThat(itemTwo.getResourcePolicies(), hasSize(1));
         assertThat(itemTwo.getResourcePolicies(), hasItem(
-                matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
+            matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
         ));
 
         assertThat(itemThree.getResourcePolicies(), hasSize(1));
         assertThat(itemThree.getResourcePolicies(), hasItem(
-                matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
+            matches(Constants.READ, anonymousGroup, "embargo", TYPE_CUSTOM, "2024-06-24", null, null)
         ));
 
         assertThat(itemFour.getResourcePolicies().size(), is(1));
         assertThat(itemFour.getResourcePolicies(), hasItem(
             matches(Constants.READ, anonymousGroup, ResourcePolicy.TYPE_INHERITED)
         ));
-
-
 
 
     }
@@ -1157,30 +1156,30 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
         Community parentCommunity = CommunityBuilder.createCommunity(context)
-                                              .withName("parent community")
-                                              .build();
+                                                    .withName("parent community")
+                                                    .build();
 
         Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                              .withName("sub community one")
-                                              .build();
+                                                    .withName("sub community one")
+                                                    .build();
 
         Community subCommunityTwo = CommunityBuilder.createSubCommunity(context, parentCommunity)
                                                     .withName("sub community two")
                                                     .build();
 
         Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
-                                                 .withName("collection one")
-                                                 .build();
+                                                    .withName("collection one")
+                                                    .build();
 
         Collection collectionTwo = CollectionBuilder.createCollection(context, subCommunityTwo)
-                                                 .withName("collection two")
-                                                 .build();
+                                                    .withName("collection two")
+                                                    .build();
 
-        for (int i = 0; i < 20 ; i++) {
+        for (int i = 0; i < 20; i++) {
             ItemBuilder.createItem(context, collectionOne).build();
         }
 
-        for (int i = 0; i < 5 ; i++) {
+        for (int i = 0; i < 5; i++) {
             Item item = ItemBuilder.createItem(context, collectionTwo).build();
 
             Bundle bundle = BundleBuilder.createBundle(context, item)
@@ -1251,7 +1250,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
             assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItems(
                 containsString("Cleaning Item {" + item.getID() + "} policies"),
-                containsString("Inheriting policies from owning Collection in Item {" + item.getID() + "")
+                containsString("Inheriting policies from owning Collection in Item {" + item.getID())
             ));
 
             List<Bitstream> bitstreams = findAllBitstreams(item);
@@ -1264,7 +1263,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
                 assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItems(
                     containsString("Cleaning Bitstream {" + bitstream.getID() + "} policies"),
-                    containsString("Inheriting policies from owning Collection in Bitstream {" + bitstream.getID() + "")
+                    containsString("Inheriting policies from owning Collection in Bitstream {" + bitstream.getID())
                 ));
             }
         }
@@ -1277,18 +1276,18 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
         Community parentCommunity = CommunityBuilder.createCommunity(context)
-                                              .withName("parent community")
-                                              .build();
+                                                    .withName("parent community")
+                                                    .build();
 
         Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                              .withName("sub community one")
-                                              .build();
+                                                    .withName("sub community one")
+                                                    .build();
 
         Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
-                                                 .withName("collection one")
-                                                 .build();
+                                                    .withName("collection one")
+                                                    .build();
 
-        for (int i = 0; i < 5 ; i++) {
+        for (int i = 0; i < 5; i++) {
 
             Item item = ItemBuilder.createItem(context, collectionOne).build();
 
@@ -1384,18 +1383,18 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
         Community parentCommunity = CommunityBuilder.createCommunity(context)
-                                              .withName("parent community")
-                                              .build();
+                                                    .withName("parent community")
+                                                    .build();
 
         Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                              .withName("sub community one")
-                                              .build();
+                                                    .withName("sub community one")
+                                                    .build();
 
         Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
-                                                 .withName("collection one")
-                                                 .build();
+                                                    .withName("collection one")
+                                                    .build();
 
-        for (int i = 0; i < 3 ; i++) {
+        for (int i = 0; i < 3; i++) {
 
             Item item = ItemBuilder.createItem(context, collectionOne).build();
 
@@ -1472,7 +1471,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
             assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
                 containsString("Replacing Item {" + item.getID() +
-                    "} policy to access conditions:{openaccess, embargo, start_date=2024-06-24}")
+                                   "} policy to access conditions:{openaccess, embargo, start_date=2024-06-24}")
             ));
 
             List<Bitstream> bitstreams = findAllBitstreams(item);
@@ -1486,7 +1485,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
                 assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
                     containsString("Replacing Bitstream {" + bitstream.getID() +
-                        "} policy to access conditions:{openaccess, lease, end_date=2023-06-24}")
+                                       "} policy to access conditions:{openaccess, lease, end_date=2023-06-24}")
                 ));
             }
         }
@@ -1499,16 +1498,16 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
         Community parentCommunity = CommunityBuilder.createCommunity(context)
-                                              .withName("parent community")
-                                              .build();
+                                                    .withName("parent community")
+                                                    .build();
 
         Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                              .withName("sub community one")
-                                              .build();
+                                                    .withName("sub community one")
+                                                    .build();
 
         Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
-                                                 .withName("collection one")
-                                                 .build();
+                                                    .withName("collection one")
+                                                    .build();
 
         Item item = ItemBuilder.createItem(context, collectionOne).build();
 
@@ -1562,9 +1561,9 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
             //add to internal map of filters to supported formats
             if (ArrayUtils.isNotEmpty(formats)) {
                 filterFormats.put(filterClassName +
-                        (pluginName != null ? MediaFilterService.FILTER_PLUGIN_SEPARATOR +
-                            pluginName : ""),
-                    Arrays.asList(formats));
+                                      (pluginName != null ? MediaFilterService.FILTER_PLUGIN_SEPARATOR +
+                                          pluginName : ""),
+                                  Arrays.asList(formats));
             }
         }
 
@@ -1649,8 +1648,8 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         Group group = GroupBuilder.createGroup(context).withName("special network").build();
 
         Community community = CommunityBuilder.createCommunity(context)
-                                                    .withName("parent community")
-                                                    .build();
+                                              .withName("parent community")
+                                              .build();
 
         Collection collection = CollectionBuilder.createCollection(context, community)
                                                  .withName("collection one")
@@ -1685,7 +1684,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
             TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
             ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
-                testDSpaceRunnableHandler, kernelImpl);
+                                        testDSpaceRunnableHandler, kernelImpl);
 
             assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
             assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
@@ -1693,7 +1692,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
             assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
                 containsString("Replacing Item {" + item.getID() + "} policy to access conditions:" +
-                    "{embargo, start_date=2024-06-24}"),
+                                   "{embargo, start_date=2024-06-24}"),
                 containsString("Inheriting policies from owning Collection in Item {" + item.getID() + "}")
             ));
 
@@ -1802,9 +1801,9 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
             containsString("Replacing Bitstream {" + bitstreamOne.getID() +
-                "} policy to access conditions:{administrator}"),
+                               "} policy to access conditions:{administrator}"),
             containsString("Replacing Bitstream {" + bitstreamTwo.getID() +
-                "} policy to access conditions:{administrator}")
+                               "} policy to access conditions:{administrator}")
         ));
 
         bitstreamOne = context.reloadEntity(bitstreamOne);
@@ -1925,7 +1924,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
                             .getIndexableObjects()
                             .stream()
                             .map(indexableObject ->
-                                ((IndexableItem) indexableObject).getIndexedObject())
+                                     ((IndexableItem) indexableObject).getIndexedObject())
                             .collect(Collectors.toList());
     }
 
