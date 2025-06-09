@@ -59,6 +59,8 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
     private boolean isVerbose = false;
     private boolean isQuiet = false;
     private boolean isForce = false; // default to not forced
+    private String[] bundleNamesToSkip; // skip all items that seems to have been already processed
+    private int modifiedSinceDays = -1; // only process item modified in the last days
     private String identifier = null; // object scope limiter
     private int max2Process = Integer.MAX_VALUE;
     private String[] filterNames;
@@ -82,6 +84,12 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
             isVerbose = true;
         }
 
+        if (commandLine.hasOption('b')) {
+            bundleNamesToSkip = commandLine.getOptionValues('b');
+        }
+        if (commandLine.hasOption('l')) {
+            modifiedSinceDays = Integer.parseInt(commandLine.getOptionValue('l'));
+        }
         isQuiet = commandLine.hasOption('q');
 
         if (commandLine.hasOption('f')) {
@@ -229,7 +237,7 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
 
             // now apply the filters
             if (identifier == null) {
-                mediaFilterService.applyFiltersAllItems(c);
+                mediaFilterService.applyFiltersAllItems(c, modifiedSinceDays, bundleNamesToSkip);
             } else {
                 // restrict application scope to identifier
                 DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService().resolveToObject(c, identifier);
