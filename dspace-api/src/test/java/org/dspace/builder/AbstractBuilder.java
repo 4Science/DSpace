@@ -52,6 +52,10 @@ import org.dspace.eperson.service.SubscribeService;
 import org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactory;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
+import org.dspace.identifier.dao.DOIDAO;
+import org.dspace.identifier.dao.impl.DOIDAOImpl;
+import org.dspace.identifier.factory.IdentifierServiceFactory;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
 import org.dspace.layout.service.CrisLayoutBoxService;
 import org.dspace.layout.service.CrisLayoutFieldService;
@@ -137,7 +141,8 @@ public abstract class AbstractBuilder<T, S> {
     static SystemWideAlertService systemWideAlertService;
     static SubmissionConfigService submissionConfigService;
     static SupervisionOrderService supervisionOrderService;
-
+    static DOIService doiService;
+    static DOIDAO doiDao;
 
     protected Context context;
 
@@ -217,6 +222,8 @@ public abstract class AbstractBuilder<T, S> {
         }
         subscribeService = ContentServiceFactory.getInstance().getSubscribeService();
         supervisionOrderService = SupervisionOrderServiceFactory.getInstance().getSupervisionOrderService();
+        doiService = IdentifierServiceFactory.getInstance().getDOIService();
+        doiDao = new DSpace().getSingletonService(DOIDAOImpl.class);
     }
 
 
@@ -265,6 +272,7 @@ public abstract class AbstractBuilder<T, S> {
         submissionConfigService = null;
         subscribeService = null;
         supervisionOrderService = null;
+        doiService = null;
     }
 
     public static void cleanupObjects() throws Exception {
