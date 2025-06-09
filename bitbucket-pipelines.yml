@@ -101,7 +101,7 @@ definitions:
 
 pipelines:
   branches:
-    'main-cris':
+    'main-glam':
       - step: *install
       - parallel: &parallel-pipeline
           - step: *unit-test-code-checks
