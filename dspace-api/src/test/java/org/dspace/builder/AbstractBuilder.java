@@ -56,6 +56,8 @@ import org.dspace.eperson.service.SubscribeService;
 import org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactory;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
+import org.dspace.identifier.dao.DOIDAO;
+import org.dspace.identifier.dao.impl.DOIDAOImpl;
 import org.dspace.identifier.factory.IdentifierServiceFactory;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
@@ -136,7 +138,6 @@ public abstract class AbstractBuilder<T, S> {
     static SubscribeService subscribeService;
     static RequestItemService requestItemService;
     static VersioningService versioningService;
-    static DOIService doiService;
     static OrcidHistoryService orcidHistoryService;
     static OrcidQueueService orcidQueueService;
     static OrcidTokenService orcidTokenService;
@@ -150,6 +151,8 @@ public abstract class AbstractBuilder<T, S> {
     static QAEventService qaEventService;
     static SolrSuggestionStorageService solrSuggestionService;
     static LDNMessageService ldnMessageService;
+    static DOIService doiService;
+    static DOIDAO doiDao;
 
     protected Context context;
 
@@ -235,6 +238,8 @@ public abstract class AbstractBuilder<T, S> {
         qaEventService = new DSpace().getSingletonService(QAEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
+        doiService = IdentifierServiceFactory.getInstance().getDOIService();
+        doiDao = new DSpace().getSingletonService(DOIDAOImpl.class);
     }
 
 
@@ -276,7 +281,6 @@ public abstract class AbstractBuilder<T, S> {
         harvestedCollectionService = null;
         requestItemService = null;
         versioningService = null;
-        doiService = null;
         orcidTokenService = null;
         notifyService = null;
         inboundPatternService = null;
@@ -291,7 +295,7 @@ public abstract class AbstractBuilder<T, S> {
         notifyPatternToTriggerService = null;
         qaEventService = null;
         ldnMessageService = null;
-
+        doiService = null;
     }
 
     public static void cleanupObjects() throws Exception {
