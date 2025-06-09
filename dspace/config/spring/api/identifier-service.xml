@@ -61,6 +61,7 @@
         <property name="DOIConnector"
                   ref="org.dspace.identifier.doi.DOIConnector"/>
         <property name="filter" ref="doi-filter" />
+            ref="org.dspace.identifier.doi.DOIConnector" />
     </bean>
     -->
     <!--

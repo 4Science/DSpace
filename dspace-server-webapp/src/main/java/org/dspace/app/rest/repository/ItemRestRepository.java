@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,7 +71,7 @@ import org.springframework.stereotype.Component;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(ItemRest.CATEGORY + "." + ItemRest.NAME)
+@Component(ItemRest.CATEGORY + "." + ItemRest.PLURAL_NAME)
 public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRest> {
 
     private static final Logger log = LogManager.getLogger(ItemRestRepository.class);

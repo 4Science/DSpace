@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import com.google.common.collect.AbstractIterator;
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.exception.SQLRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -58,7 +57,7 @@ public class UUIDIterator<T extends DSpaceObject> extends AbstractIterator<T> {
                 return endOfData();
             }
         } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 

@@ -11,8 +11,8 @@ import static java.util.Optional.of;
 import static org.dspace.app.rest.repository.patch.operation.PatchOperation.OPERATION_REMOVE;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;

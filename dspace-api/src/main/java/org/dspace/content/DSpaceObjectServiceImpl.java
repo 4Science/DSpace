@@ -296,6 +296,13 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
 
         boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
                 collection);
+        // Throw an error if we are attempting to add empty values
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("Cannot add empty values to a new metadata field " +
+                                                   metadataField.toString() + " on object with uuid = " +
+                                                   dso.getID().toString() + " and type = " + getTypeText(dso));
+        }
+
         List<MetadataValue> newMetadata = new ArrayList<>();
         // We will not verify that they are valid entries in the registry
         // until update() is called.
@@ -827,6 +834,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     // E.g. for an Author relationship,
                     //   the place should be updated using the same principle as dc.contributor.author.
                     StringUtils.startsWith(metadataValue.getAuthority(), Constants.VIRTUAL_AUTHORITY_PREFIX)
+                        && metadataValue instanceof RelationshipMetadataValue
                         && ((RelationshipMetadataValue) metadataValue).isUseForPlace()
                 ) {
                     int mvPlace = getMetadataValuePlace(fieldToLastPlace, metadataValue);

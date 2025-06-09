@@ -10,7 +10,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2023.02.07</version>
+        <version>cris-2024.02.02-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -26,12 +26,13 @@
             <artifactId>additions</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-server-webapp</artifactId>
+            <groupId>org.dspace.modules</groupId>
+            <artifactId>server</artifactId>
+            <classifier>classes</classifier>
         </dependency>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-server-webapp</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -101,7 +102,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -114,7 +115,7 @@
                             <goal>repackage</goal>
                         </goals>
                     </execution>
-            </executions>
+                </executions>
             </plugin>
         </plugins>
     </build>

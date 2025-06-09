@@ -47,6 +47,11 @@ public class EntityMetadataSecurityConfigurationRest extends BaseObjectRest<Stri
         return NAME;
     }
 
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
+    }
+
     public List<Integer> getMetadataSecurityDefault() {
         return metadataSecurityDefault;
     }

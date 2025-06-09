@@ -12,12 +12,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.metrics.CrisMetrics_;
 import org.dspace.content.DSpaceObject;
@@ -45,7 +45,7 @@ public class CrisMetricsDAOImpl extends AbstractHibernateDAO<CrisMetrics> implem
         Root<CrisMetrics> crisMetricsRoot = criteriaQuery.from(CrisMetrics.class);
         criteriaQuery.select(crisMetricsRoot);
 
-        List<javax.persistence.criteria.Order> orderList = new LinkedList<>();
+        List<jakarta.persistence.criteria.Order> orderList = new LinkedList<>();
         orderList.add(criteriaBuilder.asc(crisMetricsRoot.get(CrisMetrics_.id)));
         criteriaQuery.orderBy(orderList);
 

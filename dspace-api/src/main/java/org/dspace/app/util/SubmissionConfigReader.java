@@ -23,6 +23,7 @@ import javax.xml.parsers.FactoryConfigurationError;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
@@ -102,10 +103,11 @@ public class SubmissionConfigReader {
     private Map<String, String> collectionToSubmissionConfig = null;
 
     /**
-     * Reference to the global submission step definitions defined in the
-     * "step-definitions" section
+     * Hashmap which stores which submission process configuration is used by
+     * which community, computed from the item submission config file
+     * (specifically, the 'submission-map' tag)
      */
-    private Map<String, Map<String, String>> stepDefns = null;
+    private Map<String, String> communityToSubmissionConfig = null;
 
     /**
      * Hashmap which stores which submission process configuration is used by
@@ -113,6 +115,12 @@ public class SubmissionConfigReader {
      * (specifically, the 'submission-map' tag)
      */
     private Map<String, String> entityTypeToSubmissionConfig = null;
+
+    /**
+     * Reference to the global submission step definitions defined in the
+     * "step-definitions" section
+     */
+    private Map<String, Map<String, String>> stepDefns = null;
 
     /**
      * Reference to the item submission definitions defined in the
@@ -155,7 +163,7 @@ public class SubmissionConfigReader {
 
     public void reload() throws SubmissionConfigReaderException {
         collectionToSubmissionConfig = null;
-        entityTypeToSubmissionConfig = null;
+        communityToSubmissionConfig = null;
         stepDefns = null;
         submitDefns = null;
         buildInputs(configDir + SUBMIT_DEF_FILE_PREFIX + SUBMIT_DEF_FILE_SUFFIX);
@@ -173,9 +181,10 @@ public class SubmissionConfigReader {
      * </ul>
      */
     private void buildInputs(String fileName) throws SubmissionConfigReaderException {
-        collectionToSubmissionConfig = new HashMap<String, String>();
-        entityTypeToSubmissionConfig = new HashMap<String, String>();
-        submitDefns = new LinkedHashMap<String, List<Map<String, String>>>();
+        collectionToSubmissionConfig = new HashMap<>();
+        communityToSubmissionConfig = new HashMap<>();
+        entityTypeToSubmissionConfig = new HashMap<>();
+        submitDefns = new LinkedHashMap<>();
 
         String uri = "file:" + new File(fileName).getAbsolutePath();
 
@@ -300,7 +309,7 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.error("The collection " + collection.getID().toString()
-                        + " has an invalid cris.submission.definition value " + submitName, e);
+                              + " has an invalid cris.submission.definition value " + submitName, e);
             }
         }
 
@@ -314,7 +323,7 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.error("The collection " + collection.getID().toString() + " has an invalid mapping by handle "
-                        + collection.getHandle() + " in the item-submission.xml " + submitName, e);
+                              + collection.getHandle() + " in the item-submission.xml " + submitName, e);
             }
         }
 
@@ -328,7 +337,27 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.warn("The collection " + collection.getID().toString() + " has an entity type " + submitName
-                        + " without an explicit mapping, fallback to the default");
+                             + " without an explicit mapping, fallback to the default");
+            }
+        }
+
+        if (!communityToSubmissionConfig.isEmpty()) {
+            try {
+                List<Community> communities = collection.getCommunities();
+                for (Community com : communities) {
+                    submitName = getSubmissionConfigByCommunity(com);
+                    if (submitName != null) {
+                        SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
+                        if (subConfig != null) {
+                            return subConfig;
+                        }
+                    }
+                }
+            } catch (SQLException sqle) {
+                throw new IllegalStateException(
+                    "Error occurred while getting item submission configured by community",
+                    sqle
+                );
             }
         }
 
@@ -341,7 +370,7 @@ public class SubmissionConfigReader {
         }
 
         throw new IllegalStateException("No item submission process configuration designated as 'default' "
-            + "in 'submission-map' section of 'item-submission.xml'.");
+                                            + "in 'submission-map' section of 'item-submission.xml'.");
     }
 
     /**
@@ -363,6 +392,29 @@ public class SubmissionConfigReader {
                                  .orElseGet(entityType::toLowerCase);
         }
         return submitName;
+    }
+
+    /**
+     * Recursive function to return the Item Submission process config
+     * used for a community or the closest community parent, or null
+     * if none is defined
+     *
+     * @param com community for which search Submission process config
+     * @return the SubmissionConfig representing the item submission config
+     */
+    private String getSubmissionConfigByCommunity(Community com) {
+        String submitName = communityToSubmissionConfig.get(com.getHandle());
+        if (submitName != null) {
+            return submitName;
+        }
+        List<Community> communities = com.getParentCommunities();
+        for (Community parentCom : communities) {
+            submitName = getSubmissionConfigByCommunity(parentCom);
+            if (submitName != null) {
+                return submitName;
+            }
+        }
+        return null;
     }
 
     /**
@@ -485,19 +537,21 @@ public class SubmissionConfigReader {
      * by the collection handle.
      */
     private void processMap(Node e) throws SAXException {
+
         NodeList nl = e.getChildNodes();
         int len = nl.getLength();
         for (int i = 0; i < len; i++) {
             Node nd = nl.item(i);
             if (nd.getNodeName().equals("name-map")) {
                 String id = getAttribute(nd, "collection-handle");
+                String communityId = getAttribute(nd, "community-handle");
                 String entityType = getAttribute(nd, "collection-entity-type");
                 String value = getAttribute(nd, "submission-name");
                 String content = getValue(nd);
-                if (id == null && entityType == null) {
+                if (id == null && communityId == null && entityType == null) {
                     throw new SAXException(
-                        "name-map element is missing collection-handle or collection-entity-type attribute " +
-                            "in 'item-submission.xml'");
+                        "name-map element is missing collection-handle or community-handle or collection-entity-type " +
+                            "attribute in 'item-submission.xml'");
                 }
                 if (value == null) {
                     throw new SAXException(
@@ -509,6 +563,8 @@ public class SubmissionConfigReader {
                 }
                 if (id != null) {
                     collectionToSubmissionConfig.put(id, value);
+                } else if (communityId != null) {
+                    communityToSubmissionConfig.put(communityId, value);
                 } else {
                     entityTypeToSubmissionConfig.putIfAbsent(entityType, value);
                 }

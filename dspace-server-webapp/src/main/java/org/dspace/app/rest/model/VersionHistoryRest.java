@@ -26,6 +26,7 @@ public class VersionHistoryRest extends BaseObjectRest<Integer> {
     private Boolean draftVersion;
 
     public static final String NAME = "versionhistory";
+    public static final String PLURAL_NAME = "versionhistories";
     public static final String CATEGORY = RestAddressableModel.VERSIONING;
     public static final String VERSIONS = "versions";
     public static final String DRAFT_VERSION = "draftVersion";
@@ -43,6 +44,11 @@ public class VersionHistoryRest extends BaseObjectRest<Integer> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 
     /**

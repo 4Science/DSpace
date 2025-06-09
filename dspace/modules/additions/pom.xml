@@ -4,9 +4,9 @@
    <artifactId>additions</artifactId>
    <name>DSpace Kernel :: Additions and Local Customizations</name>
    <description>
-       This project allows you to easily create your own "additions.jar"
-       including custom Java classes. This JAR will be automatically included
-       in all DSpace web applications.
+      This project allows you to easily create your own "additions.jar"
+      including custom Java classes. This JAR will be automatically included
+      in all DSpace web applications.
    </description>
    <packaging>jar</packaging>
 
@@ -17,13 +17,13 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>modules</artifactId>
-      <version>cris-2023.02.07</version>
+      <version>cris-2024.02.02-SNAPSHOT</version>
       <relativePath>..</relativePath>
    </parent>
 
    <properties>
-       <!-- This is the path to the root [dspace-src] directory. -->
-       <root.basedir>${basedir}/../../..</root.basedir>
+      <!-- This is the path to the root [dspace-src] directory. -->
+      <root.basedir>${basedir}/../../..</root.basedir>
    </properties>
 
    <build>
@@ -233,25 +233,25 @@
       </profile>
 
 
-        <!--
-            Builds Audio Video addon for DSpace
-        -->
-	<profile>
-		<id>addon-video</id>
-		<activation>
-			<property>
-				<name>audiovideo.on</name>
-			</property>
-		</activation>
-		<dependencies>
-			<dependency>
-				<groupId>it.4science.dspace</groupId>
-				<artifactId>addon-video-api</artifactId>
-				<version>${addon-video.version}</version>
-				<type>jar</type>
-			</dependency>
-		</dependencies>
-	</profile>
+      <!--
+          Builds Audio Video addon for DSpace
+      -->
+      <profile>
+         <id>addon-video</id>
+         <activation>
+            <property>
+               <name>audiovideo.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-video-api</artifactId>
+               <version>${addon-video.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
 
       <profile>
          <id>addon-document-viewer</id>
@@ -270,22 +270,22 @@
          </dependencies>
       </profile>
 
-     <profile>
+      <profile>
          <id>addon-analytics</id>
-          <activation>
-             <property>
-                <name>analytics.on</name>
-             </property>
-          </activation>
+         <activation>
+            <property>
+               <name>analytics.on</name>
+            </property>
+         </activation>
          <dependencies>
-             <dependency>
-                 <groupId>it.4science.dspace</groupId>
-                 <artifactId>addon-analytics-api</artifactId>
-                 <version>${addon-analytics.version}</version>
-                 <type>jar</type>
-             </dependency>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-analytics-api</artifactId>
+               <version>${addon-analytics.version}</version>
+               <type>jar</type>
+            </dependency>
          </dependencies>
-     </profile>
+      </profile>
 
       <profile>
          <id>addon-dataquality</id>
@@ -323,57 +323,57 @@
       </profile>
 
       <!-- Builds LoginMIUR addon for DSpace -->
-        <profile>
-            <id>addon-loginmiur</id>
-             <activation>
-                <property>
-                   <name>loginmiur.on</name>
-                </property>
-             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>it.4science.dspace</groupId>
-                    <artifactId>addon-loginmiur-api</artifactId>
-                    <version>${addon-loginmiur.version}</version>
-                    <type>jar</type>
-                </dependency>
-            </dependencies>
-        </profile>
+      <profile>
+         <id>addon-loginmiur</id>
+         <activation>
+            <property>
+               <name>loginmiur.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-loginmiur-api</artifactId>
+               <version>${addon-loginmiur.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
 
-       <profile>
-           <id>addon-networklab</id>
-           <activation>
-               <property>
-                   <name>nl.on</name>
-               </property>
-           </activation>
-           <dependencies>
-               <dependency>
-                   <groupId>it.4science.dspace</groupId>
-                   <artifactId>addon-networklab</artifactId>
-                   <version>${addon-networklab.version}</version>
-                   <type>jar</type>
-               </dependency>
-           </dependencies>
-       </profile>
+      <profile>
+         <id>addon-networklab</id>
+         <activation>
+            <property>
+               <name>nl.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-networklab</artifactId>
+               <version>${addon-networklab.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
 
-       <!-- Builds Import plus addon for DSpace -->
-        <profile>
-            <id>addon-importplus</id>
-             <activation>
-                <property>
-                   <name>importplus.on</name>
-                </property>
-             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>it.4science.dspace</groupId>
-                    <artifactId>addon-importplus</artifactId>
-                    <version>${addon-importplus.version}</version>
-                    <type>jar</type>
-                </dependency>
-            </dependencies>
-        </profile>
+      <!-- Builds Import plus addon for DSpace -->
+      <profile>
+         <id>addon-importplus</id>
+         <activation>
+            <property>
+               <name>importplus.on</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>it.4science.dspace</groupId>
+               <artifactId>addon-importplus</artifactId>
+               <version>${addon-importplus.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
 
    </profiles>
 
@@ -386,22 +386,22 @@
          <artifactId>dspace-api</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.dspace</groupId>
-          <artifactId>dspace-api</artifactId>
-          <type>test-jar</type>
-          <scope>test</scope>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+         <type>test-jar</type>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-api-lang</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.dspace</groupId>
-          <artifactId>dspace-services</artifactId>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-services</artifactId>
       </dependency>
       <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>javax.servlet-api</artifactId>
+         <groupId>jakarta.servlet</groupId>
+         <artifactId>jakarta.servlet-api</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
@@ -427,6 +427,13 @@
          <artifactId>solr-core</artifactId>
          <version>${solr.client.version}</version>
          <scope>test</scope>
+         <exclusions>
+            <!-- Later version provided by Hibernate -->
+            <exclusion>
+               <groupId>org.antlr</groupId>
+               <artifactId>antlr4-runtime</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.lucene</groupId>

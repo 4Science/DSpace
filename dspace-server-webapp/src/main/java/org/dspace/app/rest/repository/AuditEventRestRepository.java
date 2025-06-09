@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME)
+@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME_PLURAL)
 public class AuditEventRestRepository extends DSpaceRestRepository<AuditEventRest, UUID> {
 
     private static final Logger log = LoggerFactory.getLogger(AuditEventRestRepository.class);

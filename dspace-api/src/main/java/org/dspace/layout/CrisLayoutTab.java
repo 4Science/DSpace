@@ -12,26 +12,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.Cacheable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
 import org.dspace.core.ReloadableEntity;
@@ -52,7 +52,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     @NamedSubgraph(name = "CrisLayoutTab.boxes_and_content", attributeNodes = {
         @NamedAttributeNode(value = "boxes")
     })
-})
+}
+)
 public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
     public static final String ROWS_AND_CONTENT_GRAPH = "CrisLayoutTab.rows_and_content";
@@ -219,15 +220,15 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
     public List<CrisLayoutBox> getBoxes() {
         return this.rows.stream()
-            .flatMap(row -> row.getCells().stream())
-            .flatMap(cell -> cell.getBoxes().stream())
-            .collect(Collectors.toList());
+                        .flatMap(row -> row.getCells().stream())
+                        .flatMap(cell -> cell.getBoxes().stream())
+                        .collect(Collectors.toList());
     }
 
     public Set<Group> getGroupSecurityFields() {
         return tab2SecurityGroups.stream()
                                  .map(crisLayoutTab2SecurityGroup ->
-                                     crisLayoutTab2SecurityGroup.getGroup())
+                                          crisLayoutTab2SecurityGroup.getGroup())
                                  .collect(Collectors.toSet());
     }
 

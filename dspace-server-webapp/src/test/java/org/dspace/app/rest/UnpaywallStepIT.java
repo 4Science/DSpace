@@ -25,8 +25,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.submit.step.UnpaywallStep;
@@ -51,7 +51,7 @@ import org.junit.Test;
 public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
 
     private final UnpaywallServiceImpl unpaywallService =
-            (UnpaywallServiceImpl) ContentServiceFactory.getInstance().getUnpaywallService();
+        (UnpaywallServiceImpl) ContentServiceFactory.getInstance().getUnpaywallService();
 
     private Collection collection;
 
@@ -68,14 +68,14 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         collection = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1")
-                .withEntityType("Publication")
-                .withSubmissionDefinition("traditional-with-unpaywall")
-                .build();
+                                      .withName("Collection 1")
+                                      .withEntityType("Publication")
+                                      .withSubmissionDefinition("traditional-with-unpaywall")
+                                      .build();
 
         context.restoreAuthSystemState();
     }
@@ -96,10 +96,10 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
 
         String doi = "10.1504/ijmso.2012.048507";
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-                .withTitle("Test WorkspaceItem")
-                .withIssueDate("2020")
-                .withDoiIdentifier(doi)
-                .build();
+                                                          .withTitle("Test WorkspaceItem")
+                                                          .withIssueDate("2020")
+                                                          .withDoiIdentifier(doi)
+                                                          .build();
         UUID itemUUID = workspaceItem.getItem().getID();
 
         context.restoreAuthSystemState();
@@ -112,8 +112,8 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
             pauseRefresh(numRefresh);
             getClient(authToken)
                 .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                    .content(getPatchContent(List.of(refreshOperation)))
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .content(getPatchContent(List.of(refreshOperation)))
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
@@ -121,9 +121,9 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
                 .andDo(result -> unpayStatus.set(read(result.getResponse().getContentAsString(),
-                        "$.sections.unpaywall.status")));
+                                                      "$.sections.unpaywall.status")));
             assertThat(unpayStatus.get(), Matchers.oneOf(UnpaywallStatus.PENDING.name(),
-                    UnpaywallStatus.SUCCESSFUL.name()));
+                                                         UnpaywallStatus.SUCCESSFUL.name()));
             numRefresh++;
         } while (!unpayStatus.get().equals(UnpaywallStatus.SUCCESSFUL.name()) && numRefresh < 3);
 
@@ -138,10 +138,10 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
 
         String doi = "10.1504/ijmso.2012.048507";
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-                .withTitle("Test WorkspaceItem")
-                .withIssueDate("2020")
-                .withDoiIdentifier(doi)
-                .build();
+                                                          .withTitle("Test WorkspaceItem")
+                                                          .withIssueDate("2020")
+                                                          .withDoiIdentifier(doi)
+                                                          .build();
         final UUID itemUUID = workspaceItem.getItem().getID();
         Unpaywall unpaywall = new Unpaywall();
         unpaywall.setDoi(doi);
@@ -160,8 +160,8 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
             pauseRefresh(numRefresh);
             getClient(authToken)
                 .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                    .content(getPatchContent(List.of(refreshOperation)))
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .content(getPatchContent(List.of(refreshOperation)))
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
@@ -169,9 +169,9 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
                 .andDo(result -> unpayStatus.set(read(result.getResponse().getContentAsString(),
-                        "$.sections.unpaywall.status")));
+                                                      "$.sections.unpaywall.status")));
             assertThat(unpayStatus.get(), Matchers.oneOf(UnpaywallStatus.PENDING.name(),
-                    UnpaywallStatus.SUCCESSFUL.name()));
+                                                         UnpaywallStatus.SUCCESSFUL.name()));
             refreshOperation = new AddOperation("/sections/unpaywall/refresh", false);
             numRefresh++;
         } while (!unpayStatus.get().equals(UnpaywallStatus.SUCCESSFUL.name()) && numRefresh < 3);
@@ -187,10 +187,10 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
 
         String doi = "10.1504/ijmso.2012.048507";
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-                .withTitle("Test WorkspaceItem")
-                .withIssueDate("2020")
-                .withDoiIdentifier(doi)
-                .build();
+                                                          .withTitle("Test WorkspaceItem")
+                                                          .withIssueDate("2020")
+                                                          .withDoiIdentifier(doi)
+                                                          .build();
 
         Unpaywall unpaywall = new Unpaywall();
         unpaywall.setDoi(doi);
@@ -204,16 +204,16 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
         Operation addOperation = new AddOperation("/sections/unpaywall/refresh", false);
 
         getClient(getAuthToken(eperson.getEmail(), password))
-                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                        .content(getPatchContent(List.of(addOperation)))
-                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
-                .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
-                .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
-                .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
-                .andExpect(jsonPath("$.sections.unpaywall.status", is(unpaywall.getStatus().name())));
+            .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                         .content(getPatchContent(List.of(addOperation)))
+                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
+            .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
+            .andExpect(jsonPath("$.sections.unpaywall.itemId", is(workspaceItem.getItem().getID().toString())))
+            .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
+            .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
+            .andExpect(jsonPath("$.sections.unpaywall.status", is(unpaywall.getStatus().name())));
         verify(spyClientAPI, times(0)).callUnpaywallApi(any());
     }
 
@@ -224,10 +224,10 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
 
         String doi = "10.1504/ijmso.2012.048507";
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-            .withTitle("Test WorkspaceItem")
-            .withIssueDate("2020")
-            .withDoiIdentifier(doi)
-            .build();
+                                                          .withTitle("Test WorkspaceItem")
+                                                          .withIssueDate("2020")
+                                                          .withDoiIdentifier(doi)
+                                                          .build();
         final UUID itemUUID = workspaceItem.getItem().getID();
         Unpaywall unpaywall = new Unpaywall();
         unpaywall.setDoi(doi);
@@ -247,8 +247,8 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
             pauseRefresh(numRefresh);
             getClient(authToken)
                 .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                    .content(getPatchContent(List.of(refreshOperation)))
-                    .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                             .content(getPatchContent(List.of(refreshOperation)))
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors[*].paths", not(containsString("/section/unpaywall"))))
                 .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))
@@ -256,9 +256,9 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
                 .andExpect(jsonPath("$.sections.unpaywall.timestampCreated", notNullValue()))
                 .andExpect(jsonPath("$.sections.unpaywall.timestampLastModified", notNullValue()))
                 .andDo(result -> unpayStatus.set(read(result.getResponse().getContentAsString(),
-                        "$.sections.unpaywall.status")));
+                                                      "$.sections.unpaywall.status")));
             assertThat(unpayStatus.get(), Matchers.oneOf(UnpaywallStatus.PENDING.name(),
-                    UnpaywallStatus.SUCCESSFUL.name()));
+                                                         UnpaywallStatus.SUCCESSFUL.name()));
             refreshOperation = new AddOperation("/sections/unpaywall/refresh", false);
             numRefresh++;
         } while (!unpayStatus.get().equals(UnpaywallStatus.SUCCESSFUL.name()) && numRefresh < 3);
@@ -269,8 +269,8 @@ public class UnpaywallStepIT extends AbstractLiveImportIntegrationTest {
         Operation acceptOperation = new AddOperation("/sections/unpaywall/accept", true);
         getClient(authToken)
             .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
-                .content(getPatchContent(List.of(acceptOperation)))
-                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                         .content(getPatchContent(List.of(acceptOperation)))
+                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.errors").doesNotExist())
             .andExpect(jsonPath("$.sections.unpaywall.doi", is(doi)))

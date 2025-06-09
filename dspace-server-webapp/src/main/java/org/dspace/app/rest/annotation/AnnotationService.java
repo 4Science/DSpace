@@ -24,8 +24,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.NotAuthorizedException;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +65,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 public class AnnotationService {
 
-    private static final Logger log = LogManager.getLogger(AnnotationService.class);
     static final String ITEM_PATTERN = "/iiif/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String BITSTREAM_PATTERN = "/canvas/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})";
     static final String ANNOTATION_ID_PATTERN =
@@ -73,11 +72,10 @@ public class AnnotationService {
     static final String ANNOTATION_ENTITY_TYPE = "annotation.default.entity-type";
     static final String DEFAULT_ENTITY_TYPE = "WebAnnotation";
     static final String ANNOTATION_COLLECTION = "annotation.default.collection";
-
     static final String PERSONAL_ANNOTATION_ENTITY_TYPE = "personal-annotation.default.entity-type";
     static final String PERSONAL_ANNOTATION_GROUP = "personal-annotation.default.group";
     static final String PERSONAL_ANNOTATION_COLLECTION = "personal-annotation.default.collection";
-
+    private static final Logger log = LogManager.getLogger(AnnotationService.class);
     final WorkspaceItemService workspaceItemService;
     final ConfigurationService configurationService;
     final CollectionService collectionService;

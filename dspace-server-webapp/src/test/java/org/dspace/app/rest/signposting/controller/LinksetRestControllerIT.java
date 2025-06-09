@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.time.Period;
 import java.util.Date;
 
 import org.apache.commons.codec.CharEncoding;
@@ -457,7 +458,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                 .withTitle("Withdrawn Item")
                 .withMetadata("dc", "identifier", "doi", doi)
                 .withIssueDate("2017-11-18")
-                .withEmbargoPeriod("2 week")
+                .withEmbargoPeriod(Period.ofWeeks(2))
                 .build();
         context.restoreAuthSystemState();
 
@@ -816,7 +817,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                     .withName("Bitstream")
                     .withDescription("description")
                     .withMimeType(bitstreamMimeType)
-                    .withEmbargoPeriod("6 months")
+                    .withEmbargoPeriod(Period.ofMonths(6))
                     .build();
         }
         context.restoreAuthSystemState();
@@ -916,7 +917,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                 .withTitle("Withdrawn Item")
                 .withMetadata("dc", "identifier", "doi", doi)
                 .withIssueDate("2017-11-18")
-                .withEmbargoPeriod("2 week")
+                .withEmbargoPeriod(Period.ofWeeks(2))
                 .build();
         context.restoreAuthSystemState();
 

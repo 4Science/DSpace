@@ -10,8 +10,8 @@ package org.dspace.app.rest.submit.factory.impl;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.app.rest.model.step.CustomUrl;
 import org.dspace.content.InProgressSubmission;
