@@ -100,6 +100,11 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
     private Path tempDir;
     private String tempFilePath;
 
+    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private final SearchService searchService = SearchUtils.getSearchService();
+    private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                                   .getConfigurationService();
+
     @Before
     @Override
     public void setUp() throws Exception {
@@ -1864,14 +1869,16 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         context.restoreAuthSystemState();
 
         // JSON without constraints: apply to ALL items
-        String json = "{ \"item\": {"
-            + " \"mode\": \"add\","
-            + " \"accessConditions\": ["
-            + "     {"
-            + "       \"name\": \"openaccess\""
-            + "     }"
-            + " ]"
-            + "} }";
+        String json = """
+            { "item": {
+                  "mode": "add",
+                  "accessConditions": [
+                      {
+                        "name": "openaccess"
+                      }
+                  ]
+               }}
+            """;
 
         buildJsonFile(json);
 
@@ -1896,7 +1903,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
                                                     int endIdx = msg.indexOf("}", startIdx);
                                                     return UUID.fromString(msg.substring(startIdx, endIdx));
                                                 })
-                                                .collect(Collectors.toList());
+                                                .toList();
 
         Set<UUID> uniqueUpdatedItemIDs = new HashSet<>(updatedItemIDs);
 

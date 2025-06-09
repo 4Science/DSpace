@@ -422,20 +422,20 @@
             <exclusions>
                 <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
                      startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
-                <exclusion>
+              <exclusion>
                     <groupId>org.mortbay.jasper</groupId>
                     <artifactId>apache-jsp</artifactId>
-                </exclusion>
-                <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
-                     Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
+              </exclusion>
+              <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
+                   Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
 

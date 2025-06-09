@@ -42,4 +42,10 @@
 
     <!-- Dedup core -->
     <bean class="org.dspace.deduplication.MockSolrDedupCore" autowire-candidate="true"/>
+
+    <bean class="org.dspace.app.audit.MockAuditService" autowire-candidate="true"/>
+
+    <bean class="org.dspace.app.suggestion.MockSolrSuggestionStorageService" autowire-candidate="true"/>
+
+    <bean class="org.dspace.qaevent.MockQAEventService" autowire-candidate="true"/>
 </beans>

@@ -205,6 +205,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected SubscribeService subscribeService;
 
     @Autowired
+    private QAEventsDAO qaEventsDao;
+
+    @Autowired
     private VersionHistoryService versionHistoryService;
 
     @Autowired
@@ -215,9 +218,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
     @Autowired
     private List<ItemSearcherByMetadata> itemSearcherByMetadata;
-
-    @Autowired
-    private QAEventsDAO qaEventsDao;
 
     protected ItemServiceImpl() {
     }
@@ -2203,10 +2203,10 @@ prevent the generation of resource policy entry values with null dspace_object a
                 //should not occur, otherwise metadata can't be updated either
                 log.error("An error occurred while moving " + rr.getAuthority() + " for item " + dso.getID(), e);
             }
-        }  else {
-            //just move the metadata
-            rr.setPlace(place);
         }
+
+        // Update the MetadataValue object with the new place setting
+        rr.setPlace(place);
     }
 
     @Override

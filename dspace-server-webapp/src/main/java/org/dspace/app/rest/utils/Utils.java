@@ -1017,6 +1017,9 @@ public class Utils {
     public BaseObjectRest getBaseObjectRestFromUri(Context context, String uri) throws SQLException {
         String dspaceUrl = configurationService.getProperty("dspace.server.url");
         String dspaceSSRUrl = configurationService.getProperty("dspace.server.ssr.url", dspaceUrl);
+        if (StringUtils.isBlank(dspaceSSRUrl)) {
+            dspaceSSRUrl = dspaceUrl;
+        }
 
         // Convert strings to URL objects.
         // Do this early to check that inputs are well-formed.
@@ -1026,9 +1029,7 @@ public class Utils {
         try {
             dspaceUrlObject = new URL(dspaceUrl);
             requestUrlObject = new URL(uri);
-            if (StringUtils.isNoneBlank(dspaceSSRUrl)) {
-                dspaceUrlSSRObject = new URL(dspaceSSRUrl);
-            }
+            dspaceUrlSSRObject = new URL(dspaceSSRUrl);
         } catch (MalformedURLException ex) {
             throw new IllegalArgumentException(
                     String.format("Configuration '%s' or request '%s' is malformed", dspaceUrl, uri));

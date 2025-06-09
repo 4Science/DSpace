@@ -315,6 +315,10 @@ public class OrcidClientImpl implements OrcidClient {
             .build();
     }
 
+    private String formatExpandedSearchParameters(String query, int start, int rows) {
+        return String.format("?q=%s&start=%s&rows=%s", query, start, rows);
+    }
+
     private void executeSuccessful(HttpUriRequest httpUriRequest) {
         try {
             HttpClient client = HttpClientBuilder.create().build();
@@ -324,17 +328,13 @@ public class OrcidClientImpl implements OrcidClient {
                 throw new OrcidClientException(
                     getStatusCode(response),
                     "Operation " + httpUriRequest.getMethod() + " for the resource " + httpUriRequest.getURI() +
-                        " was not successful: " + new String(response.getEntity().getContent().readAllBytes(),
-                        StandardCharsets.UTF_8)
+                    " was not successful: " + new String(response.getEntity().getContent().readAllBytes(),
+                                                         StandardCharsets.UTF_8)
                 );
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String formatExpandedSearchParameters(String query, int start, int rows) {
-        return String.format("?q=%s&start=%s&rows=%s", query, start, rows);
     }
 
     private <T> T executeAndParseJson(HttpUriRequest httpUriRequest, Class<T> clazz) {

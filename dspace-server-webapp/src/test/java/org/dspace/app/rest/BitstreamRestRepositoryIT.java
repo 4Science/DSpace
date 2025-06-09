@@ -3109,14 +3109,14 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
 
         MvcResult result = getClient(token).perform(patch("/api/core/bitstreams")
-                                                        .content(patchBody)
-                                                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                                           .andExpect(status().isUnprocessableEntity())
-                                           .andReturn();
+                                     .content(patchBody)
+                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                  .andExpect(status().isUnprocessableEntity())
+                                  .andReturn();
 
         // Verify our custom error message is returned when an invalid UUID is used
         assertEquals("Bitstream with uuid " + randomUUID + " could not be found in the repository",
-                     result.getResponse().getErrorMessage());
+                            result.getResponse().getErrorMessage());
 
         // Verify that no bitstreams were deleted since the request was invalid
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
@@ -3242,9 +3242,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
 
         getClient().perform(patch("/api/core/bitstreams")
-                                .content(patchBody)
-                                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                   .andExpect(status().isUnauthorized());
+                                     .content(patchBody)
+                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                        .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -3295,9 +3295,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(eperson.getEmail(), password);
 
         getClient(token).perform(patch("/api/core/bitstreams")
-                                     .content(patchBody)
-                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                        .andExpect(status().isForbidden());
+                                .content(patchBody)
+                                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                   .andExpect(status().isForbidden());
     }
 
     @Test
@@ -3307,15 +3307,15 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                           .withName("Parent Community")
                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                                           .withName("Collection 1")
-                                           .build();
+                                                 .withName("Collection 1")
+                                                 .build();
         Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withName("Collection 2")
                                            .build();
         EPerson col1Admin = EPersonBuilder.createEPerson(context)
-                                          .withEmail("col1admin@test.com")
-                                          .withPassword(password)
-                                          .build();
+                                         .withEmail("col1admin@test.com")
+                                         .withPassword(password)
+                                         .build();
         EPerson col2Admin = EPersonBuilder.createEPerson(context)
                                           .withEmail("col2admin@test.com")
                                           .withPassword(password)
@@ -3423,9 +3423,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                            .withName("Collection 2")
                                            .build();
         EPerson parentCommunityAdmin = EPersonBuilder.createEPerson(context)
-                                                     .withEmail("parentComAdmin@test.com")
-                                                     .withPassword(password)
-                                                     .build();
+                                          .withEmail("parentComAdmin@test.com")
+                                          .withPassword(password)
+                                          .build();
         Group parentComAdminGroup = GroupBuilder.createCommunityAdminGroup(context, parentCommunity)
                                                 .addMember(parentCommunityAdmin)
                                                 .build();
@@ -3592,4 +3592,5 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         }
         return true;
     }
+
 }

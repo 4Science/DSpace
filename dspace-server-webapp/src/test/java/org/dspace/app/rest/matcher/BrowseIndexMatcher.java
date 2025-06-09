@@ -59,6 +59,21 @@ public class BrowseIndexMatcher {
         );
     }
 
+    public static Matcher<? super Object> rsoTitleBrowseIndex(final String order) {
+        return allOf(
+            hasJsonPath("$.metadata", contains("dc.title")),
+            hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_FLAT)),
+            hasJsonPath("$.type", equalToIgnoringCase("browse")),
+            hasJsonPath("$.uniqueType", equalToIgnoringCase("discover.browse")),
+            hasJsonPath("$.dataType", equalToIgnoringCase("title")),
+            hasJsonPath("$.order", equalToIgnoringCase(order)),
+            hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
+            hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rsoTitle")),
+            hasJsonPath("$._links.entries.href", is(REST_SERVER_URL + "discover/browses/rsoTitle/entries")),
+            hasJsonPath("$._links.items.href", is(REST_SERVER_URL + "discover/browses/rsoTitle/items"))
+        );
+    }
+
     public static Matcher<? super Object> contributorBrowseIndex(final String order) {
         return allOf(
             hasJsonPath("$.metadata", contains(

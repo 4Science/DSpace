@@ -122,9 +122,9 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
                 .build();
         personCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
-                .withEntityType("Person")
+                                            .withEntityType("Person")
                 .withSubmissionDefinition("traditional")
-                .build();
+                                            .build();
         publicationCollection = CollectionBuilder.createCollection(context, community)
                 .withName("Collection")
                 .withEntityType("Publication")

@@ -229,6 +229,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             grantSubmitterReadPolicies(context, myitem);
 
             context.turnOffAuthorisationSystem();
+            addStartDateMetadata(context, myitem);
             Step firstStep = wf.getFirstStep();
             if (firstStep.isValidStep(context, wfi)) {
                 activateFirstStep(context, wf, firstStep, wfi);
@@ -253,7 +254,6 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     itemService.getIdentifiers(context, wfi.getItem())));
 
             }
-            addStartDateMetadata(context, myitem);
             context.restoreAuthSystemState();
             return wfi;
         } catch (WorkflowConfigurationException e) {
@@ -514,8 +514,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     workflowRequirementsService.addFinishedUser(c, wfi, user);
                     c.turnOffAuthorisationSystem();
                     //Check if our requirements have been met
-                    if ((currentStep.isFinished(c, wfi) && currentOutcome
-                        .getResult() == ActionResult.OUTCOME_COMPLETE) || currentOutcome
+                    if (currentStep.isFinished(c, wfi) || currentOutcome
                         .getResult() != ActionResult.OUTCOME_COMPLETE) {
                         //Delete all the table rows containing the users who performed this task
                         workflowRequirementsService.clearInProgressUsers(c, wfi);
@@ -1157,7 +1156,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
 
         // Here's what happened
         String provDescription =
-            provenance + " Declined by " + getEPersonName(decliner) + " on " + DCDate.getCurrent().toString() +
+            provenance + " Declined by " + getEPersonName(decliner) + " on " + DCDate.getCurrent() +
                 " (GMT) ";
 
         // Add to item as a DC field
@@ -1271,11 +1270,11 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         if (myitem.getSubmitter() != null && !isProvenancePrivacyActive) {
             provmessage.append("Submitted by ").append(myitem.getSubmitter().getFullName())
                     .append(" (").append(myitem.getSubmitter().getEmail()).append(") on ")
-                    .append(now.toString());
+                    .append(now);
         } else {
             // else, null submitter
             provmessage.append("Submitted by unknown (probably automated or submitter hidden) on ")
-                    .append(now.toString());
+                    .append(now);
         }
         if (action != null) {
             provmessage.append(" workflow start=").append(action.getProvenanceStartId()).append("\n");

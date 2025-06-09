@@ -76,6 +76,28 @@
         <constructor-arg value="${orcid.api-url}"/>
     </bean>
 
+    <bean id="openaireLiveImportDataProviderByAuthor" class="org.dspace.external.provider.impl.LiveImportDataProvider">
+        <property name="metadataSource" ref="openaireImportServiceByAuthor"/>
+        <property name="sourceIdentifier" value="openaire"/>
+        <property name="recordIdMetadata" value="dc.identifier.other"/>
+        <property name="supportedEntityTypes">
+            <list>
+                <value>Publication</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="openaireLiveImportDataProviderByTitle" class="org.dspace.external.provider.impl.LiveImportDataProvider">
+        <property name="metadataSource" ref="openaireImportServiceByTitle"/>
+        <property name="sourceIdentifier" value="openaireTitle"/>
+        <property name="recordIdMetadata" value="dc.identifier.other"/>
+        <property name="supportedEntityTypes">
+            <list>
+                <value>Publication</value>
+            </list>
+        </property>
+    </bean>
+
     <bean id="pubmedLiveImportDataProvider" class="org.dspace.external.provider.impl.LiveImportDataProvider">
         <property name="metadataSource" ref="pubmedImportService"/>
         <property name="sourceIdentifier" value="pubmed"/>
@@ -83,7 +105,6 @@
         <property name="supportedEntityTypes">
             <list>
                 <value>Publication</value>
-                <value>none</value>
             </list>
         </property>
     </bean>
@@ -198,28 +219,6 @@
         </property>
     </bean>
 
-    <bean id="openaireLiveImportDataProviderByAuthor" class="org.dspace.external.provider.impl.LiveImportDataProvider">
-        <property name="metadataSource" ref="openaireImportServiceByAuthor"/>
-        <property name="sourceIdentifier" value="openaire"/>
-        <property name="recordIdMetadata" value="dc.identifier.other"/>
-        <property name="supportedEntityTypes">
-            <list>
-                <value>Publication</value>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="openaireLiveImportDataProviderByTitle" class="org.dspace.external.provider.impl.LiveImportDataProvider">
-        <property name="metadataSource" ref="openaireImportServiceByTitle"/>
-        <property name="sourceIdentifier" value="openaireTitle"/>
-        <property name="recordIdMetadata" value="dc.identifier.other"/>
-        <property name="supportedEntityTypes">
-            <list>
-                <value>Publication</value>
-            </list>
-        </property>
-    </bean>
-
     <bean id="openaireLiveImportDataProvider" class="org.dspace.external.provider.impl.LiveImportDataProvider">
         <property name="metadataSource" ref="OpenAIREService"/>
         <property name="sourceIdentifier" value="openaireProject"/>
@@ -245,7 +244,6 @@
         <property name="metadataSource" ref="rorImportService"/>
         <property name="sourceIdentifier" value="ror"/>
         <property name="recordIdMetadata" value="organization.identifier.ror"/>
-        <property name="displayMetadata" value="organization.legalName"/>
         <property name="supportedEntityTypes">
             <list>
                 <value>OrgUnit</value>
