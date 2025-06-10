@@ -102,7 +102,7 @@ definitions:
 
 pipelines:
   branches:
-    'main-cris':
+    'ux-plus-cris-2024_02_x':
       - step: *install
       - parallel: &parallel-pipeline
         - step: *unit-test-code-checks
