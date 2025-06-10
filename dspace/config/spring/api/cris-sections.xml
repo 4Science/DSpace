@@ -118,7 +118,7 @@
                      <property name="browseNames">
                          <list>
                              <value>author</value>
-                                <value>rsoTitle</value>
+                             <value>title</value>
                              <value>type</value>
                              <value>dateissued</value>
                              <value>subject</value>
