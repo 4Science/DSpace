@@ -93,10 +93,7 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
     //suffix (in dspace.cfg) for input formats supported by each filter
     private static final String INPUT_FORMATS_SUFFIX = "inputFormats";
-    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
-    private final SearchService searchService = SearchUtils.getSearchService();
-    private final ConfigurationService configurationService =
-        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     private Path tempDir;
     private String tempFilePath;
 
