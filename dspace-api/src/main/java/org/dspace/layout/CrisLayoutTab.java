@@ -52,7 +52,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
         @NamedSubgraph(name = "CrisLayoutTab.boxes_and_content", attributeNodes = {
             @NamedAttributeNode(value = "boxes")
         })
-}
+    }
 )
 public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
@@ -220,15 +220,15 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
     public List<CrisLayoutBox> getBoxes() {
         return this.rows.stream()
-                        .flatMap(row -> row.getCells().stream())
-                        .flatMap(cell -> cell.getBoxes().stream())
-                        .collect(Collectors.toList());
+            .flatMap(row -> row.getCells().stream())
+            .flatMap(cell -> cell.getBoxes().stream())
+            .collect(Collectors.toList());
     }
 
     public Set<Group> getGroupSecurityFields() {
         return tab2SecurityGroups.stream()
                                  .map(crisLayoutTab2SecurityGroup ->
-                                          crisLayoutTab2SecurityGroup.getGroup())
+                                     crisLayoutTab2SecurityGroup.getGroup())
                                  .collect(Collectors.toSet());
     }
 
