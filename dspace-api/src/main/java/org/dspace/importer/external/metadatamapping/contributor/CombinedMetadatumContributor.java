@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dspace.content.DCPersonName;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
@@ -80,19 +81,15 @@ public class CombinedMetadatumContributor<T> implements MetadataContributor<T> {
             LinkedList<MetadatumDTO> metadatums = (LinkedList<MetadatumDTO>) metadatumContributor.contributeMetadata(t);
             metadatumLists.add(metadatums);
         }
+        MetadatumDTO[] firstList = new MetadatumDTO[metadatumLists.getFirst().size()];
+        firstList = metadatumLists.getFirst().toArray(firstList);
+        MetadatumDTO[] secondList = new MetadatumDTO[firstList.length];
+        secondList = metadatumLists.getLast().toArray(secondList);
 
-        for (int i = 0; i < metadatumLists.getFirst().size(); i++) {
-
-            StringBuilder value = new StringBuilder();
-
-            for (LinkedList<MetadatumDTO> metadatums : metadatumLists) {
-                value.append(metadatums.get(i).getValue());
-
-                if (!metadatums.equals(metadatumLists.getLast())) {
-                    value.append(separator);
-                }
-            }
-            values.add(metadataFieldMapping.toDCValue(field, value.toString()));
+        for (int i = 0; i < firstList.length; i++) {
+            DCPersonName name =
+                new DCPersonName(firstList[i].getValue(), secondList[i].getValue());
+            values.add(metadataFieldMapping.toDCValue(field, name.toString()));
         }
 
         return values;

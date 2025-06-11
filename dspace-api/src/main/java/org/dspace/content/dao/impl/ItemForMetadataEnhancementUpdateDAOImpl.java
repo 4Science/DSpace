@@ -91,7 +91,7 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                     "    WHERE mv.dspace_object_id = iue.uuid " +
                     "    AND mfr.metadata_schema_id = :schema " +
                     "    AND mfr.element = 'virtualsource' " +
-                    "    AND mv.text_value = :uuid " +
+                    "    AND SUBSTRING(mv.text_value,1,36) = :uuid " +
                     ")";
                 String sqlInsert =
                         "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued) " +
@@ -101,7 +101,7 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                             "LEFT JOIN itemupdate_metadata_enhancement iue ON mv.dspace_object_id = iue.uuid " +
                             "WHERE mfr.metadata_schema_id = :schema " +
                             "AND mfr.element = 'virtualsource' " +
-                            "AND mv.text_value = :uuid " +
+                            "AND SUBSTRING(mv.text_value,1,36) = :uuid " +
                             "AND iue.uuid IS NULL";
                 NativeQuery<?> queryUpdate = session.createNativeQuery(sqlUpdate);
                 queryUpdate.setParameter("uuid", uuid.toString());
@@ -118,7 +118,7 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                     "JOIN metadatafieldregistry mfr ON mv.metadata_field_id = mfr.metadata_field_id " +
                     "WHERE mfr.metadata_schema_id = :schema " +
                     "AND mfr.element = 'virtualsource' " +
-                    "AND mv.text_value = :uuid " +
+                    "AND SUBSTRING(mv.text_value,1,36) = :uuid " +
                     "ON CONFLICT (uuid) DO UPDATE " +
                     "SET date_queued = EXCLUDED.date_queued";
                 NativeQuery<?> queryInsertOrUpdate = session.createNativeQuery(sqlInsertOrUpdate);

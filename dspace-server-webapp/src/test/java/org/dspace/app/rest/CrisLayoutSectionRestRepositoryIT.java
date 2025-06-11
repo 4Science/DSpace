@@ -80,7 +80,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$._embedded.sections",
               hasItem(withIdAndAdvancedTopComponent("site", 1, 0, "py-4",
                                             List.of( "fondsHomePage", "journalfondsHomePage"),
-                                            "cris.priority", "desc", 8, true, true, "card",
+                                            "cris.priority", "asc", 8, true, true, "card",
                                             "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
             ;
     }

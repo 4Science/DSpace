@@ -10,6 +10,7 @@ package org.dspace.app.rest;
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.FacetValueMatcher.entrySupervisedBy;
+import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -19,6 +20,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +53,7 @@ import org.dspace.app.rest.matcher.SortOptionMatcher;
 import org.dspace.app.rest.matcher.WorkflowItemMatcher;
 import org.dspace.app.rest.matcher.WorkspaceItemMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.ClaimedTaskBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -69,6 +73,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
@@ -76,7 +81,9 @@ import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.EntityTypeService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.CrisConstants;
+import org.dspace.core.ReloadableEntity;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
@@ -113,6 +120,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     @Autowired
     ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    ItemService itemService;
 
     /**
      * This field has been created to easily modify the tests when updating the defaultConfiguration's sidebar facets
@@ -749,6 +759,15 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void discoverFacetsWithInvalidQuery() throws Exception {
+        getClient().perform(get("/api/discover/search/facets").param("query", "title:"))
+                .andExpect(status().isUnprocessableEntity());
+
+        getClient().perform(get("/api/discover/facets/author_editor").param("query", "title:"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void discoverFacetsDateTest() throws Exception {
         //We turn off the authorization system in order to create the structure defined below
         context.turnOffAuthorisationSystem();
@@ -1187,11 +1206,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("organization.legalName",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressCountry",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressCountry",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.address.addressLocality",
+                       SortOptionMatcher.sortOptionMatcher("organization.address.addressLocality",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.asc.name()),
-                       SortOptionMatcher.sortOptionMatcher("organisation.foundingDate",
+                       SortOptionMatcher.sortOptionMatcher("organization.foundingDate",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
                        SortOptionMatcher.sortOptionMatcher("dc.date.accessioned",
                                          DiscoverySortFieldConfiguration.SORT_ORDER.desc.name()),
@@ -3469,6 +3488,305 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void testHierarchyFacetDiscoverForRootFond() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                               .withEntityType("Fonds")
+                                               .build();
+
+        Collection archivalMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                   .withEntityType("ArchivalMaterial")
+                                                                   .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                   .withEntityType("Publication")
+                                                                   .build();
+
+        Collection pictureCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Picture")
+                                                            .build();
+
+        Collection audioVideoCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("AudioVideo")
+                                                           .build();
+
+        Collection artworkCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                        .withEntityType("Artwork")
+                                                        .build();
+
+        Collection musicalLibrettosCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("MusicalLibrettos")
+                                                           .build();
+
+        Collection scientificMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("ScientificMaterial")
+                                                           .build();
+
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                       .withTitle("Root Fond")
+                       .build();
+
+
+        Item childFond = ItemBuilder.createItem(context, fondsCollection)
+                                .withFondParent(rootFond.getName(), rootFond.getID())
+                                .withTitle("Child Fond")
+                                .build();
+
+        ItemBuilder.createItem(context, archivalMaterialCollection)
+                    .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("archivalMaterial")
+                   .build();
+
+        ItemBuilder.createItem(context, publicationCollection)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("publication")
+                   .build();
+
+        ItemBuilder.createItem(context, pictureCollection)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("picture")
+                   .build();
+
+        ItemBuilder.createItem(context, audioVideoCollection)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("Prime Constitutiones Sapientie Nove item")
+                   .build();
+
+        ItemBuilder.createItem(context, artworkCollection)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("artwork")
+                   .build();
+
+        ItemBuilder.createItem(context, musicalLibrettosCollection)
+                    .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                    .withTitle("musicalLibrettos")
+                    .build();
+
+        ItemBuilder.createItem(context, scientificMaterialCollection)
+                   .withRelationFonds(childFond.getName(), childFond.getID().toString())
+                   .withTitle("scientificMaterial")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label", is("Root Fond")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+    @SuppressWarnings("rawtypes")
+    private <T extends ReloadableEntity> T commitAndReload(T entity) throws SQLException, AuthorizeException {
+        context.commit();
+        return context.reloadEntity(entity);
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForRootJournalFond() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("JournalFonds")
+                                                      .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("JournalFile")
+                                                                 .build();
+
+        Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root JournalFond")
+                                   .build();
+
+
+        Item childFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                    .withJournalFondParent(rootFond.getName(), rootFond.getID())
+                                    .withTitle("Child JournalFond")
+                                    .build();
+
+        Item journalFile = ItemBuilder.createItem(context, journalFileCollection)
+                                    .withRelationJournalFonds(childFond.getName(), childFond.getID().toString())
+                                    .withTitle("journalFile")
+                                    .build();
+
+        context.restoreAuthSystemState();
+
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
+                                       is("Root JournalFond")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForDirectRootChildStructure() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                      .withEntityType("Fonds")
+                                                      .build();
+
+        Item rootFond = ItemBuilder.createItem(context, fondsCollection)
+                                   .withTitle("Root Fond")
+                                   .build();
+
+        // Create collections for each entity type
+        Collection archivalMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("ArchivalMaterial")
+                                                                 .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .build();
+
+        Collection pictureCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                        .withEntityType("Picture")
+                                                        .build();
+
+        Collection audioVideoCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("AudioVideo")
+                                                           .build();
+
+        Collection artworkCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                        .withEntityType("Artwork")
+                                                        .build();
+
+        Collection musicalLibrettosCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                 .withEntityType("MusicalLibrettos")
+                                                                 .build();
+
+        Collection scientificMaterialCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                                   .withEntityType("ScientificMaterial")
+                                                                   .build();
+
+        ItemBuilder.createItem(context, archivalMaterialCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("archivalMaterial")
+                   .build();
+
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("publication")
+                   .build();
+
+        ItemBuilder.createItem(context, pictureCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("picture")
+                   .build();
+
+        ItemBuilder.createItem(context, audioVideoCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("audioVideo")
+                   .build();
+
+        ItemBuilder.createItem(context, artworkCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("artwork")
+                   .build();
+
+        ItemBuilder.createItem(context, musicalLibrettosCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("musicalLibrettos")
+                   .build();
+
+        ItemBuilder.createItem(context, scientificMaterialCollection)
+                   .withRelationFonds(rootFond.getName(), rootFond.getID().toString())
+                   .withTitle("scientificMaterial")
+                   .build();
+
+        context.restoreAuthSystemState();
+        publicationItem = commitAndReload(publicationItem);
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[0].name", is("fonds")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].label",
+                                       is("Root Fond")))
+                   .andExpect(jsonPath("$._embedded.facets[0]._embedded.values[0].count", is(7)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+
+    @Test
+    public void testHierarchyFacetDiscoverForDirectJournalRootChildStructure() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Create collections for each entity type
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                             .withEntityType("JournalFonds")
+                                                             .build();
+
+        Collection journalFileCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("JournalFile")
+                                                            .build();
+
+        Item rootFond = ItemBuilder.createItem(context, journalFondsCollection)
+                                   .withTitle("Root JournalFond")
+                                   .build();
+
+        ItemBuilder.createItem(context, journalFileCollection)
+                   .withMetadata("dc", "relation", "journalfonds", null, rootFond.getName(),
+                                 rootFond.getID().toString(), CF_ACCEPTED)
+                   .withTitle("journalFile")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+
+        // Perform the request and verify facets
+        getClient().perform(get("/api/discover/search/facets")
+                                .param("configuration", "123456789/documents"))
+                   // Status must be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.facets", hasSize(2)))
+                   .andExpect(jsonPath("$._embedded.facets[1].name", is("journalfonds")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].label",
+                                       is("Root JournalFond")))
+                   .andExpect(jsonPath("$._embedded.facets[1]._embedded.values[0].count", is(1)))
+                   .andExpect(jsonPath("$._links.self.href",
+                                       containsString("/api/discover/search/facets")));
+    }
+
+    @Test
     public void discoverSearchObjectsWithQueryOperatorEquals_query() throws Exception {
         //We turn off the authorization system in order to create the structure as defined below
         context.turnOffAuthorisationSystem();
@@ -5501,6 +5819,201 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void discoverSearchObjectsTestForAdministrativeViewCollCommAdministrators() throws Exception {
+
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+
+        EPerson commAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("community-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("Community", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        EPerson subCommAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("sub-community-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("SubCommunity", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        EPerson collAdmin =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("collection-admin@4science.com")
+                          .withPassword(password)
+                          .withNameInMetadata("Collection", "Admin")
+                          .withCanLogin(true)
+                          .build();
+
+        parentCommunity = CommunityBuilder
+            .createCommunity(context)
+            .withName("Parent Community")
+            .withAdminGroup(commAdmin)
+            .build();
+        Community child1 = CommunityBuilder
+            .createSubCommunity(context, parentCommunity)
+            .withName("Sub Community")
+            .withAdminGroup(subCommAdmin)
+            .build();
+        Collection col1 = CollectionBuilder
+            .createCollection(context, child1)
+            .withName("Collection 1")
+            .withAdminGroup(collAdmin)
+            .build();
+        Collection col2 = CollectionBuilder
+            .createCollection(context, child1)
+            .withName("Collection 2")
+            .build();
+        Collection col3 = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("Collection 3")
+            .build();
+
+        //2. One public item, one private, one withdrawn.
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("COL1 Test Item")
+                   .withIssueDate("2010-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry")
+                   .build();
+
+        ItemBuilder.createItem(context, col2)
+                   .withTitle("COL2 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        ItemBuilder.createItem(context, col2)
+                   .withTitle("COL2-1 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        ItemBuilder.createItem(context, col3)
+                   .withTitle("COL3 Test Item")
+                   .withIssueDate("2024-09-16")
+                   .withAuthor("Smith, Maria")
+                   .withAuthor("Doe, Jane")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("configuration", "administrativeView")
+                                          .param("query", "Test"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                 PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4)
+                             )))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                 Matchers.containsInAnyOrder(
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2-1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL3 Test Item"
+                                                     )
+                                                 )
+                             ))
+                             .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
+
+        String commAdminToken = getAuthToken(commAdmin.getEmail(), password);
+
+        getClient(commAdminToken).perform(get("/api/discover/search/objects")
+                                          .param("configuration", "administrativeView")
+                                          .param("query", "Test"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                 PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4)
+                             )))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                 Matchers.containsInAnyOrder(
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL2-1 Test Item"
+                                                     ),
+                                                     SearchResultMatcher.matchOnItemName(
+                                                         "item", "items", "COL3 Test Item"
+                                                     )
+                                                 )
+                             ))
+                             .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
+
+        String collAdminToken = getAuthToken(collAdmin.getEmail(), password);
+
+        getClient(collAdminToken).perform(get("/api/discover/search/objects")
+                                              .param("configuration", "administrativeView")
+                                              .param("query", "Test"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.type", is("discover")))
+                                 .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                     PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 1)
+                                 )))
+                                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                     Matchers.containsInAnyOrder(
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL1 Test Item"
+                                                         )
+                                                     )
+                                 ))
+                                 .andExpect(jsonPath("$._links.self.href",
+                                     containsString("/api/discover/search/objects"))
+                                 );
+
+        String subCommAdminToken = getAuthToken(subCommAdmin.getEmail(), password);
+
+        getClient(subCommAdminToken).perform(get("/api/discover/search/objects")
+                                              .param("configuration", "administrativeView")
+                                              .param("query", "Test"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$.type", is("discover")))
+                                 .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                                     PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 3)
+                                 )))
+                                 .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                                                     Matchers.containsInAnyOrder(
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL1 Test Item"
+                                                         ),
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL2 Test Item"
+                                                         ),
+                                                         SearchResultMatcher.matchOnItemName(
+                                                             "item", "items", "COL2-1 Test Item"
+                                                         )
+                                                     )
+                                 ))
+                                 .andExpect(jsonPath("$._links.self.href",
+                                     containsString("/api/discover/search/objects"))
+                                 );
+    }
+
+    @Test
     public void discoverSearchObjectsTestForAdministrativeViewWithFilters() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -6090,10 +6603,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                          .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                           )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.contains(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)));
 
         getClient(adminToken).perform(get("/api/discover/search/objects")
@@ -6107,12 +6616,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(2)));
     }
 
@@ -6177,14 +6680,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks"),
                                              SearchResultMatcher.match("workflow", "pooltask", "pooltasks")
                                              )))
-                         .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",Matchers.containsInAnyOrder(
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Mathematical Theory")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Metaphysics")))),
-                              allOf(hasJsonPath("$._embedded.indexableObject._embedded.workflowitem._embedded.item",
-                                 is(SearchResultMatcher.matchEmbeddedObjectOnItemName("item", "Test Metaphysics"))))
-                          )))
                          .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)));
     }
 
@@ -6242,9 +6737,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.containsInAnyOrder(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals"),
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover"),
                             SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                         "discover")
                             )));
 
     }
@@ -6304,7 +6801,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                   "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                  .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                             SearchResultMatcher.matchEmbeddedFacetValues("true", 2, "discover",
-                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals")
+                            "/api/discover/search/objects?configuration=administrativeView&f.discoverable=true,equals",
+                                                                         "discover")
                             )));
 
         getClient(adminToken).perform(get("/api/discover/facets/discoverable")
@@ -6321,7 +6819,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                  "/api/discover/facets/discoverable?configuration=administrativeView&sort=score,DESC&page=1&size=1")))
                 .andExpect(jsonPath("$._embedded.values", Matchers.contains(
                            SearchResultMatcher.matchEmbeddedFacetValues("false", 1, "discover",
-                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals")
+                           "/api/discover/search/objects?configuration=administrativeView&f.discoverable=false,equals",
+                                                                        "discover")
                            )));
     }
 
@@ -7696,4 +8195,62 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                         FacetValueMatcher.entryDateIssuedWithLabelAndCount("journal article", 1)
                 )));
     }
+
+    @Test
+    public void discoverFilterBasedOnVirtualMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community").build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("OrgUnit Collection")
+                .withEntityType("OrgUnit")
+                .build();
+        Collection personCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Person Collection")
+                .withEntityType("Person")
+                .build();
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Publication Collection")
+                .withEntityType("Publication")
+                .build();
+
+        Item orgUnitItem = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit Test")
+                .build();
+        Item personItem = ItemBuilder.createItem(context, personCollection)
+                .withTitle("Scognamiglio, Francesco Pio")
+                .withAffiliation(orgUnitItem.getName(), orgUnitItem.getID().toString())
+                .build();
+        Item publicationItem = ItemBuilder.createItem(context, publicationCollection)
+                .withTitle("Publication Test")
+                .withAuthor(personItem.getName(), personItem.getID().toString())
+                .build();
+
+        context.restoreAuthSystemState();
+
+        publicationItem = context.reloadEntity(publicationItem);
+
+        List<MetadataValue> departments = itemService.getMetadataByMetadataString(
+                publicationItem, "cris.virtual.department");
+        assertEquals(1, departments.size(), 0);
+        MetadataValue department = departments.get(0);
+        assertEquals(orgUnitItem.getName(), department.getValue());
+        assertEquals(orgUnitItem.getID().toString(), department.getAuthority());
+        assertEquals(600, department.getConfidence());
+
+        getClient().perform(get("/api/discover/search/objects")
+                        .param("configuration", "publication")
+                        .param("query", "department:" + orgUnitItem.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type", is("discover")))
+                .andExpect(jsonPath("$._embedded.searchResult.page", is(PageMatcher.pageEntry(0, 20))))
+                .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)))
+                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects",
+                        Matchers.containsInAnyOrder(
+                                SearchResultMatcher.matchOnItemName("item", "items", publicationItem.getName()))));
+
+    }
+
 }

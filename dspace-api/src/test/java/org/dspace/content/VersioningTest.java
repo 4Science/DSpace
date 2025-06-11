@@ -81,6 +81,9 @@ public class VersioningTest extends AbstractUnitTest {
             Community community = communityService.create(null, context);
 
             Collection col = collectionService.create(context, community);
+            collectionService.addMetadata(context, col, "dspace", "entity", "type", null, "Publication");
+            collectionService.update(context, col);
+
             WorkspaceItem is = workspaceItemService.create(context, col, false);
 
             originalItem = installItemService.installItem(context, is);

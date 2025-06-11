@@ -34,6 +34,16 @@ public class SubmissionAccessOptionRest extends BaseObjectRest<String> {
 
     private boolean singleAccessCondition;
 
+    private boolean required;
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public String getId() {
         return id;
     }

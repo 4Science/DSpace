@@ -1189,8 +1189,11 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         private String sortField;
         private String order;
 
-        public CrisGridComponentRest(String discoveryConfigurationName, String style, String mainContentLink,
-                                     String sortField, String order) {
+        public CrisGridComponentRest(String discoveryConfigurationName,
+                                     String style,
+                                     String mainContentLink,
+                                     String sortField,
+                                     String order) {
             this.discoveryConfigurationName = discoveryConfigurationName;
             this.style = style;
             this.mainContentLink = mainContentLink;
@@ -1201,9 +1204,11 @@ public class CrisLayoutSectionRest extends BaseObjectRest<String> {
         public String getSortField() {
             return sortField;
         }
+
         public String getOrder() {
             return order;
         }
+
         @Override
         public String getComponentType() {
             return "grid";

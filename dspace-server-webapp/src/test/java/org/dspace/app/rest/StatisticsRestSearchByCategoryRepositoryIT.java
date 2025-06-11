@@ -162,10 +162,10 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
         project2Item = ItemBuilder.createItem(context, collectionProjects).withTitle("Project 2")
                 .withProjectCoinvestigators("Person#1", personItem.getID().toString()).build();
         authorizeService.removeAllPolicies(context, project2Item);
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withDspaceObject(project2Item)
                              .withAction(Constants.READ)
-                             .withUser(eperson).build();
+                             .build();
 
         project3Item = ItemBuilder.createItem(context, collectionProjects).withTitle("Project 3")
                 .withProjectInvestigator("Person#2", person2Item.getID().toString()).build();
@@ -196,10 +196,10 @@ public class StatisticsRestSearchByCategoryRepositoryIT extends AbstractControll
         bitstream2Visited2  = BitstreamBuilder.createBitstream(context,
                 publication2Item, toInputStream("test", UTF_8)).withName("Bitstream2Visited2Name").build();
         authorizeService.removeAllPolicies(context, bitstream2Visited2);
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withDspaceObject(bitstream2Visited2)
                              .withAction(Constants.READ)
-                             .withUser(eperson).build();
+                             .build();
         bitstream3NotVisited = BitstreamBuilder.createBitstream(context,
                 publication3Item, toInputStream("test", UTF_8)).withName("Bitstream3NotVisitedName").build();
         bitstreamProjVisited = BitstreamBuilder.createBitstream(context,

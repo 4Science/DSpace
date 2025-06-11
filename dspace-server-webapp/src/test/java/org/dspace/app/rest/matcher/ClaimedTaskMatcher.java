@@ -52,7 +52,8 @@ public class ClaimedTaskMatcher {
     public static Matcher<? super Object> matchProperties(ClaimedTask cTask) {
         return allOf(
                 cTask != null ? hasJsonPath("$.id", is(cTask.getID())) : hasJsonPath("$.id"),
-                hasJsonPath("$.type", is("claimedtask"))
+                hasJsonPath("$.type", is("claimedtask")),
+                hasJsonPath("$.uniqueType", is("workflow.claimedtask"))
         );
     }
 

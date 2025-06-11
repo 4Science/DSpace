@@ -1,0 +1,4 @@
+# EXAMPLE "local-orchestrator-<env>.cfg" for the 4Science DSpace Orchestrator Addon.
+
+solr-database-resync.cron = -
+related-item-enhancer-poller.enabled = false

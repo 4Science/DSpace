@@ -172,6 +172,20 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>author-orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>editor-orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>virtualsource</element>
         <qualifier>department</qualifier>
         <scope_note></scope_note>
@@ -184,6 +198,27 @@
         <scope_note></scope_note>
     </dc-type>
     
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>author-orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>editor-orcid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>privacy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>cris</schema>
         <element>virtualsource</element>
@@ -298,6 +333,20 @@
     <dc-type>
         <schema>cris</schema>
         <element>lastimport</element>
+        <qualifier>ads</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-ads</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
         <qualifier>scopus</qualifier>
         <scope_note></scope_note>
     </dc-type>
@@ -339,8 +388,141 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-pubmed</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-pubmedeu</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>lastimport</element>
+        <qualifier>loader-scopus</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>entity</element>
         <qualifier>style</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootJournalFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootJournalFond</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeJournalFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeJournalFondsRoot</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>journalance</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>journalance</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeFondsRootDirectlyRelated</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeFondsRootDirectlyRelated</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>treeJournalFondsRootDirectlyRelated</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>treeJournalFondsRootDirectlyRelated</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>rootJournalFondTitle</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

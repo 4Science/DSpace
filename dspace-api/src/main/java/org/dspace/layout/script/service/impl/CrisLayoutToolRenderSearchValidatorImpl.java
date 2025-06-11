@@ -26,6 +26,10 @@ public class CrisLayoutToolRenderSearchValidatorImpl extends CrisLayoutToolRende
             return true;
         }
 
+        if ("default".equals(subType[1]) && ("default".equals(subType[2]) || "auto".equals(subType[2]))) {
+            return false;
+        }
+
         DiscoveryConfiguration configuration = searchConfigurationService.getDiscoveryConfigurationByName(subType[1]);
         if (configuration == null) {
             return true;

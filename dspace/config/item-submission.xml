@@ -2,7 +2,7 @@
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 <item-submission>
   <submission-map>
-    <name-map collection-handle="default" submission-name="publication" />
+    <name-map collection-handle="default" submission-name="archival_material" />
     <name-map collection-handle="20.500.14008/76563" submission-name="ambulo" />
     <name-map collection-handle="20.500.14008/55" submission-name="architettura-libro-antico" />
     <name-map collection-handle="20.500.14008/42" submission-name="byzart" />
@@ -311,6 +311,16 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
+    <step-definition id="web_annotation" mandatory="true">
+      <heading>submit.progressbar.describe.web_annotation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="personal_annotation" mandatory="true">
+      <heading>submit.progressbar.describe.personal_annotation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="archival_material">
@@ -498,13 +508,11 @@
     <submission-process name="coin">
       <step id="collection" />
       <step id="coin" />
-      <step id="coin-glam-bibliography" />
       <step id="upload" />
       <step id="license" />
     </submission-process>
     <submission-process name="coin-edit">
       <step id="coin" />
-      <step id="coin-glam-bibliography" />
       <step id="upload" />
     </submission-process>
     <submission-process name="musical_librettos">
@@ -686,6 +694,24 @@
     <submission-process name="supino-edit">
       <step id="supino" />
       <step id="upload" />
+    </submission-process>
+    <submission-process name="web_annotation">
+      <step id="collection" />
+      <step id="web_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="web_annotation-edit">
+      <step id="web_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="personal_annotation">
+      <step id="collection" />
+      <step id="personal_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="personal_annotation-edit">
+      <step id="personal_annotation" />
+      <step id="license" />
     </submission-process>
   </submission-definitions>
 </item-submission>

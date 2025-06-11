@@ -61,7 +61,23 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
          */
 
         Optional<List<IndexableObject>> indexableObjects = Optional.empty();
+        // limit the index update to a specific indexable object type
+        String type = null;
 
+        if (indexClientOptions == IndexClientOptions.UPDATE
+                || indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK
+                || indexClientOptions == IndexClientOptions.FORCEUPDATE
+                || indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
+            final String param = commandLine.getOptionValue('t');
+            if (param != null) {
+                // check if the param is a valid indable object type
+                if (indexObjectServiceFactory.getIndexFactoryByType(param) != null) {
+                    type = param;
+                } else {
+                    throw new IllegalArgumentException(param + " is not a valid Indexable Object Type");
+                }
+            }
+        }
         if (indexClientOptions == IndexClientOptions.REMOVE || indexClientOptions == IndexClientOptions.INDEX) {
             final String param = indexClientOptions == IndexClientOptions.REMOVE ? commandLine.getOptionValue('r') :
                     commandLine.getOptionValue('i');
@@ -143,14 +159,14 @@ public class IndexClient extends DSpaceRunnable<IndexDiscoveryScriptConfiguratio
         } else if (indexClientOptions == IndexClientOptions.UPDATE ||
             indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK) {
             handler.logInfo("Updating Index");
-            indexer.updateIndex(context, false);
+            indexer.updateIndex(context, false, type);
             if (indexClientOptions == IndexClientOptions.UPDATEANDSPELLCHECK) {
                 checkRebuildSpellCheck(commandLine, indexer);
             }
         } else if (indexClientOptions == IndexClientOptions.FORCEUPDATE ||
             indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
             handler.logInfo("Updating Index");
-            indexer.updateIndex(context, true);
+            indexer.updateIndex(context, true, type);
             if (indexClientOptions == IndexClientOptions.FORCEUPDATEANDSPELLCHECK) {
                 checkRebuildSpellCheck(commandLine, indexer);
             }

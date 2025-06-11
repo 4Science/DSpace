@@ -8,6 +8,7 @@
 package org.dspace.content.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.content.MetadataSchema;
 import org.dspace.core.Context;
@@ -30,4 +31,7 @@ public interface MetadataSchemaDAO extends GenericDAO<MetadataSchema> {
     public boolean uniqueShortName(Context context, int metadataSchemaId, String name) throws SQLException;
 
     public MetadataSchema find(Context context, String shortName) throws SQLException;
+
+    public List<MetadataSchema> findAllByNamespaceAndElementAndQualifier(Context context, String namespace,
+         String element, String qualifier) throws SQLException;
 }

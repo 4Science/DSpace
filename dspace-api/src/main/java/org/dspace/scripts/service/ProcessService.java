@@ -300,4 +300,14 @@ public interface ProcessService {
      */
     List<Process> findByStatusAndCreationTimeOlderThan(Context context, List<ProcessStatus> statuses, Date date)
         throws SQLException;
+
+    /**
+     * Cleans up running processes by failing them an attaching their logs to the process objects.
+     *
+     * @param context   The DSpace context
+     * @throws SQLException
+     * @throws IOException
+     * @throws AuthorizeException
+     */
+    void failRunningProcesses(Context context) throws SQLException, IOException, AuthorizeException;
 }

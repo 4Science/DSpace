@@ -53,7 +53,8 @@ public class NBEventMatcher {
                     hasJsonPath("$._links.target.href", Matchers.endsWith(event.getEventId() + "/target")),
                     hasJsonPath("$._links.related.href", Matchers.endsWith(event.getEventId() + "/related")),
                     hasJsonPath("$._links.topic.href", Matchers.endsWith(event.getEventId() + "/topic")),
-                    hasJsonPath("$.type", is("nbevent")));
+                    hasJsonPath("$.type", is("nbevent")),
+                    hasJsonPath("$.uniqueType", is("integration.nbevent")));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

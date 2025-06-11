@@ -59,7 +59,8 @@ public class ItemMatcher {
                 "metrics",
                 "relationships[]",
                 "templateItemOf",
-                "thumbnail"
+                "thumbnail",
+                "submitter"
         );
     }
 
@@ -78,7 +79,8 @@ public class ItemMatcher {
                 "version",
                 "metrics",
                 "templateItemOf",
-                "thumbnail"
+                "thumbnail",
+                "submitter"
         );
     }
 
@@ -91,7 +93,8 @@ public class ItemMatcher {
             hasJsonPath("$.discoverable", is(item.isDiscoverable())),
             hasJsonPath("$.withdrawn", is(item.isWithdrawn())),
             hasJsonPath("$.lastModified", is(notNullValue())),
-            hasJsonPath("$.type", is("item"))
+            hasJsonPath("$.type", is("item")),
+            hasJsonPath("$.uniqueType", is("core.item"))
         );
     }
 

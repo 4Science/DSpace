@@ -83,7 +83,9 @@ public class CSLItemDataCrosswalk implements ItemExportCrosswalk {
         }
 
         CSLResult result = cslGeneratorFactory.getCSLGenerator().generate(itemDataProvider, style, format);
-        print(out, result.getCitation());
+        if (result != null) {
+            print(out, result.getCitation());
+        }
 
     }
 

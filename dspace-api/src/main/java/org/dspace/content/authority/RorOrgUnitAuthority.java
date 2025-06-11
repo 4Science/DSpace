@@ -16,23 +16,26 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.authority.factory.ItemAuthorityServiceFactory;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.dspace.importer.external.ror.service.RorImportMetadataSourceServiceImpl;
+import org.dspace.importer.external.ror.service.RorImportMetadataSourceService;
+import org.dspace.importer.external.ror.service.RorServicesFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.utils.DSpace;
 
 public class RorOrgUnitAuthority extends ItemAuthority {
 
-    private final RorImportMetadataSourceServiceImpl rorImportMetadataSource = new DSpace().getServiceManager()
-        .getServicesByType(RorImportMetadataSourceServiceImpl.class).get(0);
+    private final RorImportMetadataSourceService rorImportMetadataSource =
+        RorServicesFactory.getInstance().getRorImportMetadataSourceService();
 
     private final ItemAuthorityServiceFactory itemAuthorityServiceFactory =
         dspace.getServiceManager().getServiceByName("itemAuthorityServiceFactory", ItemAuthorityServiceFactory.class);
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
 
     private String authorityName;
 
@@ -43,14 +46,14 @@ public class RorOrgUnitAuthority extends ItemAuthority {
         Choices solrChoices = super.getMatches(text, start, limit, locale);
 
         try {
-            return solrChoices.values.length == 0 ? getRORApiMatches(text, start, limit) : solrChoices;
+            return solrChoices.values.length == 0 ? getRORApiMatches(text, locale, start, limit) : solrChoices;
         } catch (MetadataSourceException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Choices getRORApiMatches(String text, int start, int limit) throws MetadataSourceException {
-        Choice[] rorApiChoices = getChoiceFromRORQueryResults(rorImportMetadataSource.getRecords(text, 0, 0))
+    private Choices getRORApiMatches(String text, String locale, int start, int limit) throws MetadataSourceException {
+        Choice[] rorApiChoices = getChoiceFromRORQueryResults(rorImportMetadataSource.getRecords(text, 0, 0), locale)
             .toArray(new Choice[0]);
 
         int confidenceValue = itemAuthorityServiceFactory.getInstance(authorityName)
@@ -60,11 +63,18 @@ public class RorOrgUnitAuthority extends ItemAuthority {
                            rorApiChoices.length > (start + limit), 0);
     }
 
-    private List<Choice> getChoiceFromRORQueryResults(Collection<ImportRecord> orgUnits) {
+    private List<Choice> getChoiceFromRORQueryResults(Collection<ImportRecord> orgUnits, String locale) {
         return orgUnits
             .stream()
-            .map(orgUnit -> new Choice(composeAuthorityValue(getIdentifier(orgUnit)), getName(orgUnit),
-                getName(orgUnit), buildExtras(orgUnit)))
+            .map(orgUnit ->
+                new Choice(
+                    composeAuthorityValue(getIdentifier(orgUnit)),
+                    getName(orgUnit),
+                    getName(orgUnit),
+                    buildExtras(orgUnit, locale),
+                    getSource()
+                )
+            )
             .collect(Collectors.toList());
     }
 
@@ -82,7 +92,7 @@ public class RorOrgUnitAuthority extends ItemAuthority {
             .orElse(null);
     }
 
-    private Map<String, String> buildExtras(ImportRecord orgUnit) {
+    private Map<String, String> buildExtras(ImportRecord orgUnit, String locale) {
 
         Map<String, String> extras = new LinkedHashMap<String, String>();
 
@@ -98,6 +108,21 @@ public class RorOrgUnitAuthority extends ItemAuthority {
         if (StringUtils.isNotBlank(acronym)) {
             addExtra(extras, acronym, "acronym");
         }
+
+        orgUnit.getSingleValue("organization", "address", "addressCountry").ifPresent(country -> {
+            String countryName = country;
+            ChoiceAuthority countryAuthority = (ChoiceAuthority) pluginService.getNamedPlugin(
+                    ChoiceAuthority.class, "common_iso_countries");
+            if (countryAuthority != null) {
+                String label = countryAuthority.getLabel(country, locale);
+                if (StringUtils.isNotBlank(label) && !StringUtils.startsWith(label, DCInputAuthority.UNKNOWN_KEY)) {
+                    countryName = label;
+                }
+            }
+
+            addExtra(extras, countryName, "countryName");
+            addExtra(extras, country, "country");
+        });
 
         return extras;
     }
@@ -116,22 +141,28 @@ public class RorOrgUnitAuthority extends ItemAuthority {
     }
 
     private boolean useForDisplaying(String extraType) {
-        return configurationService.getBooleanProperty("cris.OrcidAuthority."
-            + getPluginInstanceName() + "." + extraType + ".display", true);
+        return configurationService.getBooleanProperty(
+                "cris.RorOrgUnitAuthority." + getPluginInstanceName() + "." + extraType + ".display",
+                configurationService.getBooleanProperty(
+                        "cris.RorOrgUnitAuthority." + extraType + ".display", true));
     }
 
     private boolean useAsData(String extraType) {
-        return configurationService.getBooleanProperty("cris.OrcidAuthority."
-            + getPluginInstanceName() + "." + extraType + ".as-data", true);
+        return configurationService.getBooleanProperty(
+                "cris.RorOrgUnitAuthority." + getPluginInstanceName() + "." + extraType + ".as-data",
+                configurationService.getBooleanProperty(
+                        "cris.RorOrgUnitAuthority." + extraType + ".as-data", true));
     }
 
     private String getKey(String extraType) {
-        return configurationService.getProperty("cris.OrcidAuthority."
-            + getPluginInstanceName() + "." + extraType + ".key", "ror_orgunit_" + extraType);
+        return configurationService.getProperty(
+                "cris.RorOrgUnitAuthority." + getPluginInstanceName() + "." + extraType + ".key", configurationService
+                        .getProperty("cris.RorOrgUnitAuthority." + extraType + ".key", "ror_orgunit_" + extraType));
     }
 
     private String composeAuthorityValue(String rorId) {
-        String prefix = configurationService.getProperty("ror.authority.prefix", "will be referenced::ROR-ID::");
+        String prefix = configurationService.getProperty("ror.authority." + getPluginInstanceName() + "prefix",
+                configurationService.getProperty("ror.authority.prefix", "will be referenced::ROR-ID::"));
         return prefix + rorId;
     }
 

@@ -90,10 +90,9 @@ public class EditMetadataFeatureIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         configurationService.setProperty("edit.metadata.allowed-group", groupA.getID());
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, user, null)
                              .withDspaceObject(itemA)
                              .withAction(Constants.WRITE)
-                             .withUser(user)
                              .build();
 
         context.restoreAuthSystemState();
@@ -130,10 +129,9 @@ public class EditMetadataFeatureIT extends AbstractControllerIntegrationTest {
     public void checkCanEditMetadataFeatureWithDefaulGroupUnsetTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, user, null)
                              .withDspaceObject(itemA)
                              .withAction(Constants.WRITE)
-                             .withUser(user)
                              .build();
 
         context.restoreAuthSystemState();

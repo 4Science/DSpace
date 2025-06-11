@@ -7,6 +7,7 @@
  */
 package org.dspace.services;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.dspace.services.model.Event;
@@ -22,6 +23,12 @@ import org.dspace.services.model.EventListener;
  */
 public interface EventService {
 
+     /**
+     * Consumes an event asynchronously by retrieving it from the given supplier
+     *
+     * @param eventConsumer
+     */
+    void scheduleAsyncEventConsumer(Consumer<Consumer<Event>> eventConsumer);
     /**
      * Fires an event immediately (does not add it to the queue).
      *

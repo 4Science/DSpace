@@ -91,6 +91,20 @@
                             <property name="submissionDefinition" value="traditional-with-custom-url" />
                         </bean>
                         <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="RESEARCHERS" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    GROUP
+                                </value>
+                            </property>
+                            <property name="groups">
+                                <list>
+                                    <value>Researchers</value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="publication-edit" />
+                        </bean>
+                        <bean class="org.dspace.content.edit.EditItemMode">
                             <property name="name" value="MODE-TEST-HIDDEN" />
                             <property name="security">
                               <value type="org.dspace.content.security.CrisSecurity">

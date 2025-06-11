@@ -20,30 +20,32 @@ import org.dspace.core.Context;
 public abstract class ConditionEvaluator {
 
     /**
-     * Test the given condition on the given item.
-     * The condition should have the format [not].evaluatorIdentifier.value,
-     * where:
+     * Test the given condition on the given item. The condition should have the
+     * format [not].evaluatorIdentifier.value, where:
      * <ul>
-     * <li> not can be used to negate the result of the condition
-     * <li> evaluatorIdentifier is the unique identifier of the evaluator
-     * <li> value can be any string useful to the evaluator
+     * <li>not can be used to negate the result of the condition
+     * <li>evaluatorIdentifier is the unique identifier of the evaluator
+     * <li>value can be any string useful to the evaluator
      * </ul>
      *
-     * @param context the DSpace Context
-     * @param item the item to evaluate
+     * @param context   the DSpace Context
+     * @param item      the item to evaluate
      * @param condition the condition to evaluate
+     * @param place     the position to consider to evaluate the condition (useful
+     *                  for nested and repeatable metadata), -1 means that all the
+     *                  place must be considered
      * @return the evaluation result
      */
-    public final boolean test(Context context, Item item, String condition) {
+    public final boolean test(Context context, Item item, String condition, int place) {
         if (StringUtils.isBlank(condition)) {
             return false;
         }
 
         if (condition.startsWith("not.")) {
-            return !doTest(context, item, condition.substring("not.".length()));
+            return !doTest(context, item, condition.substring("not.".length()), place);
         }
 
-        return doTest(context, item, condition);
+        return doTest(context, item, condition, place);
 
     }
 
@@ -58,8 +60,11 @@ public abstract class ConditionEvaluator {
      * @param context the DSpace Context
      * @param item the item to evaluate
      * @param condition the condition to evaluate
+     * @param place     the position to consider to evaluate the condition (useful
+     *                  for nested and repeatable metadata), -1 means that all the
+     *                  place must be considered
      * @return the evaluation result
      */
-    protected abstract boolean doTest(Context context, Item item, String condition);
+    protected abstract boolean doTest(Context context, Item item, String condition, int place);
 
 }

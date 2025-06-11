@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -66,7 +67,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     /**
      * the metadata that is copied from the linked entity, i.e. person.identifier.orcid
      */
-    private List<String> relatedItemMetadataFields;
+    protected List<String> relatedItemMetadataFields;
 
     @Override
     public boolean canEnhance(Context context, Item item) {
@@ -101,14 +102,14 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return result;
     }
 
-    private void clearAllVirtualMetadata(Context context, Item item) throws SQLException {
+    protected void clearAllVirtualMetadata(Context context, Item item) throws SQLException {
         itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT,
                 getVirtualQualifier(), Item.ANY);
         itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
                 getVirtualQualifier(), Item.ANY);
     }
 
-    private void addMetadata(Context context, Item item, Map<String, List<MetadataValueDTO>> toBeMetadataValues)
+    protected void addMetadata(Context context, Item item, Map<String, List<MetadataValueDTO>> toBeMetadataValues)
             throws SQLException {
         for (Entry<String, List<MetadataValueDTO>> metadataValues : toBeMetadataValues.entrySet()) {
             for (MetadataValueDTO dto : metadataValues.getValue()) {
@@ -119,7 +120,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         }
     }
 
-    private boolean equivalent(Map<String, List<MetadataValue>> currMetadataValues,
+    protected boolean equivalent(Map<String, List<MetadataValue>> currMetadataValues,
             Map<String, List<MetadataValueDTO>> toBeMetadataValues) {
         if (currMetadataValues.size() != toBeMetadataValues.size()) {
             return false;
@@ -134,9 +135,11 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     }
 
     private boolean equivalent(List<MetadataValue> metadataValue, List<MetadataValueDTO> metadataValueDTO) {
-        if (metadataValue.size() != metadataValueDTO.size()) {
+        if ((Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) ||
+                (!Objects.isNull(metadataValue) && Objects.isNull(metadataValueDTO)) ||
+                    metadataValue.size() != metadataValueDTO.size()) {
             return false;
-        } else {
+        } else if (!Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) {
             for (int i = 0; i < metadataValue.size(); i++) {
                 if (!equivalent(metadataValue.get(i), metadataValueDTO.get(i))) {
                     return false;
@@ -155,7 +158,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
                 && StringUtils.equals(metadataValue.getAuthority(), metadataValueDTO.getAuthority());
     }
 
-    private Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
+    protected Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
         Map<String, List<MetadataValueDTO>> tobeVirtualMetadataMap = new HashMap<String, List<MetadataValueDTO>>();
 
         Set<String> virtualSources = getVirtualSources(item);
@@ -204,7 +207,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return tobeVirtualMetadataMap;
     }
 
-    private boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
+    protected boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
         boolean result = false;
         List<MetadataValue> metadataValuesToDelete = getObsoleteVirtualFields(item);
         if (!metadataValuesToDelete.isEmpty()) {
@@ -233,11 +236,11 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
 
     }
 
-    private Set<String> getVirtualSources(Item item) {
+    protected Set<String> getVirtualSources(Item item) {
         return sourceItemMetadataFields.stream()
                 .flatMap(field -> itemService.getMetadataByMetadataString(item, field).stream())
-                .filter(mv -> UUIDUtils.fromString(mv.getAuthority()) != null)
-                .map(mv -> mv.getAuthority())
+                .map(MetadataValue::getAuthority)
+                .filter(authority -> UUIDUtils.fromString(authority) != null)
                 .collect(Collectors.toSet());
     }
 
@@ -247,7 +250,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
             .findFirst();
     }
 
-    private boolean performEnhancement(Context context, Item item) throws SQLException {
+    protected boolean performEnhancement(Context context, Item item) throws SQLException {
         boolean result = false;
         Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
                 .getCurrentVirtualsMap(item, getVirtualQualifier());
@@ -284,7 +287,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return result;
     }
 
-    private Item findRelatedEntityItem(Context context, String authority) {
+    protected Item findRelatedEntityItem(Context context, String authority) {
         try {
             UUID relatedItemUUID = UUIDUtils.fromString(authority);
             return relatedItemUUID != null ? itemService.find(context, relatedItemUUID) : null;
@@ -293,7 +296,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         }
     }
 
-    private List<MetadataValue> getMetadataValues(Item item, String metadataField) {
+    protected List<MetadataValue> getMetadataValues(Item item, String metadataField) {
         return itemService.getMetadataByMetadataString(item, metadataField);
     }
 
@@ -306,7 +309,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         return getMetadataValues(item, getVirtualMetadataField());
     }
 
-    private void addVirtualField(Context context, Item item, String value, String authority, String lang,
+    protected void addVirtualField(Context context, Item item, String value, String authority, String lang,
             int confidence) throws SQLException {
         if (StringUtils.startsWith(authority, AuthorityValueService.GENERATE)
                 || StringUtils.startsWith(authority, AuthorityValueService.REFERENCE)) {
@@ -318,7 +321,7 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
         }
     }
 
-    private void addVirtualSourceField(Context context, Item item, String sourceValueAuthority) throws SQLException {
+    protected void addVirtualSourceField(Context context, Item item, String sourceValueAuthority) throws SQLException {
         itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT,
                                 getVirtualQualifier(), null, sourceValueAuthority);
     }

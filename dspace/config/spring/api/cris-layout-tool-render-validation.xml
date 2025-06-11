@@ -55,6 +55,7 @@
                 <value>scopus</value>
                 <value>researcherid</value>
                 <value>mailto</value>
+                <value>ror</value>
             </list>
         </constructor-arg>
     </bean>
@@ -82,6 +83,12 @@
         </constructor-arg>
     </bean>
 
+    <bean id="authorityLinkRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="authoritylink"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
     <bean id="longtextRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="longtext"/>
         <property name="fieldType" value="METADATA"/>
@@ -103,7 +110,7 @@
     <bean id="tableRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="table"/>
         <property name="fieldType" value="METADATAGROUP"/>
-        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+        <property name="subTypeValidationRule" value="ALLOWED"/>
     </bean>
 
     <bean id="tagRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
@@ -163,8 +170,20 @@
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
+    <bean id="longmarkdownRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="longmarkdown"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
     <bean id="htmlRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="html"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="longhtmlRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
+        <property name="name" value="longhtml"/>
         <property name="fieldType" value="METADATA"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
@@ -199,6 +218,12 @@
 
     <bean id="arabicTextRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderSearchValidatorImpl">
         <property name="name" value="arabic-text"/>
+        <property name="fieldType" value="METADATA"/>
+        <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
+    </bean>
+
+    <bean id="youTubeRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderSearchValidatorImpl">
+        <property name="name" value="youtube"/>
         <property name="fieldType" value="METADATA"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>

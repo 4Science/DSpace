@@ -6,6 +6,8 @@
                  taskset='none'/>
         <mapping collection-handle='123456789/curation-test-1'
                  taskset='test1'/>
+        <mapping collection-handle='123456789/curation-test-2'
+                 taskset='test2'/>
     </taskset-map>
 
     <tasksets>
@@ -20,6 +22,12 @@
         <taskset name='test1'>
             <flowstep name='markingStep'>
                 <task name='marker'/>
+            </flowstep>
+        </taskset>
+
+        <taskset name='test2'>
+            <flowstep name='requiredmetadataStep'>
+                <task name='requiredmetadata'/>
             </flowstep>
         </taskset>
     </tasksets>

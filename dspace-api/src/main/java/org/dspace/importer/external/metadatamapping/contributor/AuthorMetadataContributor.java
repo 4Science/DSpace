@@ -93,7 +93,7 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
     }
 
     /**
-     * Retrieve the the ScopusID, orcid, author name and affiliationID
+     * Retrieve the ScopusID, orcid, author name and affiliationID
      * metadata associated with the given element object.
      * If the value retrieved from the element is empty
      * it is set PLACEHOLDER_PARENT_METADATA_VALUE

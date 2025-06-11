@@ -38,8 +38,9 @@ public interface ItemEnhancerService {
      * @param item    the item to enhance
      * @param deepMode <code>false</code>, if the implementation can assume that only the target
      *        item as been updated since the eventual previous computation of enhanced metadata
+     * @return true if the item has been updated due to some enhancements
      */
-    void enhance(Context context, Item item, boolean deepMode);
+    boolean enhance(Context context, Item item, boolean deepMode);
 
     /**
      * Find items that could be affected by a change of the item with given uuid

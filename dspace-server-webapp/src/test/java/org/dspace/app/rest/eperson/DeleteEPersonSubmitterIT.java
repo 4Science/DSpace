@@ -121,6 +121,7 @@ public class DeleteEPersonSubmitterIT extends AbstractControllerIntegrationTest 
 
         Community parent = CommunityBuilder.createCommunity(context).build();
         Collection collection = CollectionBuilder.createCollection(context, parent)
+                                                 .withEntityType("Publication")
                                                  .build();
 
         WorkspaceItem wsi = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
@@ -234,6 +235,7 @@ public class DeleteEPersonSubmitterIT extends AbstractControllerIntegrationTest 
 
         Community parent = CommunityBuilder.createCommunity(context).build();
         Collection collection = CollectionBuilder.createCollection(context, parent)
+                                                 .withEntityType("Publication")
                                                  .build();
 
         WorkspaceItem wsi = WorkspaceItemBuilder.createWorkspaceItem(context, collection)

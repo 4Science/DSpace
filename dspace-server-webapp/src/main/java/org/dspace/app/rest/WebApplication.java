@@ -162,11 +162,14 @@ public class WebApplication {
                     .getCorsAllowedOrigins(configuration.getBitstreamAllowedOriginsConfig());
                 String[] signpostingAllowedOrigins = configuration
                         .getCorsAllowedOrigins(configuration.getSignpostingAllowedOriginsConfig());
+                String[] annotationAllowedOrigins = configuration
+                    .getCorsAllowedOrigins(configuration.getAnnotationAllowedOriginsConfig());
 
                 boolean corsAllowCredentials = configuration.getCorsAllowCredentials();
                 boolean iiifAllowCredentials = configuration.getIiifAllowCredentials();
                 boolean bitstreamAllowCredentials = configuration.getBitstreamsAllowCredentials();
                 boolean signpostingAllowCredentials = configuration.getSignpostingAllowCredentials();
+                boolean annotationAllowCredentials = configuration.getAnnotationAllowCredentials();
 
                 if (ArrayUtils.isEmpty(bitstreamAllowedOrigins)) {
                     bitstreamAllowedOrigins = corsAllowedOrigins;
@@ -217,6 +220,18 @@ public class WebApplication {
                             .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
                                     "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
                                     "x-recaptcha-token", "access-control-allow-headers")
+                            // Allow list of response headers allowed to be sent by us (the server) to the client
+                            .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
+                }
+                if (annotationAllowedOrigins != null) {
+                    registry.addMapping("/annotation/**").allowedMethods(CorsConfiguration.ALL)
+                            // Set Access-Control-Allow-Credentials to "true" and specify which origins are valid
+                            // for our Access-Control-Allow-Origin header
+                            .allowCredentials(annotationAllowCredentials).allowedOrigins(annotationAllowedOrigins)
+                            // Allow list of request preflight headers allowed to be sent to us from the client
+                            .allowedHeaders("Accept", "Authorization", "Content-Type", "Origin", "X-On-Behalf-Of",
+                                            "X-Requested-With", "X-XSRF-TOKEN", "X-CORRELATION-ID", "X-REFERRER",
+                                            "x-recaptcha-token")
                             // Allow list of response headers allowed to be sent by us (the server) to the client
                             .exposedHeaders("Authorization", "DSPACE-XSRF-TOKEN", "Location", "WWW-Authenticate");
                 }

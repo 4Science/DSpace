@@ -57,6 +57,7 @@ public class WorkflowDefinitionMatcher {
                 hasJsonPath("$.name", is(name)),
                 hasJsonPath("$.handle", is(handle)),
                 hasJsonPath("$.type", is("collection")),
+                hasJsonPath("$.uniqueType", is("core.collection")),
                 hasJsonPath("$.metadata", Matchers.allOf(
                         MetadataMatcher.matchMetadata("dc.title", name)
                 ))

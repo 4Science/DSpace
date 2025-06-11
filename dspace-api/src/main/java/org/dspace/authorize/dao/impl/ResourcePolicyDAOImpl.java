@@ -152,7 +152,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
                                        criteriaBuilder.equal(resourcePolicyRoot.get(ResourcePolicy_.actionId), action)
                    )
         );
-        return list(context, criteriaQuery, false, ResourcePolicy.class, 1, -1);
+        return list(context, criteriaQuery, false, ResourcePolicy.class, -1, -1);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
                                        criteriaBuilder.notEqual(resourcePolicyRoot.get(ResourcePolicy_.id), notPolicyID)
                    )
         );
-        return list(context, criteriaQuery, false, ResourcePolicy.class, 1, -1);
+        return list(context, criteriaQuery, false, ResourcePolicy.class, -1, -1);
     }
 
     public List<ResourcePolicy> findByEPersonGroupTypeIdAction(Context context, EPerson e, List<Group> groups,
@@ -187,7 +187,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
                                         (resourcePolicyRoot.get(ResourcePolicy_.epersonGroup).in(groups)))
             )
         );
-        return list(context, criteriaQuery, false, ResourcePolicy.class, 1, -1);
+        return list(context, criteriaQuery, false, ResourcePolicy.class, -1, -1);
     }
 
     @Override
@@ -291,7 +291,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
                     )
             );
         }
-        return list(context, criteriaQuery, false, ResourcePolicy.class, 1, 1);
+        return list(context, criteriaQuery, false, ResourcePolicy.class, -1, 1);
     }
 
     @Override

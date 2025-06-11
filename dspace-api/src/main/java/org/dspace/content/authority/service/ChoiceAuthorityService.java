@@ -30,8 +30,8 @@ import org.dspace.core.Constants;
  * choices.plugin.<FIELD> = name-of-plugin
  *
  * # mode of UI presentation desired in submission UI:
- * #  "select" is dropdown menu, "lookup" is popup with selector, "suggest" is autocomplete/suggest
- * choices.presentation.<FIELD> = "select" | "suggest"
+ * #  "select" is dropdown menu, "lookup" is an input type with search button, "suggest" is autocomplete/suggest
+ * choices.presentation.<FIELD> = "select" | "suggest" | "lookup"
  *
  * # is value "closed" to the set of these choices or are non-authority values permitted?
  * choices.closed.<FIELD> = true | false
