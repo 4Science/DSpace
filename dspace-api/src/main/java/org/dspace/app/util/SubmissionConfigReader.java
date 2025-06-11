@@ -164,6 +164,7 @@ public class SubmissionConfigReader {
     public void reload() throws SubmissionConfigReaderException {
         collectionToSubmissionConfig = null;
         communityToSubmissionConfig = null;
+        entityTypeToSubmissionConfig = null;
         stepDefns = null;
         submitDefns = null;
         buildInputs(configDir + SUBMIT_DEF_FILE_PREFIX + SUBMIT_DEF_FILE_SUFFIX);
@@ -403,7 +404,8 @@ public class SubmissionConfigReader {
      * @return the SubmissionConfig representing the item submission config
      */
     private String getSubmissionConfigByCommunity(Community com) {
-        String submitName = communityToSubmissionConfig.get(com.getHandle());
+        String submitName = communityToSubmissionConfig
+                .get(com.getHandle());
         if (submitName != null) {
             return submitName;
         }

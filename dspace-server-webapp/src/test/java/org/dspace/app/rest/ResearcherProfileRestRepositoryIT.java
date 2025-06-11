@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -1813,6 +1814,58 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         Item profile = createProfile(ePerson);
 
+        context.restoreAuthSystemState();
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
+        assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
+        assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
+        assertThat(getOrcidAccessToken(profile), is("3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4"));
+
+        getClient(getAuthToken(ePerson.getEmail(), password))
+            .perform(patch("/api/eperson/profiles/{id}", ePerson.getID().toString())
+                         .content(getPatchContent(asList(new RemoveOperation("/orcid"))))
+                         .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(ePerson.getID().toString())))
+            .andExpect(jsonPath("$.visible", is(false)))
+            .andExpect(jsonPath("$.type", is("profile")))
+            .andExpect(jsonPath("$.orcid").doesNotExist())
+            .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
+
+        verify(orcidClientMock, times(1))
+            .revokeToken(matchesToken(orcidToken));
+        verifyNoMoreInteractions(orcidClientMock);
+
+        profile = context.reloadEntity(profile);
+
+        assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
+        assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
+        assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), empty());
+        assertThat(getOrcidAccessToken(profile), nullValue());
+    }
+
+    @Test
+    public void testPatchToDisconnectProfileFromOrcidRevokesOrcidToken() throws Exception {
+
+        configurationService.setProperty("orcid.disconnection.allowed-users", "admin_and_owner");
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+                                        .withCanLogin(true)
+                                        .withOrcid("0000-1111-2222-3333")
+                                        .withOrcidScope("/read")
+                                        .withOrcidScope("/write")
+                                        .withEmail("test@email.it")
+                                        .withPassword(password)
+                                        .withNameInMetadata("Test", "User")
+                                        .build();
+
+        OrcidToken orcidToken =
+            OrcidTokenBuilder.create(context, ePerson, "3de2e370-8aa9-4bbe-8d7e-f5b1577bdad4").build();
+
+        Item profile = createProfile(ePerson);
+
         OrcidQueue firstQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
         OrcidQueue secondQueueRecord = OrcidQueueBuilder.createOrcidQueue(context, profile, profile).build();
 
@@ -1829,11 +1882,11 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.orcid").doesNotExist())
             .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
 
-        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
-        verifyNoMoreInteractions(orcidClientMock);
-
         assertThat(context.reloadEntity(firstQueueRecord), nullValue());
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
+        verifyNoMoreInteractions(orcidClientMock);
 
         profile = context.reloadEntity(profile);
 
@@ -2064,11 +2117,11 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.orcid").doesNotExist())
             .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
 
-        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
-        verifyNoMoreInteractions(orcidClientMock);
-
         assertThat(context.reloadEntity(firstQueueRecord), nullValue());
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
+        verifyNoMoreInteractions(orcidClientMock);
 
         profile = context.reloadEntity(profile);
 
@@ -2166,11 +2219,11 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.orcid").doesNotExist())
             .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
 
-        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
-        verifyNoMoreInteractions(orcidClientMock);
-
         assertThat(context.reloadEntity(firstQueueRecord), nullValue());
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
+
+        verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
+        verifyNoMoreInteractions(orcidClientMock);
 
         profile = context.reloadEntity(profile);
 
@@ -2220,12 +2273,11 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$.orcid").doesNotExist())
             .andExpect(jsonPath("$.orcidSynchronization").doesNotExist());
 
+        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
+        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         verify(orcidClientMock, times(1)).revokeToken(matchesToken(orcidToken));
         verifyNoMoreInteractions(orcidClientMock);
-
-        assertThat(context.reloadEntity(firstQueueRecord), nullValue());
-        assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         profile = context.reloadEntity(profile);
 

@@ -229,7 +229,7 @@ public interface SolrLoggerService {
 
     /**
      * This method generates a faceting solr query that uses ranges between date
-     * 
+     *
      * @param context           dspace Context
      * @param fieldList         list of field (fl param)
      * @param facetField        facet field (facet.field param)

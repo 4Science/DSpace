@@ -7,7 +7,6 @@
  */
 package org.dspace.usage;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +15,7 @@ import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.services.model.Event;
+
 
 /**
  * @author Mark Diggory (mdiggory at atmire.com)
@@ -29,9 +29,13 @@ public class UsageEvent extends Event {
     ) {
         try {
             return new UsageEvent(
-                UsageEvent.Action.VIEW, req, context, dSpaceObjectService.find(context, targetId), referrer
+                    UsageEvent.Action.VIEW,
+                    req,
+                    context,
+                    dSpaceObjectService.find(context, targetId),
+                    referrer
             );
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

@@ -1107,6 +1107,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             // Otherwise, the query is valid and the results are returned.
             if (!zombieDocs.isEmpty()) {
                 log.info("Cleaning " + zombieDocs.size() + " stale objects from Discovery Index");
+                log.info("ZombieDocs ");
+                zombieDocs.forEach(log::info);
                 solrSearchCore.getSolr().deleteById(zombieDocs);
                 solrSearchCore.getSolr().commit();
             } else {
@@ -1159,7 +1161,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     }
 
     private void resolveFacetFields(Context context, DiscoverQuery query, DiscoverResult result,
-                                    boolean zombieFound, QueryResponse solrQueryResponse) throws SQLException {
+            boolean zombieFound, QueryResponse solrQueryResponse) throws SQLException {
         List<FacetField> facetFields = solrQueryResponse.getFacetFields();
         if (facetFields != null && !zombieFound) {
             for (int i = 0; i < facetFields.size(); i++) {
@@ -1569,8 +1571,6 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             } else {
                 return field + "_acid";
             }
-        } else if (facetFieldConfig.getType().equals(DiscoveryConfigurationParameters.TYPE_STANDARD)) {
-            return field;
         } else if (StringUtils.startsWith(facetFieldConfig.getType(), GraphDiscoverSearchFilterFacet.TYPE_PREFIX)) {
             if (removePostfix) {
                 return field.lastIndexOf("_filter") != -1 ? field.substring(0, field.lastIndexOf("_filter")) : field;

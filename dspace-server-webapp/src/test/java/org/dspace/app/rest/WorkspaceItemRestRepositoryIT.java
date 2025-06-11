@@ -233,6 +233,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         accessConditionConfiguration = DSpaceServicesFactory.getInstance().getServiceManager()
                 .getServiceByName("accessConditionConfigurationDefault", AccessConditionConfiguration.class);
 
+        accessConditionConfiguration = DSpaceServicesFactory.getInstance().getServiceManager()
+                .getServiceByName("accessConditionConfigurationDefault", AccessConditionConfiguration.class);
+
         context.restoreAuthSystemState();
     }
 

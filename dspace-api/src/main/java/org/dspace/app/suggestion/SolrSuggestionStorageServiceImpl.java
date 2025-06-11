@@ -69,7 +69,7 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
      * 
      * @return solr client
      */
-    protected SolrClient getSolr() {
+    public SolrClient getSolr() {
         if (solrSuggestionClient == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("suggestion.solr.server", "http://localhost:8983/solr/suggestion");

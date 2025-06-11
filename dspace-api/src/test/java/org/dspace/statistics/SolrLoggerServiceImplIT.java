@@ -301,7 +301,8 @@ public class SolrLoggerServiceImplIT
             Object isBotRaw = document.getFieldValue(F_IS_BOT);
             boolean isBot = (null == isBotRaw) ? false : (Boolean) isBotRaw;
 
-            assertEquals("Marked document was not removed --", false, isBot);
+            assertEquals("Marked document was not removed --",
+                    false, isBot);
         }
         assertEquals("Wrong number of documents remaining --", 1, nDocs);
     }
