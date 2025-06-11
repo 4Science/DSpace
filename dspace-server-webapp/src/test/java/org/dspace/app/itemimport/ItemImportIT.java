@@ -186,18 +186,22 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         AtomicReference<Integer> idRefProcess2 = scheduleImportScript(parameters, bitstreamFile);
 
         // wait until the scheduled processes are finished
-        boolean areProcessesCompleted = false;
+        boolean isFirstProcessCompleted = false;
+        boolean isSecondProcessCompleted = false;
         do {
             try {
-                Process process1 = processService.find(context, idRefProcess1.get());
-                Process process2 = processService.find(context, idRefProcess2.get());
-                isProcessCompleted(process1, parameters);
-                isProcessCompleted(process2, parameters);
-                areProcessesCompleted = true;
+                if (!isFirstProcessCompleted) {
+                    isProcessCompleted(idRefProcess1.get(), parameters);
+                    isFirstProcessCompleted = true;
+                }
+                if (!isSecondProcessCompleted) {
+                    isProcessCompleted(idRefProcess2.get(), parameters);
+                    isSecondProcessCompleted = true;
+                }
             } catch (AssertionError e) {
                 // nothing to do since we are looping until the process are finished
             }
-        } while (!areProcessesCompleted);
+        } while (!isFirstProcessCompleted || !isSecondProcessCompleted);
 
         // check results
         Iterator<Item> items = itemService.findArchivedByMetadataField(
@@ -414,14 +418,14 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     }
 
     private void isProcessCompleted(
-                Process process, LinkedList<DSpaceCommandLineParameter> parameters)
+                Integer processId, LinkedList<DSpaceCommandLineParameter> parameters)
         throws Exception {
         getClient(getAuthToken(admin.getEmail(), password))
-            .perform(get("/api/system/processes/" + process.getID()))
+            .perform(get("/api/system/processes/" + processId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", Matchers.is(
                 ProcessMatcher.matchProcess("import", String.valueOf(admin.getID()),
-                    process.getID(), parameters, ProcessStatus.COMPLETED))));
-        ProcessBuilder.deleteProcess(process.getID());
+                    processId, parameters, ProcessStatus.COMPLETED))));
+        ProcessBuilder.deleteProcess(processId);
     }
 }
