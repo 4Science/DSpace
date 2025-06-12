@@ -9,7 +9,7 @@
 services:
   dspace-cli:
     environment:
-      - LOADASSETS=https://github.com/4Science/DSpace-CRIS-Files/releases/download/demo-entities-data/assetstore.tar.gz
+      - LOADASSETS=https://github.com/4Science/DSpace-CRIS-Files/releases/download/2024.02.00/assetstore.tar.gz
     entrypoint:
       - /bin/bash
       - '-c'

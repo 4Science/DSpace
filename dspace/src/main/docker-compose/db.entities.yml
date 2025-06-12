@@ -8,10 +8,10 @@
 
 services:
   dspacedb:
-    image: dspace/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-8_x}-loadsql
+    image: 4science/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-2024_02_x}-loadsql
     environment:
       # This SQL is available from https://github.com/DSpace-Labs/AIP-Files/releases/tag/demo-entities-data
-      - LOADSQL=https://github.com/4Science/DSpace-CRIS-Files/releases/download/demo-entities-data/db-entities-data.sql
+      - LOADSQL=https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2024.02.00/db-entities.sql
   dspace:
     ### OVERRIDE default 'entrypoint' in 'docker-compose.yml ####
     # Ensure that the database is ready BEFORE starting tomcat
@@ -23,5 +23,7 @@ services:
       - '-c'
       - |
         while (!</dev/tcp/dspacedb/5432) > /dev/null 2>&1; do sleep 1; done;
+        /dspace/bin/dspace database repair
+        /dspace/bin/dspace database migrate
         /dspace/bin/dspace database migrate ignored
-        java -jar /dspace/webapps/server-boot.jar --dspace.dir=/dspace
+        java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
