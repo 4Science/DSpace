@@ -18,6 +18,13 @@
 
     <dc-type>
         <schema>crisfund</schema>
+        <element>award</element>
+        <qualifier>uri</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>crisfund</schema>
         <element>investigators</element>
         <qualifier></qualifier>
         <scope_note></scope_note>

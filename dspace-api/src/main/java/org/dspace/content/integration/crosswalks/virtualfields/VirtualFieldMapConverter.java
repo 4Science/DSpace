@@ -46,9 +46,9 @@ public class VirtualFieldMapConverter implements VirtualField {
 
         String metadataField = virtualFieldName[3].replaceAll("-", ".");
         return itemService.getMetadataByMetadataString(item, metadataField).stream()
-            .map(metadataValue -> mapConverter.getValue(metadataValue.getValue()))
-            .filter(Objects::nonNull)
-            .toArray(String[]::new);
+                .map(metadataValue -> mapConverter.getValue(
+                        mapConverter.isUseAuthority() ? metadataValue.getAuthority() : metadataValue.getValue()))
+                .filter(Objects::nonNull).toArray(String[]::new);
     }
 
 }

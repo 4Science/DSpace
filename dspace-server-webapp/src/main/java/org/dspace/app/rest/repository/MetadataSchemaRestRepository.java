@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dspace.app.rest.Parameter;
+import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.MetadataSchemaRest;
@@ -63,6 +65,23 @@ public class MetadataSchemaRestRepository extends DSpaceRestRepository<MetadataS
     public Page<MetadataSchemaRest> findAll(Context context, Pageable pageable) {
         try {
             List<MetadataSchema> metadataSchemas = metadataSchemaService.findAll(context);
+            return converter.toRestPage(metadataSchemas, pageable, utils.obtainProjection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @SearchRestMethod(name = "byMetadata")
+    public Page<MetadataSchemaRest> searchByMetadata(
+            @Parameter(value = "namespace") String namespace,
+            @Parameter(value = "element") String element,
+            @Parameter(value = "qualifier") String qualifier,
+            Pageable pageable
+    ) {
+        try {
+            Context context = obtainContext();
+            List<MetadataSchema> metadataSchemas = metadataSchemaService.findAllByMetadata(context, namespace.trim(),
+                    element, qualifier);
             return converter.toRestPage(metadataSchemas, pageable, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);

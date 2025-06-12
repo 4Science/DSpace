@@ -7,16 +7,13 @@
  */
 package org.dspace.app.suggestion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.suggestion.oaire.OAIREPublicationLoader;
-import org.dspace.content.Item;
 import org.dspace.core.Context;
-import org.dspace.discovery.IndexableObject;
-import org.dspace.discovery.SearchService;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResultItemIterator;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.utils.DSpace;
 import org.slf4j.Logger;
@@ -69,44 +66,21 @@ public class OAIREPublicationLoaderRunnable
 
         context = new Context();
 
-        List<Item> researchers = getResearchers(profile);
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
+        if (StringUtils.isNotBlank(profile)) {
+            discoverQuery.setQuery("search.resourceid:" + profile);
+        }
+        discoverQuery.setSortField("lastModified", DiscoverQuery.SORT_ORDER.asc);
+        discoverQuery.addFilterQueries("search.resourcetype:Item");
+        discoverQuery.addFilterQueries("dspace.entity.type:Person");
 
-        for (Item researcher : researchers) {
-
-            oairePublicationLoader.importAuthorRecords(context, researcher);
+        DiscoverResultItemIterator iterator = new DiscoverResultItemIterator(context, discoverQuery);
+        while (iterator.hasNext()) {
+            oairePublicationLoader.importRecords(context, iterator.next(), null);
         }
 
+        context.complete();
     }
 
-    /**
-     * Get the Item(s) which map a researcher from Solr. If the uuid is specified,
-     * the researcher with this UUID will be chosen. If the uuid doesn't match any
-     * researcher, the method returns an empty array list. If uuid is null, all
-     * research will be return.
-     * 
-     * @param profile uuid of the researcher. If null, all researcher will be
-     *                returned.
-     * @return the researcher with specified UUID or all researchers
-     */
-    @SuppressWarnings("rawtypes")
-    private List<Item> getResearchers(String profileUUID) {
-        final UUID uuid = profileUUID != null ? UUID.fromString(profileUUID) : null;
-        SearchService searchService = new DSpace().getSingletonService(SearchService.class);
-        List<IndexableObject> objects = null;
-        if (uuid != null) {
-            objects = searchService.search(context, "search.resourceid:" + uuid.toString(),
-                "lastModified", false, 0, 1000, "search.resourcetype:Item", "dspace.entity.type:Person");
-        } else {
-            objects = searchService.search(context, "*:*", "lastModified", false, 0, 1000, "search.resourcetype:Item",
-                    "dspace.entity.type:Person");
-        }
-        List<Item> items = new ArrayList<Item>();
-        if (objects != null) {
-            for (IndexableObject o : objects) {
-                items.add((Item) o.getIndexedObject());
-            }
-        }
-        LOGGER.info("Found " + items.size() + " researcher(s)");
-        return items;
-    }
 }

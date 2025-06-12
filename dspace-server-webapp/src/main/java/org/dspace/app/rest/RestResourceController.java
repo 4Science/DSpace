@@ -761,7 +761,6 @@ public class RestResourceController implements InitializingBean {
             modelObject = repository.patch(request, apiCategory, model, id, patch);
         } catch (RepositoryMethodNotImplementedException | UnprocessableEntityException |
             DSpaceBadRequestException | ResourceNotFoundException e) {
-            log.error(e.getMessage(), e);
             throw e;
         }
         if (modelObject != null) {

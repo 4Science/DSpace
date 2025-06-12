@@ -8,6 +8,7 @@
 package org.dspace.content.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.content.Site;
 import org.dspace.core.Context;
@@ -22,4 +23,13 @@ import org.dspace.core.Context;
 public interface SiteDAO extends DSpaceObjectDAO<Site> {
 
     public Site findSite(Context context) throws SQLException;
+
+    /**
+     * Fetches all Site objects from the database.
+     *
+     * @param context The relevant DSpace Context.
+     * @return A List of all Site objects in the database.
+     * @throws SQLException If a database access error occurs.
+     */
+    List<Site> findAll(Context context) throws SQLException;
 }

@@ -679,11 +679,11 @@ public class SolrDedupServiceImpl implements DedupService {
                 return;
             }
             long start = System.currentTimeMillis();
-            System.out.println("SOLR Search Optimize -- Process Started:" + start);
+            System.out.println("SOLR Dedup Optimize -- Process Started:" + start);
             getSolr().optimize();
             long finish = System.currentTimeMillis();
-            System.out.println("SOLR Search Optimize -- Process Finished:" + finish);
-            System.out.println("SOLR Search Optimize -- Total time taken:" + (finish - start) + " (ms).");
+            System.out.println("SOLR Dedup Optimize -- Process Finished:" + finish);
+            System.out.println("SOLR Dedup Optimize -- Total time taken:" + (finish - start) + " (ms).");
         } catch (SolrServerException sse) {
             System.err.println(sse.getMessage());
         } catch (IOException ioe) {

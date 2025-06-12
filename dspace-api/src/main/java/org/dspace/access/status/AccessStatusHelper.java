@@ -17,6 +17,13 @@ import org.dspace.core.Context;
  * Plugin interface for the access status calculation.
  */
 public interface AccessStatusHelper {
+
+    public static final String EMBARGO = "embargo";
+    public static final String METADATA_ONLY = "metadata.only";
+    public static final String OPEN_ACCESS = "open.access";
+    public static final String RESTRICTED = "restricted";
+    public static final String UNKNOWN = "unknown";
+
     /**
      * Calculate the access status for the item.
      *

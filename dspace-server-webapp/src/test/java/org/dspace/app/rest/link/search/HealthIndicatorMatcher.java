@@ -43,4 +43,16 @@ public final class HealthIndicatorMatcher {
             hasJsonPath("$." + name + ".status", is(status.getCode())),
             hasJsonPath("$." + name + ".details", is(details)));
     }
+
+    public static Matcher<? super Object> matchSite(Status status) {
+        return allOf(
+            hasJsonPath("$.site"),
+            hasJsonPath("$.site.status", is(status.getCode())));
+    }
+
+    public static Matcher<? super Object> matchEPersonGroup(Status status) {
+        return allOf(
+            hasJsonPath("$.site"),
+            hasJsonPath("$.ePersonGroup.status", is(status.getCode())));
+    }
 }

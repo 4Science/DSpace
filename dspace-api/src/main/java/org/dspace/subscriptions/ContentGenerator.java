@@ -96,6 +96,7 @@ public class ContentGenerator {
                 //        .orElseGet(() -> entityType2Disseminator.get("Item"))
                 //        .disseminate(context, item, out);
             }
+            out.close();
             return out.toString();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

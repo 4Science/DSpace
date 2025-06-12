@@ -283,7 +283,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         Item item = (Item) dso;
 
         List<String> lines = new ArrayList<String>();
-        appendLines(context, item, templateLines.iterator(), lines, findRelatedItems);
+        appendLines(context, item, templateLines.iterator(), lines, findRelatedItems, -1);
 
         return lines;
     }
@@ -301,7 +301,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     }
 
     private void appendLines(Context context, Item item, Iterator<TemplateLine> iterator, List<String> lines,
-        boolean findRelatedItems) throws IOException {
+        boolean findRelatedItems, int pos) throws IOException {
 
         while (iterator.hasNext()) {
 
@@ -313,12 +313,13 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             }
 
             if (templateLine.isRelationGroupStartField()) {
-                handleRelationGroup(context, item, iterator, templateLine.getRelationName(), lines, findRelatedItems);
+                handleRelationGroup(context, item, iterator, templateLine.getRelationName(), lines,
+                        findRelatedItems, -1);
                 continue;
             }
 
             if (templateLine.isIfGroupStartField()) {
-                handleIfGroup(context, item, iterator, templateLine, lines, findRelatedItems);
+                handleIfGroup(context, item, iterator, templateLine, lines, findRelatedItems, -1);
                 continue;
             }
 
@@ -328,10 +329,16 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             }
 
             List<String> metadataValues = getMetadataValuesForLine(context, templateLine, item);
+            if (pos != -1) {
+                if (pos < metadataValues.size()) {
+                    metadataValues = List.of(metadataValues.get(pos));
+                } else {
+                    metadataValues = List.of(PLACEHOLDER_PARENT_METADATA_VALUE);
+                }
+            }
             for (String metadataValue : metadataValues) {
-                if (PLACEHOLDER_PARENT_METADATA_VALUE.equals(metadataValue)) {
-                    appendLine(lines, templateLine, StringUtils.EMPTY);
-                } else if (isNotBlank(metadataValue)) {
+                if (isNotBlank(metadataValue)
+                        && !StringUtils.equals(metadataValue, PLACEHOLDER_PARENT_METADATA_VALUE)) {
                     appendLine(lines, templateLine, metadataValue);
                 }
             }
@@ -361,12 +368,27 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isMetadataGroupEndField());
         int groupSize = getMetadataGroupSize(item, groupName);
-
         Map<String, List<String>> metadataValues = new HashMap<>();
 
         for (int i = 0; i < groupSize; i++) {
+            Iterator<TemplateLine> groupLinesIter = groupLines.iterator();
+            while (groupLinesIter.hasNext()) {
+                TemplateLine line = groupLinesIter.next();
+// we don't need to support group of groups at this time as we haven't nested of nested
+//                if (line.isMetadataGroupStartField()) {
+//                    handleMetadataGroup(context, item, groupLinesIter, line.getMetadataGroupFieldName(), lines, i);
+//                    continue;
+//                }
 
-            for (TemplateLine line : groupLines) {
+                if (line.isRelationGroupStartField()) {
+                    handleRelationGroup(context, item, groupLinesIter, line.getRelationName(), lines, true, i);
+                    continue;
+                }
+
+                if (line.isIfGroupStartField()) {
+                    handleIfGroup(context, item, groupLinesIter, line, lines, false, i);
+                    continue;
+                }
 
                 String field = line.getField();
 
@@ -393,14 +415,13 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
                 if (isNotBlank(metadataValue) && !PLACEHOLDER_PARENT_METADATA_VALUE.equals(metadataValue)) {
                     appendLine(lines, line, metadataValue);
                 }
-
             }
         }
 
     }
 
     private void handleRelationGroup(Context context, Item item, Iterator<TemplateLine> iterator, String relationName,
-        List<String> lines, boolean findRelatedItems) throws IOException {
+        List<String> lines, boolean findRelatedItems, int pos) throws IOException {
 
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isRelationGroupEndField(relationName));
 
@@ -408,18 +429,18 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             return;
         }
 
-        Iterator<Item> relatedItems = findRelatedItems(context, item, relationName);
+        Iterator<Item> relatedItems = findRelatedItems(context, item, relationName, pos);
 
         while (relatedItems.hasNext()) {
             Item relatedItem = relatedItems.next();
             Iterator<TemplateLine> lineIterator = groupLines.iterator();
-            appendLines(context, relatedItem, lineIterator, lines, findRelatedItems);
+            appendLines(context, relatedItem, lineIterator, lines, findRelatedItems, pos);
         }
 
     }
 
     private void handleIfGroup(Context context, Item item, Iterator<TemplateLine> iterator, TemplateLine conditionLine,
-        List<String> lines, boolean findRelatedItems) throws IOException {
+        List<String> lines, boolean findRelatedItems, int pos) throws IOException {
 
         String condition = conditionLine.getIfCondition();
         String conditionName = conditionLine.getIfConditionName();
@@ -427,8 +448,8 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isIfGroupEndField(condition));
 
         ConditionEvaluator evaluator = conditionEvaluatorMapper.getConditionEvaluator(conditionName);
-        if (evaluator.test(context, item, condition)) {
-            appendLines(context, item, groupLines.iterator(), lines, findRelatedItems);
+        if (evaluator.test(context, item, condition, pos)) {
+            appendLines(context, item, groupLines.iterator(), lines, findRelatedItems, pos);
         }
 
     }
@@ -445,10 +466,10 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return templateLines;
     }
 
-    private Iterator<Item> findRelatedItems(Context context, Item item, String relationName) {
+    private Iterator<Item> findRelatedItems(Context context, Item item, String relationName, int pos) {
 
         if (isMetadataField(relationName)) {
-            return findByAuthorities(context, item, relationName);
+            return findByAuthorities(context, item, relationName, pos);
         }
 
         return searchConfigurationUtilsService.findByRelation(context, item, relationName);
@@ -458,14 +479,26 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return relationName.contains("-");
     }
 
-    private Iterator<Item> findByAuthorities(Context context, Item item, String metadataField) {
-        return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
-            .map(MetadataValue::getAuthority)
-            .filter(Objects::nonNull)
-            .filter(authority -> UUIDUtils.fromString(authority) != null)
-            .map(authority -> findById(context, UUIDUtils.fromString(authority)))
-            .filter(Objects::nonNull)
-            .iterator();
+    private Iterator<Item> findByAuthorities(Context context, Item item, String metadataField, int pos) {
+        if (pos == -1) {
+            return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
+                .map(MetadataValue::getAuthority)
+                .filter(Objects::nonNull)
+                .filter(authority -> UUIDUtils.fromString(authority) != null)
+                .map(authority -> findById(context, UUIDUtils.fromString(authority)))
+                .filter(Objects::nonNull)
+                .iterator();
+        } else {
+            return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
+                    .skip(pos)
+                    .limit(1)
+                    .map(MetadataValue::getAuthority)
+                    .filter(Objects::nonNull)
+                    .filter(authority -> UUIDUtils.fromString(authority) != null)
+                    .map(authority -> findById(context, UUIDUtils.fromString(authority)))
+                    .filter(Objects::nonNull)
+                    .iterator();
+        }
     }
 
     private void appendLine(List<String> lines, TemplateLine line, String value) {

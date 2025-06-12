@@ -267,7 +267,7 @@ public class DedupUtils implements IDedupUtils {
     @Override
     public boolean rejectAdminDups(Context context, UUID firstId, UUID secondId, Integer type)
             throws SQLException, AuthorizeException {
-        if (firstId == secondId) {
+        if (firstId.equals(secondId)) {
             return false;
         }
         if (!AuthorizeServiceFactory.getInstance().getAuthorizeService().isAdmin(context)) {
@@ -327,7 +327,7 @@ public class DedupUtils implements IDedupUtils {
         boolean found = false;
         for (DSpaceObject item : dsi.getItems()) {
             if (item != null) {
-                if (item.getID() == itemID) {
+                if (item.getID().equals(itemID)) {
                     found = true;
                     break;
                 }

@@ -27,7 +27,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.dspace.submit.factory.SubmissionServiceFactory;
@@ -83,21 +82,14 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
     protected void fillFromModel(T obj, R witem, Projection projection) {
         Collection collection = obj.getCollection();
         Item item = obj.getItem();
-        EPerson submitter = null;
-        submitter = obj.getSubmitter();
 
         witem.setId(obj.getID());
-        witem.setCollection(collection != null ? converter.toRest(collection, projection) : null);
-        if (submitter != null) {
-            witem.setSubmitter(converter.toRest(submitter, projection));
-        }
 
         // 1. retrieve the submission definition
         // 2. iterate over the submission section to allow to plugin additional
         // info
 
         if (collection != null) {
-
             addValidationErrorsToItem(obj, witem);
 
             SubmissionDefinitionRest def = converter.toRest(getSubmissionConfig(item, collection), projection);
@@ -140,8 +132,6 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
 
             }
         }
-        // need to be after to have stored the submission-name in the request attribute
-        witem.setItem(converter.toRest(item, projection));
     }
 
     private SubmissionConfig getSubmissionConfig(Item item, Collection collection) {

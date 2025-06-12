@@ -55,6 +55,7 @@ import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
@@ -711,7 +712,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(bitstream.getBundles().get(0)).build();
 
@@ -774,9 +775,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
-            .withAction(Constants.READ)
-            .withDspaceObject(bitstream.getBundles().get(0)).build();
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                             .withAction(Constants.READ)
+                             .withDspaceObject(bitstream.getBundles().get(0)).build();
 
         context.restoreAuthSystemState();
 
@@ -899,7 +900,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on item of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, publicItem1, Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(publicItem1).build();
 
@@ -1547,8 +1548,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                         .build();
         }
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(WRITE)
                              .withDspaceObject(col1)
                              .build();
@@ -3323,10 +3323,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                           .withEmail("col2admin@test.com")
                                           .withPassword(password)
                                           .build();
-        Group col1_AdminGroup = collectionService.createAdministrators(context, col1);
-        Group col2_AdminGroup = collectionService.createAdministrators(context, col2);
-        groupService.addMember(context, col1_AdminGroup, col1Admin);
-        groupService.addMember(context, col2_AdminGroup, col2Admin);
+        Group col1_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col1)
+                .addMember(col1Admin)
+                .build();
+        Group col2_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col2)
+                .addMember(col2Admin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3427,8 +3429,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                                      .withEmail("parentComAdmin@test.com")
                                                      .withPassword(password)
                                                      .build();
-        Group parentComAdminGroup = communityService.createAdministrators(context, parentCommunity);
-        groupService.addMember(context, parentComAdminGroup, parentCommunityAdmin);
+        Group parentComAdminGroup = GroupBuilder.createCommunityAdminGroup(context, parentCommunity)
+                .addMember(parentCommunityAdmin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3478,6 +3481,99 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                      .content(patchBody)
                                      .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void findThumbnailBitstreamByAnonymousUserTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                .withTitle("Test item -- thumbnail")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .withAuthor("Doe, John")
+                .build();
+
+        Bundle originalBundle = BundleBuilder.createBundle(context, item)
+                .withName(Constants.DEFAULT_BUNDLE_NAME)
+                .build();
+        Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
+                .withName("THUMBNAIL")
+                .build();
+
+        InputStream is = IOUtils.toInputStream("dummy", "utf-8");
+
+        // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
+        Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
+                .withName("test.pdf")
+                .withMimeType("application/pdf")
+                .build();
+
+        Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
+                .withName("test.pdf.jpg")
+                .withMimeType("image/jpeg")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
+                .andExpect(jsonPath("$.type", is("bitstream")));
+    }
+
+    @Test
+    public void findThumbnailBitstreamWithInvalidMIMETypeTest() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                .withTitle("Test item -- thumbnail")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald")
+                .withAuthor("Doe, John")
+                .build();
+
+        Bundle originalBundle = BundleBuilder.createBundle(context, item)
+                .withName(Constants.DEFAULT_BUNDLE_NAME)
+                .build();
+        Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
+                .withName("THUMBNAIL")
+                .build();
+
+        InputStream is = IOUtils.toInputStream("dummy", "utf-8");
+
+        // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
+        Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
+                .withName("test.pdf")
+                .withMimeType("application/pdf")
+                .build();
+
+        // invalid thumbnail mime type
+        Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
+                .withName("test.pdf.jpg")
+                .withMimeType("application/pdf")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
+                .andExpect(status().isNoContent());
     }
 
     public boolean bitstreamExists(String token, Bitstream ...bitstreams) throws Exception {

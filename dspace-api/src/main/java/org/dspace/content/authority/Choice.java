@@ -48,6 +48,8 @@ public class Choice {
 
     public Map<String, String> extras = new HashMap<String, String>();
 
+    public String source = "local";
+
     public Choice() {
     }
 
@@ -78,6 +80,23 @@ public class Choice {
         this.label = label;
         this.value = value;
         this.extras = extras;
+    }
+
+    /**
+     * Constructor to quickly setup the data object for basic authorities. The choice is assumed to be selectable.
+     *
+     * @param authority the authority key
+     * @param value     the text value to store in the metadata
+     * @param label     the value to display to the user
+     * @param extras    a key value map of extra information related to this choice
+     * @param source    authority SOURCE reference
+     */
+    public Choice(String authority, String label, String value, Map<String, String> extras, String source) {
+        this.authority = authority;
+        this.label = label;
+        this.value = value;
+        this.extras = extras;
+        this.source = source;
     }
 
     /**

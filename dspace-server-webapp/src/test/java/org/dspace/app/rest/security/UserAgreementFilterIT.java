@@ -9,6 +9,8 @@ package org.dspace.app.rest.security;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -235,6 +237,76 @@ public class UserAgreementFilterIT extends AbstractControllerIntegrationTest {
 
         configurationService.setProperty("user-agreement.enabled", "false");
     }
+
+
+    @Test
+    public void shouldBeAbleToAccessCSRFTokenEndpoint() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("user-agreement.enabled", "true");
+
+        EPerson user =
+            EPersonBuilder.createEPerson(context)
+                          .withEmail("user@4science.com")
+                          .withNameInMetadata("Vins", "1st")
+                          .withCanLogin(true)
+                          .withPassword(password)
+                          .build();
+
+        context.restoreAuthSystemState();
+
+        String userToken = getAuthToken(user.getEmail(), password);
+        getClient(userToken).perform(get("/api/security/csrf"))
+                            .andExpect(status().isNoContent())
+                            .andExpect(cookie().exists(DSpaceCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME))
+                            .andExpect(header().exists(DSpaceCsrfTokenRepository.DSPACE_CSRF_HEADER_NAME));
+
+        context.turnOffAuthorisationSystem();
+
+        user = context.reloadEntity(user);
+        // ignore user agreement
+        ePersonService.addMetadata(context, user, "dspace", "agreements", "ignore", "en", "true");
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        getClient(userToken).perform(get("/api/security/csrf"))
+                            .andExpect(status().isNoContent())
+                            .andExpect(cookie().exists(DSpaceCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME))
+                            .andExpect(header().exists(DSpaceCsrfTokenRepository.DSPACE_CSRF_HEADER_NAME));
+
+        context.turnOffAuthorisationSystem();
+
+        user = context.reloadEntity(user);
+        // refuse user agreement
+        ePersonService.setMetadataSingleValue(context, user, "dspace", "agreements", "ignore", "en", "false");
+        ePersonService.addMetadata(context, user, "dspace", "agreements", "end-user", "en", "false");
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        getClient(userToken).perform(get("/api/security/csrf"))
+                            .andExpect(status().isNoContent())
+                            .andExpect(cookie().exists(DSpaceCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME))
+                            .andExpect(header().exists(DSpaceCsrfTokenRepository.DSPACE_CSRF_HEADER_NAME));
+
+        context.turnOffAuthorisationSystem();
+
+        user = context.reloadEntity(user);
+        // accept user agreement
+        ePersonService.setMetadataSingleValue(context, user, "dspace", "agreements", "end-user", "en", "true");
+        context.commit();
+
+        context.restoreAuthSystemState();
+
+        getClient(userToken).perform(get("/api/security/csrf"))
+                            .andExpect(status().isNoContent())
+                            .andExpect(cookie().exists(DSpaceCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME))
+                            .andExpect(header().exists(DSpaceCsrfTokenRepository.DSPACE_CSRF_HEADER_NAME));
+
+    }
+
 
     private void resetOpenPathConfigurations(String[] values) {
         configurationService.getConfiguration().clearProperty("user-agreement.open-path-patterns");

@@ -23,6 +23,7 @@ public class StatisticsCategoryMatcher {
             hasJsonPath("$.id", is(id)),
             hasJsonPath("$.category-type", is(type)),
             hasJsonPath("$.type", is("category")),
+            hasJsonPath("$.uniqueType", is("statistics.category")),
             hasJsonPath("$._links.self.href", endsWith("/" +  id))
         );
     }

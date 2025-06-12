@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
@@ -53,6 +54,9 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
 
     protected SolrClient solrSuggestionClient;
 
+    private static final Logger log =
+        org.apache.logging.log4j.LogManager.getLogger(SolrSuggestionStorageServiceImpl.class);
+
     @Autowired
     private ItemService itemService;
 
@@ -73,29 +77,67 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
     @Override
     public void addSuggestion(Suggestion suggestion, boolean force, boolean commit)
             throws SolrServerException, IOException {
-        if (force || !exist(suggestion)) {
-            Gson gson = new Gson();
-            SolrInputDocument document = new SolrInputDocument();
-            document.addField(SOURCE, suggestion.getSource());
-            String suggestionFullID = suggestion.getID();
-            document.addField(SUGGESTION_FULLID, suggestionFullID);
-            document.addField(SUGGESTION_ID, suggestionFullID.split(":", 3)[2]);
-            document.addField(TARGET_ID, suggestion.getTarget().getID().toString());
-            document.addField(DISPLAY, suggestion.getDisplay());
-            document.addField(TITLE, getFirstValue(suggestion, "dc", "title", null));
-            document.addField(DATE, getFirstValue(suggestion, "dc", "date", "issued"));
-            document.addField(CONTRIBUTORS, getAllValues(suggestion, "dc", "contributor", "author"));
-            document.addField(ABSTRACT, getFirstValue(suggestion, "dc", "description", "abstract"));
-            document.addField(CATEGORY, getAllValues(suggestion, "dc", "source", null));
-            document.addField(EXTERNAL_URI, suggestion.getExternalSourceUri());
-            document.addField(SCORE, suggestion.getScore());
-            document.addField(PROCESSED, false);
-            document.addField(EVIDENCES, gson.toJson(suggestion.getEvidences()));
-            getSolr().add(document);
-            if (commit) {
-                getSolr().commit();
+        try {
+            if (force || !exist(suggestion)) {
+                Gson gson = new Gson();
+                SolrInputDocument document = new SolrInputDocument();
+                document.addField(SOURCE, suggestion.getSource());
+                String suggestionFullID = suggestion.getID();
+                document.addField(SUGGESTION_FULLID, suggestionFullID);
+                document.addField(SUGGESTION_ID, suggestionFullID.split(":", 3)[2]);
+                document.addField(TARGET_ID, suggestion.getTarget().getID().toString());
+                document.addField(DISPLAY, suggestion.getDisplay());
+                document.addField(TITLE, getFirstValue(suggestion, "dc", "title", null));
+                document.addField(DATE, getFirstValue(suggestion, "dc", "date", "issued"));
+                document.addField(CONTRIBUTORS, getAllValues(suggestion, "dc", "contributor", "author"));
+                document.addField(ABSTRACT, getFirstValue(suggestion, "dc", "description", "abstract"));
+                document.addField(CATEGORY, getAllValues(suggestion, "dc", "source", null));
+                document.addField(EXTERNAL_URI, suggestion.getExternalSourceUri());
+                document.addField(SCORE, suggestion.getScore());
+                document.addField(PROCESSED, false);
+                document.addField(EVIDENCES, gson.toJson(suggestion.getEvidences()));
+                getSolr().add(document);
+                if (commit) {
+                    getSolr().commit();
+                }
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    @Override
+    public List<Suggestion> findAllUnprocessedSuggestionsBySourceAndScore(Context context, String source, String score,
+        int pageSize, long offset, boolean ascending) throws SolrServerException, IOException {
+
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setRows(pageSize);
+        solrQuery.setStart((int) offset);
+        solrQuery.setQuery("*:*");
+        solrQuery.addFilterQuery(
+            SOURCE + ":" + source,
+            SCORE  + ":[ " + score + " TO * ]",
+            PROCESSED + ":false");
+
+        if (ascending) {
+            solrQuery.addSort(SortClause.asc("trust"));
+        } else {
+            solrQuery.addSort(SortClause.desc("trust"));
+        }
+
+        solrQuery.addSort(SortClause.desc("date"));
+        solrQuery.addSort(SortClause.asc("suggestion_id"));
+        solrQuery.addSort(SortClause.asc("title"));
+
+        QueryResponse response = getSolr().query(solrQuery);
+        List<Suggestion> suggestions = new ArrayList<Suggestion>();
+        for (SolrDocument solrDoc : response.getResults()) {
+            Suggestion suggestion = convertSolrDoc(context, solrDoc, source);
+            if (suggestion != null) {
+                suggestions.add(suggestion);
             }
         }
+        return suggestions;
     }
 
     @Override

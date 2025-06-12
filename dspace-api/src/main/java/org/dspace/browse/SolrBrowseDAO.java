@@ -8,12 +8,13 @@
 package org.dspace.browse;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -181,23 +182,37 @@ public class SolrBrowseDAO implements BrowseDAO {
         if (sResponse == null) {
             DiscoverQuery query = new DiscoverQuery();
             addLocationScopeFilter(query);
-            addStatusFilter(query);
             addExtraFilter(query);
             addDefaultFilterQueries(query);
             if (distinct) {
                 DiscoverFacetField dff;
+
+                // To get the number of distinct values we use the next "json.facet" query param
+                // {"entries_count": {"type":"terms","field": "<fieldName>_filter", "limit":0, "numBuckets":true}}"
+                ObjectNode jsonFacet = JsonNodeFactory.instance.objectNode();
+                ObjectNode entriesCount = JsonNodeFactory.instance.objectNode();
+                entriesCount.put("type", "terms");
+                entriesCount.put("field", facetField + "_filter");
+                entriesCount.put("limit", 0);
+                entriesCount.put("numBuckets", true);
+                jsonFacet.set("entries_count", entriesCount);
+
                 if (StringUtils.isNotBlank(startsWith)) {
                     dff = new DiscoverFacetField(facetField,
-                        DiscoveryConfigurationParameters.TYPE_TEXT, -1,
-                        DiscoveryConfigurationParameters.SORT.VALUE, startsWith);
+                        DiscoveryConfigurationParameters.TYPE_TEXT, limit,
+                        DiscoveryConfigurationParameters.SORT.VALUE, startsWith, offset);
+
+                    // Add the prefix to the json facet query
+                    entriesCount.put("prefix", startsWith);
                 } else {
                     dff = new DiscoverFacetField(facetField,
-                        DiscoveryConfigurationParameters.TYPE_TEXT, -1,
-                        DiscoveryConfigurationParameters.SORT.VALUE);
+                        DiscoveryConfigurationParameters.TYPE_TEXT, limit,
+                        DiscoveryConfigurationParameters.SORT.VALUE, offset);
                 }
                 query.addFacetField(dff);
                 query.setFacetMinCount(1);
                 query.setMaxResults(0);
+                query.addProperty("json.facet", jsonFacet.toString());
             } else {
                 query.setMaxResults(limit/* > 0 ? limit : 20*/);
                 if (offset > 0) {
@@ -241,18 +256,6 @@ public class SolrBrowseDAO implements BrowseDAO {
         }
     }
 
-    private void addStatusFilter(DiscoverQuery query) {
-        try {
-            if (!authorizeService.isAdmin(context)
-                && (authorizeService.isCommunityAdmin(context)
-                || authorizeService.isCollectionAdmin(context))) {
-                query.addFilterQueries(searcher.createLocationQueryForAdministrableItems(context));
-            }
-        } catch (SQLException ex) {
-            log.error("Error looking up authorization rights of current user", ex);
-        }
-    }
-
     private void addLocationScopeFilter(DiscoverQuery query) {
         if (container != null) {
             if (containerIDField.startsWith("collection")) {
@@ -273,8 +276,7 @@ public class SolrBrowseDAO implements BrowseDAO {
         DiscoverResult resp = getSolrResponse();
         int count = 0;
         if (distinct) {
-            List<FacetResult> facetResults = resp.getFacetResult(facetField);
-            count = facetResults.size();
+            count = (int) resp.getTotalEntries();
         } else {
             // we need to cast to int to respect the BrowseDAO contract...
             count = (int) resp.getTotalSearchResults();
@@ -291,8 +293,8 @@ public class SolrBrowseDAO implements BrowseDAO {
         DiscoverResult resp = getSolrResponse();
         List<FacetResult> facet = resp.getFacetResult(facetField);
         int count = doCountQuery();
-        int start = offset > 0 ? offset : 0;
-        int max = limit > 0 ? limit : count; //if negative, return everything
+        int start = 0;
+        int max = facet.size();
         List<String[]> result = new ArrayList<>();
         if (ascending) {
             for (int i = start; i < (start + max) && i < count; i++) {
@@ -356,7 +358,6 @@ public class SolrBrowseDAO implements BrowseDAO {
         throws BrowseException {
         DiscoverQuery query = new DiscoverQuery();
         addLocationScopeFilter(query);
-        addStatusFilter(query);
         addExtraFilter(query);
         addDefaultFilterQueries(query);
         query.setMaxResults(0);

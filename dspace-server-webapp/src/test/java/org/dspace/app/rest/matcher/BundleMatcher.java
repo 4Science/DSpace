@@ -71,6 +71,7 @@ public class BundleMatcher {
             hasJsonPath("$.name", is(name)),
             hasJsonPath("$.handle", is(handle)),
             hasJsonPath("$.type", is(Constants.typeText[type].toLowerCase())),
+            hasJsonPath("$.uniqueType", is(String.format("core.%s",Constants.typeText[type].toLowerCase()))),
             hasJsonPath("$.metadata", Matchers.allOf(
                     MetadataMatcher.matchMetadata("dc.title", name)
             ))

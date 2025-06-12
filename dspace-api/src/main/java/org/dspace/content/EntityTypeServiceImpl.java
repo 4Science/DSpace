@@ -33,6 +33,8 @@ import org.dspace.discovery.SolrSearchCore;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class EntityTypeServiceImpl implements EntityTypeService {
@@ -51,6 +53,18 @@ public class EntityTypeServiceImpl implements EntityTypeService {
 
     @Autowired
     protected SolrSearchCore solrSearchCore;
+
+    @Autowired
+    protected ConfigurationService configurationService;
+
+    public static String getExcludedEntityTypeClause() {
+        return String.join(
+            " OR ",
+            DSpaceServicesFactory.getInstance().getConfigurationService()
+                                 .getProperty("submission.excluded.entity-type", "WebAnnotation,PersonalAnnotation")
+                                 .split(",")
+        );
+    }
 
     @Override
     public EntityType findByEntityType(Context context, String entityType) throws SQLException {
@@ -153,12 +167,13 @@ public class EntityTypeServiceImpl implements EntityTypeService {
 
         SolrQuery sQuery = new SolrQuery(query.toString());
         sQuery.addFilterQuery("search.resourcetype:" + IndexableCollection.TYPE);
+        sQuery.addFilterQuery("-search.entitytype:(" + getExcludedEntityTypeClause() + ")");
         sQuery.setRows(0);
         sQuery.addFacetField("search.entitytype");
         sQuery.setFacetMinCount(1);
         sQuery.setFacetLimit(Integer.MAX_VALUE);
         sQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
-        QueryResponse qResp = solrSearchCore.getSolr().query(sQuery);
+        QueryResponse qResp = solrSearchCore.getSolr().query(sQuery, solrSearchCore.REQUEST_METHOD);
         FacetField facetField = qResp.getFacetField("search.entitytype");
         if (Objects.nonNull(facetField)) {
             for (Count c : facetField.getValues()) {

@@ -15,7 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.dspace.app.rest.authorization.impl.ItemCorrectionFeature;
 import org.dspace.app.rest.converter.ItemConverter;
+import org.dspace.app.rest.converter.SiteConverter;
 import org.dspace.app.rest.model.ItemRest;
+import org.dspace.app.rest.model.SiteRest;
+import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
@@ -24,6 +27,8 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.Site;
+import org.dspace.content.service.SiteService;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
@@ -37,6 +42,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  */
 public class ItemCorrectionFeatureRestIT extends AbstractControllerIntegrationTest {
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private SiteConverter siteConverter;
 
     @Autowired
     private ItemConverter itemConverter;
@@ -100,6 +110,27 @@ public class ItemCorrectionFeatureRestIT extends AbstractControllerIntegrationTe
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.authorizations").doesNotExist());
 
+    }
+
+    @Test
+    public void testFeatureWithCorrectionEnabledAndNoItem() throws Exception {
+
+        configurationService.setProperty("item-correction.permit-all", false);
+        configurationService.setProperty("item-correction.enabled", true);
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        Site site = siteService.findSite(context);
+        SiteRest siteRest = siteConverter.convert(site, DefaultProjection.DEFAULT);
+
+        Authorization expectedAuthorization = new Authorization(admin, canCorrectItem, siteRest);
+
+        getClient(token).perform(get("/api/authz/authorizations/search/object")
+            .param("eperson", String.valueOf(admin.getID()))
+            .param("uri", utils.linkToSingleResource(siteRest, "self").getHref())
+            .param("feature", ItemCorrectionFeature.NAME))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.authorizations", hasItem(matchAuthorization(expectedAuthorization))));
     }
 
     @Test

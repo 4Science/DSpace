@@ -318,6 +318,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -452,19 +453,19 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
-          <dc-qualifier>journalfonds</dc-qualifier>
           <label>Testata correlata</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Nome della testata di riferimento</hint>
+          <hint>Nome della testata di riferimento; si prega inserire il collegamento solo ad una testata già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
         </field>
       </row>
       <row>
@@ -772,6 +773,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -858,7 +860,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1159,6 +1162,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1519,6 +1523,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -1831,6 +1836,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -2043,6 +2049,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -2879,6 +2886,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -2985,6 +2993,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3292,6 +3301,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -3483,7 +3493,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Nome della testata di riferimento</hint>
+          <hint>Nome della testata di riferimento; si prega inserire il collegamento solo ad una testata già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -3543,6 +3554,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -3896,6 +3908,7 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il nome della testata correlata</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -4065,7 +4078,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Indica l'archivio di riferimento oggetto della catalogazione</hint>
+          <hint>Indica l'archivio di riferimento oggetto della catalogazione; si prega inserire il collegamento solo ad un archivio già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -4185,6 +4199,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -4869,7 +4884,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del livello cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del livello cui appartiene la risorsa; si prega inserire il collegamento solo ad un livello già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -5155,6 +5171,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -5471,6 +5488,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint />
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
     </form>
@@ -5721,6 +5739,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -5881,7 +5900,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del livello cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del livello cui appartiene la risorsa; si prega inserire il collegamento solo ad un livello già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6166,6 +6186,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6454,6 +6475,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6536,7 +6558,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il Livello di descrizione della risorsa.</hint>
+          <hint>Inserire il Livello di descrizione della risorsa; si prega inserire il collegamento solo ad un livello già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6611,6 +6634,152 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Indicare il contributo del creatore dell'oggetto</hint>
+        </field>
+      </row>
+    </form>
+    <form name="scientific_materials-glam-bibliography">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <label>Titolo</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il titolo della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>year</dc-qualifier>
+          <label>Anno di pubblicazione</label>
+          <input-type>number</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'anno di pubblicazione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>publisher</dc-qualifier>
+          <label>Editore</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'editore della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo di edizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il luogo di edizione della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <label>Autore/i</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'autore/gli autori della risorsa bibliografica</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>bibliography</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo di bibliografia</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il tipo di bibliografia</hint>
+        </field>
+      </row>
+    </form>
+    <form name="scientific_materials-glam-inscription">
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <label>Trascrizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la trascrizione dell'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>position</dc-qualifier>
+          <label>Posizione dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la posizione in cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>font</dc-qualifier>
+          <label>Carattere dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare il carattere con cui è stata realizzata l'iscrizione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>technique</dc-qualifier>
+          <label>Tecnica dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la tecnica di realizzazione dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>language</dc-qualifier>
+          <label>Lingua dell'iscrizione</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la lingua dell'iscrizione</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>inscription</dc-element>
+          <dc-qualifier>class</dc-qualifier>
+          <label>Classe di appartenenza</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Indicare la classe di appartenenza dell'iscrizione</hint>
         </field>
       </row>
     </form>
@@ -6718,7 +6887,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il Livello di descrizione dell'oggetto.</hint>
+          <hint>Inserire il Livello di descrizione dell'oggetto; si prega inserire il collegamento solo ad un livello già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -6826,6 +6996,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -7080,8 +7251,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misn</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misn</dc-qualifier>
           <label>Lunghezza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7091,8 +7263,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misp</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misp</dc-qualifier>
           <label>Profondità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7102,8 +7275,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misd</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misd</dc-qualifier>
           <label>Diametro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7113,8 +7287,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>miss</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>miss</dc-qualifier>
           <label>Spessore</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7124,8 +7299,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misg</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misg</dc-qualifier>
           <label>Peso</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7135,8 +7311,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misc</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misc</dc-qualifier>
           <label>Capacità</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7146,8 +7323,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misw</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misw</dc-qualifier>
           <label>Potenza</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7157,8 +7335,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misb</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misb</dc-qualifier>
           <label>Capacità di memoria</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7168,8 +7347,9 @@
       </row>
       <row>
         <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>misi</dc-element>
+          <dc-schema>dc</dc-schema>
+          <dc-element>format</dc-element>
+          <dc-qualifier>misi</dc-qualifier>
           <label>Ingombro</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
@@ -7182,7 +7362,7 @@
           <dc-schema>glam</dc-schema>
           <dc-element>inscription</dc-element>
           <label>Trascrizione dell'iscrizione</label>
-          <input-type>onebox</input-type>
+          <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la trascrizione dell'iscrizione.</hint>
@@ -7217,7 +7397,7 @@
           <dc-schema>glam</dc-schema>
           <dc-element>bibliography</dc-element>
           <label>Bibliografia</label>
-          <input-type>onebox</input-type>
+          <input-type>group</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la bibliografia relativa alla fotografia catalogata</hint>
@@ -7541,7 +7721,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -7590,6 +7771,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -7968,7 +8150,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -8005,6 +8188,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -8465,7 +8649,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -8514,6 +8699,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -8927,7 +9113,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -8952,6 +9139,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -9387,7 +9575,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -9424,6 +9613,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -9871,7 +10061,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene il documento</hint>
+          <hint>Inserire il nome del fondo cui appartiene il documento; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -9896,6 +10087,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -10268,6 +10460,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -10398,7 +10591,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -10659,6 +10853,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -10728,7 +10923,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -11082,7 +11278,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -11119,6 +11316,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -11625,7 +11823,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Nome della testata di riferimento</hint>
+          <hint>Nome della testata di riferimento; si prega inserire il collegamento solo ad una testata già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">journalfondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -11697,6 +11896,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -12143,7 +12343,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -12180,6 +12381,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -12638,7 +12840,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -12687,6 +12890,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -13123,7 +13327,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -13172,6 +13377,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -13583,7 +13789,8 @@
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa.</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -13608,6 +13815,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -14065,7 +14273,8 @@
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
-          <hint>Inserire il nome del fondo cui appartiene la risorsa</hint>
+          <hint>Inserire il nome del fondo cui appartiene la risorsa; si prega inserire il collegamento solo ad un fondo già presente nella Digital Library altrimenti il sistema non salverà il valore.</hint>
+          <vocabulary closed="true">fondsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -14102,6 +14311,7 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Inserire la collezione cui appartiene l'item</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
@@ -14254,6 +14464,167 @@
           <required />
           <hint>Inserire il termine del thesaurus PICO</hint>
           <vocabulary>pico-thesaurus</vocabulary>
+        </field>
+      </row>
+    </form>
+    <form name="web_annotation">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>markdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>annotation</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo Annotazione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il tipo dell’annotazione creata</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>annotation</dc-qualifier>
+          <label>Soggetto</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Specificare le indicazioni sull'annotazione.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>person</dc-qualifier>
+          <label>Persona</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il nome della persona cui è eventualmente connessa la risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>place</dc-qualifier>
+          <label>Luogo</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il luogo collegato alla risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>event</dc-qualifier>
+          <label>Evento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Titolo dell’eventuale evento cui è connessa la risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>path</dc-qualifier>
+          <label>Percorso</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire il percorso.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>aggregation</dc-qualifier>
+          <label>Aggregazione</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'aggregazione cui appartiene l'item.</hint>
+          <vocabulary closed="true">aggregationsTree</vocabulary>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>family</dc-qualifier>
+          <label>Famiglia</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire la famiglia collegata alla risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>relatedDocument</dc-qualifier>
+          <label>Documento collegato</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'eventuale collegamento della risorsa ad altri documenti.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>annotation</dc-qualifier>
+          <label>Annotazione Collegata</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l'eventuale collegamento con altre annotazioni</hint>
+        </field>
+      </row>
+    </form>
+    <form name="personal_annotation">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Abstract</label>
+          <input-type>markdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire l'abstract del contenuto della risorsa.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>glam</dc-schema>
+          <dc-element>annotation</dc-element>
+          <dc-qualifier>type</dc-qualifier>
+          <label>Tipo Annotazione</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il tipo dell’annotazione creata</hint>
         </field>
       </row>
     </form>

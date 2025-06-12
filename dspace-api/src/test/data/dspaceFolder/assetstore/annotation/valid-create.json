@@ -1,0 +1,24 @@
+{
+  "@context": "http://iiif.io/api/presentation/2/context.json",
+  "@type": "oa:Annotation",
+  "motivation": "oa:commenting",
+  "on": {
+    "@type": "oa:SpecificResource",
+    "full": "http://localhost:8080/server/iiif/af5b8b9a-3883-4764-965c-248f1f1f1546/canvas/3c9e76fd-0ef7-4df7-af7a-7356220e2451",
+    "selector": {
+      "@type": "oa:Choice",
+      "default": {
+        "@type": "oa:FragmentSelector",
+        "value": "xywh=139,29,52,41"
+      },
+      "item": {
+        "@type": "oa:SvgSelector",
+        "value": "<svg xmlns='http://www.w3.org/2000/svg'><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M139.39024,71.02439v-41.70732h52.68293v41.70732z\" data-paper-data=\"{&quot;state&quot;:null}\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"#00bfff\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"/></svg>"
+      }
+    }
+  },
+  "resource": {
+    "chars": "<p>Test</p>",
+    "@type": "dctypes:Text"
+  }
+}

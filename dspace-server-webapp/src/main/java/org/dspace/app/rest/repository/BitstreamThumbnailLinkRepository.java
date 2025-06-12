@@ -15,13 +15,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.app.rest.model.BitstreamRest;
 import org.dspace.app.rest.projection.Projection;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,7 +34,9 @@ public class BitstreamThumbnailLinkRepository extends AbstractDSpaceRestReposito
     @Autowired
     BitstreamService bitstreamService;
 
-    @PreAuthorize("hasPermission(#bitstreamId, 'BITSTREAM', 'READ')")
+    @Autowired
+    AuthorizeService authorizeService;
+
     public BitstreamRest getThumbnail(@Nullable HttpServletRequest request,
                                       UUID bitstreamId,
                                       @Nullable Pageable optionalPageable,
@@ -47,6 +51,11 @@ public class BitstreamThumbnailLinkRepository extends AbstractDSpaceRestReposito
             if (thumbnail == null) {
                 return null;
             }
+
+            if (!authorizeService.authorizeActionBoolean(context, thumbnail, Constants.READ)) {
+                throw new AccessDeniedException("you have no access for this thumbnail");
+            }
+
             return converter.toRest(thumbnail, projection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
