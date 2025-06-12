@@ -28,7 +28,7 @@ services:
       # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
       proxies__P__trusted__P__ipranges: '172.23.0'
       LOGGING_CONFIG: /dspace/config/log4j2-container.xml
-    image: "${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-cris-7_x-test}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-2023_02_x-test}"
     build:
       context: .
       dockerfile: Dockerfile.test
@@ -39,8 +39,6 @@ services:
     ports:
     - published: 8080
       target: 8080
-    - published: 8009
-      target: 8009
     - published: 8000
       target: 8000
     stdin_open: true
@@ -57,24 +55,17 @@ services:
     # Ensure that the database is ready BEFORE starting tomcat
     # 1. While a TCP connection to dspacedb port 5432 is not available, continue to sleep
     # 2. Then, run database migration to init database tables
-    # 3. Then, create the default Entity Types defined in cris.cfg
-    # 4. Then, create custom DSpace relationship types defined in correction & hide-sort configs
-    # 5. Finally, start Tomcat
+    # 3. Finally, start DSpace
     entrypoint:
     - /bin/bash
     - '-c'
     - |
-      while (!</dev/tcp/dspacedb/5432) > /dev/null 2>&1; do sleep 1; done;
       /dspace/bin/dspace database migrate
-      /dspace/bin/dspace dsrun org.dspace.app.util.InitializeEntityTypesOnly -d
-      /dspace/bin/dspace dsrun org.dspace.app.util.InitializeEntities -f /dspace/config/entities/correction-relationship-types.xml
-      /dspace/bin/dspace dsrun org.dspace.app.util.InitializeEntities -f /dspace/config/entities/hide-sort-relationship-types.xml
-      catalina.sh run
-  # DSpace PostgreSQL database container
+      java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.JarLauncher
   dspacedb:
     container_name: dspacedb
     # Uses a custom Postgres image with pgcrypto installed
-    image: "${DOCKER_OWNER:-dspace}/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-7_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-2023_02_x}"
     build:
       # Must build out of subdirectory to have access to install script for pgcrypto
       context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
@@ -94,7 +85,7 @@ services:
   # DSpace Solr container
   dspacesolr:
     container_name: dspacesolr
-    image: "${DOCKER_OWNER:-dspace}/dspace-solr:${DSPACE_VER:-dspace-cris-7_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-2023_02_x}"
     build:
       context: ./dspace/src/main/docker/dspace-solr/
       # Provide path to Solr configs necessary to build Docker image

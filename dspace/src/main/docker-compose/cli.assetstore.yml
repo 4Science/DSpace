@@ -9,8 +9,7 @@
 services:
   dspace-cli:
     environment:
-      # This assetstore zip is available from https://github.com/DSpace-Labs/AIP-Files/releases/tag/demo-entities-data
-      - LOADASSETS=https://github.com/DSpace-Labs/AIP-Files/releases/download/demo-entities-data/assetstore.tar.gz
+      - LOADASSETS=https://github.com/4Science/DSpace-CRIS-Files/releases/download/2023.02.07/assetstore.tar.gz
     entrypoint:
       - /bin/bash
       - '-c'

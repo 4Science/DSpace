@@ -2,19 +2,21 @@
 # This image will be published as dspace/dspace
 # See https://github.com/DSpace/DSpace/tree/main/dspace/src/main/docker for usage details
 #
-# - note: default tag for branch: dspace/dspace: dspace/dspace:dspace-7_x
+# - note: default tag for branch: 4science/dspace-cris: 4science/dspace-cris:2023_02_x
 
-# This Dockerfile uses JDK11 by default, but has also been tested with JDK17.
-# To build with JDK17, use "--build-arg JDK_VERSION=17"
+# This Dockerfile uses JDK17 by default.
+# To build with other versions, use "--build-arg JDK_VERSION=[value]"
 ARG JDK_VERSION=11
 # The Docker version tag to build from
-ARG DSPACE_VERSION=dspace-cris-2023_02_x
+ARG DSPACE_VERSION=2023_02_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
+ARG AWS_REGION=eu-west-1
 
 # Step 1 - Run Maven Build
-FROM ${DOCKER_REGISTRY}/dspace-cris/dspace-cris-dependencies:${DSPACE_VERSION} AS build
+FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build
+ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # The dspace-installer directory will be written to /install
 RUN mkdir -p /install /install/config /install/bin /install/solr \
@@ -28,16 +30,16 @@ COPY --chown=dspace --parents **/src /app/
 # Copy the dspace-installer directory to /install.  Clean up the build to keep the docker image small
 # Maven flags here ensure that we skip building test environment and skip all code verification checks.
 # These flags speed up this compilation as much as reasonably possible.
-ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Dmaven.test.skip -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true -T1C"
-RUN mvn -nsu -ntp package ${MAVEN_FLAGS} && \
-  mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar && \
+ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
+RUN mvn -nsu -ntp package ${MAVEN_FLAGS}
+RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar && \
   java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
 
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Expose Tomcat port (8080) and AJP port (8009) and Handle Server HTTP port (8000)
-EXPOSE 8080
+EXPOSE 8080 8000 8009
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
@@ -51,7 +53,14 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
+RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/log/ \
+    && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
+    && chown -h dspace:dspace $DSPACE_INSTALL/lib \
+    && chmod +x $DSPACE_INSTALL/bin/*
 
 WORKDIR /app/server-boot
 USER dspace
+ENV dspace.dir="$DSPACE_INSTALL"
+ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
 ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
