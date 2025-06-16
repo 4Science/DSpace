@@ -35,10 +35,13 @@ public class DOIBuilder extends AbstractBuilder<DOI, DOIService> {
 
     private DOIBuilder create(DSpaceObject dso) {
         try {
-            doi = doiService.findDOIByDSpaceObject(context, dso);
+            if (dso != null) {
+                doi = doiService.findDOIByDSpaceObject(context, dso);
+            }
+
             if (doi == null) {
                 doi = doiService.create(context);
-                doi.setDSpaceObject(dso);
+                doi.setDSpaceObject(dso); // can be null
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -46,6 +49,7 @@ public class DOIBuilder extends AbstractBuilder<DOI, DOIService> {
         }
         return this;
     }
+
 
     public DOIBuilder withDoiString(String doiString) {
         doi.setDoi(doiString);
