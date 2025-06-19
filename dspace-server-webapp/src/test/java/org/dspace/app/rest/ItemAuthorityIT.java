@@ -628,6 +628,7 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                         "Author 3", "Author 3", "vocabularyEntry"))));
 
     }
+
     @Test
     public void personAuthorityTests() throws Exception {
         context.turnOffAuthorisationSystem();

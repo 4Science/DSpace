@@ -31,6 +31,8 @@ public class  ItemControlledVocabulary {
 
     private List<String> labelMetadata;
 
+    private List<String> storedMetadata;
+
     private List<DiscoverySortFieldConfiguration> sortFields;
 
     private ItemControlledVocabularyMapper extraValuesMapper;
@@ -107,5 +109,13 @@ public class  ItemControlledVocabulary {
 
     public void setSortFields(List<DiscoverySortFieldConfiguration> sortFields) {
         this.sortFields = sortFields;
+    }
+
+    public List<String> getStoredMetadata() {
+        return storedMetadata;
+    }
+
+    public void setStoredMetadata(List<String> storedMetadata) {
+        this.storedMetadata = storedMetadata;
     }
 }
