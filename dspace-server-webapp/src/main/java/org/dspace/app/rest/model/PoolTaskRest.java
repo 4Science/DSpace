@@ -48,6 +48,11 @@ public class PoolTaskRest extends BaseObjectRest<Integer> {
     }
 
     @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
+    }
+
+    @Override
     public Class getController() {
         return RestResourceController.class;
     }
@@ -89,7 +94,7 @@ public class PoolTaskRest extends BaseObjectRest<Integer> {
     }
 
     /**
-     * 
+     *
      * @return the WorkflowItemRest that belong to this pool task
      */
     public WorkflowItemRest getWorkflowitem() {

@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.MetadataRest;
 import org.dspace.app.rest.model.RegistrationMetadataRest;
 import org.dspace.app.rest.model.RegistrationRest;

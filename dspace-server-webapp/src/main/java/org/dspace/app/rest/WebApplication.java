@@ -10,9 +10,11 @@ package org.dspace.app.rest;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import javax.servlet.Filter;
 
+import jakarta.servlet.Filter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.dspace.app.ldn.LDNQueueExtractor;
+import org.dspace.app.ldn.LDNQueueTimeoutChecker;
 import org.dspace.app.rest.filter.DSpaceRequestContextFilter;
 import org.dspace.app.rest.model.hateoas.DSpaceLinkRelationProvider;
 import org.dspace.app.rest.parameter.resolver.SearchFilterResolver;
@@ -23,8 +25,6 @@ import org.dspace.app.solrdatabaseresync.SolrDatabaseResyncCli;
 import org.dspace.app.util.DSpaceContextListener;
 import org.dspace.google.GoogleAsyncEventListener;
 import org.dspace.utils.servlet.DSpaceWebappServletFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -55,8 +55,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
-
     @Autowired
     private ApplicationConfig configuration;
 
@@ -66,6 +64,22 @@ public class WebApplication {
     @Scheduled(cron = "${sitemap.cron:-}")
     public void generateSitemap() throws IOException, SQLException {
         GenerateSitemaps.generateSitemapsScheduled();
+    }
+
+    @Scheduled(cron = "${ldn.queue.extractor.cron:-}")
+    public void ldnExtractFromQueue() throws IOException, SQLException {
+        if (!configuration.getLdnEnabled()) {
+            return;
+        }
+        LDNQueueExtractor.extractMessageFromQueue();
+    }
+
+    @Scheduled(cron = "${ldn.queue.timeout.checker.cron:-}")
+    public void ldnQueueTimeoutCheck() throws IOException, SQLException {
+        if (!configuration.getLdnEnabled()) {
+            return;
+        }
+        LDNQueueTimeoutChecker.checkQueueMessageTimeout();
     }
 
     @Scheduled(cron = "${solr-database-resync.cron:-}")

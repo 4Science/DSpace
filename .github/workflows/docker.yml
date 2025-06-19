@@ -165,6 +165,7 @@ jobs:
       # Enable all optional modules / controllers for this test deployment.
       # This helps check for errors in deploying these modules via Spring Boot
       iiif__P__enabled: true
+      ldn__P__enabled: true
       oai__P__enabled: true
       rdf__P__enabled: true
       signposting__P__enabled: true

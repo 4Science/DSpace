@@ -7,9 +7,7 @@
  */
 package org.dspace.app.rest.repository;
 
-
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.converter.RootConverter;
 import org.dspace.app.rest.model.RootRest;
 import org.springframework.beans.factory.annotation.Autowired;

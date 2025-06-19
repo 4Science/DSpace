@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.authority.service.AuthorityValueService;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -152,6 +153,9 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         doc.addField("lastModified", SolrUtils.getDateFormatter().format(item.getLastModified()));
         doc.addField("latestVersion", itemService.isLatestVersion(context, item));
 
+        for (Bundle bnd : item.getBundles()) {
+            doc.addField("bundleName_s", bnd.getName());
+        }
         EPerson submitter = item.getSubmitter();
         if (submitter != null && !(DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty(
             "discovery.index.item.submitter.enabled", false))) {
@@ -173,13 +177,6 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             addNamedResourceTypeIndex(doc, acvalue);
         }
 
-        // write the index and close the inputstreamreaders
-        try {
-            log.info("Wrote Item: " + item.getID() + " to Index");
-        } catch (RuntimeException e) {
-            log.error("Error while writing item to discovery index: " + item.getID() + " message:"
-                    + e.getMessage(), e);
-        }
         return doc;
     }
 

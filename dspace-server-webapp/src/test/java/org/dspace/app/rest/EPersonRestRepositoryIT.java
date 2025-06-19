@@ -47,9 +47,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.exception.EPersonNameNotProvidedException;
 import org.dspace.app.rest.exception.RESTEmptyWorkflowGroupException;
@@ -75,7 +75,6 @@ import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.I18nUtil;
@@ -266,7 +265,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
 
         String authToken = getAuthToken(admin.getEmail(), password);
-        getClient(authToken).perform(get("/api/eperson/eperson"))
+        getClient(authToken).perform(get("/api/eperson/epersons"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.epersons", Matchers.containsInAnyOrder(
@@ -284,9 +283,16 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void singularEndpointShouldNotExist() throws Exception {
+        String authToken = getAuthToken(admin.getEmail(), password);
+        getClient(authToken).perform(get("/api/eperson/eperson"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void findAllUnauthorizedTest() throws Exception {
         // Access endpoint without being authenticated
-        getClient().perform(get("/api/eperson/eperson"))
+        getClient().perform(get("/api/eperson/epersons"))
                    .andExpect(status().isUnauthorized());
     }
 
@@ -294,7 +300,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void findAllForbiddenTest() throws Exception {
         String authToken = getAuthToken(eperson.getEmail(), password);
         // Access endpoint logged in as an unprivileged user
-        getClient(authToken).perform(get("/api/eperson/eperson"))
+        getClient(authToken).perform(get("/api/eperson/epersons"))
                             .andExpect(status().isForbidden());
     }
 
@@ -2159,7 +2165,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
             .build();
 
         this.ePersonService
-            .addMetadata(context, ePerson, "eperson", "firstname", null, Item.ANY, List.of(first, second, third));
+            .addMetadata(context, ePerson, "eperson", "firstname", null, null, List.of(first, second, third));
 
         context.restoreAuthSystemState();
 
@@ -3233,7 +3239,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         }
     }
 
-
     @Test
     public void postEpersonFromOrcidRegistrationToken() throws Exception {
 
@@ -3910,7 +3915,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isForbidden());
     }
-
 
     private String buildPasswordAddOperationPatchBody(String password, String currentPassword) {
 

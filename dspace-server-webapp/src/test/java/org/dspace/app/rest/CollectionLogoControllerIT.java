@@ -232,35 +232,35 @@ public class CollectionLogoControllerIT extends AbstractControllerIntegrationTes
         context.turnOffAuthorisationSystem();
 
         EPerson collectionAdmin = EPersonBuilder.createEPerson(context)
-                                                .withEmail("test4@mail.com")
-                                                .withPassword(password)
-                                                .withCanLogin(true)
-                                                .build();
+            .withEmail("test4@mail.com")
+            .withPassword(password)
+            .withCanLogin(true)
+            .build();
 
         Community community = CommunityBuilder.createCommunity(context)
-                                              .withName("New Community")
-                                              .build();
+            .withName("New Community")
+            .build();
 
         childCollection = CollectionBuilder.createCollection(context, community)
-                .withName("name of collection")
-                .withAdminGroup(collectionAdmin)
-                .build();
+            .withName("name of collection")
+            .withAdminGroup(collectionAdmin)
+            .build();
 
         context.restoreAuthSystemState();
 
         String userToken = getAuthToken(collectionAdmin.getEmail(), password);
         MvcResult mvcPostResult = getClient(userToken).perform(
-                        MockMvcRequestBuilders.multipart(getLogoUrlTemplate(childCollection.getID().toString()))
-                                .file(bitstreamFile))
-                .andExpect(status().isCreated())
-                .andReturn();
+                MockMvcRequestBuilders.multipart(getLogoUrlTemplate(childCollection.getID().toString()))
+                    .file(bitstreamFile))
+            .andExpect(status().isCreated())
+            .andReturn();
 
         String postContent = mvcPostResult.getResponse().getContentAsString();
         Map<String, Object> mapPostResult = mapper.readValue(postContent, Map.class);
 
         getClient(userToken)
-                .perform(delete(getBitstreamUrlTemplate(String.valueOf(mapPostResult.get("uuid")))))
-                .andExpect(status().isNoContent());
+            .perform(delete(getBitstreamUrlTemplate(String.valueOf(mapPostResult.get("uuid")))))
+            .andExpect(status().isNoContent());
     }
 
     private String getLogoUrlTemplate(String uuid) {

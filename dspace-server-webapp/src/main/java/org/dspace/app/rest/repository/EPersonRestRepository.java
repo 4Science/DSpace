@@ -12,9 +12,9 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -61,7 +61,7 @@ import org.springframework.stereotype.Component;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(EPersonRest.CATEGORY + "." + EPersonRest.NAME)
+@Component(EPersonRest.CATEGORY + "." + EPersonRest.PLURAL_NAME)
 public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, EPersonRest>
                                    implements InitializingBean {
 

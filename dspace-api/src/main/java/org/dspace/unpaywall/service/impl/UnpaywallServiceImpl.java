@@ -32,10 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import javax.annotation.PreDestroy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PreDestroy;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -209,23 +209,23 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
     private static String getPdfName(Unpaywall unpaywall) {
         return Optional.ofNullable(unpaywall.getPdfUrl())
-            .map(s -> s.substring(s.lastIndexOf('/') + 1))
-            .orElse(null);
+                       .map(s -> s.substring(s.lastIndexOf('/') + 1))
+                       .orElse(null);
     }
 
     @Override
     public List<UnpaywallItemVersionDto> getItemVersions(Context context, Item item) {
         String doi = itemService.getMetadataFirstValue(item, "dc", "identifier", "doi", Item.ANY);
         return findUnpaywall(context, doi, item.getID())
-                .filter(unpaywall -> SUCCESSFUL.equals(unpaywall.getStatus()))
-                .map(unpaywall -> {
-                    String unpaywallApiJson = unpaywall.getJsonRecord();
-                    UnpaywallApiResponse unpaywallApiResponse = mapJsonResponse(unpaywallApiJson);
-                    return unpaywallApiResponse.getOaLocations();
-                })
-                .stream().flatMap(List::stream)
-                .map(UnpaywallServiceImpl::mapUnpaywallItemVersionDto)
-                .collect(Collectors.toList());
+            .filter(unpaywall -> SUCCESSFUL.equals(unpaywall.getStatus()))
+            .map(unpaywall -> {
+                String unpaywallApiJson = unpaywall.getJsonRecord();
+                UnpaywallApiResponse unpaywallApiResponse = mapJsonResponse(unpaywallApiJson);
+                return unpaywallApiResponse.getOaLocations();
+            })
+            .stream().flatMap(List::stream)
+            .map(UnpaywallServiceImpl::mapUnpaywallItemVersionDto)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -253,13 +253,13 @@ public class UnpaywallServiceImpl implements UnpaywallService {
             return;
         }
         CompletableFuture<Void> newRequest = CompletableFuture
-                .runAsync(() -> callApiAndUpdateUnpaywallRecord(doi, itemId), executor)
-                .thenRun(() -> requestMap.remove(doi))
-                .exceptionally(throwable -> {
-                    logger.error("Cannot find the unpaywall for doi: " + doi, throwable);
-                    requestMap.remove(doi);
-                    return null;
-                });
+            .runAsync(() -> callApiAndUpdateUnpaywallRecord(doi, itemId), executor)
+            .thenRun(() -> requestMap.remove(doi))
+            .exceptionally(throwable -> {
+                logger.error("Cannot find the unpaywall for doi: " + doi, throwable);
+                requestMap.remove(doi);
+                return null;
+            });
         requestMap.put(doi, newRequest);
     }
 
@@ -346,11 +346,11 @@ public class UnpaywallServiceImpl implements UnpaywallService {
 
     private static UnpaywallItemVersionDto mapUnpaywallItemVersionDto(UnpaywallApiResponse.OaLocation itemVersion) {
         return new UnpaywallItemVersionDto(
-                itemVersion.getVersion(),
-                itemVersion.getLicense(),
-                itemVersion.getUrlForLandingPage(),
-                itemVersion.getUrlToPdf(),
-                itemVersion.getHostType()
+            itemVersion.getVersion(),
+            itemVersion.getLicense(),
+            itemVersion.getUrlForLandingPage(),
+            itemVersion.getUrlToPdf(),
+            itemVersion.getHostType()
         );
     }
 

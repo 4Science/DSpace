@@ -19,6 +19,7 @@ public class EditItemModeRest extends BaseObjectRest<String> {
     private static final long serialVersionUID = -3615146164199721822L;
     public static final String NAME = "edititemmode";
     public static final String CATEGORY = RestAddressableModel.CORE;
+    public static final String PLURAL_NAME = "edititemmodes";
 
     private String name;
     private String label;
@@ -30,6 +31,11 @@ public class EditItemModeRest extends BaseObjectRest<String> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 
     public String getName() {

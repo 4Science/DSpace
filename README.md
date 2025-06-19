@@ -12,7 +12,14 @@ For more information, visit https://wiki.duraspace.org/display/DSPACECRIS/DSpace
 
 **If you would like to get involved in our DSpace-CRIS 7 development effort, we welcome new contributors.** Just join one of our meetings or get in touch via Slack. See the [DSpace 7 Working Group](https://wiki.lyrasis.org/display/DSPACE/DSpace+7+Working+Group) wiki page for more info and join the #dspace-cris channel.
 
-**If you are looking for the ongoing maintenance work for DSpace-CRIS 6 (or prior releases)**, you can find that work on the corresponding maintenance branch (e.g. [`dspace-6_x_x-cris`](https://github.com/4Science/DSpace/tree/dspace-6_x_x-cris)) in this repository.
+* Backend (this codebase) provides a REST API, along with other machine-based interfaces (e.g. OAI-PMH, SWORD, etc)
+    * The REST Contract is at https://github.com/4Science/RestContract
+* Frontend (https://github.com/4Science/dspace-angular/) is the User Interface built on the REST API
+
+Prior versions of DSpace (v6.x and below) used two different UIs (XMLUI and JSPUI). Those UIs are no longer supported in v7 and above.
+* A maintenance branch for older versions is still available, see `dspace-6_x` for 6.x maintenance.
+
+* **If you are looking for the ongoing maintenance work for DSpace-CRIS 6 (or prior releases)**, you can find that work on the corresponding maintenance branch (e.g. [`dspace-6_x_x-cris`](https://github.com/4Science/DSpace/tree/dspace-6_x_x-cris)) in this repository.
 ***
 
 ## Downloads
@@ -25,16 +32,23 @@ Past releases and future releases are documented in the [RoadMap page](https://w
 
 Documentation is available on our [Documentation Wiki](https://wiki.lyrasis.org/display/DSPACECRIS/Technical+and+User+documentation) please check also the documentation from the parent DSpace project as basic features and principle are common and only described in the [DSpace documentation](https://wiki.lyrasis.org/display/DSDOC/).
 
-The latest DSpace Installation instructions are available [here](https://wiki.lyrasis.org/display/DSDOC7x/Installing+DSpace). Some extra step to initialize the DSpace-CRIS with proper default can be found in our documentation (see above).
+The latest DSpace Installation instructions are available at:
+https://wiki.lyrasis.org/display/DSDOC8x/Installing+DSpace
 
 Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL or Oracle), a servlet container (usually Tomcat) and a SOLR instance in order to function.
 
 More information about these and all other prerequisites can be found in the Installation instructions above.
 
-## Running DSpace-CRIS 7 in Docker
+## Running DSpace-CRIS 8 in Docker
 
 **NOTE**: At this time, we do not have production-ready Docker images for DSpace-CRIS.
 That said, we do have quick-start Docker Compose scripts for development or testing purposes.
+
+See [Running DSpace 8 with Docker Compose](dspace/src/main/docker-compose/README.md)
+
+## Contributing
+
+See [Contributing documentation](CONTRIBUTING.md)
 
 ## Getting Help
 DSpace-CRIS has a [dedicated slack channel](https://dspace-org.slack.com/messages/dspace-cris/) in the DSpace.org workspace.
@@ -53,7 +67,7 @@ Great Q&A is also available under the [DSpace tag on Stackoverflow](http://stack
 Additional support options are at https://wiki.lyrasis.org/display/DSPACE/Support
 
 DSpace also has an active service provider network. If you'd rather hire a service provider to
-install, upgrade, customize or host DSpace, then we recommend getting in touch with one of our
+install, upgrade, customize, or host DSpace, then we recommend getting in touch with one of our
 [Registered Service Providers](http://www.dspace.org/service-providers).
 
 ## Issue Tracker
@@ -101,7 +115,7 @@ run automatically by [GitHub Actions](https://github.com/4Science/DSpace/actions
   ```
 * How to run only tests of a specific DSpace module
   ```
-  # Before you can run only one module's tests, other modules may need installing into your ~/.m2
+  # Before you can run only one module's tests, other modules may need to be installed into your ~/.m2
   cd [dspace-src]
   mvn clean install
 

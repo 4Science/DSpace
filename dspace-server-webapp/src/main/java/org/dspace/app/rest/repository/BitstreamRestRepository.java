@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -64,7 +64,7 @@ import org.springframework.stereotype.Component;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(BitstreamRest.CATEGORY + "." + BitstreamRest.NAME)
+@Component(BitstreamRest.CATEGORY + "." + BitstreamRest.PLURAL_NAME)
 public class BitstreamRestRepository extends DSpaceObjectRestRepository<Bitstream, BitstreamRest> {
 
     private final BitstreamService bs;

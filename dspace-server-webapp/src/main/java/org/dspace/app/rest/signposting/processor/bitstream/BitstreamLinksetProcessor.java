@@ -8,8 +8,8 @@
 package org.dspace.app.rest.signposting.processor.bitstream;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.signposting.model.LinksetNode;
@@ -53,9 +53,9 @@ public class BitstreamLinksetProcessor extends BitstreamSignpostingProcessor {
                 String linksetUrl = String.format("%s/%s/linksets/%s", baseUrl, signpostingPath, item.getID());
                 String linksetJsonUrl = linksetUrl + "/json";
                 List<LinksetNode> links = List.of(
-                        new LinksetNode(linksetUrl, getRelation(), "application/linkset", buildAnchor(bitstream)),
-                        new LinksetNode(linksetJsonUrl, getRelation(), "application/linkset+json",
-                                buildAnchor(bitstream))
+                    new LinksetNode(linksetUrl, getRelation(), "application/linkset", buildAnchor(bitstream)),
+                    new LinksetNode(linksetJsonUrl, getRelation(), "application/linkset+json",
+                                    buildAnchor(bitstream))
                 );
                 linksetNodes.addAll(links);
             }

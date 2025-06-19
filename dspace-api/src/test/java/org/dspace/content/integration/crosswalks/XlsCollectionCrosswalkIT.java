@@ -117,7 +117,6 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
 
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
-
         context.turnOffAuthorisationSystem();
         community = createCommunity(context).build();
         anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);

@@ -22,6 +22,7 @@ import org.dspace.app.rest.RestResourceController;
 public class VersionRest extends BaseObjectRest<Integer> {
 
     public static final String NAME = "version";
+    public static final String PLURAL_NAME = "versions";
     public static final String CATEGORY = RestAddressableModel.VERSIONING;
 
     public static final String VERSION_HISTORY = "versionhistory";
@@ -130,5 +131,10 @@ public class VersionRest extends BaseObjectRest<Integer> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 }

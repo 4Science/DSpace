@@ -139,18 +139,11 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             orcidWebhookService.unregister(context, profile);
         }
 
-        itemService.clearMetadata(context, profile, "person", "identifier", "orcid", Item.ANY);
-        itemService.clearMetadata(context, profile, "dspace", "orcid", "scope", Item.ANY);
-        itemService.clearMetadata(context, profile, "dspace", "orcid", "authenticated", Item.ANY);
+        clearOrcidProfileMetadata(context, profile);
 
-        OrcidToken profileToken = orcidTokenService.findByProfileItem(context, profile);
-        if (profileToken == null) {
-            log.warn("Cannot find any token related to the user profile: {}", profile.getID());
-            return;
-        }
+        clearSynchronizationSettings(context, profile);
 
-        orcidTokenService.deleteByProfileItem(context, profile);
-        orcidClient.revokeToken(profileToken);
+        clearOrcidToken(context, profile);
 
         updateItem(context, profile);
 
@@ -159,6 +152,23 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             orcidQueueService.delete(context, queueRecord);
         }
 
+    }
+
+    private void clearOrcidToken(Context context, Item profile) {
+        OrcidToken profileToken = orcidTokenService.findByProfileItem(context, profile);
+        if (profileToken == null) {
+            log.warn("Cannot find any token related to the user profile: {}", profile.getID());
+            return;
+        }
+
+        orcidTokenService.deleteByProfileItem(context, profile);
+        orcidClient.revokeToken(profileToken);
+    }
+
+    private void clearOrcidProfileMetadata(Context context, Item profile) throws SQLException {
+        itemService.clearMetadata(context, profile, "person", "identifier", "orcid", Item.ANY);
+        itemService.clearMetadata(context, profile, "dspace", "orcid", "scope", Item.ANY);
+        itemService.clearMetadata(context, profile, "dspace", "orcid", "authenticated", Item.ANY);
     }
 
     @Override
@@ -316,6 +326,22 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         return true;
 
+    }
+
+    private void clearSynchronizationSettings(Context context, Item profile)
+        throws SQLException {
+
+        if (configurationService.getBooleanProperty("orcid.disconnection.remain-sync", false)) {
+            return;
+        }
+
+        itemService.clearMetadata(context, profile, "dspace", "orcid", "sync-mode", Item.ANY);
+        itemService.clearMetadata(context, profile, "dspace", "orcid", "sync-profile", Item.ANY);
+
+        for (OrcidEntityType entityType : OrcidEntityType.values()) {
+            itemService.clearMetadata(context, profile, "dspace", "orcid",
+                                      "sync-" + entityType.name().toLowerCase() + "s", Item.ANY);
+        }
     }
 
     private boolean containsSameValues(List<String> firstList, List<String> secondList) {

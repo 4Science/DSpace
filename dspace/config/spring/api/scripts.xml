@@ -3,6 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="import-openaire-events" class="org.dspace.qaevent.script.OpenaireEventsImportCliScriptConfiguration" primary="true">
+        <property name="description" value="Import new Openaire quality assurance broker events"/>
+        <property name="dspaceRunnableClass" value="org.dspace.qaevent.script.OpenaireEventsImportCli"/>
+    </bean>
+
     <bean id="index-discovery" class="org.dspace.discovery.IndexDiscoveryScriptConfiguration">
         <property name="description" value="Update Discovery Solr Search Index"/>
         <property name="dspaceRunnableClass" value="org.dspace.discovery.IndexClient"/>
@@ -85,16 +91,6 @@
         <property name="dspaceRunnableClass" value="org.dspace.metrics.UpdateCrisMetricsInSolrDocCli"/>
     </bean>
 
-    <bean id="import-oaire-suggestions" class="org.dspace.app.suggestion.OAIREPublicationLoaderCliScriptConfiguration" primary="true">
-       <property name="description" value="Import and store locally metadata from OpenAIRE"/>
-       <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.OAIREPublicationLoaderRunnableCli"/>
-    </bean>
-
-    <bean id="import-nbevents" class="org.dspace.app.nbevent.NBEventsCliScriptConfiguration" primary="true">
-        <property name="description" value="Import new openAIRE notification broker events"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.nbevent.NBEventsRunnableCli"/>
-    </bean>
-
     <bean id="import-publications" class="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCliScriptConfiguration">
         <property name="description" value="Perform the creating of workspace item using external sources (i.e. Scopus, WebOfScience)"/>
         <property name="dspaceRunnableClass" value="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCli"/>
@@ -168,6 +164,11 @@
     <bean id="migration" class="org.dspace.app.migration.MigrateScriptConfiguration" primary="true">
         <property name="description" value="Perform the migration from cris 5 to cris 7"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.migration.MigrateScript"/>
+    </bean>
+
+    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderCliScriptConfiguration">
+       <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
+       <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnableCli"/>
     </bean>
 
     <bean id="metadata-update" class="org.dspace.app.metadataupdate.MetadataUpdateCliScriptConfiguration" primary="true">

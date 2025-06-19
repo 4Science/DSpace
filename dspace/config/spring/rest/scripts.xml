@@ -8,6 +8,11 @@
 
     <!-- This primary attribute is present so that we can assure that in the REST layer we'll always use this
         bean if it is present-->
+    <bean id="import-openaire-events" class="org.dspace.qaevent.script.OpenaireEventsImportScriptConfiguration" primary="true">
+        <property name="description" value="Import new openaire quality assurance broker events"/>
+        <property name="dspaceRunnableClass" value="org.dspace.qaevent.script.OpenaireEventsImport"/>
+     </bean>
+
     <bean id="metadata-import" class="org.dspace.app.bulkedit.MetadataImportScriptConfiguration" primary="true">
         <property name="description" value="Import metadata after batch editing" />
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataImport"/>
@@ -59,14 +64,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.CollectionExport"/>
     </bean>
 
-    <bean id="import-nbevents" class="org.dspace.app.nbevent.NBEventsScriptConfiguration" primary="true">
-        <property name="description" value="Import new openAIRE notification broker events"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.nbevent.NBEventsRunnable"/>
-     </bean>
-
-    <bean id="import-oaire-suggestions" class="org.dspace.app.suggestion.OAIREPublicationLoaderScriptConfiguration" primary="true">
-        <property name="description" value="Import and store locally metadata from OpenAIRE"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.OAIREPublicationLoaderRunnable"/>
+    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderScriptConfiguration">
+        <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnable"/>
     </bean>
 
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration" primary="true">

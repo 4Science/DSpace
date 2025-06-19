@@ -7,21 +7,19 @@
  */
 package org.dspace.eperson;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import org.dspace.content.MetadataField;
 import org.dspace.core.ReloadableEntity;
-import org.hibernate.annotations.Type;
+import org.hibernate.Length;
 
 /**
  * Metadata related to a registration data {@link RegistrationData}
@@ -60,9 +58,7 @@ public class RegistrationDataMetadata implements ReloadableEntity<Integer>, Comp
      * Value represented by this {@link RegistrationDataMetadata} instance
      * related to the metadataField {@link MetadataField}
      */
-    @Lob
-    @Type(type = "org.dspace.storage.rdbms.hibernate.DatabaseAwareLobType")
-    @Column(name = "text_value")
+    @Column(name = "text_value", length = Length.LONG32)
     private String value = null;
 
     /**

@@ -79,4 +79,9 @@ public class BitstreamRest extends DSpaceObjectRest {
     public String getType() {
         return NAME;
     }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
+    }
 }

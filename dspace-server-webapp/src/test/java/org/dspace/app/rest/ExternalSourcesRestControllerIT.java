@@ -53,14 +53,30 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
     @Test
     public void findAllExternalSources() throws Exception {
         getClient().perform(get("/api/integration/externalsources"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItems(
-                ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
-                ExternalSourceMatcher.matchExternalSource("orcid", "orcid", false),
-                ExternalSourceMatcher.matchExternalSource("sherpaJournalIssn", "sherpaJournalIssn", false),
-                ExternalSourceMatcher.matchExternalSource("sherpaJournal", "sherpaJournal", false),
-                ExternalSourceMatcher.matchExternalSource("sherpaPublisher", "sherpaPublisher", false),
-                ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false))));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItems(
+                       ExternalSourceMatcher.matchExternalSource(
+                           "openaireFunding", "openaireFunding", false),
+                       ExternalSourceMatcher.matchExternalSource(
+                           "sherpaJournalIssn", "sherpaJournalIssn", false),
+                       ExternalSourceMatcher.matchExternalSource(
+                           "sherpaJournal", "sherpaJournal", false),
+                       ExternalSourceMatcher.matchExternalSource(
+                           "sherpaPublisher", "sherpaPublisher", false),
+                       ExternalSourceMatcher.matchExternalSource("mock2", "mock2", false),
+                       ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
+                       ExternalSourceMatcher.matchExternalSource("mock4", "mock4", false),
+                       ExternalSourceMatcher.matchExternalSource("orcid", "orcid", false),
+                       ExternalSourceMatcher.matchExternalSource("authorAuthority", "authorAuthority", false),
+                       ExternalSourceMatcher.matchExternalSource(
+                           "pubmed", "pubmed", false),
+                       ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
+                       ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
+                       ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false),
+                       ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
+                       ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
+                   )))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
     }
 
     @Test

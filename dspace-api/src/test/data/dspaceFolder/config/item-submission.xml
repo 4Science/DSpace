@@ -27,8 +27,11 @@
         <name-map collection-handle="123456789/typebind-test" submission-name="typebindtest"/>
         <name-map collection-handle="123456789/accessCondition-not-discoverable" submission-name="accessConditionNotDiscoverable"/>
         <name-map collection-handle="123456789/test-hidden" submission-name="test-hidden"/>
+        <name-map community-handle="123456789/topcommunity-test" submission-name="topcommunitytest"/>
+        <name-map community-handle="123456789/subcommunity-test" submission-name="subcommunitytest"/>
         <name-map collection-handle="123456789/collection-test" submission-name="collectiontest"/>
         <name-map collection-entity-type="CustomEntityType" submission-name="entitytypetest"/>
+        <name-map collection-handle="123456789/test-duplicate-detection" submission-name="test-duplicate-detection"/>
     </submission-map>
 
 
@@ -315,6 +318,19 @@
             <type>submission-form</type>
         </step-definition>
 
+        <!-- Detect duplicates step -->
+        <step-definition id="duplicates">
+            <heading>submit.progressbar.duplicates</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DuplicateDetectionStep</processing-class>
+            <type>duplicates</type>
+        </step-definition>
+
+        <step-definition id="coarnotify">
+            <heading>submit.progressbar.coarnotify</heading>
+            <processing-class>org.dspace.app.rest.submit.step.NotifyStep</processing-class>
+            <type>coarnotify</type>
+        </step-definition>
+
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -347,6 +363,9 @@
             <!--Step will be to Describe the item. -->
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
+
+            <!--Step will be COAR Notify services to the item -->
+            <step id="coarnotify"/>
 
             <!--Step will be to Upload the item -->
             <step id="upload"/>
@@ -421,17 +440,17 @@
             <!-- <step id="verify"/> -->
         </submission-process>
 
-	    <submission-process name="publication">
-	      <step id="collection" />
-	      <step id="extraction" />
-	      <step id="publication" />
-	      <step id="publication_indexing" />
-	      <step id="publication_bibliographic_details" />
-	      <step id="publication_references" />
-	      <step id="detect-duplicate"/>
-	      <step id="upload" />
-	      <step id="license" />
-	    </submission-process>
+        <submission-process name="publication">
+            <step id="collection" />
+            <step id="extraction" />
+            <step id="publication" />
+            <step id="publication_indexing" />
+            <step id="publication_bibliographic_details" />
+            <step id="publication_references" />
+            <step id="detect-duplicate"/>
+            <step id="upload" />
+            <step id="license" />
+        </submission-process>
 
         <!-- patent, used by some collection like 123456789/1001 -->
         <submission-process name="patent">
@@ -442,13 +461,14 @@
             <step id="upload" />
             <step id="license" />
         </submission-process>
-	    <submission-process name="person">
-	      <step id="collection" />
-	      <step id="person" />
-	      <step id="detect-duplicate" />
-	      <step id="upload" />
-	      <step id="license" />
-	    </submission-process>
+
+        <submission-process name="person">
+            <step id="collection" />
+            <step id="person" />
+            <step id="detect-duplicate" />
+            <step id="upload" />
+            <step id="license" />
+        </submission-process>
 
         <submission-process name="languagetestprocess">
             <step id="collection"/>
@@ -458,9 +478,11 @@
         <submission-process name="modeA">
            <step id="titleAndIssuedDate"/>
         </submission-process>
+
         <submission-process name="modeB">
            <step id="onlyTitle"/>
         </submission-process>
+
         <submission-process name="modeC">
            <step id="collection" />
            <step id="onlyTitle"/>
@@ -472,7 +494,7 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="upload"/>
-            <step id="extractionstep"/>
+            <step id="extraction"/>
             <step id="license"/>
             <step id="cclicense"/>
         </submission-process>
@@ -505,12 +527,13 @@
         </submission-process>
 
         <submission-process name="green">
-            <step id="extractionstep" />
+            <step id="extraction" />
             <step id="green" />
             <step id="upload" />
         </submission-process>
+
         <submission-process name="orange">
-            <step id="extractionstep" />
+            <step id="extraction" />
             <step id="orange" />
             <step id="upload" />
         </submission-process>
@@ -522,12 +545,26 @@
             <step id="license" />
         </submission-process>
 
+        <submission-process name="topcommunitytest">
+            <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="subcommunitytest">
+            <step id="collection"/>
+        </submission-process>
+
         <submission-process name="collectiontest">
             <step id="collection"/>
         </submission-process>
 
         <submission-process name="entitytypetest">
             <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="test-duplicate-detection">
+            <step id="collection"/>
+            <step id="duplicates"/>
+            <step id="traditionalpageone"/>
         </submission-process>
 
     </submission-definitions>

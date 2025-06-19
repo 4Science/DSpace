@@ -10,8 +10,8 @@ package org.dspace.app.rest.repository;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.projection.Projection;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 /**
  * Link repository for "submitter" subresource of an item.
  */
-@Component(ItemRest.CATEGORY + "." + ItemRest.NAME + "." + ItemRest.SUBMITTER)
+@Component(ItemRest.CATEGORY + "." + ItemRest.PLURAL_NAME + "." + ItemRest.SUBMITTER)
 public class ItemSubmitterLinkRepository extends AbstractDSpaceRestRepository
         implements LinkRestRepository {
 

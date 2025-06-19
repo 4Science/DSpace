@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.time.Period;
 import java.util.Date;
 
 import org.apache.commons.codec.CharEncoding;
@@ -457,7 +458,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                 .withTitle("Withdrawn Item")
                 .withMetadata("dc", "identifier", "doi", doi)
                 .withIssueDate("2017-11-18")
-                .withEmbargoPeriod("2 week")
+                .withEmbargoPeriod(Period.ofWeeks(2))
                 .build();
         context.restoreAuthSystemState();
 
@@ -747,7 +748,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                     .withMimeType(bitstreamMimeType)
                     .build();
         }
-        bitstreamService.addMetadata(context, bitstream, "dc", "type", null, Item.ANY, "Article");
+        bitstreamService.addMetadata(context, bitstream, "dc", "type", null, null, "Article");
 
         context.restoreAuthSystemState();
 
@@ -816,7 +817,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                     .withName("Bitstream")
                     .withDescription("description")
                     .withMimeType(bitstreamMimeType)
-                    .withEmbargoPeriod("6 months")
+                    .withEmbargoPeriod(Period.ofMonths(6))
                     .build();
         }
         context.restoreAuthSystemState();
@@ -835,7 +836,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                 .withTitle("Workspace Item")
                 .build();
         Item item = workspaceItem.getItem();
-        itemService.addMetadata(context, item, "dc", "identifier", "doi", Item.ANY, doi);
+        itemService.addMetadata(context, item, "dc", "identifier", "doi", null, doi);
 
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
@@ -916,7 +917,7 @@ public class LinksetRestControllerIT extends AbstractControllerIntegrationTest {
                 .withTitle("Withdrawn Item")
                 .withMetadata("dc", "identifier", "doi", doi)
                 .withIssueDate("2017-11-18")
-                .withEmbargoPeriod("2 week")
+                .withEmbargoPeriod(Period.ofWeeks(2))
                 .build();
         context.restoreAuthSystemState();
 

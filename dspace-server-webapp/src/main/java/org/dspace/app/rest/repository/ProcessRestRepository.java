@@ -6,14 +6,15 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.repository;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +47,7 @@ import org.springframework.stereotype.Component;
 /**
  * The repository for the Process workload
  */
-@Component(ProcessRest.CATEGORY + "." + ProcessRest.NAME)
+@Component(ProcessRest.CATEGORY + "." + ProcessRest.PLURAL_NAME)
 public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Integer> {
 
     private static final Logger log = LogManager.getLogger();
@@ -88,7 +89,7 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
         try {
             int total = processService.countTotal(context);
             List<Process> processes = processService.findAll(context, pageable.getPageSize(),
-                    Math.toIntExact(pageable.getOffset()));
+                                                             Math.toIntExact(pageable.getOffset()));
             return converter.toRestPage(processes, pageable, total, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -103,8 +104,8 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
             Context context = obtainContext();
             long total = processService.countByUser(context, context.getCurrentUser());
             List<Process> processes = processService.findByUser(context, context.getCurrentUser(),
-                pageable.getPageSize(),
-                Math.toIntExact(pageable.getOffset()));
+                                                                pageable.getPageSize(),
+                                                                Math.toIntExact(pageable.getOffset()));
             return converter.toRestPage(processes, pageable, total, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -113,9 +114,10 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
 
     /**
      * Calls on the getBitstreams method to retrieve all the Bitstreams of this process
+     *
      * @param processId The processId of the Process to retrieve the Bitstreams for
-     * @return          The list of Bitstreams of the given Process
-     * @throws SQLException If something goes wrong
+     * @return The list of Bitstreams of the given Process
+     * @throws SQLException       If something goes wrong
      * @throws AuthorizeException If something goes wrong
      */
     public List<BitstreamRest> getProcessBitstreams(Integer processId) throws SQLException, AuthorizeException {
@@ -123,8 +125,8 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
         Process process = getProcess(processId, context);
         List<Bitstream> bitstreams = processService.getBitstreams(context, process);
         return bitstreams.stream()
-                  .map(bitstream -> (BitstreamRest) converterService.toRest(bitstream, Projection.DEFAULT))
-                  .collect(Collectors.toList());
+                         .map(bitstream -> (BitstreamRest) converterService.toRest(bitstream, Projection.DEFAULT))
+                         .collect(Collectors.toList());
     }
 
     private Process getProcess(Integer processId, Context context) throws SQLException, AuthorizeException {
@@ -137,10 +139,11 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
 
     /**
      * Retrieves the Bitstream in the given Process of a given type
+     *
      * @param processId The processId of the Process to be used
      * @param type      The type of bitstreams to be returned, if null it'll return all the bitstreams
-     * @return          The bitstream for the given parameters
-     * @throws SQLException If something goes wrong
+     * @return The bitstream for the given parameters
+     * @throws SQLException       If something goes wrong
      * @throws AuthorizeException If something goes wrong
      */
     public BitstreamRest getProcessBitstreamByType(Integer processId, String type)
@@ -167,11 +170,12 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
     /**
      * Search method that will take Parameters and return a list of {@link ProcessRest} objects
      * based on the {@link Process} objects that were in the databank that adhere to these params
-     * @param ePersonUuid   The UUID for the EPerson that started the Process
-     * @param scriptName    The name of the Script for which the Process belongs to
-     * @param processStatusString   The status of the Process
-     * @param pageable      The pageable
-     * @return              A page of {@link ProcessRest} objects adhering to the params
+     *
+     * @param ePersonUuid         The UUID for the EPerson that started the Process
+     * @param scriptName          The name of the Script for which the Process belongs to
+     * @param processStatusString The status of the Process
+     * @param pageable            The pageable
+     * @return A page of {@link ProcessRest} objects adhering to the params
      * @throws SQLException If something goes wrong
      */
     @SearchRestMethod(name = "byProperty")
@@ -196,8 +200,10 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
 
         ProcessStatus processStatus = StringUtils.isBlank(processStatusString) ? null :
             ProcessStatus.valueOf(processStatusString);
-        ProcessQueryParameterContainer processQueryParameterContainer = createProcessQueryParameterContainer(scriptName,
-                                                                            ePerson, processStatus);
+        ProcessQueryParameterContainer processQueryParameterContainer =
+            createProcessQueryParameterContainer(scriptName,
+                                                 ePerson,
+                                                 processStatus);
         handleSearchSort(pageable, processQueryParameterContainer);
         List<Process> processes = processService.search(context, processQueryParameterContainer, pageable.getPageSize(),
                                                         Math.toIntExact(pageable.getOffset()));
@@ -212,8 +218,9 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
      * This method will retrieve the {@link Sort} from the given {@link Pageable} and it'll create the sortOrder and
      * sortProperty Strings on the {@link ProcessQueryParameterContainer} object so that we can store how the sorting
      * should be done
-     * @param pageable                          The pageable object
-     * @param processQueryParameterContainer    The object in which the sorting will be filled in
+     *
+     * @param pageable                       The pageable object
+     * @param processQueryParameterContainer The object in which the sorting will be filled in
      */
     private void handleSearchSort(Pageable pageable, ProcessQueryParameterContainer processQueryParameterContainer) {
         Sort sort = pageable.getSort();
@@ -226,6 +233,9 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
                     processQueryParameterContainer.setSortOrder(order.getDirection().name());
                 } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "endTime")) {
                     processQueryParameterContainer.setSortProperty(Process_.FINISHED_TIME);
+                    processQueryParameterContainer.setSortOrder(order.getDirection().name());
+                } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "creationTime")) {
+                    processQueryParameterContainer.setSortProperty(Process_.CREATION_TIME);
                     processQueryParameterContainer.setSortOrder(order.getDirection().name());
                 } else {
                     throw new DSpaceBadRequestException("The given sort option was invalid: " + order.getProperty());
@@ -241,10 +251,11 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
      * This method will create a new {@link ProcessQueryParameterContainer} object and return it.
      * This object will contain a map which is filled in with the database column reference as key and the value that
      * it should contain when searching as the value of the entry
+     *
      * @param scriptName    The name that the script of the process should have
      * @param ePerson       The eperson that the process should have
      * @param processStatus The status that the process should have
-     * @return              The newly created {@link ProcessQueryParameterContainer}
+     * @return The newly created {@link ProcessQueryParameterContainer}
      */
     private ProcessQueryParameterContainer createProcessQueryParameterContainer(String scriptName, EPerson ePerson,
                                                                                 ProcessStatus processStatus) {

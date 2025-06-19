@@ -71,8 +71,7 @@ env:
   # See "Redeploy" steps below for more details.
   REDEPLOY_SANDBOX_URL: ${{ secrets.REDEPLOY_SANDBOX_URL }}
   REDEPLOY_DEMO_URL: ${{ secrets.REDEPLOY_DEMO_URL }}
-  # Current DSpace maintenance branch (and architecture) which is deployed to demo.dspace.org / sandbox.dspace.org
-  # (NOTE: No deployment branch specified for sandbox.dspace.org as it uses the default_branch)
+  # Current DSpace branches (and architecture) which are deployed to demo.dspace.org & sandbox.dspace.org respectively
   DEPLOY_DEMO_BRANCH: 'dspace-8_x'
   DEPLOY_SANDBOX_BRANCH: 'main'
   DEPLOY_ARCH: 'linux/amd64'
@@ -176,9 +175,9 @@ jobs:
       - name: Export Docker build digest
         if: ${{ ! matrix.isPr }}
         run: |
-            mkdir -p /tmp/digests
-            digest="${{ steps.docker_build.outputs.digest }}"
-            touch "/tmp/digests/${digest#sha256:}"
+          mkdir -p /tmp/digests
+          digest="${{ steps.docker_build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
 
       # Upload digest to an artifact, so that it can be used in combined manifest below
       # (The purpose of the combined manifest is to list both amd64 and arm64 builds under same tag)

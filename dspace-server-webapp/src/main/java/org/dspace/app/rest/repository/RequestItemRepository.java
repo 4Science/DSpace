@@ -18,10 +18,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.client.utils.URIBuilder;
@@ -55,9 +55,9 @@ import org.springframework.web.util.HtmlUtils;
  *
  * @author Mark H. Wood <mwood@iupui.edu>
  */
-@Component(RequestItemRest.CATEGORY + '.' + RequestItemRest.NAME)
+@Component(RequestItemRest.CATEGORY + '.' + RequestItemRest.PLURAL_NAME)
 public class RequestItemRepository
-        extends DSpaceRestRepository<RequestItemRest, String> {
+    extends DSpaceRestRepository<RequestItemRest, String> {
     private static final Logger LOG = LogManager.getLogger();
 
     @Autowired(required = true)
@@ -101,11 +101,11 @@ public class RequestItemRepository
     @Override
     @PreAuthorize("permitAll()")
     public RequestItemRest createAndReturn(Context ctx)
-            throws AuthorizeException, SQLException {
+        throws AuthorizeException, SQLException {
         // Fill a RequestItemRest from the client's HTTP request.
         HttpServletRequest req = getRequestService()
-                .getCurrentRequest()
-                .getHttpServletRequest();
+            .getCurrentRequest()
+            .getHttpServletRequest();
         ObjectMapper mapper = new ObjectMapper();
         RequestItemRest rir;
         try {
@@ -183,7 +183,7 @@ public class RequestItemRepository
         // Create the request.
         String token;
         token = requestItemService.createRequest(ctx, bitstream, item,
-                allFiles, email, username, message);
+                                                 allFiles, email, username, message);
 
         // Some fields are given values during creation, so return created request.
         RequestItem ri = requestItemService.findByToken(ctx, token);
@@ -196,7 +196,7 @@ public class RequestItemRepository
             responseLink = getLinkTokenEmail(ri.getToken());
         } catch (URISyntaxException | MalformedURLException e) {
             LOG.warn("Impossible URL error while composing email:  {}",
-                    e::getMessage);
+                     e::getMessage);
             throw new RuntimeException("Request not sent:  " + e.getMessage());
         }
 
@@ -213,15 +213,15 @@ public class RequestItemRepository
     // NOTICE:  there is no service method for this -- requests are never deleted?
     @Override
     public void delete(Context context, String token)
-            throws AuthorizeException, RepositoryMethodNotImplementedException {
+        throws AuthorizeException, RepositoryMethodNotImplementedException {
         throw new RepositoryMethodNotImplementedException(RequestItemRest.NAME, "delete");
     }
 
     @Override
     @PreAuthorize("permitAll()")
     public RequestItemRest put(Context context, HttpServletRequest request,
-            String apiCategory, String model, String token, JsonNode requestBody)
-            throws AuthorizeException {
+                               String apiCategory, String model, String token, JsonNode requestBody)
+        throws AuthorizeException {
         RequestItem ri = requestItemService.findByToken(context, token);
         if (null == ri) {
             throw new UnprocessableEntityException("Item request not found");
@@ -231,8 +231,8 @@ public class RequestItemRepository
         Date decisionDate = ri.getDecision_date();
         if (null != decisionDate) {
             throw new UnprocessableEntityException("Request was "
-                    + (ri.isAccept_request() ? "granted" : "denied")
-                    + " on " + decisionDate + " and may not be updated.");
+                                                       + (ri.isAccept_request() ? "granted" : "denied")
+                                                       + " on " + decisionDate + " and may not be updated.");
         }
 
         // Make the changes
@@ -294,7 +294,7 @@ public class RequestItemRepository
      * @throws MalformedURLException passed through.
      */
     public String getLinkTokenEmail(String token)
-            throws URISyntaxException, MalformedURLException {
+        throws URISyntaxException, MalformedURLException {
         final String base = configurationService.getProperty("dspace.ui.url");
 
         // Construct the link, making sure to support sub-paths

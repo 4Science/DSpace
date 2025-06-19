@@ -1,4 +1,4 @@
-image: maven:3.6.3-jdk-11
+image: maven:3.9.8-eclipse-temurin-17-focal
 
 definitions:
   docker:
@@ -77,6 +77,7 @@ definitions:
           - maven
         script:
           - *setEnv
+#          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
           - cp -rf target/local-repo/** ~/.m2/repository/
           - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
         artifacts:
@@ -101,19 +102,13 @@ definitions:
 
 pipelines:
   branches:
-    'glam7':
-      - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
-    'dspace-cris-7':
+    'main-glam':
       - step: *install
       - parallel: &parallel-pipeline
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
     'dspace-cris-2023_02_x':
       - step: *install
       - parallel: *parallel-pipeline
@@ -125,19 +120,19 @@ pipelines:
     '**':
       - step: *install
       - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
   custom:
     install:
       - step: *install
     integration-tests-with-test-jars:
-       - step: *integration-tests-with-test-jars
+      - step: *integration-tests-with-test-jars
     integration-dspace-api:
-       - step: *integration-tests-dspace-api
+      - step: *integration-tests-dspace-api
     integration-tests-slow:
-       - step: *integration-tests-slow
+      - step: *integration-tests-slow
     unit:
-       - step: *unit-test-code-checks
+      - step: *unit-test-code-checks
 

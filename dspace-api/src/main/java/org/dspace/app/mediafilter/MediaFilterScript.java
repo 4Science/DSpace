@@ -8,6 +8,7 @@
 package org.dspace.app.mediafilter;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,8 +42,9 @@ import org.dspace.utils.DSpace;
  * MFM: -v verbose outputs all extracted text to STDOUT; -f force forces all
  * bitstreams to be processed, even if they have been before; -n noindex does not
  * recreate index after processing bitstreams; -i [identifier] limits processing
- * scope to a community, collection or item; and -m [max] limits processing to a
- * maximum number of items.
+ * scope to a community, collection or item; -m [max] limits processing to a
+ * maximum number of items; -fd [fromdate] takes only items starting from this date,
+ * filtering by last_modified in the item table.
  */
 public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfiguration> {
 
@@ -59,11 +61,14 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
     private boolean isVerbose = false;
     private boolean isQuiet = false;
     private boolean isForce = false; // default to not forced
+    private String[] bundleNamesToSkip; // skip all items that seems to have been already processed
+    private int modifiedSinceDays = -1; // only process item modified in the last days
     private String identifier = null; // object scope limiter
     private int max2Process = Integer.MAX_VALUE;
     private String[] filterNames;
     private String[] skipIds = null;
     private Map<String, List<String>> filterFormats = new HashMap<>();
+    private LocalDate fromDate = null;
 
     public MediaFilterScriptConfiguration getScriptConfiguration() {
         return new DSpace().getServiceManager()
@@ -82,6 +87,12 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
             isVerbose = true;
         }
 
+        if (commandLine.hasOption('b')) {
+            bundleNamesToSkip = commandLine.getOptionValues('b');
+        }
+        if (commandLine.hasOption('l')) {
+            modifiedSinceDays = Integer.parseInt(commandLine.getOptionValue('l'));
+        }
         isQuiet = commandLine.hasOption('q');
 
         if (commandLine.hasOption('f')) {
@@ -114,6 +125,10 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
         if (commandLine.hasOption('s')) {
             //specified which identifiers to skip when processing
             skipIds = commandLine.getOptionValues('s');
+        }
+
+        if (commandLine.hasOption('d')) {
+            fromDate = LocalDate.parse(commandLine.getOptionValue('d'));
         }
 
 
@@ -219,6 +234,10 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
             mediaFilterService.setSkipList(Arrays.asList(skipIds));
         }
 
+        if (fromDate != null) {
+            mediaFilterService.setFromDate(fromDate);
+        }
+
         Context c = null;
         try {
             c = new Context();
@@ -229,7 +248,7 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
 
             // now apply the filters
             if (identifier == null) {
-                mediaFilterService.applyFiltersAllItems(c);
+                mediaFilterService.applyFiltersAllItems(c, modifiedSinceDays, bundleNamesToSkip);
             } else {
                 // restrict application scope to identifier
                 DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService().resolveToObject(c, identifier);

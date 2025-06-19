@@ -9,8 +9,8 @@ package org.dspace.app.rest.signposting.processor.item;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.signposting.model.LinksetNode;
@@ -50,7 +50,7 @@ public class ItemContentBitstreamsProcessor extends ItemSignpostingProcessor {
                     String mimeType = bitstream.getFormat(context).getMIMEType();
                     String bitstreamUrl = frontendUrlService.generateUrl(bitstream);
                     linksetNodes.add(
-                            new LinksetNode(bitstreamUrl, getRelation(), mimeType, buildAnchor(context, item))
+                        new LinksetNode(bitstreamUrl, getRelation(), mimeType, buildAnchor(context, item))
                     );
                 }
             }

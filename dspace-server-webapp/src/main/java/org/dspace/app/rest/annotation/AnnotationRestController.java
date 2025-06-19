@@ -9,8 +9,8 @@ package org.dspace.app.rest.annotation;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.ws.rs.NotAuthorizedException;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
@@ -51,7 +51,7 @@ public class AnnotationRestController {
         );
     }
 
-    @RequestMapping(method = { RequestMethod.POST, RequestMethod.OPTIONS }, value = "/create")
+    @RequestMapping(method = {RequestMethod.POST, RequestMethod.OPTIONS}, value = "/create")
     public ResponseEntity<AnnotationRest> create(@RequestBody AnnotationRest annotation) {
         Context context = obtainContext();
         WorkspaceItem workspaceItem = null;

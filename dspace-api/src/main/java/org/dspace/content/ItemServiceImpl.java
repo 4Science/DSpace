@@ -47,6 +47,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
+import org.dspace.content.authority.Choices;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
@@ -63,6 +64,7 @@ import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.content.template.TemplateItemValueService;
 import org.dspace.content.virtual.VirtualMetadataPopulator;
 import org.dspace.content.vo.MetadataValueVO;
+import org.dspace.contentreport.QueryPredicate;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -101,6 +103,7 @@ import org.dspace.orcid.service.OrcidQueueService;
 import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.profile.service.ResearcherProfileService;
+import org.dspace.qaevent.dao.QAEventsDAO;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.Version;
@@ -123,7 +126,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(Item.class);
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger();
 
     @Autowired(required = true)
     protected ItemDAO itemDAO;
@@ -202,6 +205,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected SubscribeService subscribeService;
 
     @Autowired
+    private QAEventsDAO qaEventsDao;
+
+    @Autowired
     private VersionHistoryService versionHistoryService;
 
     @Autowired
@@ -214,13 +220,12 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     private List<ItemSearcherByMetadata> itemSearcherByMetadata;
 
     protected ItemServiceImpl() {
-        super();
     }
 
     @Override
-    public Thumbnail getThumbnail(Context context, Item item) throws SQLException {
+    public Thumbnail getThumbnail(Context context, Item item, boolean requireOriginal) throws SQLException {
         // Search the thumbnail using the configuration
-        Thumbnail thumbnail = thumbnailLayoutTabConfigurationStrategy(context, item);
+        Thumbnail thumbnail = thumbnailLayoutTabConfigurationStrategy(context, item, requireOriginal);
         if (thumbnail != null) {
             return thumbnail;
         }
@@ -232,7 +237,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param item
      * @throws SQLException
      */
-    private Thumbnail thumbnailLayoutTabConfigurationStrategy(Context context, Item item)
+    private Thumbnail thumbnailLayoutTabConfigurationStrategy(Context context, Item item, boolean requireOriginal)
         throws SQLException {
         List<CrisLayoutTab> crisLayoutTabs = crisLayoutTabService.findByItem(context, String.valueOf(item.getID()));
 
@@ -247,7 +252,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 primaryBitstream = originalBundles.get(0).getPrimaryBitstream();
             }
             if (primaryBitstream == null) {
-                primaryBitstream = bitstreamService.getFirstBitstream(item, "ORIGINAL");
+                if (requireOriginal) {
+                    primaryBitstream = bitstreamService.getFirstBitstream(item, "ORIGINAL");
+                }
+                thumbBitstream = bitstreamService.getFirstBitstream(item, "THUMBNAIL");
             }
             if (primaryBitstream != null) {
                 thumbBitstream = bitstreamService.getThumbnail(context, primaryBitstream);
@@ -1068,6 +1076,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             orcidToken.setProfileItem(null);
         }
 
+        List<QAEventProcessed> qaEvents = qaEventsDao.findByItem(context, item);
+        for (QAEventProcessed qaEvent : qaEvents) {
+            qaEventsDao.delete(context, qaEvent);
+        }
+
         //Only clear collections after we have removed everything else from the item
         item.clearCollections();
         item.setOwningCollection(null);
@@ -1404,6 +1417,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             authorizeService.removePoliciesActionFilter(context, item, Constants.READ);
         }
 
+        // If collection has defaultREAD policies, remove the item's READ policies.
+        if (replaceReadRPWithCollectionRP && defaultCollectionPolicies.size() > 0) {
+            authorizeService.removePoliciesActionFilter(context, item, Constants.READ);
+        }
+
         // MUST have default policies
         if (defaultCollectionPolicies.size() < 1) {
             throw new SQLException("Collection " + collection.getID()
@@ -1536,9 +1554,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         if (item.getOwningCollection() == null) {
             if (!isInProgressSubmission(context, item)) {
                 return true;
-            } else {
-                return researcherProfileService.isAuthorOf(context, context.getCurrentUser(), item);
             }
+            return researcherProfileService.isAuthorOf(context, context.getCurrentUser(), item);
         }
 
 
@@ -1631,8 +1648,8 @@ prevent the generation of resource policy entry values with null dspace_object a
             if (!authorizeService
                 .isAnIdenticalPolicyAlreadyInPlace(context, dso, defaultPolicy.getGroup(), Constants.READ,
                     defaultPolicy.getID()) &&
-                   (!appendMode && this.isNotAlreadyACustomRPOfThisTypeOnDSO(context, dso) ||
-                    appendMode && this.shouldBeAppended(context, dso, defaultPolicy))) {
+                   (!appendMode && isNotAlreadyACustomRPOfThisTypeOnDSO(context, dso) ||
+                    appendMode && shouldBeAppended(context, dso, defaultPolicy))) {
                 ResourcePolicy newPolicy = resourcePolicyService.clone(context, defaultPolicy);
                 newPolicy.setdSpaceObject(dso);
                 newPolicy.setAction(Constants.READ);
@@ -1734,9 +1751,8 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         if (Item.ANY.equals(value)) {
             return itemDAO.findByMetadataField(context, mdf, null, true);
-        } else {
-            return itemDAO.findByMetadataField(context, mdf, value, true);
         }
+        return itemDAO.findByMetadataField(context, mdf, value, true);
     }
 
     @Override
@@ -1762,9 +1778,8 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         if (Item.ANY.equals(value)) {
             return itemDAO.findByMetadataField(context, mdf, null);
-        } else {
-            return itemDAO.findByMetadataField(context, mdf, value);
         }
+        return itemDAO.findByMetadataField(context, mdf, value);
     }
 
     /**
@@ -1805,15 +1820,19 @@ prevent the generation of resource policy entry values with null dspace_object a
         return itemDAO.findByMetadataField(context, mdf, value, true);
     }
 
+    @Override
+    public List<Item> findByMetadataQuery(Context context, List<QueryPredicate> queryPredicates,
+            List<UUID> collectionUuids, long offset, int limit)
+            throws SQLException {
+        return itemDAO.findByMetadataQuery(context, queryPredicates, collectionUuids, "value ~ ?",
+                offset, limit);
+    }
 
     @Override
-    public Iterator<Item> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
-                                              List<String> query_op, List<String> query_val, List<UUID> collectionUuids,
-                                              String regexClause, int offset, int limit)
-            throws SQLException, AuthorizeException {
-        return itemDAO
-                .findByMetadataQuery(context, listFieldList, query_op, query_val, collectionUuids, regexClause, offset,
-                        limit);
+    public long countForMetadataQuery(Context context, List<QueryPredicate> queryPredicates,
+            List<UUID> collectionUuids)
+            throws SQLException {
+        return itemDAO.countForMetadataQuery(context, queryPredicates, collectionUuids, "value ~ ?");
     }
 
     @Override
@@ -1879,20 +1898,19 @@ prevent the generation of resource policy entry values with null dspace_object a
         Collection ownCollection = item.getOwningCollection();
         if (ownCollection != null) {
             return ownCollection;
-        } else {
-            InProgressSubmission inprogress = ContentServiceFactory.getInstance().getWorkspaceItemService()
-                    .findByItem(context,
-                            item);
-            if (inprogress == null) {
-                inprogress = WorkflowServiceFactory.getInstance().getWorkflowItemService().findByItem(context, item);
-            }
-
-            if (inprogress != null) {
-                return inprogress.getCollection();
-            }
-            // is a template item?
-            return item.getTemplateItemOf();
         }
+        InProgressSubmission inprogress = ContentServiceFactory.getInstance().getWorkspaceItemService()
+                                                               .findByItem(context,
+                                                                           item);
+        if (inprogress == null) {
+            inprogress = WorkflowServiceFactory.getInstance().getWorkflowItemService().findByItem(context, item);
+        }
+
+        if (inprogress != null) {
+            return inprogress.getCollection();
+        }
+        // is a template item?
+        return item.getTemplateItemOf();
     }
 
     @Override
@@ -1992,13 +2010,21 @@ prevent the generation of resource policy entry values with null dspace_object a
     }
 
     @Override
+    protected void getAuthoritiesAndConfidences(String fieldKey, int dsoType, Collection collection,
+                                                List<String> values, List<String> authorities,
+                                                List<Integer> confidences, int i) {
+        Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), dsoType, collection, null);
+        authorities.add(c.values.length > 0 && c.values[0] != null ? c.values[0].authority : null);
+        confidences.add(c.confidence);
+    }
+
+    @Override
     public Item findByIdOrLegacyId(Context context, String id) throws SQLException {
         try {
             if (StringUtils.isNumeric(id)) {
                 return findByLegacyId(context, Integer.parseInt(id));
-            } else {
-                return find(context, UUID.fromString(id));
             }
+            return find(context, UUID.fromString(id));
         } catch (IllegalArgumentException e) {
             // Not a valid legacy ID or valid UUID
             return null;
@@ -2177,10 +2203,10 @@ prevent the generation of resource policy entry values with null dspace_object a
                 //should not occur, otherwise metadata can't be updated either
                 log.error("An error occurred while moving " + rr.getAuthority() + " for item " + dso.getID(), e);
             }
-        } else {
-            //just move the metadata
-            rr.setPlace(place);
         }
+
+        // Update the MetadataValue object with the new place setting
+        rr.setPlace(place);
     }
 
     @Override

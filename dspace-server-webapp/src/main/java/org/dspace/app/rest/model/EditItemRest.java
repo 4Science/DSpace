@@ -43,6 +43,11 @@ public class EditItemRest extends AInprogressSubmissionRest<String> {
     }
 
     @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
+    }
+
+    @Override
     public Class<RestResourceController> getController() {
         return RestResourceController.class;
     }
