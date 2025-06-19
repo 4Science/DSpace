@@ -82,7 +82,7 @@ public class MetadataUpdateScript
                 if (!value.isEmpty() && !value.equals(key)) {
 
                     DiscoverResultItemIterator iterator = findIndexableObjects(key);
-
+                    int count = 0;
                     while (iterator.hasNext()) {
                         Item item = iterator.next();
                         try {
@@ -106,8 +106,11 @@ public class MetadataUpdateScript
                                         }
                                     });
                                 itemService.update(context, reloadedItem);
-                                context.commit();
                                 context.uncacheEntity(reloadedItem);
+                                count++;
+                                if (count % 100 == 0) {
+                                    context.commit();
+                                }
                             }
                         } catch (SQLException | AuthorizeException e) {
                             throw new RuntimeException(e);
@@ -131,7 +134,6 @@ public class MetadataUpdateScript
     private DiscoverResultItemIterator findIndexableObjects(String value) {
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.addFilterQueries("*:*");
         discoverQuery.addFilterQueries("search.entitytype:" + entityType);
         discoverQuery.addFilterQueries("entityType_keyword:" + entityType);
         discoverQuery.addFilterQueries(metadata.toString() + ":\"" +
