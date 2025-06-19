@@ -343,13 +343,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-                <exclusions>
-                    <!-- Newer version pulled in via Jersey below -->
-                    <exclusion>
-                        <groupId>org.javassist</groupId>
-                        <artifactId>javassist</artifactId>
-                    </exclusion>
-                </exclusions>
+            <exclusions>
+                <!-- Newer version pulled in via Jersey below -->
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -805,8 +805,8 @@
                     <artifactId>javassist</artifactId>
                 </exclusion>
                 <exclusion>
-                	<groupId>io.swagger</groupId>
-                	<artifactId>swagger-jersey-jaxrs</artifactId>
+                    <groupId>io.swagger</groupId>
+                    <artifactId>swagger-jersey-jaxrs</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -867,52 +867,52 @@
         </dependency>
 
         <dependency>
-		    <groupId>org.apache.xmlgraphics</groupId>
-		    <artifactId>fop</artifactId>
-		    <version>2.5</version>
-		    <exclusions>
-		        <exclusion>
-		        	<groupId>javax.servlet</groupId>
-	      			<artifactId>servlet-api</artifactId>
-		        </exclusion>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>2.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
             </exclusions>
-		</dependency>
-
-		<dependency>
-		    <groupId>org.apache.xmlgraphics</groupId>
-		    <artifactId>fop-pdf-images</artifactId>
-		    <version>2.5</version>
-		</dependency>
+        </dependency>
 
         <dependency>
-	        <groupId>de.undercouch</groupId>
-	        <artifactId>citeproc-java</artifactId>
-	        <version>1.0.1</version>
-	        <exclusions>
-	            <exclusion>
-	               <groupId>org.apache.commons</groupId>
-	               <artifactId>commons-lang3</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.jbibtex</groupId>
-	               <artifactId>jbibtex</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
-         	</exclusions>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>locales</artifactId>
-	      <version>1.0</version>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>styles</artifactId>
-	      <version>1.0</version>
-      </dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop-pdf-images</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.undercouch</groupId>
+            <artifactId>citeproc-java</artifactId>
+            <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jbibtex</groupId>
+                    <artifactId>jbibtex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>locales</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>1.0</version>
+        </dependency>
 
         <!-- required for openaire api integration -->
         <dependency>
@@ -935,10 +935,10 @@
             <scope>test</scope>
             <exclusions>
                 <!-- Exclude snakeyaml to avoid conflicts with: spring-boot-starter-cache -->
-            	<exclusion>
-            		<groupId>org.yaml</groupId>
-            		<artifactId>snakeyaml</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -959,75 +959,85 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
-          <!-- for mockserver -->
-          <!-- Solve dependency convergence issues related to Solr and
-               'mockserver-junit-rule' by selecting the versions we want to use. -->
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-            <version>4.1.117.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>4.1.117.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport-native-unix-common</artifactId>
-            <version>4.1.117.Final</version>
-           </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>4.1.117.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>4.1.117.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-            <version>4.1.117.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity-engine-core</artifactId>
-            <version>2.4.1</version>
-          </dependency>
-          <dependency>
-              <groupId>org.xmlunit</groupId>
-              <artifactId>xmlunit-core</artifactId>
-              <version>2.10.0</version>
-              <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-schema-validator</artifactId>
-            <version>2.2.14</version>
-          </dependency>
-          <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.3</version>
-          </dependency>
-          <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.13.16</version>
-            <scope>test</scope>
-          </dependency>
+            <!-- for mockserver -->
+            <!-- Solve dependency convergence issues related to Solr and
+                 'mockserver-junit-rule' by selecting the versions we want to use. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-unix-common</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>4.1.117.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>2.4.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>2.10.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.java-json-tools</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>2.2.14</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>2.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>2.13.16</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>2.15.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

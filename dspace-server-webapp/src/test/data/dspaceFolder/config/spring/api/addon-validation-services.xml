@@ -91,6 +91,8 @@
             </bean>
         </property>
    </bean>
-    
-    
+
+    <bean name="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" class="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" />
+    <bean name="geoJsonValidationServiceFactory" class="org.dspace.validation.service.factory.impl.GeoJsonValidationServiceFactoryImpl" />
+
 </beans>

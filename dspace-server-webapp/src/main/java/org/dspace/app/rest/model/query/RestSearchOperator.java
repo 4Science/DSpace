@@ -49,6 +49,26 @@ public enum RestSearchOperator {
      */
     AUTHORITY("id:(.+)", "authority"),
     /**
+     * The point operator can be used by using a pair of points issued in the format [1.00, 2.00]
+     * it then becomes Intersect(POINT(1.00 2.00)) to call for a search on the POINT operator for VALUE
+     */
+    POINT(
+        //"(?:\\[\\s*)(\\d+.\\d+)(?:\\s*,\\s*)(\\d+.\\d+)(?:\\s*\\])",
+        "(\\[((,|)(\\d+.\\d+)){2}\\])",
+        "point"
+    ),
+    /**
+     * The polygon operator can be used by using multiple pairs of points
+     * issued in the format [[1.00, 2.00],[3.00, 4.00]].
+     * It then becomes Intersect(POLYGON((1.00 2.00, 3.00 4.00))) to call
+     * for a search on the POLYGON operator for VALUE
+     */
+    POLYGON(
+        //"(?:\\[\\s*)(\\d+.\\d+)(?:\\s*,\\s*)(\\d+.\\d+)(?:\\s*\\])",
+        "(((\\[|,)(\\[((,|)(\\d+.\\d+)){2}\\])){2,}\\])",
+        "polygon"
+    ),
+    /**
      * The equals operator is default and will be used if none of the above are matched
      */
     EQUALS("(.+)", "equals");

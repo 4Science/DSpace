@@ -21,6 +21,7 @@ public class DiscoveryConfigurationParameters {
     public static final String TYPE_AC = "ac";
     public static final String TYPE_AUTHORITY = "authority";
     public static final String TYPE_STANDARD = "standard";
+    public static final String TYPE_GEOMAP = "geomap";
 
     public static enum SORT { VALUE, COUNT }
 

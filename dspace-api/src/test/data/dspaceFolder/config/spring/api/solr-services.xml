@@ -59,9 +59,13 @@
     <!-- nb events -->
     <bean class="org.dspace.app.nbevent.MockNBEventService"
           id="org.dspace.app.nbevent.service.NBEventService" />
-          
+
     <!-- suggestion service for solr providers -->  
     <bean id="org.dspace.app.suggestion.SolrSuggestionStorageService" 
           class="org.dspace.app.suggestion.MockSolrSuggestionStorageService" />
+
+    <!-- service that generates geomap filters -->
+    <bean id="org.dspace.discovery.SolrGeomapFilterService"
+          class="org.dspace.discovery.SolrGeomapFilterService" />
 
 </beans>
