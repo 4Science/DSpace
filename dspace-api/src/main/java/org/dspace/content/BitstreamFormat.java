@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -164,7 +165,7 @@ public class BitstreamFormat implements Serializable, ReloadableEntity<Integer> 
      * @return the MIME type
      */
     public String getMIMEType() {
-        return mimetype;
+        return StringUtils.equalsIgnoreCase("null", mimetype) ? null : mimetype;
     }
 
     /**
