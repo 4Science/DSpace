@@ -711,7 +711,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                            .withTitle("Test archivalMaterial")
-                                           .withEntityType("ArchivalMaterial")
+                                           .withEntityType("Publication")
                                            .withMetadata(
                                                "dc", "relation", "place", null, "Related Place", placeId,
                                                Choices.CF_ACCEPTED)
@@ -748,7 +748,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                       .withTitle("Test archivalMaterial")
-                                      .withEntityType("ArchivalMaterial")
+                                      .withEntityType("Publication")
                                       .withMetadata(
                                           "dc", "relation", "place", null, "Related Place", placeId,
                                           Choices.CF_ACCEPTED)
@@ -786,7 +786,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                       .withTitle("Test archivalMaterial")
-                                      .withEntityType("ArchivalMaterial")
+                                      .withEntityType("Publication")
                                       .withMetadata(
                                           "dc", "relation", "place", null, "Related Place", placeId,
                                           Choices.CF_ACCEPTED)
@@ -821,7 +821,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                       .withTitle("Test archivalMaterial")
-                                      .withEntityType("ArchivalMaterial")
+                                      .withEntityType("Publication")
                                       .withMetadata(
                                           "dc", "relation", "place", null, "Related Place", placeId,
                                           Choices.CF_ACCEPTED)
@@ -858,7 +858,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                       .withTitle("Test archivalMaterial")
-                                      .withEntityType("ArchivalMaterial")
+                                      .withEntityType("Publication")
                                       .withMetadata(
                                           "dc", "relation", "place", null, "Related Place", placeId,
                                           Choices.CF_ACCEPTED)
@@ -897,7 +897,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         Item archivalMaterial = ItemBuilder.createItem(context, collection)
                                       .withTitle("Test archivalMaterial")
-                                      .withEntityType("ArchivalMaterial")
+                                      .withEntityType("Publication")
                                       .withMetadata(
                                           "dc", "relation", "place", null, "Related Place", placeId,
                                           Choices.CF_ACCEPTED)
