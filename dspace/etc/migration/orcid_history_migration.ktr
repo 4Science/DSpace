@@ -1666,6 +1666,51 @@ AND h.handle = ?</sql>
       <draw>Y</draw>
     </GUI>
   </step>
+  <step>
+    <name>migrate sync preferences</name>
+    <type>ExecSQL</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <execute_each_row>N</execute_each_row>
+    <single_statement>Y</single_statement>
+    <replace_variables>N</replace_variables>
+    <quoteString>N</quoteString>
+    <sql>UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-publications' AND msr.short_id = 'dspace' AND mv.text_value = '0'; 
+UPDATE metadatavalue mv SET text_value = 'ALL' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-publications' AND msr.short_id = 'dspace' AND mv.text_value = '1'; 
+UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-publications' AND msr.short_id = 'dspace' AND mv.text_value = '2'; 
+UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-publications' AND msr.short_id = 'dspace' AND mv.text_value = '3'; 
+UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-fundings' AND msr.short_id = 'dspace' AND mv.text_value = '0'; 
+UPDATE metadatavalue mv SET text_value = 'ALL' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-fundings' AND msr.short_id = 'dspace' AND mv.text_value = '1'; 
+UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-fundings' AND msr.short_id = 'dspace' AND mv.text_value = '2'; 
+UPDATE metadatavalue mv SET text_value = 'DISABLED' FROM metadatafieldregistry mfr, metadataschemaregistry msr WHERE mfr.metadata_field_id = mv.metadata_field_id AND mfr.metadata_schema_id = msr.metadata_schema_id AND mfr.element = 'orcid' AND mfr.qualifier = 'sync-fundings' AND msr.short_id = 'dspace' AND mv.text_value = '3'; </sql>
+    <set_params>N</set_params>
+    <insert_field/>
+    <update_field/>
+    <delete_field/>
+    <read_field/>
+    <arguments>
+    </arguments>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>656</xloc>
+      <yloc>880</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
   <step_error_handling>
   </step_error_handling>
   <slave-step-copy-partition-distribution>
