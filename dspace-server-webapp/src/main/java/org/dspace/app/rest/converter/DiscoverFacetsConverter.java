@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.converter;
 
+import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_DATE;
+
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -118,10 +120,28 @@ public class DiscoverFacetsConverter {
     private void handleExposeMinMaxValues(Context context, DiscoverySearchFilterFacet field,
             SearchFacetEntryRest facetEntry) {
         try {
-            String minValue = searchService.calculateExtremeValue(context, field.getIndexFieldName() + "_min",
-                    field.getIndexFieldName() + "_min_sort", DiscoverQuery.SORT_ORDER.asc);
-            String maxValue = searchService.calculateExtremeValue(context, field.getIndexFieldName() + "_max",
-                    field.getIndexFieldName() + "_max_sort", DiscoverQuery.SORT_ORDER.desc);
+
+            String minValueField = field.getIndexFieldName() + "_min";
+            String minSortField = field.getIndexFieldName() + "_min_sort";
+            String maxValueField = field.getIndexFieldName() + "_max";
+            String maxSortField = field.getIndexFieldName() + "_max_sort";
+            if (TYPE_DATE.equals(field.getType())) {
+                minValueField = field.getIndexFieldName() + ".year";
+                minSortField = field.getIndexFieldName() + ".year";
+                maxValueField = field.getIndexFieldName() + ".year";
+                maxSortField = field.getIndexFieldName() + ".year";
+            }
+
+            String minValue =
+                searchService.calculateExtremeValue(
+                    context, minValueField,
+                    minSortField, DiscoverQuery.SORT_ORDER.asc
+                );
+            String maxValue =
+                searchService.calculateExtremeValue(
+                    context, maxValueField,
+                    maxSortField, DiscoverQuery.SORT_ORDER.desc
+                );
 
             if (StringUtils.isNotBlank(minValue) && StringUtils.isNotBlank(maxValue)) {
                 facetEntry.setMinValue(minValue);

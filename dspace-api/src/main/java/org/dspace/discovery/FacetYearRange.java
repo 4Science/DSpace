@@ -7,6 +7,8 @@
  */
 package org.dspace.discovery;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,49 +108,86 @@ public class FacetYearRange {
         yearRangeQuery.addSearchField(dateFacet);
         DiscoverResult lastYearResult = searchService.search(context, scope, yearRangeQuery);
 
-        if (0 < lastYearResult.getIndexableObjects().size()) {
+        if (!lastYearResult.getIndexableObjects().isEmpty()) {
             List<DiscoverResult.SearchDocument> searchDocuments = lastYearResult
                 .getSearchDocument(lastYearResult.getIndexableObjects().get(0));
-            if (0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()) {
+            if (!searchDocuments.isEmpty() && !searchDocuments.get(0).getSearchFieldValues(dateFacet).isEmpty()) {
                 oldestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
             }
         }
         //Now get the first year
         yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.desc);
         DiscoverResult firstYearResult = searchService.search(context, scope, yearRangeQuery);
-        if (0 < firstYearResult.getIndexableObjects().size()) {
+        if (!firstYearResult.getIndexableObjects().isEmpty()) {
             List<DiscoverResult.SearchDocument> searchDocuments = firstYearResult
                 .getSearchDocument(firstYearResult.getIndexableObjects().get(0));
-            if (0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()) {
+            if (!searchDocuments.isEmpty() && !searchDocuments.get(0).getSearchFieldValues(dateFacet).isEmpty()) {
                 newestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
             }
         }
     }
 
-    public int getYearGap() {
-        int gap = 1;
-        //Attempt to retrieve our gap using the algorithm below
-        int yearDifference = newestYear - oldestYear;
-        if (yearDifference != 0) {
-            gap = round((double) yearDifference / facet.getFacetLimit(), 10);
+    /**
+     * Calculates date ranges of equal length for a given start and end year and number of subsets.
+     *
+     * @param startYear  The oldest year in the range
+     * @param endYear    The newest year in the range
+     * @param numSubsets The number of subsets to create
+     * @return A list of year ranges, each represented as a two-element array [startYear, endYear]
+     */
+    public List<int[]> calculateEqualYearRanges(int startYear, int endYear, int numSubsets) {
+        LinkedList<int[]> ranges = new LinkedList<>();
+
+        // Calculate the total span of years
+        int totalYears = endYear - startYear + 1;
+
+        // Calculate the ideal size for each subset
+        double idealSubsetSize = (double) totalYears / numSubsets;
+
+        int idealSubsetInt = idealSubsetSize > 2.0 ? (int) Math.round(idealSubsetSize) : 1;
+        int multiple = Math.min(10, idealSubsetInt);
+
+        int limitYear = endYear;
+        for (int i = 0; i < numSubsets; i++) {
+            int[] range = new int[2];
+            range[1] = limitYear;
+            limitYear = Math.toIntExact(Math.round(((double) limitYear - idealSubsetInt) / multiple) * multiple);
+
+            if (limitYear < startYear) {
+                limitYear = startYear;
+            }
+
+            range[0] = limitYear;
+
+            if (limitYear > 0 && limitYear > startYear) {
+                limitYear -= 1;
+            }
+
+            ranges.addFirst(range);
         }
-        return gap;
+
+        return ranges;
     }
 
-    private int round(double number, int multiple) {
+    /**
+     * Generates facet queries for equal-sized year ranges.
+     *
+     * @param numSubsets The number of subsets to create
+     * @return A list of facet query strings in the format "field:[startYear TO endYear]"
+     */
+    public List<String> generateEqualYearRangeFacetQueries(int numSubsets) {
+        List<String> facetQueries = new ArrayList<>();
 
-        int result = Double.valueOf(Math.ceil(number)).intValue();
-
-        //If not already multiple of given number
-
-        if (result % multiple != 0) {
-
-            int division = (result / multiple) + 1;
-
-            result = division * multiple;
-
+        if (!isValid() || numSubsets <= 0) {
+            return facetQueries;
         }
 
-        return result;
+        List<int[]> ranges = calculateEqualYearRanges(oldestYear, newestYear, numSubsets);
+
+        for (int[] range : ranges) {
+            facetQueries.add(dateFacet + ":[" + range[0] + " TO " + range[1] + "]");
+        }
+
+        return facetQueries;
     }
 }

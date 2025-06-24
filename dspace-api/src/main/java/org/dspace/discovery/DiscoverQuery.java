@@ -12,7 +12,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -337,60 +336,22 @@ public class DiscoverQuery {
 
     public void addYearRangeFacet(DiscoverySearchFilterFacet facet, FacetYearRange facetYearRange) {
         if (facetYearRange.isValid()) {
-
             int newestYear = facetYearRange.getNewestYear();
             int oldestYear = facetYearRange.getOldestYear();
-            String dateFacet = facetYearRange.getDateFacet();
-            int gap = facetYearRange.getYearGap();
+            int facetLimit = facet.getFacetLimit();
 
-            // We need to determine our top year so we can start our count from a clean year
-            // Example: 2001 and a gap from 10 we need the following result: 2010 - 2000 ; 2000 - 1990 hence the top
-            // year
-            int topYear = getTopYear(newestYear, gap);
-
-            if (gap == 1) {
-                //We need a list of our years
-                //We have a date range add faceting for our field
-                //The faceting will automatically be limited to the 10 years in our span due to our filterquery
+            if (newestYear == oldestYear || facetLimit <= 1) {
+                // If there's only one year or one facet limit, just add a single facet field
                 this.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), 10,
                                                           facet.getSortOrderSidebar()));
             } else {
-                List<String> facetQueries = buildFacetQueriesWithGap(newestYear, oldestYear, dateFacet, gap, topYear,
-                                                                     facet.getFacetLimit());
+                // Generate equal-sized year range facet queries
+                List<String> facetQueries = facetYearRange.generateEqualYearRangeFacetQueries(facetLimit);
                 for (String facetQuery : CollectionUtils.emptyIfNull(facetQueries)) {
                     this.addFacetQuery(facetQuery);
                 }
             }
         }
-    }
-
-    private List<String> buildFacetQueriesWithGap(int newestYear, int oldestYear, String dateFacet, int gap,
-                                                  int topYear, int facetLimit) {
-        List<String> facetQueries = new ArrayList<>();
-        for (int year = topYear; year > oldestYear && (facetQueries.size() < facetLimit); year -= gap) {
-            //Add a filter to remove the last year only if we aren't the last year
-            int bottomYear = year - gap;
-            //Make sure we don't go below our last year found
-            if (bottomYear < oldestYear) {
-                bottomYear = oldestYear;
-            }
-
-            //Also make sure we don't go above our newest year
-            int currentTop = year;
-            if ((year == topYear)) {
-                currentTop = newestYear;
-            } else {
-                //We need to do -1 on this one to get a better result
-                currentTop--;
-            }
-            facetQueries.add(dateFacet + ":[" + bottomYear + " TO " + currentTop + "]");
-        }
-        Collections.reverse(facetQueries);
-        return facetQueries;
-    }
-
-    private int getTopYear(int newestYear, int gap) {
-        return (int) (Math.ceil((float) newestYear / gap) * gap);
     }
 
     /**

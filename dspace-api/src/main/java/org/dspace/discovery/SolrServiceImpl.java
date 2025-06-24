@@ -1565,11 +1565,11 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         maxQuery.setSortField(sortField, sortOrder);
         maxQuery.addSearchField(valueField);
         DiscoverResult maxResult = this.search(context,maxQuery);
-        if (0 < maxResult.getIndexableObjects().size()) {
+        if (!maxResult.getIndexableObjects().isEmpty()) {
             List<DiscoverResult.SearchDocument> searchDocuments = maxResult
                 .getSearchDocument(maxResult.getIndexableObjects().get(0));
-            if (0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues
-                (valueField).size()) {
+            if (!searchDocuments.isEmpty() && !searchDocuments.get(0).getSearchFieldValues
+                (valueField).isEmpty()) {
                 return searchDocuments.get(0).getSearchFieldValues(valueField).get(0);
             }
         }

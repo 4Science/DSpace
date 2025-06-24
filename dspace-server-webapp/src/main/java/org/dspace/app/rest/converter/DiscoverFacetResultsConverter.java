@@ -7,9 +7,12 @@
  */
 package org.dspace.app.rest.converter;
 
+import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_DATE;
+
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.FacetResultsRest;
 import org.dspace.app.rest.model.SearchFacetEntryRest;
 import org.dspace.app.rest.model.SearchFacetValueRest;
@@ -113,6 +116,24 @@ public class DiscoverFacetResultsConverter {
 
         //We requested one extra facet value. Check if that value is present to indicate that there are more results
         facetEntryRest.setHasMore(facetResults.size() > page.getPageSize());
+
+
+        if (field.exposeMinAndMaxValue()) {
+            String minValue = facetResults.get(0).getDisplayedValue();
+            String maxValue = facetResults.get(facetResults.size() - 1).getDisplayedValue();
+            if (TYPE_DATE.equals(field.getType())) {
+                String[] minRange = minValue.split("-");
+                String[] maxRange = maxValue.split("-");
+                minValue = StringUtils.trim(minRange[0]);
+                if (maxRange.length > 1) {
+                    maxValue = StringUtils.trim(maxRange[1]);
+                } else {
+                    maxValue = StringUtils.trim(maxRange[0]);
+                }
+            }
+            facetEntryRest.setMinValue(minValue);
+            facetEntryRest.setMaxValue(maxValue);
+        }
 
         return facetEntryRest;
     }
