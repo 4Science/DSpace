@@ -92,8 +92,28 @@ public abstract class AbstractCurationTask implements CurationTask {
 
         String newEntry = "Executed " + taskId + " on " + now + " (GMT).";
 
-        // Add new entry
-        itemService.addMetadata(context, item, "cris", "curation", "history", null, newEntry);
+        List<MetadataValue> existing = itemService.getMetadata(item, "cris", "curation", "history", Item.ANY);
+
+        String combinedValue;
+        if (existing.isEmpty()) {
+            combinedValue = newEntry;
+        } else {
+            // Assume only one value exists and we want to append to it
+            String currentValue = existing.get(0).getValue();
+
+            // Optional: avoid duplicate appends
+            if (currentValue.contains(newEntry)) {
+                return;
+            }
+
+            combinedValue = currentValue + "\n" + newEntry;
+        }
+
+        // Remove old metadata
+        itemService.clearMetadata(context, item, "cris", "curation", "history", Item.ANY);
+
+        // Add the new combined value
+        itemService.addMetadata(context, item, "cris", "curation", "history", null, combinedValue);
     }
 
     protected boolean isSuccessfullyExecuted(Item dso) {
@@ -168,9 +188,14 @@ public abstract class AbstractCurationTask implements CurationTask {
                 default:
                     break;
             }
+            if (curator.getModifiedSinceDays() > 0) {
+                query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
+            }
 
-            // Exclude items that already have this curation task marker
-            query.addFilterQueries("-cris.curation.process:" + taskId);
+            if (!curator.isForce()) {
+                // Exclude items that already have this curation task marker
+                query.addFilterQueries("-cris.curation.process:" + taskId);
+            }
 
             int offset = 0;
             DiscoverResult result;
@@ -398,7 +423,7 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected String[] taskArrayProperty(String name) {
         String parameter = curator.getRunParameter(name);
         if (null != parameter) {
-            return new String[] { parameter };
+            return new String[] {parameter};
         } else if (StringUtils.isNotBlank(taskId)) {
             return configurationService.getArrayProperty(taskId + "." + name);
         } else {

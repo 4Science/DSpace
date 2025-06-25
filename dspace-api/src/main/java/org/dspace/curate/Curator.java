@@ -93,6 +93,8 @@ public class Curator {
     protected ItemService itemService;
     protected HandleService handleService;
     protected DSpaceRunnableHandler handler;
+    protected boolean force;
+    protected int modifiedSinceDays;
 
     /**
      * constructor that uses an handler for logging
@@ -112,6 +114,22 @@ public class Curator {
         itemService = ContentServiceFactory.getInstance().getItemService();
         handleService = HandleServiceFactory.getInstance().getHandleService();
         resolver = new TaskResolver();
+    }
+
+    public boolean isForce() {
+        return force;
+    }
+
+    public void setForce(boolean force) {
+        this.force = force;
+    }
+
+    public int getModifiedSinceDays() {
+        return modifiedSinceDays;
+    }
+
+    public void setModifiedSinceDays(int modifiedSinceDays) {
+        this.modifiedSinceDays = modifiedSinceDays;
     }
 
     /**
