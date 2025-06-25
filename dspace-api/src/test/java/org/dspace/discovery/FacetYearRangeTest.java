@@ -42,7 +42,6 @@ public class FacetYearRangeTest extends AbstractUnitTest {
         verifyRange(ranges.get(2), 1960, 1989);
         verifyRange(ranges.get(3), 1990, 2019);
         verifyRange(ranges.get(4), 2020, 2050);
-
     }
 
     @Test
@@ -78,7 +77,7 @@ public class FacetYearRangeTest extends AbstractUnitTest {
         assertEquals(3, ranges.size());
 
         // Verify each range (24 years total, so each range should be 8 years)
-        verifyRange(ranges.get(0), 2000, 2001);
+        verifyRange(ranges.get(0), 2000, 20005);
         verifyRange(ranges.get(1), 2002, 2003);
         verifyRange(ranges.get(2), 2004, 2005);
     }

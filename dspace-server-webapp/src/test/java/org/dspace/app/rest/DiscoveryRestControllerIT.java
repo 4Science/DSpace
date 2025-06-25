@@ -3208,7 +3208,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                         FacetEntryMatcher.authorFacetWithMinMax("Doe, Jane", "Testing, Works"),
                         FacetEntryMatcher.entityTypeFacet(),
                         FacetEntryMatcher.subjectFacet(),
-                        FacetEntryMatcher.dateIssuedFacetWithMinMax("1990-02-13", "2010-10-17"),
+                        FacetEntryMatcher.dateIssuedFacetWithMinMax("1990", "2010"),
                         FacetEntryMatcher.hasContentInOriginalBundleFacet()
                 )))
                 //There always needs to be a self link available
@@ -3278,7 +3278,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                         FacetEntryMatcher.authorFacetWithMinMax("Doe, Jane", "Testing, Works"),
                         FacetEntryMatcher.entityTypeFacet(),
                         FacetEntryMatcher.subjectFacet(),
-                        FacetEntryMatcher.dateIssuedFacetWithMinMax("1990-02-13", "2010-10-17"),
+                        FacetEntryMatcher.dateIssuedFacetWithMinMax("1990", "2010"),
                         FacetEntryMatcher.hasContentInOriginalBundleFacet()
                 )))
                 //There always needs to be a self link available
@@ -5852,13 +5852,25 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$.scope", is(emptyOrNullString())))
                    .andExpect(jsonPath("$._links.self.href",
                         containsString("api/discover/facets/dateIssued?dsoType=Item")))
-                   .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2020")))
-                   .andExpect(jsonPath("$._embedded.values[0].count", is(3)))
+                   .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2017")))
+                   .andExpect(jsonPath("$._embedded.values[1].label", is("2017 - 2018")))
+                   .andExpect(jsonPath("$._embedded.values[2].label", is("2019 - 2020")))
+                   .andExpect(jsonPath("$._embedded.values[0].count", is(1)))
+                   .andExpect(jsonPath("$._embedded.values[1].count", is(1)))
+                   .andExpect(jsonPath("$._embedded.values[2].count", is(2)))
                    .andExpect(jsonPath("$._embedded.values[0]._links.search.href",
                         containsString("api/discover/search/objects?dsoType=Item&f.dateIssued=" +
-                                urlPathSegmentEscaper().escape("[2017 TO 2020],equals")
+                                urlPathSegmentEscaper().escape("[2017 TO 2017],equals")
                         )))
-                   .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+                   .andExpect(jsonPath("$._embedded.values[1]._links.search.href",
+                        containsString("api/discover/search/objects?dsoType=Item&f.dateIssued=" +
+                                urlPathSegmentEscaper().escape("[2017 TO 2018],equals")
+                        )))
+                   .andExpect(jsonPath("$._embedded.values[2]._links.search.href",
+                        containsString("api/discover/search/objects?dsoType=Item&f.dateIssued=" +
+                                urlPathSegmentEscaper().escape("[2019 TO 2020],equals")
+                        )))
+                   .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(3)));
 
     }
 
