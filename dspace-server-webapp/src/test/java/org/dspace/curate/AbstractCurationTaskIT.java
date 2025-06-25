@@ -12,10 +12,15 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.stream.Stream;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
@@ -31,9 +36,12 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SiteService;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Adamo Fapohunda (adamo.fapohunda at 4science.com)
@@ -41,9 +49,18 @@ import org.junit.Test;
 public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase {
 
     private static final String MOCK_CURATION_TASK = "mockcurationtask";
-
+    private static final long HALF_YEAR_TIME = 180L * 24L * 60L * 60000L;
+    private static final long ONE_YEAR_TIME = 360L * 24L * 60L * 60000L;
     private static final SiteService siteService = ContentServiceFactory.getInstance().getSiteService();
     private static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private static final IndexingService indexingService = DSpaceServicesFactory.getInstance().getServiceManager()
+                                                                                .getServiceByName(
+                                                                                    IndexingService.class.getName(),
+                                                                                    IndexingService.class);
+    final long nowTime = new Date().getTime();
+    final Date oldestModifiedDate = new Date(nowTime - ONE_YEAR_TIME);
+    final Date midModifiedDate = new Date(new Date().getTime() - HALF_YEAR_TIME);
+
 
     @Before
     public void setup() throws Exception {
@@ -126,10 +143,247 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(secondHandler.getErrorMessages(), empty());
         assertThat(secondHandler.getWarningMessages(), empty());
         assertThat(secondHandler.getInfoMessages(),
-                   hasItem(containsString(
+                   hasItem(is(
                        "Curation task: " + MOCK_CURATION_TASK + " performed on: " + item.getHandle() +
                            " with status: 0"))
         );
+    }
+
+    @Test
+    public void testDistributeProcessItemInForcedSecondRun() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                               .withTitle("Item in Collection")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", item.getHandle()};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+
+        // Second forced execution — should process the item again
+        args = Stream.concat(Arrays.stream(args), Stream.of("-f")).toArray(String[]::new);
+        TestDSpaceRunnableHandler secondHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), secondHandler, kernelImpl, admin);
+
+        assertThat(secondHandler.getErrorMessages(), empty());
+        assertThat(secondHandler.getWarningMessages(), empty());
+        assertThat(secondHandler.getInfoMessages(),
+                   hasItem(is(
+                       "Curation task: " + MOCK_CURATION_TASK + " performed on: " + item.getHandle() +
+                           " with status: 0. Result: 'Processing item with handle=" + item.getHandle() + " and uuid=" +
+                           item.getID() +
+                           "'"))
+        );
+
+        String[] historyMetadata = itemService.getMetadata(context.reloadEntity(item), "cris.curation.history").split(
+            "\n");
+
+        assertThat(historyMetadata[0], containsString("Executed " + MOCK_CURATION_TASK + " on"));
+        assertThat(historyMetadata[1], containsString("Executed " + MOCK_CURATION_TASK + " on"));
+    }
+
+    @Test
+    public void shouldProcessOnlyMostRecentlyModifiedItemWhenLimitIsOneDay() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item1 in Collection")
+                                .build();
+        Item item2 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item2 in Collection")
+                                .build();
+        Item item3 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item3 in Collection")
+                                .build();
+
+
+        // Create spies
+        item2 = Mockito.spy(item2);
+        item3 = Mockito.spy(item3);
+
+        // Mock only getLastModified()
+        Mockito.when(item2.getLastModified()).thenReturn(midModifiedDate);
+        Mockito.when(item3.getLastModified()).thenReturn(oldestModifiedDate);
+
+        // Index the spies
+        indexingService.indexContent(context, new IndexableItem(item2), true);
+        indexingService.indexContent(context, new IndexableItem(item3), true);
+        indexingService.commit();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", community.getHandle(), "-l", "1"};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(),
+                   hasItem(is(
+                       "Curation task: " + MOCK_CURATION_TASK + " performed on: " + community.getHandle() +
+                           " with status: 0. Result: 'Processing item with handle=" + item1.getHandle() + " and uuid=" +
+                           item1.getID() +
+                           "'"))
+        );
+    }
+
+    @Test
+    public void testCurateCommandProcessesOnlyOneRecentlyModifiedItemWhenLimitIsHalfYear() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item1 in Collection")
+                                .build();
+        Item item2 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item2 in Collection")
+                                .build();
+        Item item3 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item3 in Collection")
+                                .build();
+
+
+        // Create spies
+        item2 = Mockito.spy(item2);
+        item3 = Mockito.spy(item3);
+
+        // Mock only getLastModified()
+        Mockito.when(item2.getLastModified()).thenReturn(midModifiedDate);
+        Mockito.when(item3.getLastModified()).thenReturn(oldestModifiedDate);
+
+        // Index the spies
+        indexingService.indexContent(context, new IndexableItem(item2), true);
+        indexingService.indexContent(context, new IndexableItem(item3), true);
+        indexingService.commit();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", community.getHandle(), "-l", "180"};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+
+        String message = testDSpaceRunnableHandler.getInfoMessages()
+                                                  .stream()
+                                                  .filter(m -> m.startsWith(
+                                                      "Curation task: " + MOCK_CURATION_TASK + " performed on:"))
+                                                  .findFirst()
+                                                  .orElseThrow(() -> new AssertionError("Expected message not found"));
+
+        assertThat(message,
+                   containsString("Curation task: " + MOCK_CURATION_TASK + " performed on: " + community.getHandle()));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item1.getHandle(), item1.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+        assertThat(message, not(containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item3.getHandle(), item3.getID()))));
+    }
+
+    @Test
+    public void testCurateCommandProcessesTwoRecentlyModifiedItemsWhenLimitIsOneYear() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item1 in Collection")
+                                .build();
+        Item item2 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item2 in Collection")
+                                .build();
+        Item item3 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item3 in Collection")
+                                .build();
+
+
+        // Create spies
+        item2 = Mockito.spy(item2);
+        item3 = Mockito.spy(item3);
+
+        // Mock only getLastModified()
+        Mockito.when(item2.getLastModified()).thenReturn(midModifiedDate);
+        Mockito.when(item3.getLastModified()).thenReturn(oldestModifiedDate);
+
+        // Index the spies
+        indexingService.indexContent(context, new IndexableItem(item2), true);
+        indexingService.indexContent(context, new IndexableItem(item3), true);
+        indexingService.commit();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", community.getHandle(), "-l", "360"};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+
+        String message = testDSpaceRunnableHandler.getInfoMessages()
+                                                  .stream()
+                                                  .filter(m -> m.startsWith(
+                                                      "Curation task: " + MOCK_CURATION_TASK + " performed on:"))
+                                                  .findFirst()
+                                                  .orElseThrow(() -> new AssertionError("Expected message not found"));
+
+        assertThat(message,
+                   containsString("Curation task: " + MOCK_CURATION_TASK + " performed on: " + community.getHandle()));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item1.getHandle(), item1.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item3.getHandle(), item3.getID())));
     }
 
     @Test
