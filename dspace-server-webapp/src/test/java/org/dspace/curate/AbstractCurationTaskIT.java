@@ -37,7 +37,9 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SiteService;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.SearchService;
 import org.dspace.discovery.indexobject.IndexableItem;
+import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,21 +55,23 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
     private static final long ONE_YEAR_TIME = 360L * 24L * 60L * 60000L;
     private static final SiteService siteService = ContentServiceFactory.getInstance().getSiteService();
     private static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private static final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
     private static final IndexingService indexingService = DSpaceServicesFactory.getInstance().getServiceManager()
                                                                                 .getServiceByName(
                                                                                     IndexingService.class.getName(),
                                                                                     IndexingService.class);
-    final long nowTime = new Date().getTime();
-    final Date oldestModifiedDate = new Date(nowTime - ONE_YEAR_TIME);
-    final Date midModifiedDate = new Date(new Date().getTime() - HALF_YEAR_TIME);
+    private static SearchService searchService;
+    private final long nowTime = new Date().getTime();
+    private final Date oldestModifiedDate = new Date(nowTime - ONE_YEAR_TIME);
+    private final Date midModifiedDate = new Date(new Date().getTime() - HALF_YEAR_TIME);
 
 
     @Before
     public void setup() throws Exception {
-        DSpaceServicesFactory.getInstance().getConfigurationService()
-                             .setProperty("plugin.named.org.dspace.curate.CurationTask",
-                                          MockDistributiveCurationTask.class.getName() + " = " +
-                                              MOCK_CURATION_TASK);
+        configurationService.setProperty("plugin.named.org.dspace.curate.CurationTask",
+                                         MockDistributiveCurationTask.class.getName() + " = " +
+                                             MOCK_CURATION_TASK);
 
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
     }
@@ -145,7 +149,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(secondHandler.getInfoMessages(),
                    hasItem(is(
                        "Curation task: " + MOCK_CURATION_TASK + " performed on: " + item.getHandle() +
-                           " with status: 0"))
+                           " with status: 0. Result: 'performedItemCount: 0'"))
         );
     }
 
@@ -189,7 +193,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                        "Curation task: " + MOCK_CURATION_TASK + " performed on: " + item.getHandle() +
                            " with status: 0. Result: 'Processing item with handle=" + item.getHandle() + " and uuid=" +
                            item.getID() +
-                           "'"))
+                           "\nperformedItemCount: 1'"))
         );
 
         String[] historyMetadata = itemService.getMetadata(context.reloadEntity(item), "cris.curation.history").split(
@@ -252,7 +256,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                        "Curation task: " + MOCK_CURATION_TASK + " performed on: " + community.getHandle() +
                            " with status: 0. Result: 'Processing item with handle=" + item1.getHandle() + " and uuid=" +
                            item1.getID() +
-                           "'"))
+                           "\nperformedItemCount: 1'"))
         );
     }
 
@@ -724,14 +728,81 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(historyMeta4, containsString("Executed " + MOCK_CURATION_TASK + " on"));
     }
 
+    @Test
+    public void testDistributeSearchCalledOncePerItemWithBatchSizeOne() throws Exception {
+        // Set batch size to 1 so distribute() executes one item per search call
+        configurationService.setProperty("curation.task.batchsize", 1);
+
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection1 = CollectionBuilder.createCollection(context, community)
+                                                  .withName("Collection 1")
+                                                  .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection1)
+                                .withTitle("Item 1")
+                                .build();
+        Item item2 = ItemBuilder.createItem(context, collection1)
+                                .withTitle("Item 2")
+                                .build();
+
+        Collection collection2 = CollectionBuilder.createCollection(context, community)
+                                                  .withName("Collection 2")
+                                                  .build();
+
+        Item item3 = ItemBuilder.createItem(context, collection2)
+                                .withTitle("Item 3")
+                                .build();
+        Item item4 = ItemBuilder.createItem(context, collection2)
+                                .withTitle("Item 4")
+                                .build();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", "all"};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        String message = testDSpaceRunnableHandler.getInfoMessages()
+                                                  .stream()
+                                                  .filter(m -> m.startsWith(
+                                                      "Curation task: mockcurationtask performed on:"))
+                                                  .findFirst()
+                                                  .orElseThrow(() -> new AssertionError("Expected message not found"));
+
+        assertThat(message, containsString(
+            "Curation task: mockcurationtask performed on: " + siteService.findSite(context).getHandle()));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item1.getHandle(), item1.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item3.getHandle(), item3.getID())));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item4.getHandle(), item4.getID())));
+        assertThat(message, containsString("performedItemCount: 4"));
+
+    }
+
 
     @Distributive
     public static class MockDistributiveCurationTask extends AbstractCurationTask {
+        private int performItemCount = 0;
         private boolean executed = false;
 
         @Override
         public int perform(DSpaceObject dso) throws IOException {
             distribute(dso);
+            setResult("performedItemCount: " + performItemCount);
             return Curator.CURATE_SUCCESS;
         }
 
@@ -741,6 +812,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                 + " and uuid=" + item.getID();
             setResult(result);
             executed = true;
+            performItemCount++;
             // no-op other than metadata writing
         }
 

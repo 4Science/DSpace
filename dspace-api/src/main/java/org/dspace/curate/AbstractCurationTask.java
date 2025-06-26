@@ -12,9 +12,9 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -158,75 +158,75 @@ public abstract class AbstractCurationTask implements CurationTask {
      * @throws IOException if IO error
      */
     protected void distribute(DSpaceObject dso) throws IOException {
-
         try {
             Context ctx = Curator.curationContext();
             int type = dso.getType();
-
-            DiscoverQuery query = new DiscoverQuery();
             final int batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
-            query.setMaxResults(batchSize);
 
-            // Only query for items
-            query.addFilterQueries("search.resourcetype:Item");
-
-            // Add location filter based on object type
-            switch (type) {
-                case Constants.ITEM:
-                    query.addFilterQueries("search.resourceid:" + dso.getID());
-                    query.addFilterQueries("search.resourcetype:Item");
-                    break;
-                case Constants.COLLECTION:
-                    query.addFilterQueries("location.coll:" + dso.getID());
-                    break;
-                case Constants.COMMUNITY:
-                    query.addFilterQueries("location.comm:" + dso.getID());
-                    break;
-                case Constants.SITE:
-                    // No additional filter needed: all items
-                    break;
-                default:
-                    break;
-            }
-            if (curator.getModifiedSinceDays() > 0) {
-                query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
-            }
-
-            if (!curator.isForce()) {
-                // Exclude items that already have this curation task marker
-                query.addFilterQueries("-cris.curation.process:" + taskId);
-            }
-
-            int offset = 0;
-            DiscoverResult result;
+            UUID lastProcessedId = null;
+            List<IndexableObject> indexables;
 
             do {
-                query.setStart(offset);
-                result = searchService.search(ctx, query);
+                DiscoverQuery query = new DiscoverQuery();
+                query.setMaxResults(batchSize);
+                query.setSortField("search.resourceid", DiscoverQuery.SORT_ORDER.asc);
 
-                List<IndexableObject> indexables = result.getIndexableObjects();
-                if (indexables == null || indexables.isEmpty()) {
-                    break;
+                // Only query for items
+                query.addFilterQueries("search.resourcetype:Item");
+
+                // Add location filter based on object type
+                switch (type) {
+                    case Constants.ITEM:
+                        query.addFilterQueries("search.resourceid:" + dso.getID());
+                        break;
+                    case Constants.COLLECTION:
+                        query.addFilterQueries("location.coll:" + dso.getID());
+                        break;
+                    case Constants.COMMUNITY:
+                        query.addFilterQueries("location.comm:" + dso.getID());
+                        break;
+                    case Constants.SITE:
+                        // No additional filter needed: all items
+                        break;
+                    default:
+                        break;
                 }
 
-                for (IndexableObject idxObj : indexables) {
-                    if (idxObj instanceof IndexableItem) {
-                        Item item = ((IndexableItem) idxObj).getIndexedObject();
-                        if (item != null) {
-                            performObject(item);
-                            itemService.update(ctx, item);
+                if (curator.getModifiedSinceDays() > 0) {
+                    query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
+                }
+
+                if (!curator.isForce()) {
+                    // Exclude items already processed by this curation task
+                    query.addFilterQueries("-cris.curation.process:" + taskId);
+                }
+
+                if (lastProcessedId != null) {
+                    // Simulate cursor by skipping all IDs <= lastProcessedId
+                    query.addFilterQueries("search.resourceid:{" + lastProcessedId + " TO *]");
+                }
+
+                DiscoverResult result = searchService.search(ctx, query);
+                indexables = result.getIndexableObjects();
+
+                if (indexables != null && !indexables.isEmpty()) {
+                    for (IndexableObject idxObj : indexables) {
+                        if (idxObj instanceof IndexableItem) {
+                            Item item = ((IndexableItem) idxObj).getIndexedObject();
+                            if (item != null) {
+                                performObject(item);
+                                lastProcessedId = item.getID();
+                            }
                         }
                     }
-                }
-                ctx.commit();
-                offset += indexables.size();
 
-            } while (result.getIndexableObjects().size() == batchSize);
+                    ctx.commit();
+                }
+
+            } while (indexables != null && !indexables.isEmpty());
 
         } catch (SQLException | SearchServiceException e) {
             throw new IOException("Error distributing task [" + taskId + "] for object " + dso.getHandle(), e);
-        } catch (AuthorizeException e) {
-            throw new RuntimeException(e);
         }
     }
 
