@@ -793,6 +793,53 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
     }
 
+    @Test
+    public void testDistributeWritesProcessItemsListIfOneErrorOccur() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item1 in Collection")
+                                .build();
+
+        Item item2 = ItemBuilder.createItem(context, collection)
+                                .withHandle("123456789/BrokenHandle")
+                                .withTitle("Item2 in Collection")
+                                .build();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", collection.getHandle()};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        String message = testDSpaceRunnableHandler.getInfoMessages()
+                                                  .stream()
+                                                  .filter(m -> m.startsWith(
+                                                      "Curation task: mockcurationtask performed on:"))
+                                                  .findFirst()
+                                                  .orElseThrow(() -> new AssertionError("Expected message not found"));
+
+        assertThat(message, containsString("Curation task: mockcurationtask performed on: " + collection.getHandle()));
+        assertThat(message, containsString(
+            String.format("Processing item with handle=%s and uuid=%s", item1.getHandle(), item1.getID())));
+        assertThat(message, containsString(
+            String.format("Unable to process item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+
+    }
+
 
     @Distributive
     public static class MockDistributiveCurationTask extends AbstractCurationTask {
@@ -808,6 +855,9 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         @Override
         protected void performItem(Item item) throws SQLException, IOException {
+            if (item.getHandle().equals("123456789/BrokenHandle")) {
+                throw new SQLException("BrokenHandle");
+            }
             String result = "Processing item with handle=" + item.getHandle()
                 + " and uuid=" + item.getID();
             setResult(result);

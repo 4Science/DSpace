@@ -214,7 +214,13 @@ public abstract class AbstractCurationTask implements CurationTask {
                         if (idxObj instanceof IndexableItem) {
                             Item item = ((IndexableItem) idxObj).getIndexedObject();
                             if (item != null) {
-                                performObject(item);
+                                try {
+                                    performObject(item);
+                                } catch (Exception e) {
+                                    setResult("Unable to process item with handle=" + item.getHandle()
+                                                  + " and uuid=" + item.getID());
+                                    curator.handler.logError("Unable to process item " + item.getID(), e);
+                                }
                                 lastProcessedId = item.getID();
                             }
                         }
