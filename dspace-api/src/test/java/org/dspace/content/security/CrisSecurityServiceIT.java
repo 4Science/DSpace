@@ -242,6 +242,28 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testUserHasAccessItemWithoutAssignedGroup() throws SQLException {
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withEmail("user@mail.it")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Test item")
+            .withAuthor("Author", ePerson.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+
+        AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.GROUP);
+        when(accessMode.getGroups()).thenReturn(List.of(Group.ANONYMOUS));
+
+        assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(true));
+    }
+
+    @Test
     public void testHasAccessWithItemAdminConfig() throws SQLException, AuthorizeException {
 
         context.turnOffAuthorisationSystem();

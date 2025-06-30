@@ -84,7 +84,7 @@ public class NBEventServiceImpl implements NBEventService {
     public static final String LAST_UPDATE = "last_update";
     public static final String RELATED_UUID = "related_uuid";
 
-    protected SolrClient getSolr() {
+    public SolrClient getSolr() {
         if (solr == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("oaire-nbevents.solr.server", "http://localhost:8983/solr/nbevent");

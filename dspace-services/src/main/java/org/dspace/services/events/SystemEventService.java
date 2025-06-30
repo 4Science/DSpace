@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.PreDestroy;
 
@@ -28,7 +29,6 @@ import org.dspace.services.model.RequestInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * This is a placeholder until we get a real event service going.
  * It does pretty much everything the service should do EXCEPT sending
@@ -100,6 +100,12 @@ public final class SystemEventService implements EventService {
     public void fireAsyncEvent(Supplier<? extends Event> eventSupplier) {
         initExecutor();
         this.executorService.submit(() -> this.fireEvent(eventSupplier.get()));
+    }
+
+    @Override
+    public void scheduleAsyncEventConsumer(Consumer<Consumer<Event>> eventConsumer) {
+        initExecutor();
+        this.executorService.submit(() -> eventConsumer.accept(this::fireEvent));
     }
 
     private void initExecutor() {

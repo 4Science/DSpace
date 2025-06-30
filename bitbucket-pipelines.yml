@@ -1,147 +1,137 @@
-image: maven:3.6.1
+image: maven:3.6.3-jdk-11
 
 definitions:
   docker:
     memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
     gradlewrapper: ~/.gradle/wrapper
+  mvnVars:
+    &setEnv export MAVEN_OPTS="-Xmx4096M" &&
+    export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
+    - step: &install
+        runs-on: self.hosted
+        name: Install
+        size: 1x
+        clone:
+          depth: 2
+        caches:
+          - gradle
+          - gradlewrapper
+          - maven
+        script:
+          - *setEnv
+          - mvn install -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
+        artifacts:
+          - target/local-repo/**
+          - dspace-server-webapp/target/**
+          - dspace-api/target/**
+          - dspace-services/target/**
+          - dspace-oai/target/**
+
     - step: &unit-test-code-checks
         runs-on: self.hosted
         name: unit-test-code-checks
-        size: 4x
+        size: 2x
         caches:
+          - gradle
+          - gradlewrapper
           - maven
         script:
-          - export MAVEN_OPTS="-Xmx4096M"
-          - mvn install -B -V -P-assembly -Dtest.argLine=-Xmx4096M -Pcoverage-report -DskipUnitTests=false -Pdspace-rest
+          - *setEnv
+          - cp -rf target/local-repo/** ~/.m2/repository/
+          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine=-Xmx4096M -DskipUnitTests=false $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
-          - dspace-iiif/target/surefire-reports/*-output.txt
-          - dspace-oai/target/surefire-reports/*-output.txt
-          - dspace-rdf/target/surefire-reports/*-output.txt
-          - dspace-rest/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-services/target/surefire-reports/*-output.txt
-          - dspace-sword/target/surefire-reports/*-output.txt
-          - dspace-swordv2/target/surefire-reports/*-output.txt
+          - dspace-oai/target/surefire-reports/*-output.txt
           - dspace-api/target/failsafe-reports/*-output.txt
-          - dspace-iiif/target/failsafe-reports/*-output.txt
-          - dspace-oai/target/failsafe-reports/*-output.txt
-          - dspace-rdf/target/failsafe-reports/*-output.txt
-          - dspace-rest/target/failsafe-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
           - dspace-services/target/failsafe-reports/*-output.txt
-          - dspace-sword/target/failsafe-reports/*-output.txt
-          - dspace-swordv2/target/failsafe-reports/*-output.txt
-
-    - step: &integration-tests
-        runs-on: self.hosted
-        name: integration-tests
-        size: 4x
-        caches:
-          - gradle
-          - gradlewrapper
-          - maven
-        script:
-          - export MAVEN_OPTS="-Xmx4096M"
-          #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-          - mvn clean install -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B -V
-          - mvn test -pl dspace-iiif,dspace-oai,dspace-rdf,dspace-rest,dspace-server-webapp,dspace-services,dspace-sword,dspace-swordv2 -Dmaven.test.skip=false -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=*IT,!Abstract*,!ItemImportIT,!GenericAuthorizationFeatureIT,!ItemRestRepositoryIT,!LeftTiltedRelationshipRestRepositoryIT,!RelationshipRestRepositoryIT,!StatisticsRestRepositoryIT,!WorkspaceItemRestRepositoryIT,!DiscoveryRestControllerIT,!PatchMetadataIT,!RightTiltedRelationshipRestRepositoryIT
-        artifacts:
-          - dspace-iiif/target/surefire-reports/*-output.txt
-          - dspace-oai/target/surefire-reports/*-output.txt
-          - dspace-rdf/target/surefire-reports/*-output.txt
-          - dspace-rest/target/surefire-reports/*-output.txt
-          - dspace-server-webapp/target/surefire-reports/*-output.txt
-          - dspace-services/target/surefire-reports/*-output.txt
-          - dspace-sword/target/surefire-reports/*-output.txt
-          - dspace-swordv2/target/surefire-reports/*-output.txt
-          - dspace-iiif/target/failsafe-reports/*-output.txt
           - dspace-oai/target/failsafe-reports/*-output.txt
-          - dspace-rdf/target/failsafe-reports/*-output.txt
-          - dspace-rest/target/failsafe-reports/*-output.txt
-          - dspace-server-webapp/target/failsafe-reports/*-output.txt
-          - dspace-services/target/failsafe-reports/*-output.txt
-          - dspace-sword/target/failsafe-reports/*-output.txt
-          - dspace-swordv2/target/failsafe-reports/*-output.txt
-
-    - step: &integration-tests-slow
-        runs-on: self.hosted
-        name: integration-tests-slow
-        size: 4x
-        caches:
-          - gradle
-          - gradlewrapper
-          - maven
-        script:
-          - export MAVEN_OPTS="-Xmx4096M"
-          #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
-          - mvn clean install -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B -V
-          - mvn test -Dmaven.test.skip=false -DskipUnitTests=false -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M -DfailIfNoTests=false -Dtest=ItemImportIT,GenericAuthorizationFeatureIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,WorkspaceItemRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,RightTiltedRelationshipRestRepositoryIT
-        artifacts:
-          - dspace-iiif/target/surefire-reports/*-output.txt
-          - dspace-oai/target/surefire-reports/*-output.txt
-          - dspace-rdf/target/surefire-reports/*-output.txt
-          - dspace-rest/target/surefire-reports/*-output.txt
-          - dspace-server-webapp/target/surefire-reports/*-output.txt
-          - dspace-services/target/surefire-reports/*-output.txt
-          - dspace-sword/target/surefire-reports/*-output.txt
-          - dspace-swordv2/target/surefire-reports/*-output.txt
-          - dspace-iiif/target/failsafe-reports/*-output.txt
-          - dspace-oai/target/failsafe-reports/*-output.txt
-          - dspace-rdf/target/failsafe-reports/*-output.txt
-          - dspace-rest/target/failsafe-reports/*-output.txt
-          - dspace-server-webapp/target/failsafe-reports/*-output.txt
-          - dspace-services/target/failsafe-reports/*-output.txt
-          - dspace-sword/target/failsafe-reports/*-output.txt
-          - dspace-swordv2/target/failsafe-reports/*-output.txt
 
     - step: &integration-tests-dspace-api
         runs-on: self.hosted
         name: integration-tests-dspace-api
-        size: 4x
+        size: 1x
         caches:
           - gradle
           - gradlewrapper
           - maven
         script:
-          - export MAVEN_OPTS="-Xmx4096M"
-          - mvn clean install license:check -DskipUnitTests=true -Pdspace-rest -DskipITs=true -DskipIntegrationTests=true -P !assembly -B -V
-          - mvn verify -Dmaven.test.skip=false -pl dspace-api -DskipUnitTests=true -Pdspace-rest -DskipITs=false -Pdspace-rest -DskipIntegrationTests=false -P !assembly -B -V -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M
+          - *setEnv
+          - cp -rf target/local-repo/** ~/.m2/repository/
+          - mvn verify -pl dspace-api -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-api/target/failsafe-reports/*-output.txt
 
+    - step: &integration-tests-with-test-jars
+        runs-on: self.hosted
+        name: integration-tests-with-test-jars
+        size: 2x
+        caches:
+          - gradle
+          - gradlewrapper
+          - maven
+        script:
+          - *setEnv
+          - cp -rf target/local-repo/** ~/.m2/repository/
+          - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+        artifacts:
+          - dspace-server-webapp/target/surefire-reports/*-output.txt
+          - dspace-server-webapp/target/failsafe-reports/*-output.txt
+
+    - step: &integration-tests-slow
+        runs-on: self.hosted
+        name: integration-tests-slow
+        size: 1x
+        caches:
+          - gradle
+          - gradlewrapper
+          - maven
+        script:
+          - *setEnv
+          - cp -rf target/local-repo/** ~/.m2/repository/
+          - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+        artifacts:
+          - dspace-server-webapp/target/surefire-reports/*-output.txt
+          - dspace-server-webapp/target/failsafe-reports/*-output.txt
+
 pipelines:
   branches:
     'dspace-cris-7':
-      - parallel:
+      - step: *install
+      - parallel: &parallel-pipeline
         - step: *unit-test-code-checks
-        - step: *integration-tests
+        - step: *integration-tests-with-test-jars
         - step: *integration-tests-slow
         - step: *integration-tests-dspace-api
     'dspace-cris-2023_02_x':
-      - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+      - step: *install
+      - parallel: *parallel-pipeline
+    'prod/**':
+      - step: *install
+      - parallel: *parallel-pipeline
 
   pull-requests:
     '**':
+      - step: *install
       - parallel:
-          - step: *unit-test-code-checks
-          - step: *integration-tests
-          - step: *integration-tests-slow
-          - step: *integration-tests-dspace-api
+        - step: *unit-test-code-checks
+        - step: *integration-tests-with-test-jars
+        - step: *integration-tests-slow
+        - step: *integration-tests-dspace-api
   custom:
-    integration:
-       - step: *integration-tests
-    integration-slow:
-       - step: *integration-tests-slow
+    install:
+      - step: *install
+    integration-tests-with-test-jars:
+       - step: *integration-tests-with-test-jars
     integration-dspace-api:
        - step: *integration-tests-dspace-api
+    integration-tests-slow:
+       - step: *integration-tests-slow
     unit:
        - step: *unit-test-code-checks
 

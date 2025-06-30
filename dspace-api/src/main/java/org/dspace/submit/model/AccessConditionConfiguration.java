@@ -21,6 +21,15 @@ public class AccessConditionConfiguration {
     private Boolean canChangeDiscoverable;
     private List<AccessConditionOption> options;
     private boolean singleAccessCondition = false;
+    private boolean required;
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
 
     public String getName() {
         return name;

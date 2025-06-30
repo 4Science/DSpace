@@ -12,11 +12,12 @@ import java.util.Date;
 import org.dspace.app.rest.RestResourceController;
 
 @LinksRest(
-        links = {
-                @LinkRest(name = "topic", method = "getTopic"),
-                @LinkRest(name = "target", method = "getTarget"),
-                @LinkRest(name = "related", method = "getRelated")
-        })
+    links = {
+        @LinkRest(name = "topic", method = "getTopic"),
+        @LinkRest(name = "target", method = "getTarget"),
+        @LinkRest(name = "related", method = "getRelated")
+    }
+)
 public class NBEventRest extends BaseObjectRest<String> {
 
     private static final long serialVersionUID = -5001130073350654793L;

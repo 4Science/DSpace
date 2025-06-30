@@ -277,7 +277,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
 
         for (String author : authorsOriginalOrder) {
             itemService.addMetadata(
-                context, publicationItem, "dc", "contributor", "author", Item.ANY, author
+                context, publicationItem, "dc", "contributor", "author", null, author
             );
         }
 

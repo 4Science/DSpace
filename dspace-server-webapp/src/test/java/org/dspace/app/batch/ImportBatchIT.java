@@ -953,7 +953,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             assertEquals("Is the workflow item the right one?", item, xwil.get(0).getItem());
 
             List<MetadataValue> metadata = item.getMetadata();
-            assertEquals("Four metadata found", 4, metadata.size());
+            assertEquals("Four metadata found", 5, metadata.size());
             for (MetadataValue m : metadata) {
                 if ("contributor".equals(m.getElement())) {
                     assertEquals("The dc.contibutor.autor is the right one!", m.getValue(), "Francesco Cadili");
@@ -966,6 +966,8 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
                             m.getValue().indexOf("workflow start=Step: reviewstep - action:claimaction") > 0);
                 } else if ("sourceId".equals(m.getElement())) {
                     assertNotNull("The source id is the right one! ", "TEST::1");
+                } else if ("workflow".equals(m.getElement()) && "startDateTime".equals(m.getQualifier())) {
+                    assertNotNull("The dspace.workflow.startDateTime is not null! ", m.getValue());
                 } else {
                     assertTrue("Metadata is not valid.", m == null);
                 }

@@ -65,6 +65,7 @@
         <!-- This name must match the id of the step as defined in the item-submission.xml -->
         <property name="name" value="itemAccessConditions"></property>
         <property name="canChangeDiscoverable" value="true"></property>
+        <property name="required" value="false"></property>
         <property name="options">
             <list>
                 <ref bean="openAccess"/>

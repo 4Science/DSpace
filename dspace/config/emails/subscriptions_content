@@ -1,8 +1,8 @@
 ## E-mail sent to designated address about updates on subscribed items
 ##
 ## Parameters: {0} Link to subscriptions page
-##             {1} Collections updates block
-##             {2} Communities updates block
+##             {1} Collections updates
+##             {2} Communities updates
 ##             {3} Entity updates block
 #set($subject = "${config.get('dspace.name')}: Statistics of updates on subscribed items")
 

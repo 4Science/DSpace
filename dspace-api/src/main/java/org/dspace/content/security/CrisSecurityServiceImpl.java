@@ -185,11 +185,6 @@ public class CrisSecurityServiceImpl implements CrisSecurityService {
             return false;
         }
 
-        List<Group> userGroups = user.getGroups();
-        if (CollectionUtils.isEmpty(userGroups)) {
-            return false;
-        }
-
         return groups.stream()
                 .map(group -> findGroupByNameOrUUID(context, group))
                 .filter(group -> group != null)

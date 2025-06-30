@@ -51,6 +51,13 @@ public class MediaFilterScriptConfiguration<T extends MediaFilterScript> extends
         options.addOption("f", "force", false, "force all bitstreams to be processed");
         options.addOption("i", "identifier", true,
             "ONLY process bitstreams belonging to the provided handle identifier");
+        options.addOption("l", "last", true,
+            "ONLY process bitstreams belonging to items modified since the number of days specified"
+            + " (as integer number i.e. 1, 2, 3, etc). CANNOT BE combined with an identifier, use only"
+            + " when executed over the whole repository");
+        options.addOption("b", "bundle", true,
+            "ONLY process bistreams that have no bundles with the specified names");
+
         options.addOption("m", "maximum", true, "process no more than maximum items");
         options.addOption("h", "help", false, "help");
 

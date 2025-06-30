@@ -380,7 +380,7 @@ public class ImportService implements Destroyable {
 
     protected FileSource getFileSource(File file, String originalName) throws FileSourceException {
         try (InputStream fileInputStream = new FileInputStream(file)) {
-            return getFileSource(file, originalName);
+            return getFileSource(fileInputStream, originalName);
         } catch (IOException e1) {
             throw new FileSourceException("File cannot be read, may be null");
         }

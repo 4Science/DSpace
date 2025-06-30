@@ -32,11 +32,10 @@ import org.dspace.importer.external.datamodel.Query;
 import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
-import org.dspace.importer.external.service.components.QuerySource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class RorImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<String>
-    implements QuerySource {
+    implements RorImportMetadataSourceService {
 
     private final static Logger log = LogManager.getLogger();
 

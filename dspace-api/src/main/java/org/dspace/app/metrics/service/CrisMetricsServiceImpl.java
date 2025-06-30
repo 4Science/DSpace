@@ -97,6 +97,12 @@ public class CrisMetricsServiceImpl implements CrisMetricsService {
     }
 
     @Override
+    public List<CrisMetrics> findLastMetricsByResourceId(Context context, UUID resourceId,
+            Integer limit, Integer offset) throws SQLException {
+        return this.crisMetricsDAO.findLastMetricsByResourceId(context, resourceId, limit, offset);
+    }
+
+    @Override
     public CrisMetrics uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(
             Context context, String metricType, UUID resource, boolean last) throws SQLException {
         return crisMetricsDAO.uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(

@@ -14,8 +14,6 @@ import java.util.Locale;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.EPersonBuilder;
-import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
-import org.dspace.core.LegacyPluginServiceImpl;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Ignore;
@@ -31,10 +29,6 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ConfigurationService configurationService;
-    @Autowired
-    private LegacyPluginServiceImpl legacyPluginService;
-    @Autowired
-    private ChoiceAuthorityServiceImpl choiceAuthorityServiceImpl;
 
     @Test
     public void checkDefaultLanguageAnonymousTest() throws Exception {
@@ -49,8 +43,6 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
         String[] supportedLanguage = {"uk","it"};
         configurationService.setProperty("webui.supported.locales",supportedLanguage);
-        legacyPluginService.clearNamedPluginClasses();
-        choiceAuthorityServiceImpl.clearCache();
 
         Locale it = new Locale("it");
 
@@ -81,7 +73,5 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
                                  .andExpect(header().stringValues("Content-Language","en"));
 
         configurationService.setProperty("webui.supported.locales",null);
-        legacyPluginService.clearNamedPluginClasses();
-        choiceAuthorityServiceImpl.clearCache();
     }
 }

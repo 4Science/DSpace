@@ -51,34 +51,8 @@
             </DefaultRolloverStrategy>
         </Appender>
 
-        <!-- A2 is for the checksum checker -->
+        <!-- A2 is for the embedded solr (during test) -->
         <Appender name='A2'
-                  filePattern="${log.dir}/checker.log-%d{yyyy-MM-dd}"
-                  type='RollingFile'
-                  fileName='${log.dir}/checker.log'>
-            <Layout type='PatternLayout'
-                    pattern='%m%n'/>
-            <policies>
-                <policy type='TimeBasedTriggeringPolicy'>yyyy-MM-dd</policy>
-            </policies>
-            <!-- Sample deletion policy:  keep last 30 archived files
-            <DefaultRolloverStrategy>
-                <Delete basePath='${log.dir}'>
-                    <IfFileName glob='checker.log-*'/>
-                    <IfAccumulatedFileCount exceeds='30'/>
-                </Delete>
-            </DefaultRolloverStrategy>
-            -->
-            <DefaultRolloverStrategy>
-                <Delete basePath='${log.dir}'>
-                    <IfFileName glob='checker.log-*'/>
-                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
-                </Delete>
-            </DefaultRolloverStrategy>
-        </Appender>
-
-        <!-- A3 is for the embedded solr (during test) -->
-        <Appender name='A3'
                   filePattern="${log.dir}/solr.log-%d{yyyy-MM-dd}"
                   type='RollingFile'
                   fileName='${log.dir}/solr.log'>
@@ -101,8 +75,8 @@
             </DefaultRolloverStrategy>
         </Appender>
 
-        <!-- A4 is for OAI Harvester -->
-        <Appender name='A4'
+        <!-- A3 is for OAI Harvester -->
+        <Appender name='A3'
                   filePattern="${log.dir}/harvester_details.log-%d{yyyy-MM-dd}"
                   type='RollingFile'
                   fileName='${log.dir}/harvester_details.log'>
@@ -125,8 +99,8 @@
             </DefaultRolloverStrategy>
         </Appender>
 
-        <!-- A5 is for Harvest -->
-        <Appender name='A5'
+        <!-- A4 is for Harvest -->
+        <Appender name='A4'
                   filePattern="${log.dir}/harvester.log-%d{yyyy-MM-dd}"
                   type='RollingFile'
                   fileName='${log.dir}/harvester.log'>
@@ -160,32 +134,25 @@
             <AppenderRef ref='A1'/>
         </Logger>
 
-        <!-- The checksum checker -->
-        <Logger name='org.dspace.checker'
-                level='INFO'
-                additivity='false'>
-            <AppenderRef ref='A2'/>
-        </Logger>
-
         <!-- Embedded SOLR (for test) -->
         <Logger name='org.apache.solr'
                 level='INFO'
                 additivity='false'>
-            <AppenderRef ref='A3'/>
+            <AppenderRef ref='A2'/>
         </Logger>
 
         <!-- OAI Harvester -->
         <Logger name='org.dspace.harvest.OAIHarvester'
                 level='TRACE'
                 additivity='false'>
-            <AppenderRef ref='A4'/>
+            <AppenderRef ref='A3'/>
         </Logger>
 
         <!-- Harvest -->
         <Logger name='org.dspace.app.harvest.Harvest'
                 level='TRACE'
                 additivity='false'>
-            <AppenderRef ref='A5'/>
+            <AppenderRef ref='A4'/>
         </Logger>
 
         <!--

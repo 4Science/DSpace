@@ -67,12 +67,12 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    //Our default Discovery config has 5 browse indexes, so we expect this to be reflected in the page
                    // object
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", is(14)))
+                   .andExpect(jsonPath("$.page.totalElements", is(15)))
                    .andExpect(jsonPath("$.page.totalPages", is(1)))
                    .andExpect(jsonPath("$.page.number", is(0)))
 
                    //The array of browse index should have a size 4
-                   .andExpect(jsonPath("$._embedded.browses", hasSize(14)))
+                   .andExpect(jsonPath("$._embedded.browses", hasSize(15)))
 
                    //Check that all (and only) the default browse indexes are present
                    .andExpect(jsonPath("$._embedded.browses", containsInAnyOrder(
@@ -88,6 +88,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                        BrowseIndexMatcher.eqtitleBrowseIndex("asc"),
                        BrowseIndexMatcher.typesBrowseIndex(),
                        BrowseIndexMatcher.pjtitleBrowseIndex("asc"),
+                       BrowseIndexMatcher.rsoTitleBrowseIndex("asc"),
                        BrowseIndexMatcher.hierarchicalBrowseIndex(
                            "publication-coar-types", "itemtype", "dc.type"
                        ),

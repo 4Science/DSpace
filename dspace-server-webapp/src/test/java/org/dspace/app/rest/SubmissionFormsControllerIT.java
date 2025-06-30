@@ -9,7 +9,9 @@ package org.dspace.app.rest;
 
 import static org.dspace.app.rest.matcher.SubmissionFormFieldMatcher.matchFormWithVisibility;
 import static org.dspace.app.rest.matcher.SubmissionFormFieldMatcher.matchFormWithoutVisibility;
+import static org.dspace.app.rest.matcher.SubmissionFormFieldMatcher.matchSelectableMetadata;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -73,7 +75,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(content().contentType(contentType))
                    //The configuration file for the test env includes PAGE_TOTAL_ELEMENTS forms
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", equalTo(43)))
+                   .andExpect(jsonPath("$.page.totalElements", equalTo(44)))
                    .andExpect(jsonPath("$.page.totalPages", equalTo(3)))
                    .andExpect(jsonPath("$.page.number", is(0)))
                    .andExpect(
@@ -90,7 +92,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.page.size", is(20)))
-                .andExpect(jsonPath("$.page.totalElements", equalTo(43)))
+                .andExpect(jsonPath("$.page.totalElements", equalTo(44)))
                 .andExpect(jsonPath("$.page.totalPages", equalTo(3)))
                 .andExpect(jsonPath("$.page.number", is(0)))
                 .andExpect(jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL
@@ -671,7 +673,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("/api/config/submissionforms?"),
                          Matchers.containsString("page=21"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
-                 .andExpect(jsonPath("$.page.totalElements", equalTo(43)))
+                 .andExpect(jsonPath("$.page.totalElements", equalTo(44)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(22)))
                  .andExpect(jsonPath("$.page.number", is(0)));
 
@@ -680,8 +682,8 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                  .param("page", "15"))
                  .andExpect(status().isOk())
                  .andExpect(content().contentType(contentType))
-                 .andExpect(jsonPath("$._embedded.submissionforms[0].id", is("traditionalpagethree-cris-collapsed")))
-                 .andExpect(jsonPath("$._embedded.submissionforms[1].id", is("orange")))
+                 .andExpect(jsonPath("$._embedded.submissionforms[0].id", is("qualdrop-with-languages")))
+                 .andExpect(jsonPath("$._embedded.submissionforms[1].id", is("traditionalpagethree-cris-collapsed")))
                  .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
                          Matchers.containsString("page=0"), Matchers.containsString("size=2"))))
@@ -698,7 +700,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("/api/config/submissionforms?"),
                          Matchers.containsString("page=21"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
-                 .andExpect(jsonPath("$.page.totalElements", equalTo(43)))
+                 .andExpect(jsonPath("$.page.totalElements", equalTo(44)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(22)))
                  .andExpect(jsonPath("$.page.number", is(15)));
     }
@@ -745,8 +747,34 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                  Matchers.containsString("/api/config/submissionforms?"),
                                  Matchers.containsString("page=21"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$.page.size", is(2)))
-                             .andExpect(jsonPath("$.page.totalElements", equalTo(43)))
+                             .andExpect(jsonPath("$.page.totalElements", equalTo(44)))
                              .andExpect(jsonPath("$.page.totalPages", equalTo(22)))
                              .andExpect(jsonPath("$.page.number", is(4)));
+    }
+
+    @Test
+    public void findQualdropWithLanguagesTest() throws Exception {
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/config/submissionforms/qualdrop-with-languages"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(jsonPath("$.rows[0].fields[0].selectableMetadata", containsInAnyOrder(
+                            matchSelectableMetadata("dc.identifier.doi", "DOI", false),
+                            matchSelectableMetadata("dc.identifier.scopus", "Scopus ID", false),
+                            matchSelectableMetadata("dc.identifier.isi", "WOS ID", false),
+                            matchSelectableMetadata("dc.identifier.adsbibcode", "Ads Code", false),
+                            matchSelectableMetadata("dc.identifier.pmid", "Pubmed ID", false),
+                            matchSelectableMetadata("dc.identifier.arxiv", "arXiv ID", false),
+                            matchSelectableMetadata("dc.identifier.issn", "ISSN", false),
+                            matchSelectableMetadata("dc.identifier.other", "Other", false),
+                            matchSelectableMetadata("dc.identifier.ismn", "ISMN", false),
+                            matchSelectableMetadata("dc.identifier.govdoc", "Gov't Doc #", false),
+                            matchSelectableMetadata("dc.identifier.uri", "URI", false),
+                            matchSelectableMetadata("dc.identifier.isbn", "ISBN", false)
+                        )))
+                        .andExpect(jsonPath("$.rows[0].fields[0].languageCodes", containsInAnyOrder(
+                            SubmissionFormFieldMatcher.matchLanguageCode("Lang1", "ln_1"),
+                            SubmissionFormFieldMatcher.matchLanguageCode("Lang2", "ln_2")
+                        )));
     }
 }

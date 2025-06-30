@@ -186,6 +186,23 @@ it, please enter the types and the actual numbers or codes.</hint>
      </row>
 	</form>
 
+    <form name="qualdrop-with-languages">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>identifier</dc-element>
+                 <dc-qualifier></dc-qualifier>
+                 <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
+                 <repeatable>true</repeatable>
+                 <label>Identifiers</label>
+                 <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+                 <hint>Test qualdrop.</hint>
+                 <language value-pairs-name="test_languages">true</language>
+                 <required></required>
+             </field>
+         </row>
+     </form>
+
     <form name="traditionalpageone-cris-dc-contributor-author">
       <row>
         <field>
@@ -3004,6 +3021,17 @@ it, please enter the types and the actual numbers or codes.</hint>
          <pair>
              <displayed-value>Pound sterling</displayed-value>
              <stored-value>Pound sterling</stored-value>
+         </pair>
+     </value-pairs>
+
+     <value-pairs value-pairs-name="test_languages" dc-term="language_iso">
+         <pair>
+             <displayed-value>Lang1</displayed-value>
+             <stored-value>ln_1</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Lang2</displayed-value>
+             <stored-value>ln_2</stored-value>
          </pair>
      </value-pairs>
 

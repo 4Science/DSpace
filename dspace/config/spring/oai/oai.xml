@@ -60,4 +60,5 @@
 	<!-- Additional item.compile plugin to enrich field with information about
 		Access Status metadata -->
 	<bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
+    <bean class="org.dspace.xoai.app.MimeTypeElementItemCompilePlugin"/>
 </beans>

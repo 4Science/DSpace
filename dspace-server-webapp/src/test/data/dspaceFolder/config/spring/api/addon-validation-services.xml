@@ -34,6 +34,11 @@
         <property name="name" value="cclicense"/>
     </bean>
 
+    <bean name="accessConditionValidation" class="org.dspace.validation.AccessConditionValidator">
+        <property name="name" value="accessCondition"/>
+        <property name="accessConditionConfigurationService" ref="accessConditionConfigurationService"/>
+    </bean>
+
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>

@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.authority.service.AuthorityValueService;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -151,10 +152,15 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         doc.addField("lastModified", SolrUtils.getDateFormatter().format(item.getLastModified()));
         doc.addField("latestVersion", itemService.isLatestVersion(context, item));
 
+        for (Bundle bnd : item.getBundles()) {
+            doc.addField("bundleName_s", bnd.getName());
+        }
         EPerson submitter = item.getSubmitter();
-        if (submitter != null) {
-            addFacetIndex(doc, "submitter", submitter.getID().toString(),
-                    submitter.getFullName());
+        if (submitter != null && !(DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty(
+            "discovery.index.item.submitter.enabled", false))) {
+            doc.addField("submitter_authority", submitter.getID().toString());
+        } else if (submitter != null) {
+            addFacetIndex(doc, "submitter", submitter.getID().toString(), submitter.getFullName());
         }
 
         // Add the item metadata

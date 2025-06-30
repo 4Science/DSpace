@@ -82,24 +82,27 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
             if ("org.h2.Driver".equals(configurationService.getProperty("db.driver"))) {
                 // H2 doesn't support the INSERT OR UPDATE statement so let's do in two steps
                 // update queued date for records already in the queue
-                String sqlUpdate = "UPDATE itemupdate_metadata_enhancement"
-                        + " SET date_queued = CURRENT_TIMESTAMP"
-                        + " WHERE uuid IN ("
-                        + " SELECT dspace_object_id FROM metadatavalue " + " WHERE metadata_field_id IN"
-                        + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
-                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
-                        + "     AND SUBSTRING(text_value,1,36) = :uuid)";
+                String sqlUpdate = "UPDATE itemupdate_metadata_enhancement iue " +
+                    "SET date_queued = CURRENT_TIMESTAMP " +
+                    "WHERE EXISTS ( " +
+                    "    SELECT 1 " +
+                    "    FROM metadatavalue mv " +
+                    "    JOIN metadatafieldregistry mfr ON mv.metadata_field_id = mfr.metadata_field_id " +
+                    "    WHERE mv.dspace_object_id = iue.uuid " +
+                    "    AND mfr.metadata_schema_id = :schema " +
+                    "    AND mfr.element = 'virtualsource' " +
+                    "    AND SUBSTRING(mv.text_value,1,36) = :uuid " +
+                    ")";
                 String sqlInsert =
-                        "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued)"
-                        + " SELECT DISTINCT dspace_object_id, CURRENT_TIMESTAMP FROM metadatavalue "
-                        + " WHERE metadata_field_id IN"
-                        + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
-                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
-                        + "     AND SUBSTRING(text_value,1,36) = :uuid "
-                        + "     AND dspace_object_id NOT IN ("
-                        + "             SELECT uuid"
-                        + "             FROM itemupdate_metadata_enhancement"
-                        + "       )";
+                        "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued) " +
+                            "SELECT DISTINCT mv.dspace_object_id, CURRENT_TIMESTAMP " +
+                            "FROM metadatavalue mv " +
+                            "JOIN metadatafieldregistry mfr ON mv.metadata_field_id = mfr.metadata_field_id " +
+                            "LEFT JOIN itemupdate_metadata_enhancement iue ON mv.dspace_object_id = iue.uuid " +
+                            "WHERE mfr.metadata_schema_id = :schema " +
+                            "AND mfr.element = 'virtualsource' " +
+                            "AND SUBSTRING(mv.text_value,1,36) = :uuid " +
+                            "AND iue.uuid IS NULL";
                 NativeQuery<?> queryUpdate = session.createNativeQuery(sqlUpdate);
                 queryUpdate.setParameter("uuid", uuid.toString());
                 queryUpdate.setParameter("schema", schema.getID());
@@ -109,14 +112,15 @@ public class ItemForMetadataEnhancementUpdateDAOImpl implements ItemForMetadataE
                 queryInsert.setParameter("schema", schema.getID());
                 return queryInsert.executeUpdate();
             } else {
-                sqlInsertOrUpdate = "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued) "
-                        + " SELECT DISTINCT dspace_object_id, CURRENT_TIMESTAMP FROM metadatavalue "
-                        + " WHERE metadata_field_id IN"
-                        + "     ( SELECT metadata_field_id FROM metadatafieldregistry "
-                        + "                WHERE metadata_schema_id = :schema AND element = 'virtualsource')"
-                        + "     AND substring(text_value,1,36) = :uuid "
-                        + " ON CONFLICT (uuid) DO UPDATE"
-                        + " SET date_queued = EXCLUDED.date_queued";
+                sqlInsertOrUpdate = "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued)" +
+                    "SELECT DISTINCT mv.dspace_object_id, CURRENT_TIMESTAMP " +
+                    "FROM metadatavalue mv " +
+                    "JOIN metadatafieldregistry mfr ON mv.metadata_field_id = mfr.metadata_field_id " +
+                    "WHERE mfr.metadata_schema_id = :schema " +
+                    "AND mfr.element = 'virtualsource' " +
+                    "AND SUBSTRING(mv.text_value,1,36) = :uuid " +
+                    "ON CONFLICT (uuid) DO UPDATE " +
+                    "SET date_queued = EXCLUDED.date_queued";
                 NativeQuery<?> queryInsertOrUpdate = session.createNativeQuery(sqlInsertOrUpdate);
                 queryInsertOrUpdate.setParameter("uuid", uuid.toString());
                 queryInsertOrUpdate.setParameter("schema", schema.getID());
