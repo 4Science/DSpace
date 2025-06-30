@@ -7,9 +7,10 @@
  */
 package org.dspace.discovery;
 
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -122,7 +123,7 @@ public class SolrGeoMetadataMapperTest extends AbstractUnitTest {
         // Execute the method under test - should handle null mappers gracefully
         List<String> result = solrGeoMetadataMapper.map(item);
 
-        // Verify results - should return null or empty list depending on implementation
-        assertNull(result);
+        // Verify results - should return empty list
+        assertThat(result, empty());
     }
 }

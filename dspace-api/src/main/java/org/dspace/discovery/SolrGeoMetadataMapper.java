@@ -30,8 +30,14 @@ public class SolrGeoMetadataMapper<T extends DSpaceObject>
     IndexPluginMapper<T, List<String>> relationMappers;
 
     public List<String> map(T item) {
-        return Optional.ofNullable(defaultMappers.map(item))
-                       .orElseGet(() -> relationMappers.map(item));
+        return optionalMapper(defaultMappers, item)
+            .or(() -> optionalMapper(relationMappers, item))
+            .orElseGet(List::of);
+    }
+
+    private Optional<List<String>> optionalMapper(IndexPluginMapper<T, List<String>> mapper, T item) {
+        return Optional.ofNullable(mapper)
+                       .map(m -> m.map(item));
     }
 
     public IndexPluginMapper<T, List<String>> getDefaultMappers() {
