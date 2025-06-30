@@ -1152,7 +1152,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             SearchFilterMatcher.hasContentInOriginalBundleFilter(),
             SearchFilterMatcher.hasFileNameInOriginalBundleFilter(),
             SearchFilterMatcher.hasFileDescriptionInOriginalBundleFilter(),
-            SearchFilterMatcher.hasGeospatialMetadataFilter(),
             SearchFilterMatcher.entityTypeFilter(),
             SearchFilterMatcher.isAuthorOfPublicationRelation(),
             SearchFilterMatcher.isProjectOfPublicationRelation(),
@@ -1160,7 +1159,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             SearchFilterMatcher.isPublicationOfJournalIssueRelation(),
             SearchFilterMatcher.isJournalOfPublicationRelation(),
             SearchFilterMatcher.languageFilter(),
-            SearchFilterMatcher.pointFilter()
+            SearchFilterMatcher.geoMapFilter()
         ));
 
         List<Matcher<? super Object>> allExpectedSortFields = new ArrayList<>(customSortFields);

@@ -4745,22 +4745,6 @@
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
 
-    <!-- Spatial facet -->
-    <bean id="searchFilterGeospatialPoint" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
-        <property name="indexFieldName" value="point"/>
-        <property name="type" value="text"/>
-        <property name="metadataFields">
-            <list>
-                <value>dcterms.spatial</value>
-            </list>
-        </property>
-        <property name="facetLimit" value="5"/>
-        <property name="sortOrderSidebar" value="COUNT"/>
-        <property name="sortOrderFilterPage" value="COUNT"/>
-        <property name="isOpenByDefault" value="false"/>
-        <property name="pageSize" value="10"/>
-    </bean>
-
     <bean id="searchFilterContentInOriginalBundle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="has_content_in_original_bundle"/>
         <property name="metadataFields">

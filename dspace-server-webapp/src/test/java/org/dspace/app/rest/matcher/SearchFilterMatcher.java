@@ -215,13 +215,18 @@ public class SearchFilterMatcher {
         );
     }
 
-    public static Matcher<? super Object> pointFilter() {
+    public static Matcher<? super Object> geoMapFilter() {
         return allOf(
-            hasJsonPath("$.filter", is("point")),
+            hasJsonPath("$.filter", is("geo_p")),
             hasJsonPath("$.hasFacets", is(false)),
-            hasJsonPath("$.type", is("text")),
+            hasJsonPath("$.type", is("geomap")),
             hasJsonPath("$.openByDefault", is(false)),
-            checkOperators()
+            allOf(
+                hasJsonPath("$.operators",  containsInAnyOrder(
+                    hasJsonPath("$.operator", is("point")),
+                    hasJsonPath("$.operator", is("polygon"))
+                ))
+            )
         );
     }
 }
