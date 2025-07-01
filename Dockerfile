@@ -19,7 +19,7 @@ FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS b
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # The dspace-installer directory will be written to /install
-RUN mkdir -p /install /install/config /install/bin /install/solr \
+RUN mkdir -p /install /install/config /install/bin /install/solr /install/var \
     && chown -Rv dspace: /install \
     && chown -Rv dspace: /app
 USER dspace
