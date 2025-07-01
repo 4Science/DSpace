@@ -21,7 +21,7 @@ ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 # Install curl which is necessary to load SQL file
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y curl \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/lib/apt/lists/*
 
