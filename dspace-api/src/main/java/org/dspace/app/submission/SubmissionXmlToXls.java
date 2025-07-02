@@ -71,6 +71,7 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
     private DCInputsReader defaultInputReader;
     private List<String> supportedLocales;
     private List<String> bitstreamSubmissions;
+    private Map<HSSFColor.HSSFColorPredefined, CellStyle> styles;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -79,6 +80,7 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         uploadConfigurationService = AuthorizeServiceFactory.getInstance().getUploadConfigurationService();
+        styles = new HashMap<>();
         bitstreamSubmissions = uploadConfigurationService
                 .getMap()
                 .values()
@@ -437,10 +439,15 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
     }
 
     private Cell applyStyleToCell(Workbook workbook, Cell cell, HSSFColor.HSSFColorPredefined hssfColor) {
-        CellStyle cs = workbook.createCellStyle();
-        cs.setFillForegroundColor(hssfColor.getIndex());
-        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cell.setCellStyle(cs);
+        if (styles.containsKey(hssfColor)) {
+            cell.setCellStyle(styles.get(hssfColor));
+        } else {
+            CellStyle cs = workbook.createCellStyle();
+            cs.setFillForegroundColor(hssfColor.getIndex());
+            cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(cs);
+            styles.put(hssfColor, cs);
+        }
         return cell;
     }
 
