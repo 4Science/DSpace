@@ -11,18 +11,28 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.dspace.app.util.DCInput;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -34,6 +44,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.submit.model.UploadConfigurationService;
 import org.dspace.utils.DSpace;
 
 /**
@@ -52,21 +63,33 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
 
     private SubmissionConfigReader submissionConfigReader;
 
+    private UploadConfigurationService uploadConfigurationService;
+
     private AuthorizeService authorizeService;
 
     private Map<String, DCInputsReader> inputReaders;
     private DCInputsReader defaultInputReader;
     private List<String> supportedLocales;
+    private List<String> bitstreamSubmissions;
 
     @Override
     @SuppressWarnings("unchecked")
     public void setup() throws ParseException {
-        this.epersonService = EPersonServiceFactory.getInstance().getEPersonService();
-        this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        epersonService = EPersonServiceFactory.getInstance().getEPersonService();
+        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+        uploadConfigurationService = AuthorizeServiceFactory.getInstance().getUploadConfigurationService();
+        bitstreamSubmissions = uploadConfigurationService
+                .getMap()
+                .values()
+                .stream()
+                .map(config -> config.getMetadata())
+                .collect(Collectors.toList());
 
-        supportedLocales = List.of(configurationService.getArrayProperty("webui.supported.locales",
-                new String[]{"en"}));
+        supportedLocales = List.of(configurationService.getArrayProperty("inputforms.additional-languages",
+                new String[]{}));
+        supportedLocales = supportedLocales.stream().filter(locale -> !"en".equals(locale))
+                .collect(Collectors.toList());
         try {
             // stores Steps and Submission definitions
             submissionConfigReader = new SubmissionConfigReader();
@@ -94,16 +117,16 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         }
 
         // Step definitions
-        Map<String, Map<String, String>> steps = submissionConfigReader.getSafeStepDefns();
+        Map<String, Map<String, String>> steps = new TreeMap<>(submissionConfigReader.getSafeStepDefns());
 
         // Submission definitions
-        Map<String, List<Map<String, String>>> subDefs = submissionConfigReader.getSafeSubmitDefns();
+        Map<String, List<Map<String, String>>> subDefs = new TreeMap<>(submissionConfigReader.getSafeSubmitDefns());
 
         // Form definitions
-        Map<String, List<List<Map<String, String>>>> formDef = inputReader.getFormDefns();
+        Map<String, List<List<Map<String, String>>>> formDef = new TreeMap<>(inputReader.getFormDefns());
 
         // Value pairs
-        Map<String, List<String>> valuePairs = inputReader.getSafeValuePairs();
+        Map<String, List<String>> valuePairs = new TreeMap<>(inputReader.getSafeValuePairs());
 
         context = new Context();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();) {
@@ -136,33 +159,54 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         Sheet sheet = workbook.getSheet("forms-value-pairs");
         Row header = sheet.createRow(sheet.getLastRowNum() + 1);
         AtomicInteger headerColumnsCount = new AtomicInteger();
-        int rowIndex = sheet.getLastRowNum();
-        for (String valuePairName : valuePairs.keySet()) {
+        List<String> orderedValuePairs = new ArrayList<>(valuePairs.keySet());
+        orderedValuePairs.sort(Comparator.naturalOrder());
+        for (String valuePairName : orderedValuePairs) {
+            if (StringUtils.isBlank(valuePairName)) {
+                continue; // skip empty value pair names
+            }
             List<String> pairs = valuePairs.get(valuePairName);
 
-            int valuePairsColumns = supportedLocales.size() + 1;
-            int valuePairSize = pairs.size() / valuePairsColumns;
+            int valuePairsColumns = supportedLocales.size() + 2;
+            int valuePairSize = pairs.size() / 2;
             checkRowExists(sheet, valuePairSize);
 
             // create display label column
             header.createCell(headerColumnsCount.getAndIncrement()).setCellValue(valuePairName);
             // Create header cells for each locale except "en"
             supportedLocales.stream()
-                    .filter(locale -> !locale.equalsIgnoreCase("en"))
                     .forEach(locale ->
                             header.createCell(headerColumnsCount.getAndIncrement())
                                     .setCellValue(valuePairName + "_" + locale));
             //this is the "en" column
             header.createCell(headerColumnsCount.getAndIncrement()).setCellValue(valuePairName);
 
+            // <stored-value>, <display-value-lang1>, <display-value-lang2>, <display-value-lang3>
+            String[][] storedAndDisplay = new String[pairs.size() / 2][valuePairsColumns];
+
+            // this for loop will handle the Display values across languages
+            for (int i = 0; i < pairs.size(); i += 2) {
+                storedAndDisplay[i / 2][0] = pairs.get(i); // display value
+                for (int j = 1; j <= supportedLocales.size(); j++) {
+                    //multilanguage store values
+                    storedAndDisplay[i / 2][j] = inputReaders.get(supportedLocales.get(j - 1))
+                            .getPairs(valuePairName).get(i);
+                }
+                // let's set the store values
+                storedAndDisplay[i / 2][storedAndDisplay[i / 2].length - 1] = pairs.get(i + 1);
+            }
+
+
             //set values
-            int i = 0;
-            for (String value : pairs) {
-                AtomicInteger column = new AtomicInteger(headerColumnsCount.get() - valuePairsColumns
-                        + (i % valuePairsColumns));
-                sheet.getRow((i / valuePairsColumns) + 1).createCell(column.get()).setCellValue(value);
-                i++;
-                sheet.autoSizeColumn(column.get());
+            for (int i = 0; i < storedAndDisplay.length; i++) {
+                for (int j = 0; j < storedAndDisplay[i].length; j++) {
+                    AtomicInteger column = new AtomicInteger(headerColumnsCount.get() - valuePairsColumns
+                            + (j % valuePairsColumns));
+                    String value = storedAndDisplay[i][j];
+                    // i + 1 because the first row is the header
+                    sheet.getRow(i + 1).createCell(column.get()).setCellValue(value);
+                    sheet.autoSizeColumn(column.get());
+                }
             }
         }
 
@@ -181,59 +225,77 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
     private void processSheetFormsDefinitions(Workbook workbook, Map<String, List<List<Map<String, String>>>> formDef) {
         Sheet sheet = workbook.getSheet("forms-definition");
         Row header = sheet.createRow(sheet.getLastRowNum() + 1);
-        header.createCell(0).setCellValue("form-name");
-        header.createCell(1).setCellValue("row-number");
-        header.createCell(2).setCellValue("field-style");
-        header.createCell(3).setCellValue("parent");
-        header.createCell(4).setCellValue("schema");
-        header.createCell(5).setCellValue("dc-element");
-        header.createCell(6).setCellValue("dc-qualifier");
-        header.createCell(7).setCellValue("input-type");
-        header.createCell(8).setCellValue("list-name");
-        header.createCell(9).setCellValue("validation");
-        header.createCell(10).setCellValue("repeatable");
-        header.createCell(11).setCellValue("restriction");
-        header.createCell(12).setCellValue("label");
-        header.createCell(13).setCellValue("required");
-        header.createCell(14).setCellValue("hint");
-        header.createCell(15).setCellValue("type-bind");
-        header.createCell(16).setCellValue("displayitem");
-        header.createCell(17).setCellValue("formatter");
-        header.createCell(18).setCellValue("vocabulary");
-        header.createCell(19).setCellValue("closedvocabulary");
-        header.createCell(20).setCellValue("multilanguage-value-pairs");
+        AtomicInteger columnIndex = new AtomicInteger(0);
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("form-name");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("row-number");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("field-style");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("parent");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("schema");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("dc-element");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("dc-qualifier");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("input-type");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("list-name");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("validation");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("repeatable");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("restriction");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("label");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("required");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("hint");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("type-bind");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("displayitem");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("formatter");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("vocabulary");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("closedvocabulary");
+        header.createCell(columnIndex.getAndIncrement()).setCellValue("multilanguage-value-pairs");
 
-        AtomicInteger lastColumnIndex = new AtomicInteger(20);
-
+        // Add columns for each supported locale
         supportedLocales.stream().filter(locale -> !locale.equalsIgnoreCase("en"))
                 .forEach(locale -> {
-                    header.createCell(lastColumnIndex.incrementAndGet()).setCellValue("label_" + locale);
-                    header.createCell(lastColumnIndex.incrementAndGet()).setCellValue("required_" + locale);
-                    header.createCell(lastColumnIndex.incrementAndGet()).setCellValue("hint_" + locale);
+                    header.createCell(columnIndex.getAndIncrement()).setCellValue("label_" + locale);
+                    header.createCell(columnIndex.getAndIncrement()).setCellValue("required_" + locale);
+                    header.createCell(columnIndex.getAndIncrement()).setCellValue("hint_" + locale);
                 });
 
         for (Map.Entry<String, List<List<Map<String, String>>>> entry : formDef.entrySet()) {
             String submissionDef = entry.getKey();
             int formRowCounter = 1;
 
+            HSSFColor.HSSFColorPredefined style = randomColor();
             for (List<Map<String, String>> formRow : entry.getValue()) {
                 for (Map<String, String> field : formRow) {
                     int rowIndex = sheet.getLastRowNum() + 1;
                     Row row = sheet.createRow(rowIndex);
-                    AtomicInteger columnIndex = new AtomicInteger(0);
+                    AtomicInteger columnCount = new AtomicInteger(0);
 
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(submissionDef);
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(formRowCounter++);
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("style"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(calculateParent(submissionDef));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("dc-schema"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("dc-element"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("dc-qualifier"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("input-type"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(submissionDef);
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(formRowCounter++);
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("style"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(calculateParent(submissionDef));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("dc-schema"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("dc-element"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("dc-qualifier"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("input-type"));
                     String listName = field.get(field.get("input-type") + ".value-pairs-name");
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(listName);
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("validation"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("repeatable"));
+                    if (StringUtils.isBlank(listName)) {
+                        listName = field.get("value-pairs-name");
+                    }
+                    boolean isValuePairsMultilanguage = !StringUtils.equalsAny(field.get("input-type"),
+                            "dropdown", "qualdrop_value", "list", "series");
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(isValuePairsMultilanguage ? "" :
+                            listName);
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("validation"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("repeatable"));
                     String restriction = field.get("visibility");
                     if (StringUtils.isBlank(restriction)) {
                         restriction = StringUtils.equals(field.get("readonly"), "all")
@@ -241,32 +303,66 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
                     } else {
                         restriction = "hidden";
                     }
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(restriction);
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("label"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("required"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("hint"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("type-bind"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("displayitem"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("formatter"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("vocabulary"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("closedVocabulary"));
-                    row.createCell(columnIndex.getAndIncrement()).setCellValue(field.get("multilanguage-value-pairs"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(restriction);
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("label"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("required"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("hint"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("type-bind"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("displayitem"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("formatter"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("vocabulary"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(field.get("closedVocabulary"));
+                    applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                            style).setCellValue(isValuePairsMultilanguage ?
+                            listName : "");
 
-                    // TODO
-                    // FIXME: we must handle the multilanguage columns
+                    supportedLocales.forEach(locale -> {
+                        try {
+                            DCInput dcInput = Arrays.stream(inputReaders.get(locale).getInputsByFormName(submissionDef)
+                                            .getFields())
+                                    .flatMap(dcInputs -> Arrays.stream(dcInputs).sequential())
+                                    .filter(dc -> StringUtils.equals(dc.getSchema(), field.get("dc-schema"))
+                                            && StringUtils.equals(dc.getElement(), field.get("dc-element"))
+                                            && StringUtils.equals(dc.getQualifier(), field.get("dc-qualifier")))
+                                    .findFirst().get();
+
+                            String label = dcInput.getLabel();
+                            String required = String.valueOf(dcInput.isRequired());
+                            String hint = dcInput.getHints();
+
+                            applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                                    style).setCellValue(thisOrEmpty(label));
+                            applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                                    style).setCellValue(thisOrEmpty(required));
+                            applyStyleToCell(workbook, row.createCell(columnCount.getAndIncrement()),
+                                    style).setCellValue(thisOrEmpty(hint));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
                 }
             }
 
         }
-        for (int i = 0; i <= lastColumnIndex.get() + (supportedLocales.size() * 3); i++) {
+        for (int i = 0; i <= columnIndex.get() + (supportedLocales.size() * 3); i++) {
             sheet.autoSizeColumn(i);
         }
     }
 
     private String calculateParent(String submissionDef) {
         if (StringUtils.isBlank(submissionDef) || !submissionDef.contains("-")
-                || StringUtils.countMatches(submissionDef, "-") < 2) {
+                || StringUtils.countMatches(submissionDef, "-") < 2
+                || bitstreamSubmissions.contains(submissionDef)) {
             return "";
         }
         int firstDash = submissionDef.indexOf('-');
@@ -286,15 +382,21 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         for (Map.Entry<String, Map<String, String>> entry : steps.entrySet()) {
             String stepId = entry.getKey();
             Map<String, String> stepEntry = entry.getValue();
+            HSSFColor.HSSFColorPredefined style = randomColor();
 
             int rowIndex = sheet.getLastRowNum() + 1;
             Row row = sheet.createRow(rowIndex);
 
-            row.createCell(0).setCellValue(thisOrEmpty(stepId));
-            row.createCell(1).setCellValue(thisOrEmpty(stepEntry.get("type")));
-            row.createCell(2).setCellValue(thisOrEmpty(stepEntry.get("mandatory")));
-            row.createCell(3).setCellValue(thisOrEmpty(reconstructRestrictions(stepEntry)));
-            row.createCell(4).setCellValue(thisOrEmpty(stepEntry.get("opened")));
+            applyStyleToCell(workbook, row.createCell(0),
+                    style).setCellValue(thisOrEmpty(stepId));
+            applyStyleToCell(workbook, row.createCell(1),
+                    style).setCellValue(thisOrEmpty(stepEntry.get("type")));
+            applyStyleToCell(workbook, row.createCell(2),
+                    style).setCellValue(thisOrEmpty(stepEntry.get("mandatory")));
+            applyStyleToCell(workbook, row.createCell(3),
+                    style).setCellValue(thisOrEmpty(reconstructRestrictions(stepEntry)));
+            applyStyleToCell(workbook, row.createCell(4),
+                    style).setCellValue(thisOrEmpty(stepEntry.get("opened")));
         }
         sheet.autoSizeColumn(0);
         sheet.autoSizeColumn(1);
@@ -315,15 +417,16 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
             List<Map<String, String>> submissionSteps = entry.getValue();
 
             int order = 1;
+            HSSFColor.HSSFColorPredefined style = randomColor();
             for (Map<String, String> stepEntry : submissionSteps) {
                 String stepId = stepEntry.get("id");
 
                 int rowIndex = sheet.getLastRowNum() + 1;
                 Row row = sheet.createRow(rowIndex);
 
-                row.createCell(0).setCellValue(thisOrEmpty(submissionName));
-                row.createCell(1).setCellValue(thisOrEmpty(stepId));
-                row.createCell(2).setCellValue(thisOrEmpty(order++));
+                applyStyleToCell(workbook, row.createCell(0), style).setCellValue(thisOrEmpty(submissionName));
+                applyStyleToCell(workbook, row.createCell(1), style).setCellValue(thisOrEmpty(stepId));
+                applyStyleToCell(workbook, row.createCell(2), style).setCellValue(thisOrEmpty(order++));
             }
 
         }
@@ -331,6 +434,23 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         sheet.autoSizeColumn(1);
         sheet.autoSizeColumn(2);
         sheet.autoSizeColumn(3);
+    }
+
+    private Cell applyStyleToCell(Workbook workbook, Cell cell, HSSFColor.HSSFColorPredefined hssfColor) {
+        CellStyle cs = workbook.createCellStyle();
+        cs.setFillForegroundColor(hssfColor.getIndex());
+        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cell.setCellStyle(cs);
+        return cell;
+    }
+
+    public static HSSFColor.HSSFColorPredefined randomColor() {
+        HSSFColor.HSSFColorPredefined randomColor;
+        do {
+            HSSFColor.HSSFColorPredefined[] values = HSSFColor.HSSFColorPredefined.values();
+            randomColor = values[new Random().nextInt(values.length)];
+        } while (randomColor == HSSFColor.HSSFColorPredefined.BLACK);
+        return randomColor;
     }
 
     public String reconstructRestrictions(Map<String, String> map) {
