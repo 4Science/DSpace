@@ -818,4 +818,31 @@ public class SubmissionConfigReader {
             return false;
         }
     }
+
+    public Map<String, Map<String, String>> getSafeStepDefns() {
+        Map<String, Map<String, String>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, String>> entry : stepDefns.entrySet()) {
+            safeCopy.put(entry.getKey(), new HashMap<>(entry.getValue())); // inner map immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
+    public Map<String, List<Map<String, String>>> getSafeSubmitDefns() {
+        Map<String, List<Map<String, String>>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, List<Map<String, String>>> entry : submitDefns.entrySet()) {
+            List<Map<String, String>> listCopy = new ArrayList<>();
+
+            for (Map<String, String> map : entry.getValue()) {
+                listCopy.add(new HashMap<>(map)); // inner map copy
+            }
+
+            safeCopy.put(entry.getKey(), List.copyOf(listCopy)); // inner list immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
 }

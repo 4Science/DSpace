@@ -971,4 +971,39 @@ public class DCInputsReader {
             .collect(Collectors.toList());
     }
 
+    public Map<String, List<List<Map<String, String>>>> getFormDefns() {
+        Map<String, List<List<Map<String, String>>>> result = new HashMap<>();
+
+        for (Map.Entry<String, List<List<Map<String, String>>>> entry : formDefns.entrySet()) {
+            List<List<Map<String, String>>> outerList = new ArrayList<>();
+
+            for (List<Map<String, String>> innerList : entry.getValue()) {
+                List<Map<String, String>> innerListCopy = new ArrayList<>();
+
+                for (Map<String, String> map : innerList) {
+                    // Must use new HashMap<>() to copy the map
+                    // Map.copyOf() is throwing NPE when the map contains null values
+                    innerListCopy.add(new HashMap<>(map));
+                }
+
+                outerList.add(List.copyOf(innerListCopy));
+            }
+
+            result.put(entry.getKey(), List.copyOf(outerList));
+        }
+
+        return Map.copyOf(result);
+    }
+
+    public Map<String, List<String>> getSafeValuePairs() {
+        Map<String, List<String>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : valuePairs.entrySet()) {
+            safeCopy.put(entry.getKey(), List.copyOf(entry.getValue())); // inner list immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
+
 }
