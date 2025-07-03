@@ -1550,4 +1550,18 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpy</qualifier>
+    <scope_note>The latitude metadata with decimal value</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpx</qualifier>
+    <scope_note>The longitude metadata with decimal value</scope_note>
+  </dc-type>
+
 </dspace-dc-types>
