@@ -16,9 +16,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.mediafilter.service.MediaFilterService;
 import org.dspace.app.policy.PolicyUpdater;
 import org.dspace.authorize.AuthorizeException;
@@ -30,6 +37,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.impl.ItemDAOImpl;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -40,6 +49,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.UUIDIterator;
+import org.dspace.discovery.SearchUtils;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -79,6 +90,8 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     protected GroupService groupService;
     @Autowired(required = true)
     protected ItemService itemService;
+    @Autowired(required = true)
+    protected ItemDAO itemDAO;
     @Autowired(required = true)
     protected ConfigurationService configurationService;
     @Autowired(required = true)
@@ -121,7 +134,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void applyFiltersAllItems(Context context) throws Exception {
+    public void applyFiltersAllItems(Context context, int sinceLastDays, String[] skipBundles) throws Exception {
         if (skipList != null) {
             //if a skip-list exists, we need to filter community-by-community
             //so we can respect what is in the skip-list
@@ -132,7 +145,34 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
         } else {
             //otherwise, just find every item and process
-            Iterator<Item> itemIterator = itemService.findAll(context);
+            SolrQuery discoverQuery = new SolrQuery();
+            discoverQuery.setQuery("search.resourcetype:Item AND archived:true");
+            discoverQuery.setFields("search.resourceid");
+            discoverQuery.setRows(100);
+            if (skipBundles != null && skipBundles.length > 0) {
+                discoverQuery.addFilterQuery("-bundleName_s:" + StringUtils.join(skipBundles, " OR -bundleName_s:"));
+            }
+            if (sinceLastDays > 0) {
+                discoverQuery.addFilterQuery("lastModified_dt:[NOW-" + sinceLastDays + "DAYS/DAY TO *]");
+            }
+            final SolrClient solr = SearchUtils.getSearchService().getSolrSearchCore().getSolr();
+            QueryResponse response = solr.query(discoverQuery);
+            int currPos = 0;
+            List<UUID> results = new ArrayList<UUID>((int) response.getResults().getNumFound());
+            while (response.getResults().getNumFound() > currPos) {
+                SolrDocumentList solrDocList = response.getResults();
+                for (SolrDocument doc : solrDocList) {
+                    UUID uuid = UUID.fromString((String) doc.getFirstValue("search.resourceid"));
+                    results.add(uuid);
+                }
+                currPos += 100;
+                discoverQuery.setStart(currPos);
+                response = solr.query(discoverQuery);
+            }
+            UUIDIterator<Item> itemIterator =
+                new UUIDIterator<>(
+                    context, results, Item.class,(ItemDAOImpl) itemDAO
+                );
             while (itemIterator.hasNext() && processed < max2Process) {
                 applyFiltersItem(context, itemIterator.next());
             }
