@@ -61,11 +61,12 @@ FROM bundle2bitstream b2b
 ORDER BY b2b.bundle_id, b2b.bitstream_order
     ),
     joined AS (
-SELECT
+SELECT DISTINCT ON (REPLACE(b.title, 'IIIF-PDF-', '')::uuid)
     REPLACE(b.title, 'IIIF-PDF-', '')::uuid AS target_uuid,
     pb.canvas_uuid
 FROM bundles_with_name b
     JOIN primary_bitstreams pb ON pb.bundle_id = b.bundle_uuid
+ORDER BY REPLACE(b.title, 'IIIF-PDF-', '')::uuid
     ),
     iiif_field_id AS (
 SELECT mf.metadata_field_id
