@@ -33,6 +33,8 @@
 
     <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
 
+    <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
+
     <!-- Additional item.compile plugin to enrich field with information about
         Access Status metadata -->
     <bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
@@ -61,4 +63,26 @@
 		Access Status metadata -->
 	<bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
     <bean class="org.dspace.xoai.app.MimeTypeElementItemCompilePlugin"/>
+
+    <bean id="xoaiBitstreamPlugin" class="org.dspace.xoai.app.BitstreamMetadataCompilePlugin">
+        <constructor-arg name="metadataMapping">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="toc" value="iiif.toc" />
+                <entry key="samplingfrequencyunit" value="mix.samplingfrequencyunit" />
+                <entry key="samplingfrequencyplane" value="mix.samplingfrequencyplane" />
+                <entry key="xsamplingfrequency" value="mix.xsamplingfrequency" />
+                <entry key="ysamplingfrequency" value="mix.ysamplingfrequency" />
+                <entry key="colorSpace" value="mix.colorSpace" />
+                <entry key="bitsPerSampleValue" value="mix.bitsPerSampleValue" />
+                <entry key="compressionScheme" value="mix.compressionScheme" />
+                <entry key="captureDevice" value="mix.captureDevice" />
+                <entry key="scannerManufacturer" value="mix.scannerManufacturer" />
+                <entry key="scannerModelName" value="mix.scannerModelName" />
+                <entry key="scanningSoftwareName" value="mix.scanningSoftwareName" />
+
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="xoaiExtensionsPluginFactory" class="org.dspace.xoai.app.XOAIExtensionsPluginFactoryImpl"/>
 </beans>

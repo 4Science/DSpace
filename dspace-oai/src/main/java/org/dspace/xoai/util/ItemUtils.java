@@ -46,6 +46,8 @@ import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.xoai.app.XOAIExtensionBitstreamCompilePlugin;
+import org.dspace.xoai.app.XOAIExtensionsPluginFactory;
 import org.dspace.xoai.data.DSpaceItem;
 
 /**
@@ -81,6 +83,9 @@ public class ItemUtils {
 
     private static final HandleService handleService = HandleServiceFactory
             .getInstance().getHandleService();
+
+    private static final List<XOAIExtensionBitstreamCompilePlugin> additionalPlugins = XOAIExtensionsPluginFactory
+        .getInstance().getXOAIExtensionBitstreamCompilePlugins();
 
     public static Integer MAX_DEEP = 2;
     public static String AUTHORITY = "authority";
@@ -261,6 +266,11 @@ public class ItemUtils {
                 bitstream.getField().add(createValue("sid", bit.getSequenceID() + ""));
                 // Add primary bitstream field to allow locating easily the primary bitstream information
                 bitstream.getField().add(createValue("primary", primary + ""));
+
+                for (XOAIExtensionBitstreamCompilePlugin additionalPlugin : additionalPlugins) {
+                    additionalPlugin.appendElements(context, bitstream, bit);
+                }
+
             }
         }
 

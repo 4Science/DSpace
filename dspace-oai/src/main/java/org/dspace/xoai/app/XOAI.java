@@ -64,7 +64,6 @@ import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.SolrUtils;
-import org.dspace.utils.DSpace;
 import org.dspace.xoai.exceptions.CompilingException;
 import org.dspace.xoai.services.api.CollectionsService;
 import org.dspace.xoai.services.api.cache.XOAICacheService;
@@ -97,14 +96,14 @@ public class XOAI {
     private XOAIItemCacheService xoaiItemCacheService;
     @Autowired
     private CollectionsService collectionsService;
+    @Autowired
+    private List<XOAIExtensionItemCompilePlugin> extensionPlugins;
 
     private final AuthorizeService authorizeService;
     private final ItemService itemService;
 
     private final static ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
             .getConfigurationService();
-
-    private final List<XOAIExtensionItemCompilePlugin> extensionPlugins;
 
     private List<String> getFileFormats(Item item) {
         List<String> formats = new ArrayList<>();
@@ -130,8 +129,7 @@ public class XOAI {
         // Load necessary DSpace services
         this.authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         this.itemService = ContentServiceFactory.getInstance().getItemService();
-        this.extensionPlugins = new DSpace().getServiceManager()
-                .getServicesByType(XOAIExtensionItemCompilePlugin.class);
+        this.extensionPlugins = XOAIExtensionsPluginFactory.getInstance().getXoaiExtensionItemCompilePlugins();
     }
 
     public XOAI(Context ctx, boolean hasOption) {
@@ -141,8 +139,7 @@ public class XOAI {
         // Load necessary DSpace services
         this.authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         this.itemService = ContentServiceFactory.getInstance().getItemService();
-        this.extensionPlugins = new DSpace().getServiceManager()
-                .getServicesByType(XOAIExtensionItemCompilePlugin.class);
+        this.extensionPlugins = XOAIExtensionsPluginFactory.getInstance().getXoaiExtensionItemCompilePlugins();
     }
 
     private void println(String line) {
