@@ -110,6 +110,13 @@ public class SearchFilterMatcher {
         );
     }
 
+    public static Matcher<? super Object> hasGeospatialMetadataFilter() {
+        return allOf(
+                hasJsonPath("$.filter", is("has_geospatial_metadata")),
+                checkOperators()
+        );
+    }
+
     public static Matcher<? super Object> checkOperators() {
         return allOf(
                 hasJsonPath("$.operators",  containsInAnyOrder(
@@ -205,6 +212,21 @@ public class SearchFilterMatcher {
                 hasJsonPath("$.type", is("chart.bar")),
                 hasJsonPath("$.openByDefault", is(false)),
                 checkOperators()
+        );
+    }
+
+    public static Matcher<? super Object> geoMapFilter() {
+        return allOf(
+            hasJsonPath("$.filter", is("geo_p")),
+            hasJsonPath("$.hasFacets", is(false)),
+            hasJsonPath("$.type", is("geomap")),
+            hasJsonPath("$.openByDefault", is(false)),
+            allOf(
+                hasJsonPath("$.operators",  containsInAnyOrder(
+                    hasJsonPath("$.operator", is("point")),
+                    hasJsonPath("$.operator", is("polygon"))
+                ))
+            )
         );
     }
 }

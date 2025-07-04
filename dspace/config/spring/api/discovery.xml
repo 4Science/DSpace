@@ -76,6 +76,37 @@
     </bean>
     <bean id="solrServiceAdministrativeSearchRestrictionPlugin" class="org.dspace.discovery.SolrServiceAdministrativeSearchRestrictionPlugin"/>
 
+    <bean id="latitudeMetadataMapper" class="org.dspace.discovery.IndexPluginMetadataMapper">
+        <constructor-arg name="metadataField" value="dc.coverage.spatialgpdpy"/>
+    </bean>
+    <bean id="longitudeMetadataMapper" class="org.dspace.discovery.IndexPluginMetadataMapper">
+        <constructor-arg name="metadataField" value="dc.coverage.spatialgpdpx"/>
+    </bean>
+    <bean id="virtualLatitudeMetadataMapper" class="org.dspace.discovery.IndexPluginMetadataMapper">
+        <constructor-arg name="metadataField" value="cris.virtual.latitude"/>
+    </bean>
+    <bean id="virtualLongitudeMetadataMapper" class="org.dspace.discovery.IndexPluginMetadataMapper">
+        <constructor-arg name="metadataField" value="cris.virtual.longitude"/>
+    </bean>
+    <bean id="virtualGeoPointMapper" class="org.dspace.discovery.IndexPluginGeoMetadataMapper">
+        <property name="latitudeMapper" ref="virtualLatitudeMetadataMapper" />
+        <property name="longitudeMapper" ref="virtualLongitudeMetadataMapper" />
+    </bean>
+    <bean id="defaultGeoPointMapper" class="org.dspace.discovery.IndexPluginGeoMetadataMapper">
+        <property name="latitudeMapper" ref="latitudeMetadataMapper" />
+        <property name="longitudeMapper" ref="longitudeMetadataMapper" />
+    </bean>
+    <bean id="geoPointMapper" class="org.dspace.discovery.SolrGeoMetadataMapper">
+        <property name="defaultMappers" ref="defaultGeoPointMapper" />
+        <property name="relationMappers" ref="virtualGeoPointMapper" />
+    </bean>
+    <bean id="solrServiceGeoPointIndexPlugin" class="org.dspace.discovery.SolrServiceGeoJsonGeometryIndexPlugin">
+        <constructor-arg name="metadataMapper" ref="geoPointMapper"/>
+        <constructor-arg name="indexFieldName" value="geo_p"/>
+        <constructor-arg name="schemaURL" value="${dspace.dir}/config/schemas/geojson/Geometry.json"/>
+        <constructor-arg name="pattern" value="#{T(org.dspace.app.mapper.geomap.geojson.GeoJSONMapper).POINT_FORMAT_PATTERN}"/>
+    </bean>
+
     <util:list id="sharedWorkspaceAuthorMetadataFields" value-type="java.lang.String">
         <value>dc.contributor.author</value>
         <value>dc.contributor.editor</value>
@@ -919,6 +950,7 @@
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
                 <ref bean="searchFilterIsJournalOfPublicationRelation"/>
                 <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterGeoMap" />
             </list>
         </property>
         <!--The sort filters for the discovery search (same as defaultConfiguration above)-->
@@ -4407,6 +4439,15 @@
         <property name="exposeMinAndMaxValue" value="true"/>
     </bean>
 
+    <bean id="searchFilterGeoMap" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+        <property name="indexFieldName" value="geo_p"/>
+        <property name="metadataFields">
+            <list></list>
+        </property>
+        <property name="type" value="geomap"/>
+        <property name="pageSize" value="10"/>
+    </bean>
+
     <bean id="searchFilterTitle" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
         <property name="indexFieldName" value="title"/>
         <property name="metadataFields">
@@ -4640,7 +4681,6 @@
         <property name="isOpenByDefault" value="false"/>
         <property name="pageSize" value="10"/>
         <property name="exposeMinAndMaxValue" value="true"/>
-
     </bean>
 
     <bean id="searchFilterContentInOriginalBundle" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">

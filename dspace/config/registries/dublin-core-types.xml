@@ -912,7 +912,7 @@
     <qualifier>otherlinks</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
@@ -954,35 +954,35 @@
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>type</element>
     <qualifier>physical</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>rights</element>
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
     <qualifier>archivist</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
@@ -996,14 +996,14 @@
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
     <qualifier>preservationnote</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
@@ -1022,13 +1022,6 @@
     <schema>dc</schema>
     <element>relation</element>
     <qualifier>opac</qualifier>
-    <scope_note></scope_note>
-  </dc-type>
-
-  <dc-type>
-    <schema>dc</schema>
-    <element>relation</element>
-    <qualifier>place</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1500,21 +1493,21 @@
     <qualifier>hasPicture</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
     <qualifier>otherlinkslabel</qualifier>
     <scope_note></scope_note>
   </dc-type>
-    
+
   <dc-type>
     <schema>dc</schema>
     <element>identifier</element>
     <qualifier>urilabel</qualifier>
     <scope_note></scope_note>
   </dc-type>
-    
+
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
@@ -1555,6 +1548,20 @@
     <element>relation</element>
     <qualifier>annotation</qualifier>
     <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpy</qualifier>
+    <scope_note>The latitude metadata with decimal value</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpx</qualifier>
+    <scope_note>The longitude metadata with decimal value</scope_note>
   </dc-type>
 
 </dspace-dc-types>

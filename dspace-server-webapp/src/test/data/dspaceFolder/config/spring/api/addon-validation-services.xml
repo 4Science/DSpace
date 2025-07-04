@@ -98,4 +98,7 @@
         <property name="notifyPatternToTriggerService" ref="org.dspace.app.ldn.service.impl.NotifyPatternToTriggerImpl"/>
     </bean>
 
+    <bean name="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" class="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" />
+    <bean name="geoJsonValidationServiceFactory" class="org.dspace.validation.service.factory.impl.GeoJsonValidationServiceFactoryImpl" />
+
 </beans>
