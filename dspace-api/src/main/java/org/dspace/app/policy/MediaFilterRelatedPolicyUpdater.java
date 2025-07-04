@@ -19,14 +19,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dspace.app.mediafilter.FormatFilter;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
-import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
@@ -41,11 +39,8 @@ public class MediaFilterRelatedPolicyUpdater extends AbstractPolicyUpdater imple
     final ItemService itemService;
 
     public MediaFilterRelatedPolicyUpdater(
-        ItemService itemService,
-        GroupService groupService,
-        AuthorizeService authorizeService
+        ItemService itemService
     ) {
-        super(groupService, authorizeService);
         this.itemService = itemService;
     }
 
