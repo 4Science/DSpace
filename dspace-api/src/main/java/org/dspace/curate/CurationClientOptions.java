@@ -94,4 +94,20 @@ public enum CurationClientOptions {
         }
         return taskOptions;
     }
+
+    /**
+     * Resets the cached list of curation task options.
+     * <p>
+     * This method is intended for use in test environments where the
+     * {@code plugin.named.org.dspace.curate.CurationTask} configuration property
+     * may be changed at runtime. Since {@link #getTaskOptions()} caches the task options
+     * statically, calling this method clears the cache so that it will be reloaded
+     * from the current configuration on the next access.
+     * </p>
+     * <p><strong>Warning:</strong> This method should only be used in tests.
+     * It is not thread-safe and should never be used in production code.</p>
+     */
+    public static void clearTaskOptions() {
+        taskOptions = null;
+    }
 }
