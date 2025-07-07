@@ -35,7 +35,7 @@ public class PolicyUpdaterServiceImpl implements PolicyUpdaterService {
     private final AuthorizeService authorizeService;
     private final GroupService groupService;
 
-    PolicyUpdaterServiceImpl(AuthorizeService authorizeService, GroupService groupService) {
+    public PolicyUpdaterServiceImpl(AuthorizeService authorizeService, GroupService groupService) {
         this.authorizeService = authorizeService;
         this.groupService = groupService;
     }

@@ -318,10 +318,11 @@ public class MediaFilterRelatedPolicyUpdaterIT extends AbstractIntegrationTestWi
 
             Bitstream relatedBitstream;
             try (InputStream stream2 = IOUtils.toInputStream("Text 2", "UTF-8")) {
-                relatedBitstream = BitstreamBuilder.createBitstream(context, multiItem, stream2, thumbnailBundle.getName())
-                                                   .withName("multi.pdf.txt")
-                                                   .withMimeType("text/plain")
-                                                   .build();
+                relatedBitstream =
+                    BitstreamBuilder.createBitstream(context, multiItem, stream2, thumbnailBundle.getName())
+                                    .withName("multi.pdf.txt")
+                                    .withMimeType("text/plain")
+                                    .build();
             }
 
             context.restoreAuthSystemState();
