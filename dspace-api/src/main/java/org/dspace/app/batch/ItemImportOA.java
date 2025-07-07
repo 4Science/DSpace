@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -547,11 +548,14 @@ public class ItemImportOA {
         Item myitem = null;
         WorkspaceItem wsi = null;
         c.setCurrentUser(myEPerson);
-
-        wsi = workspaceItemService.create(c, mycollections[0], false);
+        if (Objects.nonNull(impRecord.getUUID())) {
+            wsi = workspaceItemService.create(c, mycollections[0], impRecord.getUUID(),false);
+        } else {
+            wsi = workspaceItemService.create(c, mycollections[0], false);
+        }
         myitem = wsi.getItem();
 
-        if (StringUtils.isNotEmpty(handle)) {
+        if (StringUtils.isNotEmpty(impRecord.getHandle())) {
             identifierService.register(c, myitem, handle);
         }
 
