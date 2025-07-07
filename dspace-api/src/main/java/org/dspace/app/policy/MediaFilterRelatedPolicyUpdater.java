@@ -29,6 +29,10 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
+ * Policy updater for media filter related bitstreams.
+ *
+ * This class updates the policies of derivative bitstreams created by media filters.
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  **/
 public class MediaFilterRelatedPolicyUpdater extends AbstractPolicyUpdater implements PolicyUpdater {
@@ -36,22 +40,25 @@ public class MediaFilterRelatedPolicyUpdater extends AbstractPolicyUpdater imple
     public static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
 
     private static final Log log = LogFactory.getLog(MediaFilterRelatedPolicyUpdater.class);
-    final ItemService itemService;
+
+    protected final ItemService itemService;
 
     public MediaFilterRelatedPolicyUpdater(
-        ItemService itemService
+        ItemService itemService,
+        PolicyUpdaterService policyUpdaterService
     ) {
+        super(policyUpdaterService);
         this.itemService = itemService;
     }
 
-    List<FormatFilter> loadFilterClasses(List<String> filterNames) {
+    protected List<FormatFilter> loadFilterClasses(List<String> filterNames) {
         return filterNames.stream()
                           .map(this::loadFormatFilter)
                           .filter(Objects::nonNull)
                           .collect(Collectors.toList());
     }
 
-    FormatFilter loadFormatFilter(String filterName) {
+    protected FormatFilter loadFormatFilter(String filterName) {
         return (FormatFilter) CoreServiceFactory.getInstance().getPluginService()
                                                 .getNamedPlugin(FormatFilter.class,
                                                                 filterName);

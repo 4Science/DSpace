@@ -15,12 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dspace.app.mediafilter.FormatFilter;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.core.Context;
-import org.dspace.eperson.service.GroupService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Interface for updating resource policies on bitstreams.
@@ -33,14 +30,11 @@ public abstract class AbstractPolicyUpdater implements PolicyUpdater {
 
     private static final Log log = LogFactory.getLog(AbstractPolicyUpdater.class);
 
-    @Autowired
-    protected GroupService groupService;
+    final protected PolicyUpdaterService policyUpdaterService;
 
-    @Autowired
-    protected AuthorizeService authorizeService;
-
-    @Autowired
-    protected PolicyUpdaterService policyUpdaterService;
+    public AbstractPolicyUpdater(PolicyUpdaterService policyUpdaterService) {
+        this.policyUpdaterService = policyUpdaterService;
+    }
 
     protected List<String> getPublicFiltersClasses() {
         String[] publicPermissionFilters =
