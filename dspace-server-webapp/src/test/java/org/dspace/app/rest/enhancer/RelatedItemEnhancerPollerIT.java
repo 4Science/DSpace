@@ -14,6 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,23 +24,36 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.matcher.CustomItemMatcher;
+import org.dspace.app.matcher.MetadataValueMatcher;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.enhancer.service.ItemEnhancerService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataSchemaService;
+import org.dspace.core.DBConnection;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.event.factory.EventServiceFactory;
+import org.dspace.event.service.EventService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
+import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -51,13 +65,16 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
     private ItemEnhancerService spyItemEnhancerService;
     private RelatedItemEnhancerUpdatePoller poller = new RelatedItemEnhancerUpdatePoller();
     private Collection collection;
+    private ConfigurationService configurationService;
+    private EventService eventService;
 
     @Before
     public void setup() throws InterruptedException {
         final DSpace dspace = new DSpace();
-        ConfigurationService configurationService = dspace.getConfigurationService();
+        configurationService = dspace.getConfigurationService();
         configurationService.setProperty("item.enable-virtual-metadata", false);
         itemService = ContentServiceFactory.getInstance().getItemService();
+        eventService = EventServiceFactory.getInstance().getEventService();
         itemEnhancerService = dspace.getSingletonService(ItemEnhancerService.class);
         spyItemEnhancerService = spy(itemEnhancerService);
         poller.setItemEnhancerService(spyItemEnhancerService);
@@ -321,6 +338,68 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
     }
 
+    @Test
+    public void testRootFonds() throws Exception {
+
+        // remove itemenhancer consumer
+        String[] consumers = configurationService.getArrayProperty("event.dispatcher.default.consumers");
+        Set<String> consumersSet = new HashSet<String>(Arrays.asList(consumers));
+        if (consumersSet.contains("itemenhancer")) {
+            consumersSet.remove("itemenhancer");
+            configurationService.setProperty("event.dispatcher.default.consumers", consumersSet.toArray());
+            eventService.reloadConfiguration();
+        }
+
+        context.turnOffAuthorisationSystem();
+
+        // Create Fonds collection
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Fonds")
+            .build();
+
+        // Create root Fonds
+        Item rootFonds = ItemBuilder.createItem(context, fondsCollection)
+            .withTitle("Root Fonds")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // Assert rootFonds does not have the virtual metadata
+        List<MetadataValue> metadataValues = rootFonds.getMetadata();
+        assertThat(metadataValues, hasSize(6));
+        MetadataValueMatcher rootFondMatcher = withRootFondTitle(rootFonds.getName(), rootFonds.getID().toString());
+        assertThat(metadataValues, not(hasItem(rootFondMatcher)));
+
+        // Manually insert UUID in the poller table
+        Session session = getHibernateSession();
+        MetadataSchemaService schemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
+        MetadataSchema schema = schemaService.find(context, "cris");
+        String sqlInsertOrUpdate = "INSERT INTO itemupdate_metadata_enhancement (uuid, date_queued)" +
+            "VALUES (:uuid, :time)";
+        NativeQuery<?> queryInsertOrUpdate = session.createNativeQuery(sqlInsertOrUpdate);
+        queryInsertOrUpdate.setParameter("uuid", rootFonds.getID().toString());
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String timestamp = now.format(formatter);
+        queryInsertOrUpdate.setParameter("time", timestamp);
+        queryInsertOrUpdate.executeUpdate();
+
+        Mockito.reset(spyItemEnhancerService);
+        poller.pollItemToUpdateAndProcess();
+        rootFonds = context.reloadEntity(rootFonds);
+
+        // Assert rootFonds has the virtual metadata
+        metadataValues = rootFonds.getMetadata();
+        assertThat(metadataValues, hasItem(rootFondMatcher));
+        assertThat(metadataValues, hasSize(7));
+
+    }
+
+    private Session getHibernateSession() throws SQLException {
+        DBConnection dbConnection = new DSpace().getServiceManager().getServiceByName(null, DBConnection.class);
+        return ((Session) dbConnection.getSession());
+    }
+
     private List<MetadataValue> getMetadataValues(Item item, String metadataField) {
         return itemService.getMetadataByMetadataString(item, metadataField);
     }
@@ -329,6 +408,10 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
     private <T extends ReloadableEntity> T commitAndReload(T entity) throws SQLException, AuthorizeException {
         context.commit();
         return context.reloadEntity(entity);
+    }
+
+    private MetadataValueMatcher withRootFondTitle(String title, String uuid) {
+        return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
     }
 
 }
