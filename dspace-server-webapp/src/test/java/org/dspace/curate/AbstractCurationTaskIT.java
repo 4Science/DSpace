@@ -37,12 +37,11 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SiteService;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.discovery.IndexingService;
-import org.dspace.discovery.SearchService;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -62,36 +61,22 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                                                                                 .getServiceByName(
                                                                                     IndexingService.class.getName(),
                                                                                     IndexingService.class);
-    private static SearchService searchService;
     private final long nowTime = new Date().getTime();
     private final Date oldestModifiedDate = new Date(nowTime - ONE_YEAR_TIME);
     private final Date midModifiedDate = new Date(new Date().getTime() - HALF_YEAR_TIME);
-    private static String[] originalTaskPluginArray;
 
-    @BeforeClass
-    public static void setup() throws Exception {
-        // Save the original plugin configuration (as an array)
-        originalTaskPluginArray = configurationService.getArrayProperty("plugin.named.org.dspace.curate.CurationTask");
-
+    @Before
+    public void setup() throws Exception {
         // Override with only the mock task
         configurationService.setProperty("plugin.named.org.dspace.curate.CurationTask",
                                          MockDistributiveCurationTask.class.getName() + " = " + MOCK_CURATION_TASK);
 
-        // Force reinitialization of plugin system and cached task options
-        CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
-        CurationClientOptions.clearTaskOptions();
     }
 
 
-
-    @AfterClass
-    public static void teardown() {
-        if (originalTaskPluginArray != null) {
-            configurationService.setProperty("plugin.named.org.dspace.curate.CurationTask", originalTaskPluginArray);
-        }
-
+    @After
+    public void teardown() {
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
-        CurationClientOptions.clearTaskOptions();
     }
 
 

@@ -26,8 +26,6 @@ public enum CurationClientOptions {
     QUEUE,
     HELP;
 
-    private static List<String> taskOptions;
-
     /**
      * This method resolves the CommandLine parameters to figure out which action the curation script should perform
      *
@@ -79,35 +77,18 @@ public enum CurationClientOptions {
     }
 
     /**
-     * Creates list of the taskOptions' keys from the configs of plugin.named.org.dspace.curate.CurationTask
+     * Creates and returns the list of task option keys defined in the
+     * {@code plugin.named.org.dspace.curate.CurationTask} configuration property.
      *
-     * @return List of the taskOptions' keys from the configs of plugin.named.org.dspace.curate.CurationTask
+     * @return List of task option keys
      */
     public static List<String> getTaskOptions() {
-        if (taskOptions == null) {
-            ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
-            String[] taskConfigs = configurationService.getArrayProperty("plugin.named.org.dspace.curate.CurationTask");
-            taskOptions = new ArrayList<>();
-            for (String taskConfig : taskConfigs) {
-                taskOptions.add(StringUtils.substringAfterLast(taskConfig, "=").trim());
-            }
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        String[] taskConfigs = configurationService.getArrayProperty("plugin.named.org.dspace.curate.CurationTask");
+        List<String> options = new ArrayList<>();
+        for (String taskConfig : taskConfigs) {
+            options.add(StringUtils.substringAfterLast(taskConfig, "=").trim());
         }
-        return taskOptions;
-    }
-
-    /**
-     * Resets the cached list of curation task options.
-     * <p>
-     * This method is intended for use in test environments where the
-     * {@code plugin.named.org.dspace.curate.CurationTask} configuration property
-     * may be changed at runtime. Since {@link #getTaskOptions()} caches the task options
-     * statically, calling this method clears the cache so that it will be reloaded
-     * from the current configuration on the next access.
-     * </p>
-     * <p><strong>Warning:</strong> This method should only be used in tests.
-     * It is not thread-safe and should never be used in production code.</p>
-     */
-    public static void clearTaskOptions() {
-        taskOptions = null;
+        return options;
     }
 }
