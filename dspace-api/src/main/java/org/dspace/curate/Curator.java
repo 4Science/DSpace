@@ -694,4 +694,26 @@ public class Curator {
             }
         }
     }
+
+    /**
+     * Proxy method for logging with ERROR level and exception details.
+     *
+     * @param message The error message to log
+     * @param t       The throwable/exception to include in the log
+     */
+    protected void logError(String message, Throwable t) {
+        if (handler != null) {
+            if (t != null) {
+                handler.logError(message, t);
+            } else {
+                handler.logError(message);
+            }
+        } else {
+            if (t != null) {
+                log.error(message, t);
+            } else {
+                log.error(message);
+            }
+        }
+    }
 }
