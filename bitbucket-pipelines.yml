@@ -117,6 +117,9 @@ pipelines:
     'dspace-cris-2023_02_x':
       - step: *install
       - parallel: *parallel-pipeline
+    'dspace-glam-2023_02_x':
+      - step: *install
+      - parallel: *parallel-pipeline
     'prod/**':
       - step: *install
       - parallel: *parallel-pipeline
