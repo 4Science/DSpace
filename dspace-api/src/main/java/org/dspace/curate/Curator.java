@@ -98,7 +98,7 @@ public class Curator {
 
     /**
      * constructor that uses an handler for logging
-     * 
+     *
      * @param handler {@code DSpaceRunnableHandler} used to logs infos
      */
     public Curator(DSpaceRunnableHandler handler) {
@@ -665,7 +665,7 @@ public class Curator {
 
     /**
      * Proxt method for logging with WARN level
-     * 
+     *
      * @param message
      */
     protected void logWarning(String message) {
@@ -675,7 +675,7 @@ public class Curator {
     /**
      * Proxy method for logging with WARN level and a {@code Messageformatter}
      * that generates the final log.
-     * 
+     *
      * @param message Target message to format or print
      * @param object  Object to use inside the message, or null
      */
@@ -713,6 +713,38 @@ public class Curator {
                 log.error(message, t);
             } else {
                 log.error(message);
+            }
+        }
+    }
+
+    /**
+     * Proxy method for logging with INFO level.
+     *
+     * @param message Message to log.
+     */
+    protected void logInfo(String message) {
+        logInfo(message, null);
+    }
+
+    /**
+     * Proxy method for logging with INFO level and a {@code MessageFormat}
+     * that generates the final log.
+     *
+     * @param message Target message to format or print
+     * @param object  Object to use inside the message, or null
+     */
+    protected void logInfo(String message, Object object) {
+        if (handler != null) {
+            if (object != null) {
+                handler.logInfo(MessageFormat.format(message, object));
+            } else {
+                handler.logInfo(message);
+            }
+        } else {
+            if (object != null) {
+                log.info(message, object);
+            } else {
+                log.info(message);
             }
         }
     }

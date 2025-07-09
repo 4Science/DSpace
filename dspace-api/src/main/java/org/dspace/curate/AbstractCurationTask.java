@@ -162,6 +162,7 @@ public abstract class AbstractCurationTask implements CurationTask {
             Context ctx = Curator.curationContext();
             int type = dso.getType();
             final int batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
+            curator.logInfo(String.format("Curation task %s using batch size of %d", this.taskId, batchSize));
 
             UUID lastProcessedId = null;
             List<IndexableObject> indexables;
@@ -208,6 +209,9 @@ public abstract class AbstractCurationTask implements CurationTask {
 
                 DiscoverResult result = searchService.search(ctx, query);
                 indexables = result.getIndexableObjects();
+                curator.logInfo(String.format("Curation task %s found %d processable items",
+                                              this.taskId,
+                                              result.getIndexableObjects().size()));
 
                 if (indexables != null && !indexables.isEmpty()) {
                     for (IndexableObject idxObj : indexables) {
