@@ -52,28 +52,6 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected ConfigurationService configurationService;
     protected SearchService searchService;
 
-    public void addMetadata(Item item) throws IOException, SQLException {
-        Context context = null;
-        try {
-            context = Curator.curationContext();
-
-            // 1. Add or update cris.curation.process metadata (repetitive)
-            addOrUpdateProcessMetadata(context, item);
-
-            // 2. Append to cris.curation.history metadata
-            appendHistoryMetadata(context, item);
-
-            // Commit changes
-            itemService.update(context, item);
-
-        } catch (Exception e) {
-            if (context != null) {
-                context.abort();
-            }
-            throw new IOException("Error updating item metadata", e);
-        }
-    }
-
     private void addOrUpdateProcessMetadata(Context context, Item item) throws SQLException {
         List<MetadataValue> existingProcesses = itemService.getMetadata(item, "cris", "curation", "process", Item.ANY);
 
@@ -120,10 +98,17 @@ public abstract class AbstractCurationTask implements CurationTask {
         return true;
     }
 
-    private void setExecutionMetadata(Item dso) throws IOException, SQLException {
-        if (isSuccessfullyExecuted(dso)) {
-            addMetadata(dso);
+    private void setExecutionMetadata(Item item) throws SQLException {
+
+        Context context = Curator.curationContext();
+
+        // 1. Add or update cris.curation.process metadata (repetitive)
+        if (isSuccessfullyExecuted(item)) {
+            addOrUpdateProcessMetadata(context, item);
         }
+
+        // 2. Append to cris.curation.history metadata
+        appendHistoryMetadata(context, item);
     }
 
     @Override
@@ -220,6 +205,7 @@ public abstract class AbstractCurationTask implements CurationTask {
                             if (item != null) {
                                 try {
                                     performObject(item);
+                                    itemService.update(Curator.curationContext(), item);
                                 } catch (Exception e) {
                                     setResult("Unable to process item with handle=" + item.getHandle()
                                                   + " and uuid=" + item.getID());
