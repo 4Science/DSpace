@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -78,12 +79,6 @@ public abstract class AbstractCurationTask implements CurationTask {
         } else {
             // Assume only one value exists and we want to append to it
             String currentValue = existing.get(0).getValue();
-
-            // Optional: avoid duplicate appends
-            if (currentValue.contains(newEntry)) {
-                return;
-            }
-
             combinedValue = currentValue + "\n" + newEntry;
         }
 
@@ -98,7 +93,7 @@ public abstract class AbstractCurationTask implements CurationTask {
         return true;
     }
 
-    private void setExecutionMetadata(Item item) throws SQLException {
+    private void setExecutionMetadata(Item item) throws SQLException, AuthorizeException {
 
         Context context = Curator.curationContext();
 
@@ -109,6 +104,9 @@ public abstract class AbstractCurationTask implements CurationTask {
 
         // 2. Append to cris.curation.history metadata
         appendHistoryMetadata(context, item);
+
+        // Commit changes
+        itemService.update(context, item);
     }
 
     @Override
@@ -205,11 +203,19 @@ public abstract class AbstractCurationTask implements CurationTask {
                             if (item != null) {
                                 try {
                                     performObject(item);
-                                    itemService.update(Curator.curationContext(), item);
                                 } catch (Exception e) {
-                                    setResult("Unable to process item with handle=" + item.getHandle()
-                                                  + " and uuid=" + item.getID());
-                                    curator.logError("Unable to process item " + item.getID(), e);
+                                    String msg = "Unable to process item with handle=" + item.getHandle()
+                                        + " and uuid=" + item.getID();
+                                    setResult(msg);
+                                    curator.logError(msg, e);
+                                }
+                                try {
+                                    setExecutionMetadata(item);
+                                } catch (Exception e) {
+                                    String msg = "Unable to set metadata for item with handle=" + item.getHandle()
+                                        + " and uuid=" + item.getID();
+                                    setResult(msg);
+                                    curator.logError(msg, e);
                                 }
                                 lastProcessedId = item.getID();
                             }
@@ -250,7 +256,6 @@ public abstract class AbstractCurationTask implements CurationTask {
         if (dso.getType() == Constants.ITEM) {
             Item item = (Item) dso;
             performItem(item);
-            setExecutionMetadata(item);
         }
 
         //no-op for all other types of DSpace Objects

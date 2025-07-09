@@ -15,6 +15,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -106,7 +108,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         context.reloadEntity(item);
         String processMeta = itemService.getMetadata(item, "cris.curation.process");
@@ -142,7 +144,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         // Second execution — should not process the item again
         TestDSpaceRunnableHandler secondHandler = new TestDSpaceRunnableHandler();
@@ -155,6 +157,15 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                        "Curation task: " + MOCK_CURATION_TASK + " performed on: " + item.getHandle() +
                            " with status: 0. Result: 'performedItemCount: 0'"))
         );
+
+        String processMetadata = itemService.getMetadata(item, "cris.curation.process");
+        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+                     processMetadata);
+
+        String historyMetadata = itemService.getMetadata(item, "cris.curation.history");
+        assertNotNull(historyMetadata);
+        String[] history = historyMetadata.split("\n");
+        assertThat(history[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
     }
 
     @Test
@@ -183,7 +194,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         // Second forced execution — should process the item again
         args = Stream.concat(Arrays.stream(args), Stream.of("-f")).toArray(String[]::new);
@@ -253,7 +264,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(),
                    hasItem(is(
@@ -310,7 +321,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -375,7 +386,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -424,7 +435,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -495,7 +506,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -591,7 +602,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -682,7 +693,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -775,7 +786,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(7));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -826,9 +837,19 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
                                     admin);
 
+        item1 = context.reloadEntity(item1);
+        item2 = context.reloadEntity(item2);
+
+        String processMetadataItem1 = itemService.getMetadata(item1, "cris.curation.process");
+        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+                     processMetadataItem1);
+
+        String processMetadataItem2 = itemService.getMetadata(item2, "cris.curation.process");
+        assertNull("cris.curation.process should not be set", processMetadataItem2);
+
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -841,6 +862,83 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
             String.format("Processing item with handle=%s and uuid=%s", item1.getHandle(), item1.getID())));
         assertThat(message, containsString(
             String.format("Unable to process item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+
+        String historyMetadataItem1 = itemService.getMetadata(item1, "cris.curation.history");
+        assertNotNull(historyMetadataItem1);
+        String[] historyItem1 = historyMetadataItem1.split("\n");
+        assertThat(historyItem1.length, is(1));
+        assertThat(historyItem1[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
+
+        String historyMetadataItem2 = itemService.getMetadata(item2, "cris.curation.history");
+        assertNotNull(historyMetadataItem2);
+        String[] historyItem2 = historyMetadataItem2.split("\n");
+        assertThat(historyItem2.length, is(1));
+        assertThat(historyItem2[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
+
+    }
+
+    @Test
+    public void testDistributeWritesProcessItemsListIfOneErrorOccurAndIsReRun() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        Item item1 = ItemBuilder.createItem(context, collection)
+                                .withTitle("Item1 in Collection")
+                                .build();
+
+        Item item2 = ItemBuilder.createItem(context, collection)
+                                .withHandle("123456789/BrokenHandle")
+                                .withTitle("Item2 in Collection")
+                                .build();
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", collection.getHandle()};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        String message = testDSpaceRunnableHandler.getInfoMessages()
+                                                  .stream()
+                                                  .filter(m -> m.startsWith(
+                                                      "Curation task: mockcurationtask performed on:"))
+                                                  .findFirst()
+                                                  .orElseThrow(() -> new AssertionError("Expected message not found"));
+
+        assertThat(message, containsString("Curation task: mockcurationtask performed on: " + collection.getHandle()));
+        assertThat(message, containsString(
+            String.format("Unable to process item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
+
+        String processMetadataItem1 = itemService.getMetadata(item1, "cris.curation.process");
+        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+                     processMetadataItem1);
+
+        String processMetadataItem2 = itemService.getMetadata(item2, "cris.curation.process");
+        assertNull("cris.curation.process should not be set in clean tasks", processMetadataItem2);
+
+        item2 = context.reloadEntity(item2);
+
+        String historyMetadata = itemService.getMetadata(item2, "cris.curation.history");
+        assertNotNull(historyMetadata);
+        String[] history = historyMetadata.split("\n");
+        assertThat(history.length, is(2));
+        assertThat(history[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
+        assertThat(history[1], containsString("Executed " + MOCK_CURATION_TASK + " on "));
 
     }
 
@@ -860,6 +958,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         @Override
         protected void performItem(Item item) throws SQLException, IOException {
             if (item.getHandle().equals("123456789/BrokenHandle")) {
+                executed = false;
                 throw new SQLException("BrokenHandle");
             }
             String result = "Processing item with handle=" + item.getHandle()
