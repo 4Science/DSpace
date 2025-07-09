@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,6 +50,8 @@ import org.dspace.app.mediafilter.factory.MediaFilterServiceFactory;
 import org.dspace.app.mediafilter.service.MediaFilterService;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -58,8 +62,10 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.discovery.DiscoverQuery;
@@ -99,6 +105,8 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
     private final SearchService searchService = SearchUtils.getSearchService();
     private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
                                                                                    .getConfigurationService();
+    protected ResourcePolicyService resourcePolicyService =
+        AuthorizeServiceFactory.getInstance().getResourcePolicyService();
 
     @Before
     @Override
@@ -2054,6 +2062,124 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
                                "} policy to access conditions:{itemOnlyPolicy}")
         ));
 
+    }
+
+
+    @Test
+    public void performBulkAccessControlwithDerivedBitstreams() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        String itemHandle = "123456789/70001";
+        Item item = ItemBuilder.createItem(context, collectionOne)
+                               .withHandle(itemHandle)
+                               .build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        Bitstream bitstream;
+        try (InputStream is = this.getClass().getResourceAsStream("dspace-cris.jpg")) {
+            bitstream = BitstreamBuilder.createBitstream(context, bundle, is)
+                                              .withName("dspace-cris.jpg")
+                                              .withMimeType("image/jpeg")
+                                              .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {
+            "filter-media",
+            "-i", itemHandle
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), not(empty()));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
+            containsString("FILTERED: bitstream " + bitstream.getID())
+        ));
+
+        String jsonOne = "{\n" +
+            "  \"bitstream\": {\n" +
+            "    \"constraints\": {\n" +
+            "      \"uuid\": []\n" +
+            "    },\n" +
+            "    \"mode\": \"add\",\n" +
+            "    \"accessConditions\": [\n" +
+            "      {\n" +
+            "        \"name\": \"administrator\",\n" +
+            "        \"startDate\": null,\n" +
+            "        \"endDate\": null\n" +
+            "      }\n" +
+            "    ]\n" +
+            "  }\n" +
+            "}\n";
+
+        buildJsonFile(jsonOne);
+
+        args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
+            containsString("Adding Bitstream {" + bitstream.getID() +
+                               "} policy with access conditions:{administrator}")
+        ));
+
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        checkHasPolicy(context, bitstream, adminGroup, READ, "administrator");
+
+        Bundle brandedPreview = item.getBundles("BRANDED_PREVIEW").get(0);
+        Bundle thumbnail = item.getBundles("THUMBNAIL").get(0);
+
+        brandedPreview.getBitstreams()
+                      .forEach(bs -> checkHasPolicy(context, bs, adminGroup, READ, "administrator"));
+
+        thumbnail.getBitstreams()
+                      .forEach(bs -> checkHasPolicy(context, bs, adminGroup, READ, "administrator"));
+
+    }
+
+    private void checkHasPolicy(Context context, DSpaceObject dso, Group group, int actionId, String rpName) {
+
+        List<ResourcePolicy> resourcePolicies = null;
+        try {
+            resourcePolicies = this.resourcePolicyService.find(context, dso, actionId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertThat(
+            resourcePolicies,
+            hasItem(
+                matches(actionId, group, rpName, TYPE_CUSTOM)
+            )
+        );
     }
 
     @Test
