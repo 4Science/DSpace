@@ -280,10 +280,15 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
 
     protected CSLName[] getCslNameFromMetadataValue(Item item, String metadataField) {
         String[] mdf = parseMetadataField(metadataField);
-        return itemService.getMetadata(item, mdf[0], mdf[1], mdf.length > 2 ? mdf[2] : null, ANY).stream()
+        CSLName[] names = itemService.getMetadata(item, mdf[0], mdf[1], mdf.length > 2 ? mdf[2] : null, ANY).stream()
             .map(metadata -> new DCPersonName(metadata.getValue()))
             .map(name -> toCSLName(name))
             .toArray(CSLName[]::new);
+        // If no names are found, return a null value this is important for CSL processing
+        if (names.length == 0) {
+            return null;
+        }
+        return names;
     }
 
     private CSLName toCSLName(DCPersonName name) {
