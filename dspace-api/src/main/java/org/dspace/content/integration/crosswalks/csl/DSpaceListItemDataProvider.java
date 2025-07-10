@@ -50,6 +50,8 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
 
     private final ItemService itemService;
 
+    private String citationLanguage;
+
     private String id;
     private String type;
     private String categories;
@@ -1000,5 +1002,22 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
 
     public void setTypeConverter(SimpleMapConverter typeConverter) {
         this.typeConverter = typeConverter;
+    }
+
+    public String getCitationLanguage() {
+        switch (citationLanguage) {
+            case "fr":
+            case "fr_FR":
+                return "fr-FR";
+            case "en":
+            case "en_US":
+            case "en_GB":
+            default:
+                return "en-US"; // Default to English if not specified
+        }
+    }
+
+    public void setCitationLanguage(String citationLanguage) {
+        this.citationLanguage = citationLanguage;
     }
 }

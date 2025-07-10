@@ -48,7 +48,7 @@ public class CSLNestedGenerator implements CSLGenerator {
 
     private CSL createCitationProcessor(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
         try {
-            CSL citeproc = new CSL(itemDataProvider, getStyle(style));
+            CSL citeproc = new CSL(itemDataProvider, getStyle(style), getLanguage(itemDataProvider));
             citeproc.setOutputFormat(format);
             citeproc.registerCitationItems(itemDataProvider.getIds());
             return citeproc;
@@ -56,6 +56,15 @@ public class CSLNestedGenerator implements CSLGenerator {
             LOGGER.warn("Something went wrong for: " + itemDataProvider.getId(), e);
             return null;
         }
+    }
+
+    private String getLanguage(DSpaceListItemDataProvider itemDataProvider) {
+        String fixedLanguage = configurationService.getProperty("csl.fixedLanguage");
+        if (StringUtils.isNotBlank(fixedLanguage)) {
+            return fixedLanguage;
+        }
+        return StringUtils.isNotBlank(itemDataProvider.getCitationLanguage()) ?
+                itemDataProvider.getCitationLanguage() : "en-US";
     }
 
     private String getStyle(String style) throws IOException {
