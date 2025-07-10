@@ -9,13 +9,12 @@ package org.dspace.curate;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -66,10 +65,10 @@ public abstract class AbstractCurationTask implements CurationTask {
     }
 
     private void appendHistoryMetadata(Context context, Item item) throws SQLException {
-        // Prepare timestamp in ISO 8601 format with GMT zone
-        String now = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
 
-        String newEntry = "Executed " + taskId + " on " + now + " (GMT).";
+        String now = DCDate.getCurrent().toString();
+
+        String newEntry = "Executed " + taskId + " on " + now;
 
         List<MetadataValue> existing = itemService.getMetadata(item, "cris", "curation", "history", Item.ANY);
 
