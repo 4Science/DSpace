@@ -10,6 +10,7 @@ package org.dspace.app.util;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -128,19 +129,17 @@ public class DCInputsReader {
         formDefns = new HashMap<String, List<List<Map<String, String>>>>();
         valuePairs = new HashMap<String, List<String>>();
 
-        String uri = "file:" + new File(fileName).getAbsolutePath();
+        File inputFile = new File(fileName);
+        String inputFileDir = inputFile.toPath().normalize().getParent().toString();
+
+        String uri = "file:" + inputFile.getAbsolutePath();
 
         try {
-            // This document builder factory will *not* disable external
+            // This document builder will *not* disable external
             // entities as they can be useful in managing large forms, but
-            // it is up to site administrators to validate the XML they are
-            // storing
-            DocumentBuilderFactory factory = XMLUtils.getTrustedDocumentBuilderFactory();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            DocumentBuilder db = factory.newDocumentBuilder();
+            // it will restrict them to be within the directory that the
+            // current input form XML file exists (or a sub-directory)
+            DocumentBuilder db = XMLUtils.getTrustedDocumentBuilder(inputFileDir);
             Document doc = db.parse(uri);
             doNodes(doc);
             checkValues();
