@@ -3288,69 +3288,94 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
-    public void discoverSearchObjectsWithQueryOperatorEquals_query() throws Exception {
+    public void discoverSearchFacetsTestDateForMinMaxValues() throws Exception {
         //We turn off the authorization system in order to create the structure as defined below
         context.turnOffAuthorisationSystem();
 
         //** GIVEN **
         //1. A community-collection structure with one parent community with sub-community and two collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                .withName("Sub Community")
-                .build();
+                                           .withName("Sub Community")
+                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
-        Collection col2 = CollectionBuilder.createCollection(context, child1).withName("Collection 2").build();
-        //2. Three public items that are readable by Anonymous with different subjects
-        Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Test")
-                .withIssueDate("2010-10-17")
-                .withAuthor("Smith, Donald")
-                .withSubject("ExtraEntry")
-                .build();
 
-        Item publicItem2 = ItemBuilder.createItem(context, col2)
-                .withTitle("Test 2")
-                .withIssueDate("1990-02-13")
-                .withAuthor("Smith, Maria").withAuthor("Doe, Jane").withAuthor("Testing, Works")
-                .withSubject("TestingForMore").withSubject("ExtraEntry")
-                .build();
+        // test with many invalid formats
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 1")
+                   .withIssueDate("broken-string")
+                   .build();
 
-        Item publicItem3 = ItemBuilder.createItem(context, col2)
-                .withTitle("Public item 2")
-                .withIssueDate("2010-02-13")
-                .withAuthor("Smith, Maria").withAuthor("Doe, Jane").withAuthor("test,test")
-                .withAuthor("test2, test2").withAuthor("Maybe, Maybe")
-                .withSubject("AnotherTest").withSubject("TestingForMore").withSubject("ExtraEntry")
-                .build();
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 2")
+                   .withIssueDate("between 1647 and 1688")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 3")
+                   .withIssueDate("a")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 4")
+                   .withIssueDate("1")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 5")
+                   .withIssueDate("01/01/2001")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 6")
+                   .withIssueDate("01/2000")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 7")
+                   .withIssueDate("1999")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 8")
+                   .withIssueDate("1998/02/01")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 9")
+                   .withIssueDate("1997-01")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 10")
+                   .withIssueDate("2002-01-01")
+                   .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Test 11")
+                   .withIssueDate("2010-02-13")
+                   .build();
 
         context.restoreAuthSystemState();
 
-        //** WHEN **
-        //An anonymous user browses this endpoint to find the objects in the system
-        //With the given search filter
-        getClient().perform(get("/api/discover/search/objects")
-                .param("f.title", "Test,query"))
-                //** THEN **
-                //The status has to be 200 OK
-                .andExpect(status().isOk())
-                //The type has to be 'discover'
-                .andExpect(jsonPath("$.type", is("discover")))
-                //The page object needs to look like this
-                .andExpect(jsonPath("$._embedded.searchResult.page", is(
-                        PageMatcher.pageEntry(0, 20)
-                )))
-                //The search results have to contain the items that match the searchFilter
-                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
-                        SearchResultMatcher.matchOnItemName("item", "items", "Test")
-                )))
-                //These facets have to show up in the embedded.facets section as well with the given hasMore property
-                // because we don't exceed their default limit for a hasMore true (the default is 10)
-                .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(defaultFacetMatchers)))
-                //There always needs to be a self link available
-                .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
-        ;
+        getClient().perform(get("/api/discover/search/facets"))
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //The type has to be 'discover'
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(
+                       jsonPath(
+                           "$._embedded.facets",
+                           hasItem(
+                               FacetEntryMatcher.dateIssuedFacetWithMinMax("1997", "2010")
+                           )
+                       )
+                   )
+                   //There always needs to be a self link available
+                   .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/facets")));
 
     }
 
