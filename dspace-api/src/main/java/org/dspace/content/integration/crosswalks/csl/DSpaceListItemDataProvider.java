@@ -1010,6 +1010,10 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
     }
 
     public String getCitationLanguage() {
+        if (StringUtils.isBlank(citationLanguage)) {
+            return "en-US";
+        }
+
         switch (citationLanguage) {
             case "fr":
             case "fr_FR":
