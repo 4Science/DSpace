@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
+import org.dspace.app.matcher.MetadataValueMatcher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
@@ -500,6 +502,46 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
 
+    }
+
+    @Test
+    public void testRootFondsEnhancementWithForce() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        // Create Fonds collection
+        Collection fondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withEntityType("Fonds")
+            .build();
+
+        // Create root Fonds
+        Item rootFonds = ItemBuilder.createItem(context, fondsCollection)
+            .withTitle("Root Fonds")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // Assert rootFonds does not have the virtual metadata
+        List<MetadataValue> metadataValues = rootFonds.getMetadata();
+        assertThat(metadataValues, hasSize(6));
+        MetadataValueMatcher rootFondsMatcher = withRootFondsTitle(rootFonds.getName(), rootFonds.getID().toString());
+        assertThat(metadataValues, not(hasItem(rootFondsMatcher)));
+
+        TestDSpaceRunnableHandler runnableHandler = runScript(true);
+
+        assertThat(runnableHandler.getErrorMessages(), empty());
+        assertThat(runnableHandler.getInfoMessages(), contains("Enhancement completed with success"));
+
+        rootFonds = reload(rootFonds);
+
+        // Assert rootFonds has the virtual metadata
+        metadataValues = rootFonds.getMetadata();
+        assertThat(metadataValues, hasItem(rootFondsMatcher));
+        assertThat(metadataValues, hasSize(7));
+    }
+
+    private MetadataValueMatcher withRootFondsTitle(String title, String uuid) {
+        return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
     }
 
     private TestDSpaceRunnableHandler runScript(boolean force) throws InstantiationException, IllegalAccessException {
