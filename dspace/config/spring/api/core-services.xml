@@ -210,11 +210,14 @@
     <bean id="com.science4.webcache.WebServerCache" class="com.science4.webcache.NGinxWebServerCache" init-method="initialize"/>
 
     <bean class="org.dspace.content.ItemFilterServiceImpl"/>
-    
+
     <!-- Submission Config Service -->
     <bean class="org.dspace.submit.service.SubmissionConfigServiceImpl"/>
 
     <bean class="org.dspace.correctiontype.service.impl.CorrectionTypeServiceImpl"/>
+
+    <bean class="org.dspace.app.policy.PolicyUpdaterServiceImpl" />
+    <bean class="org.dspace.app.policy.MediaFilterRelatedPolicyUpdater" />
 
 </beans>
 

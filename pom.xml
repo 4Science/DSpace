@@ -75,6 +75,7 @@
         <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
         <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
         <addon-importplus.version>${addons.version}</addon-importplus.version>
+        <addon-video.version>${addons.version}</addon-video.version>
 
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
