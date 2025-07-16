@@ -391,7 +391,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         // Assert rootFonds has the virtual metadata
         metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasItem(rootFondMatcher));
-        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasSize(8));
 
     }
 

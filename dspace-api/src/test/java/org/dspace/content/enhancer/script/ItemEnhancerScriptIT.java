@@ -537,7 +537,7 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         // Assert rootFonds has the virtual metadata
         metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasItem(rootFondsMatcher));
-        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasSize(8));
     }
 
     private MetadataValueMatcher withRootFondsTitle(String title, String uuid) {
