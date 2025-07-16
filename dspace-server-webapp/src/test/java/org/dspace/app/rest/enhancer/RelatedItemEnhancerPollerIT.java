@@ -368,7 +368,9 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         List<MetadataValue> metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasSize(6));
         MetadataValueMatcher rootFondMatcher = withRootFondTitle(rootFonds.getName(), rootFonds.getID().toString());
+        MetadataValueMatcher sourceRootFondMatcher = withSourceRootFondTitle(rootFonds.getID().toString());
         assertThat(metadataValues, not(hasItem(rootFondMatcher)));
+        assertThat(metadataValues, not(hasItem(sourceRootFondMatcher)));
 
         // Manually insert UUID in the poller table
         Session session = getHibernateSession();
@@ -391,6 +393,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         // Assert rootFonds has the virtual metadata
         metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasItem(rootFondMatcher));
+        assertThat(metadataValues, hasItem(sourceRootFondMatcher));
         assertThat(metadataValues, hasSize(8));
 
     }
@@ -412,6 +415,10 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
     private MetadataValueMatcher withRootFondTitle(String title, String uuid) {
         return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
+    }
+
+    private MetadataValueMatcher withSourceRootFondTitle(String uuid) {
+        return with("cris.virtualsource.rootFondTitle", uuid, null, 0, -1);
     }
 
 }

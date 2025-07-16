@@ -525,6 +525,7 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         List<MetadataValue> metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasSize(6));
         MetadataValueMatcher rootFondsMatcher = withRootFondsTitle(rootFonds.getName(), rootFonds.getID().toString());
+        MetadataValueMatcher sourceRootFondsMatcher = withSourceRootFondsTitle(rootFonds.getID().toString());
         assertThat(metadataValues, not(hasItem(rootFondsMatcher)));
 
         TestDSpaceRunnableHandler runnableHandler = runScript(true);
@@ -537,11 +538,16 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         // Assert rootFonds has the virtual metadata
         metadataValues = rootFonds.getMetadata();
         assertThat(metadataValues, hasItem(rootFondsMatcher));
+        assertThat(metadataValues, hasItem(sourceRootFondsMatcher));
         assertThat(metadataValues, hasSize(8));
     }
 
     private MetadataValueMatcher withRootFondsTitle(String title, String uuid) {
         return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
+    }
+
+    private MetadataValueMatcher withSourceRootFondsTitle(String uuid) {
+        return with("cris.virtualsource.rootFondTitle", uuid, null, 0, -1);
     }
 
     private TestDSpaceRunnableHandler runScript(boolean force) throws InstantiationException, IllegalAccessException {
