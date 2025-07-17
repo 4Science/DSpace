@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.NotAuthorizedException;
 
 import org.dspace.content.Item;
 import org.dspace.core.Context;
@@ -81,7 +80,7 @@ public interface VersioningService {
     Version getVersion(Context c, Item item) throws SQLException;
 
     Version createNewVersion(Context context, VersionHistory history, Item item, String summary, Date date,
-                             int versionNumber) throws NotAuthorizedException;
+                             int versionNumber);
 
     /**
      * Update the Version
