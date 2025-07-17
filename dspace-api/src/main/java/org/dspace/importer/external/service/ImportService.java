@@ -353,6 +353,9 @@ public class ImportService implements Destroyable {
         throws FileMultipleOccurencesException, FileSourceException {
         try (InputStream fileInputStream = new FileInputStream(file)) {
             FileSource fileSource = this.getFileSource(fileInputStream, originalName);
+            if (fileSource == null ) {
+                return  List.of();
+            }
             try {
                 if (fileSource.isValidSourceForFile(originalName)) {
                     List<ImportRecord> records = fileSource.getRecords(fileInputStream);
