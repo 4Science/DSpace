@@ -2169,6 +2169,11 @@
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.12.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
