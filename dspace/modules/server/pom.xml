@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2023.02.08-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -280,6 +280,24 @@
                     <groupId>it.4science.dspace</groupId>
                     <artifactId>addon-dataquality</artifactId>
                     <version>${addon-dataquality.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Builds Orchestrator addon for DSpace -->
+        <profile>
+            <id>addon-orchestrator</id>
+            <activation>
+                <property>
+                    <name>orchestrator.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-orchestrator-rest</artifactId>
+                    <version>${addon-orchestrator.version}</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
