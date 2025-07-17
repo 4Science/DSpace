@@ -352,7 +352,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
             }
 
             workFile = new File(itemImportService.getTempWorkDir() + File.separator
-                    + zipfilename + "-" + context.getCurrentUser().getID());
+                    + zipfilename + "-" + UUID.randomUUID());
             FileUtils.copyInputStreamToFile(optionalFileStream.get(), workFile);
         } else {
             throw new IllegalArgumentException(
@@ -360,7 +360,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
         }
 
         workDir = new File(itemImportService.getTempWorkDir() + File.separator + TEMP_DIR
-                           + File.separator + context.getCurrentUser().getID());
+                           + File.separator + UUID.randomUUID());
         sourcedir = itemImportService.unzip(workFile, workDir.getAbsolutePath());
     }
 
