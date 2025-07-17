@@ -872,6 +872,8 @@
                     <string>webannotation</string>
                     <string>PersonalAnnotation</string>
                     <string>personalannotation</string>
+                    <string>Concept</string>
+                    <string>concept</string>
                 </list>
             </Configuration>
         </CustomCondition>
