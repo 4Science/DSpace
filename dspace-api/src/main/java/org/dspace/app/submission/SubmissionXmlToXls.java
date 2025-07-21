@@ -55,6 +55,8 @@ import org.dspace.utils.DSpace;
  */
 public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptConfiguration<SubmissionXmlToXls>> {
 
+    private static final List<String> MULTI_LANG_COLS_PREFIX = List.of("label_", "required_", "hint_");
+
     private Context context;
 
     protected EPersonService epersonService;
@@ -176,7 +178,7 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
             // create display label column
             header.createCell(headerColumnsCount.getAndIncrement()).setCellValue(valuePairName);
             // Create header cells for each locale except "en"
-            supportedLocales.stream()
+            supportedLocales
                     .forEach(locale ->
                             header.createCell(headerColumnsCount.getAndIncrement())
                                     .setCellValue(valuePairName + "_" + locale));
@@ -251,12 +253,14 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
         header.createCell(columnIndex.getAndIncrement()).setCellValue("multilanguage-value-pairs");
 
         // Add columns for each supported locale
-        supportedLocales.stream().filter(locale -> !locale.equalsIgnoreCase("en"))
-                .forEach(locale -> {
-                    header.createCell(columnIndex.getAndIncrement()).setCellValue("label_" + locale);
-                    header.createCell(columnIndex.getAndIncrement()).setCellValue("required_" + locale);
-                    header.createCell(columnIndex.getAndIncrement()).setCellValue("hint_" + locale);
-                });
+        supportedLocales
+            .stream()
+            .filter(locale -> !locale.equalsIgnoreCase("en"))
+            .forEach(locale ->
+                         MULTI_LANG_COLS_PREFIX.forEach(colName ->
+                                                            header.createCell(columnIndex.getAndIncrement())
+                                                                  .setCellValue(colName + locale))
+            );
 
         for (Map.Entry<String, List<List<Map<String, String>>>> entry : formDef.entrySet()) {
             String submissionDef = entry.getKey();
@@ -356,7 +360,7 @@ public class SubmissionXmlToXls extends DSpaceRunnable<SubmissionXmlToXlsScriptC
             }
 
         }
-        for (int i = 0; i <= columnIndex.get() + (supportedLocales.size() * 3); i++) {
+        for (int i = 0; i <= columnIndex.get() + (supportedLocales.size() * MULTI_LANG_COLS_PREFIX.size()); i++) {
             sheet.autoSizeColumn(i);
         }
     }

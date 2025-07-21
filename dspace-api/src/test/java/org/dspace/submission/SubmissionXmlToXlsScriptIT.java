@@ -77,7 +77,6 @@ import org.junit.Test;
  */
 public class SubmissionXmlToXlsScriptIT extends AbstractIntegrationTestWithDatabase {
 
-    private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/layout/script";
     private DCInputsReader defaultInputReader;
     private SubmissionConfigReader submissionConfigReader;
     private ConfigurationService configurationService;
@@ -437,9 +436,7 @@ public class SubmissionXmlToXlsScriptIT extends AbstractIntegrationTestWithDatab
     }
 
     private String[] getValues(Stream<String> obj) {
-        return obj
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList()).toArray(new String[0]);
+        return obj.filter(StringUtils::isNotBlank).toArray(String[]::new);
     }
 
 
