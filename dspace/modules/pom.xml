@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2023.02.08-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -25,6 +25,17 @@
     <modules>
         <module>additions</module>
     </modules>
+
+    <dependencyManagement>
+        <!-- Made provided in order to be excluded globally since conflicts with commons-logging -->
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <!--
          List of enabled DSpace "addon" / local customization Modules to build/install.

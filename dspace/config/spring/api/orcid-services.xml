@@ -32,6 +32,7 @@
     	<property name="authorizeEndpointUrl" value="${orcid.authorize-url}" />
     	<property name="webhookUrl" value="${orcid.webhook-url}" />
     	<property name="scopes" value="${orcid.scope}" />
+		<property name="revokeUrl" value="${orcid.revoke-url}" />
     </bean>
     
     <bean class="org.dspace.orcid.client.OrcidClientImpl" />

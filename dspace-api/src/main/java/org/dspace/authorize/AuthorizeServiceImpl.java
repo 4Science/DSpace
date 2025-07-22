@@ -568,6 +568,11 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     @Override
     public void addPolicies(Context c, List<ResourcePolicy> policies, DSpaceObject dest)
         throws SQLException, AuthorizeException {
+
+        if (policies == null || policies.isEmpty()) {
+            return;
+        }
+
         // now add them to the destination object
         List<ResourcePolicy> newPolicies = new ArrayList<>(policies.size());
 
