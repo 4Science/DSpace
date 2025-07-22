@@ -3019,7 +3019,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream hiddenBitstream =
             BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden content", UTF_8))
                             .withName("hidden-file.txt")
-                            .withMetadata("bitstream", "hide", null, null, "true")
+                            .withMetadata("bitstream", "hide", null, "true")
                             .withFormat("text/plain")
                             .build();
 
@@ -3027,7 +3027,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream explicitlyVisibleBitstream =
             BitstreamBuilder.createBitstream(context, publicItem, toInputStream("explicitly visible", UTF_8))
                             .withName("explicitly-visible.txt")
-                            .withMetadata("bitstream", "hide", null, null, "false")
+                            .withMetadata("bitstream", "hide", null, "false")
                             .withFormat("text/plain")
                             .build();
 
