@@ -29,7 +29,6 @@ import org.dspace.services.model.Event.Scope;
 import org.dspace.services.model.EventListener;
 import org.dspace.services.model.RequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * This is a placeholder until we get a real event service going.
  * It does pretty much everything the service should do EXCEPT sending

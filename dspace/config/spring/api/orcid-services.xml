@@ -2,20 +2,20 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util" 
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd
-           http://www.springframework.org/schema/util 
+           http://www.springframework.org/schema/util
            http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
-    
+
     <bean class="org.dspace.orcid.service.impl.OrcidQueueServiceImpl" />
     <bean class="org.dspace.orcid.service.impl.OrcidHistoryServiceImpl" />
     <bean class="org.dspace.orcid.service.impl.OrcidTokenServiceImpl" />
-    
+
     <bean class="org.dspace.orcid.service.impl.OrcidSynchronizationServiceImpl"/>
 	<bean class="org.dspace.orcid.webhook.OrcidWebhookServiceImpl" />
     
@@ -32,6 +32,7 @@
     	<property name="authorizeEndpointUrl" value="${orcid.authorize-url}" />
     	<property name="webhookUrl" value="${orcid.webhook-url}" />
     	<property name="scopes" value="${orcid.scope}" />
+		<property name="revokeUrl" value="${orcid.revoke-url}" />
     </bean>
     
     <bean class="org.dspace.orcid.client.OrcidClientImpl" />
@@ -40,22 +41,22 @@
     <bean class="org.dspace.orcid.model.validator.impl.OrcidValidatorImpl" />
     
     <bean class="org.dspace.orcid.service.impl.OrcidEntityFactoryServiceImpl">
-    	<constructor-arg name="entityFactories">
-    		<list>
-    			<bean class="org.dspace.orcid.model.factory.impl.OrcidWorkFactory">
-    				<property name="fieldMapping" ref="orcidWorkFactoryFieldMapping" />
-    			</bean>
+        <constructor-arg name="entityFactories">
+            <list>
+                <bean class="org.dspace.orcid.model.factory.impl.OrcidWorkFactory">
+                    <property name="fieldMapping" ref="orcidWorkFactoryFieldMapping" />
+                </bean>
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidProductWorkFactory">
     				<property name="fieldMapping" ref="orcidProductWorkFactoryFieldMapping" />
     			</bean>
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidPatentWorkFactory">
     				<property name="fieldMapping" ref="orcidPatentWorkFactoryFieldMapping" />
     			</bean>
-    			<bean class="org.dspace.orcid.model.factory.impl.OrcidFundingFactory">
-    				<property name="fieldMapping" ref="orcidFundingFactoryFieldMapping" />
-    			</bean>
-    		</list>
-   		</constructor-arg>
+                <bean class="org.dspace.orcid.model.factory.impl.OrcidFundingFactory">
+                    <property name="fieldMapping" ref="orcidFundingFactoryFieldMapping" />
+                </bean>
+            </list>
+        </constructor-arg>
     	<constructor-arg name="itemService" ref="org.dspace.content.ItemServiceImpl" />
 	</bean>
 	
@@ -158,7 +159,7 @@
     	<property name="organizationCountryField" value="${orcid.mapping.organization.country}" />
     	<property name="disambiguatedOrganizationIdentifierFields" value="${orcid.mapping.organization.identifiers}" />
     </bean>
-    
+
     <bean class="org.dspace.orcid.service.impl.OrcidProfileSectionFactoryServiceImpl">
     	<constructor-arg name="sectionFactories">
     		<list>
@@ -171,7 +172,7 @@
 					<property name="startDateField" value="${orcid.mapping.affiliation.start-date}" />
 					<property name="endDateField" value="${orcid.mapping.affiliation.end-date}" />
 				</bean>
-				
+
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidAffiliationFactory">
 					<constructor-arg name="sectionType" value="QUALIFICATION" />
 					<constructor-arg name="preference" value="EDUCATION" />
@@ -180,7 +181,7 @@
 					<property name="startDateField" value="${orcid.mapping.qualification.start-date}" />
 					<property name="endDateField" value="${orcid.mapping.qualification.end-date}" />
 				</bean>
-				
+
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidAffiliationFactory">
 					<constructor-arg name="sectionType" value="EDUCATION" />
 					<constructor-arg name="preference" value="EDUCATION" />
@@ -189,7 +190,7 @@
 					<property name="startDateField" value="${orcid.mapping.education.start-date}" />
 					<property name="endDateField" value="${orcid.mapping.education.end-date}" />
 				</bean>
-				
+
     			<bean class="org.dspace.orcid.model.factory.impl.OrcidSimpleValueObjectFactory">
 					<constructor-arg name="sectionType" value="OTHER_NAMES" />
 					<constructor-arg name="preference" value="BIOGRAPHICAL" />
@@ -253,7 +254,7 @@
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value="grant"/>
 	</bean>
-    
+
     <bean name="mapConverterDSpaceToOrcidAmountCurrency" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-dspace-to-orcid-amount-currency.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
@@ -262,7 +263,7 @@
 	
 	<bean class="org.dspace.orcid.webhook.RetrieveOrcidPublicationAction" />
 	<bean class="org.dspace.orcid.webhook.CheckOrcidAuthorization" />
-	
+
 	<bean id="orcidPublicationDataProviderFieldMapping" class="org.dspace.orcid.model.OrcidWorkFieldMapping" >
 		<property name="contributorFields" value="${orcid.external-data.mapping.publication.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.external-data.mapping.publication.external-ids}" />
@@ -275,7 +276,7 @@
 		<property name="typeField" value="${orcid.external-data.mapping.publication.type}" />
 		<property name="typeConverter" ref="${orcid.external-data.mapping.publication.type.converter}" />
 	</bean>
-    
+
     <bean name="mapConverterOrcidToDSpacePublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-orcid-to-dspace-publication-type.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
@@ -287,7 +288,7 @@
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
 		<property name="defaultValue" value=""/>
 	</bean>
-    
+
     <bean id="orcidPublicationLoader" class="org.dspace.app.suggestion.orcid.OrcidPublicationLoader">
         <property name="sourceName" value="orcidWorks" />
     	<property name="provider" ref="orcidPublicationDataProvider" />

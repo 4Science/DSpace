@@ -1954,7 +1954,7 @@
             <list>
                 <ref bean="searchFilterSubject"/>
                 <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterInvestigators"/>
+                <ref bean="searchFilterProjectInvestigator"/>
                 <ref bean="searchFilterProjectOrgUnits" />
             </list>
         </property>
@@ -1963,7 +1963,7 @@
             <list>
                 <ref bean="searchFilterSubject"/>
                 <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterInvestigators"/>
+                <ref bean="searchFilterProjectInvestigator"/>
                 <ref bean="searchFilterProjectOrgUnits"/>
                 <ref bean="searchFilterIdentifier"/>
                 <ref bean="searchFilterEntityType"/>
@@ -3080,21 +3080,6 @@
         <property name="metadataFields">
             <list>
                 <value>crisequipment.ownerou</value>
-            </list>
-        </property>
-        <property name="facetLimit" value="5"/>
-        <property name="sortOrderSidebar" value="COUNT"/>
-        <property name="sortOrderFilterPage" value="COUNT"/>
-        <property name="splitter" value="::"/>
-
-    </bean>
-
-    <bean id="searchFilterInvestigators" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
-        <property name="indexFieldName" value="investigators"/>
-        <property name="metadataFields">
-            <list>
-                <value>crispj.investigator</value>
-                <value>crispj.coinvestigators</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

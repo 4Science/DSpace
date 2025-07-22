@@ -84,6 +84,7 @@ import org.dspace.event.Event;
 import org.dspace.harvest.HarvestedItem;
 import org.dspace.harvest.service.HarvestedItemService;
 import org.dspace.identifier.DOI;
+import org.dspace.identifier.DOIIdentifierProvider;
 import org.dspace.identifier.IdentifierException;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.identifier.service.IdentifierService;
@@ -192,28 +193,29 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Autowired(required = true)
     private OrcidSynchronizationService orcidSynchronizationService;
 
-    @Autowired
-    private CrisLayoutTabService crisLayoutTabService;
+    @Autowired(required = true)
+    private ResearcherProfileService researcherProfileService;
+
+    @Autowired(required = true)
+    private RequestItemService requestItemService;
 
     @Autowired(required = true)
     protected SubscribeService subscribeService;
 
-    @Autowired(required = true)
-    protected CrisMetricsService crisMetricsService;
-
-    @Autowired(required = true)
-    private ResearcherProfileService researcherProfileService;
-    @Autowired(required = true)
-    private RequestItemService requestItemService;
+    @Autowired
+    private QAEventsDAO qaEventsDao;
 
     @Autowired
     private VersionHistoryService versionHistoryService;
 
     @Autowired
-    private List<ItemSearcherByMetadata> itemSearcherByMetadata;
+    private CrisLayoutTabService crisLayoutTabService;
+
+    @Autowired(required = true)
+    protected CrisMetricsService crisMetricsService;
 
     @Autowired
-    private QAEventsDAO qaEventsDao;
+    private List<ItemSearcherByMetadata> itemSearcherByMetadata;
 
     protected ItemServiceImpl() {
     }
@@ -326,7 +328,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             Optional<Bitstream> primaryBitstream = bundles.get(0).getBitstreams().stream().filter(bitstream -> {
                 return bitstream.getMetadata().stream().anyMatch(metadataValue -> {
                     if (metadataField != null) {
-                        return metadataValue.getMetadataField().getID() == metadataField.getID()
+                        return metadataValue.getMetadataField().getID().equals(metadataField.getID())
                             && metadataValue.getValue() != null
                             && metadataValue.getValue().equalsIgnoreCase(value);
                     } else {
@@ -1044,6 +1046,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         DOI doi = doiService.findDOIByDSpaceObject(context, item);
         if (doi != null) {
             doi.setDSpaceObject(null);
+            doi.setStatus(DOIIdentifierProvider.TO_BE_DELETED);
         }
 
         // remove version attached to the item
@@ -2192,10 +2195,10 @@ prevent the generation of resource policy entry values with null dspace_object a
                 //should not occur, otherwise metadata can't be updated either
                 log.error("An error occurred while moving " + rr.getAuthority() + " for item " + dso.getID(), e);
             }
-        }  else {
-            //just move the metadata
-            rr.setPlace(place);
         }
+
+        // Update the MetadataValue object with the new place setting
+        rr.setPlace(place);
     }
 
     @Override

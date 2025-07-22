@@ -14,20 +14,11 @@ import org.dspace.app.rest.RestResourceController;
  * 
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  */
-@LinksRest(links =
-    {
-        @LinkRest(
-            name = EditItemRest.MODE,
-            method = "getModes"
-        ),
-        @LinkRest(
-            name = EditItemRest.ITEM,
-            method = "getEditItemItem"
-        ),
-        @LinkRest(
-            name = EditItemRest.COLLECTION,
-            method = "getEditItemCollection"
-        )
+@LinksRest(
+    links = {
+        @LinkRest(name = EditItemRest.MODE, method = "getModes"),
+        @LinkRest(name = EditItemRest.ITEM, method = "getEditItemItem"),
+        @LinkRest(name = EditItemRest.COLLECTION, method = "getEditItemCollection")
     }
 )
 public class EditItemRest extends AInprogressSubmissionRest<String> {

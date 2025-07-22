@@ -18,7 +18,9 @@ import org.dspace.app.rest.RestResourceController;
  * This class acts as a data holder for the RelationshipResource
  * Refer to {@link org.dspace.content.Relationship} for explanation about the properties
  */
-@LinksRest(links = {@LinkRest(name = RelationshipRest.RELATIONSHIP_TYPE, method = "getRelationshipType")})
+@LinksRest(links = {
+    @LinkRest(name = RelationshipRest.RELATIONSHIP_TYPE, method = "getRelationshipType")
+})
 public class RelationshipRest extends BaseObjectRest<Integer> {
     public static final String NAME = "relationship";
     public static final String PLURAL_NAME = "relationships";

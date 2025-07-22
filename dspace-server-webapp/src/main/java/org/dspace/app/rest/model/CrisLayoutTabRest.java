@@ -22,12 +22,9 @@ import org.dspace.app.rest.RestResourceController;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@LinksRest(links =
-    {
-        @LinkRest(
-                name = CrisLayoutTabRest.SECURITY_METADATA,
-                method = "getSecurityMetadata"
-        )
+@LinksRest(
+    links = {
+        @LinkRest(name = CrisLayoutTabRest.SECURITY_METADATA, method = "getSecurityMetadata")
     }
 )
 public class CrisLayoutTabRest extends BaseObjectRest<Integer> {

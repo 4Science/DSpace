@@ -71,7 +71,7 @@ public class ItemUtils {
             = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private static final AuthorizeService authorizeService
-        = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+            = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
     private static final MetadataAuthorityService mam = ContentAuthorityServiceFactory
             .getInstance().getMetadataAuthorityService();
@@ -296,7 +296,8 @@ public class ItemUtils {
             resourcePolicyEl.getField().add(createValue("group", groupName));
             resourcePolicyEl.getField().add(createValue("user", user));
             resourcePolicyEl.getField().add(createValue("action", action));
-            if (startDate != null) {
+            // Only add start-date if group is different to anonymous, or there is an active embargo
+            if (startDate != null && startDate.after(new Date())) {
                 resourcePolicyEl.getField().add(createValue("start-date", formatter.format(startDate)));
             }
             if (endDate != null) {

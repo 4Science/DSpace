@@ -43,6 +43,7 @@ public class ExternalDataObject {
     private String displayValue;
 
     private List<UUID> matchUUIDs;
+
     private Logger log = LogManager.getLogger(ExternalDataObject.class);
 
     /**
