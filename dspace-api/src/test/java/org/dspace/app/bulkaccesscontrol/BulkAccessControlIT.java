@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,13 +30,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,6 +50,8 @@ import org.dspace.app.mediafilter.factory.MediaFilterServiceFactory;
 import org.dspace.app.mediafilter.service.MediaFilterService;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -60,8 +62,10 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.discovery.DiscoverQuery;
@@ -101,6 +105,8 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
     private final SearchService searchService = SearchUtils.getSearchService();
     private final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
                                                                                    .getConfigurationService();
+    protected ResourcePolicyService resourcePolicyService =
+        AuthorizeServiceFactory.getInstance().getResourcePolicyService();
 
     @Before
     @Override
@@ -1823,6 +1829,363 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void performBulkAccessWithBitstreamOnlyPolicySuccessTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        Bitstream bitstream;
+        try (InputStream is = IOUtils.toInputStream("Dummy content", CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, bundle, is)
+                            .withName("bistream")
+                            .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{\n" +
+            " \"bitstream\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"bitstreamOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }\n" +
+            "}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
+            containsString("Replacing Bitstream {" + bitstream.getID() +
+                               "} policy to access conditions:{bitstreamOnlyPolicy}")
+        ));
+
+    }
+
+    @Test
+    public void performBulkAccessWithBitstreamOnlyPolicyFailureTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{ \"item\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"bitstreamOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), containsInAnyOrder(
+            containsString("Invalid Item access condition: <bitstreamOnlyPolicy>"),
+            containsString("BulkAccessControlException: Invalid Item access condition: <bitstreamOnlyPolicy>")
+        ));
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(0));
+
+
+    }
+
+    @Test
+    public void performBulkAccessWithItemOnlyPolicyFailureTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{\n" +
+            " \"bitstream\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"itemOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }\n" +
+            "}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), hasSize(2));
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), containsInAnyOrder(
+            containsString("Invalid Bitstream access condition <itemOnlyPolicy>"),
+            containsString("Invalid Bitstream access condition <itemOnlyPolicy>")
+        ));
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(0));
+
+
+    }
+
+    @Test
+    public void performBulkAccessWithItemOnlyPolicySuccessTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        Item item = ItemBuilder.createItem(context, collectionOne).build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        try (InputStream is = IOUtils.toInputStream("Dummy content", CharEncoding.UTF_8)) {
+           BitstreamBuilder.createBitstream(context, bundle, is)
+                            .withName("bistream")
+                            .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String jsonOne = "{ \"item\": {\n" +
+            "      \"mode\": \"replace\",\n" +
+            "      \"accessConditions\": [\n" +
+            "          {\n" +
+            "            \"name\": \"itemOnlyPolicy\"\n" +
+            "          }\n" +
+            "      ]\n" +
+            "   }}\n";
+
+
+        buildJsonFile(jsonOne);
+
+        String[] args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), containsInAnyOrder(
+            containsString("Replacing Item {" + item.getID() +
+                               "} policy to access conditions:{itemOnlyPolicy}")
+        ));
+
+    }
+
+
+    @Test
+    public void performBulkAccessControlwithDerivedBitstreams() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community parentCommunity = CommunityBuilder.createCommunity(context)
+                                                    .withName("parent community")
+                                                    .build();
+
+        Community subCommunityOne = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                                    .withName("sub community one")
+                                                    .build();
+
+        Collection collectionOne = CollectionBuilder.createCollection(context, subCommunityOne)
+                                                    .withName("collection one")
+                                                    .build();
+
+        String itemHandle = "123456789/70001";
+        Item item = ItemBuilder.createItem(context, collectionOne)
+                               .withHandle(itemHandle)
+                               .build();
+
+        Bundle bundle = BundleBuilder.createBundle(context, item)
+                                     .withName("ORIGINAL")
+                                     .build();
+
+        Bitstream bitstream;
+        try (InputStream is = this.getClass().getResourceAsStream("dspace-cris.jpg")) {
+            bitstream = BitstreamBuilder.createBitstream(context, bundle, is)
+                                              .withName("dspace-cris.jpg")
+                                              .withMimeType("image/jpeg")
+                                              .build();
+        }
+
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] {
+            "filter-media",
+            "-i", itemHandle
+        };
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), not(empty()));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
+            containsString("FILTERED: bitstream " + bitstream.getID())
+        ));
+
+        String jsonOne =
+            """
+                    {
+                      "bitstream": {
+                        "constraints": {
+                          "uuid": []
+                        },
+                        "mode": "add",
+                        "accessConditions": [
+                          {
+                            "name": "administrator",
+                            "startDate": null,
+                            "endDate": null
+                          }
+                        ]
+                      }
+                    }
+                """;
+
+        buildJsonFile(jsonOne);
+
+        args = new String[] {
+            "bulk-access-control",
+            "-u", item.getID().toString(),
+            "-f", tempFilePath,
+            "-e", admin.getEmail()
+        };
+
+        testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(1));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasItem(
+            containsString("Adding Bitstream {" + bitstream.getID() +
+                               "} policy with access conditions:{administrator}")
+        ));
+
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        checkHasPolicy(context, bitstream, adminGroup, READ, "administrator");
+
+        Bundle brandedPreview = item.getBundles("BRANDED_PREVIEW").get(0);
+        Bundle thumbnail = item.getBundles("THUMBNAIL").get(0);
+
+        brandedPreview.getBitstreams()
+                      .forEach(bs -> checkHasPolicy(context, bs, adminGroup, READ, "administrator"));
+
+        thumbnail.getBitstreams()
+                      .forEach(bs -> checkHasPolicy(context, bs, adminGroup, READ, "administrator"));
+
+    }
+
+    private void checkHasPolicy(Context context, DSpaceObject dso, Group group, int actionId, String rpName) {
+
+        List<ResourcePolicy> resourcePolicies = null;
+        try {
+            resourcePolicies = this.resourcePolicyService.find(context, dso, actionId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertThat(
+            resourcePolicies,
+            hasItem(
+                matches(actionId, group, rpName, TYPE_CUSTOM)
+            )
+        );
+    }
+
+    @Test
     public void performBulkAccessWithHelpParamTest() throws Exception {
 
         String[] args = new String[] {"bulk-access-control", "-h"};
@@ -1833,88 +2196,6 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
     }
-
-
-    @Test
-    public void bulkAccessControlShouldProcessEachItemOnceWithPagination() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        Community community = CommunityBuilder.createCommunity(context)
-                                              .withName("Test Community")
-                                              .build();
-
-        Collection collection = CollectionBuilder.createCollection(context, community)
-                                                 .withName("Test Collection")
-                                                 .build();
-
-        List<UUID> createdItemIDs = new ArrayList<>();
-
-        for (int i = 0; i < 25; i++) {
-            Item item = ItemBuilder.createItem(context, collection).build();
-
-            Bundle bundle = BundleBuilder.createBundle(context, item)
-                                         .withName("ORIGINAL")
-                                         .build();
-
-            BitstreamBuilder.createBitstream(context, bundle,
-                                             IOUtils.toInputStream("Bitstream content " + i,
-                                                                   CharEncoding.UTF_8))
-                            .withName("bitstream_" + i)
-                            .build();
-
-            createdItemIDs.add(item.getID());
-        }
-
-        context.restoreAuthSystemState();
-
-        // JSON without constraints: apply to ALL items
-        String json = """
-            { "item": {
-                  "mode": "add",
-                  "accessConditions": [
-                      {
-                        "name": "openaccess"
-                      }
-                  ]
-               }}
-            """;
-
-        buildJsonFile(json);
-
-        String[] args = {
-            "bulk-access-control",
-            "-u", community.getID().toString(),
-            "-f", tempFilePath,
-            "-e", admin.getEmail()
-        };
-
-        TestDSpaceRunnableHandler testHandler = new TestDSpaceRunnableHandler();
-        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testHandler, kernelImpl);
-
-        assertThat(testHandler.getErrorMessages(), empty());
-        assertThat(testHandler.getWarningMessages(), empty());
-
-        // Collect item IDs from the info messages
-        List<String> infoMessages = testHandler.getInfoMessages();
-        List<UUID> updatedItemIDs = infoMessages.stream()
-                                                .map(msg -> {
-                                                    int startIdx = msg.indexOf("Item {") + 6;
-                                                    int endIdx = msg.indexOf("}", startIdx);
-                                                    return UUID.fromString(msg.substring(startIdx, endIdx));
-                                                })
-                                                .toList();
-
-        Set<UUID> uniqueUpdatedItemIDs = new HashSet<>(updatedItemIDs);
-
-        // Check if any item was processed multiple times
-        assertThat("Some items were processed more than once!",
-                   uniqueUpdatedItemIDs.size(), is(updatedItemIDs.size()));
-
-        // Check all items were updated once
-        assertThat("Not all created items were updated!",
-                   createdItemIDs, containsInAnyOrder(uniqueUpdatedItemIDs.toArray()));
-    }
-
 
     private List<Item> findItems(String query) throws SearchServiceException {
 

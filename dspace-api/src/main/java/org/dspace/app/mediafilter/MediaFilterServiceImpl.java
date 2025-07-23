@@ -559,15 +559,15 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             bundles = Collections.EMPTY_LIST;
         }
         StringBuilder sb = new StringBuilder("ERROR filtering, skipping bitstream:\n");
-        sb.append("    Item Handle: ").append(itemHandle);
+        sb.append("\tItem Handle: ").append(itemHandle);
         for (Bundle bundle : bundles) {
-            sb.append("    Bundle Name: ").append(bundle.getName());
+            sb.append("\tBundle Name: ").append(bundle.getName());
         }
-        sb.append("    File Size: ").append(bitstream.getSizeBytes());
-        sb.append("    Checksum: ").append(bitstream.getChecksum())
+        sb.append("\tFile Size: ").append(bitstream.getSizeBytes());
+        sb.append("\tChecksum: ").append(bitstream.getChecksum())
                 .append(" (").append(bitstream.getChecksumAlgorithm()).append(')');
-        sb.append("    Asset Store: ").append(bitstream.getStoreNumber());
-        sb.append("    Internal ID: ").append(bitstream.getInternalId());
+        sb.append("\tAsset Store: ").append(bitstream.getStoreNumber());
+        sb.append("\tInternal ID: ").append(bitstream.getInternalId());
         return sb.toString();
     }
 
