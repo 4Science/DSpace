@@ -31,7 +31,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.dspace.identifier.DOI;
 import org.dspace.identifier.doi.DOIIdentifierException;
 import org.dspace.identifier.service.DOIService;
@@ -66,7 +66,7 @@ public class UnpaywallClientAPIImpl implements UnpaywallClientAPI {
 
     @Override
     public File downloadResource(String pdfUrl) throws IOException {
-        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+        try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {
             HttpGet httpGet = buildHttpGetRequest(pdfUrl);
             HttpResponse response = executeHttpCall(client, pdfUrl, httpGet);
             return tempFile(response);
