@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import com.google.common.io.CharStreams;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -234,7 +235,10 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
         String value = null;
 
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
+            // To properly parse PubMed responses, we must allow DOCTYPEs overall. But, we can still apply all the
+            // other default XXE protections, including disabling external entities and entity expansion.
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
             Document document = saxBuilder.build(new StringReader(src));
             Element root = document.getRootElement();
 
@@ -351,14 +355,11 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     private List<Element> splitToRecords(String recordsSrc) {
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
-            // Disallow external entities & entity expansion to protect against XXE attacks
-            // (NOTE: We receive errors if we disable all DTDs for PubMed, so this is the best we can do)
-            saxBuilder.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            saxBuilder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            saxBuilder.setExpandEntities(false);
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
+            // To properly parse PubMed responses, we must allow DOCTYPEs overall. But, we can still apply all the
+            // other default XXE protections, including disabling external entities and entity expansion.
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
             saxBuilder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
-
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
 
