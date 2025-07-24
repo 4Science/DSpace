@@ -50,8 +50,11 @@ public class CSLResult {
 
     }
 
-    public static CSLResult fromBibliography(String format, Bibliography bibliogr) {
-        UUID[] entryIds = convertToUUIDs(bibliogr.getEntryIds());
+    public static CSLResult fromBibliography(String format, String[] uuids, Bibliography bibliogr) {
+        UUID[] entryIds = convertToUUIDs(uuids);
+        // UUID[] entryIds = bibliogr.getEntryIds()
+        // entryID in bibliography is empty in citeproc 3. See the Format who sets the empty value while generating the
+        // Bibliography
         return new CSLResult(format, entryIds, bibliogr.getEntries(), bibliogr.makeString());
     }
 
