@@ -51,8 +51,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * This class handles all Authority related IT. It alters some config to run the tests, but it gets cleared again
