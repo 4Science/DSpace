@@ -263,7 +263,6 @@ public abstract class AbstractBuilder<T, S> {
         orcidTokenService = null;
         systemWideAlertService = null;
         submissionConfigService = null;
-        subscribeService = null;
         supervisionOrderService = null;
     }
 

@@ -10,24 +10,24 @@ package org.dspace.app.bulkaccesscontrol.model;
 import org.dspace.app.bulkaccesscontrol.BulkAccessControl;
 
 /**
- * Class that model the content of the JSON file used as input for the {@link BulkAccessControl}
+ * Class that models the content of the JSON file used as input for the {@link BulkAccessControl}
  *
  * <code> <br/>
  * { <br/>
- *     item: { <br/>
- *        mode: "replace", <br/>
- *        accessConditions: [ <br/>
+ *     "item": { <br/>
+ *        "mode": "replace", <br/>
+ *        "accessConditions": [ <br/>
  *            { <br/>
  *              "name": "openaccess" <br/>
  *            } <br/>
  *        ] <br/>
  *     }, <br/>
- *     bitstream: { <br/>
- *       constraints: { <br/>
- *           uuid: [bit-uuid1, bit-uuid2, ..., bit-uuidN], <br/>
+ *     "bitstream": { <br/>
+ *       "constraints": { <br/>
+ *           "uuid": ["bit-uuid1", "bit-uuid2", "bit-uuidN"] <br/>
  *       }, <br/>
- *       mode: "add", <br/>
- *       accessConditions: [ <br/>
+ *       "mode": "add", <br/>
+ *       "accessConditions": [ <br/>
  *         { <br/>
  *          "name": "embargo", <br/>
  *          "startDate": "2024-06-24T23:59:59.999+0000" <br/>
@@ -69,4 +69,5 @@ public class BulkAccessControlInput {
     public void setBitstream(AccessConditionBitstream bitstream) {
         this.bitstream = bitstream;
     }
+
 }

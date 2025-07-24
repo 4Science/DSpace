@@ -25,6 +25,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -296,9 +297,7 @@ public class PubmedEuropeMetadataSourceServiceImpl extends AbstractImportMetadat
                 return 0;
             }
 
-            SAXBuilder saxBuilder = new SAXBuilder();
-            // disallow DTD parsing to ensure no XXE attacks can occur
-            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
             Document document = saxBuilder.build(new StringReader(response));
             Element root = document.getRootElement();
             Element element = root.getChild("hitCount");
@@ -369,9 +368,7 @@ public class PubmedEuropeMetadataSourceServiceImpl extends AbstractImportMetadat
                 String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
                 String cursorMark = StringUtils.EMPTY;
                 if (StringUtils.isNotBlank(response)) {
-                    SAXBuilder saxBuilder = new SAXBuilder();
-                    // disallow DTD parsing to ensure no XXE attacks can occur
-                    saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+                    SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
                     Document document = saxBuilder.build(new StringReader(response));
                     XPathFactory xpfac = XPathFactory.instance();
                     XPathExpression<Element> xPath = xpfac.compile("//responseWrapper/resultList/result",
