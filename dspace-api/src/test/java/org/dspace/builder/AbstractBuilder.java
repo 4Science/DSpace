@@ -284,7 +284,6 @@ public abstract class AbstractBuilder<T, S> {
         qaEventService = null;
         systemWideAlertService = null;
         submissionConfigService = null;
-        subscribeService = null;
         supervisionOrderService = null;
         ldnMessageService = null;
     }
