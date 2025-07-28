@@ -25,11 +25,11 @@ $$
     DECLARE
         metadata_field_id_variable INTEGER;
     BEGIN
-        --         Create temporary table to store id and label of old entity types
+        -- Create temporary table to store id and label of old entity types
         CREATE TEMPORARY TABLE IF NOT EXISTS old_entity_types AS
         SELECT id, label FROM entity_type WHERE label IN ('Fond', 'JournalFond', 'JournalIssue', 'ArchivalMaterials');
 
---         Delete relationship types that has reference to old entity types
+        -- Delete relationship types that has reference to old entity types
         DELETE
         FROM relationship_type rt
         WHERE rt.left_type in (SELECT id FROM old_entity_types) OR rt.right_type in (SELECT id FROM old_entity_types);
@@ -41,7 +41,7 @@ $$
           AND metadata_schema_id =
               (SELECT metadataschemaregistry.metadata_schema_id FROM metadataschemaregistry WHERE short_id = 'dspace');
 
---         Update old text_value field with new for metadata dspace.entity.type
+        -- Update old text_value field with new for metadata dspace.entity.type
         UPDATE metadatavalue
         SET text_value = 'Fonds'
         WHERE text_value = 'Fond' AND metadata_field_id = metadata_field_id_variable;
@@ -58,7 +58,7 @@ $$
         SET text_value = 'ArchivalMaterial'
         WHERE text_value = 'ArchivalMaterials' AND metadata_field_id = metadata_field_id_variable;
 
---         Delete old entity types from entity_type table
+        -- Delete old entity types from entity_type table
         DELETE
         FROM entity_type
         WHERE label IN (SELECT label FROM old_entity_types);

@@ -76,5 +76,4 @@ WHERE text_value = 'ArchivalMaterials'
 -- Delete old entity types from entity_type table
 DELETE
 FROM entity_type
-WHERE label IN
-      (SELECT label FROM entity_type WHERE label IN ('Fond', 'JournalFond', 'JournalIssue', 'ArchivalMaterials'))
+WHERE label IN ('Fond', 'JournalFond', 'JournalIssue', 'ArchivalMaterials');
