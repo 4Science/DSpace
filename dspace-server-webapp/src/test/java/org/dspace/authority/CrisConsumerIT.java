@@ -100,7 +100,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     @Value("classpath:org/dspace/app/rest/simple-article.pdf")
     private Resource simpleArticle;
 
-    @Value("classpath:org/dspace/authority/orcid/orcid-record.xml")
+    @Value("classpath:org/dspace/authority/orcid/orcid-person-record.xml")
     private Resource orcidPersonRecord;
 
     private EPerson submitter;
@@ -1071,7 +1071,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String orcid = "0000-0002-9029-1854";
 
-        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"), any()))
+        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}/person$"), any()))
             .thenAnswer(i -> orcidPersonRecord.getInputStream());
 
         try {
@@ -1089,7 +1089,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
             context.restoreAuthSystemState();
 
-            verify(mockOrcidConnector).get(eq(orcid), any());
+            verify(mockOrcidConnector).get(eq(orcid + "/person"), any());
             verifyNoMoreInteractions(mockOrcidConnector);
 
             String authToken = getAuthToken(submitter.getEmail(), password);
@@ -1177,7 +1177,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             assertThat(journal.getOwningCollection(), is(journals));
             assertThat(journal.getMetadata(), hasItems(
                 with("dc.title", "Nature Synthesis"),
-                with("dc.identifier.issn", issn),
+                with("creativeworkseries.issn", issn),
                 with("cris.sourceId", "ISSN::" + issn)));
 
             context.turnOffAuthorisationSystem();
