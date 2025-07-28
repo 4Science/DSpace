@@ -9,6 +9,7 @@ package org.dspace.app.rest;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+import static net.bytebuddy.matcher.ElementMatchers.anyOf;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
@@ -2982,6 +2983,102 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                         hasItem(BitstreamMatcher.matchProperties(bitstream)),
                                         hasItem(BitstreamMatcher.matchProperties(bitstream2)),
                                         hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                                    )
+                                )
+                            )
+                        );
+    }
+
+    @Test
+    public void findShowableByItemWithHideMetadata() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection.
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        //2. A public item that is readable by Anonymous
+        Item publicItem =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Public item with hidden bitstream")
+                       .withIssueDate("2017-10-17")
+                       .withAuthor("Smith, Donald")
+                       .build();
+
+        // 3. Create visible bitstream in ORIGINAL bundle
+        Bitstream visibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("visible content", UTF_8))
+                            .withName("visible-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 4. Create hidden bitstream in ORIGINAL bundle with bitstream.hide = true metadata
+        Bitstream hiddenBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden content", UTF_8))
+                            .withName("hidden-file.txt")
+                            .withMetadata("bitstream", "hide", null, null, "true")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 5. Create another visible bitstream with bitstream.hide = false (should be shown)
+        Bitstream explicitlyVisibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("explicitly visible", UTF_8))
+                            .withName("explicitly-visible.txt")
+                            .withMetadata("bitstream", "hide", null, null, "false")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 6. Create another hidden bitstream with bitstream.hide = yes (should be filtered)
+        Bitstream hiddenBitstreamYes =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden yes content", UTF_8))
+                            .withName("hidden-yes-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // Add bitstream.hide = yes metadata
+        bitstreamService.addMetadata(context, hiddenBitstreamYes, "bitstream", "hide", null, null, "yes");
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        //** WHEN & THEN **
+        // Test 1: Search for bitstreams in ORIGINAL bundle
+        // Should return only visible bitstreams (visibleBitstream and explicitlyVisibleBitstream)
+        // Should NOT return hidden bitstreams (hiddenBitstream and hiddenBitstreamYes)
+        getClient(token).perform(
+                            get("/api/core/bitstreams/search/showableByItem")
+                                .param("uuid", publicItem.getID().toString())
+                                .param("name", Constants.CONTENT_BUNDLE_NAME)
+                        )
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                allOf(
+                                    hasItem(BitstreamMatcher.matchProperties(visibleBitstream)),
+                                    hasItem(BitstreamMatcher.matchProperties(explicitlyVisibleBitstream))
+                                )
+                            )
+                        )
+                        .andExpect(
+                            jsonPath("$._embedded.bitstreams", hasSize(2))
+                        )
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                not(
+                                    anyOf(
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstream)),
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstreamYes))
                                     )
                                 )
                             )
