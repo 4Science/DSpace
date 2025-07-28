@@ -17,14 +17,16 @@ import org.hamcrest.Matchers;
 
 public class MetadataschemaMatcher {
 
-    private MetadataschemaMatcher() { }
+    private MetadataschemaMatcher() {
+    }
 
     public static Matcher<? super Object> matchEntry() {
         return allOf(
-            hasJsonPath("$.prefix", Matchers.not(Matchers.empty())),
-            hasJsonPath("$.namespace", Matchers.not(Matchers.empty())),
-            hasJsonPath("$.type", is("metadataschema")),
-            hasJsonPath("$._links.self.href", Matchers.containsString("/api/core/metadataschemas"))
+                hasJsonPath("$.prefix", Matchers.not(Matchers.empty())),
+                hasJsonPath("$.namespace", Matchers.not(Matchers.empty())),
+                hasJsonPath("$.type", is("metadataschema")),
+                hasJsonPath("$.uniqueType", is("core.metadataschema")),
+                hasJsonPath("$._links.self.href", Matchers.containsString("/api/core/metadataschemas"))
         );
     }
 
@@ -37,6 +39,7 @@ public class MetadataschemaMatcher {
                 hasJsonPath("$.prefix", is(name)),
                 hasJsonPath("$.namespace", is(nameSpace)),
                 hasJsonPath("$.type", is("metadataschema")),
+                hasJsonPath("$.uniqueType", is("core.metadataschema")),
                 hasJsonPath("$._links.self.href", Matchers.containsString("/api/core/metadataschemas"))
         );
     }

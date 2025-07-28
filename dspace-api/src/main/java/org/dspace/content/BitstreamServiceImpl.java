@@ -8,6 +8,7 @@
 package org.dspace.content;
 
 import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +23,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -408,6 +409,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     }
 
     @Override
+    public List<Bitstream> getBitstreamByBundleName(Item item, String bundleName) throws SQLException {
+        return itemService.getBundles(item, bundleName).stream()
+            .flatMap(bundle -> bundle.getBitstreams().stream())
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public Bitstream getFirstBitstream(Item item, String bundleName) throws SQLException {
         List<Bundle> bundles = itemService.getBundles(item, bundleName);
         if (CollectionUtils.isNotEmpty(bundles)) {
@@ -427,7 +435,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             for (Item item : bundle.getItems()) {
                 for (Bundle thumbnails : itemService.getBundles(item, "THUMBNAIL")) {
                     for (Bitstream thumbnail : thumbnails.getBitstreams()) {
-                        if (pattern.matcher(thumbnail.getName()).matches()) {
+                        if (pattern.matcher(thumbnail.getName()).matches() &&
+                            isValidThumbnail(context, thumbnail)) {
                             return thumbnail;
                         }
                     }
@@ -435,14 +444,14 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
                 for (Bundle thumbnails : itemService.getBundles(item, "PREVIEW")) {
                     for (Bitstream thumbnail : thumbnails.getBitstreams()) {
-                        if (pattern.matcher(thumbnail.getName()).matches()) {
+                        if (pattern.matcher(thumbnail.getName()).matches() &&
+                            isValidThumbnail(context, thumbnail)) {
                             return thumbnail;
                         }
                     }
                 }
-                String mimetype = bitstream.getFormat(context).getMIMEType();
-                if (configurationService.getIntProperty("cris.layout.thumbnail.maxsize", 250000) >=
-                        bitstream.getSizeBytes() && StringUtils.containsIgnoreCase(mimetype, "image/")) {
+
+                if (isValidThumbnail(context, bitstream)) {
                     return bitstream;
                 }
             }
@@ -456,6 +465,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             return Pattern.compile("^" + Pattern.quote(bitstream.getName()) + ".([^.]+)$");
         }
         return Pattern.compile("^" + bitstream.getName() + ".([^.]+)$");
+    }
+
+    @Override
+    public boolean isValidThumbnail(Context context, Bitstream thumbnail) throws SQLException {
+        return thumbnail != null &&
+            configurationService.getIntProperty("cris.layout.thumbnail.maxsize", 250000) >= thumbnail.getSizeBytes() &&
+            containsIgnoreCase(thumbnail.getFormat(context).getMIMEType(), "image/");
     }
 
     @Override
@@ -484,10 +500,15 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public Bitstream findByIdOrLegacyId(Context context, String id) throws SQLException {
-        if (StringUtils.isNumeric(id)) {
-            return findByLegacyId(context, Integer.parseInt(id));
-        } else {
-            return find(context, UUID.fromString(id));
+        try {
+            if (StringUtils.isNumeric(id)) {
+                return findByLegacyId(context, Integer.parseInt(id));
+            } else {
+                return find(context, UUID.fromString(id));
+            }
+        } catch (IllegalArgumentException e) {
+            // Not a valid legacy ID or valid UUID
+            return null;
         }
     }
 

@@ -27,7 +27,8 @@ public class PersonNameUtilTest {
     @Test
     public void testWithAllNames() {
 
-        Set<String> variants = getAllNameVariants("Luca", "Giamminonni", List.of("Giamminonni, Luca", "Luke Giammo"));
+        Set<String> variants = getAllNameVariants("Luca", "Giamminonni", List.of("Giamminonni, Luca",
+                        "Luke Giammo"), "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca", "Luca Giamminonni",
             "Giamminonni L.", "L. Giamminonni", "Giamminonni L", "L Giamminonni", "Luke Giammo", "Giammo Luke"));
@@ -37,7 +38,7 @@ public class PersonNameUtilTest {
     public void testWithFirstNameComposedByTwoNames() {
 
         Set<String> variants = getAllNameVariants("Luca Paolo", "Giamminonni",
-            List.of("Giamminonni, Luca", "Luke Giammo"));
+            List.of("Giamminonni, Luca", "Luke Giammo"), "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca Paolo", "Luca Paolo Giamminonni",
             "Giamminonni Luca", "Luca Giamminonni", "Giamminonni Paolo", "Paolo Giamminonni",
@@ -51,7 +52,7 @@ public class PersonNameUtilTest {
     public void testWithFirstNameComposedByThreeNames() {
 
         Set<String> variants = getAllNameVariants("Luca Paolo Claudio", "Giamminonni",
-            List.of("Giamminonni, Luca", "Luke Giammo"));
+            List.of("Giamminonni, Luca", "Luke Giammo"), "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca Paolo Claudio", "Luca Paolo Claudio Giamminonni",
             "Giamminonni Luca Claudio", "Luca Claudio Giamminonni", "Giamminonni Paolo Claudio",
@@ -69,7 +70,8 @@ public class PersonNameUtilTest {
     @Test
     public void testWithoutFirstAndLastName() {
 
-        Set<String> variants = getAllNameVariants(null, null, List.of("Giamminonni, Luca Fabio", "Luke Giammo"));
+        Set<String> variants = getAllNameVariants(null, null, List.of("Giamminonni, Luca Fabio", "Luke Giammo"),
+                "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca Fabio", "Fabio Luca Giamminonni",
             "Giamminonni Fabio Luca", "Luca Fabio Giamminonni", "Luca Giamminonni Fabio",
@@ -80,12 +82,13 @@ public class PersonNameUtilTest {
     @Test
     public void testWithAlreadyTruncatedName() {
 
-        Set<String> variants = getAllNameVariants("L.", "Giamminonni", List.of("Giamminonni, Luca"));
+        Set<String> variants = getAllNameVariants("L.", "Giamminonni", List.of("Giamminonni, Luca"),
+                "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca", "Luca Giamminonni",
             "Giamminonni L.", "L. Giamminonni", "Giamminonni L", "L Giamminonni"));
 
-        variants = getAllNameVariants("L. P.", "Giamminonni", List.of("Giamminonni, Luca"));
+        variants = getAllNameVariants("L. P.", "Giamminonni", List.of("Giamminonni, Luca"), "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca", "Luca Giamminonni", "L. Giamminonni",
             "Giamminonni L.", "P. Giamminonni", "Giamminonni P.", "Giamminonni L. P.", "L. P. Giamminonni",
@@ -97,7 +100,8 @@ public class PersonNameUtilTest {
     @Test
     public void testWithAlreadyTruncatedNameOnFullName() {
 
-        Set<String> variants = getAllNameVariants("Luca", "Giamminonni", List.of("Giamminonni, L."));
+        Set<String> variants = getAllNameVariants("Luca", "Giamminonni", List.of("Giamminonni, L."),
+                "uuid");
 
         assertThat(variants, containsInAnyOrder("Giamminonni Luca", "Luca Giamminonni",
             "Giamminonni L.", "L. Giamminonni", "Giamminonni L", "L Giamminonni"));

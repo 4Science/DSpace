@@ -18,15 +18,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.dspace.app.util.XMLUtils;
 import org.dspace.authority.AuthorityValue;
 import org.dspace.services.ConfigurationService;
@@ -48,23 +47,12 @@ public class ZDBService {
 
     private List<ZDBAuthorityValue> search(String requestURL) throws IOException {
 
-        String proxyHost = configurationService.getProperty("http.proxy.host");
-        String proxyPort = configurationService.getProperty("http.proxy.port");
-
         List<ZDBAuthorityValue> results = new ArrayList<ZDBAuthorityValue>();
 
         HttpGet method = null;
-        try {
+        try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {
 
             method = new HttpGet(requestURL);
-
-            HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-            if (StringUtils.isNotBlank(proxyHost) && StringUtils.isNotBlank(proxyPort)) {
-                clientBuilder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort), "http"));
-            }
-
-            HttpClient client = clientBuilder.build();
-
             // Execute the method.
             HttpResponse response = client.execute(method);
             StatusLine statusLine = response.getStatusLine();

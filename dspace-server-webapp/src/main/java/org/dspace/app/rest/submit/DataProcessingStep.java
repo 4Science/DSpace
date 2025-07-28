@@ -8,8 +8,8 @@
 package org.dspace.app.rest.submit;
 
 import java.io.Serializable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
@@ -36,8 +36,10 @@ public interface DataProcessingStep extends RestProcessingStep {
     public static final String ACCESS_CONDITION_STEP_OPERATION_ENTRY = "discoverable";
     public static final String ACCESS_CONDITION_POLICY_STEP_OPERATION_ENTRY = "accessConditions";
     public static final String SHOW_IDENTIFIERS_ENTRY = "identifiers";
+    public static final String PRIMARY_FLAG_ENTRY = "primary";
 
     public static final String UPLOAD_STEP_METADATA_PATH = "metadata";
+    public static final String COARNOTIFY_STEP_PATH = "coarnotify";
 
     /**
      * Method to expose data in the a dedicated section of the in progress submission. The step needs to return a

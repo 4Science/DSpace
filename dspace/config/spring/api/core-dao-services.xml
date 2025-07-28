@@ -80,12 +80,18 @@
     <bean class="org.dspace.layout.dao.impl.CrisLayoutMetric2BoxDAOImpl" />
 
     <bean class="org.dspace.app.metrics.dao.CrisMetricsDAOImpl" />
- 	
+
     <bean class="org.dspace.orcid.dao.impl.OrcidQueueDAOImpl" />
     <bean class="org.dspace.orcid.dao.impl.OrcidHistoryDAOImpl" />
     <bean class="org.dspace.orcid.dao.impl.OrcidTokenDAOImpl" />
 
     <bean class="org.dspace.supervision.dao.impl.SupervisionOrderDaoImpl"/>
+
+    <bean class="org.dspace.content.dao.impl.ItemForMetadataEnhancementUpdateDAOImpl"/>
+    <bean class="org.dspace.app.ldn.dao.impl.NotifyServiceDaoImpl"/>
+    <bean class="org.dspace.app.ldn.dao.impl.NotifyServiceInboundPatternDaoImpl"/>
+    <bean class="org.dspace.app.ldn.dao.impl.LDNMessageDaoImpl"/>
+    <bean class="org.dspace.app.ldn.dao.impl.NotifyPatternToTriggerDaoImpl"/>
 
     <bean class="org.dspace.unpaywall.dao.impl.UnpaywallDAOImpl" />
 

@@ -242,6 +242,28 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testUserHasAccessItemWithoutAssignedGroup() throws SQLException {
+
+        context.turnOffAuthorisationSystem();
+
+        EPerson ePerson = EPersonBuilder.createEPerson(context)
+            .withEmail("user@mail.it")
+            .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+            .withTitle("Test item")
+            .withAuthor("Author", ePerson.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+
+        AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.GROUP);
+        when(accessMode.getGroups()).thenReturn(List.of(Group.ANONYMOUS));
+
+        assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(true));
+    }
+
+    @Test
     public void testHasAccessWithItemAdminConfig() throws SQLException, AuthorizeException {
 
         context.turnOffAuthorisationSystem();
@@ -308,6 +330,33 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(crisSecurityService.hasAccess(context, item, communityAdmin, accessMode), is(false));
         assertThat(crisSecurityService.hasAccess(context, item, submitter, accessMode), is(true));
         assertThat(crisSecurityService.hasAccess(context, item, anotherSubmitter, accessMode), is(true));
+    }
+
+    @Test
+    public void testHasAccessWithGroupChildOfResearchersConfig() throws SQLException {
+        context.turnOffAuthorisationSystem();
+        Group researchersMainGroup = GroupBuilder.createGroup(context)
+                .withName("Researchers")
+                .build();
+        Group researcherSubGroup = GroupBuilder.createGroup(context)
+                .withName("Researcher")
+                .withParent(researchersMainGroup)
+                .build();
+        EPerson firstUser = EPersonBuilder.createEPerson(context)
+                .withEmail("user@mail.it")
+                .withGroupMembership(researcherSubGroup)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitle("Test item")
+                .withDspaceObjectOwner("Owner", owner.getID().toString())
+                //.withCrisOwner("Owner", owner.getID().toString())
+                .build();
+        context.restoreAuthSystemState();
+        AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.GROUP);
+        when(accessMode.getGroups()).thenReturn(List.of("Researcher"));
+        assertThat(crisSecurityService.hasAccess(context, item, firstUser, accessMode), is(true));
+        assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(false));
+        assertThat(crisSecurityService.hasAccess(context, item, owner, accessMode), is(false));
     }
 
     @Test

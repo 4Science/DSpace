@@ -58,6 +58,16 @@ public class DOIServiceImpl implements DOIService {
     }
 
     @Override
+    public void delete(Context context, DOI doi) throws SQLException {
+        doiDAO.delete(context, doi);
+    }
+
+    @Override
+    public List<DOI> findAll(Context context) throws SQLException {
+        return doiDAO.findAll(context, DOI.class);
+    }
+
+    @Override
     public DOI findByDoi(Context context, String doi) throws SQLException {
         return doiDAO.findByDoi(context, doi);
     }
@@ -161,7 +171,13 @@ public class DOIServiceImpl implements DOIService {
 
     @Override
     public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses) throws SQLException {
-        return doiDAO.findByStatus(context, statuses);
+        return doiDAO.findByStatus(context, statuses, -1, -1);
+    }
+
+    @Override
+    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int offset, int limit)
+        throws SQLException {
+        return doiDAO.findByStatus(context, statuses, offset, limit);
     }
 
     @Override

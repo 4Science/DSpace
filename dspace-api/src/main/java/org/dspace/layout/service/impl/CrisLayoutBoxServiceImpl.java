@@ -44,6 +44,7 @@ import org.dspace.layout.dao.CrisLayoutBoxDAO;
 import org.dspace.layout.service.CrisLayoutBoxAccessService;
 import org.dspace.layout.service.CrisLayoutBoxService;
 import org.dspace.metrics.CrisItemMetricsService;
+import org.dspace.versioning.service.VersionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -78,6 +79,9 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     private ChoiceAuthorityService choiceAuthorityService;
 
     private final Logger log = org.apache.logging.log4j.LogManager.getLogger(CrisLayoutBoxServiceImpl.class);
+
+    @Autowired
+    private VersionHistoryService versionHistoryService;
 
     public CrisLayoutBoxServiceImpl() {
     }
@@ -177,6 +181,10 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
                 return hasHierarchicBoxContent(context, box, item);
             case "VIDEOVIEWER":
                 return hasMediaResources(context, box, item);
+            case "VERSIONING":
+                return hasVersioningBox(context, item);
+            case "NETWORKLAB":
+                return isNetworkLabEnabled(item);
             case "METADATA":
             default:
                 return hasMetadataBoxContent(context, box, item);
@@ -184,6 +192,13 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
 
     }
 
+    private boolean hasVersioningBox(Context context, Item item) {
+        try {
+            return versionHistoryService.hasVersionHistory(context, item);
+        } catch (SQLException e) {
+            return false;
+        }
+    }
     @Override
     public boolean hasAccess(Context context, CrisLayoutBox box, Item item) {
         return crisLayoutBoxAccessService.hasAccess(context, context.getCurrentUser(), box, item);
@@ -289,6 +304,11 @@ public class CrisLayoutBoxServiceImpl implements CrisLayoutBoxService {
     private boolean isIiifEnabled(Item item) {
         return BooleanUtils.toBoolean(itemService.getMetadataFirstValue(item,
             new MetadataFieldName("dspace.iiif.enabled"), Item.ANY));
+    }
+
+    private boolean isNetworkLabEnabled(Item item) {
+        return BooleanUtils.toBoolean(itemService.getMetadataFirstValue(item,
+                new MetadataFieldName("dspace.networklab.enabled"), Item.ANY));
     }
 
     private boolean isOwningCollectionPresent(Item item) {

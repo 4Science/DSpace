@@ -7,11 +7,13 @@
  */
 package org.dspace.app.rest.repository;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.model.PropertyRest;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +26,27 @@ import org.springframework.stereotype.Component;
 /**
  * This is the repository responsible of exposing configuration properties
  */
-@Component(PropertyRest.CATEGORY + "." + PropertyRest.NAME)
+@Component(PropertyRest.CATEGORY + "." + PropertyRest.PLURAL_NAME)
 public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRest, String> {
 
+    @Autowired
+    private AuthorizeService authorizeService;
+
     private ConfigurationService configurationService;
-    private List<String> exposedProperties;
 
     @Autowired
     public ConfigurationRestRepository(ConfigurationService configurationService) {
         this.configurationService = configurationService;
-        this.exposedProperties = Arrays.asList(configurationService.getArrayProperty("rest.properties.exposed"));
     }
+
+    protected String[] getExposedProperties() {
+        return configurationService.getArrayProperty("rest.properties.exposed");
+    }
+
+    protected String[] getAdminRestrictedProperties() {
+        return configurationService.getArrayProperty("admin.rest.properties.exposed");
+    }
+
 
     /**
      * Gets the value of a configuration property if it is exposed via REST
@@ -54,14 +66,28 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     @Override
     @PreAuthorize("permitAll()")
     public PropertyRest findOne(Context context, String property) {
-        if (!exposedProperties.contains(property) || !configurationService.hasProperty(property)) {
+        List<String> exposedProperties = Arrays.asList(getExposedProperties());
+        List<String> adminRestrictedProperties = Arrays.asList(getAdminRestrictedProperties());
+
+        if (!configurationService.hasProperty(property) ||
+            (adminRestrictedProperties.contains(property) && !isCurrentUserAdmin(context)) ||
+            (!exposedProperties.contains(property) && !isCurrentUserAdmin(context))) {
             throw new ResourceNotFoundException("No such configuration property: " + property);
         }
+
         String[] propertyValues = configurationService.getArrayProperty(property);
         PropertyRest propertyRest = new PropertyRest();
         propertyRest.setName(property);
         propertyRest.setValues(Arrays.asList(propertyValues));
         return propertyRest;
+    }
+
+    private boolean isCurrentUserAdmin(Context context) {
+        try {
+            return authorizeService.isAdmin(context);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

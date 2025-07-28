@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -97,7 +97,8 @@ public class FullTextContentStreams extends ContentStreamBase {
                 String viewer = getViewerProvider(originalBitstream);
                 boolean isSubtitleExtracted = isOriginalBitstreamSubtitle(originalBitstream);
 
-                if (isOcrProcessed && OCR_FILENAME.equals(textBitstream.getName())) {
+                if (isOcrProcessed && (OCR_FILENAME.equals(textBitstream.getName()) ||
+                        textBitstream.getSizeBytes() > 0)) {
                     fullTextMiradorStreams.add(fullTextBitstream);
                 } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")
                     || isSubtitleExtracted) {
@@ -261,16 +262,16 @@ public class FullTextContentStreams extends ContentStreamBase {
         }
 
         public String getContentType(final Context context) throws SQLException {
-            BitstreamFormat format = bitstream != null ? bitstream.getFormat(context) : null;
+            BitstreamFormat format = bitstream.getFormat(context);
             return format == null ? null : StringUtils.trimToEmpty(format.getMIMEType());
         }
 
         public String getFileName() {
-            return bitstream != null ? StringUtils.trimToEmpty(bitstream.getName()) : null;
+            return StringUtils.trimToEmpty(bitstream.getName());
         }
 
         public long getSize() {
-            return bitstream != null ? bitstream.getSizeBytes() : -1;
+            return bitstream.getSizeBytes();
         }
 
         public InputStream getInputStream() throws SQLException, IOException, AuthorizeException {

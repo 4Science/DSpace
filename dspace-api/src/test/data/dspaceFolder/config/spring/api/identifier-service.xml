@@ -20,12 +20,6 @@
           class="org.dspace.identifier.IdentifierServiceImpl"
           autowire="byType"
           scope="singleton">
-        <property name="providers">
-            <list>
-                <ref bean="org.dspace.identifier.HandleIdentifierProvider"/>
-                <ref bean="org.dspace.identifier.DOIIdentifierProvider"/>
-            </list>
-        </property>
     </bean>
 
     <bean id="org.dspace.identifier.HandleIdentifierProvider" class="org.dspace.identifier.VersionedHandleIdentifierProvider" scope="singleton">
@@ -58,4 +52,55 @@
           </map>
       </property>
     </bean>
+    
+    <!-- DOI Application rules -->
+
+    <!-- Namespace definition -->
+    <bean id="defaultValueNamespace" class="org.dspace.identifier.generators.FixedConfigurationValueNamespaceGenerator">
+    	<property name="configurationValue" value="${identifier.doi.namespaceseparator}" />
+    </bean>
+    
+    <bean id="unitsCustomNamespace" class="org.dspace.identifier.generators.FixedConfigurationValueNamespaceGenerator">
+    	<property name="configurationValue" value="units/custom/" />
+    </bean>
+
+    <bean id="customSeparatorNamespace" class="org.dspace.identifier.generators.MetadataValueNamespaceGenerator">
+        <constructor-arg name="postValue" value="/" />
+        <constructor-arg name="namespaceSeparator" value="${identifier.doi.namespaceseparator}" />
+        <constructor-arg name="metadataFields">
+            <set>
+                <value>dc.identifier.issn</value>
+                <value>dc.identifier.eissn</value>
+                <value>dc.identifier.isbn</value>
+                <value>dc.identifier.eisbn</value>
+            </set>
+        </constructor-arg>
+    </bean>
+    
+    
+    <!-- Below there are defined the generation strategy -->  
+    <bean id="defaultDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+    	<constructor-arg name="filter" ref="always_true_filter" />
+    	<constructor-arg name="doiNamespaceGenerator" ref="defaultValueNamespace" />
+    	<constructor-arg name="generationType" value="DEFAULT" />
+    </bean>
+    
+    <bean id="communityDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+    	<constructor-arg name="filter" ref="belongsToComm" />
+    	<constructor-arg name="doiNamespaceGenerator" ref="unitsCustomNamespace" />
+    	<constructor-arg name="generationType" value="CUSTOM" />
+    </bean>  
+      
+    <bean id="collectionDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+    	<constructor-arg name="filter" ref="belongsToColl" />
+    	<constructor-arg name="doiNamespaceGenerator" ref="customSeparatorNamespace" />
+    	<constructor-arg name="generationType" value="CUSTOM" />
+    </bean>
+
+    <bean id="inHandleCollectionGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+        <constructor-arg name="filter" ref="belongsToInHandleColl" />
+        <constructor-arg name="doiNamespaceGenerator" ref="customSeparatorNamespace" />
+        <constructor-arg name="generationType" value="CUSTOM" />
+    </bean>
+
 </beans>

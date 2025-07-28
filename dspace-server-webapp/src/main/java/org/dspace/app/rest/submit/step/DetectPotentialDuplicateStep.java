@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
-import org.dspace.app.deduplication.utils.DedupUtils;
 import org.dspace.app.deduplication.utils.DuplicateItemInfo;
+import org.dspace.app.deduplication.utils.IDedupUtils;
 import org.dspace.app.rest.converter.factory.ConverterServiceFactoryImpl;
 import org.dspace.app.rest.model.MetadataValueRest;
 import org.dspace.app.rest.model.patch.Operation;
@@ -54,14 +54,14 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
     public DataDetectDuplicate getData(SubmissionService submissionService, InProgressSubmission obj,
             SubmissionStepConfig config) throws Exception {
 
-        DedupUtils dedupUtils = new DSpace().getServiceManager().getServiceByName("dedupUtils", DedupUtils.class);
+        IDedupUtils IDedupUtils = new DSpace().getServiceManager().getServiceByName("dedupUtils", IDedupUtils.class);
 
         UUID itemID = obj.getItem().getID();
         int typeID = obj.getItem().getType();
         boolean check = !(obj instanceof WorkspaceItem);
 
-        List<DuplicateItemInfo> potentialDuplicates = dedupUtils.getDuplicateByIDandType(getContext(), itemID, typeID,
-                check);
+        List<DuplicateItemInfo> potentialDuplicates = IDedupUtils.getDuplicateByIDandType(getContext(), itemID, typeID,
+                                                                                          check);
 
         Map<UUID, DuplicateMatch> matches = processPotentialDuplicates(itemID, check, potentialDuplicates);
         DataDetectDuplicate result = new DataDetectDuplicate();

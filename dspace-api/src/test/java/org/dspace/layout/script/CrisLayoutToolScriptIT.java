@@ -79,7 +79,8 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         context.turnOffAuthorisationSystem();
         List.of("Publication", "Person", "OrgUnit", "Patent", "Journal", "Event", "Aggregation", "News",
             "Equipment", "Funding", "Product", "Project", "Fonds", "JournalFonds", "Place", "JournalFile",
-                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo"
+                "Family", "Path", "ArchivalMaterial", "StaticPage", "Picture", "AudioVideo", "Opera", "Artwork",
+                "Coin", "ScientificMaterial", "MusicalLibrettos", "WebAnnotation", "PersonalAnnotation"
         ).forEach(this::createEntityType);
         context.restoreAuthSystemState();
 
@@ -324,7 +325,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "dc.description.abstract", null, null, false, false);
 
         CrisLayoutField profileAffiliation = profileFields.get(5);
-        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table", 2,
+        assertThatMetadataFieldHas(profileAffiliation, "Affiliation", "row", null, 3, 1, 5, "table.first3", 2,
             "oairecerif.person.affiliation", null, null, false, false);
 
         CrisMetadataGroup profileNestedAffiliationRole = profileAffiliation.getCrisMetadataGroupList().get(0);
@@ -443,7 +444,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         CrisLayoutBox publicationMetricsBox = publicationTabSecondCell.getBoxes().get(0);
         assertThatBoxHas(publicationMetricsBox, "metrics", "METRICS", "Publication", "Metrics", 0, 2, 2, false,
             true, true, null, LayoutSecurity.CUSTOM_DATA);
-        assertThat(publicationMetricsBox.getMetadataSecurityFields(), contains(
+        assertThat(publicationMetricsBox.getMetadataSecurityFields(), containsInAnyOrder(
             matches(metadataField -> metadataField.toString('.').equals("cris.policy.group")),
             matches(metadataField -> metadataField.toString('.').equals("cris.policy.eperson"))));
         assertThat(publicationMetricsBox.getMetric2box(),containsInAnyOrder(

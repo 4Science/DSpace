@@ -31,8 +31,11 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.discovery.indexobject.IndexableCollection;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class EntityTypeServiceImpl implements EntityTypeService {
@@ -51,6 +54,18 @@ public class EntityTypeServiceImpl implements EntityTypeService {
 
     @Autowired
     protected SolrSearchCore solrSearchCore;
+
+    @Autowired
+    protected ConfigurationService configurationService;
+
+    public static String getExcludedEntityTypeClause() {
+        return String.join(
+            " OR ",
+            DSpaceServicesFactory.getInstance().getConfigurationService()
+                                 .getProperty("submission.excluded.entity-type", "WebAnnotation,PersonalAnnotation")
+                                 .split(",")
+        );
+    }
 
     @Override
     public EntityType findByEntityType(Context context, String entityType) throws SQLException {
@@ -134,31 +149,41 @@ public class EntityTypeServiceImpl implements EntityTypeService {
     public List<String> getSubmitAuthorizedTypes(Context context)
             throws SQLException, SolrServerException, IOException {
         List<String> types = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
-        org.dspace.eperson.EPerson currentUser = context.getCurrentUser();
+        StringBuilder query = null;
+        EPerson currentUser = context.getCurrentUser();
         if (!authorizeService.isAdmin(context)) {
             String userId = "";
             if (currentUser != null) {
                 userId = currentUser.getID().toString();
+                query = new StringBuilder();
+                query.append("submit:(e").append(userId);
             }
-            query.append("submit:(e").append(userId);
+
             Set<Group> groups = groupService.allMemberGroupsSet(context, currentUser);
             for (Group group : groups) {
-                query.append(" OR g").append(group.getID());
+                if (query == null) {
+                    query = new StringBuilder();
+                    query.append("submit:(g");
+                } else {
+                    query.append(" OR g");
+                }
+                query.append(group.getID());
             }
             query.append(")");
-        } else {
-            query.append("*:*");
         }
 
-        SolrQuery sQuery = new SolrQuery(query.toString());
+        SolrQuery sQuery = new SolrQuery("*:*");
+        if (query != null) {
+            sQuery.addFilterQuery(query.toString());
+        }
         sQuery.addFilterQuery("search.resourcetype:" + IndexableCollection.TYPE);
+        sQuery.addFilterQuery("-search.entitytype:(" + getExcludedEntityTypeClause() + ")");
         sQuery.setRows(0);
         sQuery.addFacetField("search.entitytype");
         sQuery.setFacetMinCount(1);
         sQuery.setFacetLimit(Integer.MAX_VALUE);
         sQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
-        QueryResponse qResp = solrSearchCore.getSolr().query(sQuery);
+        QueryResponse qResp = solrSearchCore.getSolr().query(sQuery, solrSearchCore.REQUEST_METHOD);
         FacetField facetField = qResp.getFacetField("search.entitytype");
         if (Objects.nonNull(facetField)) {
             for (Count c : facetField.getValues()) {

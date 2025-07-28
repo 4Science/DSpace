@@ -23,6 +23,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authority.service.ItemReferenceResolver;
 import org.dspace.authority.service.ItemSearcher;
@@ -125,7 +126,8 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
 
     @SuppressWarnings("rawtypes")
     private Item performSearchByMetadata(Context context, String searchParam) throws SearchServiceException {
-        String query = metadata + ":" + searchParam;
+        String query = metadata + ":" +
+            ClientUtils.escapeQueryChars(searchParam);
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
         discoverQuery.addDSpaceObjectFilter(IndexableWorkspaceItem.TYPE);

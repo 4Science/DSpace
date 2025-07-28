@@ -35,8 +35,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -58,6 +58,9 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationUtilsService;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +97,9 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     @Autowired
     private MetadataSecurityService metadataSecurityService;
 
+    @Autowired
+    private GroupService groupService;
+
     private Converter<String, String> converter;
 
     private Consumer<List<String>> linesPostProcessor;
@@ -116,6 +122,8 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     private CrosswalkMode crosswalkMode;
 
+    private List<String> allowedGroups;
+
     @PostConstruct
     private void postConstruct() throws IOException {
         String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
@@ -129,11 +137,30 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     }
 
     @Override
+    public boolean isAuthorized(Context context) {
+        if (CollectionUtils.isEmpty(allowedGroups)) {
+            return true;
+        }
+
+        EPerson ePerson = context.getCurrentUser();
+        if (ePerson == null) {
+            return allowedGroups.contains(Group.ANONYMOUS);
+        }
+
+        return allowedGroups.stream()
+            .anyMatch(groupName -> isMemberOfGroupNamed(context, ePerson, groupName));
+    }
+
+    @Override
     public void disseminate(Context context, DSpaceObject dso, OutputStream out)
         throws CrosswalkException, IOException, SQLException, AuthorizeException {
 
         if (!canDisseminate(context, dso)) {
             throw new CrosswalkObjectNotSupported("Can only crosswalk an Item with the configured type: " + entityType);
+        }
+
+        if (!isAuthorized(context)) {
+            throw new AuthorizeException("The current user is not allowed to perform a zip item export");
         }
 
         List<String> lines = getItemLines(context, dso, true);
@@ -152,6 +179,10 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
         if (CollectionUtils.isEmpty(multipleItemsTemplateLines)) {
             throw new UnsupportedOperationException("No template defined for multiple items");
+        }
+
+        if (!isAuthorized(context)) {
+            throw new AuthorizeException("The current user is not allowed to perform a zip item export");
         }
 
         List<String> lines = new ArrayList<String>();
@@ -252,7 +283,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         Item item = (Item) dso;
 
         List<String> lines = new ArrayList<String>();
-        appendLines(context, item, templateLines.iterator(), lines, findRelatedItems);
+        appendLines(context, item, templateLines.iterator(), lines, findRelatedItems, -1);
 
         return lines;
     }
@@ -270,7 +301,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     }
 
     private void appendLines(Context context, Item item, Iterator<TemplateLine> iterator, List<String> lines,
-        boolean findRelatedItems) throws IOException {
+        boolean findRelatedItems, int pos) throws IOException {
 
         while (iterator.hasNext()) {
 
@@ -282,12 +313,13 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             }
 
             if (templateLine.isRelationGroupStartField()) {
-                handleRelationGroup(context, item, iterator, templateLine.getRelationName(), lines, findRelatedItems);
+                handleRelationGroup(context, item, iterator, templateLine.getRelationName(), lines,
+                        findRelatedItems, -1);
                 continue;
             }
 
             if (templateLine.isIfGroupStartField()) {
-                handleIfGroup(context, item, iterator, templateLine, lines, findRelatedItems);
+                handleIfGroup(context, item, iterator, templateLine, lines, findRelatedItems, -1);
                 continue;
             }
 
@@ -297,10 +329,16 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             }
 
             List<String> metadataValues = getMetadataValuesForLine(context, templateLine, item);
+            if (pos != -1) {
+                if (pos < metadataValues.size()) {
+                    metadataValues = List.of(metadataValues.get(pos));
+                } else {
+                    metadataValues = List.of(PLACEHOLDER_PARENT_METADATA_VALUE);
+                }
+            }
             for (String metadataValue : metadataValues) {
-                if (PLACEHOLDER_PARENT_METADATA_VALUE.equals(metadataValue)) {
-                    appendLine(lines, templateLine, StringUtils.EMPTY);
-                } else if (isNotBlank(metadataValue)) {
+                if (isNotBlank(metadataValue)
+                        && !StringUtils.equals(metadataValue, PLACEHOLDER_PARENT_METADATA_VALUE)) {
                     appendLine(lines, templateLine, metadataValue);
                 }
             }
@@ -330,12 +368,27 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isMetadataGroupEndField());
         int groupSize = getMetadataGroupSize(item, groupName);
-
         Map<String, List<String>> metadataValues = new HashMap<>();
 
         for (int i = 0; i < groupSize; i++) {
+            Iterator<TemplateLine> groupLinesIter = groupLines.iterator();
+            while (groupLinesIter.hasNext()) {
+                TemplateLine line = groupLinesIter.next();
+// we don't need to support group of groups at this time as we haven't nested of nested
+//                if (line.isMetadataGroupStartField()) {
+//                    handleMetadataGroup(context, item, groupLinesIter, line.getMetadataGroupFieldName(), lines, i);
+//                    continue;
+//                }
 
-            for (TemplateLine line : groupLines) {
+                if (line.isRelationGroupStartField()) {
+                    handleRelationGroup(context, item, groupLinesIter, line.getRelationName(), lines, true, i);
+                    continue;
+                }
+
+                if (line.isIfGroupStartField()) {
+                    handleIfGroup(context, item, groupLinesIter, line, lines, false, i);
+                    continue;
+                }
 
                 String field = line.getField();
 
@@ -362,14 +415,13 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
                 if (isNotBlank(metadataValue) && !PLACEHOLDER_PARENT_METADATA_VALUE.equals(metadataValue)) {
                     appendLine(lines, line, metadataValue);
                 }
-
             }
         }
 
     }
 
     private void handleRelationGroup(Context context, Item item, Iterator<TemplateLine> iterator, String relationName,
-        List<String> lines, boolean findRelatedItems) throws IOException {
+        List<String> lines, boolean findRelatedItems, int pos) throws IOException {
 
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isRelationGroupEndField(relationName));
 
@@ -377,18 +429,18 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
             return;
         }
 
-        Iterator<Item> relatedItems = findRelatedItems(context, item, relationName);
+        Iterator<Item> relatedItems = findRelatedItems(context, item, relationName, pos);
 
         while (relatedItems.hasNext()) {
             Item relatedItem = relatedItems.next();
             Iterator<TemplateLine> lineIterator = groupLines.iterator();
-            appendLines(context, relatedItem, lineIterator, lines, findRelatedItems);
+            appendLines(context, relatedItem, lineIterator, lines, findRelatedItems, pos);
         }
 
     }
 
     private void handleIfGroup(Context context, Item item, Iterator<TemplateLine> iterator, TemplateLine conditionLine,
-        List<String> lines, boolean findRelatedItems) throws IOException {
+        List<String> lines, boolean findRelatedItems, int pos) throws IOException {
 
         String condition = conditionLine.getIfCondition();
         String conditionName = conditionLine.getIfConditionName();
@@ -396,8 +448,8 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         List<TemplateLine> groupLines = getGroupLines(iterator, line -> line.isIfGroupEndField(condition));
 
         ConditionEvaluator evaluator = conditionEvaluatorMapper.getConditionEvaluator(conditionName);
-        if (evaluator.test(context, item, condition)) {
-            appendLines(context, item, groupLines.iterator(), lines, findRelatedItems);
+        if (evaluator.test(context, item, condition, pos)) {
+            appendLines(context, item, groupLines.iterator(), lines, findRelatedItems, pos);
         }
 
     }
@@ -414,10 +466,10 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return templateLines;
     }
 
-    private Iterator<Item> findRelatedItems(Context context, Item item, String relationName) {
+    private Iterator<Item> findRelatedItems(Context context, Item item, String relationName, int pos) {
 
         if (isMetadataField(relationName)) {
-            return findByAuthorities(context, item, relationName);
+            return findByAuthorities(context, item, relationName, pos);
         }
 
         return searchConfigurationUtilsService.findByRelation(context, item, relationName);
@@ -427,14 +479,26 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return relationName.contains("-");
     }
 
-    private Iterator<Item> findByAuthorities(Context context, Item item, String metadataField) {
-        return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
-            .map(MetadataValue::getAuthority)
-            .filter(Objects::nonNull)
-            .filter(authority -> UUIDUtils.fromString(authority) != null)
-            .map(authority -> findById(context, UUIDUtils.fromString(authority)))
-            .filter(Objects::nonNull)
-            .iterator();
+    private Iterator<Item> findByAuthorities(Context context, Item item, String metadataField, int pos) {
+        if (pos == -1) {
+            return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
+                .map(MetadataValue::getAuthority)
+                .filter(Objects::nonNull)
+                .filter(authority -> UUIDUtils.fromString(authority) != null)
+                .map(authority -> findById(context, UUIDUtils.fromString(authority)))
+                .filter(Objects::nonNull)
+                .iterator();
+        } else {
+            return itemService.getMetadataByMetadataString(item, metadataField.replaceAll("-", ".")).stream()
+                    .skip(pos)
+                    .limit(1)
+                    .map(MetadataValue::getAuthority)
+                    .filter(Objects::nonNull)
+                    .filter(authority -> UUIDUtils.fromString(authority) != null)
+                    .map(authority -> findById(context, UUIDUtils.fromString(authority)))
+                    .filter(Objects::nonNull)
+                    .iterator();
+        }
     }
 
     private void appendLine(List<String> lines, TemplateLine line, String value) {
@@ -464,6 +528,15 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
     private boolean hasExpectedEntityType(Item item) {
         String itemEntityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
         return Objects.equals(itemEntityType, entityType);
+    }
+
+    private boolean isMemberOfGroupNamed(Context context, EPerson ePerson, String groupName) {
+        try {
+            Group group = groupService.findByName(context, groupName);
+            return groupService.isMember(context, ePerson, group);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setConverter(Converter<String, String> converter) {
@@ -523,6 +596,14 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     public void setPubliclyReadable(boolean isPubliclyReadable) {
         this.publiclyReadable = isPubliclyReadable;
+    }
+
+    public List<String> getAllowedGroups() {
+        return allowedGroups;
+    }
+
+    public void setAllowedGroups(List<String> allowedGroups) {
+        this.allowedGroups = allowedGroups;
     }
 
 }

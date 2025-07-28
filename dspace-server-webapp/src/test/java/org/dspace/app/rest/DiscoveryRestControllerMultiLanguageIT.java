@@ -285,7 +285,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             configurationService.setProperty("authority.controlled.dc.type", "true");
             metadataAuthorityService.clearCache();
 
-            String[] supportedLanguage = { "en","uk", "it" };
+            String[] supportedLanguage = {"en", "uk", "it"};
             configurationService.setProperty("webui.supported.locales", supportedLanguage);
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
@@ -295,9 +295,9 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                                               .build();
 
             Collection col1 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/language-test-1")
-                                               .withName("Collection 1")
-                                               .withEntityType("Publication")
-                                               .build();
+                                              .withName("Collection 1")
+                                              .withEntityType("Publication")
+                                              .build();
 
             ItemBuilder.createItem(context, col1)
                        .withTitle("Test 1")
@@ -337,7 +337,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             configurationService.setProperty("authority.controlled.dc.type", "true");
             metadataAuthorityService.clearCache();
 
-            String[] supportedLanguage = { "en","uk", "it" };
+            String[] supportedLanguage = {"en", "uk", "it"};
             configurationService.setProperty("webui.supported.locales", supportedLanguage);
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
@@ -388,7 +388,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             configurationService.setProperty("authority.controlled.dc.type", "true");
             metadataAuthorityService.clearCache();
 
-            String[] supportedLanguage = { "en","uk", "it" };
+            String[] supportedLanguage = {"en", "uk", "it"};
             configurationService.setProperty("webui.supported.locales", supportedLanguage);
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
@@ -439,7 +439,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             configurationService.setProperty("authority.controlled.dc.type", "true");
             metadataAuthorityService.clearCache();
 
-            String[] supportedLanguage = { "en","uk", "it" };
+            String[] supportedLanguage = {"en", "uk", "it"};
             configurationService.setProperty("webui.supported.locales", supportedLanguage);
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
@@ -491,7 +491,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             configurationService.setProperty("authority.controlled.dc.type", "true");
             metadataAuthorityService.clearCache();
 
-            String[] supportedLanguage = { "en", "uk", "it" };
+            String[] supportedLanguage = {"en", "uk", "it"};
             configurationService.setProperty("webui.supported.locales", supportedLanguage);
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();

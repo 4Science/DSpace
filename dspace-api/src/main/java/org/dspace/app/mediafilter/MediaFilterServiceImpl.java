@@ -9,16 +9,28 @@ package org.dspace.app.mediafilter;
 
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.mediafilter.service.MediaFilterService;
+import org.dspace.app.policy.PolicyUpdater;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
@@ -28,6 +40,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.impl.ItemDAOImpl;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -38,10 +52,13 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.UUIDIterator;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.discovery.SearchUtils;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.ThrowableUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +73,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * maximum number of items.
  */
 public class MediaFilterServiceImpl implements MediaFilterService, InitializingBean {
+
+    //key (in dspace.cfg) which lists all enabled filters by name
+    public static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
+
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
@@ -73,7 +94,11 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Autowired(required = true)
     protected ItemService itemService;
     @Autowired(required = true)
+    protected ItemDAO itemDAO;
+    @Autowired(required = true)
     protected ConfigurationService configurationService;
+    @Autowired(required = true)
+    protected List<PolicyUpdater> policyUpdaters;
 
     protected DSpaceRunnableHandler handler;
 
@@ -94,6 +119,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     protected boolean isVerbose = false;
     protected boolean isQuiet = false;
     protected boolean isForce = false; // default to not forced
+    protected LocalDate fromDate = null;
 
     protected MediaFilterServiceImpl() {
 
@@ -112,7 +138,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void applyFiltersAllItems(Context context) throws Exception {
+    public void applyFiltersAllItems(Context context, int sinceLastDays, String[] skipBundles) throws Exception {
         if (skipList != null) {
             //if a skip-list exists, we need to filter community-by-community
             //so we can respect what is in the skip-list
@@ -121,9 +147,45 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             for (Community topLevelCommunity : topLevelCommunities) {
                 applyFiltersCommunity(context, topLevelCommunity);
             }
+        } else if (fromDate != null) {
+            Iterator<Item> itemIterator =
+                    itemService.findByLastModifiedSince(
+                            context,
+                            Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                    );
+            while (itemIterator.hasNext() && processed < max2Process) {
+                applyFiltersItem(context, itemIterator.next());
+            }
         } else {
             //otherwise, just find every item and process
-            Iterator<Item> itemIterator = itemService.findAll(context);
+            SolrQuery discoverQuery = new SolrQuery();
+            discoverQuery.setQuery("search.resourcetype:Item AND archived:true");
+            discoverQuery.setFields("search.resourceid");
+            discoverQuery.setRows(100);
+            if (skipBundles != null && skipBundles.length > 0) {
+                discoverQuery.addFilterQuery("-bundleName_s:" + StringUtils.join(skipBundles, " OR -bundleName_s:"));
+            }
+            if (sinceLastDays > 0) {
+                discoverQuery.addFilterQuery("lastModified_dt:[NOW-" + sinceLastDays + "DAYS/DAY TO *]");
+            }
+            final SolrClient solr = SearchUtils.getSearchService().getSolrSearchCore().getSolr();
+            QueryResponse response = solr.query(discoverQuery);
+            int currPos = 0;
+            List<UUID> results = new ArrayList<UUID>((int) response.getResults().getNumFound());
+            while (response.getResults().getNumFound() > currPos) {
+                SolrDocumentList solrDocList = response.getResults();
+                for (SolrDocument doc : solrDocList) {
+                    UUID uuid = UUID.fromString((String) doc.getFirstValue("search.resourceid"));
+                    results.add(uuid);
+                }
+                currPos += 100;
+                discoverQuery.setStart(currPos);
+                response = solr.query(discoverQuery);
+            }
+            UUIDIterator<Item> itemIterator =
+                new UUIDIterator<>(
+                    context, results, Item.class, (ItemDAOImpl) itemDAO
+                );
             while (itemIterator.hasNext() && processed < max2Process) {
                 applyFiltersItem(context, itemIterator.next());
             }
@@ -133,19 +195,21 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCommunity(Context context, Community community)
         throws Exception {   //only apply filters if community not in skip-list
+        // ensure that the community is attached to the current hibernate session
+        // as we are committing after each item (handles, sub-communties and
+        // collections are lazy attributes)
+        community = context.reloadEntity(community);
         if (!inSkipList(community.getHandle())) {
             List<Community> subcommunities = community.getSubcommunities();
-            List<Collection> collections = community.getCollections();
-
-            UUIDIterator<Community> communityIterator = new UUIDIterator<>(context, subcommunities, Community.class);
-            UUIDIterator<Collection> collectionIterator = new UUIDIterator<>(context, collections, Collection.class);
-
-            while (communityIterator.hasNext()) {
-                applyFiltersCommunity(context, communityIterator.next());
+            for (Community subcommunity : subcommunities) {
+                applyFiltersCommunity(context, subcommunity);
             }
-
-            while (collectionIterator.hasNext()) {
-                applyFiltersCollection(context, collectionIterator.next());
+            // ensure that the community is attached to the current hibernate session
+            // as we are committing after each item
+            community = context.reloadEntity(community);
+            List<Collection> collections = community.getCollections();
+            for (Collection collection : collections) {
+                applyFiltersCollection(context, collection);
             }
         }
     }
@@ -153,6 +217,9 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCollection(Context context, Collection collection)
         throws Exception {
+        // ensure that the collection is attached to the current hibernate session
+        // as we are committing after each item (handles are lazy attributes)
+        collection = context.reloadEntity(collection);
         //only apply filters if collection not in skip-list
         if (!inSkipList(collection.getHandle())) {
             Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);
@@ -176,6 +243,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
             // clear item objects from context cache and internal cache
             c.uncacheEntity(currentItem);
+            // commit after each item to release DB resources
             c.commit();
             currentItem = null;
         }
@@ -204,7 +272,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
 
         // iterate through filter classes. A single format may be actioned
         // by more than one filter
-        for (FormatFilter filterClass : filterClasses) {
+        for (FormatFilter filterClass : getFilterClasses()) {
             //List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName());
             String pluginName = null;
 
@@ -410,41 +478,22 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source)
-        throws SQLException, AuthorizeException {
-
-        if (filterClasses == null) {
-            return;
+    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source) {
+        if (this.policyUpdaters == null || this.policyUpdaters.isEmpty()) {
+            logInfo("No policy updater configured!");
         }
-
-        for (FormatFilter formatFilter : filterClasses) {
-            for (Bitstream bitstream : findDerivativeBitstreams(item, source, formatFilter)) {
-                updatePoliciesOfDerivativeBitstream(context, bitstream, formatFilter, source);
+        this.policyUpdaters.forEach(updater -> {
+            try {
+                updater.updatePolicies(context, item, source);
+            } catch (Exception e) {
+                logError(
+                    "Failed to update policies with " + updater.getClass().getSimpleName() +
+                    " for bitstream " + source.getID() + " - " + source.getName() +
+                    " related to item " + item.getID(),
+                    e
+                );
             }
-        }
-    }
-
-    /**
-     * find derivative bitstreams related to source bitstream
-     *
-     * @param item item containing bitstreams
-     * @param source source bitstream
-     * @param formatFilter formatFilter
-     * @return list of derivative bitstreams from source bitstream
-     * @throws SQLException If something goes wrong in the database
-     */
-    private List<Bitstream> findDerivativeBitstreams(Item item, Bitstream source, FormatFilter formatFilter)
-        throws SQLException {
-
-        String bitstreamName = formatFilter.getFilteredName(source.getName());
-        List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
-
-        return bundles.stream()
-                      .flatMap(bundle ->
-                          bundle.getBitstreams().stream())
-                      .filter(bitstream ->
-                          StringUtils.equals(bitstream.getName().trim(), bitstreamName.trim()))
-                      .collect(Collectors.toList());
+        });
     }
 
     /**
@@ -582,5 +631,38 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void setLogHandler(DSpaceRunnableHandler handler) {
         this.handler = handler;
+    }
+
+    List<String> getPublicFiltersClasses() {
+        return publicFiltersClasses;
+    }
+
+    List<FormatFilter> getFilterClasses() {
+        if (filterClasses == null) {
+            filterClasses = loadFilterClasses(
+                DSpaceServicesFactory.getInstance()
+                                     .getConfigurationService()
+                                     .getArrayProperty(MEDIA_FILTER_PLUGINS_KEY)
+            );
+        }
+        return filterClasses;
+    }
+
+    List<FormatFilter> loadFilterClasses(String... filterNames) {
+        return Stream.of(filterNames)
+                     .map(this::loadFormatFilter)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
+    }
+
+    private FormatFilter loadFormatFilter(String filterName) {
+        return (FormatFilter) CoreServiceFactory.getInstance().getPluginService()
+                                                .getNamedPlugin(FormatFilter.class,
+                                                                filterName);
+    }
+
+    @Override
+    public void setFromDate(LocalDate fromDate) {
+        this.fromDate = fromDate;
     }
 }

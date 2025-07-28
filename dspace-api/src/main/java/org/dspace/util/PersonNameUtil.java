@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility class that handle person names.
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 public final class PersonNameUtil {
+    private static Logger log = org.apache.logging.log4j.LogManager.getLogger(PersonNameUtil.class);
 
     private PersonNameUtil() {
 
@@ -35,12 +37,14 @@ public final class PersonNameUtil {
      * @param  firstName the first name
      * @param  lastName  the last name
      * @param  fullNames the full names
+     * @param  uuid      the uuid
      * @return           all the variants of the given names
      */
-    public static Set<String> getAllNameVariants(String firstName, String lastName, List<String> fullNames) {
+    public static Set<String> getAllNameVariants(String firstName, String lastName, List<String> fullNames,
+                                                 String uuid) {
         Set<String> variants = new HashSet<String>();
         variants.addAll(getNameVariants(firstName, lastName));
-        variants.addAll(getNameVariants(fullNames));
+        variants.addAll(getNameVariants(fullNames, uuid));
         return variants;
     }
 
@@ -95,24 +99,30 @@ public final class PersonNameUtil {
         return variants;
     }
 
-    private static List<String> getNameVariants(List<String> fullNames) {
+    private static List<String> getNameVariants(List<String> fullNames, String uuid) {
         return fullNames.stream()
             .filter(Objects::nonNull)
             .map(name -> removeComma(name))
             .distinct()
-            .flatMap(name -> getAllNamePermutations(name).stream())
+            .flatMap(name -> getAllNamePermutations(name, uuid).stream())
             .distinct()
             .collect(Collectors.toList());
     }
 
-    private static List<String> getAllNamePermutations(String name) {
+    private static List<String> getAllNamePermutations(String name, String uuid) {
 
         List<String> namePermutations = new ArrayList<String>();
 
-        PermutationIterator<String> permutationIterator = new PermutationIterator<String>(List.of(name.split(" ")));
+        List<String> names = List.of(name.split(" "));
+        if (names.size() < 5) {
+            PermutationIterator<String> permutationIterator = new PermutationIterator<String>(names);
 
-        while (permutationIterator.hasNext()) {
-            namePermutations.add(String.join(" ", permutationIterator.next()));
+            while (permutationIterator.hasNext()) {
+                namePermutations.add(String.join(" ", permutationIterator.next()));
+            }
+        } else {
+            log.warn(String.format("Cannot retrieve variants on the Person with UUID %s because the name is too long",
+                    uuid));
         }
 
         return namePermutations;

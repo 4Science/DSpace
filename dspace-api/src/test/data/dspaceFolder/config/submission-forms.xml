@@ -186,6 +186,23 @@ it, please enter the types and the actual numbers or codes.</hint>
      </row>
 	</form>
 
+    <form name="qualdrop-with-languages">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>identifier</dc-element>
+                 <dc-qualifier></dc-qualifier>
+                 <!-- An input-type of qualdrop_value MUST be marked as repeatable -->
+                 <repeatable>true</repeatable>
+                 <label>Identifiers</label>
+                 <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+                 <hint>Test qualdrop.</hint>
+                 <language value-pairs-name="test_languages">true</language>
+                 <required></required>
+             </field>
+         </row>
+     </form>
+
     <form name="traditionalpageone-cris-dc-contributor-author">
       <row>
         <field>
@@ -664,94 +681,96 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
-    <form name="publication">
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <label>Identifiers</label>
-          <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>title</dc-element>
-          <label>Title</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required>You must enter a main title for this item.</required>
-          <hint>Enter the main title of the item.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>title</dc-element>
-          <dc-qualifier>alternative</dc-qualifier>
-          <label>Other Titles</label>
-          <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>If the item has any alternative titles, please enter them here.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>date</dc-element>
-          <dc-qualifier>issued</dc-qualifier>
-          <label>Date of Issue</label>
-          <input-type>date</input-type>
-          <repeatable>false</repeatable>
-          <required>You must enter at least the year.</required>
-          <hint>Please give the date of previous publication or public distribution.
-                        You can leave out the day and/or month if they aren't
-                        applicable.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>contributor</dc-element>
-          <dc-qualifier>author</dc-qualifier>
-          <label>Authors</label>
-          <input-type>group</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>Enter the names of the authors of this item.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>contributor</dc-element>
-          <dc-qualifier>editor</dc-qualifier>
-          <label>Editors</label>
-          <input-type>group</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>The editors of this publication.</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>type</dc-element>
-          <label>Type</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required>You must select a publication type</required>
-          <hint>Select the type of content of the item.</hint>
-          <vocabulary>types</vocabulary>
-        </field>
-      </row>
-    </form>
-    <form name="publication_indexing">
+     <form name="publication">
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>identifier</dc-element>
+             <label>Identifiers</label>
+             <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+             <repeatable>true</repeatable>
+             <required/>
+             <hint>If the item has any identification numbers or codes associated with
+                 it, please enter the types and the actual numbers or codes.
+             </hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>title</dc-element>
+             <label>Title</label>
+             <input-type>onebox</input-type>
+             <repeatable>false</repeatable>
+             <required>You must enter a main title for this item.</required>
+             <hint>Enter the main title of the item.</hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>title</dc-element>
+             <dc-qualifier>alternative</dc-qualifier>
+             <label>Other Titles</label>
+             <input-type>onebox</input-type>
+             <repeatable>true</repeatable>
+             <required/>
+             <hint>If the item has any alternative titles, please enter them here.</hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>date</dc-element>
+             <dc-qualifier>issued</dc-qualifier>
+             <label>Date of Issue</label>
+             <input-type>date</input-type>
+             <repeatable>false</repeatable>
+             <required>You must enter at least the year.</required>
+             <hint>Please give the date of previous publication or public distribution.
+                 You can leave out the day and/or month if they aren't
+                 applicable.
+             </hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>contributor</dc-element>
+             <dc-qualifier>author</dc-qualifier>
+             <label>Authors</label>
+             <input-type>group</input-type>
+             <repeatable>true</repeatable>
+             <required/>
+             <hint>Enter the names of the authors of this item.</hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>contributor</dc-element>
+             <dc-qualifier>editor</dc-qualifier>
+             <label>Editors</label>
+             <input-type>group</input-type>
+             <repeatable>true</repeatable>
+             <required/>
+             <hint>The editors of this publication.</hint>
+         </field>
+        </row>
+        <row>
+         <field>
+             <dc-schema>dc</dc-schema>
+             <dc-element>type</dc-element>
+             <label>Type</label>
+             <input-type>onebox</input-type>
+             <repeatable>false</repeatable>
+             <required>You must select a publication type</required>
+             <hint>Select the type of content of the item.</hint>
+             <vocabulary>types</vocabulary>
+         </field>
+        </row>
+     </form>
+     <form name="publication_indexing">
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -1371,7 +1390,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>identifier</dc-element>
           <dc-qualifier>url</dc-qualifier>
           <label>Personal Site(s)</label>
-          <input-type>group</input-type>
+          <input-type>link</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint />
@@ -2330,6 +2349,363 @@ it, please enter the types and the actual numbers or codes.</hint>
      	</row>
 	</form>
 
+	<form name="controlled-vocabulary-test">
+	     <row>
+	         <field>
+		         <dc-schema>dc</dc-schema>
+		         <dc-element>title</dc-element>
+		         <dc-qualifier></dc-qualifier>
+		         <repeatable>false</repeatable>
+		         <label>Title</label>
+		         <input-type>onebox</input-type>
+		         <hint>Enter the main title of the item.</hint>
+		         <required>You must enter a main title for this item.</required>
+	         </field>
+	     </row>
+	     <row>
+	         <field>
+		         <dc-schema>dc</dc-schema>
+		         <dc-element>date</dc-element>
+		         <dc-qualifier>issued</dc-qualifier>
+		         <repeatable>false</repeatable>
+		         <label>Date of Issue</label>
+		         <style>col-sm-4</style>
+		         <input-type>date</input-type>
+		         <hint>Please give the date of previous publication or public distribution.
+		               You can leave out the day and/or month if they aren't applicable.</hint>
+		         <required>You must enter at least the year.</required>
+	         </field>
+	       </row>
+	       <row>
+		     <field>
+		          <dc-schema>dc</dc-schema>
+		          <dc-element>type</dc-element>
+		          <label>Type</label>
+		          <input-type>onebox</input-type>
+		          <repeatable>false</repeatable>
+		          <required>You must select a publication type</required>
+		          <hint>Select the type(s) of content of the item.</hint>
+		          <vocabulary>publication-coar-types</vocabulary>
+		     </field>
+	       </row>
+        </form>
+
+    <form name="test-outside-workflow-hidden">
+        <row>
+            <field>
+                <dc-schema>dc</dc-schema>
+                <dc-element>title</dc-element>
+                <dc-qualifier></dc-qualifier>
+                <repeatable>false</repeatable>
+                <label>Title</label>
+                <input-type>onebox</input-type>
+                <required>Field required</required>
+            </field>
+        </row>
+    </form>
+
+    <form name="test-outside-submission-hidden">
+        <row>
+            <field>
+                <dc-schema>dc</dc-schema>
+                <dc-element>type</dc-element>
+                <dc-qualifier></dc-qualifier>
+                <repeatable>false</repeatable>
+                <label>Type</label>
+                <input-type>onebox</input-type>
+                <required>Field required</required>
+            </field>
+        </row>
+    </form>
+
+    <form name="green">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <repeatable>true</repeatable>
+          <label>Identifiers</label>
+          <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+          <hint>If the item has any identification numbers or codes associated with
+            it, please enter the types and the actual numbers or codes.
+          </hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <repeatable>false</repeatable>
+          <label>Title</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the main title of the item.</hint>
+          <required>You must enter a main title for this item.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <dc-qualifier>alternative</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Other Titles</label>
+          <input-type>onebox</input-type>
+          <hint>If the item has any alternative titles, please enter them here.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>issued</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Date of Issue</label>
+          <input-type>date</input-type>
+          <hint>Please give the date of previous publication or public distribution.
+            You can leave out the day and/or month if they aren't
+            applicable.
+          </hint>
+          <required>You must enter at least the year.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Authors</label>
+          <input-type>group</input-type>
+          <hint>Enter the names of the authors of this item.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>group</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Editors</label>
+          <input-type>onebox</input-type>
+          <hint>The editors of this publication.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <repeatable>false</repeatable>
+          <label>Type</label>
+          <input-type>onebox</input-type>
+          <hint>Select the type(s) of content of the item.</hint>
+          <required>You must select a publication type</required>
+          <vocabulary>publication-coar-types</vocabulary>
+        </field>
+      </row>
+    </form>
+    <form name="green-dc-contributor-author">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Author</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the names of the authors of this item in the form Lastname, Firstname [i.e. Smith, Josh
+            or Smith, J].
+          </hint>
+          <required>You must enter at least the author.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>author</dc-element>
+          <dc-qualifier>affiliation</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Affiliation</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the affiliation of the author as stated on the publication.</hint>
+          <required/>
+        </field>
+      </row>
+    </form>
+    <form name="green-dc-contributor-editor">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>editor</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Editor</label>
+          <input-type>onebox</input-type>
+          <hint>The editors of this publication.</hint>
+          <required>You must enter at least the author.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>editor</dc-element>
+          <dc-qualifier>affiliation</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Affiliation</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the affiliation of the editor as stated on the publication.</hint>
+          <required/>
+        </field>
+      </row>
+    </form>
+
+    <form name="orange">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <repeatable>true</repeatable>
+          <label>Identifiers</label>
+          <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+          <hint>If the item has any identification numbers or codes associated with
+            it, please enter the types and the actual numbers or codes.
+          </hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <repeatable>false</repeatable>
+          <label>Title</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the main title of the item.</hint>
+          <required>You must enter a main title for this item.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <dc-qualifier>alternative</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Other Titles</label>
+          <input-type>onebox</input-type>
+          <hint>If the item has any alternative titles, please enter them here.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>date</dc-element>
+          <dc-qualifier>issued</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Date of Issue</label>
+          <input-type>date</input-type>
+          <hint>Please give the date of previous publication or public distribution.
+            You can leave out the day and/or month if they aren't
+            applicable.
+          </hint>
+          <required>You must enter at least the year.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Authors</label>
+          <input-type>group</input-type>
+          <hint>Enter the names of the authors of this item.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>group</dc-qualifier>
+          <repeatable>true</repeatable>
+          <label>Editors</label>
+          <input-type>onebox</input-type>
+          <hint>The editors of this publication.</hint>
+          <required/>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <repeatable>false</repeatable>
+          <label>Type</label>
+          <input-type>onebox</input-type>
+          <hint>Select the type(s) of content of the item.</hint>
+          <required>You must select a publication type</required>
+          <vocabulary>publication-coar-types</vocabulary>
+        </field>
+      </row>
+    </form>
+    <form name="orange-dc-contributor-author">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>author</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Author</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the names of the authors of this item in the form Lastname, Firstname [i.e. Smith, Josh or Smith,
+            J].
+          </hint>
+          <required>You must enter at least the author.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>author</dc-element>
+          <dc-qualifier>affiliation</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Affiliation</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the affiliation of the author as stated on the publication.</hint>
+          <required/>
+        </field>
+      </row>
+    </form>
+    <form name="orange-dc-contributor-editor">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>editor</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Editor</label>
+          <input-type>onebox</input-type>
+          <hint>The editors of this publication.</hint>
+          <required>You must enter at least the author.</required>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>editor</dc-element>
+          <dc-qualifier>affiliation</dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Affiliation</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the affiliation of the editor as stated on the publication.</hint>
+          <required/>
+        </field>
+      </row>
+    </form>
+
    <form name="orgunit">
      <row>
        <field>
@@ -2467,102 +2843,92 @@ it, please enter the types and the actual numbers or codes.</hint>
      </row>
    </form>
 
-   <form name="test-outside-workflow-hidden">
-     <row>
-       <field>
-         <dc-schema>dc</dc-schema>
-         <dc-element>title</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Title</label>
-         <input-type>onebox</input-type>
-         <required>Field required</required>
-       </field>
-     </row>
-   </form>
-
-   <form name="test-outside-submission-hidden">
-     <row>
-       <field>
-         <dc-schema>dc</dc-schema>
-         <dc-element>type</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Type</label>
-         <input-type>onebox</input-type>
-         <required>Field required</required>
-       </field>
-     </row>
-   </form>
-
-	<form name="controlled-vocabulary-test">
-	     <row>
-	         <field>
-		         <dc-schema>dc</dc-schema>
-		         <dc-element>title</dc-element>
-		         <dc-qualifier></dc-qualifier>
-		         <repeatable>false</repeatable>
-		         <label>Title</label>
-		         <input-type>onebox</input-type>
-		         <hint>Enter the main title of the item.</hint>
-		         <required>You must enter a main title for this item.</required>
-	         </field>
-	     </row>
-	     <row>
-	         <field>
-		         <dc-schema>dc</dc-schema>
-		         <dc-element>date</dc-element>
-		         <dc-qualifier>issued</dc-qualifier>
-		         <repeatable>false</repeatable>
-		         <label>Date of Issue</label>
-		         <style>col-sm-4</style>
-		         <input-type>date</input-type>
-		         <hint>Please give the date of previous publication or public distribution.
-		               You can leave out the day and/or month if they aren't applicable.</hint>
-		         <required>You must enter at least the year.</required>
-	         </field>
-	       </row>
-	       <row>
-		     <field>
-		          <dc-schema>dc</dc-schema>
-		          <dc-element>type</dc-element>
-		          <label>Type</label>
-		          <input-type>onebox</input-type>
-		          <repeatable>false</repeatable>
-		          <required>You must select a publication type</required>
-		          <hint>Select the type(s) of content of the item.</hint>
-		          <vocabulary>publication-coar-types</vocabulary>
-		     </field>
-	       </row>
-        </form>
-
-       <form name="test-outside-workflow-hidden">
+     <form name="funding">
          <row>
-           <field>
-             <dc-schema>dc</dc-schema>
-             <dc-element>title</dc-element>
-             <dc-qualifier></dc-qualifier>
-             <repeatable>false</repeatable>
-             <label>Title</label>
-             <input-type>onebox</input-type>
-             <required>Field required</required>
-           </field>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>title</dc-element>
+                 <label>Title</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required>You must enter the project title</required>
+                 <hint />
+             </field>
          </row>
-       </form>
-       <form name="test-outside-submission-hidden">
          <row>
-           <field>
-             <dc-schema>dc</dc-schema>
-             <dc-element>type</dc-element>
-             <dc-qualifier></dc-qualifier>
-             <repeatable>false</repeatable>
-             <label>Type</label>
-             <input-type>onebox</input-type>
-             <required>Field required</required>
-           </field>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>funder</dc-element>
+                 <label>Financing</label>
+                 <input-type>inline-group</input-type>
+                 <repeatable>true</repeatable>
+                 <required>You must enter financing information</required>
+                 <hint />
+             </field>
          </row>
-       </form>
-	
+     </form>
+
+     <form name="funding-oairecerif-funder">
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>funder</dc-element>
+                 <label>Funder</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required>You must enter the funder</required>
+                 <style>col-xs-12 col-md-6 col-lg-3</style>
+                 <hint />
+             </field>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>amount</dc-element>
+                 <label>Amount</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>amount</dc-element>
+                 <dc-qualifier>currency</dc-qualifier>
+                 <label>Currency</label>
+                 <input-type value-pairs-name="currency">dropdown</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+     </form>
+
+     <form name="test-outside-workflow-hidden">
+       <row>
+         <field>
+           <dc-schema>dc</dc-schema>
+           <dc-element>title</dc-element>
+           <dc-qualifier></dc-qualifier>
+           <repeatable>false</repeatable>
+           <label>Title</label>
+           <input-type>onebox</input-type>
+           <required>Field required</required>
+         </field>
+       </row>
+     </form>
+     <form name="test-outside-submission-hidden">
+       <row>
+         <field>
+           <dc-schema>dc</dc-schema>
+           <dc-element>type</dc-element>
+           <dc-qualifier></dc-qualifier>
+           <repeatable>false</repeatable>
+           <label>Type</label>
+           <input-type>onebox</input-type>
+           <required>Field required</required>
+         </field>
+       </row>
+     </form>
+
  </form-definitions>
 
 
@@ -3005,6 +3371,160 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>n/a</stored-value>
       </pair>
     </value-pairs>
+
+     <value-pairs value-pairs-name="currency" dc-term="currency">
+         <pair>
+             <displayed-value>Swiss franc</displayed-value>
+             <stored-value>Swiss franc</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Euro</displayed-value>
+             <stored-value>Euro</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>US dollar</displayed-value>
+             <stored-value>US dollar</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Albanian lek</displayed-value>
+             <stored-value>Albanian lek</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Armenian dram</displayed-value>
+             <stored-value>Armenian dram</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Azerbaijan manat</displayed-value>
+             <stored-value>Azerbaijan manat</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Belarusian ruble</displayed-value>
+             <stored-value>Belarusian ruble</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Bosnia and Herzegovina convertible mark</displayed-value>
+             <stored-value>Bosnia and Herzegovina convertible mark</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Bulgarian lev</displayed-value>
+             <stored-value>Bulgarian lev</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Croatian kuna</displayed-value>
+             <stored-value>Croatian kuna</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Czech koruna</displayed-value>
+             <stored-value>Czech koruna</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Danish krone</displayed-value>
+             <stored-value>Danish krone</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Faroese krona</displayed-value>
+             <stored-value>Faroese krona</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Georgian lari</displayed-value>
+             <stored-value>Georgian lari</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Gibraltar pound</displayed-value>
+             <stored-value>Gibraltar pound</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Guernsey pound</displayed-value>
+             <stored-value>Guernsey pound</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Hungarian forint</displayed-value>
+             <stored-value>Hungarian forint</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Icelandic krona</displayed-value>
+             <stored-value>Icelandic krona</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Manx pound</displayed-value>
+             <stored-value>Manx pound</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Jersey pound</displayed-value>
+             <stored-value>Jersey pound</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Kazakhstani tenge</displayed-value>
+             <stored-value>Kazakhstani tenge</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Moldovan leu</displayed-value>
+             <stored-value>Moldovan leu</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Macedonian denar</displayed-value>
+             <stored-value>Macedonian denar</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Norwegian krone</displayed-value>
+             <stored-value>Norwegian krone</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Polish zloty</displayed-value>
+             <stored-value>Polish zloty</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Romanian leu</displayed-value>
+             <stored-value>Romanian leu</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Russian ruble</displayed-value>
+             <stored-value>Russian ruble</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Serbian dinar</displayed-value>
+             <stored-value>Serbian dinar</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Swedish krona</displayed-value>
+             <stored-value>Swedish krona</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Turkish lira</displayed-value>
+             <stored-value>Turkish lira</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Ukrainian hryvnia</displayed-value>
+             <stored-value>Ukrainian hryvnia</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Pound sterling</displayed-value>
+             <stored-value>Pound sterling</stored-value>
+         </pair>
+     </value-pairs>
+
+     <value-pairs value-pairs-name="test_languages" dc-term="language_iso">
+         <pair>
+             <displayed-value>Lang1</displayed-value>
+             <stored-value>ln_1</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Lang2</displayed-value>
+             <stored-value>ln_2</stored-value>
+         </pair>
+     </value-pairs>
+
+     <value-pairs value-pairs-name="test_languages" dc-term="language_iso">
+         <pair>
+             <displayed-value>Lang1</displayed-value>
+             <stored-value>ln_1</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Lang2</displayed-value>
+             <stored-value>ln_2</stored-value>
+         </pair>
+     </value-pairs>
+
    <value-pairs value-pairs-name="relation_type" dc-term="relation_type">
      <pair>
        <displayed-value>fa parte di</displayed-value>

@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.requestitem.RequestItemAuthor;
@@ -121,6 +121,7 @@ public class DeleteEPersonSubmitterIT extends AbstractControllerIntegrationTest 
 
         Community parent = CommunityBuilder.createCommunity(context).build();
         Collection collection = CollectionBuilder.createCollection(context, parent)
+                                                 .withEntityType("Publication")
                                                  .build();
 
         WorkspaceItem wsi = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
@@ -234,6 +235,7 @@ public class DeleteEPersonSubmitterIT extends AbstractControllerIntegrationTest 
 
         Community parent = CommunityBuilder.createCommunity(context).build();
         Collection collection = CollectionBuilder.createCollection(context, parent)
+                                                 .withEntityType("Publication")
                                                  .build();
 
         WorkspaceItem wsi = WorkspaceItemBuilder.createWorkspaceItem(context, collection)

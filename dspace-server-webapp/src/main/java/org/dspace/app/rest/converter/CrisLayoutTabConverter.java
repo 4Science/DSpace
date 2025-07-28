@@ -9,6 +9,7 @@ package org.dspace.app.rest.converter;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,11 +28,14 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBox2SecurityGroup;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.CrisLayoutTab2SecurityGroup;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.service.CrisLayoutBoxService;
+import org.dspace.layout.service.CrisLayoutTabService;
 import org.dspace.services.RequestService;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,18 +65,47 @@ public class CrisLayoutTabConverter implements DSpaceConverter<CrisLayoutTab, Cr
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private CrisLayoutTabService crisLayoutTabService;
+
     @Override
     public CrisLayoutTabRest convert(CrisLayoutTab model, Projection projection) {
+        Item item = getScopeItem();
+
+        if (item == null || hasAccess(getScopeItem(), model)) {
+            return convertTab(model, projection);
+        }
+
+        return Optional.ofNullable(findAlternativeTab(model))
+                       .map(tab -> convertTab(tab, projection))
+                       .orElseGet(CrisLayoutTabRest::new);
+    }
+
+    private boolean hasAccess(Item item, CrisLayoutTab tab) {
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return crisLayoutTabService.hasAccess(context, tab, item);
+    }
+
+    private CrisLayoutTab findAlternativeTab(CrisLayoutTab tab) {
+        return tab.getTab2SecurityGroups()
+                  .stream()
+                  .map(CrisLayoutTab2SecurityGroup::getAlternativeTab)
+                  .filter(Objects::nonNull)
+                  .findFirst()
+                  .orElse(null);
+    }
+
+    private CrisLayoutTabRest convertTab(CrisLayoutTab tab, Projection projection) {
         CrisLayoutTabRest rest = new CrisLayoutTabRest();
-        rest.setId(model.getID());
-        rest.setEntityType(model.getEntity().getLabel());
-        rest.setCustomFilter(model.getCustomFilter());
-        rest.setShortname(model.getShortName());
-        rest.setHeader(model.getHeader());
-        rest.setPriority(model.getPriority());
-        rest.setSecurity(model.getSecurity());
-        rest.setRows(convertRows(getScopeItem(), model.getRows(), projection));
-        rest.setLeading(model.isLeading());
+        rest.setId(tab.getID());
+        rest.setEntityType(tab.getEntity().getLabel());
+        rest.setCustomFilter(tab.getCustomFilter());
+        rest.setShortname(tab.getShortName());
+        rest.setHeader(tab.getHeader());
+        rest.setPriority(tab.getPriority());
+        rest.setSecurity(tab.getSecurity());
+        rest.setRows(convertRows(getScopeItem(), tab.getRows(), projection));
+        rest.setLeading(tab.isLeading());
         return rest;
     }
 
@@ -124,15 +157,43 @@ public class CrisLayoutTabConverter implements DSpaceConverter<CrisLayoutTab, Cr
 
     private List<CrisLayoutBoxRest> convertBoxes(Item item, List<CrisLayoutBox> boxes, Projection projection) {
         return boxes.stream()
-            .filter(box -> item == null || hasAccess(item, box))
-            .map(box -> boxConverter.convert(box, projection))
-            .collect(Collectors.toList());
+                    .map(box -> getCrisLayoutBox(item, box))
+                    .filter(Objects::nonNull)
+                    .map(box -> boxConverter.convert(box, projection))
+                    .collect(Collectors.toList());
+    }
+
+    private CrisLayoutBox getCrisLayoutBox(Item item, CrisLayoutBox box) {
+
+        if (item == null) {
+            return box;
+        }
+
+        return Optional.of(box)
+                       .filter(b -> hasAccess(item, b) && hasContent(item, b))
+                       .orElseGet(() ->
+                           Optional.ofNullable(findAlternativeBox(box))
+                                   .filter(altBox -> hasContent(item, altBox))
+                                   .orElse(null));
     }
 
     private boolean hasAccess(Item item, CrisLayoutBox box) {
         Context context = ContextUtil.obtainCurrentRequestContext();
-        return crisLayoutBoxService.hasContent(context, box, item)
-            && crisLayoutBoxService.hasAccess(context, box, item);
+        return crisLayoutBoxService.hasAccess(context, box, item);
+    }
+
+    private boolean hasContent(Item item, CrisLayoutBox box) {
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return crisLayoutBoxService.hasContent(context, box, item);
+    }
+
+    private CrisLayoutBox findAlternativeBox(CrisLayoutBox box) {
+        return box.getBox2SecurityGroups()
+                  .stream()
+                  .map(CrisLayoutBox2SecurityGroup::getAlternativeBox)
+                  .filter(Objects::nonNull)
+                  .findFirst()
+                  .orElse(null);
     }
 
     private CrisLayoutRow toRowModel(Context context, CrisLayoutRowRest rowRest) {

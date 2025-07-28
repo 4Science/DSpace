@@ -8,6 +8,10 @@
 package org.dspace.discovery;
 
 import static org.dspace.discovery.SolrServiceWorkspaceWorkflowRestrictionPlugin.DISCOVER_WORKSPACE_CONFIGURATION_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -19,8 +23,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -82,7 +90,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     XmlWorkflowService workflowService = XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService();
 
     WorkflowRequirementsService workflowRequirementsService = XmlWorkflowServiceFactory.getInstance().
-            getWorkflowRequirementsService();
+                                                                                       getWorkflowRequirementsService();
 
     ClaimedTaskService claimedTaskService = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService();
 
@@ -98,6 +106,9 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
     MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory.getInstance()
                                                                                       .getMetadataAuthorityService();
+
+    MockSolrSearchCore solrSearchCore = DSpaceServicesFactory.getInstance().getServiceManager()
+                                                             .getServiceByName(null, MockSolrSearchCore.class);
 
     @Override
     @Before
@@ -117,21 +128,21 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
                                           .withName("Collection without workflow")
                                           .build();
         Collection colWithWorkflow = CollectionBuilder.createCollection(context, community)
-                .withName("Collection WITH workflow")
-                .withWorkflowGroup(1, admin)
-                .build();
+                                                      .withName("Collection WITH workflow")
+                                                      .withWorkflowGroup(1, admin)
+                                                      .build();
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col)
                                                           .withTitle("No workflow")
                                                           .withAbstract("headache")
                                                           .build();
         WorkspaceItem anotherWorkspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col)
-                .withTitle("Another WS Item in No workflow collection")
-                .withAbstract("headache")
-                .build();
+                                                                 .withTitle("Another WS Item in No workflow collection")
+                                                                 .withAbstract("headache")
+                                                                 .build();
         WorkspaceItem workspaceItemInWfCollection = WorkspaceItemBuilder.createWorkspaceItem(context, colWithWorkflow)
-                .withTitle("WS Item in workflow collection")
-                .withAbstract("headache")
-                .build();
+                                                                        .withTitle("WS Item in workflow collection")
+                                                                        .withAbstract("headache")
+                                                                        .build();
         context.restoreAuthSystemState();
 
         // we start with 3 ws items
@@ -176,30 +187,30 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         Workflow workflow = XmlWorkflowServiceFactory.getInstance().getWorkflowFactory().getWorkflow(collection);
 
         ClaimedTask taskToApprove = ClaimedTaskBuilder.createClaimedTask(context, collection, admin)
-                                                .withTitle("Test workflow item to approve")
-                                                .withIssueDate("2019-03-06")
-                                                .withSubject("ExtraEntry")
-                                                .build();
+                                                      .withTitle("Test workflow item to approve")
+                                                      .withIssueDate("2019-03-06")
+                                                      .withSubject("ExtraEntry")
+                                                      .build();
         ClaimedTask taskToReject = ClaimedTaskBuilder.createClaimedTask(context, collection, admin)
-                .withTitle("Test workflow item to reject")
-                .withIssueDate("2019-03-06")
-                .withSubject("ExtraEntry")
-                .build();
+                                                     .withTitle("Test workflow item to reject")
+                                                     .withIssueDate("2019-03-06")
+                                                     .withSubject("ExtraEntry")
+                                                     .build();
         PoolTask taskToClaim = PoolTaskBuilder.createPoolTask(context, collection, admin)
-                .withTitle("Test pool task to claim")
-                .withIssueDate("2019-03-06")
-                .withSubject("ExtraEntry")
-                .build();
+                                              .withTitle("Test pool task to claim")
+                                              .withIssueDate("2019-03-06")
+                                              .withSubject("ExtraEntry")
+                                              .build();
         ClaimedTask taskToUnclaim = ClaimedTaskBuilder.createClaimedTask(context, collection, admin)
-                .withTitle("Test claimed task to unclaim")
-                .withIssueDate("2019-03-06")
-                .withSubject("ExtraEntry")
-                .build();
+                                                      .withTitle("Test claimed task to unclaim")
+                                                      .withIssueDate("2019-03-06")
+                                                      .withSubject("ExtraEntry")
+                                                      .build();
         XmlWorkflowItem wfiToDelete = WorkflowItemBuilder.createWorkflowItem(context, collection)
-                .withTitle("Test workflow item to return")
-                .withIssueDate("2019-03-06")
-                .withSubject("ExtraEntry")
-                .build();
+                                                         .withTitle("Test workflow item to return")
+                                                         .withIssueDate("2019-03-06")
+                                                         .withSubject("ExtraEntry")
+                                                         .build();
 
         context.restoreAuthSystemState();
         // we start with 5 workflow items, 3 claimed tasks, 2 pool task
@@ -284,8 +295,8 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
                                           .build();
 
         Item item1 = ItemBuilder.createItem(context, col)
-                               .withTitle("Publication 1")
-                               .build();
+                                .withTitle("Publication 1")
+                                .build();
 
         Item item2 = ItemBuilder.createItem(context, col)
                                 .withTitle("Publication 2")
@@ -325,12 +336,12 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
             context.turnOffAuthorisationSystem();
 
-           ItemBuilder.createItem(context, col1)
-                      .withTitle("Public item 1")
-                      .withIssueDate("2021-01-21")
-                      .withAuthor("Smith, Donald")
-                      .withSubject("Test Value", "NOT-EXISTING", Choices.CF_ACCEPTED)
-                      .build();
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Public item 1")
+                       .withIssueDate("2021-01-21")
+                       .withAuthor("Smith, Donald")
+                       .withSubject("Test Value", "NOT-EXISTING", Choices.CF_ACCEPTED)
+                       .build();
 
             context.restoreAuthSystemState();
             assertSearchQuery(IndexableItem.TYPE, 1);
@@ -449,10 +460,10 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 5")
-                    .withIssueDate("2015-04-13")
-                    .withAuthor("Marco, Bruni")
-                    .withSubject("ExtraEntry")
-                    .build();
+                   .withIssueDate("2015-04-13")
+                   .withAuthor("Marco, Bruni")
+                   .withSubject("ExtraEntry")
+                   .build();
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 6")
@@ -469,6 +480,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default, we expect: indexableObjects=2, totalFound=2
@@ -542,10 +554,10 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 5")
-                    .withIssueDate("2015-04-13")
-                    .withAuthor("Marco, Bruni")
-                    .withSubject("ExtraEntry")
-                    .build();
+                   .withIssueDate("2015-04-13")
+                   .withAuthor("Marco, Bruni")
+                   .withSubject("ExtraEntry")
+                   .build();
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 6")
@@ -562,6 +574,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,
@@ -633,10 +646,10 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 5")
-                    .withIssueDate("2015-04-13")
-                    .withAuthor("Marco, Bruni")
-                    .withSubject("ExtraEntry")
-                    .build();
+                   .withIssueDate("2015-04-13")
+                   .withAuthor("Marco, Bruni")
+                   .withSubject("ExtraEntry")
+                   .build();
 
         ItemBuilder.createItem(context, col3)
                    .withTitle("Public item 6")
@@ -653,6 +666,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertSearchQuery(IndexableItem.TYPE, 6, 6, 0, -1);
         // delete col3 and all items that it contained
         collectionService.delete(context, col3);
+        context.commit();
         context.restoreAuthSystemState();
 
         // check Collection type with start=0 and limit=default,
@@ -686,23 +700,23 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         Collection collection = CollectionBuilder.createCollection(context, community).build();
         for (int i = 0; i < numberItemsSubject1; i++) {
             itemsSubject1[i] = ItemBuilder.createItem(context, collection)
-                .withTitle("item subject 1 number" + i)
-                .withSubject(subject1)
-                .build();
+                                          .withTitle("item subject 1 number" + i)
+                                          .withSubject(subject1)
+                                          .build();
         }
 
         for (int i = 0; i < numberItemsSubject2; i++) {
             itemsSubject2[i] = ItemBuilder.createItem(context, collection)
-                .withTitle("item subject 2 number " + i)
-                .withSubject(subject2)
-                .build();
+                                          .withTitle("item subject 2 number " + i)
+                                          .withSubject(subject2)
+                                          .build();
         }
 
         Collection collection2 = CollectionBuilder.createCollection(context, community).build();
         ItemBuilder.createItem(context, collection2)
-            .withTitle("item collection2")
-            .withSubject(subject1)
-            .build();
+                   .withTitle("item collection2")
+                   .withSubject(subject1)
+                   .build();
         context.restoreAuthSystemState();
 
 
@@ -743,6 +757,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
      * DiscoveryConfiguration <br/>
      * <b>Note</b>: this test will be skipped if <code>workspace</code> do not have a default sort option set and of
      * metadataType <code>dc_date_accessioned</code> or <code>lastModified</code>
+     *
      * @throws SearchServiceException
      */
     @Test
@@ -755,7 +770,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         }
 
         DiscoverySortFieldConfiguration defaultSortField =
-                workspaceConf.getSearchSortConfiguration().getDefaultSortField();
+            workspaceConf.getSearchSortConfiguration().getDefaultSortField();
 
         // Populate the testing objects: create items in eperson's workspace and perform search in it
         int numberItems = 10;
@@ -766,15 +781,16 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         Collection collection = CollectionBuilder.createCollection(context, community).build();
         for (int i = 0; i < numberItems; i++) {
             ItemBuilder.createItem(context, collection)
-                    .withTitle("item " + i)
-                    .build();
+                       .withTitle("item " + i)
+                       .build();
         }
         context.restoreAuthSystemState();
 
         // Build query with default parameters (except for workspaceConf)
         DiscoverQuery discoverQuery = SearchUtils.getQueryBuilder()
-                .buildQuery(context, new IndexableCollection(collection), workspaceConf,"",null,"Item",null,null,
-                        null,null);
+                                                 .buildQuery(context, new IndexableCollection(collection),
+                                                             workspaceConf, "", null, "Item", null, null,
+                                                             null, null);
 
         DiscoverResult result = searchService.search(context, discoverQuery);
 
@@ -788,11 +804,111 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
                 .collect(Collectors.toCollection(LinkedList::new));
         }*/
         LinkedList<String> lastModifieds = result.getIndexableObjects().stream()
-                .map(o -> ((Item) o.getIndexedObject()).getLastModified().toString())
-                .collect(Collectors.toCollection(LinkedList::new));
+                                                 .map(o -> ((Item) o.getIndexedObject()).getLastModified().toString())
+                                                 .collect(Collectors.toCollection(LinkedList::new));
         assertFalse(lastModifieds.isEmpty());
         for (int i = 1; i < lastModifieds.size() - 1; i++) {
             assertTrue(lastModifieds.get(i).compareTo(lastModifieds.get(i + 1)) >= 0);
+        }
+    }
+
+    /**
+     * Test designed to check if the submitter is not indexed in all in solr documents for items
+     * and the submitter authority is still indexed
+     *
+     * @throws SearchServiceException
+     */
+    @Test
+    public void searchWithNoSubmitterTest() throws SearchServiceException {
+
+        configurationService.setProperty("discovery.index.item.submitter.enabled", false);
+        DiscoveryConfiguration defaultConf = SearchUtils.getDiscoveryConfiguration(context, "default", null);
+
+        // Populate the testing objects: create items in eperson's workspace and perform search in it
+        int numberItems = 10;
+        context.turnOffAuthorisationSystem();
+        EPerson submitter = null;
+        try {
+            submitter = EPersonBuilder.createEPerson(context).withEmail("submitter@example.org")
+                                      .withNameInMetadata("Peter", "Funny").build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        context.setCurrentUser(submitter);
+        Community community = CommunityBuilder.createCommunity(context).build();
+        Collection collection = CollectionBuilder.createCollection(context, community).build();
+        for (int i = 0; i < numberItems; i++) {
+            ItemBuilder.createItem(context, collection)
+                       .withTitle("item " + i)
+                       .build();
+        }
+        context.restoreAuthSystemState();
+
+        // Build query with default parameters (except for workspaceConf)
+        QueryResponse result = null;
+        try {
+            result = solrSearchCore.getSolr().query(new SolrQuery(String.format(
+                "search.resourcetype:\"Item\"")));
+        } catch (SolrServerException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(result.getResults().size(), numberItems);
+        for (SolrDocument doc : result.getResults()) {
+            assertThat(doc.getFieldNames(),
+                       not(hasItems("submitter_keyword", "submitter_ac", "submitter_acid", "submitter_filter")));
+            assertThat(doc.getFieldNames(), hasItem("submitter_authority"));
+        }
+    }
+
+    /**
+     * Test designed to check if the submitter is indexed in all in solr documents for items
+     *
+     * @throws SearchServiceException
+     */
+    @Test
+    public void searchWithSubmitterTest() throws SearchServiceException {
+
+        configurationService.setProperty("discovery.index.item.submitter.enabled", true);
+        DiscoveryConfiguration defaultConf = SearchUtils.getDiscoveryConfiguration(context, "default", null);
+
+        // Populate the testing objects: create items in eperson's workspace and perform search in it
+        int numberItems = 10;
+        context.turnOffAuthorisationSystem();
+        EPerson submitter = null;
+        try {
+            submitter = EPersonBuilder.createEPerson(context).withEmail("submitter@example.org")
+                                      .withNameInMetadata("Peter", "Funny").build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        context.setCurrentUser(submitter);
+        Community community = CommunityBuilder.createCommunity(context).build();
+        Collection collection = CollectionBuilder.createCollection(context, community).build();
+        for (int i = 0; i < numberItems; i++) {
+            ItemBuilder.createItem(context, collection)
+                       .withTitle("item " + i)
+                       .build();
+        }
+        context.restoreAuthSystemState();
+
+        // Build query with default parameters (except for workspaceConf)
+        QueryResponse result = null;
+        try {
+            result = solrSearchCore.getSolr().query(new SolrQuery(String.format(
+                "search.resourcetype:\"Item\"")));
+        } catch (SolrServerException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(result.getResults().size(), numberItems);
+        for (SolrDocument doc : result.getResults()) {
+            for (String fieldname : doc.getFieldNames()) {
+                assertThat(doc.getFieldNames(), hasItems("submitter_keyword", "submitter_ac", "submitter_filter",
+                                                         "submitter_authority"));
+            }
         }
     }
 
@@ -815,7 +931,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
 
 
     private void deposit(WorkspaceItem workspaceItem)
-            throws SQLException, AuthorizeException, IOException, WorkflowException, SearchServiceException {
+        throws SQLException, AuthorizeException, IOException, WorkflowException, SearchServiceException {
         context.turnOffAuthorisationSystem();
         workspaceItem = context.reloadEntity(workspaceItem);
         XmlWorkflowItem unusedWorkflowItem = workflowService.startWithoutNotify(context, workspaceItem);
@@ -834,7 +950,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private void deleteSubmission(WorkspaceItem anotherWorkspaceItem)
-            throws SQLException, AuthorizeException, IOException, SearchServiceException {
+        throws SQLException, AuthorizeException, IOException, SearchServiceException {
         context.turnOffAuthorisationSystem();
         anotherWorkspaceItem = context.reloadEntity(anotherWorkspaceItem);
         workspaceItemService.deleteAll(context, anotherWorkspaceItem);
@@ -844,7 +960,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private void deleteWorkflowItem(XmlWorkflowItem workflowItem)
-            throws SQLException, AuthorizeException, IOException, SearchServiceException {
+        throws SQLException, AuthorizeException, IOException, SearchServiceException {
         context.turnOffAuthorisationSystem();
         workflowItem = context.reloadEntity(workflowItem);
         workflowService.deleteWorkflowByWorkflowItem(context, workflowItem, admin);
@@ -854,21 +970,21 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private void returnClaimedTask(ClaimedTask taskToUnclaim) throws SQLException, IOException,
-            WorkflowConfigurationException, AuthorizeException, SearchServiceException {
+        WorkflowConfigurationException, AuthorizeException, SearchServiceException {
         final EPerson previousUser = context.getCurrentUser();
         taskToUnclaim = context.reloadEntity(taskToUnclaim);
         context.setCurrentUser(taskToUnclaim.getOwner());
         XmlWorkflowItem workflowItem = taskToUnclaim.getWorkflowItem();
         workflowService.deleteClaimedTask(context, workflowItem, taskToUnclaim);
         workflowRequirementsService.removeClaimedUser(context, workflowItem, taskToUnclaim.getOwner(),
-                taskToUnclaim.getStepID());
+                                                      taskToUnclaim.getStepID());
         context.commit();
         indexer.commit();
         context.setCurrentUser(previousUser);
     }
 
     private void claim(Workflow workflow, PoolTask task, EPerson user)
-            throws Exception {
+        throws Exception {
         final EPerson previousUser = context.getCurrentUser();
         task = context.reloadEntity(task);
         context.setCurrentUser(user);
@@ -881,7 +997,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private void executeWorkflowAction(HttpServletRequest httpServletRequest, Workflow workflow, ClaimedTask task)
-            throws Exception {
+        throws Exception {
         final EPerson previousUser = context.getCurrentUser();
         task = context.reloadEntity(task);
         context.setCurrentUser(task.getOwner());
@@ -896,11 +1012,11 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         String[] args = new String[] {"solr-database-resync"};
         TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
         ScriptLauncher
-                .handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
+            .handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl);
     }
 
     private void abort(XmlWorkflowItem workflowItem)
-            throws SQLException, AuthorizeException, IOException, SearchServiceException {
+        throws SQLException, AuthorizeException, IOException, SearchServiceException {
         final EPerson previousUser = context.getCurrentUser();
         workflowItem = context.reloadEntity(workflowItem);
         context.setCurrentUser(admin);

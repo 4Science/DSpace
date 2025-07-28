@@ -37,7 +37,8 @@ import org.springframework.context.annotation.Configuration;
     "org.dspace.app.iiif",
     "org.dspace.app.rest.link",
     "org.dspace.app.rest.converter.factory",
-    "org.dspace.app.scheduler"
+    "org.dspace.app.scheduler",
+    "org.dspace.app.ldn"
 })
 public class ApplicationConfig {
     // Allowed CORS origins ("Access-Control-Allow-Origin" header)
@@ -83,6 +84,20 @@ public class ApplicationConfig {
     // Configured User Interface URL (default: http://localhost:4000)
     @Value("${dspace.ui.url:http://localhost:4000}")
     private String uiURL;
+
+    // LDN enable status
+    @Value("${ldn.enabled}")
+    private boolean ldnEnabled;
+
+    // Allowed Annotation CORS origins ("Access-Control-Allow-Origin" header)
+    // Can be overridden in DSpace configuration
+    @Value("${annotation.cors.allowed-origins}")
+    private String[] annotationCorsAllowedOrigins;
+
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${annotation.cors.allow-credentials:true}")
+    private boolean annotationCorsAllowCrendentials;
 
     /**
      * Return the array of allowed origins (client URLs) for the CORS "Access-Control-Allow-Origin" header
@@ -151,6 +166,14 @@ public class ApplicationConfig {
     }
 
     /**
+     * Return the ldn.enabled value
+     * @return true or false
+     */
+    public boolean getLdnEnabled() {
+        return this.ldnEnabled;
+    }
+
+    /**
      * Return whether to allow credentials (cookies) on IIIF requests. This is used to set the
      * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
      * @return true or false
@@ -175,5 +198,22 @@ public class ApplicationConfig {
      */
     public boolean getSignpostingAllowCredentials() {
         return signpostingCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on Signposting requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getAnnotationAllowCredentials() {
+        return annotationCorsAllowCrendentials;
+    }
+
+    /**
+     * Returns the annotation.cors.allowed-origins defined in DSpace configuration.
+     * @return allowed origins
+     */
+    public String[] getAnnotationAllowedOriginsConfig() {
+        return annotationCorsAllowedOrigins;
     }
 }

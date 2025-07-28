@@ -219,6 +219,36 @@ public class CrisLayoutBoxServiceImplTest {
     }
 
     @Test
+    public void testHasContentWithBoxWithBitstreamWithBlankMetadataValue() throws SQLException {
+
+        MetadataField titleField = metadataField("dc", "title", null);
+        MetadataField typeField = metadataField("dc", "type", null);
+
+        Item item = item();
+
+        Bitstream bitstream = mock(Bitstream.class);
+
+        CrisLayoutFieldBitstream fieldBitstream = new CrisLayoutFieldBitstream();
+        fieldBitstream.setBundle("ORIGINAL");
+        fieldBitstream.setMetadataField(typeField);
+        fieldBitstream.setMetadataValue(null);
+
+        CrisLayoutBox box = new CrisLayoutBox();
+        box.addLayoutField(crisLayoutField(titleField));
+        box.addLayoutField(fieldBitstream);
+        box.setShortname("Main Box");
+        box.setType("METADATA");
+
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false))
+                .thenReturn(List.of(bitstream));
+
+        assertThat(crisLayoutBoxService.hasContent(context, box, item), is(true));
+
+        verify(bitstreamService).findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false);
+
+    }
+
+    @Test
     public void testHasMetricsBoxContent() throws SQLException {
 
         when(authorizeService.authorizeActionBoolean(eq(context), any(), eq(Constants.READ))).thenReturn(true);
@@ -291,6 +321,64 @@ public class CrisLayoutBoxServiceImplTest {
         Item item = item();
 
         CrisLayoutBox box = crisLayoutBox("Box", "IIIFVIEWER");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
+    @Test
+    public void testSingleMetadataboxBitstreamWithoutField() throws SQLException {
+
+        CrisLayoutBox singleBitstreamBox = new CrisLayoutBox();
+        singleBitstreamBox.setShortname("File");
+        singleBitstreamBox.setType(null);
+
+        Item item = item();
+        Bitstream bitstream = mock(Bitstream.class);
+
+        CrisLayoutFieldBitstream fieldBitstream = new CrisLayoutFieldBitstream();
+        fieldBitstream.setBundle("ORIGINAL");
+        fieldBitstream.setMetadataValue(null);
+        fieldBitstream.setMetadataField(null);
+        fieldBitstream.setRendering("attachment");
+
+        singleBitstreamBox.addLayoutField(fieldBitstream);
+
+        when(bitstreamService.findShowableByItem(context, item.getID(), "ORIGINAL", Map.of(), false))
+                .thenReturn(List.of(bitstream));
+
+        assertThat(crisLayoutBoxService.hasContent(context, singleBitstreamBox, item), is(true));
+
+    }
+
+    @Test
+    public void testNetworkLabBoxHasContentWithMetadataTrue() {
+        Item item = item();
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dspace", "networklab", "enabled"),
+                Item.ANY)).thenReturn("true");
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
+
+        assertTrue(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
+    @Test
+    public void testNetworkLabBoxHasNoContentWithMetadataFalse() {
+        Item item = item();
+
+        when(itemService.getMetadataFirstValue(item, new MetadataFieldName("dspace", "networklab", "enabled"),
+                Item.ANY)).thenReturn("false");
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
+
+        assertFalse(crisLayoutBoxService.hasContent(context, box, item));
+    }
+
+    @Test
+    public void testNetworkLabBoxHasNoContentWithMetadataUndefined() {
+        Item item = item();
+
+        CrisLayoutBox box = crisLayoutBox("Box", "NETWORKLAB");
 
         assertFalse(crisLayoutBoxService.hasContent(context, box, item));
     }

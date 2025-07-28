@@ -10,8 +10,8 @@ package org.dspace.validation.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.dspace.app.util.SubmissionConfig;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
@@ -55,7 +55,8 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj) {
 
-        SubmissionConfig submissionConfig = submissionConfigReader.getSubmissionConfigByInProgressSubmission(obj);
+        SubmissionConfig submissionConfig = submissionConfigReader
+                .getSubmissionConfigByInProgressSubmission(obj, context);
 
         List<ValidationError> errors = new ArrayList<ValidationError>();
 

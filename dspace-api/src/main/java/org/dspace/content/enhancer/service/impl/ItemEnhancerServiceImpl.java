@@ -7,23 +7,18 @@
  */
 package org.dspace.content.enhancer.service.impl;
 
-import static org.dspace.content.Item.ANY;
-import static org.dspace.content.enhancer.ItemEnhancer.VIRTUAL_METADATA_ELEMENT;
-import static org.dspace.content.enhancer.ItemEnhancer.VIRTUAL_METADATA_SCHEMA;
-import static org.dspace.content.enhancer.ItemEnhancer.VIRTUAL_SOURCE_METADATA_ELEMENT;
-
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
-import org.apache.commons.collections4.ListUtils;
+import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
+import org.dspace.content.dao.ItemForMetadataEnhancementUpdateDAO;
 import org.dspace.content.enhancer.ItemEnhancer;
 import org.dspace.content.enhancer.service.ItemEnhancerService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.core.exception.SQLRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -34,45 +29,53 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ItemEnhancerServiceImpl implements ItemEnhancerService {
 
+    /**
+     * log4j category
+     */
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemEnhancerServiceImpl.class);
+
     @Autowired
     private List<ItemEnhancer> itemEnhancers;
 
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private ItemForMetadataEnhancementUpdateDAO itemForMetadataEnhancementUpdateDAO;
+
     @Override
-    public void enhance(Context context, Item item) {
-
-        itemEnhancers.stream()
-            .filter(itemEnhancer -> itemEnhancer.canEnhance(context, item))
-            .forEach(itemEnhancer -> itemEnhancer.enhance(context, item));
-
-        updateItem(context, item);
-
+    public boolean enhance(Context context, Item item, boolean deepMode) {
+        boolean isUpdateNeeded = false;
+        if (deepMode) {
+            final UUID id = item.getID();
+            log.debug("deepMode enabled, removing item with uuid {} from the queue", id);
+            itemForMetadataEnhancementUpdateDAO.removeItemForUpdate(context, id);
+        }
+        for (ItemEnhancer itemEnhancer : itemEnhancers) {
+            if (itemEnhancer.canEnhance(context, item)) {
+                isUpdateNeeded = itemEnhancer.enhance(context, item, deepMode) || isUpdateNeeded;
+            }
+        }
+        if (isUpdateNeeded) {
+            updateItem(context, item);
+            try {
+                saveAffectedItemsForUpdate(context, item.getID());
+            } catch (SQLException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        return isUpdateNeeded;
     }
 
     @Override
-    public void forceEnhancement(Context context, Item item) {
-        cleanUpVirtualFields(context, item);
-        enhance(context, item);
+    public void saveAffectedItemsForUpdate(Context context, UUID uuid) throws SQLException {
+        int queued = itemForMetadataEnhancementUpdateDAO.saveAffectedItemsForUpdate(context, uuid);
+        log.debug("queued {} items for metadata enhancement check", queued);
     }
 
-    private void cleanUpVirtualFields(Context context, Item item) {
-
-        List<MetadataValue> virtualFields = getVirtualFields(item);
-        List<MetadataValue> virtualSourceFields = getVirtualSourceFields(item);
-        List<MetadataValue> metadataValuesToRemove = ListUtils.union(virtualFields, virtualSourceFields);
-
-        if (metadataValuesToRemove.isEmpty()) {
-            return;
-        }
-
-        try {
-            itemService.removeMetadataValues(context, item, ListUtils.union(virtualFields, virtualSourceFields));
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
-
+    @Override
+    public UUID pollItemToUpdate(Context context) {
+        return itemForMetadataEnhancementUpdateDAO.pollItemToUpdate(context);
     }
 
     private void updateItem(Context context, Item item) {
@@ -81,14 +84,6 @@ public class ItemEnhancerServiceImpl implements ItemEnhancerService {
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private List<MetadataValue> getVirtualFields(Item item) {
-        return itemService.getMetadata(item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT, ANY, ANY);
-    }
-
-    private List<MetadataValue> getVirtualSourceFields(Item item) {
-        return itemService.getMetadata(item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT, ANY, ANY);
     }
 
     public List<ItemEnhancer> getItemEnhancers() {

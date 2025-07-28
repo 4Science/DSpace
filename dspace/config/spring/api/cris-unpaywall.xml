@@ -2,9 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
-       default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="unpaywallService" class="org.dspace.unpaywall.service.impl.UnpaywallServiceImpl"/>
+    
+    <bean id="unpaywallClientAPI" class="org.dspace.unpaywall.service.impl.UnpaywallClientAPIImpl">
+        <constructor-arg name="connectionPoolService" ref="unpaywallHttpConnectionPoolService" />
+    </bean>
+
+    <bean class='org.dspace.service.impl.HttpConnectionPoolService' id='unpaywallHttpConnectionPoolService'>
+        <constructor-arg name='configPrefix' value='unpaywall'/>
+    </bean>
 
 </beans>

@@ -59,7 +59,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class XmlWorkflowCuratorServiceImpl
-        implements XmlWorkflowCuratorService {
+    implements XmlWorkflowCuratorService {
     private static final Logger LOG = LogManager.getLogger();
 
     @Autowired(required = true)
@@ -94,13 +94,13 @@ public class XmlWorkflowCuratorServiceImpl
 
     @Override
     public boolean needsCuration(Context c, XmlWorkflowItem wfi)
-            throws SQLException, IOException {
+        throws SQLException, IOException {
         return getFlowStep(c, wfi) != null;
     }
 
     @Override
     public boolean doCuration(Context c, XmlWorkflowItem wfi)
-            throws AuthorizeException, IOException, SQLException {
+        throws AuthorizeException, IOException, SQLException {
         Curator curator = new Curator();
         curator.setReporter(reporter);
         c.turnOffAuthorisationSystem();
@@ -119,7 +119,7 @@ public class XmlWorkflowCuratorServiceImpl
 
     @Override
     public boolean curate(Curator curator, Context c, String wfId)
-            throws AuthorizeException, IOException, SQLException {
+        throws AuthorizeException, IOException, SQLException {
         XmlWorkflowItem wfi = workflowItemService.find(c, Integer.parseInt(wfId));
         if (wfi != null) {
             return curate(curator, c, wfi);
@@ -131,7 +131,7 @@ public class XmlWorkflowCuratorServiceImpl
 
     @Override
     public boolean curate(Curator curator, Context c, XmlWorkflowItem wfi)
-            throws AuthorizeException, IOException, SQLException {
+        throws AuthorizeException, IOException, SQLException {
         FlowStep step = getFlowStep(c, wfi);
 
         if (step != null) {
@@ -140,14 +140,16 @@ public class XmlWorkflowCuratorServiceImpl
             item.setOwningCollection(wfi.getCollection());
             for (Task task : step.tasks) {
                 curator.addTask(task.name);
+            }
 
-                // Check whether the task is configured to be queued rather than automatically run
-                if (StringUtils.isNotEmpty(step.queue)) {
-                    // queue attribute has been set in the FlowStep configuration: add task to configured queue
-                    curator.queue(c, item.getID().toString(), step.queue);
-                } else {
-                    // Task is configured to be run automatically
-                    curator.curate(c, item);
+            if (StringUtils.isNotEmpty(step.queue)) { // Step's tasks are to be queued.
+                curator.queue(c, item.getID().toString(), step.queue);
+            } else { // Step's tasks are to be run now.
+                // Task is configured to be run automatically
+                curator.txScope = Curator.TxScope.CURATION;
+                curator.curate(c, item);
+
+                for (Task task : step.tasks) {
                     int status = curator.getStatus(task.name);
                     String result = curator.getResult(task.name);
                     String action = "none";
@@ -161,8 +163,8 @@ public class XmlWorkflowCuratorServiceImpl
                             // if task so empowered, reject submission and terminate
                             if ("reject".equals(action)) {
                                 workflowService.sendWorkflowItemBackSubmission(c, wfi,
-                                        c.getCurrentUser(), null,
-                                        task.name + ": " + result);
+                                                                               c.getCurrentUser(), null,
+                                                                               task.name + ": " + result);
                                 return false;
                             }
                             break;
@@ -184,14 +186,14 @@ public class XmlWorkflowCuratorServiceImpl
                     }
                 }
                 curator.clear();
-            }
 
-            // Record any reporting done by the tasks.
-            if (reporter.length() > 0) {
-                LOG.info("Curation tasks over item {} for step {} report:%n{}",
-                    () -> wfi.getItem().getID(),
-                    () -> step.step,
-                    () -> reporter.toString());
+                // Record any reporting done by the tasks.
+                if (reporter.length() > 0) {
+                    LOG.info("Curation tasks over item {} for step {} report:\n{}",
+                             () -> wfi.getItem().getID(),
+                             () -> step.step,
+                             () -> reporter.toString());
+                }
             }
         }
         return true;
@@ -206,20 +208,20 @@ public class XmlWorkflowCuratorServiceImpl
      * @throws IOException
      */
     protected FlowStep getFlowStep(Context c, XmlWorkflowItem wfi)
-            throws SQLException, IOException {
+        throws SQLException, IOException {
         if (claimedTaskService.find(c, wfi).isEmpty()) { // No claimed tasks:  assume first step
             Collection coll = wfi.getCollection();
             String taskSetName = curationTaskConfig.containsKey(coll.getHandle()) ?
-                    coll.getHandle() : CurationTaskConfig.DEFAULT_TASKSET_NAME;
+                coll.getHandle() : CurationTaskConfig.DEFAULT_TASKSET_NAME;
             TaskSet ts = curationTaskConfig.findTaskSet(taskSetName);
             return ts.steps.isEmpty() ? null : ts.steps.get(0);
         }
         ClaimedTask claimedTask
-                = claimedTaskService.findByWorkflowIdAndEPerson(c, wfi, c.getCurrentUser());
+            = claimedTaskService.findByWorkflowIdAndEPerson(c, wfi, c.getCurrentUser());
         if (claimedTask != null) {
             Collection coll = wfi.getCollection();
             String taskSetName = curationTaskConfig.containsKey(coll.getHandle()) ?
-                    coll.getHandle() : CurationTaskConfig.DEFAULT_TASKSET_NAME;
+                coll.getHandle() : CurationTaskConfig.DEFAULT_TASKSET_NAME;
             TaskSet ts = curationTaskConfig.findTaskSet(taskSetName);
             for (FlowStep fstep : ts.steps) {
                 if (fstep.step.equals(claimedTask.getStepID())) {
@@ -244,16 +246,16 @@ public class XmlWorkflowCuratorServiceImpl
      * @throws SQLException passed through.
      */
     protected void notifyContacts(Context c, XmlWorkflowItem wfi,
-            Task task,
-            String status, String action, String message)
-            throws AuthorizeException, IOException, SQLException {
+                                  Task task,
+                                  String status, String action, String message)
+        throws AuthorizeException, IOException, SQLException {
         List<EPerson> epa = resolveContacts(c, task.getContacts(status), wfi);
         if (!epa.isEmpty()) {
             workflowService.notifyOfCuration(c, wfi, epa, task.name, action, message);
         } else {
             LOG.warn("No contacts were found for workflow item {}:  "
-                    + "task {} returned action {} with message {}",
-                    wfi.getID(), task.name, action, message);
+                         + "task {} returned action {} with message {}",
+                     wfi.getID(), task.name, action, message);
         }
     }
 
@@ -269,8 +271,8 @@ public class XmlWorkflowCuratorServiceImpl
      * @throws SQLException passed through.
      */
     protected List<EPerson> resolveContacts(Context c, List<String> contacts,
-                                             XmlWorkflowItem wfi)
-                    throws AuthorizeException, IOException, SQLException {
+                                            XmlWorkflowItem wfi)
+        throws AuthorizeException, IOException, SQLException {
         List<EPerson> epList = new ArrayList<>();
         for (String contact : contacts) {
             // decode contacts
@@ -283,7 +285,7 @@ public class XmlWorkflowCuratorServiceImpl
                     step = workflow.getStep(stepID);
                 } catch (WorkflowConfigurationException e) {
                     LOG.error("Failed to locate current workflow step for workflow item {}",
-                            String.valueOf(wfi.getID()), e);
+                              String.valueOf(wfi.getID()), e);
                     return epList;
                 }
                 Role role = step.getRole();
@@ -307,7 +309,7 @@ public class XmlWorkflowCuratorServiceImpl
             } else if ("$siteadmin".equals(contact)) {
                 // special literal for site administrator
                 EPerson siteEp = ePersonService.findByEmail(c,
-                        configurationService.getProperty("mail.admin"));
+                                                            configurationService.getProperty("mail.admin"));
                 if (siteEp != null) {
                     epList.add(siteEp);
                 }

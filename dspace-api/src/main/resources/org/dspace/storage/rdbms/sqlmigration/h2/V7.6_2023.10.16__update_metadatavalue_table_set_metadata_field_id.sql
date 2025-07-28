@@ -10,6 +10,20 @@
 ---- UPDATE table metadatavalue
 -------------------------------------------------------------------------------------
 
+-- Add 'glamfonds.index' field to metadataschemaregistry (if missing)
+INSERT INTO metadatafieldregistry (metadata_schema_id, element)
+SELECT msr.metadata_schema_id, 'index'
+FROM metadataschemaregistry msr
+WHERE EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamfonds')
+   AND msr.short_id = 'glamfonds' AND NOT EXISTS (
+    SELECT 1
+    FROM metadatafieldregistry mfr
+    WHERE mfr.metadata_schema_id = msr.metadata_schema_id
+      AND mfr.element = 'index'
+);
+
 -- REPLACE dc.identifier.archivalunit with glamfonds.index for publication, picture, archival_material
 update metadatavalue mv
 set metadata_field_id = (select mfr.metadata_field_id
@@ -19,7 +33,16 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamfonds')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'dc')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'cris')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -48,7 +71,16 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamfonds')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glam')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'cris')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -67,6 +99,20 @@ where mv.metadata_field_id in (select mfr.metadata_field_id
                                 and mfr.qualifier = 'definition'
                                 and mv.text_value = 'fonds');
 
+-- Add 'glamjournalfonds.index' field to registry (if missing)
+INSERT INTO metadatafieldregistry (metadata_schema_id, element)
+SELECT msr.metadata_schema_id, 'index'
+FROM metadataschemaregistry msr
+WHERE EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamjournalfonds')
+  and msr.short_id = 'glamjournalfonds' AND NOT EXISTS (
+    SELECT 1
+    FROM metadatafieldregistry mfr
+    WHERE mfr.metadata_schema_id = msr.metadata_schema_id
+      AND mfr.element = 'index'
+);
+
 -- REPLACE dc.identifier.archivalunit with glamjournalfonds.index for journal_file
 update metadatavalue mv
 set metadata_field_id = (select mfr.metadata_field_id
@@ -76,7 +122,16 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamjournalfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamjournalfonds')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'dc')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'cris')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -104,7 +159,16 @@ set metadata_field_id = (select mfr.metadata_field_id
                          where msr.short_id = 'glamjournalfonds'
                            and mfr.element = 'index'
                            and mfr.qualifier is null)
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glamjournalfonds')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'glam')
+  and EXISTS(SELECT 1
+             FROM metadataschemaregistry
+             WHERE short_id = 'cris')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id
@@ -126,7 +190,13 @@ where mv.metadata_field_id in (select mfr.metadata_field_id
 -- DELETE glam.index from aggregation
 delete
 from metadatavalue mv
-where mv.metadata_field_id in (select mfr.metadata_field_id
+where EXISTS(SELECT 1
+    FROM metadataschemaregistry
+    WHERE short_id = 'glam')
+  and EXISTS(SELECT 1
+    FROM metadataschemaregistry
+    WHERE short_id = 'cris')
+  and mv.metadata_field_id in (select mfr.metadata_field_id
                                from metadatafieldregistry mfr
                                         inner join metadataschemaregistry msr
                                                    on mfr.metadata_schema_id = msr.metadata_schema_id

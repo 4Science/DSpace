@@ -50,7 +50,9 @@ public class ZDBAuthority extends ItemAuthority {
                 for (AuthorityValue val : values) {
                     if (added < max) {
                         Map<String, String> extras = getZDBExtra(val);
-                        results.add(new Choice(val.generateString(), val.getValue(), val.getValue(), extras));
+                        results.add(
+                            new Choice(val.generateString(), val.getValue(), val.getValue(), extras, getSource())
+                        );
                         added++;
                     }
                 }

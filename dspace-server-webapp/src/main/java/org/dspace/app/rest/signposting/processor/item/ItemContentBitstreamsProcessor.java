@@ -9,9 +9,10 @@ package org.dspace.app.rest.signposting.processor.item;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.signposting.model.LinksetNode;
 import org.dspace.app.rest.signposting.model.LinksetRelationType;
 import org.dspace.content.Bitstream;
@@ -33,7 +34,7 @@ public class ItemContentBitstreamsProcessor extends ItemSignpostingProcessor {
     /**
      * log4j category
      */
-    private static final Logger log = Logger.getLogger(ItemContentBitstreamsProcessor.class);
+    private static final Logger log = LogManager.getLogger(ItemContentBitstreamsProcessor.class);
 
     public ItemContentBitstreamsProcessor(FrontendUrlService frontendUrlService) {
         super(frontendUrlService);
@@ -49,7 +50,7 @@ public class ItemContentBitstreamsProcessor extends ItemSignpostingProcessor {
                     String mimeType = bitstream.getFormat(context).getMIMEType();
                     String bitstreamUrl = frontendUrlService.generateUrl(bitstream);
                     linksetNodes.add(
-                            new LinksetNode(bitstreamUrl, getRelation(), mimeType, buildAnchor(context, item))
+                        new LinksetNode(bitstreamUrl, getRelation(), mimeType, buildAnchor(context, item))
                     );
                 }
             }

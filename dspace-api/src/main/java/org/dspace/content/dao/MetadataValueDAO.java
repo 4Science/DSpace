@@ -34,6 +34,8 @@ public interface MetadataValueDAO extends GenericDAO<MetadataValue> {
 
     public Iterator<MetadataValue> findByValueLike(Context context, String value) throws SQLException;
 
+    public List<MetadataValue> findAllHavingAuthority(Context context) throws SQLException;
+
     public void deleteByMetadataField(Context context, MetadataField metadataField) throws SQLException;
 
     public MetadataValue getMinimum(Context context, int metadataFieldId)

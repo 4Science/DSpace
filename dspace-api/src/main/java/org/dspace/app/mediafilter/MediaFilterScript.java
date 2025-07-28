@@ -7,12 +7,17 @@
  */
 package org.dspace.app.mediafilter;
 
+import static org.dspace.app.mediafilter.MediaFilterServiceImpl.MEDIA_FILTER_PLUGINS_KEY;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,6 +31,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -37,13 +44,11 @@ import org.dspace.utils.DSpace;
  * MFM: -v verbose outputs all extracted text to STDOUT; -f force forces all
  * bitstreams to be processed, even if they have been before; -n noindex does not
  * recreate index after processing bitstreams; -i [identifier] limits processing
- * scope to a community, collection or item; and -m [max] limits processing to a
- * maximum number of items.
+ * scope to a community, collection or item; -m [max] limits processing to a
+ * maximum number of items; -fd [fromdate] takes only items starting from this date,
+ * filtering by last_modified in the item table.
  */
 public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfiguration> {
-
-    //key (in dspace.cfg) which lists all enabled filters by name
-    private static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
 
     //prefix (in dspace.cfg) for all filter properties
     private static final String FILTER_PREFIX = "filter";
@@ -55,11 +60,14 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
     private boolean isVerbose = false;
     private boolean isQuiet = false;
     private boolean isForce = false; // default to not forced
+    private String[] bundleNamesToSkip; // skip all items that seems to have been already processed
+    private int modifiedSinceDays = -1; // only process item modified in the last days
     private String identifier = null; // object scope limiter
     private int max2Process = Integer.MAX_VALUE;
     private String[] filterNames;
     private String[] skipIds = null;
     private Map<String, List<String>> filterFormats = new HashMap<>();
+    private LocalDate fromDate = null;
 
     public MediaFilterScriptConfiguration getScriptConfiguration() {
         return new DSpace().getServiceManager()
@@ -78,6 +86,12 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
             isVerbose = true;
         }
 
+        if (commandLine.hasOption('b')) {
+            bundleNamesToSkip = commandLine.getOptionValues('b');
+        }
+        if (commandLine.hasOption('l')) {
+            modifiedSinceDays = Integer.parseInt(commandLine.getOptionValue('l'));
+        }
         isQuiet = commandLine.hasOption('q');
 
         if (commandLine.hasOption('f')) {
@@ -110,6 +124,10 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
         if (commandLine.hasOption('s')) {
             //specified which identifiers to skip when processing
             skipIds = commandLine.getOptionValues('s');
+        }
+
+        if (commandLine.hasOption('d')) {
+            fromDate = LocalDate.parse(commandLine.getOptionValue('d'));
         }
 
 
@@ -215,17 +233,21 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
             mediaFilterService.setSkipList(Arrays.asList(skipIds));
         }
 
-        Context c = null;
+        if (fromDate != null) {
+            mediaFilterService.setFromDate(fromDate);
+        }
 
+        Context c = null;
         try {
             c = new Context();
+            assignCurrentUserInContext(c);
+            assignSpecialGroupsInContext(c);
 
-            // have to be super-user to do the filtering
-            c.turnOffAuthorisationSystem();
+            handleAuthorizationSystem(c);
 
             // now apply the filters
             if (identifier == null) {
-                mediaFilterService.applyFiltersAllItems(c);
+                mediaFilterService.applyFiltersAllItems(c, modifiedSinceDays, bundleNamesToSkip);
             } else {
                 // restrict application scope to identifier
                 DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService().resolveToObject(c, identifier);
@@ -249,14 +271,28 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
                 }
             }
 
+            handleAuthorizationSystem(c);
             c.complete();
-            c = null;
         } catch (Exception e) {
             handler.handleException(e);
+            c.abort();
         } finally {
-            if (c != null) {
-                c.abort();
-            }
+            mediaFilterService.setFilterFormats(null);
+            mediaFilterService.setFilterClasses(null);
+        }
+    }
+
+    protected void assignCurrentUserInContext(Context context) throws SQLException {
+        UUID uuid = getEpersonIdentifier();
+        if (uuid != null) {
+            EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
+            context.setCurrentUser(ePerson);
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
         }
     }
 }

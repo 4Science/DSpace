@@ -7,8 +7,6 @@
  */
 package org.dspace.app.util;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,12 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletException;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.lang3.StringUtils;
@@ -128,15 +125,17 @@ public class DCInputsReader {
         formDefns = new HashMap<String, List<List<Map<String, String>>>>();
         valuePairs = new HashMap<String, List<String>>();
 
-        String uri = "file:" + new File(fileName).getAbsolutePath();
+        File inputFile = new File(fileName);
+        String inputFileDir = inputFile.toPath().normalize().getParent().toString();
+
+        String uri = "file:" + inputFile.getAbsolutePath();
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            DocumentBuilder db = factory.newDocumentBuilder();
+            // This document builder will *not* disable external
+            // entities as they can be useful in managing large forms, but
+            // it will restrict them to be within the directory that the
+            // current input form XML file exists (or a sub-directory)
+            DocumentBuilder db = XMLUtils.getTrustedDocumentBuilder(inputFileDir);
             Document doc = db.parse(uri);
             doNodes(doc);
             checkValues();
@@ -159,10 +158,9 @@ public class DCInputsReader {
      * Returns the set of DC inputs used for a particular collection, or the default
      * set if no inputs defined for the collection
      *
-     * @param  collection              collection
-     * @return                         DC input set
+     * @param collection collection for which search the set of DC inputs
+     * @return DC input set
      * @throws DCInputsReaderException if no default set defined
-     * @throws ServletException
      */
     public List<DCInputSet> getInputsByCollection(Collection collection)
         throws DCInputsReaderException {
@@ -505,7 +503,7 @@ public class DCInputsReader {
         }
         // sanity check number of fields
         if (fields.size() < 1) {
-            throw new DCInputsReaderException("Form " + formName + "row " + rowIdx + " has no fields");
+            throw new DCInputsReaderException("Form " + formName + ", row " + rowIdx + " has no fields");
         }
     }
 
@@ -540,7 +538,7 @@ public class DCInputsReader {
                                                        "." + field.get("dc-qualifier") +
                                                        " has no language attribute");
                         } else {
-                            field.put(PAIR_TYPE_NAME, pairTypeName);
+                            field.put("language." + PAIR_TYPE_NAME, pairTypeName);
                         }
                     }
                 } else if (StringUtils.equalsIgnoreCase(tagName, "linked-metadata-field")) {
@@ -599,7 +597,7 @@ public class DCInputsReader {
                                            "." + field.get("dc-qualifier") +
                                            " has no name attribute");
             } else {
-                field.put(PAIR_TYPE_NAME, pairTypeName);
+                field.put(value + "." + PAIR_TYPE_NAME, pairTypeName);
             }
         }
     }
@@ -740,7 +738,7 @@ public class DCInputsReader {
                         || type.equals("qualdrop_value")
                         || type.equals("openlist")
                         || type.equals("list"))) {
-                        String pairsName = fld.get(PAIR_TYPE_NAME);
+                        String pairsName = fld.get(type + "." + PAIR_TYPE_NAME);
                         List<String> v = valuePairs.get(pairsName);
                         if (v == null) {
                             String errString = "Cannot find value pairs for " + pairsName;
@@ -880,7 +878,7 @@ public class DCInputsReader {
     public List<String> getLanguagesForMetadata(Collection collection, String metadata, boolean group)
         throws DCInputsReaderException {
 
-        return getAllInputsByCollection(collection)
+        Optional<DCInput> dcInputMetadata = getAllInputsByCollection(collection)
             .filter(dcInput -> group ? isGroupType(dcInput) : !isGroupType(dcInput))
             .filter(dcInput -> {
                 try {
@@ -891,9 +889,11 @@ public class DCInputsReader {
                     throw new RuntimeException(e);
                 }
             })
-            .findFirst()
-            .orElseThrow(() -> new DCInputsReaderException("No DCInput found for the metadata field " + metadata))
-            .getAllLanguageValues();
+            .findFirst();
+        if (dcInputMetadata.isPresent()) {
+            dcInputMetadata.get().getAllLanguageValues();
+        }
+        return List.of();
 
     }
 
@@ -953,7 +953,7 @@ public class DCInputsReader {
         }
 
         return dcInput.getAllStoredValues().stream()
-            .map(value -> isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName())
+            .map(value -> StringUtils.isNotBlank(value) ? dcInput.getFieldName() + '.' + value : dcInput.getFieldName())
             .collect(Collectors.toList());
     }
 
@@ -969,5 +969,40 @@ public class DCInputsReader {
             .flatMap(dcInput -> getMetadataFieldsFromDcInput(dcInput).stream())
             .collect(Collectors.toList());
     }
+
+    public Map<String, List<List<Map<String, String>>>> getFormDefns() {
+        Map<String, List<List<Map<String, String>>>> result = new HashMap<>();
+
+        for (Map.Entry<String, List<List<Map<String, String>>>> entry : formDefns.entrySet()) {
+            List<List<Map<String, String>>> outerList = new ArrayList<>();
+
+            for (List<Map<String, String>> innerList : entry.getValue()) {
+                List<Map<String, String>> innerListCopy = new ArrayList<>();
+
+                for (Map<String, String> map : innerList) {
+                    // Must use new HashMap<>() to copy the map
+                    // Map.copyOf() is throwing NPE when the map contains null values
+                    innerListCopy.add(new HashMap<>(map));
+                }
+
+                outerList.add(List.copyOf(innerListCopy));
+            }
+
+            result.put(entry.getKey(), List.copyOf(outerList));
+        }
+
+        return Map.copyOf(result);
+    }
+
+    public Map<String, List<String>> getSafeValuePairs() {
+        Map<String, List<String>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : valuePairs.entrySet()) {
+            safeCopy.put(entry.getKey(), List.copyOf(entry.getValue())); // inner list immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
 
 }

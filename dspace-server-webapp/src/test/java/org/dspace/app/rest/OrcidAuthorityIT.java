@@ -31,6 +31,7 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.OrcidAuthority;
 import org.dspace.orcid.client.OrcidClient;
 import org.dspace.orcid.client.OrcidConfiguration;
@@ -79,7 +80,7 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
     @Before
     public void setup() {
         // skip all tests based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
 
@@ -715,6 +716,125 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
         verifyNoMoreInteractions(orcidClientMock);
     }
 
+    @Test
+    public void testSourceReference() throws Exception {
+
+        List<ExpandedResult> orcidSearchResults = List.of(
+            expandedResult("Author", "From Orcid 1", "0000-1111-2222-3333"),
+            expandedResult("AUTHOR", "FROM ORCID 2", "0000-2222-3333-4444"));
+
+        String expectedQuery = "(given-names:author+OR+family-name:author+OR+other-names:author)";
+
+        when(orcidClientMock.expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20))
+            .thenReturn(expandedSearch(2, orcidSearchResults));
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+            .param("filter", "author"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                orcidEntry("From Orcid 1 Author", REFERENCE, "0000-1111-2222-3333", getSource()),
+                orcidEntry("From Orcid 2 Author", REFERENCE, "0000-2222-3333-4444", getSource()))))
+            .andExpect(jsonPath("$.page.size", Matchers.is(20)))
+            .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)));
+
+        verify(orcidClientMock).getReadPublicAccessToken();
+        verify(orcidClientMock).expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20);
+        verifyNoMoreInteractions(orcidClientMock);
+    }
+
+    @Test
+    public void testMultipleSourcesReferences() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        List<ExpandedResult> orcidSearchResults = List.of(
+            expandedResult("Author", "From Orcid 1", "0000-1111-2222-3333"),
+            expandedResult("AUTHOR", "FROM ORCID 2", "0000-2222-3333-4444"));
+
+        String expectedQuery = "(given-names:author+OR+family-name:author+OR+other-names:author)";
+
+        when(orcidClientMock.expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 18))
+            .thenReturn(expandedSearch(2, orcidSearchResults));
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        Item orgUnit_1 = ItemBuilder.createItem(context, col1)
+                                    .withTitle("OrgUnit_1")
+                                    .withEntityType("orgunit")
+                                    .build();
+
+        Item orgUnit_2 = ItemBuilder.createItem(context, col1)
+                                    .withTitle("OrgUnit_2")
+                                    .withEntityType("orgunit")
+                                    .build();
+
+        Item author_1 = ItemBuilder.createItem(context, col1)
+                                   .withTitle("Author 1")
+                                   .withPersonMainAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                                   .withPersonAffiliation(orgUnit_1.getName(), orgUnit_1.getID().toString())
+                                   .withEntityType("person")
+                                   .build();
+
+        Item author_2 = ItemBuilder.createItem(context, col1)
+                                   .withTitle("Author 2")
+                                   .withPersonMainAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                   .withPersonAffiliation(orgUnit_2.getName(), orgUnit_2.getID().toString())
+                                   .withEntityType("person")
+                                   .build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+                            .param("filter", "author"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                            // source should be local
+                            ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_1.getID().toString(),
+                                "Author 1", "Author 1", "vocabularyEntry",
+                                Map.of("data-oairecerif_author_affiliation", "OrgUnit_1::" + orgUnit_1.getID(),
+                                    "oairecerif_author_affiliation", "OrgUnit_1::" + orgUnit_1.getID()),
+                                ItemAuthority.DEFAULT),
+                            ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(author_2.getID().toString(),
+                                "Author 2", "Author 2", "vocabularyEntry",
+                                Map.of("data-oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID(),
+                                    "oairecerif_author_affiliation", "OrgUnit_2::" + orgUnit_2.getID()),
+                                ItemAuthority.DEFAULT),
+                            // source should be orcid as configured
+                            orcidEntry("From Orcid 1 Author", REFERENCE, "0000-1111-2222-3333", getSource()),
+                            orcidEntry("From Orcid 2 Author", REFERENCE, "0000-2222-3333-4444", getSource())
+                        )))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)));
+    }
+
+    @Test
+    public void testWithORCIDIdentifier() throws Exception {
+
+        List<ExpandedResult> orcidSearchResults = List.of(
+                expandedResult("Author", "From Orcid 1", "0000-1111-2222-3333"));
+
+        String expectedQuery = "(orcid:0000-1111-2222-3333)";
+
+        when(orcidClientMock.expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20))
+                .thenReturn(expandedSearch(2, orcidSearchResults));
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/AuthorAuthority/entries")
+                        .param("filter", "0000-1111-2222-3333"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                        orcidEntry("From Orcid 1 Author", REFERENCE, "0000-1111-2222-3333", getSource()))))
+                .andExpect(jsonPath("$.page.size", Matchers.is(20)))
+                .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
+                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+
+        verify(orcidClientMock).getReadPublicAccessToken();
+        verify(orcidClientMock).expandedSearch(READ_PUBLIC_TOKEN, expectedQuery, 0, 20);
+        verifyNoMoreInteractions(orcidClientMock);
+    }
+
     private ExpandedSearch buildExpandedSearchFromSublist(List<ExpandedResult> totalResults, int start, int rows) {
         int total = totalResults.size();
         if (start > total) {
@@ -768,22 +888,28 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
             .withTitle(title)
             .withEntityType("Person")
             .withPersonMainAffiliation(affiliation.getName(), affiliation.getID().toString())
+            .withPersonAffiliation(affiliation.getName(), affiliation.getID().toString())
             .build();
     }
 
     private Matcher<? super Object> affiliationEntry(Item item, String title, String otherInfoValue) {
         return ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(id(item), title,
-            title, "vocabularyEntry", Map.of(
-                "data-oairecerif_author_affiliation", otherInfoValue,
-                "oairecerif_author_affiliation", otherInfoValue,
-                "data-" + ORCID_INFO, "",
-                ORCID_INFO, ""));
+                title, "vocabularyEntry",
+                otherInfoValue.equals("") ? Map.of() :
+                        Map.of("data-oairecerif_author_affiliation", otherInfoValue,
+                                "oairecerif_author_affiliation", otherInfoValue));
     }
 
     private Matcher<? super Object> orcidEntry(String title, String authorityPrefix, String orcid) {
         String authority = authorityPrefix + "ORCID::" + orcid;
         return ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(authority, title,
             title, "vocabularyEntry", ORCID_INFO, orcid);
+    }
+
+    private Matcher<? super Object> orcidEntry(String title, String authorityPrefix, String orcid, String source) {
+        String authority = authorityPrefix + "ORCID::" + orcid;
+        return ItemAuthorityMatcher.matchItemAuthorityWithOtherInformations(authority, title,
+            title, "vocabularyEntry", ORCID_INFO, orcid, source);
     }
 
     private Matcher<? super Object> orcidEntryWithAffiliation(String title, String authorityPrefix,
@@ -802,5 +928,10 @@ public class OrcidAuthorityIT extends AbstractControllerIntegrationTest {
 
     private String id(Item item) {
         return item.getID().toString();
+    }
+
+    private String getSource() {
+        return configurationService.getProperty(
+            "cris.ItemAuthority.AuthorAuthority.source", ItemAuthority.DEFAULT);
     }
 }

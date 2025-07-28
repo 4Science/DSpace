@@ -85,6 +85,8 @@ public class HandleDAOImplTest extends AbstractUnitTest {
             context.turnOffAuthorisationSystem();
             this.owningCommunity = communityService.create(null, context);
             Collection collection = collectionService.create(context, owningCommunity);
+            collectionService.addMetadata(context, collection, "dspace", "entity", "type", null, "Publication");
+            collectionService.update(context, collection);
 
             WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
             item1 = installItemService.installItem(context, workspaceItem, HANDLE_PREFIX + "/" + SUFFIX_1);

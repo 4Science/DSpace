@@ -10,9 +10,9 @@ package org.dspace.app.rest.repository;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.model.EditItemModeRest;
 import org.dspace.app.rest.model.EditItemRest;
 import org.dspace.app.rest.projection.Projection;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME + "." + EditItemRest.MODE)
+@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME_PLURAL + "." + EditItemRest.MODE)
 public class EditItemModeLinkRepository extends AbstractDSpaceRestRepository
     implements LinkRestRepository {
 

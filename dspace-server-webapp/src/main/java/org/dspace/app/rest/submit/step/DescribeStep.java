@@ -10,8 +10,8 @@ package org.dspace.app.rest.submit.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -100,7 +100,7 @@ public class DescribeStep extends AbstractProcessingStep {
                     }
                 } else if (StringUtils.equalsIgnoreCase(input.getInputType(), "group") ||
                         StringUtils.equalsIgnoreCase(input.getInputType(), "inline-group")) {
-                    log.info("Called child form:" + config.getId() + "-" +
+                    log.debug("Called child form:" + config.getId() + "-" +
                              Utils.standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     DCInputSet inputConfigChild = inputReader.getInputsByFormName(config.getId() + "-" + Utils
                         .standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
@@ -191,10 +191,6 @@ public class DescribeStep extends AbstractProcessingStep {
         }
     }
 
-    private boolean isFromVocabulary(DCInput dcInput) {
-        return StringUtils.isNotBlank(dcInput.getVocabulary());
-    }
-
     private List<String> getInputFieldsName(DCInputSet inputConfig, String configId) throws DCInputsReaderException {
         List<String> fieldsName = new ArrayList<String>();
         for (DCInput[] row : inputConfig.getFields()) {
@@ -205,7 +201,7 @@ public class DescribeStep extends AbstractProcessingStep {
                     }
                 } else if (StringUtils.equalsIgnoreCase(input.getInputType(), "group") ||
                         StringUtils.equalsIgnoreCase(input.getInputType(), "inline-group")) {
-                    log.info("Called child form:" + configId + "-" +
+                    log.debug("Called child form:" + configId + "-" +
                         Utils.standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     DCInputSet inputConfigChild = inputReader.getInputsByFormName(configId + "-" + Utils
                         .standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));

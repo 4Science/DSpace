@@ -15,33 +15,33 @@
         <namespace>https://4science.it/dash</namespace>
     </dc-schema>
 
-	<dc-type>
-		<schema>bitstream</schema>
-		<element>video</element>
-		<qualifier>dashbundle</qualifier>
-		<scope_note></scope_note>
-	</dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>video</element>
+        <qualifier>dashbundle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
-	<dc-type>
-		<schema>dash</schema>
-		<element>manifest</element>
-		<qualifier></qualifier>
-		<scope_note></scope_note>
-	</dc-type>
+    <dc-type>
+        <schema>dash</schema>
+        <element>manifest</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
-	<dc-type>
-		<schema>bitstream</schema>
-		<element>video</element>
-		<qualifier>height</qualifier>
-		<scope_note></scope_note>
-	</dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>video</element>
+        <qualifier>height</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
-	<dc-type>
-		<schema>bitstream</schema>
-		<element>video</element>
-		<qualifier>width</qualifier>
-		<scope_note></scope_note>
-	</dc-type>
+    <dc-type>
+        <schema>bitstream</schema>
+        <element>video</element>
+        <qualifier>width</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
 
 	<dc-type>
 		<schema>bitstream</schema>
@@ -104,7 +104,7 @@
 		<element>category</element>
 		<qualifier></qualifier>
 		<scope_note></scope_note>
-	</dc-type>	
+	</dc-type>			
 	
 	<dc-type>
 		<schema>bitstream</schema>
@@ -125,6 +125,27 @@
 		<element>whisper</element>
 		<qualifier>model</qualifier>
 		<scope_note></scope_note>
-	</dc-type>	
-	
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>transcribe</element>
+		<qualifier>request</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>transcribe</element>
+		<qualifier>processed</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
+	<dc-type>
+		<schema>bitstream</schema>
+		<element>whisper</element>
+		<qualifier>model</qualifier>
+		<scope_note></scope_note>
+	</dc-type>
+
 </dspace-dc-types>

@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class UpdateScopusMetrics extends MetricsExternalServices {
 
+    private static final String EMPTY_STRING = "";
     private static Logger log = LogManager.getLogger(UpdateScopusMetrics.class);
 
     public static final String SCOPUS_CITATION = "scopusCitation";
@@ -236,9 +237,16 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
         newScopusMetrics.setLast(true);
         newScopusMetrics.setMetricCount(scopusMetric.getMetricCount());
         newScopusMetrics.setAcquisitionDate(new Date());
-        newScopusMetrics.setRemark(scopusMetric.getRemark().replaceAll("link", "detailUrl"));
+        newScopusMetrics.setRemark(parseScopusMetricRemark(scopusMetric));
         newScopusMetrics.setDeltaPeriod1(deltaPeriod1);
         newScopusMetrics.setDeltaPeriod2(deltaPeriod2);
+    }
+
+    private static String parseScopusMetricRemark(CrisMetricDTO scopusMetric) {
+        return Optional.ofNullable(scopusMetric.getRemark())
+                       .filter(Objects::nonNull)
+                       .map(s -> s.replaceAll("link", "detailUrl"))
+                       .orElseGet(() -> EMPTY_STRING);
     }
 
     private Double getDeltaPeriod(CrisMetricDTO currentMetric, Optional<CrisMetrics> metric) {

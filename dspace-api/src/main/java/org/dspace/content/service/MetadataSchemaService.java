@@ -101,4 +101,17 @@ public interface MetadataSchemaService {
      * @throws SQLException if database error
      */
     public MetadataSchema find(Context context, String shortName) throws SQLException;
+
+    /**
+     * Return metadata schemas matching arguments.
+     *
+     * @param context   context
+     * @param namespace metadata schema namespace
+     * @param element   metadata field element
+     * @param qualifier metadata field qualifier
+     * @return list of metadata schemas
+     * @throws SQLException
+     */
+    public List<MetadataSchema> findAllByMetadata(Context context, String namespace, String element,
+                                                  String qualifier) throws SQLException;
 }

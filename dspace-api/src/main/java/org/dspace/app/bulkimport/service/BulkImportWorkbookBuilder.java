@@ -8,6 +8,8 @@
 package org.dspace.app.bulkimport.service;
 
 import java.util.Iterator;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.dspace.app.bulkimport.model.EntityRow;
@@ -56,6 +58,6 @@ public interface BulkImportWorkbookBuilder {
      * @param  items      the items to be placed inside the generated workbook
      * @return            the workbook
      */
-    Workbook buildForItems(Context context, Collection collection, Iterator<Item> items);
-
+    Workbook buildForItems(Context context, Collection collection, Iterator<Item> items,
+                           BiConsumer<Level, String> logHandler);
 }

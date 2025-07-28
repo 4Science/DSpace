@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.matcher.VocabularyMatcher;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
@@ -33,6 +33,7 @@ import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authority.AuthorityValueServiceImpl;
 import org.dspace.authority.PersonAuthorityValue;
 import org.dspace.authority.factory.AuthorityServiceFactory;
+import org.dspace.authority.orcid.MockOrcid;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
@@ -44,11 +45,13 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.edit.EditItem;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
@@ -75,6 +78,17 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     @Before
     public void setup() throws Exception {
         super.setUp();
+
+        // Explicitly set stubbing for the MockOrcid class. We don't do it in the init() or constructor
+        // of the MockOrcid class itself or Mockito will complain of unnecessary stubbing in certain other
+        // AbstractIntegrationTest implementations (depending on how config is (re)loaded)
+        ApplicationContext applicationContext = DSpaceServicesFactory.getInstance()
+                .getServiceManager().getApplicationContext();
+        MockOrcid mockOrcid = applicationContext.getBean(MockOrcid.class);
+        mockOrcid.setupNoResultsSearch();
+        mockOrcid.setupSingleSearch();
+        mockOrcid.setupSearchWithResults();
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
                 new String[] {
                         "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
@@ -111,6 +125,11 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         // the properties that we're altering above and this is only used within the tests
         DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
+
+        // The following line is needed to call init() method in the ChoiceAuthorityServiceImpl class, without it
+        // the `submissionConfigService` will be null what will cause a NPE in the clearCache() method
+        // https://github.com/DSpace/DSpace/issues/9292
+        cas.getChoiceAuthoritiesNames();
         cas.clearCache();
 
         context.turnOffAuthorisationSystem();
@@ -158,7 +177,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         int size = cas.getChoiceAuthoritiesNames().size();
         getClient(token).perform(get("/api/submission/vocabularies")
                      .param("size", String.valueOf(size)))
-                 .andExpect(status().isOk())
+                .andExpect(status().isOk())
                  .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
                      VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
                      VocabularyMatcher.matchProperties("orgunit_types", "orgunit_types", true, false),
@@ -188,8 +207,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("common_types", "common_types", true, false),
                      VocabularyMatcher.matchProperties("types", "types", false , true),
                      VocabularyMatcher.matchProperties("SolrAuthorAuthority", "SolrAuthorAuthority", false , false),
-                     VocabularyMatcher.matchProperties("patent_types", "patent_types", true , false),
-                     VocabularyMatcher.matchProperties("gender", "gender", true , false),
+                     VocabularyMatcher.matchProperties("patent_types", "patent_types", true, false),
+                     VocabularyMatcher.matchProperties("gender", "gender", true, false),
                      VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false , false),
                      VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false, false),
                      VocabularyMatcher.matchProperties(
@@ -200,7 +219,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                      VocabularyMatcher.matchProperties("channel_type", "channel_type", true, false),
                      VocabularyMatcher.matchProperties("samplerate", "samplerate", true, false),
                      VocabularyMatcher.matchProperties("bitsample", "bitsample", true, false),
-                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false)
+                     VocabularyMatcher.matchProperties("framing_type", "framing_type", true, false),
+                     VocabularyMatcher.matchProperties("currency", "currency", true, false)
                  )))
                 .andExpect(jsonPath("$._links.self.href",
                     Matchers.containsString("api/submission/vocabularies")))
@@ -478,6 +498,20 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                         .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)))
                         .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
                         .andExpect(jsonPath("$.page.size", Matchers.is(10)));
+    }
+
+    @Test
+    public void findByMetadataAndCollectionWithMetadataWithoutVocabularyTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test collection")
+            .build();
+        context.restoreAuthSystemState();
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
+                .param("metadata", "dc.title")
+                .param("collection", collection.getID().toString()))
+                .andExpect(status().isNoContent());
     }
 
     @Test

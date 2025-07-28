@@ -118,7 +118,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
     @SuppressWarnings("unchecked")
     public void testWorkbookBuildingFromItemDtos() throws Exception {
 
-        configurationService.setProperty("bulk-uploads.local-folder", System.getProperty("java.io.tmpdir"));
+        configurationService.setProperty("uploads.local-folder", System.getProperty("java.io.tmpdir"));
 
         context.turnOffAuthorisationSystem();
 
@@ -209,7 +209,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         Item firstItem = getItemFromMessage(handler.getInfoMessages().get(7));
         assertThat(firstItem, notNullValue());
-        assertThat(firstItem.getMetadata(), hasSize(14));
+        assertThat(firstItem.getMetadata(), hasSize(19));
         assertThat(firstItem.getMetadata(), hasItems(
             with("dc.title", "Test Publication"),
             with("dc.date.issued", "2020/02/15"),
@@ -219,7 +219,9 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.subject", "Java", 1),
             with("dc.subject", "DSpace", 2),
             with("dc.contributor.author", "White, Walter", authorId, 600),
-            with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
 
         assertThat(getItemBitstreamsByBundle(firstItem, "ORIGINAL"), contains(
             bitstreamWith("Bitstream 1", "First bitstream content"),
@@ -227,7 +229,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         Item secondItem = getItemFromMessage(handler.getInfoMessages().get(10));
         assertThat(secondItem, notNullValue());
-        assertThat(secondItem.getMetadata(), hasSize(14));
+        assertThat(secondItem.getMetadata(), hasSize(23));
         assertThat(secondItem.getMetadata(), hasItems(
             with("dc.title", "Second Publication"),
             with("dc.date.issued", "2022/02/15"),
@@ -237,7 +239,11 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.contributor.author", "Jesse Pinkman", jesse.getID().toString(), 600),
             with("dc.contributor.author", "Test User", testUser.getID().toString(), 1, 600),
             with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("oairecerif.author.affiliation", "Company", 1)
+            with("oairecerif.author.affiliation", "Company", 1),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
         ));
 
         assertThat(getItemBitstreamsByBundle(secondItem, "ORIGINAL"), contains(

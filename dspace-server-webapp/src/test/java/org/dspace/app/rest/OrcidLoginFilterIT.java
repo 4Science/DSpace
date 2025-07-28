@@ -34,11 +34,11 @@ import java.text.ParseException;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.Cookie;
 
 import com.jayway.jsonpath.JsonPath;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.Cookie;
 import org.dspace.app.rest.matcher.MetadataMatcher;
 import org.dspace.app.rest.model.AuthnRest;
 import org.dspace.app.rest.security.OrcidLoginFilter;
@@ -176,7 +176,7 @@ public class OrcidLoginFilterIT extends AbstractControllerIntegrationTest {
 
             String rdToken = matcher.group(1);
 
-            getClient().perform(get("/api/eperson/registration/search/findByToken")
+            getClient().perform(get("/api/eperson/registrations/search/findByToken")
                                     .param("token", rdToken))
                        .andExpect(status().is2xxSuccessful())
                        .andExpect(content().contentType(contentType))

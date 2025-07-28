@@ -7,6 +7,7 @@
  */
 package org.dspace.app.bulkedit;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataDSpaceCsvExportService;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.handle.factory.HandleServiceFactory;
@@ -54,19 +56,31 @@ public class MetadataExport extends DSpaceRunnable<MetadataExportScriptConfigura
             printHelp();
             return;
         }
+
         Context context = new Context();
-        context.turnOffAuthorisationSystem();
         try {
-            context.setCurrentUser(ePersonService.find(context, this.getEpersonIdentifier()));
+            assignCurrentUserInContext(context);
+            assignSpecialGroupsInContext(context);
         } catch (SQLException e) {
             handler.handleException(e);
         }
-        DSpaceCSV dSpaceCSV = metadataDSpaceCsvExportService
-            .handleExport(context, exportAllItems, exportAllMetadata, identifier,
-                          handler);
-        handler.writeFilestream(context, filename, dSpaceCSV.getInputStream(), EXPORT_CSV);
-        context.restoreAuthSystemState();
-        context.complete();
+
+        handleAuthorizationSystem(context);
+        try {
+            DSpaceCSV dSpaceCSV =
+                metadataDSpaceCsvExportService.handleExport(
+                    context, exportAllItems, exportAllMetadata, identifier, handler
+                );
+            try (InputStream is = dSpaceCSV.getInputStream()) {
+                handler.writeFilestream(context, filename, is, EXPORT_CSV);
+            }
+
+            handleAuthorizationSystem(context);
+            context.complete();
+        } catch (Exception e) {
+            handler.handleException(e);
+            context.abort();
+        }
     }
 
     protected void logHelpInfo() {
@@ -118,5 +132,19 @@ public class MetadataExport extends DSpaceRunnable<MetadataExportScriptConfigura
             handler.handleException("Something went wrong trying to retrieve DSO for identifier: " + identifier, e);
         }
         return null;
+    }
+
+    private void assignCurrentUserInContext(Context context) throws SQLException {
+        UUID uuid = getEpersonIdentifier();
+        if (uuid != null) {
+            EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
+            context.setCurrentUser(ePerson);
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
+        }
     }
 }

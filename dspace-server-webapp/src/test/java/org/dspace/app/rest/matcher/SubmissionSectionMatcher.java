@@ -34,6 +34,7 @@ public final class SubmissionSectionMatcher {
             hasJsonPath("$.mandatory", is(mandatory)),
             hasJsonPath("$.sectionType", is(sectionType)),
             hasJsonPath("$.type", is("submissionsection")),
+            hasJsonPath("$.uniqueType", is("config.submissionsection")),
             hasNoJsonPath("$.visibility"));
     }
 
@@ -44,6 +45,7 @@ public final class SubmissionSectionMatcher {
             hasJsonPath("$.opened", is(opened)),
             hasJsonPath("$.sectionType", is(sectionType)),
             hasJsonPath("$.type", is("submissionsection")),
+            hasJsonPath("$.uniqueType", is("config.submissionsection")),
             hasNoJsonPath("$.visibility"));
     }
 
@@ -54,6 +56,7 @@ public final class SubmissionSectionMatcher {
             hasJsonPath("$.mandatory", is(mandatory)),
             hasJsonPath("$.sectionType", is(sectionType)),
             hasJsonPath("$.type", is("submissionsection")),
+            hasJsonPath("$.uniqueType", is("config.submissionsection")),
             hasJsonPath("$.visibility", is(visibilities)));
     }
 }

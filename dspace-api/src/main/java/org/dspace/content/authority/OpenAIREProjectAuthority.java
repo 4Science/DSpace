@@ -98,7 +98,7 @@ public class OpenAIREProjectAuthority extends ItemAuthority {
         String code = getMetadataValue(record, "oairecerif", "funding", "identifier");
         String authority = getAuthorityPrefix() + code;
         String label = StringUtils.isNotBlank(code) ? value + "(" + code + ")" : value;
-        return new Choice(authority, value, label, getOpenAireExtra(code));
+        return new Choice(authority, value, label, getOpenAireExtra(code), getSource());
     }
 
     private String getMetadataValue(ImportRecord record, String schema, String element, String qualifier) {

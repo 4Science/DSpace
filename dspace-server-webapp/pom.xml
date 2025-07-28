@@ -1,8 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-server-webapp</artifactId>
-    <packaging>war</packaging>
     <name>DSpace Server Webapp</name>
     <description>
         DSpace Server Webapp (Spring Boot)
@@ -15,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.00</version>
+        <version>cris-2024.02.02-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -25,23 +23,82 @@
 
         <!-- Default resource delimiter for Spring Boot, so it doesn't clash with Spring ${} placeholders-->
         <resource.delimiter>@</resource.delimiter>
-        <!-- Define our starting class for our Spring Boot Application -->
-        <start-class>org.dspace.app.rest.Application</start-class>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <attachClasses>true</attachClasses>
-                    <!-- Filter the web.xml (needed for IDE compatibility/debugging) -->
-                    <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.2.1</version>
                 <executions>
                     <execution>
-                        <phase>prepare-package</phase>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${root.basedir}/dspace/config/dspace.cfg</file>
+                                <file>${root.basedir}/dspace/config/local.cfg</file>
+                            </files>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>testEnvironment</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/test/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>webappFiltering</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>**/*application*.properties</include>
+                                        <include>**/*dspace*.properties</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <excludes>
+                                        <exclude>**/*application*.properties</exclude>
+                                        <exclude>**/*dspace*.properties</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>**/*.properties</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>**/static/**</include>
+                                        <include>**/spring/**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -66,11 +123,11 @@
                         <exclude>**/src/test/resources/**</exclude>
                         <exclude>**/src/test/data/**</exclude>
                         <!--Skip license check of third party files included/customized from HAL Browser -->
-                        <exclude>src/main/webapp/index.html</exclude>
-                        <exclude>src/main/webapp/login.html</exclude>
-                        <exclude>src/main/webapp/styles.css</exclude>
-                        <exclude>src/main/webapp/js/hal/**</exclude>
-                        <exclude>src/main/webapp/js/vendor/**</exclude>
+                        <exclude>src/main/resources/static/index.html</exclude>
+                        <exclude>src/main/resources/static/login.html</exclude>
+                        <exclude>src/main/resources/static/styles.css</exclude>
+                        <exclude>src/main/resources/static/js/hal/**</exclude>
+                        <exclude>src/main/resources/static/js/vendor/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -259,26 +316,25 @@
             </dependencies>
         </profile>
 
-
         <!--
             Builds Audio Video addon for DSpace
         -->
-	<profile>
-		<id>addon-video</id>
-		<activation>
-			<property>
-				<name>audiovideo.on</name>
-			</property>
-		</activation>
-		<dependencies>
-			<dependency>
-				<groupId>it.4science.dspace</groupId>
-				<artifactId>addon-video-api</artifactId>
-				<version>${addon-video.version}</version>
-				<type>jar</type>
-			</dependency>
-		</dependencies>
-	</profile>
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <property>
+                    <name>audiovideo.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-video-api</artifactId>
+                    <version>${addon-video.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
 
         <profile>
             <id>addon-document-viewer</id>
@@ -297,22 +353,58 @@
             </dependencies>
         </profile>
 
-	   	<profile>
-			<id>addon-analytics</id>
-	         <activation>
-	            <property>
-	               <name>analytics.on</name>
-	            </property>
-	         </activation>
-			<dependencies>
-				<dependency>
-					<groupId>it.4science.dspace</groupId>
-					<artifactId>addon-analytics-api</artifactId>
-					<version>${addon-analytics.version}</version>
-					<type>jar</type>
-				</dependency>
-			</dependencies>
-		</profile>
+        <profile>
+            <id>addon-analytics</id>
+            <activation>
+                <property>
+                    <name>analytics.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-analytics-api</artifactId>
+                    <version>${addon-analytics.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Builds LoginMIUR addon for DSpace -->
+        <profile>
+            <id>addon-loginmiur</id>
+            <activation>
+                <property>
+                    <name>loginmiur.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-loginmiur-api</artifactId>
+                    <version>${addon-loginmiur.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Builds Import Plus addon for DSpace -->
+        <profile>
+            <id>addon-importplus</id>
+            <activation>
+                <property>
+                    <name>importplus.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-importplus</artifactId>
+                    <version>${addon-importplus.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
 
@@ -342,12 +434,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
-            <version>${spring-boot.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -367,17 +453,29 @@
             <artifactId>spring-boot-starter-aop</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>${spring-boot.version}</version>
+            <exclusions>
+                <!-- Use version brought in by spring-boot-starter-web above -->
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-observation</artifactId>
+                </exclusion>
+                <!-- Use version brought in by spring-boot-starter-web above -->
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-commons</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
-            <version>0.4.6</version>
+            <version>0.4.16</version>
         </dependency>
 
         <!-- HAL Browser (via WebJars) : https://github.com/mikekelly/hal-browser -->
@@ -397,7 +495,7 @@
         <dependency>
             <groupId>org.webjars.bowergithub.jquery</groupId>
             <artifactId>jquery-dist</artifactId>
-            <version>3.6.0</version>
+            <version>3.7.1</version>
         </dependency>
         <!-- Pull in current version of Toastr (toastrjs.com) via WebJars
              Made available at: webjars/toastr/build/toastr.min.js -->
@@ -405,13 +503,20 @@
             <groupId>org.webjars.bowergithub.codeseven</groupId>
             <artifactId>toastr</artifactId>
             <version>2.1.4</version>
+            <exclusions>
+                <!-- We use a later version of JQuery as defined above -->
+                <exclusion>
+                    <groupId>org.webjars.bowergithub.jquery</groupId>
+                    <artifactId>jquery-dist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Pull in current version of URI.js (https://medialize.github.io/URI.js/) via WebJars
              Made available at: webjars/urijs/src/URI.min.js -->
         <dependency>
             <groupId>org.webjars.bowergithub.medialize</groupId>
             <artifactId>uri.js</artifactId>
-            <version>1.19.10</version>
+            <version>1.19.11</version>
         </dependency>
         <!-- Pull in current version of Underscore.js (https://underscorejs.org/) via WebJars
              Made available at: webjars/underscore/underscore-min.js -->
@@ -426,6 +531,13 @@
             <groupId>org.webjars.bowergithub.jashkenas</groupId>
             <artifactId>backbone</artifactId>
             <version>1.4.1</version>
+            <exclusions>
+                <!-- We use a later version of underscore as defined above -->
+                <exclusion>
+                    <groupId>org.webjars.bowergithub.jashkenas</groupId>
+                    <artifactId>underscore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Pull in current version of json-editor.js (https://github.com/json-editor/json-editor) via WebJars
              Made available at: webjars/json-editor__json-editor/2.6.1/dist/jsoneditor.js
@@ -434,7 +546,7 @@
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>json-editor__json-editor</artifactId>
-            <version>2.6.1</version>
+            <version>2.15.2</version>
         </dependency>
         <!-- Also pull in current version of Bootstrap via WebJars.
              This is used by BOTH our HAL Browser and our OAI-PMH interface.
@@ -443,7 +555,7 @@
         <dependency>
             <groupId>org.webjars.bowergithub.twbs</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>4.6.1</version>
+            <version>4.6.2</version>
         </dependency>
 
         <!-- Add in Spring Security for AuthN and AuthZ -->
@@ -451,6 +563,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
             <version>${spring-boot.version}</version>
+            <exclusions>
+                <!-- Use version brought in by spring-boot-starter-web above -->
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-observation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Add in log4j support by excluding default logging, and using starter-log4j -->
@@ -458,11 +577,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-	        <version>${spring-boot.version}</version>
+            <version>${spring-boot.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -470,7 +594,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-	        <version>${spring-boot.version}</version>
+            <version>${spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
 
         <!-- DSpace dependencies -->
@@ -529,10 +659,6 @@
             <artifactId>commons-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
@@ -541,6 +667,21 @@
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>${nimbus-jose-jwt.version}</version>
+            <exclusions>
+                <!-- We pull in a later version below -->
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Specify the version of json-smart we want to use.
+             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.5.2</version>
         </dependency>
 
         <dependency>
@@ -566,12 +707,31 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${ehcache.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>json-smart</artifactId>
+                    <groupId>net.minidev</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Required for ITs to ensure they use Apache HttpClient in AbstractWebClientIntegrationTest -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -580,15 +740,26 @@
             <version>${spring-security.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Specify the version of json-smart we want to use.
+             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <scope>test</scope>
+            <exclusions>
+                <!-- We pull in a later version above -->
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path-assert</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -597,7 +768,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -617,6 +788,13 @@
             <artifactId>solr-core</artifactId>
             <version>${solr.client.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Later version provided by Hibernate -->
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -636,12 +814,12 @@
         <dependency>
             <groupId>org.exparity</groupId>
             <artifactId>hamcrest-date</artifactId>
-            <version>2.0.7</version>
+            <version>2.0.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
     </dependencies>
 

@@ -15,5 +15,6 @@ public enum UnpaywallStatus {
     PENDING,
     NOT_FOUND,
     SUCCESSFUL,
-    NO_FILE
+    NO_FILE,
+    IMPORTED
 }

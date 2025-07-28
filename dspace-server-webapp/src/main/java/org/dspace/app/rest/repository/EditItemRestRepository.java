@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.NotFoundException;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.NotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
@@ -64,7 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  */
-@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME)
+@Component(EditItemRest.CATEGORY + "." + EditItemRest.NAME_PLURAL)
 public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, String> {
 
     private static Logger log = LogManager.getLogger(EditItemRestRepository.class);
@@ -279,7 +279,8 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
                     "The current user does not have rights to edit mode <" + modeName + ">");
         }
         context.turnOffAuthorisationSystem();
-
+        List<ValidationError> initialErrors = validationService.validate(context, source);
+        int numInitialErrors = calculateErrors(initialErrors);
         EditItemRest eir = findOne(context, data);
         for (Operation op : operations) {
             // the value in the position 0 is a null value
@@ -294,12 +295,22 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         }
 
         List<ValidationError> errors = validationService.validate(context, source);
-        if (errors != null && !errors.isEmpty()) {
-            throw new UnprocessableEditException(errors);
+        int editErrors = calculateErrors(errors);
+        if (numInitialErrors < editErrors) {
+            throw new UnprocessableEditException(errors, "The number of validation errors in the item increase from "
+                    + numInitialErrors + " to " + editErrors);
         }
 
         eis.update(context, source);
         context.restoreAuthSystemState();
+    }
+
+    private int calculateErrors(List<ValidationError> errors) {
+        if (errors == null || errors.isEmpty()) {
+            return 0;
+        } else {
+            return errors.stream().mapToInt(e -> e.getPaths().size()).sum();
+        }
     }
 
     private void evaluatePatch(Context context, HttpServletRequest request, EditItem source, EditItemRest eir,

@@ -9,7 +9,7 @@ package org.dspace.xoai.app;
 
 import static com.lyncode.xoai.dataprovider.core.Granularity.Second;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_PARAM;
 import static org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_START;
 import static org.dspace.xoai.util.ItemUtils.retrieveMetadata;
@@ -111,7 +111,7 @@ public class XOAI {
         try {
             for (Bundle b : itemService.getBundles(item, "ORIGINAL")) {
                 for (Bitstream bs : b.getBitstreams()) {
-                    if (!formats.contains(bs.getFormat(context).getMIMEType())) {
+                    if (bs != null && !formats.contains(bs.getFormat(context).getMIMEType())) {
                         formats.add(bs.getFormat(context).getMIMEType());
                     }
                 }
@@ -335,6 +335,11 @@ public class XOAI {
                     server.add(list);
                     server.commit();
                     list.clear();
+                    try {
+                        context.uncacheEntities();
+                    } catch (SQLException ex) {
+                        log.error("Error uncaching entities", ex);
+                    }
                 }
             }
             System.out.println("Total: " + i + " items");
@@ -453,6 +458,16 @@ public class XOAI {
         for (Community com : collectionsService.flatParentCommunities(context, item)) {
             doc.addField("item.communities", "com_" + com.getHandle().replace("/", "_"));
         }
+
+        boolean hasBitstream = false;
+
+        for (Bundle b : item.getBundles("ORIGINAL")) {
+            if (b.getBitstreams().size() > 0) {
+                hasBitstream = true;
+            }
+        }
+
+        doc.addField("item.hasbitstream", hasBitstream);
 
         List<MetadataValue> allData = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         for (MetadataValue dc : allData) {

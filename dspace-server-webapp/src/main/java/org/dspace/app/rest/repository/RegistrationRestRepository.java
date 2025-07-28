@@ -14,12 +14,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javax.mail.MessagingException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,12 +55,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 /**
  * This is the repository that is responsible for managing Registration Rest objects
  */
-@Component(RegistrationRest.CATEGORY + "." + RegistrationRest.NAME)
+@Component(RegistrationRest.CATEGORY + "." + RegistrationRest.PLURAL_NAME)
 public class RegistrationRestRepository extends DSpaceRestRepository<RegistrationRest, Integer> {
 
     private static Logger log = LogManager.getLogger(RegistrationRestRepository.class);
@@ -104,6 +105,7 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
     private ResourcePatch<RegistrationData> resourcePatch;
 
     @Override
+    @PreAuthorize("permitAll()")
     public RegistrationRest findOne(Context context, Integer integer) {
         throw new RepositoryMethodNotImplementedException("No implementation found; Method not allowed!", "");
     }
@@ -164,6 +166,9 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         }
         if (eperson != null && accountType.equalsIgnoreCase(TYPE_FORGOT)) {
             try {
+                if (!AuthorizeUtil.authorizeForgotPassword()) {
+                    throw new AccessDeniedException("Password reset is not allowed!");
+                }
                 if (!AuthorizeUtil.authorizeUpdatePassword(context, eperson.getEmail())) {
                     throw new DSpaceBadRequestException("Password cannot be updated for the given EPerson with email: "
                                                             + eperson.getEmail());

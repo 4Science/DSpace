@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.app.util.SubmissionConfigReader;
 import org.dspace.app.util.SubmissionConfigReaderException;
@@ -29,6 +29,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutTab;
 import org.dspace.layout.dao.CrisLayoutTabDAO;
+import org.dspace.layout.service.CrisLayoutTabAccessService;
 import org.dspace.layout.service.CrisLayoutTabService;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ public class CrisLayoutTabServiceImpl implements CrisLayoutTabService {
     private ConfigurationService configurationService;
 
     private SubmissionConfigReader submissionConfigReader;
+
+    @Autowired
+    CrisLayoutTabAccessService crisLayoutTabAccessService;
 
     @PostConstruct
     private void setup() throws SubmissionConfigReaderException {
@@ -215,6 +219,11 @@ public class CrisLayoutTabServiceImpl implements CrisLayoutTabService {
             return Collections.emptyList();
         }
         return layoutTabs;
+    }
+
+    @Override
+    public boolean hasAccess(Context context, CrisLayoutTab tab, Item item) {
+        return crisLayoutTabAccessService.hasAccess(context, context.getCurrentUser(), tab, item);
     }
 
     private String getSubmissionDefinitionName(Item item) {

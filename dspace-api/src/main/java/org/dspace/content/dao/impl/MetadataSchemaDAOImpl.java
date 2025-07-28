@@ -7,14 +7,16 @@
  */
 package org.dspace.content.dao.impl;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataSchema_;
 import org.dspace.content.dao.MetadataSchemaDAO;
@@ -63,7 +65,7 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
         Root<MetadataSchema> metadataSchemaRoot = criteriaQuery.from(MetadataSchema.class);
         criteriaQuery.select(metadataSchemaRoot);
 
-        List<javax.persistence.criteria.Order> orderList = new ArrayList<>();
+        List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>();
         orderList.add(criteriaBuilder.asc(metadataSchemaRoot.get(MetadataSchema_.id)));
         criteriaQuery.orderBy(orderList);
 
@@ -135,5 +137,46 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
 
         query.setHint("org.hibernate.cacheable", Boolean.TRUE);
         return singleResult(query);
+    }
+
+    /**
+     * Get the schema corresponding with passed argument.
+     *
+     * @param context   context
+     * @param namespace schema namespace
+     * @param element   metadata field element
+     * @param qualifier metadata field qualifier
+     * @return the metadata schema object
+     * @throws SQLException if database error
+     */
+    @Override
+    public List<MetadataSchema> findAllByNamespaceAndElementAndQualifier(
+        Context context, String namespace, String element, String qualifier
+    ) throws SQLException {
+
+        String queryDefinition = "SELECT DISTINCT mf.metadataSchema FROM MetadataField mf"
+                + " LEFT JOIN mf.metadataSchema WHERE";
+        if (isNotBlank(namespace)) {
+            queryDefinition += " mf.metadataSchema.namespace = :namespace AND ";
+        }
+        if (isNotBlank(element)) {
+            queryDefinition += " mf.element = :element AND ";
+        }
+        if (isNotBlank(qualifier)) {
+            queryDefinition += " mf.qualifier = :qualifier AND ";
+        }
+        queryDefinition = queryDefinition.substring(0, queryDefinition.length() - 5);
+
+        Query query = createQuery(context, queryDefinition);
+        if (isNotBlank(namespace)) {
+            query.setParameter("namespace", namespace);
+        }
+        if (isNotBlank(element)) {
+            query.setParameter("element", element);
+        }
+        if (isNotBlank(qualifier)) {
+            query.setParameter("qualifier", qualifier);
+        }
+        return list(query);
     }
 }

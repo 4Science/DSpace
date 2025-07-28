@@ -9,8 +9,11 @@ package org.dspace.external.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.dto.MetadataValueDTO;
 
 /**
@@ -40,6 +43,8 @@ public class ExternalDataObject {
     private String displayValue;
 
     private List<UUID> matchUUIDs;
+
+    private Logger log = LogManager.getLogger(ExternalDataObject.class);
 
     /**
      * Default constructor
@@ -158,4 +163,62 @@ public class ExternalDataObject {
     public boolean isDuplicated() {
         return !matchUUIDs.isEmpty();
     }
+    /**
+     * Sort metadata before printing, to help with comparison by eye
+     * @return
+     */
+    @Override
+    public String toString() {
+        List<MetadataValueDTO> thisMetadata = new ArrayList<>(this.metadata);
+        thisMetadata.sort(MetadataValueDTO.comparator());
+        return "ExternalDataObject{" +
+                "id='" + id + '\'' +
+                ", value='" + value + '\'' +
+                ", source='" + source + '\'' +
+                ", displayValue='" + displayValue + '\'' +
+                ", metadata=" + thisMetadata +
+                '}';
+    }
+
+    /**
+     * Equality test for ExternalDataObject takes into account the fact that we might have
+     * lists of metadata values which are identical except for sort order, so we sort and compare these
+     * using a custom comparator.
+     * @param o The other object ("that") with which to compare this object ("this")
+     * @return  true if objects are identical, false if not
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ExternalDataObject that = (ExternalDataObject) o;
+        // Compare *sorted* lists
+        List<MetadataValueDTO> thisMetadata = new ArrayList<>(this.metadata);
+        List<MetadataValueDTO> thatMetadata = new ArrayList<>(that.metadata);
+        // Sort both lists using our custom comparator
+        thisMetadata.sort(MetadataValueDTO.comparator());
+        thatMetadata.sort(MetadataValueDTO.comparator());
+
+        // Return straight comparisons of basic member variables
+        return Objects.equals(id, that.id) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(source, that.source) &&
+                Objects.equals(displayValue, that.displayValue) &&
+                // Compare the sorted lists rather than the raw stored metadata
+                Objects.equals(thisMetadata, thatMetadata);
+    }
+
+    /**
+     * Explicit override of Object hashCode()
+     * @return
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, value, source, metadata, displayValue);
+    }
+
 }

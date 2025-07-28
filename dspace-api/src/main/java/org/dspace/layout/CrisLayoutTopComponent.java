@@ -43,6 +43,8 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     private Boolean showThumbnails;
 
+    private String template;
+
     /**
      * @return the discoveryConfigurationName
      */
@@ -244,5 +246,19 @@ public class CrisLayoutTopComponent implements CrisLayoutSectionComponent {
 
     public void setShowThumbnails(Boolean showThumbnails) {
         this.showThumbnails = showThumbnails;
+    }
+
+    /**
+     * @return the template
+     */
+    public String getTemplate() {
+        return template;
+    }
+
+    /**
+     * @param template the template to set
+     */
+    public void setTemplate(String template) {
+        this.template = template;
     }
 }

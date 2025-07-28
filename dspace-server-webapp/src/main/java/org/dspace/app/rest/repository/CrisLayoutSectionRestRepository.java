@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  */
-@Component(CrisLayoutSectionRest.CATEGORY + "." + CrisLayoutSectionRest.NAME)
+@Component(CrisLayoutSectionRest.CATEGORY + "." + CrisLayoutSectionRest.NAME_PLURAL)
 public class CrisLayoutSectionRestRepository extends DSpaceRestRepository<CrisLayoutSectionRest, String> {
 
     @Autowired

@@ -9,18 +9,18 @@ package org.dspace.unpaywall.model;
 
 import java.util.Date;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import org.dspace.core.ReloadableEntity;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -60,6 +60,9 @@ public class Unpaywall implements ReloadableEntity<Integer> {
     @Column(name = "timestamp_last_modified")
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestampLastModified;
+
+    @Column(name = "pdf_url")
+    private String pdfUrl;
 
     @Override
     public Integer getID() {
@@ -116,5 +119,13 @@ public class Unpaywall implements ReloadableEntity<Integer> {
 
     public void setStatus(UnpaywallStatus status) {
         this.status = status;
+    }
+
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
     }
 }

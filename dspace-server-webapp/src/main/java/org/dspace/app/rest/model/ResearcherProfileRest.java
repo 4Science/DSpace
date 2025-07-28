@@ -20,14 +20,15 @@ import org.dspace.app.rest.RestResourceController;
  *
  */
 @LinksRest(links = {
-        @LinkRest(name = ResearcherProfileRest.ITEM, method = "getItem"),
-        @LinkRest(name = ResearcherProfileRest.EPERSON, method = "getEPerson")
+    @LinkRest(name = ResearcherProfileRest.ITEM, method = "getItem"),
+    @LinkRest(name = ResearcherProfileRest.EPERSON, method = "getEPerson")
 })
 public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
     private static final long serialVersionUID = 1L;
     public static final String CATEGORY = RestModel.EPERSON;
     public static final String NAME = "profile";
+    public static final String PLURAL_NAME = "profiles";
 
     public static final String ITEM = "item";
     public static final String EPERSON = "eperson";
@@ -70,6 +71,11 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
     }
 
     @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
+    }
+
+    @Override
     public String getCategory() {
         return CATEGORY;
     }
@@ -91,7 +97,11 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
         private String publicationsPreference;
 
+        private String productsPreference;
+
         private String fundingsPreference;
+
+        private String patentsPreference;
 
         private List<String> profilePreferences;
 
@@ -117,6 +127,22 @@ public class ResearcherProfileRest extends BaseObjectRest<UUID> {
 
         public void setPublicationsPreference(String publicationsPreference) {
             this.publicationsPreference = publicationsPreference;
+        }
+
+        public String getProductsPreference() {
+            return productsPreference;
+        }
+
+        public void setProductsPreference(String productsPreference) {
+            this.productsPreference = productsPreference;
+        }
+
+        public String getPatentsPreference() {
+            return patentsPreference;
+        }
+
+        public void setPatentsPreference(String patentsPreference) {
+            this.patentsPreference = patentsPreference;
         }
 
         public String getFundingsPreference() {

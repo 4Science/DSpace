@@ -9,10 +9,15 @@ package org.dspace.content.enhancer.consumer;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.dspace.content.Item;
 import org.dspace.content.enhancer.service.ItemEnhancerService;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 import org.dspace.services.ConfigurationService;
@@ -29,9 +34,13 @@ import org.dspace.utils.DSpace;
 public class ItemEnhancerConsumer implements Consumer {
 
     public static final String ITEMENHANCER_ENABLED = "itemenhancer.enabled";
-    private Set<Item> itemsAlreadyProcessed = new HashSet<Item>();
+    private Set<UUID> itemsToProcess = new HashSet<UUID>();
 
     private ItemEnhancerService itemEnhancerService;
+
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    private IndexingService indexService = new DSpace().getSingletonService(IndexingService.class);
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -53,19 +62,11 @@ public class ItemEnhancerConsumer implements Consumer {
         }
 
         Item item = (Item) event.getSubject(context);
-        if (item == null || itemsAlreadyProcessed.contains(item) || !item.isArchived()) {
+        if (item == null || !item.isArchived()) {
             return;
         }
 
-        itemsAlreadyProcessed.add(item);
-
-        context.turnOffAuthorisationSystem();
-        try {
-            itemEnhancerService.enhance(context, item);
-        } finally {
-            context.restoreAuthSystemState();
-        }
-
+        itemsToProcess.add(item.getID());
     }
 
     protected boolean isConsumerEnabled() {
@@ -74,7 +75,30 @@ public class ItemEnhancerConsumer implements Consumer {
 
     @Override
     public void end(Context ctx) throws Exception {
-        itemsAlreadyProcessed.clear();
+        ctx.turnOffAuthorisationSystem();
+        try {
+            boolean solrRequireCommit = false;
+            for (UUID uuid : itemsToProcess) {
+                Item item = itemService.find(ctx, uuid);
+                if (item != null) {
+                    boolean isUpdated = itemEnhancerService.enhance(ctx, item, false);
+                    if (isUpdated) {
+                        solrRequireCommit = true;
+                        indexService.indexContent(ctx, new IndexableItem(item), true);
+                    }
+                    // we need to put in the queue all the related items also if the current item
+                    // doesn't require enhancement as the related items could depends on normal
+                    // metadata of this item changed in the context
+                    itemEnhancerService.saveAffectedItemsForUpdate(ctx, item.getID());
+                }
+            }
+            if (solrRequireCommit) {
+                indexService.commit();
+            }
+        } finally {
+            ctx.restoreAuthSystemState();
+        }
+        itemsToProcess.clear();
     }
 
 }

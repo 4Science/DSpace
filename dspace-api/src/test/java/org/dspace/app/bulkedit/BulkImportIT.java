@@ -39,10 +39,15 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.CombinableMatcher.both;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -54,6 +59,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.bulkimport.util.ImportFileUtil;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.matcher.DSpaceObjectMatcher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -85,6 +91,13 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.scripts.configuration.ScriptConfiguration;
+import org.dspace.scripts.factory.ScriptServiceFactory;
+import org.dspace.scripts.handler.DSpaceRunnableHandler;
+import org.dspace.scripts.service.ScriptService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +110,18 @@ import org.junit.Test;
  */
 @SuppressWarnings("unchecked")
 public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
+
+    protected static final class ImportFileUtilMockClass extends ImportFileUtil {
+
+        public ImportFileUtilMockClass(DSpaceRunnableHandler handler) {
+            super(handler);
+        }
+
+        @Override
+        public InputStream openStream(URL url) {
+            return super.openStream(url);
+        }
+    }
 
     private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/bulk-import/";
 
@@ -116,6 +141,10 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     private SearchService searchService = SearchUtils.getSearchService();
+
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
+    private final ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
 
     private Community community;
 
@@ -239,6 +268,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testMetadataGroupRowWithManyValuesImport() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
@@ -254,9 +285,7 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 2 warning messages", warningMessages, hasSize(2));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(1), containsString("Row 3 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat("Expected 1 error message", errorMessages, hasSize(1));
@@ -264,10 +293,12 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             + "metadata group sheets: Author1 || Author2"));
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info message", infoMessages, hasSize(3));
+        assertThat("Expected 3 info message", infoMessages, hasSize(5));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 1 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 2 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(4), containsString("Row 3 - WorkflowItem created successfully"));
     }
 
     @Test
@@ -300,6 +331,9 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePatent() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
         Collection patents = createCollection(context, community)
             .withSubmissionDefinition("patent")
             .withAdminGroup(eperson)
@@ -316,19 +350,19 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("Expected no errors", handler.getErrorMessages(), empty());
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 1 warning message", warningMessages, hasSize(1));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 4 info messages", infoMessages, hasSize(4));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 0 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 1 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(0));
+        Item createdItem = getItemFromMessage(infoMessages.get(3));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.title", "Patent")));
@@ -390,6 +424,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePublicationWithAuthority() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
@@ -406,19 +442,19 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("Expected no errors", handler.getErrorMessages(), empty());
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 1 warning message", warningMessages, hasSize(1));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 3 info messages", infoMessages, hasSize(4));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 2 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 1 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(0));
+        Item createdItem = getItemFromMessage(infoMessages.get(3));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author", "Author1", null, "authority1", 0, 600)));
@@ -636,6 +672,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
     public void testCreatePublicationWithOneInvalidAuthorityAndNoAbortOnError() throws Exception {
 
         context.turnOffAuthorisationSystem();
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
         Collection publications = createCollection(context, community)
             .withSubmissionDefinition("publication")
             .withAdminGroup(eperson)
@@ -656,21 +694,21 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             + "value Author1$$authority1$$xxx: invalid security level or confidence value xxx"));
 
         List<String> warningMessages = handler.getWarningMessages();
-        assertThat("Expected 3 warning messages", warningMessages, hasSize(3));
-        assertThat(warningMessages.get(0), containsString("Row 2 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(1), containsString("Row 3 - Invalid item left in workspace"));
-        assertThat(warningMessages.get(2), containsString("Row 4 - Invalid item left in workspace"));
+        assertThat(warningMessages, empty());
 
         List<String> infoMessages = handler.getInfoMessages();
-        assertThat("Expected 3 info messages", infoMessages, hasSize(3));
+        assertThat("Expected 3 info messages", infoMessages, hasSize(6));
         assertThat(infoMessages.get(0), containsString("Start reading all the metadata group rows"));
         assertThat(infoMessages.get(1), containsString("Found 1 metadata groups to process"));
         assertThat(infoMessages.get(2), containsString("Found 3 items to process"));
+        assertThat(infoMessages.get(3), containsString("Row 2 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(4), containsString("Row 3 - WorkflowItem created successfully"));
+        assertThat(infoMessages.get(5), containsString("Row 4 - WorkflowItem created successfully"));
 
-        Item createdItem = getItemFromMessage(warningMessages.get(1));
+        Item createdItem = getItemFromMessage(infoMessages.get(4));
         assertThat("Item expected to be created", createdItem, notNullValue());
-        assertThat(createdItem.isArchived(), is(false));
-        assertThat(findWorkspaceItem(createdItem), notNullValue());
+        assertThat(createdItem.isArchived(), is(true));
+        assertThat(findWorkspaceItem(createdItem), nullValue());
 
         List<MetadataValue> metadata = createdItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author", "Author2")));
@@ -1464,9 +1502,9 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), contains(
             bitstreamWith("Test title 2", "test file description 2",
-                "this is a second test file for uploading bitstreams"),
-            bitstreamWith("Test title 3", "test file description 3",
-                "this is a second test file for uploading bitstreams")));
+                "this is a test file for uploading bitstreams"),
+                bitstreamWith("Test title 3", "test file description 3",
+                        "this is a second test file for uploading bitstreams")));
 
         assertThat(getItemBitstreams(item), hasSize(4));
 
@@ -1520,6 +1558,260 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), contains(
             bitstreamWith("Test title 3", "test file description 3",
                 "this is a third test file for uploading bitstreams")));
+
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathNotFromAllowedIps() throws Exception {
+
+        try {
+            context.turnOffAuthorisationSystem();
+            Collection publication = createCollection(context, community)
+                    .withSubmissionDefinition("publication")
+                    .withAdminGroup(eperson)
+                    .build();
+            context.commit();
+            context.restoreAuthSystemState();
+
+            configurationService.setProperty("allowed.ips.import", new String[]{"127.0.1.2"});
+
+            String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+            String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                    "-e", eperson.getEmail()};
+            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+            handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+            assertThat(handler.getErrorMessages(), contains(
+                    "Cannot create bitstream from file at path http://127.0.1.1"));
+            assertThat(handler.getWarningMessages(), contains(
+                    containsString("Domain '127.0.1.1' is not in the allowed list. Path: http://127.0.1.1"),
+                    containsString("Row 2 - Invalid item left in workspace"),
+                    containsString("Row 3 - Invalid item left in workspace")));
+            assertThat(handler.getInfoMessages(), contains(
+                    is("Start reading all the metadata group rows"),
+                    is("Found 4 metadata groups to process"),
+                    is("Start reading all the bitstream rows"),
+                    is("Found 1 bitstreams to process"),
+                    is("Found 2 items to process")));
+
+            Item item = getItemFromMessage(handler.getWarningMessages().get(1));
+            Item item2 = getItemFromMessage(handler.getWarningMessages().get(2));
+
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), empty());
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+            assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), empty());
+
+        } finally {
+            configurationService.setProperty("allowed.ips.import", new String[]{});
+        }
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathFromAllowedIps() throws Exception {
+        try {
+            InputStream mockInputStream = new ByteArrayInputStream("mocked content".getBytes());
+
+            context.turnOffAuthorisationSystem();
+            Collection publication = createCollection(context, community)
+                    .withSubmissionDefinition("publication")
+                    .withAdminGroup(eperson)
+                    .build();
+            context.commit();
+            context.restoreAuthSystemState();
+
+            configurationService.setProperty("allowed.ips.import", new String[]{"127.0.1.1"});
+
+            String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+            String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                    "-e", eperson.getEmail()};
+            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+            ImportFileUtilMockClass importFileUtilSpy = spy(new ImportFileUtilMockClass(handler));
+            doReturn(mockInputStream).when(importFileUtilSpy).openStream(any(URL.class));
+
+            ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
+            ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(args[0]);
+
+            BulkImport script = null;
+            if (scriptConfiguration != null) {
+                script = (BulkImport) scriptService.createDSpaceRunnableForScriptConfiguration(scriptConfiguration);
+                script.setImportFileUtil(importFileUtilSpy);
+            }
+            if (script != null) {
+                if (DSpaceRunnable.StepResult.Continue.equals(script.initialize(args, handler, eperson))) {
+                    script.run();
+                }
+            }
+
+            assertThat(handler.getErrorMessages(), empty());
+            assertThat(handler.getWarningMessages(), contains(
+                    containsString("Row 2 - Invalid item left in workspace"),
+                    containsString("Row 3 - Invalid item left in workspace")));
+            assertThat(handler.getInfoMessages(), contains(
+                    is("Start reading all the metadata group rows"),
+                    is("Found 4 metadata groups to process"),
+                    is("Start reading all the bitstream rows"),
+                    is("Found 1 bitstreams to process"),
+                    is("Found 2 items to process"),
+                    containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully")));
+
+            Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+
+            assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), contains(
+            bitstreamWith("Test title", "test file description",
+                "mocked content")));
+
+        } finally {
+            configurationService.setProperty("allowed.ips.import", new String[]{});
+        }
+    }
+
+    @Test
+    public void testUploadBitstreamWithRemoteFilePathAndEmptyAllowedIps() throws Exception {
+
+        InputStream mockInputStream = new ByteArrayInputStream("mocked content".getBytes());
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+            .withSubmissionDefinition("publication")
+            .withAdminGroup(eperson)
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-bitstream-with-http-url-to-item.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+            "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        ImportFileUtilMockClass importFileUtilSpy = spy(new ImportFileUtilMockClass(handler));
+        doReturn(mockInputStream).when(importFileUtilSpy).openStream(any(URL.class));
+
+        ScriptService scriptService = ScriptServiceFactory.getInstance().getScriptService();
+        ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(args[0]);
+
+        BulkImport script = null;
+        if (scriptConfiguration != null) {
+            script = (BulkImport) scriptService.createDSpaceRunnableForScriptConfiguration(scriptConfiguration);
+            script.setImportFileUtil(importFileUtilSpy);
+        }
+        if (script != null) {
+            if (DSpaceRunnable.StepResult.Continue.equals(script.initialize(args, handler, eperson))) {
+                script.run();
+            }
+        }
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), contains(
+            containsString("Row 2 - Invalid item left in workspace"),
+            containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+            is("Start reading all the metadata group rows"),
+            is("Found 4 metadata groups to process"),
+            is("Start reading all the bitstream rows"),
+            is("Found 1 bitstreams to process"),
+            is("Found 2 items to process"),
+            containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE"), contains(
+            bitstreamWith("Test title", "test file description",
+                          "mocked content")));
+
+    }
+
+    @Test
+    public void testUploadMultipleBitstreamWithCorrectLocalPath() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-multiple-bitstreams-with-local-path.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getWarningMessages(), contains(
+                containsString("Row 2 - Invalid item left in workspace"),
+                containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+                is("Start reading all the metadata group rows"),
+                is("Found 4 metadata groups to process"),
+                is("Start reading all the bitstream rows"),
+                is("Found 2 bitstreams to process"),
+                is("Found 2 items to process"),
+                containsString("Sheet bitstream-metadata - Row 2 - Bitstream created successfully"),
+                containsString("Sheet bitstream-metadata - Row 3 - Bitstream created successfully")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+        Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+
+        assertThat(getItemBitstreamsByBundle(item, "FIRST-BUNDLE"), contains(
+                bitstreamWith("Test title 2", "test file description 2",
+                        "this is a second test file for uploading bitstreams")));
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+        assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), contains(
+                bitstreamWith("Test title 3", "test file description 3",
+                        "this is a third test file for uploading bitstreams")));
+
+    }
+
+    @Test
+    public void testUploadMultipleBitstreamWithWrongLocalPath() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection publication = createCollection(context, community)
+                .withSubmissionDefinition("publication")
+                .withAdminGroup(eperson)
+                .build();
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXlsFilePath("add-multiple-bitstreams-with-wrong-local-path.xls");
+
+        String[] args = new String[] { "bulk-import", "-c", publication.getID().toString(), "-f", fileLocation,
+                "-e", eperson.getEmail()};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), contains(
+                "Access to the specified file file://../test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file://../test_2.txt",
+                "Access to the specified file file:///bulk-uploads/test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file:///bulk-uploads/test_2.txt",
+                "Access to the specified file file:///subfolder/test_2.txt is not allowed",
+                "Cannot create bitstream from file at path file:///subfolder/test_2.txt"));
+        assertThat(handler.getWarningMessages(), contains(
+                containsString("Row 2 - Invalid item left in workspace"),
+                containsString("Row 3 - Invalid item left in workspace")));
+        assertThat(handler.getInfoMessages(), contains(
+                is("Start reading all the metadata group rows"),
+                is("Found 4 metadata groups to process"),
+                is("Start reading all the bitstream rows"),
+                is("Found 3 bitstreams to process"),
+                is("Found 2 items to process")));
+
+        Item item = getItemFromMessage(handler.getWarningMessages().get(0));
+        Item item2 = getItemFromMessage(handler.getWarningMessages().get(1));
+
+        assertThat(getItemBitstreamsByBundle(item, "FIRST-BUNDLE"), empty());
+        assertThat(getItemBitstreamsByBundle(item, "TEST-BUNDLE2"), empty());
+        assertThat(getItemBitstreamsByBundle(item2, "SECOND-BUNDLE"), empty());
 
     }
 
@@ -1946,9 +2238,8 @@ public class BulkImportIT extends AbstractIntegrationTestWithDatabase {
             .withName("Original bitstream title")
             .build();
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
             .withDspaceObject(bitstream)
-            .withUser(eperson)
             .withName("test")
             .withAction(READ)
             .withPolicyType(TYPE_CUSTOM)

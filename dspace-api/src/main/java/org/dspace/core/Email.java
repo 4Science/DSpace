@@ -24,23 +24,23 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Address;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.ParseException;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.Address;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.Template;
@@ -56,7 +56,7 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
- * Class representing an e-mail message.  The {@link send} method causes the
+ * Builder representing an e-mail message.  The {@link send} method causes the
  * assembled message to be formatted and sent.
  * <p>
  * Typical use:
@@ -174,6 +174,11 @@ public class Email {
      */
     private String charset;
 
+    /**
+     * The message being assembled.
+     */
+    MimeMessage message;
+
     private static final Logger LOG = LogManager.getLogger();
 
     /** Velocity template settings. */
@@ -193,6 +198,11 @@ public class Email {
 
     /** Velocity template for a message body */
     private Template template;
+
+    /**
+     * The message text.
+     */
+    private String body;
 
     /**
      * Create a new email message.
@@ -270,9 +280,15 @@ public class Email {
     /**
      * Fill out the next argument in the template.
      *
-     * @param arg the value for the next argument
+     * @param arg the value for the next argument.  If {@code null},
+     *            a zero-length string is substituted.
      */
     public void addArgument(Object arg) {
+        if (null == arg) {
+            arg = "";
+            LOG.warn("Null argument {} to email template {} replaced with zero-length string",
+                     arguments.size(), contentName);
+        }
         arguments.add(arg);
     }
 
@@ -344,7 +360,33 @@ public class Email {
     }
 
     /**
-     * Sends the email.  If the template defines a Velocity context property
+     * Sends the email.  If sending is disabled then the assembled message is
+     * logged instead.
+     *
+     * @throws MessagingException if there was a problem sending the mail.
+     * @throws IOException        if IO error
+     */
+    public void send() throws MessagingException, IOException {
+        build();
+
+        ConfigurationService config
+            = DSpaceServicesFactory.getInstance().getConfigurationService();
+        boolean disabled = config.getBooleanProperty("mail.server.disabled", false);
+        String[] fixedRecipients = config.getArrayProperty("mail.server.fixedRecipient");
+        if (disabled) {
+            String formattedMessage = format(message, body);
+
+            if (fixedRecipients.length > 0) {
+                Transport.send(message);
+            }
+            LOG.info(formattedMessage);
+        } else {
+            Transport.send(message);
+        }
+    }
+
+    /**
+     * Build the message.  If the template defines a Velocity context property
      * named among the values of DSpace configuration property
      * {@code mail.message.headers} then that name and its value will be added
      * to the message's headers.
@@ -354,10 +396,11 @@ public class Email {
      * had been called with that value.  Thus a template may define its subject,
      * but the caller may override it.
      *
-     * @throws MessagingException if there was a problem sending the mail.
-     * @throws IOException        if IO error
+     * @throws MessagingException if there is no template, or passed through.
+     * @throws IOException passed through.
      */
-    public void send() throws MessagingException, IOException {
+    void build()
+        throws MessagingException, IOException {
         if (null == template) {
             // No template -- no content -- PANIC!!!
             throw new MessagingException("Email has no body");
@@ -380,7 +423,7 @@ public class Email {
         Session session = DSpaceServicesFactory.getInstance().getEmailService().getSession();
 
         // Create message
-        MimeMessage message = new MimeMessage(session);
+        message = new MimeMessage(session);
 
         // Set the recipients of the message
         if (disabled && fixedRecipients.length > 0) {
@@ -412,25 +455,23 @@ public class Email {
             LOG.error("Template not merged:  {}", ex.getMessage());
             throw new MessagingException("Template not merged", ex);
         }
-
-        String fullMessage = writer.toString();
+        body = writer.toString();
 
         if (disabled && fixedRecipients.length > 0) {
-            fullMessage += "\n===REAL RECIPIENT===\n";
+            body += "\n===REAL RECIPIENT===\n";
 
             for (String r : recipients) {
-                fullMessage += r + "\n";
+                body += r + "\n";
             }
 
             if (!ccAddresses.isEmpty()) {
-                fullMessage += "\n===REAL RECIPIENT (cc)===\n";
+                body += "\n===REAL RECIPIENT (cc)===\n";
 
                 for (String c : ccAddresses) {
-                    fullMessage += c + "\n";
+                    body += c + "\n";
                 }
             }
         }
-
         // Set some message header fields
         Date date = new Date();
         message.setSentDate(date);
@@ -439,7 +480,7 @@ public class Email {
         for (String headerName : templateHeaders) {
             String headerValue = (String) vctx.get(headerName);
             if ("subject".equalsIgnoreCase(headerName)) {
-                if (null != headerValue) {
+                if ((subject == null || subject.isEmpty()) && null != headerValue) {
                     subject = headerValue;
                 }
             } else if ("charset".equalsIgnoreCase(headerName)) {
@@ -456,20 +497,19 @@ public class Email {
             message.setSubject(subject);
         }
 
-        // Add attachments
-        if (attachments.isEmpty() && moreAttachments.isEmpty()) {
-            // If a character set has been specified, or a default exists
+        // Attach the body.
+        if (attachments.isEmpty() && moreAttachments.isEmpty()) { // Flat body.
             if (charset != null) {
-                message.setText(fullMessage, charset);
+                message.setText(body, charset);
             } else {
-                message.setText(fullMessage);
+                message.setText(body);
             }
-        } else {
+        } else { // Add attachments.
             Multipart multipart = new MimeMultipart();
 
             // create the first part of the email
             BodyPart messageBodyPart = new MimeBodyPart();
-            messageBodyPart.setText(fullMessage);
+            messageBodyPart.setText(body);
             multipart.addBodyPart(messageBodyPart);
 
             // Add file attachments
@@ -501,38 +541,70 @@ public class Email {
             replyToAddr[0] = new InternetAddress(replyTo);
             message.setReplyTo(replyToAddr);
         }
+    }
 
-        if (disabled) {
-            StringBuilder text = new StringBuilder(
-                "Message not sent due to mail.server.disabled:\n");
+    /**
+     * Flatten the email into a string.
+     *
+     * @param message the message headers, attachments, etc.
+     * @param body    the message body.
+     * @return stringified email message.
+     * @throws MessagingException passed through.
+     */
+    private String format(MimeMessage message, String body)
+        throws MessagingException {
 
-            if (fixedRecipients.length > 0) {
-                text.append(String.format("Sending to fixedRecipient instead: %s\n", Arrays.toString(fixedRecipients)));
+        ConfigurationService config =
+            DSpaceServicesFactory.getInstance().getConfigurationService();
+
+        StringBuilder text =
+            new StringBuilder("Message not sent due to mail.server.disabled:\n");
+
+        String[] fixedRecipients = config.getArrayProperty("mail.server.fixedRecipient");
+
+        if (fixedRecipients.length > 0) {
+            text.append("\n===REAL RECIPIENT===\n");
+
+            for (String r : recipients) {
+                text.append(r).append("\n");
             }
 
-            Enumeration<String> headers = message.getAllHeaderLines();
-            while (headers.hasMoreElements()) {
-                text.append(headers.nextElement()).append('\n');
-            }
+            if (!ccAddresses.isEmpty()) {
+                text.append("\n===REAL RECIPIENT (cc)===\n");
 
-            if (!attachments.isEmpty()) {
-                text.append("\nAttachments:\n");
-                for (FileAttachment f : attachments) {
-                    text.append(f.name).append('\n');
+                for (String c : ccAddresses) {
+                    text.append(c).append("\n");
                 }
-                text.append('\n');
             }
-
-            text.append('\n').append(fullMessage);
-
-            if (fixedRecipients.length > 0) {
-                Transport.send(message);
-            }
-
-            LOG.info(text.toString());
-        } else {
-            Transport.send(message);
+            text.append(String.format("Sending to fixedRecipient instead: %s\n", Arrays.toString(fixedRecipients)));
         }
+
+        Enumeration<String> headers = message.getAllHeaderLines();
+        while (headers.hasMoreElements()) {
+            text.append(headers.nextElement()).append('\n');
+        }
+
+        if (!attachments.isEmpty()) {
+            text.append("\nAttachments:\n");
+            for (FileAttachment f : attachments) {
+                text.append(f.name).append('\n');
+            }
+            text.append('\n');
+        }
+
+        text.append('\n').append(body);
+        return text.toString();
+    }
+
+    /**
+     * Get the formatted message for testing.
+     *
+     * @return the message flattened to a String.
+     * @throws MessagingException passed through.
+     */
+    String getMessage()
+        throws MessagingException {
+        return format(message, body);
     }
 
     /**

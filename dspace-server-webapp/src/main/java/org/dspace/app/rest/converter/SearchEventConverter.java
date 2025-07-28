@@ -11,9 +11,10 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.PageRest;
 import org.dspace.app.rest.model.SearchEventRest;
 import org.dspace.app.rest.model.SearchResultsRest;
@@ -31,43 +32,41 @@ import org.springframework.stereotype.Component;
 @Component
 public class SearchEventConverter {
     /* Log4j logger */
-    private static final Logger log = Logger.getLogger(SearchEventConverter.class);
-
+    private static final Logger log = LogManager.getLogger(SearchEventConverter.class);
+    private final Integer[] allowedClickedObjectTypes =
+        new Integer[] {Constants.COMMUNITY, Constants.COLLECTION, Constants.ITEM};
     @Autowired
     private ScopeResolver scopeResolver;
-
     @Autowired
     private DSpaceObjectUtils dSpaceObjectUtils;
 
-    private final Integer[] allowedClickedObjectTypes =
-            new Integer[]{Constants.COMMUNITY, Constants.COLLECTION, Constants.ITEM};
-
     public UsageSearchEvent convert(Context context, HttpServletRequest request, SearchEventRest searchEventRest) {
         UsageSearchEvent usageSearchEvent = new UsageSearchEvent(UsageEvent.Action.SEARCH, request, context,
-                                                                             null);
+                                                                 null);
         usageSearchEvent.setQuery(searchEventRest.getQuery());
         usageSearchEvent.setDsoType(searchEventRest.getDsoType());
         if (searchEventRest.getClickedObject() != null) {
             try {
                 DSpaceObject clickedObject =
-                        dSpaceObjectUtils.findDSpaceObject(context, searchEventRest.getClickedObject());
+                    dSpaceObjectUtils.findDSpaceObject(context, searchEventRest.getClickedObject());
                 if (clickedObject != null &&
-                        Arrays.asList(allowedClickedObjectTypes).contains(clickedObject.getType())) {
+                    Arrays.asList(allowedClickedObjectTypes).contains(clickedObject.getType())) {
                     usageSearchEvent.setObject(clickedObject);
                 } else {
                     throw new IllegalArgumentException("UUID " + searchEventRest.getClickedObject() +
-                            " was expected to resolve to a Community, Collection or Item, but didn't resolve to any");
+                                                           " was expected to resolve to a Community, Collection or " +
+                                                           "Item, but didn't resolve to any");
                 }
             } catch (SQLException e) {
                 log.warn("Unable to retrieve DSpace Object with ID " + searchEventRest.getClickedObject() +
-                        " from the database", e);
+                             " from the database", e);
             }
         }
         if (searchEventRest.getScope() != null) {
             IndexableObject scopeObject =
-                    scopeResolver.resolveScope(context, String.valueOf(searchEventRest.getScope()));
-            if (scopeObject instanceof DSpaceObject) {
-                usageSearchEvent.setScope((DSpaceObject) scopeObject);
+                scopeResolver.resolveScope(context, String.valueOf(searchEventRest.getScope()));
+            if (scopeObject != null && scopeObject.getIndexedObject() instanceof DSpaceObject) {
+                usageSearchEvent.setScope((DSpaceObject) scopeObject.getIndexedObject());
             }
         }
         usageSearchEvent.setConfiguration(searchEventRest.getConfiguration());
@@ -83,7 +82,7 @@ public class SearchEventConverter {
 
     private UsageSearchEvent.Page convertPage(PageRest page) {
         return new UsageSearchEvent.Page(page.getSize(), page.getTotalElements(), page.getTotalPages(),
-                                             page.getNumber());
+                                         page.getNumber());
     }
 
     private UsageSearchEvent.Sort convertSort(SearchResultsRest.Sorting sort) {

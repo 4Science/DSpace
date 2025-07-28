@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -51,6 +52,9 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private AuthorizeService authorizeService;
+
     protected ResourcePolicyServiceImpl() {
     }
 
@@ -71,14 +75,22 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
      * Create a new ResourcePolicy
      *
      * @param context DSpace context object
+     * @param ePerson
+     * @param group
      * @return ResourcePolicy
      * @throws SQLException if database error
      */
     @Override
-    public ResourcePolicy create(Context context) throws SQLException {
+    public ResourcePolicy create(Context context, EPerson ePerson, Group group) throws SQLException {
         // FIXME: Check authorisation
         // Create a table row
-        ResourcePolicy resourcePolicy = resourcePolicyDAO.create(context, new ResourcePolicy());
+        ResourcePolicy policyToBeCreated = new ResourcePolicy();
+        if (ePerson == null && group == null) {
+            throw new IllegalArgumentException("A resource policy must contain a valid eperson or group");
+        }
+        policyToBeCreated.setEPerson(ePerson);
+        policyToBeCreated.setGroup(group);
+        ResourcePolicy resourcePolicy = resourcePolicyDAO.create(context, policyToBeCreated);
         return resourcePolicy;
     }
 
@@ -210,9 +222,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
     @Override
     public ResourcePolicy clone(Context context, ResourcePolicy resourcePolicy)
         throws SQLException, AuthorizeException {
-        ResourcePolicy clone = create(context);
-        clone.setGroup(resourcePolicy.getGroup());
-        clone.setEPerson(resourcePolicy.getEPerson());
+        ResourcePolicy clone = create(context, resourcePolicy.getEPerson(), resourcePolicy.getGroup());
         clone.setStartDate((Date) ObjectUtils.clone(resourcePolicy.getStartDate()));
         clone.setEndDate((Date) ObjectUtils.clone(resourcePolicy.getEndDate()));
         clone.setRpType((String) ObjectUtils.clone(resourcePolicy.getRpType()));
@@ -416,12 +426,12 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
         ResourcePolicy resourcePolicy = resourcePolicyDAO.findOneById(context, id);
         Group group = resourcePolicy.getGroup();
 
-        if (resourcePolicy.getEPerson() != null && resourcePolicy.getEPerson().getID() == eperson.getID()) {
+        if (resourcePolicy.getEPerson() != null && resourcePolicy.getEPerson().getID().equals(eperson.getID())) {
             isMy = true;
         } else if (group != null && groupService.isMember(context, eperson, group)) {
             isMy = true;
         }
-        return isMy;
+        return isMy || authorizeService.isAdmin(context, eperson, resourcePolicy.getdSpaceObject());
     }
 
     @Override

@@ -12,10 +12,14 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.PreDestroy;
 
+import com.google.common.util.concurrent.MoreExecutors;
+import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.EventService;
 import org.dspace.services.RequestService;
@@ -24,10 +28,7 @@ import org.dspace.services.model.Event;
 import org.dspace.services.model.Event.Scope;
 import org.dspace.services.model.EventListener;
 import org.dspace.services.model.RequestInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * This is a placeholder until we get a real event service going.
  * It does pretty much everything the service should do EXCEPT sending
@@ -37,9 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public final class SystemEventService implements EventService {
 
-    private static final int DEFAULT_THREAD_SIZE =  2;
+    private static final int DEFAULT_THREAD_SIZE = 2;
 
-    private final Logger log = LoggerFactory.getLogger(SystemEventService.class);
+    private final Logger log = LogManager.getLogger();
 
     /**
      * Map for holding onto the listeners which is ClassLoader safe.
@@ -101,13 +102,23 @@ public final class SystemEventService implements EventService {
         this.executorService.submit(() -> this.fireEvent(eventSupplier.get()));
     }
 
+    @Override
+    public void scheduleAsyncEventConsumer(Consumer<Consumer<Event>> eventConsumer) {
+        initExecutor();
+        this.executorService.submit(() -> eventConsumer.accept(this::fireEvent));
+    }
+
     private void initExecutor() {
         if (this.executorService != null) {
             return;
         }
         ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         int threadSize = configurationService.getIntProperty("system-event.thread.size", DEFAULT_THREAD_SIZE);
-        this.executorService = Executors.newFixedThreadPool(threadSize);
+        if (threadSize == 0) {
+            this.executorService = MoreExecutors.newDirectExecutorService();
+        } else {
+            this.executorService = Executors.newFixedThreadPool(threadSize);
+        }
     }
 
     /* (non-Javadoc)
@@ -154,8 +165,8 @@ public final class SystemEventService implements EventService {
      */
     private void fireClusterEvent(Event event) {
         log.debug(
-            "fireClusterEvent is not implemented yet, no support for cluster events yet, could not fire event to the " +
-                "cluster: " + event);
+                "fireClusterEvent is not implemented yet, no support for cluster"
+                        + " events yet, could not fire event to the cluster: {}", event);
     }
 
     /**
@@ -166,8 +177,9 @@ public final class SystemEventService implements EventService {
      */
     private void fireExternalEvent(Event event) {
         log.debug(
-            "fireExternalEvent is not implemented yet, no support for external events yet, could not fire event to " +
-                "external listeners: " + event);
+                "fireExternalEvent is not implemented yet, no support for external"
+                        + " events yet, could not fire event to external listeners: {}",
+                event);
     }
 
     /**
@@ -194,7 +206,7 @@ public final class SystemEventService implements EventService {
         }
         if (event.getScopes() == null) {
             // set to local/cluster scope
-            event.setScopes(new Event.Scope[] {Scope.LOCAL, Scope.CLUSTER});
+            event.setScopes(new Event.Scope[]{Scope.LOCAL, Scope.CLUSTER});
         }
     }
 

@@ -194,7 +194,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 List<Group> defaultBitstreamReadGroups =
                         authorizeService.getAuthorizedGroups(context, owningCollection,
                                 Constants.DEFAULT_BITSTREAM_READ);
-                log.info(defaultBitstreamReadGroups.size());
                 // If this collection is configured with a DEFAULT_BITSTREAM_READ group, overwrite the READ policy
                 // inherited from the bundle with this policy.
                 if (!defaultBitstreamReadGroups.isEmpty()) {
@@ -208,6 +207,16 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 }
             }
         }
+
+        // If the bundle has no READ policies (which may happen if the item uses custom access settings),
+        // then propagate the READ policies from the bitstream to the bundle.
+        // This ensures that bundle is not "policyless".
+        List<ResourcePolicy> bundlePolicies = authorizeService.getPoliciesActionFilter(context, bundle, READ);
+        if (bundlePolicies == null || bundlePolicies.isEmpty()) {
+            List<ResourcePolicy> bitstreamPolicies = authorizeService.getPoliciesActionFilter(context, bitstream, READ);
+            authorizeService.addPolicies(context, bitstreamPolicies, bundle);
+        }
+
         bitstreamService.update(context, bitstream);
     }
 
@@ -563,10 +572,15 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
     @Override
     public Bundle findByIdOrLegacyId(Context context, String id) throws SQLException {
-        if (StringUtils.isNumeric(id)) {
-            return findByLegacyId(context, Integer.parseInt(id));
-        } else {
-            return find(context, UUID.fromString(id));
+        try {
+            if (StringUtils.isNumeric(id)) {
+                return findByLegacyId(context, Integer.parseInt(id));
+            } else {
+                return find(context, UUID.fromString(id));
+            }
+        } catch (IllegalArgumentException e) {
+            // Not a valid legacy ID or valid UUID
+            return null;
         }
     }
 

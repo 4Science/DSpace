@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-lazy-init="true">
 
     <bean class="org.dspace.layout.service.impl.CrisLayoutSectionServiceImpl" >
@@ -152,6 +151,7 @@
                      <property name="cardColumnStyle" value="col-12 col-lg-6"/>
                      <property name="itemListStyle" value=""/>
                      <property name="showAllResults" value="true"/>
+                     <property name="template" value="IMAGES"/>
                  </bean>
                  <bean class="org.dspace.layout.CrisLayoutTopComponent">
                      <property name="discoveryConfigurationName" value="documents" />
@@ -166,6 +166,7 @@
                      <property name="cardColumnStyle" value="col-12 col-lg-6"/>
                      <property name="itemListStyle" value=""/>
                      <property name="showAllResults" value="true"/>
+                     <property name="template" value="IMAGES"/>
                  </bean>
              </list>
           </list>
@@ -208,10 +209,10 @@
                 <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
                     <property name="contentType" value="text-metadata"/>
                     <property name="content" value="counter.header"/>
-                    <property name="style" value="col-md-5 pad-left-title align-items-center d-flex flex"/>
+                    <property name="style" value="py-3 col-12 col-md-5"/>
                 </bean>
                 <bean class="org.dspace.layout.CrisLayoutCountersComponent">
-                    <property name="style" value="col-md-7 pad-right"/>
+                    <property name="style" value="py-3 col-12 col-md-7"/>
                     <property name="counterSettingsList">
                         <list>
                             <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
@@ -243,11 +244,17 @@
                 </bean>
             </list>
             <list>
-                <bean class="org.dspace.layout.CrisLayoutTopComponent">
-                    <property name="discoveryConfigurationName" value="additions" />
-                    <property name="sortField" value="lastModified" />
-                    <property name="order" value="desc" />
-                    <property name="style" value="col-md-12 pad-left pad-right bg-light"/>
+                <bean class="org.dspace.layout.CrisLayoutAdvancedTopComponent">
+                    <property name="discoveryConfigurationName">
+                        <list>
+                            <value>aggregationsHomePage</value>
+                            <value>fondsHomePage</value>
+                            <value>journalfondsHomePage</value>
+                        </list>
+                    </property>
+                    <property name="sortField" value="cris.priority" />
+                    <property name="order" value="asc" />
+                    <property name="style" value="py-4"/>
                     <property name="numberOfItems" value="8"/>
                     <property name="showAsCard" value="true"/>
                     <property name="showLayoutSwitch" value="true"/>
@@ -256,14 +263,15 @@
                     <property name="cardColumnStyle" value="col-6 col-lg-3"/>
                     <property name="itemListStyle" value=""/>
                     <property name="showAllResults" value="true"/>
+                    <property name="template" value="SLIDER"/>
                 </bean>
             </list>
             <list>
                 <bean class="org.dspace.layout.CrisGridComponent">
                     <property name="discoveryConfigurationName" value="path"/>
-                    <property name="style" value="pad-left-title pad-right-title m-auto"/>
+                    <property name="style" value="py-4"/>
                     <property name="mainContentLink" value="/search?f.entityType=Path,equals&amp;spc.page=1&amp;view=grid"/>
-                    <property name="sortField" value="glam.index" />
+                    <property name="sortField" value="cris.priority" />
                     <property name="order" value="asc" />
                 </bean>
             </list>

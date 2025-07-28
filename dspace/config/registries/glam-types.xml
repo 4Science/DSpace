@@ -58,7 +58,12 @@
         <name>glampicture</name>
         <namespace>https://www.4science.it/dspace-glam/picture</namespace>
     </dc-schema>
-    
+
+    <dc-schema>
+        <name>glamcoin</name>
+        <namespace>https://www.4science.it/dspace-glam/glamcoin</namespace>
+    </dc-schema>
+
     <dc-type>
         <schema>glamevent</schema>
         <element>variants</element>
@@ -807,6 +812,501 @@
         <element>rights</element>
         <qualifier>holder</qualifier>
         <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>general-information</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>history-digital-lid</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>offered-services</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>organizational-structure</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>entity</element>
+        <qualifier>enabled</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>cms</element>
+        <qualifier>privacy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>subject</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>internal</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>note</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>coverage</element>
+        <qualifier>temporalperiod</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>culture</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>mint</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>issuingauthority</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misd</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misg</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>mintingaxis</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>obverse</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>reverse</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>obverselegend</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glamcoin</schema>
+        <element>reverselegend</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>coverage</element>
+        <qualifier>spatialpvcm</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>isPictureOf</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>hasPicture</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>editor</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misn</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misp</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>miss</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misc</qualifier>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misw</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misb</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>format</element>
+        <qualifier>misi</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>coins</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>scientificmaterial</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>artwork</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dc</schema>
+        <element>relation</element>
+        <qualifier>musicallibrettos</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>wikipedialabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>otherbibliographiclabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>dbilabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamplace</schema>
+        <element>link</element>
+        <qualifier>geonameslabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>viaflabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glam</schema>
+        <element>link</element>
+        <qualifier>dbpedialabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+        
+    <dc-type>
+        <schema>glamperson</schema>
+        <element>link</element>
+        <qualifier>eilabel</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misa</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misl</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>misu</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bibliography</element>
+        <qualifier>abbreviation</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>editors</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>editing</element>
+        <qualifier>type</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>editor</element>
+        <qualifier>qualifier</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glam</schema>
+        <element>editing</element>
+        <qualifier>date</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamou</schema>
+        <element>variant</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamou</schema>
+        <element>history</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamou</schema>
+        <element>holdings</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamou</schema>
+        <element>editors</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>startyear</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>endyear</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>note</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>funding</element>
+        <qualifier></qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>funding</element>
+        <qualifier>type</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>funding</element>
+        <qualifier>amount</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    
+    <dc-type>
+        <schema>glamproject</schema>
+        <element>funding</element>
+        <qualifier>duration</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>position</qualifier>
+        <scope_note>The JSON of the selected fragment of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>svgselector</qualifier>
+        <scope_note>The JSON of the svg portion of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>text</qualifier>
+        <scope_note>The text of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>fulltext</qualifier>
+        <scope_note>The markdown text of the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>item</element>
+        <qualifier/>
+        <scope_note>Item related to the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>bitstream</element>
+        <qualifier/>
+        <scope_note>Bitstream related to the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>contributor</element>
+        <qualifier>annotation</qualifier>
+        <scope_note>EPerson that has created the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>subject</element>
+        <qualifier>annotation</qualifier>
+        <scope_note>The subject that is represented by the annotation</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>glam</schema>
+        <element>annotation</element>
+        <qualifier>type</qualifier>
+        <scope_note>The textual type of the annotation</scope_note>
     </dc-type>
 
 </dspace-dc-types>

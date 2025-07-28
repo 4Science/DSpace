@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -210,9 +210,13 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
 
     public Bitstream getBitstreamByName(Item item, String bundleName, String bitstreamName) throws SQLException;
 
+    List<Bitstream> getBitstreamByBundleName(Item item, String bundleName) throws SQLException;
+
     public Bitstream getFirstBitstream(Item item, String bundleName) throws SQLException;
 
     public Bitstream getThumbnail(Context context, Bitstream bitstream) throws SQLException;
+
+    public boolean isValidThumbnail(Context context, Bitstream thumbnail) throws SQLException;
 
     public BitstreamFormat getFormat(Context context, Bitstream bitstream) throws SQLException;
 

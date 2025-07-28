@@ -24,6 +24,7 @@ import org.springframework.beans.factory.BeanNameAware;
 public class UsageReportCategoryRest extends BaseObjectRest<String> implements BeanNameAware {
     public static final String NAME = "category";
     public static final String CATEGORY = RestModel.STATISTICS;
+    public static final String PLURAL_NAME = "categories";
     @JsonIgnore
     private Map<String, UsageReportGenerator> reports;
 
@@ -58,6 +59,11 @@ public class UsageReportCategoryRest extends BaseObjectRest<String> implements B
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return PLURAL_NAME;
     }
 
     /**

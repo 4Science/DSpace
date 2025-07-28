@@ -1,0 +1,1 @@
+select uuid, email from eperson e where eperson_id = ?

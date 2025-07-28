@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * This is the REST repository dealing with the Script logic
  */
-@Component(ScriptRest.CATEGORY + "." + ScriptRest.NAME)
+@Component(ScriptRest.CATEGORY + "." + ScriptRest.PLURAL_NAME)
 public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, String> {
 
     @Autowired

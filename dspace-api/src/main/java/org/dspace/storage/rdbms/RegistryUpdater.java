@@ -7,25 +7,23 @@
  */
 package org.dspace.storage.rdbms;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
 import org.dspace.administer.RegistryLoader;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
-import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Event;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -52,36 +50,37 @@ public class RegistryUpdater implements Callback {
     /**
      * logging category
      */
-    private static final Logger log = LoggerFactory.getLogger(RegistryUpdater.class);
+    private static final Logger log = LogManager.getLogger();
 
     /**
      * Method to actually update our registries from latest configuration files.
      */
     private void updateRegistries() {
-        ConfigurationService config = DSpaceServicesFactory.getInstance().getConfigurationService();
         Context context = null;
         try {
             context = new Context();
             context.turnOffAuthorisationSystem();
 
-            String base = config.getProperty("dspace.dir")
-                + File.separator + "config" + File.separator
-                + "registries" + File.separator;
-
-            // Load updates to Bitstream format registry (if any)
-            log.info("Updating Bitstream Format Registry based on {}bitstream-formats.xml", base);
-            RegistryLoader.loadBitstreamFormats(context, base + "bitstream-formats.xml");
+            // Load updates to Bitstream formats registries (if any)
+            List<String> registryBitstreamFormatFiles  =
+                    MetadataImporter.getAllRegistryFiles(MetadataImporter.REGISTRY_BITSTREAM_FORMAT_PROPERTY);
+            for (String bitstreamFormat : registryBitstreamFormatFiles) {
+                log.info("Updating Bitstream Format Registry based on {}", bitstreamFormat);
+                RegistryLoader.loadBitstreamFormats(context, bitstreamFormat);
+            }
 
             // Load updates to Metadata schema registries (if any)
-            log.info("Updating Metadata Registries based on metadata type configs in {}", base);
-            for (String namespaceFile: config.getArrayProperty("registry.metadata.load")) {
-                log.info("Reading {}", namespaceFile);
-                MetadataImporter.loadRegistry(base + namespaceFile, true);
+            List<String> registryMetadataFiles =
+                    MetadataImporter.getAllRegistryFiles(MetadataImporter.REGISTRY_METADATA_PROPERTY);
+            log.info("Updating Metadata Registries based on metadata type configs in {}", MetadataImporter.BASE);
+            for (String metadataFile : registryMetadataFiles) {
+                log.info("Reading {}", metadataFile);
+                MetadataImporter.loadRegistry(metadataFile, true);
             }
 
             String workflowTypes = "workflow-types.xml";
             log.info("Reading {}", workflowTypes);
-            MetadataImporter.loadRegistry(base + workflowTypes, true);
+            MetadataImporter.loadRegistry( MetadataImporter.BASE + workflowTypes, true);
 
             context.restoreAuthSystemState();
             // Commit changes and close context

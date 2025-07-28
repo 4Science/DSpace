@@ -12,26 +12,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.Cacheable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import org.dspace.content.EntityType;
 import org.dspace.content.MetadataField;
 import org.dspace.core.ReloadableEntity;
@@ -46,13 +46,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     @NamedAttributeNode(value = "rows", subgraph = "CrisLayoutTab.cells_and_content"),
     @NamedAttributeNode(value = "entity")
     }, subgraphs = {
-    @NamedSubgraph(name = "CrisLayoutTab.cells_and_content", attributeNodes = {
-        @NamedAttributeNode(value = "cells", subgraph = "CrisLayoutTab.boxes_and_content")
-    }),
-    @NamedSubgraph(name = "CrisLayoutTab.boxes_and_content", attributeNodes = {
-        @NamedAttributeNode(value = "boxes")
-    })
-})
+        @NamedSubgraph(name = "CrisLayoutTab.cells_and_content", attributeNodes = {
+            @NamedAttributeNode(value = "cells", subgraph = "CrisLayoutTab.boxes_and_content")
+        }),
+        @NamedSubgraph(name = "CrisLayoutTab.boxes_and_content", attributeNodes = {
+            @NamedAttributeNode(value = "boxes")
+        })
+    }
+)
 public class CrisLayoutTab implements ReloadableEntity<Integer> {
 
     public static final String ROWS_AND_CONTENT_GRAPH = "CrisLayoutTab.rows_and_content";
@@ -87,14 +88,8 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
         @JoinColumn(name = "tab_id") }, inverseJoinColumns = { @JoinColumn(name = "metadata_field_id") })
     private Set<MetadataField> metadataSecurityFields = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cris_layout_tab2securitygroup",
-        joinColumns = {@JoinColumn(name = "tab_id")},
-        inverseJoinColumns = {@JoinColumn(name = "group_id")}
-    )
-    private Set<Group> groupSecurityFields = new HashSet<>();
-
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "tab", cascade = CascadeType.ALL)
+    private Set<CrisLayoutTab2SecurityGroup> tab2SecurityGroups = new HashSet<>();
 
     @Column(name = "is_leading")
     private Boolean leading;
@@ -230,20 +225,19 @@ public class CrisLayoutTab implements ReloadableEntity<Integer> {
             .collect(Collectors.toList());
     }
 
-    public void setGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields = groupSecurityFields;
-    }
-
-    public void addGroupSecurityFields(Set<Group> groupSecurityFields) {
-        this.groupSecurityFields.addAll(groupSecurityFields);
-    }
-
-    public void addGroupSecurityFields(Group group) {
-        this.groupSecurityFields.add(group);
-    }
-
     public Set<Group> getGroupSecurityFields() {
-        return groupSecurityFields;
+        return tab2SecurityGroups.stream()
+                                 .map(crisLayoutTab2SecurityGroup ->
+                                     crisLayoutTab2SecurityGroup.getGroup())
+                                 .collect(Collectors.toSet());
+    }
+
+    public Set<CrisLayoutTab2SecurityGroup> getTab2SecurityGroups() {
+        return tab2SecurityGroups;
+    }
+
+    public void setTab2SecurityGroups(Set<CrisLayoutTab2SecurityGroup> tab2SecurityGroups) {
+        this.tab2SecurityGroups = tab2SecurityGroups;
     }
 
     @Override

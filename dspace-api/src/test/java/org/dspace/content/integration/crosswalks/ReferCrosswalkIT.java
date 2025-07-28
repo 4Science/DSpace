@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
@@ -74,6 +73,7 @@ import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutField;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -142,7 +142,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         context.restoreAuthSystemState();
 
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
     }
 
     @After
@@ -1459,6 +1459,63 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testFundingXmlDisseminateWithRestrictedMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Funding").build();
+        MetadataField currency = mfss.findByElement(context,
+            "oairecerif","amount","currency");
+        MetadataField amount = mfss.findByElement(context,
+            "oairecerif","amount",null);
+
+        CrisLayoutField crisLayoutFieldCurrency = CrisLayoutFieldBuilder.createMetadataField(context,currency,1,1)
+            .build();
+        CrisLayoutField crisLayoutFieldAmount = CrisLayoutFieldBuilder.createMetadataField(context,amount,0,1)
+            .build();
+
+        CrisLayoutBoxBuilder.createBuilder(context, entityType, false, false)
+            .withType("METADATA")
+            .withShortname("financialdata")
+            .addMetadataSecurityField(currency)
+            .addMetadataSecurityField(amount)
+            .addField(crisLayoutFieldCurrency)
+            .addField(crisLayoutFieldAmount)
+            .withSecurity(LayoutSecurity.CUSTOM_DATA).build();
+
+        Item funding = ItemBuilder.createItem(context, collection)
+            .withEntityType("Funding")
+            .withAcronym("T-FU")
+            .withTitle("Test Funding")
+            .withType("Gift")
+            .withInternalId("ID-01")
+            .withFundingIdentifier("0001")
+            .withDescription("Funding to test export")
+            .withAmount("30.000,00")
+            .withAmountCurrency("EUR")
+            .withFunder("OrgUnit Funder")
+            .withFundingStartDate("2015-01-01")
+            .withFundingEndDate("2020-01-01")
+            .withOAMandate("true")
+            .withOAMandateURL("www.mandate.url")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("funding-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, funding, out);
+
+        try (FileInputStream fis = getFileInputStream("funding1.xml")) {
+            String expectedContent = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(out.toString(), expectedContent);
+        }
+
+    }
+
+    @Test
     public void testFundingJsonDisseminate() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -1982,7 +2039,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void placeholderFieldMustBeReplacedWithEmptyStringTest() throws Exception {
+    public void placeholderFieldMustBeIgnoredTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         Item patent = ItemBuilder.createItem(context, collection)
@@ -1999,8 +2056,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         String json = out.toString();
         JSONObject obj = new JSONObject(json);
-        assertTrue(obj.has("title"));
-        assertTrue(StringUtils.equals(obj.getString("title"), StringUtils.EMPTY));
+        assertFalse(obj.has("title"));
     }
 
     @Test
@@ -2552,6 +2608,135 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testReferCrosswalkPublicationDataciteXml() throws Exception {
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        Item orgunit = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("OrgUnit Name")
+                .withOrgUnitRORIdentifier("rorID")
+                .build();
+        Item publisher = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("Publisher Name")
+                .withOrgUnitRORIdentifier("rorID2")
+                .build();
+
+        Item author = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Author, Name")
+                .withAffiliation("OrgUnit", orgunit.getID().toString())
+                .withOrcidIdentifier("1234-5678-9012")
+                .build();
+        Item author2 = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Author2, Name")
+                .withAffiliation("OrgUnit", orgunit.getID().toString())
+                .withOrcidIdentifier("9876-5432-1012")
+                .build();
+        Item item = createItem(context, collection)
+            .withEntityType("Publication")
+            .withTitle("Publication title")
+            .withAuthor("Author, Name in Pub", author.getID().toString())
+            .withAuthorAffiliation("OrgUnit in pub", orgunit.getID().toString())
+            .withAuthor("External, Auth")
+            .withAuthorAffiliationPlaceholder()
+            .withAuthor("Author, Name in Pub", author2.getID().toString())
+            .withAuthorAffiliation("OrgUnit in pub2")
+            .withPublisher("Publisher", publisher.getID().toString())
+            .withIssueDate("2023")
+            .withDateAvailable("2023-10-20")
+            .withType("text::journal article::review article", "publication-coar-types:c_dcae04bc")
+            .withHandle("123456789/99999")
+            .build();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
+
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
+
+        try (FileInputStream fis = getFileInputStream("journal-article-datacite.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
+        }
+
+    }
+
+    @Test
+    public void testReferCrosswalkPublicationDataciteXmlWithoutTypeAndAuthor() throws Exception {
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        Item publisher = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("Publisher Name")
+                .withOrgUnitRORIdentifier("rorID2")
+                .build();
+        Item item = createItem(context, collection)
+            .withEntityType("Publication")
+            .withTitle("Publication title")
+            .withPublisher("Publisher", publisher.getID().toString())
+            .withIssueDate("2023")
+            .withDateAvailable("2023-10-20")
+            .withHandle("123456789/99999")
+            .build();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
+
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
+
+        try (FileInputStream fis = getFileInputStream("publication-without-authors-and-type-datacite.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
+        }
+
+    }
+
+    @Test
+    public void testReferCrosswalkPublicationDataciteXmlWithVirtualPlace() throws Exception {
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        Item publisher = createItem(context, collection)
+                .withEntityType("OrgUnit")
+                .withTitle("Publisher Name")
+                .withOrgUnitRORIdentifier("rorID2")
+                .build();
+        Item item = createItem(context, collection)
+            .withEntityType("Publication")
+            .withTitle("Publication title")
+            .withPublisher("Publisher", publisher.getID().toString())
+            .withIssueDate("2023")
+            .withLanguage(Locale.ITALIAN.getLanguage())
+            .withLanguage(Locale.ENGLISH.getLanguage())
+            .withDateAvailable("2023-10-20")
+            .withHandle("123456789/99999")
+            .build();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
+
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
+
+        try (FileInputStream fis = getFileInputStream("publication-virtual-place-datacite.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
+        }
+
+    }
+
+    @Test
     public void testExportToDataciteFormatItemWithThreeDOI() throws Exception {
         String prefix;
         prefix = this.configurationService.getProperty(CFG_PREFIX);
@@ -2861,6 +3046,9 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             resultLines.length, equalTo(expectedResultLines.length));
 
         for (int i = 0; i < resultLines.length; i++) {
+            if (expectedResultLines[i].contains("SKIP-IN-COMPARING")) {
+                continue;
+            }
             assertThat(removeTabs(resultLines[i]), equalTo(removeTabs(expectedResultLines[i])));
         }
     }

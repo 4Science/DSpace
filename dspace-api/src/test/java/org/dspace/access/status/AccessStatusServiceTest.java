@@ -120,6 +120,10 @@ public class AccessStatusServiceTest extends AbstractUnitTest {
 
     @Test
     public void testGetAccessStatus() throws Exception {
+        context.turnOffAuthorisationSystem();
+        itemService.addMetadata(context, item, "datacite", "rights", null, Item.ANY, "openaccess");
+        itemService.update(context, item);
+        context.restoreAuthSystemState();
         String status = accessStatusService.getAccessStatus(context, item);
         assertNotEquals("testGetAccessStatus 0", status, DefaultAccessStatusHelper.UNKNOWN);
     }
