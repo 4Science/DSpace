@@ -627,7 +627,11 @@
                                 </Not>
                             </LeftCondition>
                             <RightCondition>
-                                <Custom ref="isPublicationEntityCondition"/>
+                                <Not>
+                                    <Condition>
+                                        <Custom ref="isCustomEntityCondition"/>
+                                    </Condition>
+                                </Not>
                             </RightCondition>
                         </Or>
                     </RightCondition>
@@ -830,6 +834,49 @@
             </Configuration>
         </CustomCondition>
 
+        <!-- This condition determines if an Item has a "dspace.entity.type" field
+     specifying one of the valid DRIVER document types. -->
+        <CustomCondition id="isCustomEntityCondition">
+            <Class>org.dspace.xoai.filter.DSpaceAtLeastOneMetadataFilter</Class>
+            <Configuration>
+                <string name="field">dspace.entity.type</string>
+                <string name="operator">equal</string>
+                <list name="values">
+                    <string>Person</string>
+                    <string>person</string>
+                    <string>Project</string>
+                    <string>project</string>
+                    <string>OrgUnit</string>
+                    <string>orgunit</string>
+                    <string>Event</string>
+                    <string>event</string>
+                    <string>Fonds</string>
+                    <string>fonds</string>
+                    <string>Family</string>
+                    <string>family</string>
+                    <string>Place</string>
+                    <string>place</string>
+                    <string>JournalFonds</string>
+                    <string>journalfonds</string>
+                    <string>Aggregation</string>
+                    <string>aggregation</string>
+                    <string>News</string>
+                    <string>news</string>
+                    <string>StaticPage</string>
+                    <string>staticpage</string>
+                    <string>Path</string>
+                    <string>path</string>
+                    <string>Opera</string>
+                    <string>opera</string>
+                    <string>WebAnnotation</string>
+                    <string>webannotation</string>
+                    <string>PersonalAnnotation</string>
+                    <string>personalannotation</string>
+                    <string>Concept</string>
+                    <string>concept</string>
+                </list>
+            </Configuration>
+        </CustomCondition>
 
         <Filter id="publicationOrJournalSetFilter">
             <Definition>
