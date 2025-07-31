@@ -676,14 +676,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Specify the version of json-smart we want to use.
-             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.5.2</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
