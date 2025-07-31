@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
@@ -46,8 +48,6 @@ import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.xoai.app.XOAIExtensionBitstreamCompilePlugin;
-import org.dspace.xoai.app.XOAIExtensionsPluginFactory;
 import org.dspace.xoai.data.DSpaceItem;
 
 /**
@@ -55,6 +55,9 @@ import org.dspace.xoai.data.DSpaceItem;
  */
 @SuppressWarnings("deprecation")
 public class ItemUtils {
+
+    public static final String BITSTREAM_METADATA_EXCLUDED = "oai.harvester.bitstream.metadata.excluded";
+
     private static final Logger log = LogManager.getLogger(ItemUtils.class);
 
     private static final MetadataExposureService metadataExposureService
@@ -83,9 +86,6 @@ public class ItemUtils {
 
     private static final HandleService handleService = HandleServiceFactory
             .getInstance().getHandleService();
-
-    private static final List<XOAIExtensionBitstreamCompilePlugin> additionalPlugins = XOAIExtensionsPluginFactory
-        .getInstance().getXOAIExtensionBitstreamCompilePlugins();
 
     public static Integer MAX_DEEP = 2;
     public static String AUTHORITY = "authority";
@@ -267,14 +267,30 @@ public class ItemUtils {
                 // Add primary bitstream field to allow locating easily the primary bitstream information
                 bitstream.getField().add(createValue("primary", primary + ""));
 
-                for (XOAIExtensionBitstreamCompilePlugin additionalPlugin : additionalPlugins) {
-                    additionalPlugin.appendElements(context, bitstream, bit);
-                }
+                Set<String> technicalMetadataToSkip =
+                    Collections.singleton(configurationService.getProperty(BITSTREAM_METADATA_EXCLUDED));
+
+                bit.getMetadata().stream()
+                   .filter(metadataValue -> isNotExcluded(metadataValue, technicalMetadataToSkip))
+                   .forEach(metadataValue -> writeTechnicalMetadata(bitstream, metadataValue));
 
             }
         }
 
         return bundles;
+    }
+
+    protected static void writeTechnicalMetadata(Element bitstream, MetadataValue metadataValue) {
+        Element bSchema = getElement(bitstream.getElement(), metadataValue.getSchema());
+        if (bSchema == null) {
+            bSchema = create(metadataValue.getSchema());
+            bitstream.getElement().add(bSchema);
+        }
+        writeMetadata(bSchema, metadataValue);
+    }
+
+    protected static boolean isNotExcluded(MetadataValue metadataValue, Set<String> technicalMetadataToSkip) {
+        return !technicalMetadataToSkip.contains(metadataValue.getMetadataField().toString('.'));
     }
 
     /**

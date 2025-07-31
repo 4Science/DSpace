@@ -33,8 +33,6 @@
 
     <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
 
-    <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
-
     <!-- Additional item.compile plugin to enrich field with information about
         Access Status metadata -->
     <bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
@@ -83,6 +81,4 @@
             </map>
         </constructor-arg>
     </bean>
-
-    <bean id="xoaiExtensionsPluginFactory" class="org.dspace.xoai.app.XOAIExtensionsPluginFactoryImpl"/>
 </beans>
