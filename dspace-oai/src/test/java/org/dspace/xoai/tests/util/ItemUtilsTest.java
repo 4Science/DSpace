@@ -245,8 +245,8 @@ public class ItemUtilsTest {
         when(bitstream.getFormat(any())).thenReturn(bitstreamFormat);
         when(bitstream.getChecksum()).thenReturn("checksum");
         when(bitstream.getChecksumAlgorithm()).thenReturn("checksum-algorithm");
-        when(bitstream.getSource()).thenReturn("source");
-        when(bitstream.getName()).thenReturn("bitstream-name");
+        when(bitstream.getSource()).thenReturn("dc.source");
+        when(bitstream.getName()).thenReturn("dc.title");
         when(bitstream.getDescription()).thenReturn("bitstream-description");
         when(bitstream.getSequenceID()).thenReturn(1);
         when(bitstreamFormat.getMIMEType()).thenReturn("application/pdf");
@@ -370,7 +370,7 @@ public class ItemUtilsTest {
             )
         );
 
-        when(originalBundle.getName()).thenReturn("original");
+        when(originalBundle.getName()).thenReturn("ORIGINAL");
         when(originalBundle.getBitstreams()).thenReturn(List.of(bitstream));
 
         when(item.getBundles()).thenReturn(List.of(originalBundle));
@@ -413,20 +413,20 @@ public class ItemUtilsTest {
 
         // Test bundles structure
         matchElement(metadata, "bundles.bundle");
-        match(metadata, "bundles.bundle.name", "original");
+        match(metadata, "bundles.bundle.name", "ORIGINAL");
         matchElement(metadata, "bundles.bundle.bitstreams");
         matchElement(metadata, "bundles.bundle.bitstreams.bitstream");
 
         // Test bitstream fields
-        match(metadata, "bundles.bundle.bitstreams.bitstream.name", "bitstream-name");
-        match(metadata, "bundles.bundle.bitstreams.bitstream.originalName", "bitstream-name");
+        match(metadata, "bundles.bundle.bitstreams.bitstream.name", "dc.title");
+        match(metadata, "bundles.bundle.bitstreams.bitstream.originalName", "dc.title");
         match(metadata, "bundles.bundle.bitstreams.bitstream.description", "bitstream-description");
         match(metadata, "bundles.bundle.bitstreams.bitstream.format", "application/pdf");
         match(metadata, "bundles.bundle.bitstreams.bitstream.size", "0");
         match(metadata, "bundles.bundle.bitstreams.bitstream.checksum", "checksum");
         match(metadata, "bundles.bundle.bitstreams.bitstream.checksumAlgorithm", "checksum-algorithm");
         match(metadata, "bundles.bundle.bitstreams.bitstream.sid", "1");
-        match(metadata, "bundles.bundle.bitstreams.bitstream.primary", "false");
+        match(metadata, "bundles.bundle.bitstreams.bitstream.primary", "true");
 
         // Test bitstream technical metadata
         matchElement(metadata, "bundles.bundle.bitstreams.bitstream.dc");
@@ -521,8 +521,8 @@ public class ItemUtilsTest {
         matchElement(metadata, "bundles.bundle.bitstreams.bitstream");
 
         // Test bitstream fields
-        match(metadata, "bundles.bundle.bitstreams.bitstream.name", "bitstream-name");
-        match(metadata, "bundles.bundle.bitstreams.bitstream.originalName", "bitstream-name");
+        match(metadata, "bundles.bundle.bitstreams.bitstream.name", "dc.title");
+        match(metadata, "bundles.bundle.bitstreams.bitstream.originalName", "dc.title");
         match(metadata, "bundles.bundle.bitstreams.bitstream.description", "bitstream-description");
         match(metadata, "bundles.bundle.bitstreams.bitstream.format", "application/pdf");
         match(metadata, "bundles.bundle.bitstreams.bitstream.size", "0");
