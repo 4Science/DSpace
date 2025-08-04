@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CorrectionTypeServiceImpl implements CorrectionTypeService {
 
-    @Autowired
+    @Autowired(required = false)
     private List<CorrectionType> correctionTypes;
 
     @Override
