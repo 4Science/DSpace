@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2024.02.02-SNAPSHOT</version>
+        <version>cris-2024.02.03-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -42,7 +42,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-webapp</id>
+                        <id>unpack-server</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>

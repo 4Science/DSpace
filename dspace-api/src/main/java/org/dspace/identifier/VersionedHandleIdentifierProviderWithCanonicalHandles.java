@@ -9,19 +9,20 @@ package org.dspace.identifier;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.service.ItemService;
-import org.dspace.content.service.MetadataValueService;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -63,12 +64,6 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
 
     @Autowired(required = true)
     private HandleService handleService;
-
-    @Autowired(required = true)
-    private ItemService itemService;
-
-    @Autowired()
-    private MetadataValueService metadataValueService;
 
     /**
      * After all the properties are set check that the versioning is enabled
@@ -170,6 +165,16 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
             try {
                 // remove all handles from metadata and add the canonical one.
                 modifyHandleMetadata(context, item, getCanonical(id));
+            } catch (SQLException ex) {
+                throw new RuntimeException("A problem with the database connection occured.", ex);
+            } catch (AuthorizeException ex) {
+                throw new RuntimeException("The current user is not authorized to change this item.", ex);
+            }
+        }
+        if (dso instanceof Collection || dso instanceof Community) {
+            try {
+                // Update the metadata with the handle for collections and communities.
+                modifyHandleMetadata(context, dso, getCanonical(id));
             } catch (SQLException ex) {
                 throw new RuntimeException("A problem with the database connection occured.", ex);
             } catch (AuthorizeException ex) {
@@ -494,47 +499,39 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
      * Remove all handles from an item's metadata and add the supplied handle instead.
      *
      * @param context The relevant DSpace Context.
-     * @param item    which item to modify
+     * @param dso    which dso to modify
      * @param handle  which handle to add
      * @throws SQLException       if database error
      * @throws AuthorizeException if authorization error
      */
-    protected void modifyHandleMetadata(Context context, Item item, String handle)
+    protected void modifyHandleMetadata(Context context, DSpaceObject dso, String handle)
         throws SQLException, AuthorizeException {
         // we want to exchange the old handle against the new one. To do so, we
         // load all identifiers, clear the metadata field, re add all
         // identifiers which are not from type handle and add the new handle.
         String handleref = handleService.getCanonicalForm(handle);
-        List<MetadataValue> identifiers = itemService
-            .getMetadata(item, MetadataSchemaEnum.DC.getName(), "identifier", "uri", Item.ANY);
-        List<MetadataValue> toRemove = new ArrayList<>();
+        DSpaceObjectService<DSpaceObject> dSpaceObjectService =
+            ContentServiceFactory.getInstance().getDSpaceObjectService(dso);
+        List<MetadataValue> identifiers = dSpaceObjectService
+            .getMetadata(dso, MetadataSchemaEnum.DC.getName(), "identifier", "uri", Item.ANY);
+        dSpaceObjectService.clearMetadata(context, dso, MetadataSchemaEnum.DC.getName(), "identifier", "uri", Item.ANY);
         for (MetadataValue identifier : identifiers) {
             if (this.supports(identifier.getValue())) {
                 // ignore handles
                 continue;
             }
-
-            identifiers.remove(identifier);
-            toRemove.add(identifier);
-            metadataValueService.delete(context, identifier);
-
-            itemService.addMetadata(context,
-                                    item,
+            dSpaceObjectService.addMetadata(context,
+                                    dso,
                                     identifier.getMetadataField(),
                                     identifier.getLanguage(),
                                     identifier.getValue(),
                                     identifier.getAuthority(),
                                     identifier.getConfidence());
         }
-        itemService.removeMetadataValues(context, item, toRemove);
-
-        item = context.reloadEntity(item);
-
         if (!StringUtils.isEmpty(handleref)) {
-            itemService.addMetadata(context, item, MetadataSchemaEnum.DC.getName(),
+            dSpaceObjectService.addMetadata(context, dso, MetadataSchemaEnum.DC.getName(),
                                     "identifier", "uri", null, handleref);
         }
-        itemService.setMetadataModified(item);
-        itemService.update(context, item);
+        dSpaceObjectService.update(context, dso);
     }
 }

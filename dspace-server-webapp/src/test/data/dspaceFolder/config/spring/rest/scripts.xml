@@ -5,6 +5,9 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="dspaceRunnableThreadExecutor" class="org.springframework.core.task.SyncTaskExecutor"/>
+    <bean id="dspaceRunnableThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5"/>
+    </bean>
 
     <!-- This primary attribute is present so that we can assure that in the REST layer we'll always use this
         bean if it is present-->
