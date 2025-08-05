@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.content.authority;
 
 import java.sql.SQLException;
@@ -53,6 +52,7 @@ import org.dspace.web.ContextUtil;
  * @version $Revision $
  */
 public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
+
     private static Logger log = LogManager.getLogger(ItemAuthority.class);
     final static String CHOICES_EXTERNALSOURCE_PREFIX = "choises.externalsource.";
 
