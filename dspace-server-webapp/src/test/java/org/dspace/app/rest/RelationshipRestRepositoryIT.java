@@ -107,6 +107,10 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
 
     @Autowired
     MockSolrSearchCore mockSolrSearchCore;
+
+    @Autowired
+    private ObjectMapper mapper;
+
     protected Community parentCommunity;
     protected Community child1;
 
@@ -652,7 +656,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
 
         Map<String, String> map = new HashMap<>();
         map.put("leftwardValue", leftwardValue);
-        String json = new ObjectMapper().writeValueAsString(map);
+        String json = mapper.writeValueAsString(map);
 
         // Add leftwardValue
         getClient(token).perform(put("/api/core/relationships/" + idRef)
@@ -712,7 +716,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         Map<String, String> map = new HashMap<>();
         map.put("leftwardValue", leftwardValue);
         map.put("rightwardValue", rightwardValue);
-        String json = new ObjectMapper().writeValueAsString(map);
+        String json = mapper.writeValueAsString(map);
 
         // Add leftwardValue and rightwardValue
         getClient(token).perform(put("/api/core/relationships/" + idRef)
@@ -2311,7 +2315,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         ;
 
         // Perform a GET request to the searchByLabel endpoint, asking for Relationships of type isOrgUnitOfPerson
-        // We do not specificy a DSO param, which means ALL relationships of type isOrgUnitOfPerson should be returned
+        // We do not specify a DSO param, which means ALL relationships of type isOrgUnitOfPerson should be returned
         // Which is what we're checking for, both the first relationship and the one with a different author
         // should be returned
         getClient().perform(get("/api/core/relationships/search/byLabel")
@@ -2648,7 +2652,6 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
                                               .andExpect(status().isCreated())
                                               .andReturn();
 
-        ObjectMapper mapper = new ObjectMapper();
         String content = mvcResult.getResponse().getContentAsString();
         Map<String, Object> map = mapper.readValue(content, Map.class);
         String id = String.valueOf(map.get("id"));
@@ -2696,7 +2699,6 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
                 .andExpect(status().isCreated())
                 .andReturn();
 
-            ObjectMapper mapper = new ObjectMapper();
             String content = mvcResult.getResponse().getContentAsString();
             Map<String, Object> map = mapper.readValue(content, Map.class);
             String id = String.valueOf(map.get("id"));
@@ -3313,7 +3315,7 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
     }
 
     @Test
-    public void findByItemsAndTypeEmptyResponceTest() throws Exception {
+    public void findByItemsAndTypeEmptyResponseTest() throws Exception {
 
         context.turnOffAuthorisationSystem();
 

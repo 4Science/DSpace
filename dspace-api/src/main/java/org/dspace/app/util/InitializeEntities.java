@@ -77,14 +77,13 @@ public class InitializeEntities {
 
     /**
      * Check if the help option was entered or a required argument is missing. If so, print help and exit.
-     *
      * @param options the defined command-line options
-     * @param line    the parsed command-line arguments
+     * @param line the parsed command-line arguments
      */
     private static void checkHelpEntered(Options options, CommandLine line) {
         if (line.hasOption("h") || !line.hasOption("f")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("Intialize Entities", options);
+            formatter.printHelp("Initialize Entities", options);
             System.exit(0);
         }
     }

@@ -42,7 +42,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 public class CommunityLogoControllerIT extends AbstractControllerIntegrationTest {
 
+    @Autowired
     private ObjectMapper mapper;
+
     private String adminAuthToken;
     private String bitstreamContent;
     private MockMultipartFile bitstreamFile;
@@ -67,7 +69,6 @@ public class CommunityLogoControllerIT extends AbstractControllerIntegrationTest
         bitstreamFile = new MockMultipartFile("file",
                 "hello.txt", MediaType.TEXT_PLAIN_VALUE,
                 bitstreamContent.getBytes());
-        mapper = new ObjectMapper();
     }
 
     private String createLogoInternal() throws Exception {

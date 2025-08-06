@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
 
         // load curation tasks
         if (curationClientOptions == CurationClientOptions.TASK) {
-            long start = System.currentTimeMillis();
+            long start = Instant.now().toEpochMilli();
             handleCurationTask(curator);
             this.endScript(start);
         }
@@ -149,7 +150,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
      */
     private long runQueue(TaskQueue queue, Curator curator) throws SQLException, AuthorizeException, IOException {
         // use current time as our reader 'ticket'
-        long ticket = System.currentTimeMillis();
+        long ticket = Instant.now().toEpochMilli();
         Iterator<TaskQueueEntry> entryIter = queue.dequeue(this.queue, ticket).iterator();
         while (entryIter.hasNext()) {
             TaskQueueEntry entry = entryIter.next();
@@ -177,7 +178,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
             context.complete();
         }
         if (verbose) {
-            long elapsed = System.currentTimeMillis() - timeRun;
+            long elapsed = Instant.now().toEpochMilli() - timeRun;
             this.handler.logInfo("Ending curation. Elapsed time: " + elapsed);
         }
     }

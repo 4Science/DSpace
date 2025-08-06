@@ -85,6 +85,9 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
     DiscoverableEndpointsService discoverableEndpointsService;
 
     @Autowired
+    private ObjectMapper mapper;
+
+    @Autowired
     BitstreamService bitstreamService;
 
     @Override
@@ -248,7 +251,6 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
         }
 
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
         ResourcePolicyRest resourcePolicyRest = null;
         ResourcePolicy resourcePolicy = null;
 

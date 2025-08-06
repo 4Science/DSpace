@@ -57,12 +57,12 @@ public class OrcidV3AuthorDataProvider extends AbstractExternalDataProvider {
 
     private XMLtoBio converter;
 
-    private Map<String, String> externalIdentifiers;
-
     /**
      * Maximum retries to allow for the access token retrieval
      */
     private int maxClientRetries = 3;
+
+    private Map<String, String> externalIdentifiers;
 
     public static final String ORCID_ID_SYNTAX = "\\d{4}-\\d{4}-\\d{4}-(\\d{3}X|\\d{4})";
     private static final int MAX_INDEX = 10000;

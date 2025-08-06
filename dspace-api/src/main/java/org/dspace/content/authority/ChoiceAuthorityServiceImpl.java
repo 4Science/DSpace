@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Broker for ChoiceAuthority plugins, and for other information configured
  * about the choice aspect of authority control for a metadata field.
  *
- * Configuration keys, per metadata field (e.g. "dc.contributer.author")
+ * Configuration keys, per metadata field (e.g. "dc.contributor.author")
  *
  * {@code
  * # names the ChoiceAuthority plugin called for this field
@@ -727,6 +727,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             if (source != null && source instanceof DSpaceControlledVocabulary) {
                 Set<String> metadataFields = new HashSet<>();
                 Map<String, List<String>> formsToFields = this.authoritiesFormDefinitions.get(nameVocab);
+                // Vocabulary is not associated with any form definition, meaning it won't be a browse index
                 if (formsToFields == null) {
                     // no value-pairs has been found
                     return null;

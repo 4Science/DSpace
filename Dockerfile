@@ -1,13 +1,13 @@
 # This image will be published as dspace/dspace
 # See https://github.com/DSpace/DSpace/tree/main/dspace/src/main/docker for usage details
 #
-# - note: default tag for branch: dspace/dspace: dspace/dspace:dspace-8_x
+# - note: default tag for branch: dspace/dspace: dspace/dspace:latest
 
 # This Dockerfile uses JDK17 by default.
 # To build with other versions, use "--build-arg JDK_VERSION=[value]"
 ARG JDK_VERSION=17
 # The Docker version tag to build from
-ARG DSPACE_VERSION=dspace-8_x
+ARG DSPACE_VERSION=dspace-9_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io

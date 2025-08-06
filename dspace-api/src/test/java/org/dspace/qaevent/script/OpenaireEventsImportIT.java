@@ -399,7 +399,7 @@ public class OpenaireEventsImportIT extends AbstractIntegrationTestWithDatabase 
 
         Exception exception = handler.getException();
         assertThat(exception, instanceOf(RuntimeException.class));
-        assertThat(exception.getMessage(), is("An error occurs retriving the subscriptions "
+        assertThat(exception.getMessage(), is("An error occurs retrieving the subscriptions "
             + "from the OPENAIRE broker: Connection refused"));
 
         assertThat(qaEventService.findAllSources(context, 0, 20), hasItem(QASourceMatcher.with(OPENAIRE_SOURCE, 0L)));

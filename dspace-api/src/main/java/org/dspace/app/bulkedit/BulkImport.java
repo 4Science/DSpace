@@ -26,10 +26,11 @@ import static org.dspace.util.WorkbookUtils.getRows;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -525,11 +526,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             return false;
         }
 
-        if (!areMetadataValuesValid(row, true)) {
-            return false;
-        }
-
-        return true;
+        return areMetadataValuesValid(row, true);
     }
 
     private EntityRow buildEntityRow(Row row, Map<String, Integer> headers,
@@ -597,11 +594,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
             return false;
         }
 
-        if (!areMetadataValuesValid(row, false)) {
-            return false;
-        }
-
-        return true;
+        return areMetadataValuesValid(row, false);
     }
 
     private boolean areMetadataValuesValid(Row row, boolean manyMetadataValuesAllowed) {
@@ -803,8 +796,8 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     private AccessCondition buildAccessCondition(String[] accessCondition) {
         String name = accessCondition[0];
         String description = null;
-        Date startDate = null;
-        Date endDate = null;
+        LocalDate startDate = null;
+        LocalDate endDate = null;
 
         AccessConditionOption accessConditionOption = getUploadAccessConditions().get(name);
 
@@ -1022,8 +1015,8 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         String name = accessCondition.getName();
         String description = accessCondition.getDescription();
-        Date startDate = accessCondition.getStartDate();
-        Date endDate = accessCondition.getEndDate();
+        LocalDate startDate = accessCondition.getStartDate();
+        LocalDate endDate = accessCondition.getEndDate();
 
         for (AccessConditionOption aco : uploadAccessConditions.values()) {
             if (aco.getName().equalsIgnoreCase(name)) {
@@ -1619,8 +1612,9 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         }
     }
 
-    private Date parseDate(String date) {
-        return MultiFormatDateParser.parse(date);
+    private LocalDate parseDate(String date) {
+        ZonedDateTime result = MultiFormatDateParser.parse(date);
+        return result != null ? result.toLocalDate() : null;
     }
 
     private Collection getCollection() {
