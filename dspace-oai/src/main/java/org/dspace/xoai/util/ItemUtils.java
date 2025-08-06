@@ -20,6 +20,7 @@ import java.util.Set;
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
 import com.lyncode.xoai.util.Base64Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.factory.UtilServiceFactory;
@@ -30,6 +31,8 @@ import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -424,7 +427,7 @@ public class ItemUtils {
      * @param item
      * @return Structured XML Metadata in XOAI format
      */
-    public static Metadata retrieveMetadata(Context context, Item item) {
+    public static Metadata retrieveMetadata(Context context, Item item) throws SQLException {
         Metadata metadata;
 
         // read all metadata into Metadata Object
@@ -467,6 +470,14 @@ public class ItemUtils {
         other.getField().add(createValue("handle", item.getHandle()));
         other.getField().add(createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle())));
         other.getField().add(createValue("lastModifyDate", item.getLastModified().toString()));
+
+        try {
+            other.getElement().add(createCommunitiesElement(context, item));
+        } catch (SQLException e) {
+            log.warn(e.getMessage(), e);
+        }
+
+        other.getElement().add(createCollectionElement(context, item));
         metadata.getElement().add(other);
 
         // Repository Info
@@ -485,5 +496,55 @@ public class ItemUtils {
         }
 
         return metadata;
+    }
+
+    private static Element createCommunitiesElement(Context context, Item item) throws SQLException {
+        Element comElement = create("communities");
+        List<Community> communities = item.getOwningCollection().getCommunities();
+        if (communities == null || communities.size() > 1) {
+            return comElement;
+        }
+        Community itemCommunity = communities.get(0);
+        ContentServiceFactory.getInstance()
+                             .getCommunityService()
+                             .getAncestorTree(context, itemCommunity)
+                             .stream()
+                             .map(community -> createCommunityElement(context, community))
+                             .forEach(el -> comElement.getElement().add(el));
+
+        comElement.getElement().add(createCommunityElement(context, itemCommunity));
+        return comElement;
+    }
+
+    private static Element createCommunityElement(Context context, Community community) {
+        Element comElement = create("community");
+        String name = community.getName();
+        String handle = community.getHandle();
+
+        if (StringUtils.isNotEmpty(name)) {
+            comElement.getField().add(createValue("name", name));
+        }
+        if (StringUtils.isNotEmpty(handle)) {
+            comElement.getField().add(createValue("handle", handle));
+        }
+        return comElement;
+    }
+
+    private static Element createCollectionElement(Context context, Item item) {
+        Element colElement = create("owningCollection");
+
+        Collection owningCollection = item.getOwningCollection();
+        String name = owningCollection.getName();
+        String handle = owningCollection.getHandle();
+
+        if (StringUtils.isNotEmpty(name)) {
+            colElement.getField().add(createValue("name", name));
+        }
+
+        if (StringUtils.isNotEmpty(handle)) {
+            colElement.getField().add(createValue("handle", handle));
+        }
+
+        return colElement;
     }
 }

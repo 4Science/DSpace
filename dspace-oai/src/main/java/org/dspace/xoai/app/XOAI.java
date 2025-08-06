@@ -347,7 +347,7 @@ public class XOAI {
                 if (!list.isEmpty()) {
                     server.add(list);
                 }
-                server.commit(true, true);
+                server.commit();
                 list.clear();
             }
             return i;
@@ -600,6 +600,7 @@ public class XOAI {
             options.addOption("v", "verbose", false, "Verbose output");
             options.addOption("h", "help", false, "Shows some help");
             options.addOption("n", "number", true, "FOR DEVELOPMENT MUST DELETE");
+            options.addOption("i", "identifier", true, "Imports only the given identifier");
             CommandLine line = parser.parse(options, argv);
 
             String[] validSolrCommands = { COMMAND_IMPORT, COMMAND_CLEAN_CACHE };
@@ -631,9 +632,32 @@ public class XOAI {
                     ctx = new Context(Context.Mode.READ_ONLY);
                     XOAI indexer = new XOAI(ctx, line.hasOption('c'), line.hasOption('v'));
 
+                    String itemIdentifier = line.getOptionValue('i');
+
                     applicationContext.getAutowireCapableBeanFactory().autowireBean(indexer);
 
-                    int imported = indexer.index();
+                    int imported = -1;
+                    if (StringUtils.isNotEmpty(itemIdentifier)) {
+                        Item item = null;
+                        try {
+                            item = ContentServiceFactory.getInstance().getItemService()
+                                                        .find(ctx, UUID.fromString(itemIdentifier));
+                            if (item == null) {
+                                log.error("Cannot find any item with identifier: {}", itemIdentifier);
+                                System.out.println("Cannot find any item with identifier: " + itemIdentifier);
+                            } else {
+                                imported = indexer.index(createSingleItemIterator(item));
+                            }
+                        } catch (Exception e) {
+                            log.error("Cannot find any item with identifier: " + itemIdentifier, e);
+                            System.out.println("Cannot find any item with identifier: " + itemIdentifier);
+                            e.printStackTrace();
+                        }
+
+                    } else {
+                        imported = indexer.index();
+                    }
+
                     if (imported > 0) {
                         cleanCache(itemCacheService, cacheService);
                     }
@@ -702,6 +726,21 @@ public class XOAI {
             throw new CompilingException(e);
         }
         System.out.println("Items compiled");
+    }
+
+    /**
+     * Creates an iterator containing a single item.
+     * This is useful when you need to process a single item using methods
+     * that expect an Iterator<Item> parameter.
+     *
+     * @param item The single item to include in the iterator
+     * @return An iterator containing only the specified item
+     */
+    public static Iterator<Item> createSingleItemIterator(Item item) {
+        if (item == null) {
+            return Collections.emptyIterator();
+        }
+        return Collections.singletonList(item).iterator();
     }
 
     private static void usage() {
