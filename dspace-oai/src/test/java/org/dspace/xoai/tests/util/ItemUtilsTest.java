@@ -172,7 +172,7 @@ public class ItemUtilsTest {
         // Navigate through element hierarchy
         while (i < split.length - 2 && !elements.isEmpty()) {
             String pathSegment = split[i++];
-            
+
             // Check if this segment has an index specification [n]
             int elementIndex = -1;
             String elementName;
@@ -194,7 +194,6 @@ public class ItemUtilsTest {
                 .stream()
                 .filter(e -> elementName.equals(e.getName()))
                 .toList();
-            
             // Apply index filter if specified
             if (elementIndex >= 0) {
                 if (elementIndex >= filteredElements.size()) {
@@ -205,7 +204,7 @@ public class ItemUtilsTest {
             } else {
                 elements = filteredElements;
             }
-            
+
             // Get child elements for next iteration
             elements = elements
                 .stream()
@@ -216,7 +215,7 @@ public class ItemUtilsTest {
         // Get the final field name
         String elementName = split[i++];
         String fieldName = split[i];
-        
+
         // Check if the element name has an index specification
         int elementIndex = -1;
         if (elementName.contains("[") && elementName.contains("]")) {
@@ -235,7 +234,7 @@ public class ItemUtilsTest {
         List<Element> finalElements = elements.stream()
                                               .filter(e -> Objects.equals(e.getName(), finalElementName))
                                               .toList();
-        
+
         // Apply index filter if specified (either from path or parameter)
         int targetIndex = elementIndex >= 0 ? elementIndex : index;
         if (targetIndex >= 0) {
