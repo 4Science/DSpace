@@ -347,7 +347,7 @@ public class XOAI {
                 if (!list.isEmpty()) {
                     server.add(list);
                 }
-                server.commit();
+                server.commit(true, true);
                 list.clear();
             }
             return i;
@@ -646,6 +646,8 @@ public class XOAI {
                                 log.error("Cannot find any item with identifier: {}", itemIdentifier);
                                 System.out.println("Cannot find any item with identifier: " + itemIdentifier);
                             } else {
+                                log.info("Trying to process item: {}", itemIdentifier);
+                                System.out.println("Trying to process item: " + itemIdentifier);
                                 imported = indexer.index(createSingleItemIterator(item));
                             }
                         } catch (Exception e) {
@@ -755,6 +757,7 @@ public class XOAI {
             System.out.println("     " + COMMAND_CLEAN_CACHE + " - Cleans the OAI cached responses");
             System.out.println("> Parameters:");
             System.out.println("     -c Clear index (" + COMMAND_IMPORT + " only)");
+            System.out.println("     -i Identifier of the item to import (" + COMMAND_IMPORT + " only)");
             System.out.println("     -v Verbose output");
             System.out.println("     -h Shows this text");
         } else {
