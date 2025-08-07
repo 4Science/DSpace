@@ -505,15 +505,20 @@ public class ItemUtils {
             return comElement;
         }
         Community itemCommunity = communities.get(0);
-        ContentServiceFactory.getInstance()
-                             .getCommunityService()
-                             .getAncestorTree(context, itemCommunity)
+        getAncestorCommunities(context, itemCommunity)
                              .stream()
                              .map(community -> createCommunityElement(context, community))
                              .forEach(el -> comElement.getElement().add(el));
 
         comElement.getElement().add(createCommunityElement(context, itemCommunity));
         return comElement;
+    }
+
+    protected static List<Community> getAncestorCommunities(Context context, Community itemCommunity)
+        throws SQLException {
+        return ContentServiceFactory.getInstance()
+                                    .getCommunityService()
+                                    .getAncestorTree(context, itemCommunity);
     }
 
     private static Element createCommunityElement(Context context, Community community) {
