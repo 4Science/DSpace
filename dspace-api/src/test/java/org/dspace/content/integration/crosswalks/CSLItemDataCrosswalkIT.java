@@ -75,6 +75,7 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withTitle("Publication title")
             .withEntityType("Publication")
             .withIssueDate("2018-05-17")
+            .withHandle("123456789/0004")
             .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withAuthor("John Smith")
             .withAuthor("Edward Red")
@@ -109,6 +110,7 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withTitle("Test publication")
             .withEntityType("Publication")
             .withIssueDate("2020-01-31")
+            .withHandle("123456789/0003")
             .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withAuthor("Walter White")
             .build();
