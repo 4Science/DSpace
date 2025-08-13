@@ -178,6 +178,9 @@
                 level='ERROR'/>
         <Logger name='org.dspace.utils'
                 level='ERROR'/>
+        <!--        Uncomment to log all the requests with header and body using WebSecurityConfiguration.java:143  -->
+        <!--        <Logger name='org.springframework.web.filter.CommonsRequestLoggingFilter'-->
+        <!--                level='DEBUG'/>-->
 
         <!-- Block passwords from being exposed in Axis logs. (DEBUG exposes passwords in Basic Auth) -->
         <Logger name='org.apache.axis.handlers.http.HTTPAuthHandler'
