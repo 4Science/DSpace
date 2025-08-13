@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 /**
  * Spring Security configuration for DSpace Server Webapp. The global method
@@ -136,7 +137,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Everyone can call this endpoint
                 .permitAll()
             .and()
-
+            // Uncomment to log all the requests with header and body
+            // .addFilterBefore(logFilter(), LogoutFilter.class)
             // Add a filter before any request to handle DSpace IP-based authorization/authentication
             // (e.g. anonymous users may be added to special DSpace groups if they are in a given IP range)
             .addFilterBefore(new AnonymousAdditionalAuthorizationFilter(authenticationManager(), authenticationService),
@@ -202,6 +204,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     private SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new DSpaceCsrfAuthenticationStrategy(csrfTokenRepository());
+    }
+
+    private CommonsRequestLoggingFilter logFilter() {
+        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(true);
+        filter.setMaxPayloadLength(10000);
+        filter.setIncludeHeaders(true);
+        filter.setAfterMessagePrefix("REQUEST DATA : ");
+        return filter;
     }
 
 }

@@ -1,0 +1,26 @@
+# Set the JDK version and DSpace version
+ARG JDK_VERSION=17
+ARG DOCKER_REGISTRY=docker.io
+
+# Stage 1 - Copy artifacts
+FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
+EXPOSE 8080
+ENV DSPACE_INSTALL=/dspace \
+    DATA_FOLDER=/data
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
+
+RUN mkdir -p $DSPACE_INSTALL $DATA_FOLDER
+
+COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
+COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
+COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar $DSPACE_INSTALL/server-boot.jar
+
+RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
+    ln -s $DATA_FOLDER/local.cfg $DSPACE_INSTALL/config/local.cfg
+
+WORKDIR $DSPACE_INSTALL
+USER dspace
+ENV JAVA_OPTS="-XX:InitialRAMPercentage:50 -XX:MaxRAMPercentage=75 \
+    -XX:+UseG1GC -XX:+PrintGCDetails \
+    -XX:+PrintGCDateStamps -Xloggc:/logs/gc.log"
+ENTRYPOINT [ "java", "-jar", "server-boot.jar", "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]
