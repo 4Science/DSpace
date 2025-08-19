@@ -249,7 +249,7 @@
 
 :uri
   dm:metadataName "dc.identifier.uri" ;
-  dm:condition "^((?!http://dx.doi.org/)(?!http://hdl.handle.net/)(?!http://localhost:8080/handle/)).*" ;
+  dm:condition "^(?!http://dx.doi.org/)(?!http://hdl.handle.net/)(?!http://localhost:8080/handle/)(?:http://|https?:)).*" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate bibo:uri ;
@@ -386,6 +386,7 @@
 
 :relationURI
   dm:metadataName "dc.relation.uri";
+  dm:condition "^(?:http://|https?:).*" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate dcterms:relation ;
@@ -407,6 +408,7 @@
 
 :rightsURI
   dm:metadataName "dc.rights.uri";
+  dm:condition "^(?:http://|https?:).*" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate dcterms:rights ;
