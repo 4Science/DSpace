@@ -70,7 +70,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         if (item == null) {
             return UNKNOWN;
         }
-        String itemStatus = caculateAccessStatusForDso(context, item, threshold);
+        String itemStatus = calculateAccessStatusForDso(context, item, threshold);
         if (StringUtils.equals(itemStatus, RESTRICTED)) {
             return itemStatus;
         }
