@@ -99,9 +99,6 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         this.orcidClient = orcidClient;
     }
 
-    private AccessStatusService accessStatusService = AccessStatusServiceFactory.getInstance()
-            .getAccessStatusService();
-
     @Override
     public void linkProfile(Context context, Item profile, OrcidTokenResponseDTO token) throws SQLException {
 
@@ -251,6 +248,8 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
     private boolean isRestrictedAccess(Context context, Item item) {
         try {
+            AccessStatusService accessStatusService = AccessStatusServiceFactory.getInstance()
+                    .getAccessStatusService();
             String accessStatus = accessStatusService.getAccessStatus(context, item);
             return org.apache.commons.lang3.StringUtils.equalsAny(accessStatus,
                 DefaultAccessStatusHelper.RESTRICTED, DefaultAccessStatusHelper.EMBARGO);
