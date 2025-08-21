@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.dspace.access.status.DefaultAccessStatusHelper;
+import org.dspace.access.status.factory.AccessStatusServiceFactory;
 import org.dspace.access.status.service.AccessStatusService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
@@ -98,8 +99,8 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         this.orcidClient = orcidClient;
     }
 
-    @Autowired
-    private AccessStatusService accessStatusService;
+    private AccessStatusService accessStatusService = AccessStatusServiceFactory.getInstance()
+            .getAccessStatusService();
 
     @Override
     public void linkProfile(Context context, Item profile, OrcidTokenResponseDTO token) throws SQLException {
