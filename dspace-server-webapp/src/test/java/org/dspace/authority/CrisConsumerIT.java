@@ -688,7 +688,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -717,7 +716,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -748,7 +746,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -779,7 +776,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -1043,7 +1039,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
