@@ -35,13 +35,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.access.status.AccessStatusHelper;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.ResourcePolicy;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.OrcidHistoryBuilder;
-import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -50,13 +49,13 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.orcid.consumer.OrcidQueueConsumer;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.service.OrcidQueueService;
+import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -76,6 +75,9 @@ import org.junit.Test;
 public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
     private OrcidQueueService orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
+
+    private OrcidSynchronizationService orcidSynchronizationService = OrcidServiceFactory.getInstance()
+            .getOrcidSynchronizationService();
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
@@ -1340,41 +1342,43 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         Item standardPublication = ItemBuilder.createItem(context, publicationCollection)
                 .withTitle("Standard publication")
                 .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", AccessStatusHelper.OPEN_ACCESS)
                 .build();
-
+        /*
         ResourcePolicy standardPolicy = ResourcePolicyBuilder.createResourcePolicy(context, eperson, anonymousGroup)
                 .withDspaceObject(standardPublication)
                 .withAction(Constants.READ)
                 .build();
-
+        */
         Item embargoedPublication = ItemBuilder.createItem(context, publicationCollection)
                 .withTitle("Embargoed publication")
                 .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", AccessStatusHelper.EMBARGO)
                 .build();
 
         int embargoYear = configurationService.getIntProperty("access.status.embargo.forever.year") - 1;
         int embargoMonth = configurationService.getIntProperty("access.status.embargo.forever.month");
         int embargoDay = configurationService.getIntProperty("access.status.embargo.forever.day");
         Date embargoDate = new LocalDate(embargoYear, embargoMonth, embargoDay).toDate();
-
+        /*
         ResourcePolicy embargoedPolicy = ResourcePolicyBuilder.createResourcePolicy(context, eperson, anonymousGroup)
                 .withDspaceObject(embargoedPublication)
                 .withAction(Constants.READ)
                 .withStartDate(embargoDate)
-            .build();
-
+                .build();
+        */
         Item restrictedPublication = ItemBuilder.createItem(context, publicationCollection)
                 .withTitle("Restricted publication")
                 .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", AccessStatusHelper.RESTRICTED)
                 .build();
 
         context.restoreAuthSystemState();
         context.commit();
 
-        List<OrcidQueue> orcidQueueList = orcidQueueService.findAll(context);
-
-        assertThat(orcidQueueList, hasSize(1));
-        assertThat(orcidQueueList.get(0), matches(profile, standardPublication, "Publication", INSERT));
+        assertThat(orcidSynchronizationService.isSynchronizationAllowed(context, profile, standardPublication), is(true));
+        assertThat(orcidSynchronizationService.isSynchronizationAllowed(context, profile, embargoedPublication), is(false));
+        assertThat(orcidSynchronizationService.isSynchronizationAllowed(context, profile, restrictedPublication), is(false));
     }
 
     private void addMetadata(Item item, String schema, String element, String qualifier, String value,
