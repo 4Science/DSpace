@@ -8,6 +8,7 @@
 package org.dspace.importer.external.viaf.contributors;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
     private static final String MAIN_HEADING_EL_PATH = "/ns1:VIAFCluster/ns1:mainHeadings/ns1:mainHeadingEl";
 
     private String separetor;
+
     private List<String> preferedSources;
 
     @Override
@@ -51,12 +53,34 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
                                                    : getTitleBySource(jsonNode, preferedSource);
     }
 
-    private Collection<String> getTitleBySource(JsonNode json, String source) {
+    private Collection<String> getTitleBySource(JsonNode jsonNode, String preferedSource) {
+        JsonNode mainHeadingElNode = jsonNode.at(MAIN_HEADING_EL_PATH);
+        if (!mainHeadingElNode.isArray()) {
+            var currentSourceName = mainHeadingElNode.at("/ns1:sources/ns1:s").asText();
+            if (StringUtils.equalsIgnoreCase(preferedSource, currentSourceName)) {
+                JsonNode datafieldNode = mainHeadingElNode.at("/ns1:datafield");
+                return getTitle(datafieldNode);
+            }
+        }
+
+        Iterator<JsonNode> mainHeadingEl = mainHeadingElNode.iterator();
+        while (mainHeadingEl.hasNext()) {
+            JsonNode node = mainHeadingEl.next();
+            var currentSourceName = node.at("/ns1:sources/ns1:s").asText();
+            if (StringUtils.equalsIgnoreCase(preferedSource, currentSourceName)) {
+                JsonNode datafieldNode = node.at("/ns1:datafield");
+                return getTitle(datafieldNode);
+            }
+        }
         return List.of();
     }
 
     private Collection<String> getFirstAvaibleTitle(JsonNode jsonNode) {
         JsonNode datafieldNode = getDatafieldNode(jsonNode);
+        return getTitle(datafieldNode);
+    }
+
+    private Collection<String> getTitle(JsonNode datafieldNode) {
         String recordType = datafieldNode.at(DTYPE_PATH).asText();
         if (StringUtils.equals(MARC21, recordType)) {
             return getTitleByType(MARC21_CODES, datafieldNode);
@@ -102,11 +126,35 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
     }
 
     private String getNameOfPreferedSource(Set<String> titleAvaibleSources) {
+        for (String preferedSource : preferedSources) {
+            if (titleAvaibleSources.contains(preferedSource)) {
+                return preferedSource;
+            }
+        }
         return "";
     }
 
     private Set<String> getTitleAvaibleSources(JsonNode json) {
-        return Set.of();
+        Set<String> sources = new HashSet<>();
+        JsonNode sourceNode = json.at("/ns1:VIAFCluster/ns1:sources/ns1:source");
+        if (!sourceNode.isArray()) {
+            var sourceName = getSourceName(sourceNode);
+            return StringUtils.isNotBlank(sourceName) ? Set.of(sourceName) : Set.of();
+        }
+
+        Iterator<JsonNode> sourceNodes = sourceNode.iterator();
+        while (sourceNodes.hasNext()) {
+            var sourceName = getSourceName(sourceNodes.next());
+            if (StringUtils.isNotBlank(sourceName)) {
+                sources.add(sourceName);
+            }
+        }
+        return sources;
+    }
+
+    private String getSourceName(JsonNode sourceNode) {
+        String contentValue = sourceNode.at("/content").asText();
+        return StringUtils.isNotBlank(contentValue) ? contentValue.substring(0, contentValue.indexOf("|")) : "";
     }
 
     private JsonNode convertStringJsonToJsonNode(String json) {
@@ -118,6 +166,10 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
             log.error("Unable to process json response.", e);
         }
         return body;
+    }
+
+    public List<String> getPreferedSources() {
+        return preferedSources;
     }
 
     public void setPreferedSources(List<String> preferedSources) {
