@@ -24,6 +24,8 @@
         <entry key-ref="viaf.dc.title" value-ref="viafTitle"/>
         <entry key-ref="viaf.glamperson.gender" value-ref="viafGender"/>
 
+        <entry key-ref="viaf.person.birthDate" value-ref="viafPersonBirthDate"/>
+        <entry key-ref="viaf.glamperson.deathDate" value-ref="viafGlampersonDeathDate"/>
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -48,6 +50,10 @@
     </bean>
 
     <util:list id="titlePreferedSources" value-type="java.lang.String">
+        <!-- ICCU (Italy) -->
+        <value>ICCU</value>
+        <!-- DNB (Germany) -->
+        <value>DNB</value>
     </util:list>
 
     <bean id="viafGender" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -56,6 +62,22 @@
     </bean>
     <bean id="viaf.glamperson.gender" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="glamperson.gender"/>
+    </bean>
+
+    <bean id="viafPersonBirthDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.person.birthDate"/>
+        <property name="query" value="/ns1:VIAFCluster/ns1:birthDate"/>
+    </bean>
+    <bean id="viaf.person.birthDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="person.birthDate"/>
+    </bean>
+
+    <bean id="viafGlampersonDeathDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.deathDate"/>
+        <property name="query" value="/ns1:VIAFCluster/ns1:deathDate"/>
+    </bean>
+    <bean id="viaf.glamperson.deathDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.deathDate"/>
     </bean>
 
 </beans>
